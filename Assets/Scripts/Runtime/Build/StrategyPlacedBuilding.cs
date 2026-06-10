@@ -6,6 +6,8 @@ namespace ProjectUnknown.Strategy
     [DisallowMultipleComponent]
     public sealed class StrategyPlacedBuilding : MonoBehaviour
     {
+        public const int MaxHouseResidents = 5;
+
         private readonly Dictionary<StrategyBuildingUpgradeType, StrategyBuildingUpgrade> upgrades = new();
         private readonly List<StrategyResidentAgent> residents = new();
         private SpriteRenderer spriteRenderer;
@@ -22,6 +24,8 @@ namespace ProjectUnknown.Strategy
         public Bounds SelectionBounds => FootprintBounds;
         public int InstalledUpgradeCount => upgrades.Count;
         public int ResidentCount => residents.Count;
+        public int ResidentCapacity => Tool == StrategyBuildTool.House ? MaxHouseResidents : int.MaxValue;
+        public bool HasFreeResidentSlot => Tool != StrategyBuildTool.House || residents.Count < ResidentCapacity;
         public IReadOnlyList<StrategyResidentAgent> Residents => residents;
         public StrategyHouseResourceStore Resources => resources;
 
@@ -44,14 +48,29 @@ namespace ProjectUnknown.Strategy
             EnsureClickCollider();
         }
 
-        public void RegisterResident(StrategyResidentAgent resident)
+        public bool CanAcceptResident(StrategyResidentAgent resident)
         {
-            if (resident == null || residents.Contains(resident))
+            return resident != null && (residents.Contains(resident) || HasFreeResidentSlot);
+        }
+
+        public bool TryRegisterResident(StrategyResidentAgent resident)
+        {
+            if (!CanAcceptResident(resident))
             {
-                return;
+                return false;
             }
 
-            residents.Add(resident);
+            if (!residents.Contains(resident))
+            {
+                residents.Add(resident);
+            }
+
+            return true;
+        }
+
+        public void RegisterResident(StrategyResidentAgent resident)
+        {
+            TryRegisterResident(resident);
         }
 
         public void UnregisterResident(StrategyResidentAgent resident)

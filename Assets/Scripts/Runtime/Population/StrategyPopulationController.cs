@@ -9,6 +9,7 @@ namespace ProjectUnknown.Strategy
         private const int InitialMaleResidents = 3;
         private const int InitialFemaleResidents = 3;
         private const int CampSpawnRadius = 3;
+        private const float HouseholdMigrationCheckInterval = 4f;
 
         private static readonly string[] MaleFirstNames =
         {
@@ -83,10 +84,14 @@ namespace ProjectUnknown.Strategy
         };
 
         private readonly List<StrategyResidentAgent> residents = new();
+        private readonly List<StrategyPlacedBuilding> houses = new();
+        private readonly Dictionary<int, StrategyResidentAgent> residentsById = new();
         private CityMapController map;
         private Transform residentRoot;
         private Vector2Int campCell;
         private Vector3 campWorld;
+        private float householdMigrationTimer;
+        private int nextResidentId = 1;
         private bool hasStarterCamp;
 
         public IReadOnlyList<StrategyResidentAgent> Residents => residents;
@@ -104,6 +109,23 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("campCell", campCell));
         }
 
+        private void Update()
+        {
+            if (map == null || houses.Count <= 0)
+            {
+                return;
+            }
+
+            householdMigrationTimer -= Time.deltaTime;
+            if (householdMigrationTimer > 0f)
+            {
+                return;
+            }
+
+            householdMigrationTimer = HouseholdMigrationCheckInterval;
+            TryPopulateAvailableHouses();
+        }
+
         public bool TryGetCampWorld(out Vector3 world)
         {
             world = campWorld;
@@ -116,6 +138,39 @@ namespace ProjectUnknown.Strategy
             return hasStarterCamp;
         }
 
+        public bool TryGetResidentById(int residentId, out StrategyResidentAgent resident)
+        {
+            if (residentId > 0
+                && residentsById.TryGetValue(residentId, out resident)
+                && resident != null)
+            {
+                return true;
+            }
+
+            resident = null;
+            return false;
+        }
+
+        public void RegisterHouse(StrategyPlacedBuilding house)
+        {
+            if (house == null || house.Tool != StrategyBuildTool.House)
+            {
+                return;
+            }
+
+            if (!houses.Contains(house))
+            {
+                houses.Add(house);
+                StrategyDebugLogger.Info(
+                    "Population",
+                    "HouseRegistered",
+                    StrategyDebugLogger.F("houseOrigin", house.Origin),
+                    StrategyDebugLogger.F("capacity", house.ResidentCapacity));
+            }
+
+            ConfigureHousehold(house);
+        }
+
         public bool AssignResidentsToHouse(StrategyPlacedBuilding house)
         {
             if (house == null || house.Tool != StrategyBuildTool.House || map == null)
@@ -126,6 +181,8 @@ namespace ProjectUnknown.Strategy
                     StrategyDebugLogger.F("reason", "invalid_house"));
                 return false;
             }
+
+            RegisterHouse(house);
 
             if (!TryFindAvailableResident(StrategyResidentGender.Male, out StrategyResidentAgent male)
                 || !TryFindAvailableResident(StrategyResidentGender.Female, out StrategyResidentAgent female))
@@ -144,6 +201,7 @@ namespace ProjectUnknown.Strategy
 
             male.AssignHome(house, maleWorld);
             female.AssignHome(house, femaleWorld);
+            ConfigureHousehold(house);
             StrategyDebugLogger.Info(
                 "Population",
                 "HouseResidentsAssigned",
@@ -157,55 +215,21 @@ namespace ProjectUnknown.Strategy
 
         public bool TryAssignConstructionBuilders(StrategyConstructionSite site)
         {
-            if (site == null || map == null)
+            if (site == null)
             {
                 return false;
             }
 
-            if (site.Tool == StrategyBuildTool.House)
-            {
-                if (!TryFindAvailableResident(StrategyResidentGender.Male, out StrategyResidentAgent male)
-                    || !TryFindAvailableResident(StrategyResidentGender.Female, out StrategyResidentAgent female))
-                {
-                    StrategyDebugLogger.Warn(
-                        "Population",
-                        "ConstructionBuildersRejected",
-                        StrategyDebugLogger.F("tool", site.Tool),
-                        StrategyDebugLogger.F("origin", site.Origin),
-                        StrategyDebugLogger.F("reason", "no_free_house_pair"));
-                    return false;
-                }
-
-                site.RegisterBuilder(male);
-                site.RegisterBuilder(female);
-                male.AssignConstructionSite(site, true);
-                female.AssignConstructionSite(site, true);
-                StrategyDebugLogger.Info(
-                    "Population",
-                    "ConstructionBuildersAssigned",
-                    StrategyDebugLogger.F("tool", site.Tool),
-                    StrategyDebugLogger.F("origin", site.Origin),
-                    StrategyDebugLogger.F("builderA", male.FullName),
-                    StrategyDebugLogger.F("builderB", female.FullName),
-                    StrategyDebugLogger.F("futureHome", true));
-                return true;
-            }
-
-            if (!TryFindAvailableConstructionWorkers(StrategyConstructionSite.MaxBuilders, out List<StrategyResidentAgent> builders))
+            bool assigned = StrategyStorageYard.TryAssignBuildersToSite(site);
+            if (!assigned)
             {
                 StrategyDebugLogger.Warn(
                     "Population",
                     "ConstructionBuildersRejected",
                     StrategyDebugLogger.F("tool", site.Tool),
                     StrategyDebugLogger.F("origin", site.Origin),
-                    StrategyDebugLogger.F("reason", "no_free_workers"));
+                    StrategyDebugLogger.F("reason", "no_hired_storage_builders"));
                 return false;
-            }
-
-            for (int i = 0; i < builders.Count; i++)
-            {
-                site.RegisterBuilder(builders[i]);
-                builders[i].AssignConstructionSite(site, false);
             }
 
             StrategyDebugLogger.Info(
@@ -213,7 +237,7 @@ namespace ProjectUnknown.Strategy
                 "ConstructionBuildersAssigned",
                 StrategyDebugLogger.F("tool", site.Tool),
                 StrategyDebugLogger.F("origin", site.Origin),
-                StrategyDebugLogger.F("builderCount", builders.Count),
+                StrategyDebugLogger.F("builderCount", site.BuilderCount),
                 StrategyDebugLogger.F("futureHome", false));
             return true;
         }
@@ -225,27 +249,379 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            HashSet<Vector2Int> usedCells = new();
-            int assignedCount = 0;
-            IReadOnlyList<StrategyResidentAgent> builders = site.Builders;
-            for (int i = 0; i < builders.Count; i++)
-            {
-                StrategyResidentAgent resident = builders[i];
-                if (resident == null)
-                {
-                    continue;
-                }
+            RegisterHouse(house);
 
-                Vector3 targetWorld = GetHouseResidentTargetWorld(house, usedCells, assignedCount);
-                resident.AssignHome(house, targetWorld);
-                assignedCount++;
+            bool assignedPair = AssignResidentsToHouse(house);
+            if (!assignedPair)
+            {
+                TryPopulateFreeHouse(house);
             }
 
             StrategyDebugLogger.Info(
                 "Population",
                 "ConstructionHouseResidentsBound",
                 StrategyDebugLogger.F("houseOrigin", house.Origin),
-                StrategyDebugLogger.F("residentCount", assignedCount));
+                StrategyDebugLogger.F("assignedPair", assignedPair),
+                StrategyDebugLogger.F("residentCount", house.ResidentCount));
+        }
+
+        public bool TrySpawnChildForHouse(
+            StrategyPlacedBuilding house,
+            StrategyResidentAgent father,
+            StrategyResidentAgent mother,
+            out StrategyResidentAgent child)
+        {
+            child = null;
+            if (map == null
+                || house == null
+                || house.Tool != StrategyBuildTool.House
+                || !house.HasFreeResidentSlot
+                || !StrategyKinshipUtility.CanFormCouple(father, mother, this))
+            {
+                return false;
+            }
+
+            HashSet<Vector2Int> usedCells = new();
+            IReadOnlyList<StrategyResidentAgent> houseResidents = house.Residents;
+            for (int i = 0; i < houseResidents.Count; i++)
+            {
+                StrategyResidentAgent resident = houseResidents[i];
+                if (resident != null && map.TryWorldToCell(resident.transform.position, out Vector2Int cell))
+                {
+                    usedCells.Add(cell);
+                }
+            }
+
+            int childId = AllocateResidentId();
+            StrategyResidentGender gender = Random.value < 0.5f
+                ? StrategyResidentGender.Male
+                : StrategyResidentGender.Female;
+            int visualVariant = Random.Range(0, StrategyResidentSpriteFactory.VariantCountPerGender);
+            string familyName = !string.IsNullOrWhiteSpace(father.FamilyName)
+                ? father.FamilyName
+                : mother.FamilyName;
+            string childName = GenerateResidentName(gender, familyName);
+            Vector3 spawnWorld = GetHouseResidentTargetWorld(house, usedCells, houseResidents.Count);
+
+            GameObject residentObject = new GameObject(childName);
+            residentObject.transform.SetParent(residentRoot, false);
+
+            SpriteRenderer renderer = residentObject.AddComponent<SpriteRenderer>();
+            renderer.sprite = StrategyResidentSpriteFactory.GetSprite(gender, visualVariant, StrategyResidentLifeStage.Child);
+
+            child = residentObject.AddComponent<StrategyResidentAgent>();
+            child.Configure(
+                map,
+                house,
+                gender,
+                visualVariant,
+                childName,
+                spawnWorld,
+                renderer,
+                house.Origin,
+                house.Footprint,
+                childId,
+                0f,
+                StrategyResidentLifeStage.Child,
+                father.ResidentId,
+                mother.ResidentId,
+                familyName);
+
+            father.AddChildId(childId);
+            mother.AddChildId(childId);
+            RegisterResident(child);
+
+            StrategyDebugLogger.Info(
+                "Population",
+                "ChildSpawned",
+                StrategyDebugLogger.F("name", childName),
+                StrategyDebugLogger.F("residentId", childId),
+                StrategyDebugLogger.F("gender", gender),
+                StrategyDebugLogger.F("variant", visualVariant),
+                StrategyDebugLogger.F("fatherId", father.ResidentId),
+                StrategyDebugLogger.F("motherId", mother.ResidentId),
+                StrategyDebugLogger.F("houseOrigin", house.Origin),
+                StrategyDebugLogger.F("spawnWorld", spawnWorld));
+            return true;
+        }
+
+        public bool TryPopulateFreeHouse(StrategyPlacedBuilding house)
+        {
+            if (map == null || house == null || house.Tool != StrategyBuildTool.House)
+            {
+                return false;
+            }
+
+            RegisterHouse(house);
+
+            if (house.ResidentCount <= 0)
+            {
+                if (!TryFindEldestAdultChildLivingWithParents(house, out StrategyResidentAgent resident))
+                {
+                    return false;
+                }
+
+                StrategyPlacedBuilding previousHome = resident.Home;
+                if (!MoveResidentToHouse(resident, house))
+                {
+                    return false;
+                }
+
+                StrategyDebugLogger.Info(
+                    "Population",
+                    "AdultChildMovedToFreeHouse",
+                    StrategyDebugLogger.F("resident", resident.FullName),
+                    StrategyDebugLogger.F("residentId", resident.ResidentId),
+                    StrategyDebugLogger.F("age", resident.DisplayAgeYears),
+                    StrategyDebugLogger.F("fromHome", previousHome != null ? previousHome.Origin : Vector2Int.zero),
+                    StrategyDebugLogger.F("toHome", house.Origin));
+
+                TryPopulateSingleResidentHouse(house);
+                return true;
+            }
+
+            if (house.ResidentCount == 1)
+            {
+                return TryPopulateSingleResidentHouse(house);
+            }
+
+            return false;
+        }
+
+        private bool TryPopulateAvailableHouses()
+        {
+            RemoveMissingHouses();
+
+            bool changed = false;
+            for (int i = 0; i < houses.Count; i++)
+            {
+                StrategyPlacedBuilding house = houses[i];
+                if (house != null && house.Tool == StrategyBuildTool.House && house.ResidentCount <= 0)
+                {
+                    changed |= TryPopulateFreeHouse(house);
+                }
+            }
+
+            for (int i = 0; i < houses.Count; i++)
+            {
+                StrategyPlacedBuilding house = houses[i];
+                if (house != null && house.Tool == StrategyBuildTool.House && house.ResidentCount == 1)
+                {
+                    changed |= TryPopulateSingleResidentHouse(house);
+                }
+            }
+
+            return changed;
+        }
+
+        private bool TryPopulateSingleResidentHouse(StrategyPlacedBuilding house)
+        {
+            if (map == null
+                || house == null
+                || house.Tool != StrategyBuildTool.House
+                || house.ResidentCount != 1
+                || !house.HasFreeResidentSlot)
+            {
+                return false;
+            }
+
+            StrategyResidentAgent resident = house.Residents.Count > 0 ? house.Residents[0] : null;
+            if (resident == null || !resident.IsAdult || resident.Home != house)
+            {
+                return false;
+            }
+
+            if (!TryFindPartnerForResident(resident, house, out StrategyResidentAgent partner))
+            {
+                return false;
+            }
+
+            StrategyPlacedBuilding previousHome = partner.Home;
+            if (!MoveResidentToHouse(partner, house))
+            {
+                return false;
+            }
+
+            StrategyDebugLogger.Info(
+                "Population",
+                "ResidentMovedAsPartner",
+                StrategyDebugLogger.F("resident", partner.FullName),
+                StrategyDebugLogger.F("residentId", partner.ResidentId),
+                StrategyDebugLogger.F("partner", resident.FullName),
+                StrategyDebugLogger.F("partnerId", resident.ResidentId),
+                StrategyDebugLogger.F("fromHome", previousHome != null ? previousHome.Origin : Vector2Int.zero),
+                StrategyDebugLogger.F("toHome", house.Origin),
+                StrategyDebugLogger.F(
+                    "kinshipDegree",
+                    StrategyKinshipUtility.GetKinshipDegree(resident, partner, this, StrategyKinshipUtility.CloseRelativeDegree)));
+            return true;
+        }
+
+        private bool TryFindEldestAdultChildLivingWithParents(
+            StrategyPlacedBuilding destinationHouse,
+            out StrategyResidentAgent resident)
+        {
+            resident = null;
+            for (int i = 0; i < residents.Count; i++)
+            {
+                StrategyResidentAgent candidate = residents[i];
+                if (!CanMoveResidentToHouse(candidate, destinationHouse)
+                    || !IsAdultChildLivingWithParent(candidate))
+                {
+                    continue;
+                }
+
+                if (resident == null
+                    || candidate.AgeYears > resident.AgeYears + 0.01f
+                    || (Mathf.Abs(candidate.AgeYears - resident.AgeYears) <= 0.01f
+                        && candidate.ResidentId < resident.ResidentId))
+                {
+                    resident = candidate;
+                }
+            }
+
+            return resident != null;
+        }
+
+        private bool TryFindPartnerForResident(
+            StrategyResidentAgent resident,
+            StrategyPlacedBuilding destinationHouse,
+            out StrategyResidentAgent partner)
+        {
+            partner = null;
+            int bestPriority = int.MaxValue;
+            StrategyResidentGender requiredGender = GetOppositeGender(resident.Gender);
+
+            for (int i = 0; i < residents.Count; i++)
+            {
+                StrategyResidentAgent candidate = residents[i];
+                if (!CanMoveResidentToHouse(candidate, destinationHouse)
+                    || candidate.Gender != requiredGender
+                    || !StrategyKinshipUtility.CanFormCouple(resident, candidate, this))
+                {
+                    continue;
+                }
+
+                int priority = IsAdultChildLivingWithParent(candidate)
+                    ? 0
+                    : candidate.Home == null
+                        ? 1
+                        : int.MaxValue;
+                if (priority == int.MaxValue)
+                {
+                    continue;
+                }
+
+                if (partner == null
+                    || priority < bestPriority
+                    || (priority == bestPriority && candidate.AgeYears > partner.AgeYears + 0.01f)
+                    || (priority == bestPriority
+                        && Mathf.Abs(candidate.AgeYears - partner.AgeYears) <= 0.01f
+                        && candidate.ResidentId < partner.ResidentId))
+                {
+                    partner = candidate;
+                    bestPriority = priority;
+                }
+            }
+
+            return partner != null;
+        }
+
+        private bool MoveResidentToHouse(StrategyResidentAgent resident, StrategyPlacedBuilding house)
+        {
+            if (resident == null || house == null || house.Tool != StrategyBuildTool.House || !house.CanAcceptResident(resident))
+            {
+                return false;
+            }
+
+            StrategyPlacedBuilding previousHome = resident.Home;
+            HashSet<Vector2Int> usedCells = new();
+            IReadOnlyList<StrategyResidentAgent> houseResidents = house.Residents;
+            for (int i = 0; i < houseResidents.Count; i++)
+            {
+                StrategyResidentAgent current = houseResidents[i];
+                if (current != null && map.TryWorldToCell(current.transform.position, out Vector2Int cell))
+                {
+                    usedCells.Add(cell);
+                }
+            }
+
+            Vector3 targetWorld = GetHouseResidentTargetWorld(house, usedCells, houseResidents.Count);
+            resident.AssignHome(house, targetWorld);
+            bool moved = resident.Home == house;
+            if (moved)
+            {
+                ConfigureHousehold(house);
+                if (previousHome != null && previousHome != house)
+                {
+                    ConfigureHousehold(previousHome);
+                }
+            }
+
+            return moved;
+        }
+
+        private bool CanMoveResidentToHouse(StrategyResidentAgent resident, StrategyPlacedBuilding destinationHouse)
+        {
+            return resident != null
+                && destinationHouse != null
+                && resident.IsAdult
+                && !resident.HasConstructionAssignment
+                && resident.Home != destinationHouse
+                && destinationHouse.HasFreeResidentSlot;
+        }
+
+        private bool IsAdultChildLivingWithParent(StrategyResidentAgent resident)
+        {
+            if (resident == null
+                || !resident.IsAdult
+                || resident.Home == null
+                || (resident.FatherId <= 0 && resident.MotherId <= 0))
+            {
+                return false;
+            }
+
+            return HouseContainsResidentId(resident.Home, resident.FatherId)
+                || HouseContainsResidentId(resident.Home, resident.MotherId);
+        }
+
+        private static bool HouseContainsResidentId(StrategyPlacedBuilding house, int residentId)
+        {
+            if (house == null || residentId <= 0)
+            {
+                return false;
+            }
+
+            IReadOnlyList<StrategyResidentAgent> residentsInHouse = house.Residents;
+            for (int i = 0; i < residentsInHouse.Count; i++)
+            {
+                StrategyResidentAgent resident = residentsInHouse[i];
+                if (resident != null && resident.ResidentId == residentId)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private void RemoveMissingHouses()
+        {
+            for (int i = houses.Count - 1; i >= 0; i--)
+            {
+                StrategyPlacedBuilding house = houses[i];
+                if (house == null || house.Tool != StrategyBuildTool.House)
+                {
+                    houses.RemoveAt(i);
+                }
+            }
+        }
+
+        private static StrategyResidentGender GetOppositeGender(StrategyResidentGender gender)
+        {
+            return gender == StrategyResidentGender.Male
+                ? StrategyResidentGender.Female
+                : StrategyResidentGender.Male;
         }
 
         private void EnsureStarterCamp()
@@ -316,7 +692,10 @@ namespace ProjectUnknown.Strategy
             }
 
             int visualVariant = Random.Range(0, StrategyResidentSpriteFactory.VariantCountPerGender);
-            string residentName = GenerateResidentName(gender);
+            string familyName = GetRandomFamilyName();
+            string residentName = GenerateResidentName(gender, familyName);
+            int residentId = AllocateResidentId();
+            float age = Random.Range(18f, 31f);
 
             GameObject residentObject = new GameObject(residentName);
             residentObject.transform.SetParent(residentRoot, false);
@@ -334,14 +713,22 @@ namespace ProjectUnknown.Strategy
                 spawnWorld,
                 renderer,
                 campCell,
-                Vector2Int.one);
-            residents.Add(agent);
+                Vector2Int.one,
+                residentId,
+                age,
+                StrategyResidentLifeStage.Adult,
+                0,
+                0,
+                familyName);
+            RegisterResident(agent);
             StrategyDebugLogger.Info(
                 "Population",
                 "ResidentSpawned",
                 StrategyDebugLogger.F("name", residentName),
+                StrategyDebugLogger.F("residentId", residentId),
                 StrategyDebugLogger.F("gender", gender),
                 StrategyDebugLogger.F("variant", visualVariant),
+                StrategyDebugLogger.F("age", agent.DisplayAgeYears),
                 StrategyDebugLogger.F("spawnCell", foundSpawnCell ? spawnCell : Vector2Int.zero),
                 StrategyDebugLogger.F("spawnWorld", spawnWorld),
                 StrategyDebugLogger.F("usedFallback", !foundSpawnCell));
@@ -355,8 +742,8 @@ namespace ProjectUnknown.Strategy
                 StrategyResidentAgent candidate = residents[i];
                 if (candidate != null
                     && candidate.Gender == gender
+                    && candidate.CanWork
                     && candidate.Home == null
-                    && !candidate.HasWorkplace
                     && !candidate.HasConstructionAssignment)
                 {
                     candidates.Add(candidate);
@@ -381,6 +768,7 @@ namespace ProjectUnknown.Strategy
             {
                 StrategyResidentAgent candidate = residents[i];
                 if (candidate != null
+                    && candidate.CanWork
                     && !candidate.HasWorkplace
                     && !candidate.HasConstructionAssignment)
                 {
@@ -549,8 +937,58 @@ namespace ProjectUnknown.Strategy
         private Vector3 GetFallbackHouseResidentSpawnWorld(StrategyPlacedBuilding house, int spawnSlot)
         {
             Vector3 anchor = house.HomeAnchor;
-            float side = spawnSlot == 0 ? -0.55f : 0.55f;
-            return new Vector3(anchor.x + side * map.CellSize, anchor.y - map.CellSize * 0.75f, -0.08f);
+            Vector2[] offsets =
+            {
+                new Vector2(-0.55f, -0.75f),
+                new Vector2(0.55f, -0.75f),
+                new Vector2(-0.25f, -1.10f),
+                new Vector2(0.25f, -1.10f),
+                new Vector2(0f, -1.42f)
+            };
+            Vector2 offset = offsets[spawnSlot % offsets.Length];
+            return new Vector3(
+                anchor.x + offset.x * map.CellSize,
+                anchor.y + offset.y * map.CellSize,
+                -0.08f);
+        }
+
+        private void ConfigureHousehold(StrategyPlacedBuilding house)
+        {
+            if (house == null || house.Tool != StrategyBuildTool.House)
+            {
+                return;
+            }
+
+            StrategyHouseholdState household = house.GetComponent<StrategyHouseholdState>();
+            if (household == null)
+            {
+                household = house.gameObject.AddComponent<StrategyHouseholdState>();
+            }
+
+            household.Configure(this, house);
+        }
+
+        private int AllocateResidentId()
+        {
+            return nextResidentId++;
+        }
+
+        private void RegisterResident(StrategyResidentAgent resident)
+        {
+            if (resident == null)
+            {
+                return;
+            }
+
+            if (!residents.Contains(resident))
+            {
+                residents.Add(resident);
+            }
+
+            if (resident.ResidentId > 0)
+            {
+                residentsById[resident.ResidentId] = resident;
+            }
         }
 
         private int StableIndex(int count, int salt)
@@ -566,12 +1004,17 @@ namespace ProjectUnknown.Strategy
             return (int)(hash % (uint)count);
         }
 
-        private static string GenerateResidentName(StrategyResidentGender gender)
+        private static string GenerateResidentName(StrategyResidentGender gender, string familyName = null)
         {
             string[] firstNames = gender == StrategyResidentGender.Male ? MaleFirstNames : FemaleFirstNames;
             return firstNames[Random.Range(0, firstNames.Length)]
                 + " "
-                + FamilyNames[Random.Range(0, FamilyNames.Length)];
+                + (string.IsNullOrWhiteSpace(familyName) ? GetRandomFamilyName() : familyName);
+        }
+
+        private static string GetRandomFamilyName()
+        {
+            return FamilyNames[Random.Range(0, FamilyNames.Length)];
         }
 
         private void EnsureResidentRoot()

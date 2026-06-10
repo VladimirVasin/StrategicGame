@@ -1,6 +1,6 @@
 # System Tree
 
-Last updated: 2026-06-10
+Last updated: 2026-06-11
 
 This is a conceptual map of the current project. Keep concrete file ownership in `ai/systems-map.md`.
 
@@ -36,6 +36,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Generates nature props after population startup so the camp clear-radius exclusion is known
     - Creates and wires the runtime fog-of-war layer after population and placement controllers exist
     - Places a starter Storage Yard near the campfire with initial Logs and Stone after placement is configured
+    - Creates and wires runtime wildlife after starter placement so deer avoid the camp and occupied cells
     - Creates runtime time-scale controls for simulation speed hotkeys
   - Strategy debug logging
     - Writes structured session logs to `debug.log`
@@ -63,6 +64,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Runtime nature-props layer
       - Generated after map terrain cells are built
       - Uses active map seed for deterministic prop placement within a map session
+      - Guarantees starter-area Stone deposits within stonecutter work distance around the startup campfire
       - Forest cells receive dense tree/forest-group visuals
       - Grass, meadow, dirt, and shore cells can receive sparse standalone trees or bushes
       - Skips a 3-cell radius around the startup campfire
@@ -70,6 +72,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Forest groups and bushes remain non-interactive but also block their cells
       - Generated Stone deposits appear as standalone boulders, rock clusters, and larger cliffs
       - Stone deposits register with the Stone resource registry and block their occupied cells
+      - Starter-area Stone deposits are placed outside the campfire clear radius before vegetation so nearby mining access is reliable
       - Nature props attach a 2D sway adapter driven by the strategy `WindZone`
       - Nature props add lightweight procedural leaf frame overlays
     - Stone resources MVP
@@ -89,6 +92,18 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Runtime-created Unity `WindZone` in directional mode
       - Stores wind direction, main strength, pulse, frequency, and turbulence
       - Drives tree, forest-group, and bush sway through per-prop animation phases
+    - Wildlife MVP
+      - Runtime-created wildlife controller
+      - Spawns 8-12 deer in small herds on suitable walkable meadow, grass, dirt, and forest-edge cells
+      - Avoids the startup campfire area when choosing herd spawn cells
+      - Deer do not block walkability and do not act as fog reveal sources
+      - Two procedural 2.5D deer models exist: antlered male buck and smaller female doe
+      - Deer animate idle breathing, walking, grazing, alert stance, fleeing/running, and resting with frame-based sprites
+      - Deer use short local grid paths inside a loose herd/home range
+      - Deer become alert near residents and flee from close residents or noisy work such as chopping, mining, and construction
+      - Adult does can reproduce when an adult buck is nearby in the same herd
+      - Newborn deer appear as small fawns, use scaled deer sprites, and grow into adults after scaled simulation time
+      - Deer reproduction stops at a hard 20-deer population cap
     - Fog of war
       - Runtime-generated texture overlay above world sprites and below screen-space UI
       - Tracks persistent explored cells separately from current visible cells
@@ -129,8 +144,9 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Marks construction/final building walk-blocker cells as not walkable
     - House uses an expanded 2.5D visual/navigation blocker around and above the technical footprint
     - Reserves construction resources from Storage Yards before the site is accepted
-    - Asks population to assign construction builders when a site is created
-    - House sites reserve one free male/female pair as future residents before building starts
+    - Construction sites are accepted without an immediately free builder if resources can be reserved
+    - Construction sites periodically request hired builders from Storage Yards until filled
+    - Completed houses try to populate after construction instead of using their builders as future residents
     - Creates lumberjack camp components when the camp tool is placed
     - Creates stonecutter camp components when the camp tool is placed
     - Creates storage yard components when the storage tool is placed
@@ -149,9 +165,12 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Placed houses add ambient smoke/window-light overlay animation without changing colliders
   - House visual upgrades
     - Runtime-created building-upgrade controller
-    - Current visual-only upgrades: Garden Beds and Chicken Coop
+    - Current visual/production upgrades: Garden Beds and Chicken Coop
+    - Garden Beds cost 2 Logs and 1 Stone from available Storage Yard resources
+    - Chicken Coop costs 4 Logs and 2 Stone from available Storage Yard resources
     - Upgrade sprites are generated in code
     - Upgrades are installed from the selected house HUD
+    - The selected house HUD shows upgrade cost and disables unaffordable upgrade buttons
     - Upgrade placement searches nearby walkable cells but does not mark those cells as blocked yet
     - Placed houses remember which visual upgrades are installed
     - Garden Beds choose one crop resource when installed: Turnip, Cabbage, Onion, Carrot, or Potato
@@ -166,12 +185,13 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Resource amounts live on placed house objects, not in a global economy yet
     - Runtime-generated pixel-art resource icons for the selected-house HUD
   - Storage yard logistics MVP
-    - Storage Yard is a placed stockpile building with up to 2 assigned workers
+    - Storage Yard is a placed stockpile building with up to 2 logistics workers and up to 2 hired builders
     - A starter Storage Yard appears near the campfire with 13 Logs and 9 Stone
     - Storage workers reserve available Logs from lumberjack camps
     - Storage workers reserve available Stone from stonecutter camps
     - Storage Yards reserve Logs/Stone for accepted construction sites
-    - Builders can pick up reserved construction Logs/Stone from Storage Yards
+    - Storage Yards dispatch hired builders to waiting construction sites
+    - Hired builders can pick up reserved construction Logs/Stone from Storage Yards
     - Storage workers walk to source camps, pick up Logs, carry them to the Storage Yard, and deposit them
     - Storage workers walk to stonecutter camps, pick up Stone, carry it to the Storage Yard, and deposit it
     - Lumberjack camp local Logs stock decreases when haulers pick up reserved Logs
@@ -181,8 +201,15 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Runtime-created population controller
     - Startup camp creates an animated procedural campfire
     - Startup camp spawns 6 initial residents: 3 men and 3 women
-    - Each resident receives a random Germanic/Nordic-style full name at startup
+    - Each startup resident receives a random Germanic/Nordic-style full name and age 18-30
+    - Residents have runtime IDs, age, life stage, parent links, and child links for future kinship-aware family rules
     - `Дом` assigns one random free man and one random free woman from camp instead of spawning new residents
+    - Houses support up to 5 residents and attach a household state after residents move in
+    - Adult male/female house pairs can have children after a randomized household cooldown when they are not close relatives
+    - Full houses do not produce more children until a resident leaves
+    - Children inherit parent/family links, idle/walk around home, cannot be workers/builders, and grow into adults after scaled game time
+    - Adult children continue aging and can move from a parental home into an empty house, oldest first
+    - Single adult-child households periodically search for an adult opposite-gender partner from another parental home or the free camp pool, with close-relative checks
     - Residents keep a reference to their home building once assigned
     - Residents store a random visual variant chosen at startup
     - Residents perform simple idle movement near their current camp/home using short walkable grid paths
@@ -191,12 +218,14 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Residents assigned to a stonecutter camp path to Stone deposits, mine chunks with pickaxes, carry Stone to camp stock, and do not plant/regrow Stone
     - Residents assigned to a storage yard path to lumberjack camp stock, carry Logs to storage, and deposit them
     - Residents assigned to a storage yard also path to stonecutter camp stock, carry Stone to storage, and deposit it
-    - Residents assigned to construction sites fetch reserved Logs/Stone, deliver them to the site, then build with hammer animations
-    - Runtime-generated resident sprites include 5 male variants, 5 female variants, and matching portrait sprites
-    - Resident movement uses cached 8-frame procedural walk cycles for all male/female variants
+    - Residents hired as Storage Yard builders fetch reserved Logs/Stone, deliver them to construction sites, then build with hammer animations
+    - Completed houses first try to pull a homeless adult male/female pair, including residents who already have workplaces, then fall back to adult-child migration and partner lookup
+    - Runtime-generated resident sprites include 5 male variants, 5 female variants, child sprites, and matching portrait sprites
+    - Resident movement uses cached 8-frame procedural walk cycles for adult and child variants
     - Lumberjack work uses cached frame-based axe swing sprites for all male/female visual variants
     - Stonecutter work uses cached frame-based pickaxe swing sprites for all male/female visual variants
     - Construction work uses cached frame-based hammer/build sprites for all male/female visual variants
+    - Manual and automatic worker/builder assignment only accepts adult residents
     - Residents render with a synced silhouette outline and ground shadow for readability over busy terrain
     - Runtime-generated campfire sprites include flame, smoke, and spark animation frames
     - Chicken agents use local idle movement around their linked Chicken Coop with walk and peck sprite animations
@@ -207,7 +236,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Clicks in unexplored fog cells do not select world objects while player fog is enabled
     - Selected objects show a simple runtime selection marker
     - Selection opens a compact full-height right-side HUD panel with selected-object preview art
-    - The house HUD shows assigned residents with portraits, names, and current statuses
+    - The house HUD shows assigned residents up to house capacity with portraits, names, age/life stage, and current statuses
     - The house HUD exposes visual upgrade actions for Garden Beds and Chicken Coop
     - House upgrade actions are shown as compact state/action rows
     - The house HUD shows resource icons/counts and the current Garden Beds crop
@@ -215,7 +244,8 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - The stonecutter camp HUD shows 2 worker slots with assign/remove actions, Stone stock, and nearby deposit counts
     - The storage yard HUD shows 2 worker slots with assign/remove actions, Logs stock, and available source count
     - The construction site HUD shows final building type, cost, delivered resources, assigned builders, and build progress
-    - The resident HUD shows full name, portrait, profile, current activity, and home/camp assignment
+    - The Storage Yard HUD shows separate logistics-worker and builder slots with assign/remove actions
+    - The resident HUD shows full name, portrait, profile, age/life stage, current activity, and home/camp assignment
 
 - Input foundation
   - Unity Input System package
@@ -250,8 +280,9 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - House visual upgrades and house resources depend on placed-building records, map walkability checks, generated upgrade/chicken/resource sprites, early idle/work agents, and the world-selection HUD.
 - Forestry depends on generated tree props, map walkability, placed lumberjack camps, resident work states, and the world-selection HUD.
 - Stone resources depend on generated nature props, map walkability, stonecutter camps, resident work states, and storage logistics.
+- Wildlife depends on generated terrain, map walkability, population/resident positions, starter-camp location, and Y-based world sorting; it does not feed fog visibility or resources yet.
 - Storage yard logistics depends on lumberjack camp stock, stonecutter camp stock, resident work states, placed-building records, map walkability, and the world-selection HUD.
-- Construction depends on Storage Yard resource reservations, resident builder assignments, construction-site blockers, placed-building finalization, and the world-selection HUD.
+- Construction depends on Storage Yard resource reservations, hired Storage Yard builder assignments, construction-site blockers, placed-building finalization, and the world-selection HUD.
 - Population uses placed-building records, construction sites, the generated map walkability layer, and workplace assignments.
 - World selection uses placed-building/resident/construction-site colliders and the strategy camera.
 - Strategy camera checks UI pointer state so bottom HUD interaction does not pan/zoom the map.
@@ -262,6 +293,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Economy simulation
 - Zoning
 - Durable building/economy state beyond runtime construction and placement records
+- Wildlife resources, hunting, predators, mortality, and save/load
 - Full pathfinding beyond local resident idle grid paths
 - Core gameplay loop beyond map/camera
 - Player/controller system

@@ -49,7 +49,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyStonecutEffectAnimator.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Population\StrategyKinshipUtility.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyStorageYard.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWildlifeController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyStoneDeposit.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyChickenAgent.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyNatureFrameAnimator.cs" />
@@ -67,6 +69,7 @@
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyConstructionSpriteFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyFogOfWarController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyGameBootstrap.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Population\StrategyHouseholdState.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildPlacementController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyWorldSorting.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingUpgradeController.cs" />
@@ -78,6 +81,8 @@
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyDebugLogger.cs" />
     <Compile Include="Assets\Scripts\Runtime\Selection\StrategyWorldSelectionController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Camera\StrategyCameraController.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyDeerAgent.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyDeerSpriteFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyStoneResourceController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingUpgradeAnimator.cs" />
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyResourceType.cs" />

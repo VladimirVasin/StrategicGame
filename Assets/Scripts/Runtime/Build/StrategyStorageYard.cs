@@ -7,8 +7,10 @@ namespace ProjectUnknown.Strategy
     public sealed class StrategyStorageYard : MonoBehaviour
     {
         public const int MaxWorkers = 2;
+        public const int MaxBuilders = 2;
 
         private readonly List<StrategyResidentAgent> workers = new();
+        private readonly List<StrategyResidentAgent> builders = new();
         private StrategyPlacedBuilding building;
         private CityMapController map;
         private StrategyPopulationController population;
@@ -20,6 +22,7 @@ namespace ProjectUnknown.Strategy
         private int stoneStored;
 
         public int WorkerCount => workers.Count;
+        public int BuilderCount => builders.Count;
         public int LogsStored => logsStored;
         public int StoneStored => stoneStored;
         public int AvailableConstructionLogs => Mathf.Max(0, logsStored - CountReservations(constructionLogReservations));
@@ -41,7 +44,52 @@ namespace ProjectUnknown.Strategy
                 "StorageYard",
                 "Configured",
                 StrategyDebugLogger.F("origin", Origin),
-                StrategyDebugLogger.F("maxWorkers", MaxWorkers));
+                StrategyDebugLogger.F("maxWorkers", MaxWorkers),
+                StrategyDebugLogger.F("maxBuilders", MaxBuilders));
+        }
+
+        public static bool TryAssignBuildersToSite(StrategyConstructionSite site)
+        {
+            if (site == null || site.IsCompleted || site.BuilderCount >= StrategyConstructionSite.MaxBuilders)
+            {
+                return false;
+            }
+
+            int assignedCount = 0;
+            StrategyStorageYard[] yards = GetYardsSortedByDistance(site.FootprintBounds.center);
+            for (int i = 0; i < yards.Length && site.BuilderCount < StrategyConstructionSite.MaxBuilders; i++)
+            {
+                StrategyStorageYard yard = yards[i];
+                if (yard == null)
+                {
+                    continue;
+                }
+
+                while (site.BuilderCount < StrategyConstructionSite.MaxBuilders
+                    && yard.TryGetAvailableBuilder(out StrategyResidentAgent builder))
+                {
+                    if (!site.RegisterBuilder(builder, false))
+                    {
+                        break;
+                    }
+
+                    builder.AssignConstructionSite(site, false);
+                    assignedCount++;
+                }
+            }
+
+            if (assignedCount > 0)
+            {
+                StrategyDebugLogger.Info(
+                    "Construction",
+                    "BuildersDispatched",
+                    StrategyDebugLogger.F("tool", site.Tool),
+                    StrategyDebugLogger.F("origin", site.Origin),
+                    StrategyDebugLogger.F("assigned", assignedCount),
+                    StrategyDebugLogger.F("builderCount", site.BuilderCount));
+            }
+
+            return assignedCount > 0;
         }
 
         public static StrategyConstructionResourceCost GetTotalConstructionResources()
@@ -67,6 +115,63 @@ namespace ProjectUnknown.Strategy
         public static bool CanAffordConstruction(StrategyConstructionResourceCost cost)
         {
             return cost.CanAfford(GetTotalConstructionResources());
+        }
+
+        public static bool TrySpendConstructionResources(
+            StrategyConstructionResourceCost cost,
+            Vector3 nearWorld,
+            string reason)
+        {
+            if (cost.IsFree)
+            {
+                return true;
+            }
+
+            StrategyConstructionResourceCost available = GetTotalConstructionResources();
+            if (!cost.CanAfford(available))
+            {
+                StrategyDebugLogger.Warn(
+                    "StorageYard",
+                    "ConstructionSpendRejected",
+                    StrategyDebugLogger.F("reason", reason),
+                    StrategyDebugLogger.F("costLogs", cost.Logs),
+                    StrategyDebugLogger.F("costStone", cost.Stone),
+                    StrategyDebugLogger.F("availableLogs", available.Logs),
+                    StrategyDebugLogger.F("availableStone", available.Stone));
+                return false;
+            }
+
+            StrategyStorageYard[] yards = GetYardsSortedByDistance(nearWorld);
+            int remainingLogs = cost.Logs;
+            for (int i = 0; i < yards.Length && remainingLogs > 0; i++)
+            {
+                remainingLogs -= yards[i].SpendAvailableLogs(remainingLogs);
+            }
+
+            int remainingStone = cost.Stone;
+            for (int i = 0; i < yards.Length && remainingStone > 0; i++)
+            {
+                remainingStone -= yards[i].SpendAvailableStone(remainingStone);
+            }
+
+            if (remainingLogs > 0 || remainingStone > 0)
+            {
+                StrategyDebugLogger.Warn(
+                    "StorageYard",
+                    "ConstructionSpendShort",
+                    StrategyDebugLogger.F("reason", reason),
+                    StrategyDebugLogger.F("remainingLogs", remainingLogs),
+                    StrategyDebugLogger.F("remainingStone", remainingStone));
+                return false;
+            }
+
+            StrategyDebugLogger.Info(
+                "StorageYard",
+                "ConstructionResourcesSpent",
+                StrategyDebugLogger.F("reason", reason),
+                StrategyDebugLogger.F("logs", cost.Logs),
+                StrategyDebugLogger.F("stone", cost.Stone));
+            return true;
         }
 
         public static bool TryReserveConstructionResources(
@@ -221,7 +326,12 @@ namespace ProjectUnknown.Strategy
             for (int i = 0; i < residents.Count; i++)
             {
                 StrategyResidentAgent resident = residents[i];
-                if (resident != null && !resident.HasWorkplace && !resident.HasConstructionAssignment && !workers.Contains(resident))
+                if (resident != null
+                    && resident.CanWork
+                    && !resident.HasWorkplace
+                    && !resident.HasConstructionAssignment
+                    && !workers.Contains(resident)
+                    && !builders.Contains(resident))
                 {
                     return true;
                 }
@@ -243,7 +353,12 @@ namespace ProjectUnknown.Strategy
             for (int i = 0; i < residents.Count; i++)
             {
                 StrategyResidentAgent resident = residents[i];
-                if (resident != null && !resident.HasWorkplace && !resident.HasConstructionAssignment && !workers.Contains(resident))
+                if (resident != null
+                    && resident.CanWork
+                    && !resident.HasWorkplace
+                    && !resident.HasConstructionAssignment
+                    && !workers.Contains(resident)
+                    && !builders.Contains(resident))
                 {
                     candidates.Add(resident);
                 }
@@ -263,6 +378,7 @@ namespace ProjectUnknown.Strategy
             if (resident == null
                 || workers.Count >= MaxWorkers
                 || workers.Contains(resident)
+                || !resident.CanWork
                 || resident.HasWorkplace
                 || resident.HasConstructionAssignment)
             {
@@ -305,6 +421,121 @@ namespace ProjectUnknown.Strategy
         {
             worker = index >= 0 && index < workers.Count ? workers[index] : null;
             return worker != null;
+        }
+
+        public bool CanAssignNextAvailableBuilder()
+        {
+            if (builders.Count >= MaxBuilders || population == null)
+            {
+                return false;
+            }
+
+            IReadOnlyList<StrategyResidentAgent> residents = population.Residents;
+            for (int i = 0; i < residents.Count; i++)
+            {
+                StrategyResidentAgent resident = residents[i];
+                if (resident != null
+                    && resident.CanWork
+                    && !resident.HasWorkplace
+                    && !resident.HasConstructionAssignment
+                    && !workers.Contains(resident)
+                    && !builders.Contains(resident))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public bool TryAssignNextAvailableBuilder(out StrategyResidentAgent assigned)
+        {
+            assigned = null;
+            if (builders.Count >= MaxBuilders || population == null)
+            {
+                return false;
+            }
+
+            IReadOnlyList<StrategyResidentAgent> residents = population.Residents;
+            List<StrategyResidentAgent> candidates = new();
+            for (int i = 0; i < residents.Count; i++)
+            {
+                StrategyResidentAgent resident = residents[i];
+                if (resident != null
+                    && resident.CanWork
+                    && !resident.HasWorkplace
+                    && !resident.HasConstructionAssignment
+                    && !workers.Contains(resident)
+                    && !builders.Contains(resident))
+                {
+                    candidates.Add(resident);
+                }
+            }
+
+            if (candidates.Count <= 0)
+            {
+                return false;
+            }
+
+            assigned = candidates[Random.Range(0, candidates.Count)];
+            bool assignedToYard = AssignBuilder(assigned);
+            if (assignedToYard)
+            {
+                TryDispatchBuilder(assigned);
+            }
+
+            return assignedToYard;
+        }
+
+        public bool AssignBuilder(StrategyResidentAgent resident)
+        {
+            if (resident == null
+                || builders.Count >= MaxBuilders
+                || workers.Contains(resident)
+                || builders.Contains(resident)
+                || !resident.CanWork
+                || resident.HasWorkplace
+                || resident.HasConstructionAssignment)
+            {
+                return false;
+            }
+
+            builders.Add(resident);
+            resident.AssignBuilderWorkplace(this);
+            StrategyDebugLogger.Info(
+                "StorageYard",
+                "BuilderAssigned",
+                StrategyDebugLogger.F("yardOrigin", Origin),
+                StrategyDebugLogger.F("builder", resident.FullName),
+                StrategyDebugLogger.F("builderCount", builders.Count));
+            return true;
+        }
+
+        public void UnassignBuilderAt(int index)
+        {
+            if (index < 0 || index >= builders.Count)
+            {
+                return;
+            }
+
+            StrategyResidentAgent builder = builders[index];
+            builders.RemoveAt(index);
+            if (builder != null)
+            {
+                StrategyDebugLogger.Info(
+                    "StorageYard",
+                    "BuilderUnassigned",
+                    StrategyDebugLogger.F("yardOrigin", Origin),
+                    StrategyDebugLogger.F("builder", builder.FullName),
+                    StrategyDebugLogger.F("builderCount", builders.Count));
+                builder.ClearBuilderWorkplace(this);
+            }
+        }
+
+        public bool TryGetBuilder(int index, out StrategyResidentAgent builder)
+        {
+            builder = index >= 0 && index < builders.Count ? builders[index] : null;
+            return builder != null;
         }
 
         public bool TryReserveLogSource(object owner, out StrategyLumberjackCamp source)
@@ -498,6 +729,32 @@ namespace ProjectUnknown.Strategy
             return amount;
         }
 
+        private int SpendAvailableLogs(int requested)
+        {
+            int amount = Mathf.Min(Mathf.Max(0, requested), AvailableConstructionLogs);
+            if (amount <= 0)
+            {
+                return 0;
+            }
+
+            logsStored -= amount;
+            UpdateStockVisual();
+            return amount;
+        }
+
+        private int SpendAvailableStone(int requested)
+        {
+            int amount = Mathf.Min(Mathf.Max(0, requested), AvailableConstructionStone);
+            if (amount <= 0)
+            {
+                return 0;
+            }
+
+            stoneStored -= amount;
+            UpdateStockVisual();
+            return amount;
+        }
+
         private void ReleaseConstructionReservation(object owner)
         {
             constructionLogReservations.Remove(owner);
@@ -596,10 +853,15 @@ namespace ProjectUnknown.Strategy
         public string GetHudStatusText()
         {
             int sourceCount = CountAvailableSources();
-            return "\u0420\u0430\u0431\u043e\u0447\u0438\u0435: "
+            return "\u041a\u043b\u0430\u0434\u043e\u0432\u0449\u0438\u043a\u0438: "
                 + workers.Count
                 + "/"
                 + MaxWorkers
+                + "\n"
+                + "\u0421\u0442\u0440\u043e\u0438\u0442\u0435\u043b\u0438: "
+                + builders.Count
+                + "/"
+                + MaxBuilders
                 + "\n"
                 + "Logs: "
                 + logsStored
@@ -635,6 +897,79 @@ namespace ProjectUnknown.Strategy
             }
 
             return count;
+        }
+
+        private bool TryGetAvailableBuilder(out StrategyResidentAgent builder)
+        {
+            builder = null;
+            for (int i = 0; i < builders.Count; i++)
+            {
+                StrategyResidentAgent candidate = builders[i];
+                if (candidate != null
+                    && candidate.CanWork
+                    && candidate.BuilderWorkplace == this
+                    && !candidate.HasConstructionAssignment)
+                {
+                    builder = candidate;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private void TryDispatchBuilder(StrategyResidentAgent builder)
+        {
+            if (builder == null || builder.HasConstructionAssignment)
+            {
+                return;
+            }
+
+            StrategyConstructionSite[] sites = Object.FindObjectsByType<StrategyConstructionSite>();
+            System.Array.Sort(
+                sites,
+                (left, right) =>
+                {
+                    if (left == null && right == null)
+                    {
+                        return 0;
+                    }
+
+                    if (left == null)
+                    {
+                        return 1;
+                    }
+
+                    if (right == null)
+                    {
+                        return -1;
+                    }
+
+                    float leftDistance = (left.FootprintBounds.center - FootprintBounds.center).sqrMagnitude;
+                    float rightDistance = (right.FootprintBounds.center - FootprintBounds.center).sqrMagnitude;
+                    return leftDistance.CompareTo(rightDistance);
+                });
+
+            for (int i = 0; i < sites.Length; i++)
+            {
+                StrategyConstructionSite site = sites[i];
+                if (site == null || site.IsCompleted || site.BuilderCount >= StrategyConstructionSite.MaxBuilders)
+                {
+                    continue;
+                }
+
+                if (site.RegisterBuilder(builder, false))
+                {
+                    builder.AssignConstructionSite(site, false);
+                    StrategyDebugLogger.Info(
+                        "Construction",
+                        "BuilderDispatched",
+                        StrategyDebugLogger.F("tool", site.Tool),
+                        StrategyDebugLogger.F("origin", site.Origin),
+                        StrategyDebugLogger.F("builder", builder.FullName));
+                    return;
+                }
+            }
         }
 
         private void EnsureStockRenderer()
@@ -718,6 +1053,17 @@ namespace ProjectUnknown.Strategy
             }
 
             workers.Clear();
+
+            for (int i = builders.Count - 1; i >= 0; i--)
+            {
+                StrategyResidentAgent builder = builders[i];
+                if (builder != null)
+                {
+                    builder.ClearBuilderWorkplace(this);
+                }
+            }
+
+            builders.Clear();
         }
     }
 }

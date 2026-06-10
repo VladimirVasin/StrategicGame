@@ -3,6 +3,15 @@ using UnityEngine;
 
 namespace ProjectUnknown.Strategy
 {
+    public enum StrategyBuildingUpgradeInstallFailureReason
+    {
+        None,
+        InvalidTarget,
+        AlreadyInstalled,
+        NotEnoughResources,
+        NoSpace
+    }
+
     [DisallowMultipleComponent]
     public sealed class StrategyBuildingUpgradeController : MonoBehaviour
     {
@@ -25,22 +34,46 @@ namespace ProjectUnknown.Strategy
             StrategyBuildingUpgradeType type,
             out StrategyBuildingUpgrade upgrade)
         {
+            return TryInstallUpgrade(building, type, out upgrade, out _);
+        }
+
+        public bool TryInstallUpgrade(
+            StrategyPlacedBuilding building,
+            StrategyBuildingUpgradeType type,
+            out StrategyBuildingUpgrade upgrade,
+            out StrategyBuildingUpgradeInstallFailureReason failureReason)
+        {
             upgrade = null;
+            failureReason = StrategyBuildingUpgradeInstallFailureReason.None;
             if (building == null
                 || map == null
-                || building.Tool != StrategyBuildTool.House
-                || building.HasUpgrade(type))
+                || building.Tool != StrategyBuildTool.House)
             {
+                failureReason = StrategyBuildingUpgradeInstallFailureReason.InvalidTarget;
+                return false;
+            }
+
+            if (building.HasUpgrade(type))
+            {
+                failureReason = StrategyBuildingUpgradeInstallFailureReason.AlreadyInstalled;
                 return false;
             }
 
             Vector2Int size = GetUpgradeFootprint(type);
             if (!TryFindUpgradeOrigin(building, size, type, out Vector2Int origin))
             {
+                failureReason = StrategyBuildingUpgradeInstallFailureReason.NoSpace;
                 return false;
             }
 
+            StrategyConstructionResourceCost cost = GetUpgradeCost(type);
             Bounds bounds = map.GetCellRectWorld(origin, size);
+            if (!StrategyStorageYard.TrySpendConstructionResources(cost, bounds.center, "upgrade_" + type))
+            {
+                failureReason = StrategyBuildingUpgradeInstallFailureReason.NotEnoughResources;
+                return false;
+            }
+
             GameObject upgradeObject = new GameObject(GetUpgradeName(type));
             upgradeObject.transform.SetParent(upgradeRoot, false);
             upgradeObject.transform.position = GetUpgradeAnchor(bounds);
@@ -58,6 +91,7 @@ namespace ProjectUnknown.Strategy
             {
                 Destroy(upgradeObject);
                 upgrade = null;
+                failureReason = StrategyBuildingUpgradeInstallFailureReason.AlreadyInstalled;
                 return false;
             }
 
@@ -67,7 +101,27 @@ namespace ProjectUnknown.Strategy
                 SpawnChickensForCoop(upgrade);
             }
 
+            StrategyDebugLogger.Info(
+                "BuildingUpgrade",
+                "Installed",
+                StrategyDebugLogger.F("type", type),
+                StrategyDebugLogger.F("houseOrigin", building.Origin),
+                StrategyDebugLogger.F("upgradeOrigin", origin),
+                StrategyDebugLogger.F("costLogs", cost.Logs),
+                StrategyDebugLogger.F("costStone", cost.Stone));
             return true;
+        }
+
+        public static StrategyConstructionResourceCost GetUpgradeCost(StrategyBuildingUpgradeType type)
+        {
+            return type == StrategyBuildingUpgradeType.GardenBeds
+                ? new StrategyConstructionResourceCost(2, 1)
+                : new StrategyConstructionResourceCost(4, 2);
+        }
+
+        public static bool CanAffordUpgrade(StrategyBuildingUpgradeType type)
+        {
+            return StrategyStorageYard.CanAffordConstruction(GetUpgradeCost(type));
         }
 
         private bool TryFindUpgradeOrigin(

@@ -1,12 +1,98 @@
 # Work Log
 
-Last updated: 2026-06-10
+Last updated: 2026-06-11
 
 ## Active
 
 - None.
 
 ## Done
+
+### 2026-06-11 - Smaller deer visual scale
+
+- Reduced all deer visuals by applying a shared 0.88 global scale in `StrategyDeerAgent`, affecting adult deer and fawns consistently without changing behavior, pathing, reproduction, or sprite frame generation.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-11 - Deer wildlife MVP
+
+- Added a new runtime Wildlife subsystem with 8-12 spawned deer grouped into small herds on meadows, grass, dirt, and forest-edge walkable cells away from the starter camp.
+- Added male and female deer models: bucks are larger and have antlers, does are smaller/lighter; both are generated as procedural 2.5D pixel-art sprites.
+- Added frame-based deer animation sets for idle breathing, walking, grazing, alert stance, fleeing/running, and resting.
+- Deer now use local walkable-cell paths, keep a loose herd/home range, do not block map cells, do not reveal fog, and react to nearby residents/noisy work by becoming alert or fleeing.
+- Deer can reproduce up to a hard population cap of 20: adult does with an adult buck in the same herd can spawn small fawns, and fawns grow into adults after scaled simulation time.
+- Runtime bootstrap now creates/configures `StrategyWildlifeController` after the starter Storage Yard is placed.
+- Added structured debug events for wildlife generation, deer spawn/birth/growth, population changes, alert, and flee reactions.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-11 - House upgrade resource costs
+
+- Added Logs/Stone costs for house upgrades: Garden Beds cost 2 Logs + 1 Stone, Chicken Coop costs 4 Logs + 2 Stone.
+- Upgrades now spend available Storage Yard construction resources immediately when installed, while respecting resources already reserved for construction sites.
+- The selected-house HUD now shows each upgrade cost, disables unaffordable upgrade buttons, and reports missing resources separately from missing placement space.
+- Added structured debug events for upgrade install success and immediate Storage Yard resource spending.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-11 - Slower resident aging
+
+- Slowed resident aging in `StrategyResidentAgent` from 20 seconds per year to 120 seconds per year.
+- Children now take roughly 36 minutes at x1 speed to grow from birth to adulthood, or about 12 minutes at x3 speed.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-11 - Construction worker position fix
+
+- Fixed builders standing too far from construction-site visuals during hammer/build animation.
+- `StrategyConstructionSite.TryFindBuildWorkCell` now prefers close front/side cells around the building's technical footprint instead of the expanded 2.5D walk-block footprint.
+- Construction resource dropoff still uses the broader blocker-adjacent search so deliveries can find valid cells around the whole reserved site.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-11 - House population ignores workplace roles
+
+- Fixed completed houses staying empty after the first house when the remaining homeless residents already had jobs such as Storage Yard builder/logistics roles.
+- `StrategyPopulationController.TryFindAvailableResident` now treats home assignment and workplace assignment as independent: homeless adults can move into houses even if they already have a workplace.
+- Active construction assignments still block house pickup so residents are not pulled away from another in-progress construction site.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-11 - Starter settlement Stone guarantee
+
+- Added a starter-area Stone guarantee in `StrategyNaturePropController`: when a campfire exclusion center exists, nature generation now places at least 5 Stone deposits within the stonecutter work radius around the settlement spawn.
+- Guaranteed starter Stone is placed outside the 3-cell camp clear radius and before trees/bushes, so vegetation cannot consume all nearby mining cells.
+- Starter Stone placement checks for walkable adjacent cells so stonecutters have a reachable work position.
+- Added structured `Stone/StarterStoneReady` and `Stone/StarterStoneFallbackShort` debug events.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-11 - Dedicated storage-yard builders
+
+- Added a separate Storage Yard builder crew: each yard can hire up to 2 builders in addition to its 2 logistics workers.
+- Construction sites are no longer rejected just because no builder is free; if resources can be reserved, the site is placed and periodically asks Storage Yards for hired builders.
+- Only hired Storage Yard builders can receive construction assignments and perform the existing material delivery plus hammer/build loop.
+- Storage Yard HUD now shows separate slots for logistics workers and builders, with assign/remove actions for both roles.
+- Completed houses now try to populate from the homeless adult pair pool after construction, then fall back to free-house migration/partner logic; the construction builders do not become residents automatically.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-11 - Adult child household migration
+
+- Raised house resident capacity from 4 to 5.
+- Added house registration in `StrategyPopulationController` and periodic free-house checks.
+- Empty-house migration and partner lookup now support completed houses that were not immediately populated by the free camp pair.
+- Empty houses now try to accept the oldest adult child still living with parents, then try to find an adult opposite-gender partner from another parental household or the free camp pool.
+- Single-resident houses periodically retry partner lookup; partner checks use `StrategyKinshipUtility.CanFormCouple` to block close relatives.
+- Residents now continue aging after adulthood, so oldest-child selection is meaningful over time.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-11 - Resident HUD cleanup
+
+- Removed the selected-resident subtitle label and visual model number from the right-side resident HUD profile.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-11 - Household birth and child growth MVP
+
+- Added resident runtime IDs, age, life stage, parent IDs, and child ID links so family relationships can be checked later before marriage/couple logic.
+- Added `StrategyHouseholdState` on occupied houses: after a randomized cooldown, an adult male/female pair in the same house can have a child if the house has room and the pair is not closely related.
+- Houses now cap resident slots at 4, allowing the starting couple plus up to 2 children.
+- Children spawn as residents attached to the house, inherit family/parent links, idle/walk near home, cannot be assigned as builders or workers, and grow into adults after scaled game time.
+- Added generated child sprites, walking frames, and portraits through `StrategyResidentSpriteFactory`; house and resident HUDs now show child portraits plus age/life-stage details.
+- Worker assignment filters for lumberjack camps, stonecutter camps, storage yards, and construction now require adult residents.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
 
 ### 2026-06-11 - Y-based world sprite sorting fix
 
@@ -21,7 +107,7 @@ Last updated: 2026-06-10
 - Build catalog tools now use Logs/Stone construction costs; the starter Storage Yard now starts with 13 Logs and 9 Stone, exactly enough for 3 Houses, 1 Lumberjack Camp, and 1 Stonecutter Camp.
 - Storage yards reserve construction resources, expose available construction stock, and let assigned builders physically pick up reserved Logs/Stone before delivering them to the site.
 - Construction sites block the target footprint, render delivered material stockpiles, show staged procedural building sprites, are clickable/selectable, and complete into the final placed building only after build progress finishes.
-- Residents can be assigned as construction builders; house sites reserve one free male/female future resident pair, and builders use a 12-frame hammer/build animation with timed progress hits.
+- Residents can perform construction with a 12-frame hammer/build animation and timed progress hits; this was later narrowed to dedicated Storage Yard builders.
 - Selection HUD now supports construction sites with cost, delivered resources, builder count, and progress/status context.
 - Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; mojibake scan found no new localized-code issues.
 

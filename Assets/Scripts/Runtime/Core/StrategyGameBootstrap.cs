@@ -175,6 +175,16 @@ namespace ProjectUnknown.Strategy
 
             StrategyDebugLogger.Info("Bootstrap", "FogAndPlacementReady");
 
+            StrategyWildlifeController wildlife = Object.FindAnyObjectByType<StrategyWildlifeController>();
+            if (wildlife == null)
+            {
+                GameObject wildlifeObject = new GameObject("Strategy Wildlife");
+                wildlife = wildlifeObject.AddComponent<StrategyWildlifeController>();
+            }
+
+            wildlife.Configure(map, population);
+            StrategyDebugLogger.Info("Bootstrap", "WildlifeReady");
+
             StrategyBuildingUpgradeController upgrades = Object.FindAnyObjectByType<StrategyBuildingUpgradeController>();
             if (upgrades == null)
             {

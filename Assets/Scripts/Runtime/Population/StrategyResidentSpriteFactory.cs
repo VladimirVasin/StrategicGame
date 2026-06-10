@@ -21,11 +21,16 @@ namespace ProjectUnknown.Strategy
 
         public static Sprite GetSprite(StrategyResidentGender gender, int variant)
         {
+            return GetSprite(gender, variant, StrategyResidentLifeStage.Adult);
+        }
+
+        public static Sprite GetSprite(StrategyResidentGender gender, int variant, StrategyResidentLifeStage lifeStage)
+        {
             int normalizedVariant = NormalizeVariant(variant, VariantCountPerGender);
-            int cacheKey = GetCacheKey(gender, normalizedVariant, ResidentSpritePose.Idle, 0);
+            int cacheKey = GetCacheKey(gender, normalizedVariant, ResidentSpritePose.Idle, 0, lifeStage);
             if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
             {
-                sprite = CreateSprite(gender, normalizedVariant, ResidentSpritePose.Idle, 0);
+                sprite = CreateSprite(gender, normalizedVariant, ResidentSpritePose.Idle, 0, lifeStage);
                 CachedSprites[cacheKey] = sprite;
             }
 
@@ -34,12 +39,17 @@ namespace ProjectUnknown.Strategy
 
         public static Sprite GetWalkSprite(StrategyResidentGender gender, int variant, int frame)
         {
+            return GetWalkSprite(gender, variant, StrategyResidentLifeStage.Adult, frame);
+        }
+
+        public static Sprite GetWalkSprite(StrategyResidentGender gender, int variant, StrategyResidentLifeStage lifeStage, int frame)
+        {
             int normalizedVariant = NormalizeVariant(variant, VariantCountPerGender);
             int normalizedFrame = NormalizeVariant(frame, WalkFrameCount);
-            int cacheKey = GetCacheKey(gender, normalizedVariant, ResidentSpritePose.Walk, normalizedFrame);
+            int cacheKey = GetCacheKey(gender, normalizedVariant, ResidentSpritePose.Walk, normalizedFrame, lifeStage);
             if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
             {
-                sprite = CreateSprite(gender, normalizedVariant, ResidentSpritePose.Walk, normalizedFrame);
+                sprite = CreateSprite(gender, normalizedVariant, ResidentSpritePose.Walk, normalizedFrame, lifeStage);
                 CachedSprites[cacheKey] = sprite;
             }
 
@@ -50,10 +60,10 @@ namespace ProjectUnknown.Strategy
         {
             int normalizedVariant = NormalizeVariant(variant, VariantCountPerGender);
             int normalizedFrame = NormalizeVariant(frame, WoodcutFrameCount);
-            int cacheKey = GetCacheKey(gender, normalizedVariant, ResidentSpritePose.Woodcut, normalizedFrame);
+            int cacheKey = GetCacheKey(gender, normalizedVariant, ResidentSpritePose.Woodcut, normalizedFrame, StrategyResidentLifeStage.Adult);
             if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
             {
-                sprite = CreateSprite(gender, normalizedVariant, ResidentSpritePose.Woodcut, normalizedFrame);
+                sprite = CreateSprite(gender, normalizedVariant, ResidentSpritePose.Woodcut, normalizedFrame, StrategyResidentLifeStage.Adult);
                 CachedSprites[cacheKey] = sprite;
             }
 
@@ -64,10 +74,10 @@ namespace ProjectUnknown.Strategy
         {
             int normalizedVariant = NormalizeVariant(variant, VariantCountPerGender);
             int normalizedFrame = NormalizeVariant(frame, StonecutFrameCount);
-            int cacheKey = GetCacheKey(gender, normalizedVariant, ResidentSpritePose.Stonecut, normalizedFrame);
+            int cacheKey = GetCacheKey(gender, normalizedVariant, ResidentSpritePose.Stonecut, normalizedFrame, StrategyResidentLifeStage.Adult);
             if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
             {
-                sprite = CreateSprite(gender, normalizedVariant, ResidentSpritePose.Stonecut, normalizedFrame);
+                sprite = CreateSprite(gender, normalizedVariant, ResidentSpritePose.Stonecut, normalizedFrame, StrategyResidentLifeStage.Adult);
                 CachedSprites[cacheKey] = sprite;
             }
 
@@ -78,10 +88,10 @@ namespace ProjectUnknown.Strategy
         {
             int normalizedVariant = NormalizeVariant(variant, VariantCountPerGender);
             int normalizedFrame = NormalizeVariant(frame, ConstructionFrameCount);
-            int cacheKey = GetCacheKey(gender, normalizedVariant, ResidentSpritePose.Construction, normalizedFrame);
+            int cacheKey = GetCacheKey(gender, normalizedVariant, ResidentSpritePose.Construction, normalizedFrame, StrategyResidentLifeStage.Adult);
             if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
             {
-                sprite = CreateSprite(gender, normalizedVariant, ResidentSpritePose.Construction, normalizedFrame);
+                sprite = CreateSprite(gender, normalizedVariant, ResidentSpritePose.Construction, normalizedFrame, StrategyResidentLifeStage.Adult);
                 CachedSprites[cacheKey] = sprite;
             }
 
@@ -90,19 +100,36 @@ namespace ProjectUnknown.Strategy
 
         public static Sprite GetPortraitSprite(StrategyResidentGender gender, int variant)
         {
+            return GetPortraitSprite(gender, variant, StrategyResidentLifeStage.Adult);
+        }
+
+        public static Sprite GetPortraitSprite(StrategyResidentGender gender, int variant, StrategyResidentLifeStage lifeStage)
+        {
             int normalizedVariant = NormalizeVariant(variant, VariantCountPerGender);
-            int cacheKey = GetCacheKey(gender, normalizedVariant, ResidentSpritePose.Portrait, 0);
+            int cacheKey = GetCacheKey(gender, normalizedVariant, ResidentSpritePose.Portrait, 0, lifeStage);
             if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
             {
-                sprite = CreateSprite(gender, normalizedVariant, ResidentSpritePose.Portrait, 0);
+                sprite = CreateSprite(gender, normalizedVariant, ResidentSpritePose.Portrait, 0, lifeStage);
                 CachedSprites[cacheKey] = sprite;
             }
 
             return sprite;
         }
 
-        private static Sprite CreateSprite(StrategyResidentGender gender, int variant, ResidentSpritePose pose, int frame)
+        private static Sprite CreateSprite(
+            StrategyResidentGender gender,
+            int variant,
+            ResidentSpritePose pose,
+            int frame,
+            StrategyResidentLifeStage lifeStage)
         {
+            if (lifeStage == StrategyResidentLifeStage.Child)
+            {
+                return pose == ResidentSpritePose.Portrait
+                    ? CreateChildPortraitSprite(gender, variant)
+                    : CreateChildSprite(gender, variant, pose, frame);
+            }
+
             if (pose == ResidentSpritePose.Portrait)
             {
                 return CreatePortraitSprite(gender, variant);
@@ -257,6 +284,166 @@ namespace ProjectUnknown.Strategy
             FillRect(texture, 18, 19, 4, 1, outline);
             SetPixelSafe(texture, 16, 22, Rgb(230, 151, 132));
             SetPixelSafe(texture, 24, 22, Rgb(230, 151, 132));
+
+            texture.Apply(false, false);
+            return Sprite.Create(texture, new Rect(2f, 4f, 36f, 34f), new Vector2(0.5f, 0.5f), PixelsPerUnit);
+        }
+
+        private static Sprite CreateChildSprite(StrategyResidentGender gender, int variant, ResidentSpritePose pose, int frame)
+        {
+            Texture2D texture = new Texture2D(18, 22, TextureFormat.RGBA32, false)
+            {
+                name = gender == StrategyResidentGender.Male
+                    ? GetSpriteName("Boy", variant, pose, frame)
+                    : GetSpriteName("Girl", variant, pose, frame),
+                filterMode = FilterMode.Point,
+                wrapMode = TextureWrapMode.Clamp
+            };
+            texture.SetPixels(new Color[18 * 22]);
+
+            Color outline = Rgb(48, 33, 28);
+            Color skin = variant switch
+            {
+                1 => Rgb(188, 132, 92),
+                2 => Rgb(228, 183, 132),
+                3 => Rgb(161, 111, 84),
+                4 => Rgb(220, 157, 104),
+                _ => Rgb(211, 164, 113)
+            };
+            Color hair = GetHairColor(gender, variant);
+            Color tunic = Color.Lerp(GetTunicColor(gender, variant), Rgb(213, 177, 95), 0.22f);
+            Color tunicDark = Color.Lerp(GetTunicDarkColor(gender, variant), Rgb(84, 61, 44), 0.16f);
+            Color leg = Rgb(66, 54, 45);
+            Color accent = GetAccentColor(gender, variant);
+            ResidentWalkFrame walkFrame = pose == ResidentSpritePose.Walk
+                ? GetWalkFrame(frame)
+                : ResidentWalkFrame.Idle;
+            int bodyY = Mathf.Clamp(walkFrame.BodyYOffset, 0, 1);
+
+            FillEllipse(texture, 9, 2, 5, 2, new Color(0f, 0f, 0f, 0.24f));
+            FillRect(texture, 6 + Mathf.Clamp(walkFrame.LeftLegX, -1, 1), 2, 2, 5 + bodyY, leg);
+            FillRect(texture, 10 + Mathf.Clamp(walkFrame.RightLegX, -1, 1), 2, 2, 5 + bodyY, leg);
+            FillRect(texture, 6 + Mathf.Clamp(walkFrame.LeftFootX, -1, 1), 1, 3, 1, outline);
+            FillRect(texture, 10 + Mathf.Clamp(walkFrame.RightFootX, -1, 1), 1, 3, 1, outline);
+
+            FillRect(texture, 5, 7 + bodyY, 8, 8, tunic);
+            FillRect(texture, 5, 7 + bodyY, 2, 8, tunicDark);
+            DrawRectOutline(texture, 5, 7 + bodyY, 8, 8, outline);
+            FillRect(texture, 4 + Mathf.Clamp(walkFrame.LeftArmX, -1, 1), 10 + bodyY + Mathf.Clamp(walkFrame.LeftArmY, -1, 1), 2, 5, skin);
+            FillRect(texture, 12 + Mathf.Clamp(walkFrame.RightArmX, -1, 1), 10 + bodyY + Mathf.Clamp(walkFrame.RightArmY, -1, 1), 2, 5, skin);
+
+            if (variant == 1 || variant == 4)
+            {
+                FillRect(texture, 6, 12 + bodyY, 6, 2, accent);
+            }
+            else if (variant == 2)
+            {
+                FillRect(texture, 8, 7 + bodyY, 3, 8, accent);
+            }
+            else
+            {
+                SetPixelSafe(texture, 8, 13 + bodyY, accent);
+                SetPixelSafe(texture, 10, 13 + bodyY, accent);
+            }
+
+            FillEllipse(texture, 9, 17 + bodyY, 4, 4, outline);
+            FillEllipse(texture, 9, 17 + bodyY, 3, 3, skin);
+            FillRect(texture, 6, 19 + bodyY, 7, 2, hair);
+            FillRect(texture, 5, 17 + bodyY, 2, 3, hair);
+            FillRect(texture, 12, 17 + bodyY, 2, 3, hair);
+
+            if (gender == StrategyResidentGender.Female)
+            {
+                FillRect(texture, 4, 14 + bodyY, 2, 5, hair);
+                FillRect(texture, 13, 14 + bodyY, 2, 5, hair);
+                if (variant == 1 || variant == 4)
+                {
+                    FillRect(texture, 5, 19 + bodyY, 9, 1, accent);
+                }
+            }
+            else if (variant == 1 || variant == 3)
+            {
+                FillRect(texture, 5, 20 + bodyY, 9, 1, accent);
+            }
+
+            SetPixelSafe(texture, 7, 17 + bodyY, outline);
+            SetPixelSafe(texture, 11, 17 + bodyY, outline);
+            SetPixelSafe(texture, 9, 15 + bodyY, Rgb(138, 92, 70));
+
+            texture.Apply(false, false);
+            return Sprite.Create(texture, new Rect(0f, 0f, 18f, 22f), new Vector2(0.5f, 0.08f), PixelsPerUnit);
+        }
+
+        private static Sprite CreateChildPortraitSprite(StrategyResidentGender gender, int variant)
+        {
+            Texture2D texture = new Texture2D(40, 40, TextureFormat.RGBA32, false)
+            {
+                name = gender == StrategyResidentGender.Male
+                    ? GetSpriteName("Boy", variant, ResidentSpritePose.Portrait, 0)
+                    : GetSpriteName("Girl", variant, ResidentSpritePose.Portrait, 0),
+                filterMode = FilterMode.Point,
+                wrapMode = TextureWrapMode.Clamp
+            };
+            texture.SetPixels(new Color[40 * 40]);
+
+            Color outline = Rgb(48, 33, 28);
+            Color skin = variant switch
+            {
+                1 => Rgb(188, 132, 92),
+                2 => Rgb(228, 183, 132),
+                3 => Rgb(161, 111, 84),
+                4 => Rgb(220, 157, 104),
+                _ => Rgb(211, 164, 113)
+            };
+            Color hair = GetHairColor(gender, variant);
+            Color tunic = Color.Lerp(GetTunicColor(gender, variant), Rgb(213, 177, 95), 0.22f);
+            Color tunicDark = Color.Lerp(GetTunicDarkColor(gender, variant), Rgb(84, 61, 44), 0.16f);
+            Color accent = GetAccentColor(gender, variant);
+
+            FillEllipse(texture, 20, 8, 11, 3, new Color(0f, 0f, 0f, 0.22f));
+            FillRect(texture, 13, 9, 14, 9, tunicDark);
+            FillRect(texture, 15, 12, 10, 8, tunic);
+            DrawRectOutline(texture, 13, 9, 14, 9, outline);
+            FillRect(texture, 14, 13, 3, 6, skin);
+            FillRect(texture, 24, 13, 3, 6, skin);
+
+            if (variant == 1 || variant == 4)
+            {
+                FillRect(texture, 16, 15, 8, 2, accent);
+            }
+            else if (variant == 2)
+            {
+                FillRect(texture, 19, 10, 3, 9, accent);
+            }
+
+            FillEllipse(texture, 20, 25, 10, 10, outline);
+            FillEllipse(texture, 20, 24, 8, 8, skin);
+            FillRect(texture, 13, 29, 14, 4, hair);
+            FillRect(texture, 12, 24, 4, 7, hair);
+            FillRect(texture, 24, 24, 4, 7, hair);
+
+            if (gender == StrategyResidentGender.Female)
+            {
+                FillRect(texture, 10, 19, 4, 9, hair);
+                FillRect(texture, 26, 19, 4, 9, hair);
+                if (variant == 1 || variant == 4)
+                {
+                    FillRect(texture, 12, 30, 16, 2, accent);
+                    SetPixelSafe(texture, 12, 27, accent);
+                    SetPixelSafe(texture, 28, 27, accent);
+                }
+            }
+            else if (variant == 1 || variant == 3)
+            {
+                FillRect(texture, 12, 30, 16, 2, accent);
+            }
+
+            SetPixelSafe(texture, 17, 25, outline);
+            SetPixelSafe(texture, 23, 25, outline);
+            SetPixelSafe(texture, 20, 22, Rgb(135, 89, 67));
+            FillRect(texture, 18, 20, 4, 1, outline);
+            SetPixelSafe(texture, 16, 22, Rgb(231, 153, 134));
+            SetPixelSafe(texture, 24, 22, Rgb(231, 153, 134));
 
             texture.Apply(false, false);
             return Sprite.Create(texture, new Rect(2f, 4f, 36f, 34f), new Vector2(0.5f, 0.5f), PixelsPerUnit);
@@ -744,9 +931,18 @@ namespace ProjectUnknown.Strategy
             return ConstructionToolFrames[NormalizeVariant(frame, ConstructionFrameCount)];
         }
 
-        private static int GetCacheKey(StrategyResidentGender gender, int variant, ResidentSpritePose pose, int frame)
+        private static int GetCacheKey(
+            StrategyResidentGender gender,
+            int variant,
+            ResidentSpritePose pose,
+            int frame,
+            StrategyResidentLifeStage lifeStage)
         {
-            return ((int)gender * 2048) + (variant * 256) + ((int)pose * 48) + frame;
+            return ((int)lifeStage * 8192)
+                + ((int)gender * 2048)
+                + (variant * 256)
+                + ((int)pose * 48)
+                + frame;
         }
 
         private static int NormalizeVariant(int variant, int variantCount)

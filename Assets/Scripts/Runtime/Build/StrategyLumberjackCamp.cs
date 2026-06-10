@@ -57,7 +57,11 @@ namespace ProjectUnknown.Strategy
             for (int i = 0; i < residents.Count; i++)
             {
                 StrategyResidentAgent resident = residents[i];
-                if (resident != null && !resident.HasWorkplace && !resident.HasConstructionAssignment && !workers.Contains(resident))
+                if (resident != null
+                    && resident.CanWork
+                    && !resident.HasWorkplace
+                    && !resident.HasConstructionAssignment
+                    && !workers.Contains(resident))
                 {
                     return true;
                 }
@@ -79,7 +83,11 @@ namespace ProjectUnknown.Strategy
             for (int i = 0; i < residents.Count; i++)
             {
                 StrategyResidentAgent resident = residents[i];
-                if (resident != null && !resident.HasWorkplace && !resident.HasConstructionAssignment && !workers.Contains(resident))
+                if (resident != null
+                    && resident.CanWork
+                    && !resident.HasWorkplace
+                    && !resident.HasConstructionAssignment
+                    && !workers.Contains(resident))
                 {
                     candidates.Add(resident);
                 }
@@ -99,6 +107,7 @@ namespace ProjectUnknown.Strategy
             if (resident == null
                 || workers.Count >= MaxWorkers
                 || workers.Contains(resident)
+                || !resident.CanWork
                 || resident.HasWorkplace
                 || resident.HasConstructionAssignment)
             {

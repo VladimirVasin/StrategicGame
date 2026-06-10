@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace ProjectUnknown.Strategy
@@ -8,6 +9,9 @@ namespace ProjectUnknown.Strategy
         private const int MaxNatureProps = 3600;
         private const int MaxStoneDeposits = 440;
         private const int MinimumStoneDeposits = 112;
+        private const int StarterStoneMinimumDeposits = 5;
+        private const int StarterStoneMinDistance = 4;
+        private const int StarterStoneMaxDistance = StrategyStonecutterCamp.WorkRadius;
         private const int TreeSortingOrder = 3;
         private const int ForestSortingOrder = 3;
         private const int BushSortingOrder = 2;
@@ -133,6 +137,8 @@ namespace ProjectUnknown.Strategy
             spawnedRockClusters = 0;
             spawnedCliffs = 0;
             stoneBlockedCells = 0;
+
+            EnsureStarterStoneDeposits();
 
             for (int y = 0; y < map.Height; y++)
             {
@@ -458,6 +464,139 @@ namespace ProjectUnknown.Strategy
             }
         }
 
+        private void EnsureStarterStoneDeposits()
+        {
+            if (stone == null || !hasExclusion)
+            {
+                return;
+            }
+
+            int existingNearby = stone.CountAvailableDeposits(excludedCenter, StarterStoneMaxDistance);
+            int needed = Mathf.Max(0, StarterStoneMinimumDeposits - existingNearby);
+            int created = 0;
+            for (int i = 0; i < needed; i++)
+            {
+                if (!TryFindStarterStoneCell(i, out CityMapCell cell))
+                {
+                    break;
+                }
+
+                if (TryCreateStarterStoneDeposit(cell, i))
+                {
+                    created++;
+                }
+            }
+
+            int totalNearby = stone.CountAvailableDeposits(excludedCenter, StarterStoneMaxDistance);
+            if (totalNearby < StarterStoneMinimumDeposits)
+            {
+                StrategyDebugLogger.Warn(
+                    "Stone",
+                    "StarterStoneFallbackShort",
+                    StrategyDebugLogger.F("campCell", excludedCenter),
+                    StrategyDebugLogger.F("created", created),
+                    StrategyDebugLogger.F("nearby", totalNearby),
+                    StrategyDebugLogger.F("minimum", StarterStoneMinimumDeposits),
+                    StrategyDebugLogger.F("radius", StarterStoneMaxDistance));
+                return;
+            }
+
+            StrategyDebugLogger.Info(
+                "Stone",
+                "StarterStoneReady",
+                StrategyDebugLogger.F("campCell", excludedCenter),
+                StrategyDebugLogger.F("created", created),
+                StrategyDebugLogger.F("nearby", totalNearby),
+                StrategyDebugLogger.F("radius", StarterStoneMaxDistance));
+        }
+
+        private bool TryFindStarterStoneCell(int placementIndex, out CityMapCell cell)
+        {
+            cell = default;
+            List<CityMapCell> candidates = new();
+            int minDistance = Mathf.Max(StarterStoneMinDistance, excludedRadius + 1);
+            int minDistanceSqr = minDistance * minDistance;
+            int maxDistanceSqr = StarterStoneMaxDistance * StarterStoneMaxDistance;
+
+            for (int radius = minDistance; radius <= StarterStoneMaxDistance; radius++)
+            {
+                candidates.Clear();
+                for (int y = -radius; y <= radius; y++)
+                {
+                    for (int x = -radius; x <= radius; x++)
+                    {
+                        if (Mathf.Abs(x) != radius && Mathf.Abs(y) != radius)
+                        {
+                            continue;
+                        }
+
+                        int distanceSqr = x * x + y * y;
+                        if (distanceSqr < minDistanceSqr || distanceSqr > maxDistanceSqr)
+                        {
+                            continue;
+                        }
+
+                        Vector2Int candidateCell = excludedCenter + new Vector2Int(x, y);
+                        if (!map.TryGetCell(candidateCell.x, candidateCell.y, out CityMapCell candidate)
+                            || !IsStoneAllowedKind(candidate.Kind)
+                            || IsInsideExclusion(candidateCell.x, candidateCell.y)
+                            || !map.IsCellWalkable(candidateCell)
+                            || !HasAdjacentWalkableCell(candidateCell, Vector2Int.one))
+                        {
+                            continue;
+                        }
+
+                        candidates.Add(candidate);
+                    }
+                }
+
+                if (candidates.Count > 0)
+                {
+                    int index = Hash(map.ActiveSeed, placementIndex, radius, 2027, candidates.Count) % candidates.Count;
+                    cell = candidates[index];
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool TryCreateStarterStoneDeposit(CityMapCell cell, int placementIndex)
+        {
+            bool preferCluster = placementIndex % 3 == 1;
+            if (preferCluster)
+            {
+                Vector2Int clusterFootprint = Hash01(map.ActiveSeed, cell.X, cell.Y, 2053 + placementIndex) > 0.58f
+                    ? new Vector2Int(2, 2)
+                    : new Vector2Int(2, 1);
+                if (HasAdjacentWalkableCell(new Vector2Int(cell.X, cell.Y), clusterFootprint)
+                    && TryCreateStoneDeposit(
+                        cell,
+                        clusterFootprint,
+                        StrategyNaturePropKind.RockCluster,
+                        StrategyStoneDepositKind.RockCluster,
+                        2063 + placementIndex * 7,
+                        0.88f,
+                        1.08f,
+                        30,
+                        46))
+                {
+                    return true;
+                }
+            }
+
+            return TryCreateStoneDeposit(
+                cell,
+                Vector2Int.one,
+                StrategyNaturePropKind.Boulder,
+                StrategyStoneDepositKind.Boulder,
+                2081 + placementIndex * 7,
+                0.86f,
+                1.12f,
+                12,
+                18);
+        }
+
         private bool TryCreateStoneDeposit(
             CityMapCell cell,
             Vector2Int footprint,
@@ -515,6 +654,35 @@ namespace ProjectUnknown.Strategy
             }
 
             return true;
+        }
+
+        private bool HasAdjacentWalkableCell(Vector2Int origin, Vector2Int footprint)
+        {
+            for (int radius = 1; radius <= 2; radius++)
+            {
+                for (int y = -radius; y < footprint.y + radius; y++)
+                {
+                    for (int x = -radius; x < footprint.x + radius; x++)
+                    {
+                        bool isEdge = x == -radius
+                            || y == -radius
+                            || x == footprint.x + radius - 1
+                            || y == footprint.y + radius - 1;
+                        if (!isEdge)
+                        {
+                            continue;
+                        }
+
+                        Vector2Int candidate = origin + new Vector2Int(x, y);
+                        if (map.IsCellWalkable(candidate))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
         }
 
         private bool CanPlaceStoneFootprint(Vector2Int origin, Vector2Int footprint)

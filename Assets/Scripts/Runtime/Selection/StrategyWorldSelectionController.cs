@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -11,6 +12,7 @@ namespace ProjectUnknown.Strategy
         private const float HudWidth = 352f;
         private const float HudAnimationSpeed = 9f;
         private const float ResourceCellWidth = 138f;
+        private const int MaxWorkerHudSlots = StrategyStorageYard.MaxWorkers + StrategyStorageYard.MaxBuilders;
 
         private Camera strategyCamera;
         private StrategyBuildMenuController buildMenu;
@@ -34,18 +36,18 @@ namespace ProjectUnknown.Strategy
         private Text hudContextBodyText;
         private RectTransform residentsRoot;
         private Text residentsEmptyText;
-        private readonly RectTransform[] residentRows = new RectTransform[2];
-        private readonly Image[] residentPortraitImages = new Image[2];
-        private readonly Text[] residentNameTexts = new Text[2];
-        private readonly Text[] residentStatusTexts = new Text[2];
+        private readonly List<RectTransform> residentRows = new();
+        private readonly List<Image> residentPortraitImages = new();
+        private readonly List<Text> residentNameTexts = new();
+        private readonly List<Text> residentStatusTexts = new();
         private RectTransform workersRoot;
         private Text workersEmptyText;
-        private readonly RectTransform[] workerRows = new RectTransform[StrategyLumberjackCamp.MaxWorkers];
-        private readonly Image[] workerPortraitImages = new Image[StrategyLumberjackCamp.MaxWorkers];
-        private readonly Text[] workerNameTexts = new Text[StrategyLumberjackCamp.MaxWorkers];
-        private readonly Text[] workerStatusTexts = new Text[StrategyLumberjackCamp.MaxWorkers];
-        private readonly Button[] workerButtons = new Button[StrategyLumberjackCamp.MaxWorkers];
-        private readonly Text[] workerActionTexts = new Text[StrategyLumberjackCamp.MaxWorkers];
+        private readonly RectTransform[] workerRows = new RectTransform[MaxWorkerHudSlots];
+        private readonly Image[] workerPortraitImages = new Image[MaxWorkerHudSlots];
+        private readonly Text[] workerNameTexts = new Text[MaxWorkerHudSlots];
+        private readonly Text[] workerStatusTexts = new Text[MaxWorkerHudSlots];
+        private readonly Button[] workerButtons = new Button[MaxWorkerHudSlots];
+        private readonly Text[] workerActionTexts = new Text[MaxWorkerHudSlots];
         private RectTransform resourcesRoot;
         private Text resourceCropText;
         private readonly RectTransform[] resourceSlots = new RectTransform[StrategyHouseResourceStore.DisplayOrder.Length];
@@ -313,13 +315,15 @@ namespace ProjectUnknown.Strategy
             if (resident != null)
             {
                 hudTitleText.text = resident.FullName;
-                hudSubtitleText.text = "\u0416\u0438\u0442\u0435\u043b\u044c";
+                hudSubtitleText.text = string.Empty;
                 hudSummaryTitleText.text = "\u041f\u0440\u043e\u0444\u0438\u043b\u044c";
                 hudBodyText.text = "\u041f\u043e\u043b: "
                     + GetResidentGenderTitle(resident.Gender)
                     + "\n"
                     + "\u0420\u043e\u043b\u044c: "
-                    + (resident.ConstructionSite != null
+                    + (!resident.IsAdult
+                        ? "\u0440\u0435\u0431\u0451\u043d\u043e\u043a"
+                        : resident.BuilderWorkplace != null || resident.ConstructionSite != null
                         ? "\u0441\u0442\u0440\u043e\u0438\u0442\u0435\u043b\u044c"
                         : resident.Workplace != null
                         ? "\u0434\u0440\u043e\u0432\u043e\u0441\u0435\u043a"
@@ -329,8 +333,12 @@ namespace ProjectUnknown.Strategy
                                 ? "\u043a\u043b\u0430\u0434\u043e\u0432\u0449\u0438\u043a"
                                 : "\u043f\u043e\u0441\u0435\u043b\u0435\u043d\u0435\u0446")
                     + "\n"
-                    + "\u041c\u043e\u0434\u0435\u043b\u044c: #"
-                    + (resident.VisualVariant + 1);
+                    + "\u0412\u043e\u0437\u0440\u0430\u0441\u0442: "
+                    + resident.DisplayAgeYears
+                    + " \u043b\u0435\u0442"
+                    + "\n"
+                    + "\u0421\u0442\u0430\u0434\u0438\u044f: "
+                    + GetResidentLifeStageTitle(resident);
                 hudStatusTitleText.text = "\u0421\u043e\u0441\u0442\u043e\u044f\u043d\u0438\u0435";
                 hudStatusBodyText.text = GetResidentStatus(resident);
                 hudContextTitleText.text = "\u0414\u043e\u043c";
@@ -341,7 +349,10 @@ namespace ProjectUnknown.Strategy
                     : "\u041b\u0430\u0433\u0435\u0440\u044c"
                     + "\n"
                     + "\u0436\u0434\u0435\u0442 \u0441\u0432\u043e\u0439 \u0434\u043e\u043c";
-                SetPreviewSprite(StrategyResidentSpriteFactory.GetPortraitSprite(resident.Gender, resident.VisualVariant));
+                SetPreviewSprite(StrategyResidentSpriteFactory.GetPortraitSprite(
+                    resident.Gender,
+                    resident.VisualVariant,
+                    resident.LifeStage));
                 SetProfileSectionVisible(true);
                 SetStatusSectionVisible(true);
                 SetContextSectionVisible(true);
@@ -553,10 +564,10 @@ namespace ProjectUnknown.Strategy
 
             hudBodyText = CreateText("Body", hudPanel, 14, TextAnchor.UpperLeft, new Color(0.84f, 0.89f, 0.91f));
             hudBodyText.lineSpacing = 1.15f;
-            SetTopStretch(hudBodyText.rectTransform, 24f, 166f, 24f, 78f);
+            SetTopStretch(hudBodyText.rectTransform, 24f, 166f, 24f, 92f);
 
             residentsRoot = CreateUiObject("HouseResidents", hudPanel).GetComponent<RectTransform>();
-            SetTopStretch(residentsRoot, 18f, 128f, 18f, 128f);
+            SetTopStretch(residentsRoot, 18f, 128f, 18f, 236f);
             Image residentsBackground = residentsRoot.gameObject.AddComponent<Image>();
             residentsBackground.color = new Color(1f, 1f, 1f, 0.055f);
             residentsBackground.raycastTarget = false;
@@ -571,13 +582,10 @@ namespace ProjectUnknown.Strategy
             residentsEmptyText.text = "\u043f\u043e\u043a\u0430 \u043d\u0438\u043a\u0442\u043e \u043d\u0435 \u0436\u0438\u0432\u0435\u0442";
             SetTopStretch(residentsEmptyText.rectTransform, 6f, 44f, 6f, 24f);
 
-            for (int i = 0; i < residentRows.Length; i++)
-            {
-                CreateResidentRow(i);
-            }
+            EnsureResidentRowCount(StrategyPlacedBuilding.MaxHouseResidents);
 
             workersRoot = CreateUiObject("LumberjackWorkers", hudPanel).GetComponent<RectTransform>();
-            SetTopStretch(workersRoot, 18f, 128f, 18f, 176f);
+            SetTopStretch(workersRoot, 18f, 128f, 18f, 250f);
             Image workersBackground = workersRoot.gameObject.AddComponent<Image>();
             workersBackground.color = new Color(1f, 1f, 1f, 0.055f);
             workersBackground.raycastTarget = false;
@@ -590,7 +598,7 @@ namespace ProjectUnknown.Strategy
 
             workersEmptyText = CreateText("WorkersEmpty", workersRoot, 12, TextAnchor.UpperLeft, new Color(0.75f, 0.83f, 0.79f));
             workersEmptyText.text = "\u043d\u0430\u0437\u043d\u0430\u0447\u044c\u0442\u0435 \u0436\u0438\u0442\u0435\u043b\u0435\u0439";
-            SetTopStretch(workersEmptyText.rectTransform, 6f, 142f, 6f, 22f);
+            SetTopStretch(workersEmptyText.rectTransform, 6f, 220f, 6f, 22f);
 
             for (int i = 0; i < workerRows.Length; i++)
             {
@@ -616,7 +624,7 @@ namespace ProjectUnknown.Strategy
             SetTopStretch(hudContextBodyText.rectTransform, 24f, 404f, 24f, 70f);
 
             resourcesRoot = CreateUiObject("HouseResources", hudPanel).GetComponent<RectTransform>();
-            SetTopStretch(resourcesRoot, 24f, 276f, 24f, 176f);
+            SetTopStretch(resourcesRoot, 24f, 382f, 24f, 128f);
             Image resourcesBackground = resourcesRoot.gameObject.AddComponent<Image>();
             resourcesBackground.color = new Color(1f, 1f, 1f, 0.055f);
             resourcesBackground.raycastTarget = false;
@@ -636,7 +644,7 @@ namespace ProjectUnknown.Strategy
             }
 
             upgradeActionsRoot = CreateUiObject("HouseUpgradeActions", hudPanel).GetComponent<RectTransform>();
-            SetTopStretch(upgradeActionsRoot, 24f, 478f, 24f, 196f);
+            SetTopStretch(upgradeActionsRoot, 24f, 538f, 24f, 196f);
             Image upgradesBackground = upgradeActionsRoot.gameObject.AddComponent<Image>();
             upgradesBackground.color = new Color(0.05f, 0.08f, 0.075f, 0.86f);
             upgradesBackground.raycastTarget = false;
@@ -675,13 +683,14 @@ namespace ProjectUnknown.Strategy
         private void RefreshResidents(StrategyPlacedBuilding building)
         {
             int residentCount = building != null && building.Residents != null ? building.Residents.Count : 0;
+            EnsureResidentRowCount(Mathf.Max(StrategyPlacedBuilding.MaxHouseResidents, residentCount));
 
             if (residentsEmptyText != null)
             {
                 residentsEmptyText.gameObject.SetActive(residentCount <= 0);
             }
 
-            for (int i = 0; i < residentRows.Length; i++)
+            for (int i = 0; i < residentRows.Count; i++)
             {
                 StrategyResidentAgent resident = i < residentCount ? building.Residents[i] : null;
                 bool visible = resident != null;
@@ -697,7 +706,10 @@ namespace ProjectUnknown.Strategy
 
                 if (residentPortraitImages[i] != null)
                 {
-                    residentPortraitImages[i].sprite = StrategyResidentSpriteFactory.GetPortraitSprite(resident.Gender, resident.VisualVariant);
+                    residentPortraitImages[i].sprite = StrategyResidentSpriteFactory.GetPortraitSprite(
+                        resident.Gender,
+                        resident.VisualVariant,
+                        resident.LifeStage);
                     residentPortraitImages[i].color = Color.white;
                 }
 
@@ -708,7 +720,9 @@ namespace ProjectUnknown.Strategy
 
                 if (residentStatusTexts[i] != null)
                 {
-                    residentStatusTexts[i].text = GetResidentStatus(resident);
+                    residentStatusTexts[i].text = GetResidentLifeStageTitle(resident) + ", "
+                        + resident.DisplayAgeYears
+                        + " \u043b\u0435\u0442";
                 }
             }
         }
@@ -728,17 +742,24 @@ namespace ProjectUnknown.Strategy
 
             for (int i = 0; i < workerRows.Length; i++)
             {
-                StrategyResidentAgent worker = null;
-                bool hasWorker = camp != null && camp.TryGetWorker(i, out worker);
+                bool slotVisible = i < StrategyLumberjackCamp.MaxWorkers;
                 if (workerRows[i] != null)
                 {
-                    workerRows[i].gameObject.SetActive(true);
+                    workerRows[i].gameObject.SetActive(slotVisible);
                 }
+
+                if (!slotVisible)
+                {
+                    continue;
+                }
+
+                StrategyResidentAgent worker = null;
+                bool hasWorker = camp != null && camp.TryGetWorker(i, out worker);
 
                 if (workerPortraitImages[i] != null)
                 {
                     workerPortraitImages[i].sprite = hasWorker
-                        ? StrategyResidentSpriteFactory.GetPortraitSprite(worker.Gender, worker.VisualVariant)
+                        ? StrategyResidentSpriteFactory.GetPortraitSprite(worker.Gender, worker.VisualVariant, worker.LifeStage)
                         : null;
                     workerPortraitImages[i].color = hasWorker ? Color.white : new Color(1f, 1f, 1f, 0f);
                 }
@@ -777,20 +798,27 @@ namespace ProjectUnknown.Strategy
         private void RefreshWorkers(StrategyStorageYard yard)
         {
             int workerCount = yard != null ? yard.WorkerCount : 0;
-            bool canAssign = yard != null && yard.CanAssignNextAvailableWorker();
+            int builderCount = yard != null ? yard.BuilderCount : 0;
+            bool canAssignWorker = yard != null && yard.CanAssignNextAvailableWorker();
+            bool canAssignBuilder = yard != null && yard.CanAssignNextAvailableBuilder();
 
             if (workersEmptyText != null)
             {
-                workersEmptyText.gameObject.SetActive(workerCount <= 0);
-                workersEmptyText.text = canAssign
-                    ? "\u043d\u0430\u0437\u043d\u0430\u0447\u044c\u0442\u0435 \u0436\u0438\u0442\u0435\u043b\u0435\u0439"
+                workersEmptyText.gameObject.SetActive(workerCount + builderCount <= 0);
+                workersEmptyText.text = canAssignWorker || canAssignBuilder
+                    ? "\u043d\u0430\u0439\u043c\u0438\u0442\u0435 \u043a\u043b\u0430\u0434\u043e\u0432\u0449\u0438\u043a\u043e\u0432 \u0438 \u0441\u0442\u0440\u043e\u0438\u0442\u0435\u043b\u0435\u0439"
                     : "\u043d\u0435\u0442 \u0441\u0432\u043e\u0431\u043e\u0434\u043d\u044b\u0445 \u0436\u0438\u0442\u0435\u043b\u0435\u0439";
             }
 
             for (int i = 0; i < workerRows.Length; i++)
             {
                 StrategyResidentAgent worker = null;
-                bool hasWorker = yard != null && yard.TryGetWorker(i, out worker);
+                bool isBuilderSlot = i >= StrategyStorageYard.MaxWorkers;
+                int staffIndex = isBuilderSlot ? i - StrategyStorageYard.MaxWorkers : i;
+                bool hasWorker = yard != null
+                    && (isBuilderSlot
+                        ? yard.TryGetBuilder(staffIndex, out worker)
+                        : yard.TryGetWorker(staffIndex, out worker));
                 if (workerRows[i] != null)
                 {
                     workerRows[i].gameObject.SetActive(true);
@@ -799,7 +827,7 @@ namespace ProjectUnknown.Strategy
                 if (workerPortraitImages[i] != null)
                 {
                     workerPortraitImages[i].sprite = hasWorker
-                        ? StrategyResidentSpriteFactory.GetPortraitSprite(worker.Gender, worker.VisualVariant)
+                        ? StrategyResidentSpriteFactory.GetPortraitSprite(worker.Gender, worker.VisualVariant, worker.LifeStage)
                         : null;
                     workerPortraitImages[i].color = hasWorker ? Color.white : new Color(1f, 1f, 1f, 0f);
                 }
@@ -808,7 +836,9 @@ namespace ProjectUnknown.Strategy
                 {
                     workerNameTexts[i].text = hasWorker
                         ? worker.FullName
-                        : "\u0421\u0432\u043e\u0431\u043e\u0434\u043d\u043e\u0435 \u043c\u0435\u0441\u0442\u043e";
+                        : isBuilderSlot
+                            ? "\u0421\u0442\u0440\u043e\u0438\u0442\u0435\u043b\u044c: \u0441\u0432\u043e\u0431\u043e\u0434\u043d\u043e"
+                            : "\u041a\u043b\u0430\u0434\u043e\u0432\u0449\u0438\u043a: \u0441\u0432\u043e\u0431\u043e\u0434\u043d\u043e";
                     workerNameTexts[i].color = hasWorker ? Color.white : new Color(0.72f, 0.80f, 0.76f);
                 }
 
@@ -816,10 +846,15 @@ namespace ProjectUnknown.Strategy
                 {
                     workerStatusTexts[i].text = hasWorker
                         ? GetResidentStatus(worker)
-                        : "\u0434\u043e 2 \u0440\u0430\u0431\u043e\u0447\u0438\u0445";
+                        : isBuilderSlot
+                            ? "\u0441\u0442\u0440\u043e\u0438\u0442 \u0437\u0434\u0430\u043d\u0438\u044f"
+                            : "\u043d\u043e\u0441\u0438\u0442 \u0440\u0435\u0441\u0443\u0440\u0441\u044b";
                 }
 
-                bool buttonEnabled = hasWorker || (i == workerCount && canAssign);
+                bool buttonEnabled = hasWorker
+                    || (isBuilderSlot
+                        ? staffIndex == builderCount && canAssignBuilder
+                        : staffIndex == workerCount && canAssignWorker);
                 if (workerButtons[i] != null)
                 {
                     workerButtons[i].interactable = buttonEnabled;
@@ -850,17 +885,24 @@ namespace ProjectUnknown.Strategy
 
             for (int i = 0; i < workerRows.Length; i++)
             {
-                StrategyResidentAgent worker = null;
-                bool hasWorker = camp != null && camp.TryGetWorker(i, out worker);
+                bool slotVisible = i < StrategyStonecutterCamp.MaxWorkers;
                 if (workerRows[i] != null)
                 {
-                    workerRows[i].gameObject.SetActive(true);
+                    workerRows[i].gameObject.SetActive(slotVisible);
                 }
+
+                if (!slotVisible)
+                {
+                    continue;
+                }
+
+                StrategyResidentAgent worker = null;
+                bool hasWorker = camp != null && camp.TryGetWorker(i, out worker);
 
                 if (workerPortraitImages[i] != null)
                 {
                     workerPortraitImages[i].sprite = hasWorker
-                        ? StrategyResidentSpriteFactory.GetPortraitSprite(worker.Gender, worker.VisualVariant)
+                        ? StrategyResidentSpriteFactory.GetPortraitSprite(worker.Gender, worker.VisualVariant, worker.LifeStage)
                         : null;
                     workerPortraitImages[i].color = hasWorker ? Color.white : new Color(1f, 1f, 1f, 0f);
                 }
@@ -1074,6 +1116,40 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            if (index >= StrategyStorageYard.MaxWorkers)
+            {
+                int builderIndex = index - StrategyStorageYard.MaxWorkers;
+                if (builderIndex < yard.BuilderCount)
+                {
+                    yard.TryGetBuilder(builderIndex, out StrategyResidentAgent builder);
+                    yard.UnassignBuilderAt(builderIndex);
+                    StrategyDebugLogger.Info(
+                        "Selection",
+                        "WorkerSlotClicked",
+                        StrategyDebugLogger.F("action", "unassign"),
+                        StrategyDebugLogger.F("slot", index),
+                        StrategyDebugLogger.F("worker", builder != null ? builder.FullName : string.Empty),
+                        StrategyDebugLogger.F("yardOrigin", yard.Origin),
+                        StrategyDebugLogger.F("profession", "builder"));
+                }
+                else
+                {
+                    bool assigned = yard.TryAssignNextAvailableBuilder(out StrategyResidentAgent builder);
+                    StrategyDebugLogger.Info(
+                        "Selection",
+                        "WorkerSlotClicked",
+                        StrategyDebugLogger.F("action", "assign"),
+                        StrategyDebugLogger.F("slot", index),
+                        StrategyDebugLogger.F("success", assigned),
+                        StrategyDebugLogger.F("worker", builder != null ? builder.FullName : string.Empty),
+                        StrategyDebugLogger.F("yardOrigin", yard.Origin),
+                        StrategyDebugLogger.F("profession", "builder"));
+                }
+
+                RefreshHud();
+                return;
+            }
+
             if (index < yard.WorkerCount)
             {
                 yard.TryGetWorker(index, out StrategyResidentAgent worker);
@@ -1126,11 +1202,21 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            if (upgradeController.TryInstallUpgrade(building, type, out _))
+            if (upgradeController.TryInstallUpgrade(building, type, out _, out StrategyBuildingUpgradeInstallFailureReason failureReason))
             {
                 upgradeStatusMessage = GetUpgradeTitle(type)
                     + " "
                     + "\u0434\u043e\u0431\u0430\u0432\u043b\u0435\u043d\u044b \u0440\u044f\u0434\u043e\u043c \u0441 \u0434\u043e\u043c\u043e\u043c.";
+            }
+            else if (failureReason == StrategyBuildingUpgradeInstallFailureReason.NotEnoughResources)
+            {
+                upgradeStatusMessage = "\u041d\u0435 \u0445\u0432\u0430\u0442\u0430\u0435\u0442 \u0440\u0435\u0441\u0443\u0440\u0441\u043e\u0432: "
+                    + FormatUpgradeCost(StrategyBuildingUpgradeController.GetUpgradeCost(type))
+                    + ".";
+            }
+            else if (failureReason == StrategyBuildingUpgradeInstallFailureReason.AlreadyInstalled)
+            {
+                upgradeStatusMessage = "\u0423\u0436\u0435 \u0443\u0441\u0442\u0430\u043d\u043e\u0432\u043b\u0435\u043d\u043e.";
             }
             else
             {
@@ -1180,7 +1266,9 @@ namespace ProjectUnknown.Strategy
             string title)
         {
             bool installed = building.HasUpgrade(type);
-            button.interactable = !installed && upgradeController != null;
+            StrategyConstructionResourceCost cost = StrategyBuildingUpgradeController.GetUpgradeCost(type);
+            bool canAfford = cost.CanAfford(StrategyStorageYard.GetTotalConstructionResources());
+            button.interactable = !installed && upgradeController != null && canAfford;
             if (titleText != null)
             {
                 titleText.text = title;
@@ -1191,22 +1279,39 @@ namespace ProjectUnknown.Strategy
                 stateText.text = installed
                     ? "\u0443\u0441\u0442\u0430\u043d\u043e\u0432\u043b\u0435\u043d\u043e"
                     : upgradeController != null
-                        ? "\u043c\u043e\u0436\u043d\u043e \u0434\u043e\u0431\u0430\u0432\u0438\u0442\u044c"
+                        ? canAfford
+                            ? "\u0426\u0435\u043d\u0430: " + FormatUpgradeCost(cost)
+                            : "\u041d\u0435 \u0445\u0432\u0430\u0442\u0430\u0435\u0442: " + FormatUpgradeCost(cost)
                         : "\u043d\u0435 \u0433\u043e\u0442\u043e\u0432\u043e";
                 stateText.color = installed
                     ? new Color(0.70f, 0.88f, 0.74f)
-                    : new Color(0.76f, 0.83f, 0.80f);
+                    : canAfford
+                        ? new Color(0.76f, 0.83f, 0.80f)
+                        : new Color(0.95f, 0.58f, 0.45f);
             }
 
             if (actionText != null)
             {
                 actionText.text = installed
                     ? "\u0413\u043e\u0442\u043e\u0432\u043e"
-                    : "\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c";
+                    : canAfford
+                        ? "\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c"
+                        : "\u041d\u0435\u0442";
                 actionText.color = installed
                     ? new Color(0.70f, 0.88f, 0.74f)
-                    : Color.white;
+                    : canAfford
+                        ? Color.white
+                        : new Color(0.65f, 0.69f, 0.67f);
             }
+        }
+
+        private static string FormatUpgradeCost(StrategyConstructionResourceCost cost)
+        {
+            return "\u0414\u0440\u0435\u0432\u043e "
+                + cost.Logs
+                + " / "
+                + "\u041a\u0430\u043c\u0435\u043d\u044c "
+                + cost.Stone;
         }
 
         private void SetUpgradeActionsVisible(bool visible)
@@ -1320,11 +1425,19 @@ namespace ProjectUnknown.Strategy
             resourceAmountTexts[index] = amountText;
         }
 
+        private void EnsureResidentRowCount(int count)
+        {
+            while (residentRows.Count < count)
+            {
+                CreateResidentRow(residentRows.Count);
+            }
+        }
+
         private void CreateResidentRow(int index)
         {
             RectTransform row = CreateUiObject("Resident_" + index, residentsRoot).GetComponent<RectTransform>();
-            SetTopStretch(row, 6f, 36f + index * 43f, 6f, 38f);
-            residentRows[index] = row;
+            SetTopStretch(row, 6f, 34f + index * 38f, 6f, 34f);
+            residentRows.Add(row);
 
             Image background = row.gameObject.AddComponent<Image>();
             background.color = new Color(0f, 0f, 0f, 0.20f);
@@ -1341,7 +1454,7 @@ namespace ProjectUnknown.Strategy
             Image portrait = portraitRect.gameObject.AddComponent<Image>();
             portrait.preserveAspect = true;
             portrait.raycastTarget = false;
-            residentPortraitImages[index] = portrait;
+            residentPortraitImages.Add(portrait);
 
             Text nameText = CreateText("Name", row, 12, TextAnchor.UpperLeft, Color.white);
             nameText.fontStyle = FontStyle.Bold;
@@ -1349,14 +1462,14 @@ namespace ProjectUnknown.Strategy
             nameText.resizeTextMinSize = 9;
             nameText.resizeTextMaxSize = 12;
             SetTopStretch(nameText.rectTransform, 44f, 4f, 8f, 16f);
-            residentNameTexts[index] = nameText;
+            residentNameTexts.Add(nameText);
 
             Text statusText = CreateText("Status", row, 11, TextAnchor.UpperLeft, new Color(0.75f, 0.83f, 0.79f));
             statusText.resizeTextForBestFit = true;
             statusText.resizeTextMinSize = 9;
             statusText.resizeTextMaxSize = 11;
             SetTopStretch(statusText.rectTransform, 44f, 22f, 8f, 13f);
-            residentStatusTexts[index] = statusText;
+            residentStatusTexts.Add(statusText);
 
             row.gameObject.SetActive(false);
         }
@@ -1634,9 +1747,19 @@ namespace ProjectUnknown.Strategy
                 _ => "idle"
             };
 
+            if (resident.BuilderWorkplace != null && resident.Activity == StrategyResidentAgent.ResidentActivity.Idle)
+            {
+                return "\u0436\u0434\u0435\u0442 \u0441\u0442\u0440\u043e\u0439\u043a\u0443";
+            }
+
             if (resident.Home == null && resident.Activity == StrategyResidentAgent.ResidentActivity.Idle)
             {
                 return "\u0443 \u043a\u043e\u0441\u0442\u0440\u0430";
+            }
+
+            if (!resident.IsAdult && resident.Activity == StrategyResidentAgent.ResidentActivity.Idle)
+            {
+                return "\u0438\u0433\u0440\u0430\u0435\u0442 \u0443 \u0434\u043e\u043c\u0430";
             }
 
             return status;
@@ -1673,6 +1796,13 @@ namespace ProjectUnknown.Strategy
             return gender == StrategyResidentGender.Male
                 ? "\u043c\u0443\u0436\u0447\u0438\u043d\u0430"
                 : "\u0436\u0435\u043d\u0449\u0438\u043d\u0430";
+        }
+
+        private static string GetResidentLifeStageTitle(StrategyResidentAgent resident)
+        {
+            return resident != null && resident.LifeStage == StrategyResidentLifeStage.Child
+                ? "\u0440\u0435\u0431\u0451\u043d\u043e\u043a"
+                : "\u0432\u0437\u0440\u043e\u0441\u043b\u044b\u0439";
         }
 
         private static string DescribeSelection(Transform target)

@@ -333,18 +333,6 @@ namespace ProjectUnknown.Strategy
             StrategyConstructionSite site = siteObject.AddComponent<StrategyConstructionSite>();
             site.Configure(this, map, toolInfo, origin, bounds, blockOrigin, blockFootprint, visualVariant, renderer);
 
-            if (population == null || !population.TryAssignConstructionBuilders(site))
-            {
-                StrategyDebugLogger.Warn(
-                    "Build",
-                    "ConstructionSiteRejected",
-                    StrategyDebugLogger.F("tool", toolInfo.Tool),
-                    StrategyDebugLogger.F("origin", origin),
-                    StrategyDebugLogger.F("reason", population == null ? "population_missing" : "no_builders"));
-                Destroy(siteObject);
-                return null;
-            }
-
             if (!StrategyStorageYard.TryReserveConstructionResources(toolInfo.Cost, site, bounds.center))
             {
                 StrategyDebugLogger.Warn(
@@ -364,6 +352,7 @@ namespace ProjectUnknown.Strategy
             map.SetCellsWalkable(blockOrigin, blockFootprint, false);
             fog?.RequestRefresh();
             site.Begin();
+            bool buildersAssigned = StrategyStorageYard.TryAssignBuildersToSite(site);
 
             StrategyDebugLogger.Info(
                 "Build",
@@ -374,7 +363,8 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("footprint", toolInfo.Footprint),
                 StrategyDebugLogger.F("blockOrigin", blockOrigin),
                 StrategyDebugLogger.F("blockFootprint", blockFootprint),
-                StrategyDebugLogger.F("visualVariant", visualVariant));
+                StrategyDebugLogger.F("visualVariant", visualVariant),
+                StrategyDebugLogger.F("buildersAssigned", buildersAssigned));
             return site;
         }
 
@@ -438,9 +428,14 @@ namespace ProjectUnknown.Strategy
             {
                 StrategyHouseAmbientAnimator ambient = placed.AddComponent<StrategyHouseAmbientAnimator>();
                 ambient.Configure(renderer, visualVariant);
+                population?.RegisterHouse(building);
                 if (autoAssignHouseResidents)
                 {
-                    population?.AssignResidentsToHouse(building);
+                    bool assigned = population != null && population.AssignResidentsToHouse(building);
+                    if (!assigned)
+                    {
+                        population?.TryPopulateFreeHouse(building);
+                    }
                 }
             }
             else if (toolInfo.Tool == StrategyBuildTool.LumberjackCamp)

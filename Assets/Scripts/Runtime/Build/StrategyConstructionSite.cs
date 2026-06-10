@@ -7,8 +7,10 @@ namespace ProjectUnknown.Strategy
     public sealed class StrategyConstructionSite : MonoBehaviour
     {
         public const int MaxBuilders = 2;
+        private const float BuilderRequestInterval = 2f;
 
         private readonly List<StrategyResidentAgent> builders = new();
+        private readonly HashSet<int> futureHomeResidentIds = new();
         private StrategyBuildPlacementController placement;
         private CityMapController map;
         private SpriteRenderer spriteRenderer;
@@ -28,6 +30,7 @@ namespace ProjectUnknown.Strategy
         private int deliveredStone;
         private int buildHits;
         private int buildHitsRequired = 18;
+        private float builderRequestTimer;
         private bool hasBegun;
         private bool completed;
 
@@ -85,6 +88,7 @@ namespace ProjectUnknown.Strategy
         public void Begin()
         {
             hasBegun = true;
+            builderRequestTimer = 0f;
             StrategyDebugLogger.Info(
                 "Construction",
                 "SiteStarted",
@@ -97,19 +101,30 @@ namespace ProjectUnknown.Strategy
 
         public bool RegisterBuilder(StrategyResidentAgent resident)
         {
+            return RegisterBuilder(resident, false);
+        }
+
+        public bool RegisterBuilder(StrategyResidentAgent resident, bool futureHomeResident)
+        {
             if (resident == null || builders.Contains(resident) || builders.Count >= MaxBuilders)
             {
                 return false;
             }
 
             builders.Add(resident);
+            if (futureHomeResident && resident.ResidentId > 0)
+            {
+                futureHomeResidentIds.Add(resident.ResidentId);
+            }
+
             StrategyDebugLogger.Info(
                 "Construction",
                 "BuilderRegistered",
                 StrategyDebugLogger.F("tool", tool),
                 StrategyDebugLogger.F("origin", origin),
                 StrategyDebugLogger.F("builder", resident.FullName),
-                StrategyDebugLogger.F("builderCount", builders.Count));
+                StrategyDebugLogger.F("builderCount", builders.Count),
+                StrategyDebugLogger.F("futureHomeResident", futureHomeResident));
             return true;
         }
 
@@ -121,12 +136,40 @@ namespace ProjectUnknown.Strategy
             }
 
             builders.Remove(resident);
+            if (resident.ResidentId > 0)
+            {
+                futureHomeResidentIds.Remove(resident.ResidentId);
+            }
         }
 
         public bool TryGetBuilder(int index, out StrategyResidentAgent resident)
         {
             resident = index >= 0 && index < builders.Count ? builders[index] : null;
             return resident != null;
+        }
+
+        public bool IsFutureHomeResident(StrategyResidentAgent resident)
+        {
+            return resident != null
+                && resident.ResidentId > 0
+                && futureHomeResidentIds.Contains(resident.ResidentId);
+        }
+
+        private void Update()
+        {
+            if (!hasBegun || completed || builders.Count >= MaxBuilders)
+            {
+                return;
+            }
+
+            builderRequestTimer -= Time.deltaTime;
+            if (builderRequestTimer > 0f)
+            {
+                return;
+            }
+
+            builderRequestTimer = BuilderRequestInterval;
+            StrategyStorageYard.TryAssignBuildersToSite(this);
         }
 
         public bool TryFindResourcePickup(
@@ -163,12 +206,17 @@ namespace ProjectUnknown.Strategy
 
         public bool TryFindDropoffCell(out Vector2Int cell)
         {
-            return TryFindAdjacentWorkCell(out cell);
+            return TryFindAdjacentWorkCell(blockOrigin, blockFootprint, 4, out cell);
         }
 
         public bool TryFindBuildWorkCell(out Vector2Int cell)
         {
-            return TryFindAdjacentWorkCell(out cell);
+            if (TryFindCloseBuildWorkCell(out cell))
+            {
+                return true;
+            }
+
+            return TryFindAdjacentWorkCell(blockOrigin, blockFootprint, 2, out cell);
         }
 
         public void AddDeliveredResource(StrategyConstructionResourceKind kind, int amount)
@@ -225,49 +273,99 @@ namespace ProjectUnknown.Strategy
 
         public string GetHudStatusText()
         {
-            return "Ресурсы: Logs "
+            return "\u0420\u0435\u0441\u0443\u0440\u0441\u044b: Logs "
                 + deliveredLogs
                 + "/"
                 + cost.Logs
-                + ", Камень "
+                + ", \u041a\u0430\u043c\u0435\u043d\u044c "
                 + deliveredStone
                 + "/"
                 + cost.Stone
                 + "\n"
-                + "Строители: "
+                + "\u0421\u0442\u0440\u043e\u0438\u0442\u0435\u043b\u0438: "
                 + builders.Count
                 + "/"
                 + MaxBuilders
                 + "\n"
-                + "Прогресс: "
+                + "\u041f\u0440\u043e\u0433\u0440\u0435\u0441\u0441: "
                 + Mathf.RoundToInt(Progress * 100f)
                 + "%";
         }
 
-        private bool TryFindAdjacentWorkCell(out Vector2Int cell)
+        private bool TryFindCloseBuildWorkCell(out Vector2Int cell)
         {
             List<Vector2Int> candidates = new();
-            for (int radius = 1; radius <= 4; radius++)
+
+            for (int x = -1; x <= footprint.x; x++)
+            {
+                AddWalkableCandidate(origin + new Vector2Int(x, -1), candidates);
+            }
+
+            if (candidates.Count > 0)
+            {
+                cell = candidates[Random.Range(0, candidates.Count)];
+                return true;
+            }
+
+            for (int y = 0; y < footprint.y; y++)
+            {
+                AddWalkableCandidate(origin + new Vector2Int(-1, y), candidates);
+                AddWalkableCandidate(origin + new Vector2Int(footprint.x, y), candidates);
+            }
+
+            if (candidates.Count > 0)
+            {
+                cell = candidates[Random.Range(0, candidates.Count)];
+                return true;
+            }
+
+            for (int x = 0; x < footprint.x; x++)
+            {
+                AddWalkableCandidate(origin + new Vector2Int(x, footprint.y), candidates);
+            }
+
+            if (candidates.Count > 0)
+            {
+                cell = candidates[Random.Range(0, candidates.Count)];
+                return true;
+            }
+
+            cell = default;
+            return false;
+        }
+
+        private void AddWalkableCandidate(Vector2Int candidate, List<Vector2Int> candidates)
+        {
+            if (map != null && map.IsCellWalkable(candidate) && !candidates.Contains(candidate))
+            {
+                candidates.Add(candidate);
+            }
+        }
+
+        private bool TryFindAdjacentWorkCell(
+            Vector2Int targetOrigin,
+            Vector2Int targetFootprint,
+            int maxRadius,
+            out Vector2Int cell)
+        {
+            List<Vector2Int> candidates = new();
+            for (int radius = 1; radius <= maxRadius; radius++)
             {
                 candidates.Clear();
-                for (int y = -radius; y < blockFootprint.y + radius; y++)
+                for (int y = -radius; y < targetFootprint.y + radius; y++)
                 {
-                    for (int x = -radius; x < blockFootprint.x + radius; x++)
+                    for (int x = -radius; x < targetFootprint.x + radius; x++)
                     {
                         bool isEdge = x == -radius
                             || y == -radius
-                            || x == blockFootprint.x + radius - 1
-                            || y == blockFootprint.y + radius - 1;
+                            || x == targetFootprint.x + radius - 1
+                            || y == targetFootprint.y + radius - 1;
                         if (!isEdge)
                         {
                             continue;
                         }
 
-                        Vector2Int candidate = blockOrigin + new Vector2Int(x, y);
-                        if (map != null && map.IsCellWalkable(candidate))
-                        {
-                            candidates.Add(candidate);
-                        }
+                        AddWalkableCandidate(targetOrigin + new Vector2Int(x, y), candidates);
                     }
                 }
 
@@ -390,6 +488,7 @@ namespace ProjectUnknown.Strategy
             }
 
             builders.Clear();
+            futureHomeResidentIds.Clear();
         }
     }
 }

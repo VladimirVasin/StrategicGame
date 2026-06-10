@@ -9,6 +9,12 @@ namespace ProjectUnknown.Strategy
         Female
     }
 
+    public enum StrategyResidentLifeStage
+    {
+        Child,
+        Adult
+    }
+
     [DisallowMultipleComponent]
     public sealed class StrategyResidentAgent : MonoBehaviour
     {
@@ -34,6 +40,8 @@ namespace ProjectUnknown.Strategy
         private const float WoodcutAnimationFrameRate = 11.5f;
         private const float StonecutAnimationFrameRate = 10.5f;
         private const float ConstructionAnimationFrameRate = 12.5f;
+        private const float SecondsPerYear = 120f;
+        private const int AdultAgeYears = 18;
         private const int WoodcutImpactFrame = 5;
         private const int StonecutImpactFrame = 5;
         private const int ConstructionImpactFrame = 6;
@@ -84,11 +92,13 @@ namespace ProjectUnknown.Strategy
             BuildingConstruction
         }
 
+        private readonly List<int> childIds = new();
         private CityMapController map;
         private StrategyPlacedBuilding home;
         private StrategyLumberjackCamp workplace;
         private StrategyStonecutterCamp stoneWorkplace;
         private StrategyStorageYard storageWorkplace;
+        private StrategyStorageYard builderWorkplace;
         private StrategyConstructionSite constructionSite;
         private StrategyStorageYard activeConstructionStorage;
         private Vector2Int idleOrigin;
@@ -107,7 +117,11 @@ namespace ProjectUnknown.Strategy
         private StrategyStoneDeposit activeStoneDeposit;
         private StrategyStonecutterCamp activeStoneSource;
         private StrategyConstructionResourceKind activeConstructionResource;
+        private StrategyResidentLifeStage lifeStage = StrategyResidentLifeStage.Adult;
         private Vector2Int plantingCell;
+        private int residentId;
+        private int fatherId;
+        private int motherId;
         private int pathIndex;
         private float waitTimer;
         private float gardenWorkCooldown;
@@ -125,6 +139,7 @@ namespace ProjectUnknown.Strategy
         private int appliedWorkFrame = -1;
         private int carriedLogAmount;
         private int carriedStoneAmount;
+        private float ageYears = AdultAgeYears;
         private bool hasTarget;
         private bool usingWalkSprite;
         private bool usingWorkSprite;
@@ -134,13 +149,24 @@ namespace ProjectUnknown.Strategy
         public StrategyLumberjackCamp Workplace => workplace;
         public StrategyStonecutterCamp StoneWorkplace => stoneWorkplace;
         public StrategyStorageYard StorageWorkplace => storageWorkplace;
+        public StrategyStorageYard BuilderWorkplace => builderWorkplace;
         public StrategyConstructionSite ConstructionSite => constructionSite;
         public bool ConstructionWillBecomeHome => constructionFutureHome;
-        public bool HasWorkplace => workplace != null || stoneWorkplace != null || storageWorkplace != null;
+        public bool HasWorkplace => workplace != null || stoneWorkplace != null || storageWorkplace != null || builderWorkplace != null;
         public bool HasConstructionAssignment => constructionSite != null;
+        public bool IsAdult => lifeStage == StrategyResidentLifeStage.Adult;
+        public bool CanWork => IsAdult;
         public StrategyResidentGender Gender => gender;
+        public StrategyResidentLifeStage LifeStage => lifeStage;
+        public int ResidentId => residentId;
+        public int FatherId => fatherId;
+        public int MotherId => motherId;
+        public IReadOnlyList<int> ChildIds => childIds;
+        public float AgeYears => ageYears;
+        public int DisplayAgeYears => Mathf.FloorToInt(ageYears);
         public int VisualVariant { get; private set; }
         public string FullName { get; private set; }
+        public string FamilyName { get; private set; }
         public ResidentActivity Activity => activity;
         public Bounds SelectionBounds => spriteRenderer != null
             ? spriteRenderer.bounds
@@ -155,7 +181,13 @@ namespace ProjectUnknown.Strategy
             Vector3 spawnWorld,
             SpriteRenderer renderer,
             Vector2Int initialIdleOrigin,
-            Vector2Int initialIdleFootprint)
+            Vector2Int initialIdleFootprint,
+            int residentIdentifier = 0,
+            float initialAgeYears = AdultAgeYears,
+            StrategyResidentLifeStage initialLifeStage = StrategyResidentLifeStage.Adult,
+            int fatherIdentifier = 0,
+            int motherIdentifier = 0,
+            string residentFamilyName = null)
         {
             map = mapController;
             home = homeBuilding;
@@ -168,21 +200,40 @@ namespace ProjectUnknown.Strategy
             FullName = string.IsNullOrWhiteSpace(fullName)
                 ? GetFallbackName(residentGender, visualVariant)
                 : fullName;
+            FamilyName = string.IsNullOrWhiteSpace(residentFamilyName)
+                ? ExtractFamilyName(FullName)
+                : residentFamilyName;
+            residentId = residentIdentifier;
+            fatherId = fatherIdentifier;
+            motherId = motherIdentifier;
+            ageYears = Mathf.Max(0f, initialAgeYears);
+            lifeStage = initialLifeStage == StrategyResidentLifeStage.Child && ageYears < AdultAgeYears
+                ? StrategyResidentLifeStage.Child
+                : StrategyResidentLifeStage.Adult;
             spriteRenderer = renderer;
             bobPhase = Random.Range(0f, 100f);
 
             transform.position = new Vector3(spawnWorld.x, spawnWorld.y, -0.08f);
             transform.localScale = Vector3.one;
+            UseIdleSprite();
             UpdateWorldSorting();
             waitTimer = Random.Range(0.35f, 1.1f);
             gardenWorkCooldown = Random.Range(2.5f, 6.5f);
             lumberWorkCooldown = Random.Range(1.5f, 4.5f);
             stoneWorkCooldown = Random.Range(1.5f, 4.5f);
             logisticsWorkCooldown = Random.Range(1.0f, 3.0f);
-            home?.RegisterResident(this);
+            home?.TryRegisterResident(this);
             EnsureReadabilityRenderers();
             SyncReadabilityRenderers();
             EnsureClickCollider();
+        }
+
+        public void AddChildId(int childIdentifier)
+        {
+            if (childIdentifier > 0 && !childIds.Contains(childIdentifier))
+            {
+                childIds.Add(childIdentifier);
+            }
         }
 
         public void AssignHome(StrategyPlacedBuilding newHome)
@@ -192,9 +243,20 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            if (!newHome.CanAcceptResident(this))
+            {
+                StrategyDebugLogger.Warn(
+                    "Population",
+                    "ResidentHomeAssignRejected",
+                    StrategyDebugLogger.F("resident", FullName),
+                    StrategyDebugLogger.F("homeOrigin", newHome.Origin),
+                    StrategyDebugLogger.F("reason", "resident_capacity"));
+                return;
+            }
+
             home?.UnregisterResident(this);
             home = newHome;
-            home.RegisterResident(this);
+            home.TryRegisterResident(this);
 
             idleOrigin = home.Origin;
             idleFootprint = home.Footprint;
@@ -222,12 +284,15 @@ namespace ProjectUnknown.Strategy
         public void AssignHome(StrategyPlacedBuilding newHome, Vector3 targetWorld)
         {
             AssignHome(newHome);
-            StartMovingHome(targetWorld);
+            if (home == newHome)
+            {
+                StartMovingHome(targetWorld);
+            }
         }
 
         public void AssignConstructionSite(StrategyConstructionSite site, bool willLiveThere)
         {
-            if (site == null || constructionSite == site)
+            if (site == null || constructionSite == site || builderWorkplace == null || !CanWork)
             {
                 return;
             }
@@ -326,7 +391,13 @@ namespace ProjectUnknown.Strategy
 
         public void AssignWorkplace(StrategyLumberjackCamp camp)
         {
-            if (camp == null || workplace == camp || stoneWorkplace != null || storageWorkplace != null || constructionSite != null)
+            if (camp == null
+                || workplace == camp
+                || stoneWorkplace != null
+                || storageWorkplace != null
+                || builderWorkplace != null
+                || constructionSite != null
+                || !CanWork)
             {
                 return;
             }
@@ -343,7 +414,13 @@ namespace ProjectUnknown.Strategy
 
         public void AssignStoneWorkplace(StrategyStonecutterCamp camp)
         {
-            if (camp == null || stoneWorkplace == camp || workplace != null || storageWorkplace != null || constructionSite != null)
+            if (camp == null
+                || stoneWorkplace == camp
+                || workplace != null
+                || storageWorkplace != null
+                || builderWorkplace != null
+                || constructionSite != null
+                || !CanWork)
             {
                 return;
             }
@@ -404,7 +481,13 @@ namespace ProjectUnknown.Strategy
 
         public void AssignStorageWorkplace(StrategyStorageYard yard)
         {
-            if (yard == null || storageWorkplace == yard || workplace != null || stoneWorkplace != null || constructionSite != null)
+            if (yard == null
+                || storageWorkplace == yard
+                || workplace != null
+                || stoneWorkplace != null
+                || builderWorkplace != null
+                || constructionSite != null
+                || !CanWork)
             {
                 return;
             }
@@ -442,12 +525,69 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("yardOrigin", previousWorkplace != null ? previousWorkplace.Origin : Vector2Int.zero));
         }
 
+        public void AssignBuilderWorkplace(StrategyStorageYard yard)
+        {
+            if (yard == null
+                || builderWorkplace == yard
+                || workplace != null
+                || stoneWorkplace != null
+                || storageWorkplace != null
+                || constructionSite != null
+                || !CanWork)
+            {
+                return;
+            }
+
+            CancelLumberWork();
+            CancelStoneWork();
+            CancelStorageWork(true);
+            builderWorkplace = yard;
+            idleOrigin = yard.Origin;
+            idleFootprint = new Vector2Int(3, 2);
+            waitTimer = Random.Range(0.20f, 0.90f);
+            StrategyDebugLogger.Info(
+                "Population",
+                "ResidentBuilderWorkplaceAssigned",
+                StrategyDebugLogger.F("resident", FullName),
+                StrategyDebugLogger.F("yardOrigin", yard.Origin));
+        }
+
+        public void ClearBuilderWorkplace(StrategyStorageYard yard)
+        {
+            if (this == null)
+            {
+                return;
+            }
+
+            if (yard != null && builderWorkplace != yard)
+            {
+                return;
+            }
+
+            StrategyStorageYard previousWorkplace = builderWorkplace;
+            ClearConstructionSite(null);
+            builderWorkplace = null;
+            if (home != null)
+            {
+                idleOrigin = home.Origin;
+                idleFootprint = home.Footprint;
+            }
+
+            StrategyDebugLogger.Info(
+                "Population",
+                "ResidentBuilderWorkplaceCleared",
+                StrategyDebugLogger.F("resident", FullName),
+                StrategyDebugLogger.F("yardOrigin", previousWorkplace != null ? previousWorkplace.Origin : Vector2Int.zero));
+        }
+
         private void Update()
         {
             if (map == null)
             {
                 return;
             }
+
+            UpdateAge();
 
             if (gardenWorkCooldown > 0f)
             {
@@ -697,6 +837,7 @@ namespace ProjectUnknown.Strategy
                 || home == null
                 || HasWorkplace
                 || constructionSite != null
+                || !CanWork
                 || gardenWorkCooldown > 0f
                 || !home.TryGetUpgrade(StrategyBuildingUpgradeType.GardenBeds, out StrategyBuildingUpgrade garden)
                 || Random.value > GardenWorkChance)
@@ -732,6 +873,8 @@ namespace ProjectUnknown.Strategy
                 || workplace == null
                 || stoneWorkplace != null
                 || storageWorkplace != null
+                || builderWorkplace != null
+                || !CanWork
                 || lumberWorkCooldown > 0f)
             {
                 return false;
@@ -769,6 +912,8 @@ namespace ProjectUnknown.Strategy
                 || stoneWorkplace == null
                 || workplace != null
                 || storageWorkplace != null
+                || builderWorkplace != null
+                || !CanWork
                 || stoneWorkCooldown > 0f)
             {
                 return false;
@@ -791,6 +936,8 @@ namespace ProjectUnknown.Strategy
                 || storageWorkplace == null
                 || workplace != null
                 || stoneWorkplace != null
+                || builderWorkplace != null
+                || !CanWork
                 || logisticsWorkCooldown > 0f)
             {
                 return false;
@@ -866,7 +1013,7 @@ namespace ProjectUnknown.Strategy
 
         private bool TryStartConstructionTask()
         {
-            if (activity != ResidentActivity.Idle || constructionSite == null)
+            if (activity != ResidentActivity.Idle || constructionSite == null || builderWorkplace == null || !CanWork)
             {
                 return false;
             }
@@ -2455,6 +2602,35 @@ namespace ProjectUnknown.Strategy
             pathIndex = 0;
         }
 
+        private void UpdateAge()
+        {
+            ageYears += Time.deltaTime / SecondsPerYear;
+            if (lifeStage == StrategyResidentLifeStage.Child && ageYears >= AdultAgeYears)
+            {
+                GrowUp();
+            }
+        }
+
+        private void GrowUp()
+        {
+            lifeStage = StrategyResidentLifeStage.Adult;
+            ageYears = Mathf.Max(ageYears, AdultAgeYears);
+            transform.localRotation = Quaternion.identity;
+            transform.localScale = Vector3.one;
+            usingWalkSprite = false;
+            usingWorkSprite = false;
+            appliedWalkFrame = -1;
+            appliedWorkFrame = -1;
+            UseIdleSprite();
+            EnsureClickCollider();
+            StrategyDebugLogger.Info(
+                "Population",
+                "ResidentGrownUp",
+                StrategyDebugLogger.F("resident", FullName),
+                StrategyDebugLogger.F("residentId", residentId),
+                StrategyDebugLogger.F("age", DisplayAgeYears));
+        }
+
         private void EnsureClickCollider()
         {
             CircleCollider2D circle = GetComponent<CircleCollider2D>();
@@ -2464,8 +2640,8 @@ namespace ProjectUnknown.Strategy
             }
 
             circle.isTrigger = true;
-            circle.offset = new Vector2(0f, 0.36f);
-            circle.radius = 0.28f;
+            circle.offset = IsAdult ? new Vector2(0f, 0.36f) : new Vector2(0f, 0.25f);
+            circle.radius = IsAdult ? 0.28f : 0.21f;
         }
 
         private void AnimateIdle()
@@ -2506,7 +2682,7 @@ namespace ProjectUnknown.Strategy
 
             if (appliedWalkFrame != walkFrame)
             {
-                spriteRenderer.sprite = StrategyResidentSpriteFactory.GetWalkSprite(gender, VisualVariant, walkFrame);
+                spriteRenderer.sprite = StrategyResidentSpriteFactory.GetWalkSprite(gender, VisualVariant, lifeStage, walkFrame);
                 appliedWalkFrame = walkFrame;
                 SyncReadabilityRenderers();
             }
@@ -2744,9 +2920,10 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            if (usingWalkSprite || usingWorkSprite)
+            Sprite idleSprite = StrategyResidentSpriteFactory.GetSprite(gender, VisualVariant, lifeStage);
+            if (usingWalkSprite || usingWorkSprite || spriteRenderer.sprite != idleSprite)
             {
-                spriteRenderer.sprite = StrategyResidentSpriteFactory.GetSprite(gender, VisualVariant);
+                spriteRenderer.sprite = idleSprite;
                 SyncReadabilityRenderers();
             }
 
@@ -3110,6 +3287,17 @@ namespace ProjectUnknown.Strategy
             return residentGender == StrategyResidentGender.Male
                 ? "Settler " + (visualVariant + 1)
                 : "Settler " + (visualVariant + 1);
+        }
+
+        private static string ExtractFamilyName(string fullName)
+        {
+            if (string.IsNullOrWhiteSpace(fullName))
+            {
+                return string.Empty;
+            }
+
+            string[] parts = fullName.Split(' ');
+            return parts.Length > 1 ? parts[parts.Length - 1] : string.Empty;
         }
     }
 }
