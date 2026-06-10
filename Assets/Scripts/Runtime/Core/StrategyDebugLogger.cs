@@ -1,0 +1,275 @@
+using System;
+using System.Globalization;
+using System.IO;
+using System.Text;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+namespace ProjectUnknown.Strategy
+{
+    [DisallowMultipleComponent]
+    public sealed class StrategyDebugLogger : MonoBehaviour
+    {
+        private static readonly Encoding Utf8NoBom = new UTF8Encoding(false);
+        private static readonly object SyncRoot = new();
+
+        private bool configured;
+        private bool fileWriteDisabled;
+        private string logPath;
+
+        public static StrategyDebugLogger Active { get; private set; }
+        public static string LogPath => Active != null ? Active.logPath : string.Empty;
+
+        public void Configure()
+        {
+            if (configured)
+            {
+                return;
+            }
+
+            Active = this;
+            logPath = ResolveLogPath();
+            configured = true;
+            fileWriteDisabled = false;
+
+            try
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(logPath) ?? ".");
+                File.WriteAllText(logPath, string.Empty, Utf8NoBom);
+            }
+            catch
+            {
+                fileWriteDisabled = true;
+                return;
+            }
+
+            Application.logMessageReceived -= HandleUnityLogMessage;
+            Application.logMessageReceived += HandleUnityLogMessage;
+
+            Info(
+                "Session",
+                "Start",
+                F("scene", SceneManager.GetActiveScene().name),
+                F("unity", Application.unityVersion),
+                F("platform", Application.platform),
+                F("log", logPath));
+        }
+
+        public static LogField F(string key, object value)
+        {
+            return new LogField(key, value);
+        }
+
+        public static void Info(string system, string eventName, params LogField[] fields)
+        {
+            Write("Info", system, eventName, fields);
+        }
+
+        public static void Warn(string system, string eventName, params LogField[] fields)
+        {
+            Write("Warn", system, eventName, fields);
+        }
+
+        public static void Error(string system, string eventName, params LogField[] fields)
+        {
+            Write("Error", system, eventName, fields);
+        }
+
+        private static void Write(string level, string system, string eventName, params LogField[] fields)
+        {
+            if (Active == null || !Active.configured || Active.fileWriteDisabled)
+            {
+                return;
+            }
+
+            Active.WriteLine(BuildLine(level, system, eventName, fields));
+        }
+
+        private static string BuildLine(string level, string system, string eventName, LogField[] fields)
+        {
+            StringBuilder builder = new StringBuilder(192);
+            builder.Append(DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss.fff", CultureInfo.InvariantCulture));
+            builder.Append(" frame=").Append(Time.frameCount.ToString(CultureInfo.InvariantCulture));
+            builder.Append(" t=").Append(Time.realtimeSinceStartup.ToString("0.###", CultureInfo.InvariantCulture));
+            builder.Append(" scale=").Append(Time.timeScale.ToString("0.###", CultureInfo.InvariantCulture));
+            builder.Append(" level=").Append(level);
+            builder.Append(" system=").Append(SanitizeToken(system));
+            builder.Append(" event=").Append(SanitizeToken(eventName));
+
+            if (fields != null)
+            {
+                for (int i = 0; i < fields.Length; i++)
+                {
+                    if (string.IsNullOrWhiteSpace(fields[i].Key))
+                    {
+                        continue;
+                    }
+
+                    builder.Append(' ');
+                    builder.Append(SanitizeToken(fields[i].Key));
+                    builder.Append('=');
+                    builder.Append(FormatValue(fields[i].Value));
+                }
+            }
+
+            return builder.ToString();
+        }
+
+        private void WriteLine(string line)
+        {
+            try
+            {
+                lock (SyncRoot)
+                {
+                    File.AppendAllText(logPath, line + Environment.NewLine, Utf8NoBom);
+                }
+            }
+            catch
+            {
+                fileWriteDisabled = true;
+            }
+        }
+
+        private void HandleUnityLogMessage(string condition, string stackTrace, LogType type)
+        {
+            if (fileWriteDisabled)
+            {
+                return;
+            }
+
+            string level = type == LogType.Error || type == LogType.Assert || type == LogType.Exception
+                ? "Error"
+                : type == LogType.Warning
+                    ? "Warn"
+                    : "Info";
+
+            if (type == LogType.Log)
+            {
+                WriteLine(BuildLine(level, "Unity", "Message", new[] { F("message", condition) }));
+                return;
+            }
+
+            WriteLine(BuildLine(
+                level,
+                "Unity",
+                type.ToString(),
+                new[]
+                {
+                    F("message", condition),
+                    F("stack", Truncate(stackTrace, 900))
+                }));
+        }
+
+        private void OnDisable()
+        {
+            if (configured && !fileWriteDisabled)
+            {
+                Info("Session", "End");
+            }
+
+            Application.logMessageReceived -= HandleUnityLogMessage;
+            if (Active == this)
+            {
+                Active = null;
+            }
+        }
+
+        private static string ResolveLogPath()
+        {
+#if UNITY_EDITOR
+            string projectRoot = Directory.GetParent(Application.dataPath)?.FullName ?? Application.persistentDataPath;
+            return Path.Combine(projectRoot, "debug.log");
+#else
+            return Path.Combine(Application.persistentDataPath, "debug.log");
+#endif
+        }
+
+        private static string FormatValue(object value)
+        {
+            if (value == null)
+            {
+                return "null";
+            }
+
+            switch (value)
+            {
+                case string text:
+                    return Quote(text);
+                case bool boolean:
+                    return boolean ? "true" : "false";
+                case float number:
+                    return number.ToString("0.###", CultureInfo.InvariantCulture);
+                case double number:
+                    return number.ToString("0.###", CultureInfo.InvariantCulture);
+                case int number:
+                    return number.ToString(CultureInfo.InvariantCulture);
+                case long number:
+                    return number.ToString(CultureInfo.InvariantCulture);
+                case Vector2Int vector:
+                    return Quote(vector.x + "," + vector.y);
+                case Vector2 vector:
+                    return Quote(vector.x.ToString("0.###", CultureInfo.InvariantCulture) + "," + vector.y.ToString("0.###", CultureInfo.InvariantCulture));
+                case Vector3 vector:
+                    return Quote(vector.x.ToString("0.###", CultureInfo.InvariantCulture) + "," + vector.y.ToString("0.###", CultureInfo.InvariantCulture) + "," + vector.z.ToString("0.###", CultureInfo.InvariantCulture));
+                case Bounds bounds:
+                    return Quote(
+                        "center="
+                        + FormatValue(bounds.center).Trim('"')
+                        + ";size="
+                        + FormatValue(bounds.size).Trim('"'));
+                case Enum enumValue:
+                    return enumValue.ToString();
+                default:
+                    return Quote(value.ToString());
+            }
+        }
+
+        private static string Quote(string text)
+        {
+            if (text == null)
+            {
+                return "null";
+            }
+
+            return "\""
+                + text
+                    .Replace("\\", "\\\\")
+                    .Replace("\"", "\\\"")
+                    .Replace("\r", "\\r")
+                    .Replace("\n", "\\n")
+                + "\"";
+        }
+
+        private static string SanitizeToken(string token)
+        {
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                return "Unknown";
+            }
+
+            return token.Replace(' ', '_').Replace('=', '_');
+        }
+
+        private static string Truncate(string text, int maxLength)
+        {
+            if (string.IsNullOrEmpty(text) || text.Length <= maxLength)
+            {
+                return text;
+            }
+
+            return text.Substring(0, maxLength) + "...";
+        }
+
+        public readonly struct LogField
+        {
+            public LogField(string key, object value)
+            {
+                Key = key;
+                Value = value;
+            }
+
+            public string Key { get; }
+            public object Value { get; }
+        }
+    }
+}

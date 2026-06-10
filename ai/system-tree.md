@@ -1,0 +1,272 @@
+# System Tree
+
+Last updated: 2026-06-10
+
+This is a conceptual map of the current project. Keep concrete file ownership in `ai/systems-map.md`.
+
+## Project Root
+
+- Unity project foundation
+  - Unity Editor `6000.4.10f1`
+  - Package-managed dependencies in `Packages/manifest.json`
+  - Project settings in `ProjectSettings/`
+  - Generated/local Unity state in `Library/`, `Temp/`, `Logs/`, and `UserSettings/`
+
+- Rendering foundation
+  - Universal Render Pipeline `17.4.0`
+  - 2D renderer configuration
+  - Default volume profile
+  - URP global settings
+
+- Scene foundation
+  - Default `SampleScene`
+  - URP 2D scene template assets
+  - Runtime bootstrap attaches MVP strategy systems at scene load
+
+- MVP strategy foundation
+  - Runtime bootstrap
+    - Creates and configures the strategy debug logger before other strategy systems
+    - Creates `City Map` if none exists
+    - Creates `Strategy Wind` with a Unity `WindZone` if none exists
+    - Finds or creates `Main Camera`
+    - Wires camera bounds to the generated map
+    - Focuses the initial camera view on the startup campfire after population startup
+    - Creates runtime water/shore animation overlay after map generation
+    - Creates the Stone resource registry before nature generation
+    - Generates nature props after population startup so the camp clear-radius exclusion is known
+    - Creates and wires the runtime fog-of-war layer after population and placement controllers exist
+    - Places a starter Storage Yard near the campfire with initial Logs and Stone after placement is configured
+    - Creates runtime time-scale controls for simulation speed hotkeys
+  - Strategy debug logging
+    - Writes structured session logs to `debug.log`
+    - Uses the project root path in the Unity Editor and persistent data in player builds
+    - Mirrors Unity logs, warnings, errors, and exceptions
+    - Logs bootstrap, map, nature, Stone, build menu, placement, population, forestry, lumberjack camp, selection, and time-scale events
+  - Strategy time scale
+    - Runtime-created time control component
+    - F1 sets x1 simulation speed
+    - F2 sets x2 simulation speed
+    - F3 sets x3 simulation speed
+    - Updates both `Time.timeScale` and `Time.fixedDeltaTime`
+  - Generated city map
+    - 128x128 default 2D terrain grid
+    - Runtime texture/sprite rendering
+    - Grass, meadow, forest, dirt, shore, and water cells
+    - Randomized active generation seed by default per map generation
+    - Seed-derived generation profile for river direction, curve, width, shoreline, and optional water blobs
+    - Multi-octave noise creates broader forest, meadow, grass, and dirt clusters
+    - Light land-only smoothing reduces isolated terrain noise without changing water/shore boundaries
+    - Procedural 16px pixel-art terrain tile painter
+    - Multiple deterministic variants per terrain kind
+    - Neighbor-aware side and corner overlays for terrain transitions
+    - Runtime water/shore overlay animates waves, sparkles, and shoreline foam over the static map texture
+    - Runtime nature-props layer
+      - Generated after map terrain cells are built
+      - Uses active map seed for deterministic prop placement within a map session
+      - Forest cells receive dense tree/forest-group visuals
+      - Grass, meadow, dirt, and shore cells can receive sparse standalone trees or bushes
+      - Skips a 3-cell radius around the startup campfire
+      - Generated standalone tree props register as mature forestry trees and block their cells
+      - Forest groups and bushes remain non-interactive but also block their cells
+      - Generated Stone deposits appear as standalone boulders, rock clusters, and larger cliffs
+      - Stone deposits register with the Stone resource registry and block their occupied cells
+      - Nature props attach a 2D sway adapter driven by the strategy `WindZone`
+      - Nature props add lightweight procedural leaf frame overlays
+    - Stone resources MVP
+      - Tracks generated Stone deposits in a runtime registry
+      - Supports Boulder, Rock Cluster, and Cliff deposit kinds
+      - Stores per-deposit Stone amount and reservation hooks for stonecutter workers
+      - Keeps deposit footprints not walkable while deposits exist
+      - Stonecutter workers mine deposits with hit-driven pickaxe animation, shake, cracks, chip/dust effects, chunk extraction, and depletion cleanup
+    - Forestry MVP
+      - Tracks mature and growing tree entities in a runtime registry
+      - Tree cells are not walkable while the tree exists
+      - Chopped trees remain blocked as fallen trunks until Logs are collected
+      - Plants saplings that grow through sapling, young tree, and mature tree visual stages
+      - Supplies nearby mature-tree and planting-cell targets to lumberjack camps
+      - Mature trees receive chop hits, show cut marks, spawn chip/leaf effects, fall over, remain as buckable trunks, split into Logs, and are removed when Logs are collected
+    - Strategy wind
+      - Runtime-created Unity `WindZone` in directional mode
+      - Stores wind direction, main strength, pulse, frequency, and turbulence
+      - Drives tree, forest-group, and bush sway through per-prop animation phases
+    - Fog of war
+      - Runtime-generated texture overlay above world sprites and below screen-space UI
+      - Tracks persistent explored cells separately from current visible cells
+      - Starter camp, residents, and placed buildings act as visibility sources
+      - Unexplored cells are dark, explored-but-not-visible cells remain dimmed, and visible cells are clear
+      - F9 toggles player fog off/on without clearing explored state
+    - Basic buildability data reserved for future economy/zoning
+    - Dynamic walkability layer for runtime blockers such as placed buildings
+  - Strategy camera
+    - Orthographic view
+    - Initial medium-close focus on the startup campfire
+    - Mouse-wheel zoom
+    - WASD/arrow pan
+    - Right/middle mouse drag pan
+    - Optional edge pan
+    - Bounds clamped to map extents
+    - Ignores mouse zoom/drag/edge pan while the pointer is over UI
+  - Build menu HUD
+    - Runtime-created Screen Space Overlay canvas
+    - Bottom Build button
+    - Category dock inspired by `Gruzovichky`
+    - Item tray with build cards, Logs/Stone construction costs, affordability state, and active state
+    - Direct active-tool selection for placement/economy systems
+    - Fully closes category/tool UI after a successful placement
+    - Exposes selected tool info, footprint, color, and cost
+    - Reads Storage Yard construction stock availability for build affordability
+    - Current catalog contains `Жилища` / `Дом`, `Промыслы` / `Лагерь дровосеков` and `Лагерь каменотёсов`, and `Хранилища` / `Склад`
+    - Single-item categories directly activate their only build tool on click
+  - Build placement
+    - Runtime-created placement controller
+    - Mouse hover preview aligned to map cells
+    - Green/colored valid preview and red invalid preview
+    - Left-click creates a construction site for selected player-build tools
+    - Right-click/Escape cancels active tool
+    - Blocks placement on water, outside map, occupied cells, and unexplored fog cells while player fog is enabled
+    - Uses generated building sprites when available, with colored rectangle fallback for future tools
+    - Creates runtime placed-building records only after construction completes
+    - Marks construction/final building walk-blocker cells as not walkable
+    - House uses an expanded 2.5D visual/navigation blocker around and above the technical footprint
+    - Reserves construction resources from Storage Yards before the site is accepted
+    - Asks population to assign construction builders when a site is created
+    - House sites reserve one free male/female pair as future residents before building starts
+    - Creates lumberjack camp components when the camp tool is placed
+    - Creates stonecutter camp components when the camp tool is placed
+    - Creates storage yard components when the storage tool is placed
+    - Closes the Build menu after successful placement and suppresses same-click auto-selection of the new object
+  - Runtime building art
+    - Generates 5 larger 2.5D pixel-art medieval house sprite variants in code
+    - Generates 3 procedural 2.5D lumberjack camp sprite variants in code
+    - Generates 3 procedural 2.5D stonecutter camp sprite variants in code
+    - Generates 3 procedural 2.5D storage yard sprite variants in code
+    - Generates separate lumberjack camp Logs stockpile sprites that visually grow as Logs are deposited
+    - Generates separate stonecutter camp Stone stockpile sprites that visually grow as Stone is deposited
+    - Generates separate storage yard Logs and Stone stockpile sprites that visually grow with stored resources
+    - Generates staged construction-site sprites and delivered Logs/Stone construction stockpile sprites
+    - Reuses a stable default sprite for Build menu icon and ghost preview
+    - Chooses a random building visual variant for each successfully placed supported building
+    - Placed houses add ambient smoke/window-light overlay animation without changing colliders
+  - House visual upgrades
+    - Runtime-created building-upgrade controller
+    - Current visual-only upgrades: Garden Beds and Chicken Coop
+    - Upgrade sprites are generated in code
+    - Upgrades are installed from the selected house HUD
+    - Upgrade placement searches nearby walkable cells but does not mark those cells as blocked yet
+    - Placed houses remember which visual upgrades are installed
+    - Garden Beds choose one crop resource when installed: Turnip, Cabbage, Onion, Carrot, or Potato
+    - Garden Beds periodically attract residents from the owning house for a short work animation
+    - Completed Garden Beds work adds the chosen crop to the owning house
+    - Installing Chicken Coop spawns small idle chickens around that coop
+    - Chicken Coop passively adds Eggs to the owning house
+    - Garden Beds and Chicken Coop sprites animate procedurally while installed
+  - House resources MVP
+    - Runtime house-local resource store
+    - Current resources: Eggs, Turnip, Cabbage, Onion, Carrot, Potato
+    - Resource amounts live on placed house objects, not in a global economy yet
+    - Runtime-generated pixel-art resource icons for the selected-house HUD
+  - Storage yard logistics MVP
+    - Storage Yard is a placed stockpile building with up to 2 assigned workers
+    - A starter Storage Yard appears near the campfire with 13 Logs and 9 Stone
+    - Storage workers reserve available Logs from lumberjack camps
+    - Storage workers reserve available Stone from stonecutter camps
+    - Storage Yards reserve Logs/Stone for accepted construction sites
+    - Builders can pick up reserved construction Logs/Stone from Storage Yards
+    - Storage workers walk to source camps, pick up Logs, carry them to the Storage Yard, and deposit them
+    - Storage workers walk to stonecutter camps, pick up Stone, carry it to the Storage Yard, and deposit it
+    - Lumberjack camp local Logs stock decreases when haulers pick up reserved Logs
+    - Stonecutter camp local Stone stock decreases when haulers pick up reserved Stone
+    - Storage Yard local Logs and Stone stock update their visible stockpiles
+  - Population MVP
+    - Runtime-created population controller
+    - Startup camp creates an animated procedural campfire
+    - Startup camp spawns 6 initial residents: 3 men and 3 women
+    - Each resident receives a random Germanic/Nordic-style full name at startup
+    - `Дом` assigns one random free man and one random free woman from camp instead of spawning new residents
+    - Residents keep a reference to their home building once assigned
+    - Residents store a random visual variant chosen at startup
+    - Residents perform simple idle movement near their current camp/home using short walkable grid paths
+    - Residents periodically work at their house's Garden Beds when that upgrade exists
+    - Residents assigned to a lumberjack camp path to trees, chop mature trees, buck fallen trunks into Logs, carry Logs to camp stock, and plant new saplings nearby
+    - Residents assigned to a stonecutter camp path to Stone deposits, mine chunks with pickaxes, carry Stone to camp stock, and do not plant/regrow Stone
+    - Residents assigned to a storage yard path to lumberjack camp stock, carry Logs to storage, and deposit them
+    - Residents assigned to a storage yard also path to stonecutter camp stock, carry Stone to storage, and deposit it
+    - Residents assigned to construction sites fetch reserved Logs/Stone, deliver them to the site, then build with hammer animations
+    - Runtime-generated resident sprites include 5 male variants, 5 female variants, and matching portrait sprites
+    - Resident movement uses cached 8-frame procedural walk cycles for all male/female variants
+    - Lumberjack work uses cached frame-based axe swing sprites for all male/female visual variants
+    - Stonecutter work uses cached frame-based pickaxe swing sprites for all male/female visual variants
+    - Construction work uses cached frame-based hammer/build sprites for all male/female visual variants
+    - Residents render with a synced silhouette outline and ground shadow for readability over busy terrain
+    - Runtime-generated campfire sprites include flame, smoke, and spark animation frames
+    - Chicken agents use local idle movement around their linked Chicken Coop with walk and peck sprite animations
+  - World selection
+    - Runtime-created world selection controller
+    - Clickable placed buildings and residents use 2D colliders
+    - Left-click selects the top resident/building under the cursor when not placing
+    - Clicks in unexplored fog cells do not select world objects while player fog is enabled
+    - Selected objects show a simple runtime selection marker
+    - Selection opens a compact full-height right-side HUD panel with selected-object preview art
+    - The house HUD shows assigned residents with portraits, names, and current statuses
+    - The house HUD exposes visual upgrade actions for Garden Beds and Chicken Coop
+    - House upgrade actions are shown as compact state/action rows
+    - The house HUD shows resource icons/counts and the current Garden Beds crop
+    - The lumberjack camp HUD shows 2 worker slots with assign/remove actions, Logs stock, and nearby tree/trunk counts
+    - The stonecutter camp HUD shows 2 worker slots with assign/remove actions, Stone stock, and nearby deposit counts
+    - The storage yard HUD shows 2 worker slots with assign/remove actions, Logs stock, and available source count
+    - The construction site HUD shows final building type, cost, delivered resources, assigned builders, and build progress
+    - The resident HUD shows full name, portrait, profile, current activity, and home/camp assignment
+
+- Input foundation
+  - Unity Input System package
+  - Default `InputSystem_Actions.inputactions`
+  - Strategy camera, Build menu, fog toggle, and time-scale hotkeys read keyboard and mouse directly through Input System APIs
+  - Build menu creates an Input System UI event module when needed
+
+- UI foundation
+  - Unity UI package installed
+  - UI Toolkit module available through Unity modules
+  - Custom runtime Build menu HUD
+
+- Testing foundation
+  - Unity Test Framework package installed
+  - No custom tests documented yet
+
+- AI collaboration memory
+  - Root entry point: `AI.md`
+  - Agent contract: `AGENTS.md`
+  - Memory folder: `ai/`
+
+## Cross-System Links
+
+- Rendering settings affect all scenes using the URP pipeline.
+- Runtime bootstrap depends on scene load order and the presence of a usable `Main Camera` or permission to create one.
+- Strategy camera bounds depend on generated map dimensions.
+- Input action changes do not affect current camera controls yet because MVP controls read direct Input System devices.
+- Build menu active tool state drives the placement controller when catalog tools exist.
+- Placement uses generated map cells and buildability data.
+- Fog of war uses population, residents, and placed-building records as visibility sources; placement and world selection consult fog exploration state, with F9 acting as a player-visible bypass toggle.
+- Terrain rendering uses generated map cell kinds, seeded tile variants, neighbor transition overlays, and a runtime water/shore animation overlay.
+- House visual upgrades and house resources depend on placed-building records, map walkability checks, generated upgrade/chicken/resource sprites, early idle/work agents, and the world-selection HUD.
+- Forestry depends on generated tree props, map walkability, placed lumberjack camps, resident work states, and the world-selection HUD.
+- Stone resources depend on generated nature props, map walkability, stonecutter camps, resident work states, and storage logistics.
+- Storage yard logistics depends on lumberjack camp stock, stonecutter camp stock, resident work states, placed-building records, map walkability, and the world-selection HUD.
+- Construction depends on Storage Yard resource reservations, resident builder assignments, construction-site blockers, placed-building finalization, and the world-selection HUD.
+- Population uses placed-building records, construction sites, the generated map walkability layer, and workplace assignments.
+- World selection uses placed-building/resident/construction-site colliders and the strategy camera.
+- Strategy camera checks UI pointer state so bottom HUD interaction does not pan/zoom the map.
+- New gameplay systems should be added here and mapped to concrete files/assets in `systems-map.md`.
+
+## Not Yet Implemented
+
+- Economy simulation
+- Zoning
+- Durable building/economy state beyond runtime construction and placement records
+- Full pathfinding beyond local resident idle grid paths
+- Core gameplay loop beyond map/camera
+- Player/controller system
+- Game state/save system
+- Progression systems
+- Tutorial/onboarding flow
+- Full custom UI shell beyond the Build HUD
+- Custom tests

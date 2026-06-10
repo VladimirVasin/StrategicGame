@@ -1,0 +1,723 @@
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace ProjectUnknown.Strategy
+{
+    [DisallowMultipleComponent]
+    public sealed class StrategyStorageYard : MonoBehaviour
+    {
+        public const int MaxWorkers = 2;
+
+        private readonly List<StrategyResidentAgent> workers = new();
+        private StrategyPlacedBuilding building;
+        private CityMapController map;
+        private StrategyPopulationController population;
+        private SpriteRenderer logsStockRenderer;
+        private SpriteRenderer stoneStockRenderer;
+        private readonly Dictionary<object, int> constructionLogReservations = new();
+        private readonly Dictionary<object, int> constructionStoneReservations = new();
+        private int logsStored;
+        private int stoneStored;
+
+        public int WorkerCount => workers.Count;
+        public int LogsStored => logsStored;
+        public int StoneStored => stoneStored;
+        public int AvailableConstructionLogs => Mathf.Max(0, logsStored - CountReservations(constructionLogReservations));
+        public int AvailableConstructionStone => Mathf.Max(0, stoneStored - CountReservations(constructionStoneReservations));
+        public Vector2Int Origin => building != null ? building.Origin : Vector2Int.zero;
+        public Bounds FootprintBounds => building != null ? building.FootprintBounds : new Bounds(transform.position, Vector3.one);
+
+        public void Configure(
+            StrategyPlacedBuilding placedBuilding,
+            CityMapController mapController,
+            StrategyPopulationController populationController)
+        {
+            building = placedBuilding;
+            map = mapController;
+            population = populationController;
+            EnsureStockRenderer();
+            UpdateStockVisual();
+            StrategyDebugLogger.Info(
+                "StorageYard",
+                "Configured",
+                StrategyDebugLogger.F("origin", Origin),
+                StrategyDebugLogger.F("maxWorkers", MaxWorkers));
+        }
+
+        public static StrategyConstructionResourceCost GetTotalConstructionResources()
+        {
+            int logs = 0;
+            int stone = 0;
+            StrategyStorageYard[] yards = Object.FindObjectsByType<StrategyStorageYard>();
+            for (int i = 0; i < yards.Length; i++)
+            {
+                StrategyStorageYard yard = yards[i];
+                if (yard == null)
+                {
+                    continue;
+                }
+
+                logs += yard.AvailableConstructionLogs;
+                stone += yard.AvailableConstructionStone;
+            }
+
+            return new StrategyConstructionResourceCost(logs, stone);
+        }
+
+        public static bool CanAffordConstruction(StrategyConstructionResourceCost cost)
+        {
+            return cost.CanAfford(GetTotalConstructionResources());
+        }
+
+        public static bool TryReserveConstructionResources(
+            StrategyConstructionResourceCost cost,
+            object owner,
+            Vector3 nearWorld)
+        {
+            if (owner == null)
+            {
+                return false;
+            }
+
+            if (cost.IsFree)
+            {
+                return true;
+            }
+
+            StrategyConstructionResourceCost available = GetTotalConstructionResources();
+            if (!cost.CanAfford(available))
+            {
+                return false;
+            }
+
+            StrategyStorageYard[] yards = GetYardsSortedByDistance(nearWorld);
+            int remainingLogs = cost.Logs;
+            for (int i = 0; i < yards.Length && remainingLogs > 0; i++)
+            {
+                int reserved = yards[i].ReserveConstructionLogs(owner, remainingLogs);
+                remainingLogs -= reserved;
+            }
+
+            int remainingStone = cost.Stone;
+            for (int i = 0; i < yards.Length && remainingStone > 0; i++)
+            {
+                int reserved = yards[i].ReserveConstructionStone(owner, remainingStone);
+                remainingStone -= reserved;
+            }
+
+            if (remainingLogs > 0 || remainingStone > 0)
+            {
+                ReleaseConstructionReservations(owner);
+                return false;
+            }
+
+            StrategyDebugLogger.Info(
+                "StorageYard",
+                "ConstructionReserved",
+                StrategyDebugLogger.F("owner", owner),
+                StrategyDebugLogger.F("logs", cost.Logs),
+                StrategyDebugLogger.F("stone", cost.Stone));
+            return true;
+        }
+
+        public static void ReleaseConstructionReservations(object owner)
+        {
+            if (owner == null)
+            {
+                return;
+            }
+
+            StrategyStorageYard[] yards = Object.FindObjectsByType<StrategyStorageYard>();
+            for (int i = 0; i < yards.Length; i++)
+            {
+                StrategyStorageYard yard = yards[i];
+                if (yard != null)
+                {
+                    yard.ReleaseConstructionReservation(owner);
+                }
+            }
+        }
+
+        public static bool TryFindConstructionPickup(
+            object owner,
+            StrategyConstructionResourceKind kind,
+            Vector3 nearWorld,
+            out StrategyStorageYard storage,
+            out Vector2Int pickupCell)
+        {
+            storage = null;
+            pickupCell = default;
+            if (owner == null || kind == StrategyConstructionResourceKind.None)
+            {
+                return false;
+            }
+
+            StrategyStorageYard[] yards = GetYardsSortedByDistance(nearWorld);
+            for (int i = 0; i < yards.Length; i++)
+            {
+                StrategyStorageYard yard = yards[i];
+                if (yard == null || !yard.HasConstructionReservation(owner, kind))
+                {
+                    continue;
+                }
+
+                if (yard.TryFindDropoffCell(out pickupCell))
+                {
+                    storage = yard;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public bool TryTakeReservedConstructionResource(
+            object owner,
+            StrategyConstructionResourceKind kind,
+            int maxAmount,
+            out int amount)
+        {
+            amount = 0;
+            if (owner == null || maxAmount <= 0)
+            {
+                return false;
+            }
+
+            if (kind == StrategyConstructionResourceKind.Logs)
+            {
+                amount = TakeReservedConstruction(owner, constructionLogReservations, ref logsStored, maxAmount);
+            }
+            else if (kind == StrategyConstructionResourceKind.Stone)
+            {
+                amount = TakeReservedConstruction(owner, constructionStoneReservations, ref stoneStored, maxAmount);
+            }
+
+            if (amount <= 0)
+            {
+                return false;
+            }
+
+            UpdateStockVisual();
+            StrategyDebugLogger.Info(
+                "StorageYard",
+                "ConstructionResourceTaken",
+                StrategyDebugLogger.F("yardOrigin", Origin),
+                StrategyDebugLogger.F("owner", owner),
+                StrategyDebugLogger.F("resource", kind),
+                StrategyDebugLogger.F("amount", amount),
+                StrategyDebugLogger.F("logsStock", logsStored),
+                StrategyDebugLogger.F("stoneStock", stoneStored));
+            return true;
+        }
+
+        public bool CanAssignNextAvailableWorker()
+        {
+            if (workers.Count >= MaxWorkers || population == null)
+            {
+                return false;
+            }
+
+            IReadOnlyList<StrategyResidentAgent> residents = population.Residents;
+            for (int i = 0; i < residents.Count; i++)
+            {
+                StrategyResidentAgent resident = residents[i];
+                if (resident != null && !resident.HasWorkplace && !resident.HasConstructionAssignment && !workers.Contains(resident))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public bool TryAssignNextAvailableWorker(out StrategyResidentAgent assigned)
+        {
+            assigned = null;
+            if (workers.Count >= MaxWorkers || population == null)
+            {
+                return false;
+            }
+
+            IReadOnlyList<StrategyResidentAgent> residents = population.Residents;
+            List<StrategyResidentAgent> candidates = new();
+            for (int i = 0; i < residents.Count; i++)
+            {
+                StrategyResidentAgent resident = residents[i];
+                if (resident != null && !resident.HasWorkplace && !resident.HasConstructionAssignment && !workers.Contains(resident))
+                {
+                    candidates.Add(resident);
+                }
+            }
+
+            if (candidates.Count <= 0)
+            {
+                return false;
+            }
+
+            assigned = candidates[Random.Range(0, candidates.Count)];
+            return AssignWorker(assigned);
+        }
+
+        public bool AssignWorker(StrategyResidentAgent resident)
+        {
+            if (resident == null
+                || workers.Count >= MaxWorkers
+                || workers.Contains(resident)
+                || resident.HasWorkplace
+                || resident.HasConstructionAssignment)
+            {
+                return false;
+            }
+
+            workers.Add(resident);
+            resident.AssignStorageWorkplace(this);
+            StrategyDebugLogger.Info(
+                "StorageYard",
+                "WorkerAssigned",
+                StrategyDebugLogger.F("yardOrigin", Origin),
+                StrategyDebugLogger.F("worker", resident.FullName),
+                StrategyDebugLogger.F("workerCount", workers.Count));
+            return true;
+        }
+
+        public void UnassignWorkerAt(int index)
+        {
+            if (index < 0 || index >= workers.Count)
+            {
+                return;
+            }
+
+            StrategyResidentAgent worker = workers[index];
+            workers.RemoveAt(index);
+            if (worker != null)
+            {
+                StrategyDebugLogger.Info(
+                    "StorageYard",
+                    "WorkerUnassigned",
+                    StrategyDebugLogger.F("yardOrigin", Origin),
+                    StrategyDebugLogger.F("worker", worker.FullName),
+                    StrategyDebugLogger.F("workerCount", workers.Count));
+                worker.ClearStorageWorkplace(this);
+            }
+        }
+
+        public bool TryGetWorker(int index, out StrategyResidentAgent worker)
+        {
+            worker = index >= 0 && index < workers.Count ? workers[index] : null;
+            return worker != null;
+        }
+
+        public bool TryReserveLogSource(object owner, out StrategyLumberjackCamp source)
+        {
+            source = null;
+            if (owner == null)
+            {
+                return false;
+            }
+
+            StrategyLumberjackCamp[] camps = Object.FindObjectsByType<StrategyLumberjackCamp>();
+            StrategyLumberjackCamp bestCamp = null;
+            float bestDistance = float.MaxValue;
+            for (int i = 0; i < camps.Length; i++)
+            {
+                StrategyLumberjackCamp camp = camps[i];
+                if (camp == null || camp.AvailableLogs <= 0)
+                {
+                    continue;
+                }
+
+                float distance = (camp.FootprintBounds.center - FootprintBounds.center).sqrMagnitude;
+                if (distance < bestDistance)
+                {
+                    bestDistance = distance;
+                    bestCamp = camp;
+                }
+            }
+
+            if (bestCamp == null || !bestCamp.TryReserveStoredLogs(owner, out _))
+            {
+                return false;
+            }
+
+            source = bestCamp;
+            return true;
+        }
+
+        public bool TryReserveStoneSource(object owner, out StrategyStonecutterCamp source)
+        {
+            source = null;
+            if (owner == null)
+            {
+                return false;
+            }
+
+            StrategyStonecutterCamp[] camps = Object.FindObjectsByType<StrategyStonecutterCamp>();
+            StrategyStonecutterCamp bestCamp = null;
+            float bestDistance = float.MaxValue;
+            for (int i = 0; i < camps.Length; i++)
+            {
+                StrategyStonecutterCamp camp = camps[i];
+                if (camp == null || camp.AvailableStone <= 0)
+                {
+                    continue;
+                }
+
+                float distance = (camp.FootprintBounds.center - FootprintBounds.center).sqrMagnitude;
+                if (distance < bestDistance)
+                {
+                    bestDistance = distance;
+                    bestCamp = camp;
+                }
+            }
+
+            if (bestCamp == null || !bestCamp.TryReserveStoredStone(owner, out _))
+            {
+                return false;
+            }
+
+            source = bestCamp;
+            return true;
+        }
+
+        public bool TryFindDropoffCell(out Vector2Int cell)
+        {
+            cell = default;
+            if (map == null || building == null)
+            {
+                return false;
+            }
+
+            for (int radius = 1; radius <= 3; radius++)
+            {
+                List<Vector2Int> candidates = new();
+                for (int y = -radius; y < building.Footprint.y + radius; y++)
+                {
+                    for (int x = -radius; x < building.Footprint.x + radius; x++)
+                    {
+                        bool isEdge = x == -radius
+                            || y == -radius
+                            || x == building.Footprint.x + radius - 1
+                            || y == building.Footprint.y + radius - 1;
+                        if (!isEdge)
+                        {
+                            continue;
+                        }
+
+                        Vector2Int candidate = building.Origin + new Vector2Int(x, y);
+                        if (map.IsCellWalkable(candidate))
+                        {
+                            candidates.Add(candidate);
+                        }
+                    }
+                }
+
+                if (candidates.Count > 0)
+                {
+                    cell = candidates[Random.Range(0, candidates.Count)];
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public void AddLogs(int amount)
+        {
+            if (amount <= 0)
+            {
+                return;
+            }
+
+            logsStored += amount;
+            UpdateStockVisual();
+            StrategyDebugLogger.Info(
+                "StorageYard",
+                "LogsStored",
+                StrategyDebugLogger.F("yardOrigin", Origin),
+                StrategyDebugLogger.F("added", amount),
+                StrategyDebugLogger.F("stock", logsStored));
+        }
+
+        public void AddResource(StrategyResourceType resource, int amount)
+        {
+            if (amount <= 0)
+            {
+                return;
+            }
+
+            if (resource == StrategyResourceType.Stone)
+            {
+                AddStone(amount);
+            }
+        }
+
+        public int GetAmount(StrategyResourceType resource)
+        {
+            return resource == StrategyResourceType.Stone ? stoneStored : 0;
+        }
+
+        public void AddStone(int amount)
+        {
+            if (amount <= 0)
+            {
+                return;
+            }
+
+            stoneStored += amount;
+            UpdateStockVisual();
+            StrategyDebugLogger.Info(
+                "StorageYard",
+                "ResourceStored",
+                StrategyDebugLogger.F("yardOrigin", Origin),
+                StrategyDebugLogger.F("resource", StrategyResourceType.Stone),
+                StrategyDebugLogger.F("added", amount),
+                StrategyDebugLogger.F("stock", stoneStored));
+        }
+
+        private int ReserveConstructionLogs(object owner, int requested)
+        {
+            int amount = Mathf.Min(Mathf.Max(0, requested), AvailableConstructionLogs);
+            if (amount <= 0)
+            {
+                return 0;
+            }
+
+            AddReservation(constructionLogReservations, owner, amount);
+            return amount;
+        }
+
+        private int ReserveConstructionStone(object owner, int requested)
+        {
+            int amount = Mathf.Min(Mathf.Max(0, requested), AvailableConstructionStone);
+            if (amount <= 0)
+            {
+                return 0;
+            }
+
+            AddReservation(constructionStoneReservations, owner, amount);
+            return amount;
+        }
+
+        private void ReleaseConstructionReservation(object owner)
+        {
+            constructionLogReservations.Remove(owner);
+            constructionStoneReservations.Remove(owner);
+        }
+
+        private bool HasConstructionReservation(object owner, StrategyConstructionResourceKind kind)
+        {
+            Dictionary<object, int> source = kind == StrategyConstructionResourceKind.Logs
+                ? constructionLogReservations
+                : constructionStoneReservations;
+            return source.TryGetValue(owner, out int amount) && amount > 0;
+        }
+
+        private static int TakeReservedConstruction(
+            object owner,
+            Dictionary<object, int> reservations,
+            ref int stored,
+            int maxAmount)
+        {
+            if (!reservations.TryGetValue(owner, out int reserved) || reserved <= 0 || stored <= 0)
+            {
+                return 0;
+            }
+
+            int amount = Mathf.Min(maxAmount, reserved, stored);
+            stored -= amount;
+            reserved -= amount;
+            if (reserved <= 0)
+            {
+                reservations.Remove(owner);
+            }
+            else
+            {
+                reservations[owner] = reserved;
+            }
+
+            return amount;
+        }
+
+        private static void AddReservation(Dictionary<object, int> reservations, object owner, int amount)
+        {
+            if (reservations.TryGetValue(owner, out int current))
+            {
+                reservations[owner] = current + amount;
+            }
+            else
+            {
+                reservations.Add(owner, amount);
+            }
+        }
+
+        private static int CountReservations(Dictionary<object, int> reservations)
+        {
+            int total = 0;
+            foreach (KeyValuePair<object, int> pair in reservations)
+            {
+                if (pair.Key != null && pair.Value > 0)
+                {
+                    total += pair.Value;
+                }
+            }
+
+            return total;
+        }
+
+        private static StrategyStorageYard[] GetYardsSortedByDistance(Vector3 nearWorld)
+        {
+            StrategyStorageYard[] yards = Object.FindObjectsByType<StrategyStorageYard>();
+            System.Array.Sort(
+                yards,
+                (left, right) =>
+                {
+                    if (left == null && right == null)
+                    {
+                        return 0;
+                    }
+
+                    if (left == null)
+                    {
+                        return 1;
+                    }
+
+                    if (right == null)
+                    {
+                        return -1;
+                    }
+
+                    float leftDistance = (left.FootprintBounds.center - nearWorld).sqrMagnitude;
+                    float rightDistance = (right.FootprintBounds.center - nearWorld).sqrMagnitude;
+                    return leftDistance.CompareTo(rightDistance);
+                });
+            return yards;
+        }
+
+        public string GetHudStatusText()
+        {
+            int sourceCount = CountAvailableSources();
+            return "\u0420\u0430\u0431\u043e\u0447\u0438\u0435: "
+                + workers.Count
+                + "/"
+                + MaxWorkers
+                + "\n"
+                + "Logs: "
+                + logsStored
+                + "\n"
+                + "\u041a\u0430\u043c\u0435\u043d\u044c: "
+                + stoneStored
+                + "\n"
+                + "\u0418\u0441\u0442\u043e\u0447\u043d\u0438\u043a\u0438: "
+                + sourceCount;
+        }
+
+        private int CountAvailableSources()
+        {
+            int count = 0;
+            StrategyLumberjackCamp[] camps = Object.FindObjectsByType<StrategyLumberjackCamp>();
+            for (int i = 0; i < camps.Length; i++)
+            {
+                StrategyLumberjackCamp camp = camps[i];
+                if (camp != null && camp.AvailableLogs > 0)
+                {
+                    count++;
+                }
+            }
+
+            StrategyStonecutterCamp[] stoneCamps = Object.FindObjectsByType<StrategyStonecutterCamp>();
+            for (int i = 0; i < stoneCamps.Length; i++)
+            {
+                StrategyStonecutterCamp camp = stoneCamps[i];
+                if (camp != null && camp.AvailableStone > 0)
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
+        private void EnsureStockRenderer()
+        {
+            if (logsStockRenderer != null && stoneStockRenderer != null)
+            {
+                return;
+            }
+
+            if (logsStockRenderer == null)
+            {
+                GameObject stockObject = new GameObject("Storage Logs Stock");
+                stockObject.transform.SetParent(transform, false);
+                logsStockRenderer = stockObject.AddComponent<SpriteRenderer>();
+                logsStockRenderer.color = Color.white;
+            }
+
+            if (stoneStockRenderer == null)
+            {
+                GameObject stoneObject = new GameObject("Storage Stone Stock");
+                stoneObject.transform.SetParent(transform, false);
+                stoneStockRenderer = stoneObject.AddComponent<SpriteRenderer>();
+                stoneStockRenderer.color = Color.white;
+            }
+
+            UpdateStockPosition();
+        }
+
+        private void UpdateStockVisual()
+        {
+            EnsureStockRenderer();
+            if (logsStockRenderer != null)
+            {
+                logsStockRenderer.sprite = StrategyBuildingSpriteFactory.GetStorageYardStockSprite(logsStored);
+                logsStockRenderer.gameObject.SetActive(logsStored > 0 && logsStockRenderer.sprite != null);
+            }
+
+            if (stoneStockRenderer != null)
+            {
+                stoneStockRenderer.sprite = StrategyBuildingSpriteFactory.GetStorageYardStoneStockSprite(stoneStored);
+                stoneStockRenderer.gameObject.SetActive(stoneStored > 0 && stoneStockRenderer.sprite != null);
+            }
+
+            UpdateStockPosition();
+        }
+
+        private void UpdateStockPosition()
+        {
+            if (building == null)
+            {
+                return;
+            }
+
+            Bounds bounds = building.FootprintBounds;
+            if (logsStockRenderer != null)
+            {
+                Vector3 logsWorld = new Vector3(bounds.center.x + 0.28f, bounds.min.y + 0.45f, -0.16f);
+                logsStockRenderer.transform.localPosition = transform.InverseTransformPoint(logsWorld);
+                logsStockRenderer.transform.localScale = Vector3.one;
+                StrategyWorldSorting.Apply(logsStockRenderer, logsWorld, 1);
+            }
+
+            if (stoneStockRenderer != null)
+            {
+                Vector3 stoneWorld = new Vector3(bounds.center.x - 0.86f, bounds.min.y + 0.37f, -0.155f);
+                stoneStockRenderer.transform.localPosition = transform.InverseTransformPoint(stoneWorld);
+                stoneStockRenderer.transform.localScale = Vector3.one;
+                StrategyWorldSorting.Apply(stoneStockRenderer, stoneWorld, 1);
+            }
+        }
+
+        private void OnDestroy()
+        {
+            for (int i = workers.Count - 1; i >= 0; i--)
+            {
+                StrategyResidentAgent worker = workers[i];
+                if (worker != null)
+                {
+                    worker.ClearStorageWorkplace(this);
+                }
+            }
+
+            workers.Clear();
+        }
+    }
+}
