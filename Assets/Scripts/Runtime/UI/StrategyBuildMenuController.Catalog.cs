@@ -38,6 +38,13 @@ namespace ProjectUnknown.Strategy
                     {
                         new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.StorageYard, "ST", "\u0421\u043a\u043b\u0430\u0434", new StrategyConstructionResourceCost(6, 4), HtmlColor("#9B8061")),
                         new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.Granary, "GR", "\u0410\u043c\u0431\u0430\u0440", new StrategyConstructionResourceCost(5, 3), HtmlColor("#A8874D"))
+                    }),
+                new StrategyBuildMenuControllerDriver.BuildCategoryData(
+                    "\u0418\u043d\u0444\u0440\u0430\u0441\u0442\u0440\u0443\u043a\u0442\u0443\u0440\u0430",
+                    HtmlColor("#4E6E70"),
+                    new[]
+                    {
+                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.Bridge, "BR", "\u041c\u043e\u0441\u0442", new StrategyConstructionResourceCost(6, 2), HtmlColor("#8B7150"))
                     })
             };
         }

@@ -12,7 +12,9 @@ namespace ProjectUnknown.Strategy
         private const float HudWidth = 352f;
         private const float HudAnimationSpeed = 9f;
         private const float ResourceCellWidth = 138f;
-        private const int MaxWorkerHudSlots = StrategyStorageYard.MaxWorkers + StrategyStorageYard.MaxBuilders;
+        private const int StorageWorkerHudSlots = 2;
+        private const int StorageBuilderHudSlots = 2;
+        private const int MaxWorkerHudSlots = StorageWorkerHudSlots + StorageBuilderHudSlots;
 
         private Camera strategyCamera;
         private StrategyBuildMenuController buildMenu;
@@ -311,6 +313,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            LayoutContextSection(366f, 118f);
             StrategyResidentAgent resident = selectedTransform.GetComponent<StrategyResidentAgent>();
             if (resident != null)
             {
@@ -398,45 +401,44 @@ namespace ProjectUnknown.Strategy
                     RefreshResidents(building);
                 }
 
-                SetWorkersSectionVisible(isLumberjackCamp || isStonecutterCamp || isHunterCamp || isFisherHut || isStorageYard || isGranary);
+                SetWorkersSectionVisible(false);
+                if (isLumberjackCamp || isStonecutterCamp || isHunterCamp || isFisherHut || isStorageYard || isGranary)
+                {
+                    LayoutContextSection(128f, 214f);
+                }
+
                 if (isLumberjackCamp)
                 {
-                    RefreshWorkers(camp);
                     hudContextTitleText.text = "\u041b\u0435\u0441 \u0438 \u0441\u043a\u043b\u0430\u0434";
                     hudContextBodyText.text = camp.GetHudStatusText();
                     SetContextSectionVisible(true);
                 }
                 else if (isStonecutterCamp)
                 {
-                    RefreshWorkers(stoneCamp);
                     hudContextTitleText.text = "\u041a\u0430\u043c\u0435\u043d\u044c \u0438 \u0441\u043a\u043b\u0430\u0434";
                     hudContextBodyText.text = stoneCamp.GetHudStatusText();
                     SetContextSectionVisible(true);
                 }
                 else if (isHunterCamp)
                 {
-                    RefreshWorkers(hunterCamp);
                     hudContextTitleText.text = "\u041e\u0445\u043e\u0442\u0430 \u0438 \u0441\u043a\u043b\u0430\u0434";
                     hudContextBodyText.text = hunterCamp.GetHudStatusText();
                     SetContextSectionVisible(true);
                 }
                 else if (isFisherHut)
                 {
-                    RefreshWorkers(fisherHut);
                     hudContextTitleText.text = "\u0420\u044b\u0431\u0430\u043b\u043a\u0430 \u0438 \u0441\u043a\u043b\u0430\u0434";
                     hudContextBodyText.text = fisherHut.GetHudStatusText();
                     SetContextSectionVisible(true);
                 }
                 else if (isStorageYard)
                 {
-                    RefreshWorkers(yard);
                     hudContextTitleText.text = "\u0421\u043a\u043b\u0430\u0434";
                     hudContextBodyText.text = yard.GetHudStatusText();
                     SetContextSectionVisible(true);
                 }
                 else if (isGranary)
                 {
-                    RefreshWorkers(granary);
                     hudContextTitleText.text = "\u0415\u0434\u0430 \u0438 \u0437\u0430\u043f\u0430\u0441\u044b";
                     hudContextBodyText.text = granary.GetHudStatusText();
                     SetContextSectionVisible(true);
@@ -465,7 +467,9 @@ namespace ProjectUnknown.Strategy
                 int stage = constructionSite.ResourcesComplete
                     ? Mathf.Clamp(1 + Mathf.FloorToInt(constructionSite.Progress * (StrategyConstructionSpriteFactory.StageCount - 1)), 1, StrategyConstructionSpriteFactory.StageCount - 1)
                     : 0;
-                SetPreviewSprite(StrategyConstructionSpriteFactory.GetConstructionSprite(constructionSite.Tool, constructionSite.VisualVariant, stage));
+                SetPreviewSprite(constructionSite.Tool == StrategyBuildTool.Bridge
+                    ? StrategyConstructionSpriteFactory.GetBridgeConstructionSprite(constructionSite.Footprint, stage)
+                    : StrategyConstructionSpriteFactory.GetConstructionSprite(constructionSite.Tool, constructionSite.VisualVariant, stage));
                 hudSummaryTitleText.text = "\u041f\u043b\u0430\u043d";
                 hudBodyText.text = GetBuildingTitle(constructionSite.Tool)
                     + "\n"
@@ -490,6 +494,12 @@ namespace ProjectUnknown.Strategy
 
         private void SetBuildingPreviewSprite(StrategyPlacedBuilding building)
         {
+            if (building != null && building.Tool == StrategyBuildTool.Bridge)
+            {
+                SetPreviewSprite(StrategyBuildingSpriteFactory.GetBridgeSprite(building.Footprint));
+                return;
+            }
+
             if (building != null && StrategyBuildingSpriteFactory.TryGetBuildSprite(building.Tool, building.VisualVariant, out Sprite sprite))
             {
                 SetPreviewSprite(sprite);
@@ -1050,8 +1060,8 @@ namespace ProjectUnknown.Strategy
             for (int i = 0; i < workerRows.Length; i++)
             {
                 StrategyResidentAgent worker = null;
-                bool isBuilderSlot = i >= StrategyStorageYard.MaxWorkers;
-                int staffIndex = isBuilderSlot ? i - StrategyStorageYard.MaxWorkers : i;
+                bool isBuilderSlot = i >= StorageWorkerHudSlots;
+                int staffIndex = isBuilderSlot ? i - StorageWorkerHudSlots : i;
                 bool hasWorker = yard != null
                     && (isBuilderSlot
                         ? yard.TryGetBuilder(staffIndex, out worker)
@@ -1226,6 +1236,24 @@ namespace ProjectUnknown.Strategy
             if (hudContextBodyText != null)
             {
                 hudContextBodyText.gameObject.SetActive(visible);
+            }
+        }
+
+        private void LayoutContextSection(float top, float height)
+        {
+            if (contextBackground != null)
+            {
+                SetTopStretch(contextBackground, 18f, top, 18f, height);
+            }
+
+            if (hudContextTitleText != null)
+            {
+                SetTopStretch(hudContextTitleText.rectTransform, 24f, top + 12f, 24f, 20f);
+            }
+
+            if (hudContextBodyText != null)
+            {
+                SetTopStretch(hudContextBodyText.rectTransform, 24f, top + 38f, 24f, Mathf.Max(28f, height - 50f));
             }
         }
 
@@ -1491,9 +1519,9 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            if (index >= StrategyStorageYard.MaxWorkers)
+            if (index >= StorageWorkerHudSlots)
             {
-                int builderIndex = index - StrategyStorageYard.MaxWorkers;
+                int builderIndex = index - StorageWorkerHudSlots;
                 if (builderIndex < yard.BuilderCount)
                 {
                     yard.TryGetBuilder(builderIndex, out StrategyResidentAgent builder);
@@ -2062,6 +2090,7 @@ namespace ProjectUnknown.Strategy
                 StrategyBuildTool.FisherHut => "\u0425\u0438\u0436\u0438\u043d\u0430 \u0440\u044b\u0431\u0430\u043a\u0430",
                 StrategyBuildTool.StorageYard => "\u0421\u043a\u043b\u0430\u0434",
                 StrategyBuildTool.Granary => "\u0410\u043c\u0431\u0430\u0440",
+                StrategyBuildTool.Bridge => "\u041c\u043e\u0441\u0442",
                 _ => tool.ToString()
             };
         }
@@ -2094,6 +2123,8 @@ namespace ProjectUnknown.Strategy
             string status = resident.Activity switch
             {
                 StrategyResidentAgent.ResidentActivity.MovingHome => "\u0438\u0434\u0435\u0442 \u043a \u0434\u043e\u043c\u0443",
+                StrategyResidentAgent.ResidentActivity.ArrivingAsRefugee => "\u0438\u0434\u0435\u0442 \u043a \u043a\u043e\u0441\u0442\u0440\u0443",
+                StrategyResidentAgent.ResidentActivity.LeavingSettlement => "\u0443\u0445\u043e\u0434\u0438\u0442 \u0438\u0437 \u043f\u043e\u0441\u0435\u043b\u0435\u043d\u0438\u044f",
                 StrategyResidentAgent.ResidentActivity.WorkingGarden => "\u0440\u0430\u0431\u043e\u0442\u0430\u0435\u0442 \u043d\u0430 \u0433\u0440\u044f\u0434\u043a\u0435",
                 StrategyResidentAgent.ResidentActivity.MovingToGarden => "\u0438\u0434\u0435\u0442 \u043a \u0433\u0440\u044f\u0434\u043a\u0435",
                 StrategyResidentAgent.ResidentActivity.MovingToTree => "\u0438\u0434\u0435\u0442 \u043a \u0434\u0435\u0440\u0435\u0432\u0443",
@@ -2147,6 +2178,11 @@ namespace ProjectUnknown.Strategy
                 StrategyResidentAgent.ResidentActivity.DepositingGranaryFish => "\u0441\u043a\u043b\u0430\u0434\u0438\u0440\u0443\u0435\u0442 \u0440\u044b\u0431\u0443 \u0432 \u0430\u043c\u0431\u0430\u0440",
                 _ => "idle"
             };
+
+            if (resident.IsPendingRefugee && resident.Activity == StrategyResidentAgent.ResidentActivity.Idle)
+            {
+                return "\u0431\u0435\u0436\u0435\u043d\u0435\u0446";
+            }
 
             if (resident.BuilderWorkplace != null && resident.Activity == StrategyResidentAgent.ResidentActivity.Idle)
             {

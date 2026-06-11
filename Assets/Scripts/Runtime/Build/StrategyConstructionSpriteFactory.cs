@@ -15,10 +15,31 @@ namespace ProjectUnknown.Strategy
         public static Sprite GetConstructionSprite(StrategyBuildTool tool, int variant, int stage)
         {
             int normalizedStage = Mathf.Clamp(stage, 0, StageCount - 1);
+            if (tool == StrategyBuildTool.Bridge)
+            {
+                return GetBridgeConstructionSprite(new Vector2Int(3, 1), normalizedStage);
+            }
+
             int cacheKey = ((int)tool * 512) + (Mathf.Max(0, variant) * 32) + normalizedStage;
             if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
             {
                 sprite = CreateConstructionSprite(tool, variant, normalizedStage);
+                CachedSprites[cacheKey] = sprite;
+            }
+
+            return sprite;
+        }
+
+        public static Sprite GetBridgeConstructionSprite(Vector2Int footprint, int stage)
+        {
+            Vector2Int normalizedFootprint = new Vector2Int(
+                Mathf.Max(1, footprint.x),
+                Mathf.Max(1, footprint.y));
+            int normalizedStage = Mathf.Clamp(stage, 0, StageCount - 1);
+            int cacheKey = 65536 + normalizedFootprint.x * 512 + normalizedFootprint.y * 16 + normalizedStage;
+            if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
+            {
+                sprite = CreateBridgeConstructionSprite(normalizedFootprint, normalizedStage);
                 CachedSprites[cacheKey] = sprite;
             }
 
@@ -130,6 +151,129 @@ namespace ProjectUnknown.Strategy
             DrawLooseMaterials(texture, stage, plankDark, plank, stone, stoneLight, outline);
             texture.Apply(false, false);
             return Sprite.Create(texture, new Rect(6f, 5f, 92f, 82f), new Vector2(0.5f, 0.10f), PixelsPerUnit);
+        }
+
+        private static Sprite CreateBridgeConstructionSprite(Vector2Int footprint, int stage)
+        {
+            bool horizontal = footprint.x >= footprint.y;
+            int lengthCells = Mathf.Max(1, horizontal ? footprint.x : footprint.y);
+            int width = horizontal ? Mathf.Max(72, lengthCells * 24 + 20) : 62;
+            int height = horizontal ? 56 : Mathf.Max(72, lengthCells * 24 + 20);
+            Texture2D texture = CreateTexture(width, height, $"Bridge Construction {footprint.x}x{footprint.y} Stage {stage + 1}");
+
+            Color shadow = new Color(0f, 0f, 0f, 0.22f);
+            Color outline = Rgb(49, 35, 26);
+            Color post = Rgb(90, 55, 34);
+            Color plank = Rgb(147, 91, 45);
+            Color plankLight = Rgb(204, 139, 72);
+            Color rope = Rgb(198, 158, 91);
+            Color stone = Rgb(121, 123, 113);
+
+            int visibleLevel = Mathf.Clamp(stage, 0, StageCount - 1);
+            if (horizontal)
+            {
+                int centerY = height / 2;
+                FillEllipse(texture, width / 2, centerY - 10, width / 2 - 8, 8, shadow);
+
+                int posts = Mathf.Max(2, lengthCells + 1);
+                for (int i = 0; i < posts; i++)
+                {
+                    int x = Mathf.RoundToInt(Mathf.Lerp(12, width - 12, i / (float)(posts - 1)));
+                    FillRect(texture, x - 2, centerY - 17, 5, 16, outline);
+                    FillRect(texture, x - 1, centerY - 16, 3, 14, post);
+                    if (visibleLevel >= 2)
+                    {
+                        FillRect(texture, x - 2, centerY + 2, 5, 15, outline);
+                        FillRect(texture, x - 1, centerY + 3, 3, 13, post);
+                    }
+                }
+
+                if (visibleLevel >= 1)
+                {
+                    DrawThickLine(texture, P(10, centerY - 7), P(width - 10, centerY - 7), outline, 1);
+                    DrawLine(texture, P(11, centerY - 6), P(width - 11, centerY - 6), plankLight);
+                }
+
+                if (visibleLevel >= 3)
+                {
+                    DrawThickLine(texture, P(12, centerY + 7), P(width - 8, centerY + 4), outline, 1);
+                    DrawLine(texture, P(13, centerY + 6), P(width - 10, centerY + 3), plank);
+                    DrawLine(texture, P(12, centerY - 14), P(width - 12, centerY - 14), rope);
+                }
+
+                if (visibleLevel >= 4)
+                {
+                    int planks = Mathf.Max(3, lengthCells * 2);
+                    for (int i = 0; i <= planks; i++)
+                    {
+                        int x = Mathf.RoundToInt(Mathf.Lerp(16, width - 16, i / (float)planks));
+                        DrawLine(texture, P(x, centerY - 8), P(x + 3, centerY + 5), outline);
+                    }
+                }
+
+                if (visibleLevel <= 2)
+                {
+                    for (int i = 0; i < Mathf.Max(2, visibleLevel + 2); i++)
+                    {
+                        int x = 18 + i * 11;
+                        FillRect(texture, x, centerY - 1, 12, 4, outline);
+                        FillRect(texture, x + 1, centerY, 10, 2, plank);
+                    }
+                }
+            }
+            else
+            {
+                int centerX = width / 2;
+                FillEllipse(texture, centerX, height / 2, 15, height / 2 - 8, shadow);
+
+                int posts = Mathf.Max(2, lengthCells + 1);
+                for (int i = 0; i < posts; i++)
+                {
+                    int y = Mathf.RoundToInt(Mathf.Lerp(12, height - 12, i / (float)(posts - 1)));
+                    FillRect(texture, centerX - 18, y - 2, 13, 5, outline);
+                    FillRect(texture, centerX - 17, y - 1, 11, 3, post);
+                    if (visibleLevel >= 2)
+                    {
+                        FillRect(texture, centerX + 6, y - 2, 13, 5, outline);
+                        FillRect(texture, centerX + 7, y - 1, 11, 3, post);
+                    }
+                }
+
+                if (visibleLevel >= 1)
+                {
+                    DrawThickLine(texture, P(centerX - 10, 10), P(centerX - 7, height - 10), outline, 1);
+                    DrawLine(texture, P(centerX - 8, 12), P(centerX - 5, height - 12), plankLight);
+                }
+
+                if (visibleLevel >= 3)
+                {
+                    DrawThickLine(texture, P(centerX + 9, 12), P(centerX + 14, height - 15), outline, 1);
+                    DrawLine(texture, P(centerX + 7, 13), P(centerX + 11, height - 16), plank);
+                    DrawLine(texture, P(centerX - 16, 15), P(centerX - 12, height - 14), rope);
+                }
+
+                if (visibleLevel >= 4)
+                {
+                    int planks = Mathf.Max(3, lengthCells * 2);
+                    for (int i = 0; i <= planks; i++)
+                    {
+                        int y = Mathf.RoundToInt(Mathf.Lerp(17, height - 18, i / (float)planks));
+                        DrawLine(texture, P(centerX - 8, y), P(centerX + 8, y - 2), outline);
+                    }
+                }
+
+                if (visibleLevel <= 2)
+                {
+                    for (int i = 0; i < Mathf.Max(2, visibleLevel + 2); i++)
+                    {
+                        int y = 18 + i * 10;
+                        FillEllipse(texture, centerX + 2, y, 5, 3, stone);
+                    }
+                }
+            }
+
+            texture.Apply(false, false);
+            return Sprite.Create(texture, new Rect(0f, 0f, width, height), new Vector2(0.5f, 0.5f), PixelsPerUnit);
         }
 
         private static void DrawFoundation(Texture2D texture, Color stone, Color stoneLight, Color outline)

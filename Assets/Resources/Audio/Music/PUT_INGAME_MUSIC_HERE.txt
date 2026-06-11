@@ -1,0 +1,14 @@
+Put in-game music files here.
+
+Recommended names:
+Music_01.mp3
+Music_02.mp3
+Music_03.ogg
+
+Supported Unity audio extensions are fine, for example .mp3, .ogg, or .wav.
+
+The runtime Resources folder path is:
+Audio/Music
+
+All AudioClips in this folder are loaded as a playlist.
+The game picks tracks randomly and avoids repeating the same track twice in a row when 2+ tracks exist.

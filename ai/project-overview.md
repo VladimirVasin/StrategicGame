@@ -15,6 +15,8 @@ Last updated: 2026-06-11
   Main Unity content folder.
 - `Assets/Scripts/Runtime/`
   Runtime C# scripts for the MVP strategy foundation, camera, map, and UI.
+- `Assets/Resources/Audio/`
+  Runtime-loadable non-generated ambience, footstep, and in-game music audio.
 - `Assets/Scenes/SampleScene.unity`
   Default starter scene.
 - `Assets/InputSystem_Actions.inputactions`
@@ -50,26 +52,30 @@ Confirmed from `Packages/manifest.json`:
 
 ## Implemented Gameplay
 
-- Runtime bootstrap creates the first MVP strategy scene layer on play, including a Unity `WindZone`-backed strategy wind source.
-- Runtime debug logging writes structured gameplay diagnostics to `debug.log`, including bootstrap, map, nature, Stone, build, population, forestry, selection, time-scale, and Unity warning/error events.
+- Runtime bootstrap creates the first MVP strategy scene layer on play, including a Unity `WindZone`-backed strategy wind source and runtime ambience audio.
+- Runtime debug logging writes structured gameplay diagnostics to `debug.log`, including bootstrap, audio, map, nature, Stone, build, population, forestry, selection, time-scale, and Unity warning/error events.
 - A generated 2D city map appears at runtime with randomized seed-driven terrain generation and procedural pixel-art terrain textures.
-- Current terrain generation covers grass, meadow, forest, dirt, shore, and water with randomized rivers/water blobs, clustered land biomes, seeded texture variants, and transition overlays.
+- Current terrain generation covers grass, meadow, forest, dirt, shore, and water with randomized rivers/water blobs, clustered land biomes, seeded texture variants, and transition overlays; generated water/shore cells are tagged as River or Lake for technical gameplay distinction, and generated rivers expose a technical flow direction used by river animation and river fish.
 - A runtime nature-props layer places procedural 2.5D trees, forest groups, and bushes over the generated terrain.
-- A runtime wildlife layer spawns deer herds and rabbit groups on suitable walkable land, fish shoals on water cells, and decorative birds across species-appropriate land/water habitats; current wildlife has procedural 2.5D/pixel-art sprites, frame-based ambient/threat/work animations, and reacts to nearby residents without revealing fog or blocking cells. Deer, rabbits, and fish have capped reproduction/growth; birds are decorative-only, while adult rabbits can be reserved and hunted by Hunter Camp workers for local `Дичь`, and adult fish can be reserved and caught by Fisher Hut workers for local `Рыба`.
+- A runtime wildlife layer spawns deer herds and rabbit groups on suitable walkable land, lake fish populations on generated lake regions, one-way pass-through river fish along the river current, and decorative birds across species-appropriate land/water habitats; current wildlife has procedural 2.5D/pixel-art sprites, frame-based ambient/threat/work animations, and reacts to nearby residents without revealing fog or blocking cells. Deer, rabbits, and lake fish have capped reproduction/growth; river fish do not reproduce and despawn at the route end; birds are decorative-only, while adult rabbits can be reserved and hunted by Hunter Camp workers for local `Дичь`, and adult fish can be reserved and caught by Fisher Hut workers for local `Рыба`.
 - The nature layer also places procedural Stone resource deposits as standalone boulders, rock clusters, and larger cliffs.
 - Trees, forest groups, and bushes sway through a 2D adapter driven by the Unity `WindZone` values.
 - Forest terrain cells receive dense visual forest props, while grass/meadow/dirt/shore cells can receive sparse standalone trees or bushes.
 - Standalone generated trees are registered as mature forestry trees; planted saplings grow through 3 visual stages.
 - Orthographic strategy camera supports map pan/scroll and zoom controls.
 - Runtime time controls support F1/F2/F3 for x1/x2/x3 simulation speed.
-- Storage Yard is implemented as the first storage/logistics building: it has procedural 2.5D art, up to 2 assigned workers, local Logs and Stone stock, growing visual stockpiles, resident hauling from production camps, and construction resource reservations.
+- Runtime ambience audio loads non-generated forest birds, cicadas, night, rain, wind, and river loops from `Assets/Resources/Audio/Nature`; river ambience is spatial and follows the nearest water to the camera.
+- Runtime in-game music loads all AudioClips from `Assets/Resources/Audio/Music` as a random playlist, avoids repeating the same track twice in a row when multiple tracks exist, and pauses/resumes the current clip when the game loses/regains focus.
+- Resident walking now uses non-generated grass footstep clips from `Assets/Resources/Audio/Footsteps/GrassWalk` through quiet spatial AudioSources on residents.
+- Storage Yard is implemented as the first storage/logistics building: it has procedural 2.5D art, uncapped assigned storage workers/builders, local Logs and Stone stock, growing visual stockpiles, resident hauling from production camps, and construction resource reservations.
 - Granary is implemented as the first food-storage/logistics building: it has procedural 2.5D art, up to 2 assigned workers, local `Дичь` and `Рыба` stock, growing visual food stockpiles, and resident hauling from Hunter Camps and Fisher Huts.
 - A starter Storage Yard appears near the campfire with 13 Logs and 9 Stone at the beginning of play.
 - Runtime Build menu appears as the first HUD layer, inspired by the `Gruzovichky` bottom Build dock/category tray.
 - Build menu infrastructure supports category cards, build item cards, Logs/Stone construction costs, active tool state, `B` open/close, numeric hotkeys, and Escape/right-click layer cancel.
-- Current Build catalog has Houses/Home, Industries/Lumberjack Camp, Stonecutter Camp, Hunter Camp, and Fisher Hut, and Storage/Storage Yard and Granary.
-- Build placement mode is implemented for catalog tools: hover preview, valid/invalid placement coloring, left-click construction-site creation, occupied-cell blocking, non-water terrain checks, fog checks, and Storage Yard resource affordability.
+- Current Build catalog has Houses/Home, Industries/Lumberjack Camp, Stonecutter Camp, Hunter Camp, and Fisher Hut, Storage/Storage Yard and Granary, and Infrastructure/Bridge.
+- Build placement mode is implemented for catalog tools: hover preview, valid/invalid placement coloring, left-click construction-site creation, occupied-cell blocking, non-water terrain checks, fog checks, Storage Yard resource affordability, and Bridge's two-click river-bank placement.
 - Player-built tools now construct through runtime construction sites: resources are reserved from Storage Yards, builders carry Logs/Stone to the site, residents animate hammer/build work, staged site sprites progress, and the final building appears only after progress completes.
+- Bridge construction selects one valid river bank cell, highlights opposite-bank candidates across contiguous River water, creates a construction site after the second bank click, and makes the final bridge span walkable across the river without changing river/lake water identity.
 - `Дом` uses runtime-generated 2.5D pixel-art sprites: a stable default for the menu/preview and 5 random visual variants for placed houses.
 - `Лагерь дровосеков` uses runtime-generated 2.5D pixel-art sprites and supports up to 2 assigned resident workers.
 - `Лагерь охотников` uses runtime-generated 2.5D pixel-art sprites, supports up to 2 assigned resident workers, and keeps a local visual `Дичь` stockpile.
@@ -78,11 +84,13 @@ Confirmed from `Packages/manifest.json`:
 - A startup camp places an animated procedural campfire and 6 initial residents: 3 men and 3 women, each with a random age from 18 to 30.
 - The startup camp reserves a 3-cell clear radius where generated trees, bushes, forest groups, and other nature props are skipped.
 - The initial camera view starts focused near the startup campfire with a medium-close zoom.
-- Building a house construction site first tries to reserve one random free adult man and one random free adult woman from the camp as future residents instead of creating new residents; if no free future-home pair exists, general adult builders can still build a free house.
+- Building a house construction site first tries to reserve one random free adult man and one random free adult woman from the camp as future residents instead of creating new residents; free for housing means no current home/pair and is independent from workplace or construction assignment. If no free future-home pair exists, general adult builders can still build a free house.
 - Houses can hold up to 5 residents; adult male/female house pairs can have children after a randomized cooldown when they are not close relatives and the house is not full.
 - Empty houses can accept the oldest adult child still living with parents, and single adult-child households can pull in an adult opposite-gender partner from another parental home or the free camp pool after kinship checks.
+- The first refugee family spawns after 3 completed houses; later refugee families periodically spawn from a map edge, walk to the startup campfire, pause the game with a decision dialog, and either join the settlement or leave the map based on player choice.
+- The top status HUD shows total population with separate adult and child counts.
 - Residents have runtime IDs, full names, family names, age, life stage, parent/child links, 5 runtime-generated male variants, 5 runtime-generated female variants, child sprites, matching portrait sprites, and idle movement around their current camp/home through nearby walkable cells.
-- Children are attached to their birth house, cannot be assigned as workers/builders, idle/walk near home, grow into adults after scaled game time, and continue aging after adulthood.
+- Children are attached to their birth house, cannot be assigned as workers/builders, idle/walk near home, grow into adults at age 16 after scaled game time, and continue aging after adulthood.
 - Residents assigned to a lumberjack camp walk to nearby mature trees, chop them, buck fallen trunks into Logs, carry Logs to the camp stockpile, then walk to planting cells and plant new saplings.
 - Residents assigned to a hunter camp walk into bow range of reserved adult rabbits, fire animated arrows, butcher carcasses, carry `Дичь`, and deposit it at the camp stockpile.
 - Residents assigned to a fisher hut walk to nearby shore cells, cast fishing lines toward reserved fish, reel hooked fish in, carry `Рыба`, and deposit it at the hut stockpile.

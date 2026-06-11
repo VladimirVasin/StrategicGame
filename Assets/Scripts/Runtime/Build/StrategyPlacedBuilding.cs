@@ -10,6 +10,7 @@ namespace ProjectUnknown.Strategy
 
         private readonly Dictionary<StrategyBuildingUpgradeType, StrategyBuildingUpgrade> upgrades = new();
         private readonly List<StrategyResidentAgent> residents = new();
+        private readonly List<Vector2Int> bridgeCells = new();
         private SpriteRenderer spriteRenderer;
         private StrategyHouseResourceStore resources;
 
@@ -18,6 +19,8 @@ namespace ProjectUnknown.Strategy
         public Vector2Int Footprint { get; private set; }
         public Bounds FootprintBounds { get; private set; }
         public int VisualVariant { get; private set; }
+        public Vector2Int BridgeStartCell { get; private set; }
+        public Vector2Int BridgeEndCell { get; private set; }
 
         public Vector3 HomeAnchor => new Vector3(FootprintBounds.center.x, FootprintBounds.min.y, transform.position.z);
 
@@ -27,6 +30,7 @@ namespace ProjectUnknown.Strategy
         public int ResidentCapacity => Tool == StrategyBuildTool.House ? MaxHouseResidents : int.MaxValue;
         public bool HasFreeResidentSlot => Tool != StrategyBuildTool.House || residents.Count < ResidentCapacity;
         public IReadOnlyList<StrategyResidentAgent> Residents => residents;
+        public IReadOnlyList<Vector2Int> BridgeCells => bridgeCells;
         public StrategyHouseResourceStore Resources => resources;
 
         public void Configure(
@@ -43,8 +47,33 @@ namespace ProjectUnknown.Strategy
             FootprintBounds = footprintBounds;
             VisualVariant = visualVariant;
             residents.Clear();
+            bridgeCells.Clear();
+            BridgeStartCell = origin;
+            BridgeEndCell = origin;
             spriteRenderer = renderer;
             EnsureResourceStore();
+            EnsureClickCollider();
+        }
+
+        public void ConfigureBridgeSpan(
+            IReadOnlyList<Vector2Int> cells,
+            Vector2Int startCell,
+            Vector2Int endCell)
+        {
+            bridgeCells.Clear();
+            if (cells != null)
+            {
+                for (int i = 0; i < cells.Count; i++)
+                {
+                    if (!bridgeCells.Contains(cells[i]))
+                    {
+                        bridgeCells.Add(cells[i]);
+                    }
+                }
+            }
+
+            BridgeStartCell = startCell;
+            BridgeEndCell = endCell;
             EnsureClickCollider();
         }
 

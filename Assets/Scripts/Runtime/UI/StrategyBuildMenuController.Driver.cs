@@ -17,7 +17,8 @@ namespace ProjectUnknown.Strategy
         HunterCamp,
         FisherHut,
         StorageYard,
-        Granary
+        Granary,
+        Bridge
     }
 
     public readonly struct StrategyBuildToolInfo
@@ -811,6 +812,7 @@ namespace ProjectUnknown.Strategy
                 StrategyBuildTool.FisherHut => new Vector2Int(2, 2),
                 StrategyBuildTool.StorageYard => new Vector2Int(3, 2),
                 StrategyBuildTool.Granary => new Vector2Int(3, 2),
+                StrategyBuildTool.Bridge => Vector2Int.one,
                 _ => Vector2Int.one
             };
         }

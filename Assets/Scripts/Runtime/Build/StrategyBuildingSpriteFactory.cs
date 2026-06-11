@@ -13,6 +13,7 @@ namespace ProjectUnknown.Strategy
         public const int FisherHutVariantCount = 3;
         public const int StorageYardVariantCount = 3;
         public const int GranaryVariantCount = 3;
+        public const int BridgeVariantCount = 1;
 
         private static readonly Dictionary<int, Sprite> CachedSprites = new();
 
@@ -27,6 +28,7 @@ namespace ProjectUnknown.Strategy
                 StrategyBuildTool.FisherHut => FisherHutVariantCount,
                 StrategyBuildTool.StorageYard => StorageYardVariantCount,
                 StrategyBuildTool.Granary => GranaryVariantCount,
+                StrategyBuildTool.Bridge => BridgeVariantCount,
                 _ => 1
             };
         }
@@ -45,7 +47,8 @@ namespace ProjectUnknown.Strategy
                 && tool != StrategyBuildTool.HunterCamp
                 && tool != StrategyBuildTool.FisherHut
                 && tool != StrategyBuildTool.StorageYard
-                && tool != StrategyBuildTool.Granary)
+                && tool != StrategyBuildTool.Granary
+                && tool != StrategyBuildTool.Bridge)
             {
                 sprite = null;
                 return false;
@@ -63,12 +66,28 @@ namespace ProjectUnknown.Strategy
                     StrategyBuildTool.FisherHut => CreateFisherHutSprite(normalizedVariant),
                     StrategyBuildTool.StorageYard => CreateStorageYardSprite(normalizedVariant),
                     StrategyBuildTool.Granary => CreateGranarySprite(normalizedVariant),
+                    StrategyBuildTool.Bridge => CreateBridgeSprite(new Vector2Int(3, 1)),
                     _ => CreateHouseSprite(normalizedVariant)
                 };
                 CachedSprites[cacheKey] = sprite;
             }
 
             return sprite != null;
+        }
+
+        public static Sprite GetBridgeSprite(Vector2Int footprint)
+        {
+            Vector2Int normalizedFootprint = new Vector2Int(
+                Mathf.Max(1, footprint.x),
+                Mathf.Max(1, footprint.y));
+            int cacheKey = 57344 + normalizedFootprint.x * 128 + normalizedFootprint.y;
+            if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
+            {
+                sprite = CreateBridgeSprite(normalizedFootprint);
+                CachedSprites[cacheKey] = sprite;
+            }
+
+            return sprite;
         }
 
         public static Sprite GetLumberjackCampStockSprite(int logsStored)
@@ -1322,6 +1341,113 @@ namespace ProjectUnknown.Strategy
 
             texture.Apply(false, false);
             return Sprite.Create(texture, new Rect(4f, 5f, 64f, 34f), new Vector2(0.5f, 0.18f), PixelsPerUnit);
+        }
+
+        private static Sprite CreateBridgeSprite(Vector2Int footprint)
+        {
+            bool horizontal = footprint.x >= footprint.y;
+            int lengthCells = Mathf.Max(1, horizontal ? footprint.x : footprint.y);
+            int width = horizontal ? Mathf.Max(72, lengthCells * 24 + 20) : 62;
+            int height = horizontal ? 56 : Mathf.Max(72, lengthCells * 24 + 20);
+            Texture2D texture = CreateTexture(width, height, $"Bridge Sprite {footprint.x}x{footprint.y}");
+
+            Color outline = Rgb(49, 34, 24);
+            Color shadow = new Color(0f, 0f, 0f, 0.22f);
+            Color woodDark = Rgb(86, 52, 31);
+            Color wood = Rgb(142, 88, 45);
+            Color woodLight = Rgb(205, 139, 70);
+            Color rope = Rgb(198, 159, 91);
+            Color peg = Rgb(66, 45, 31);
+
+            if (horizontal)
+            {
+                int centerY = height / 2;
+                FillEllipse(texture, width / 2, centerY - 11, width / 2 - 8, 8, shadow);
+
+                Vector2Int[] deck =
+                {
+                    P(9, centerY - 9),
+                    P(width - 14, centerY - 9),
+                    P(width - 6, centerY + 5),
+                    P(15, centerY + 8)
+                };
+                FillPolygon(texture, deck, outline);
+                FillPolygon(
+                    texture,
+                    new[] { P(13, centerY - 7), P(width - 17, centerY - 7), P(width - 11, centerY + 3), P(18, centerY + 5) },
+                    wood);
+
+                DrawThickLine(texture, P(10, centerY - 11), P(width - 12, centerY - 11), outline, 1);
+                DrawThickLine(texture, P(12, centerY + 9), P(width - 8, centerY + 6), outline, 1);
+                DrawLine(texture, P(12, centerY - 10), P(width - 14, centerY - 10), woodLight);
+                DrawLine(texture, P(17, centerY + 5), P(width - 12, centerY + 3), woodDark);
+
+                int plankCount = Mathf.Max(4, lengthCells * 2);
+                for (int i = 0; i <= plankCount; i++)
+                {
+                    int x = Mathf.RoundToInt(Mathf.Lerp(17, width - 17, i / (float)plankCount));
+                    DrawLine(texture, P(x, centerY - 7), P(x + 3, centerY + 5), outline);
+                    DrawLine(texture, P(x + 1, centerY - 6), P(x + 3, centerY + 4), woodLight);
+                }
+
+                for (int i = 0; i <= lengthCells; i++)
+                {
+                    int x = Mathf.RoundToInt(Mathf.Lerp(13, width - 13, i / (float)Mathf.Max(1, lengthCells)));
+                    FillRect(texture, x - 2, centerY - 18, 5, 14, outline);
+                    FillRect(texture, x - 1, centerY - 17, 3, 12, peg);
+                    FillRect(texture, x - 2, centerY + 4, 5, 12, outline);
+                    FillRect(texture, x - 1, centerY + 5, 3, 10, peg);
+                }
+
+                DrawLine(texture, P(14, centerY - 15), P(width - 14, centerY - 15), rope);
+                DrawLine(texture, P(15, centerY + 13), P(width - 10, centerY + 10), rope);
+            }
+            else
+            {
+                int centerX = width / 2;
+                FillEllipse(texture, centerX, height / 2, 15, height / 2 - 8, shadow);
+
+                Vector2Int[] deck =
+                {
+                    P(centerX - 12, 9),
+                    P(centerX + 7, 11),
+                    P(centerX + 13, height - 15),
+                    P(centerX - 8, height - 7)
+                };
+                FillPolygon(texture, deck, outline);
+                FillPolygon(
+                    texture,
+                    new[] { P(centerX - 9, 13), P(centerX + 5, 14), P(centerX + 9, height - 17), P(centerX - 6, height - 11) },
+                    wood);
+
+                DrawThickLine(texture, P(centerX - 14, 10), P(centerX - 10, height - 8), outline, 1);
+                DrawThickLine(texture, P(centerX + 9, 12), P(centerX + 15, height - 16), outline, 1);
+                DrawLine(texture, P(centerX - 11, 13), P(centerX - 7, height - 12), woodLight);
+                DrawLine(texture, P(centerX + 6, 15), P(centerX + 10, height - 18), woodDark);
+
+                int plankCount = Mathf.Max(4, lengthCells * 2);
+                for (int i = 0; i <= plankCount; i++)
+                {
+                    int y = Mathf.RoundToInt(Mathf.Lerp(17, height - 18, i / (float)plankCount));
+                    DrawLine(texture, P(centerX - 8, y), P(centerX + 8, y - 2), outline);
+                    DrawLine(texture, P(centerX - 6, y + 1), P(centerX + 6, y - 1), woodLight);
+                }
+
+                for (int i = 0; i <= lengthCells; i++)
+                {
+                    int y = Mathf.RoundToInt(Mathf.Lerp(15, height - 15, i / (float)Mathf.Max(1, lengthCells)));
+                    FillRect(texture, centerX - 18, y - 2, 12, 5, outline);
+                    FillRect(texture, centerX - 17, y - 1, 10, 3, peg);
+                    FillRect(texture, centerX + 8, y - 2, 12, 5, outline);
+                    FillRect(texture, centerX + 9, y - 1, 10, 3, peg);
+                }
+
+                DrawLine(texture, P(centerX - 17, 15), P(centerX - 13, height - 14), rope);
+                DrawLine(texture, P(centerX + 17, 16), P(centerX + 20, height - 18), rope);
+            }
+
+            texture.Apply(false, false);
+            return Sprite.Create(texture, new Rect(0f, 0f, width, height), new Vector2(0.5f, 0.5f), PixelsPerUnit);
         }
 
         private static Texture2D CreateTexture(int width, int height, string name)

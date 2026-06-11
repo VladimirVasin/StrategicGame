@@ -50,7 +50,10 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyStonecutEffectAnimator.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyFishSpriteFactory.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Population\StrategyProfessionType.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Audio\StrategyMusicController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyKinshipUtility.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyProfessionIconFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyStorageYard.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWildlifeController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyStoneDeposit.cs" />
@@ -58,6 +61,7 @@
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyChickenAgent.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyNatureFrameAnimator.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyLumberjackCamp.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Audio\StrategyResidentFootstepAudio.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyChickenSpriteFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyWindSway.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyTimeScaleController.cs" />
@@ -71,7 +75,6 @@
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyFishAgent.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyBirdAgent.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyBuildMenuController.Catalog.cs" />
-    <Compile Include="Assets\Scripts\Runtime\UI\StrategyBuildMenuController.Driver.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyConstructionSpriteFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyFogOfWarController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyGameBootstrap.cs" />
@@ -90,29 +93,38 @@
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyDeerAgent.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyStoneResourceController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyHunterCamp.cs" />
-    <Compile Include="Assets\Scripts\Runtime\Build\StrategyFisherHut.cs" />
-    <Compile Include="Assets\Scripts\Runtime\Build\StrategyGranary.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingUpgradeAnimator.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyTopStatusHudController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyResourceType.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyStonecutterCamp.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyWaterAnimationController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyHouseResourceStore.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyGranary.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingUpgrade.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyCampfireSpriteFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyForestryTree.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyDeerSpriteFactory.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyFisherHut.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyPopulationController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingUpgradeSpriteFactory.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyProfessionHudController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\CityMapController.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyBuildMenuController.Driver.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Population\StrategyRefugeeArrivalController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyBirdSpriteFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyNaturePropController.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Audio\StrategyAmbientAudioController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyWindController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyForestryController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyPlacedBuilding.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyTerrainTexturePainter.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyRefugeeDialogController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyHuntingArrowProjectile.cs" />
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyResourceIconFactory.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Assets\Resources\Audio\Music\PUT_INGAME_MUSIC_HERE.txt" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

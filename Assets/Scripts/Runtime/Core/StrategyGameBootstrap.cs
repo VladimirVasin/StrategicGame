@@ -109,6 +109,29 @@ namespace ProjectUnknown.Strategy
             cameraController.FocusOn(map.WorldBounds.center, InitialCameraSize);
             StrategyDebugLogger.Info("Bootstrap", "CameraReady", StrategyDebugLogger.F("position", mainCamera.transform.position));
 
+            StrategyAmbientAudioController ambientAudio = Object.FindAnyObjectByType<StrategyAmbientAudioController>();
+            if (ambientAudio == null)
+            {
+                GameObject ambientAudioObject = new GameObject("Strategy Ambient Audio");
+                ambientAudio = ambientAudioObject.AddComponent<StrategyAmbientAudioController>();
+            }
+
+            ambientAudio.Configure(map, mainCamera);
+            StrategyDebugLogger.Info(
+                "Bootstrap",
+                "AmbientAudioReady",
+                StrategyDebugLogger.F("footstepClips", StrategyResidentFootstepAudio.LoadedClipCount));
+
+            StrategyMusicController music = Object.FindAnyObjectByType<StrategyMusicController>();
+            if (music == null)
+            {
+                GameObject musicObject = new GameObject("Strategy Music");
+                music = musicObject.AddComponent<StrategyMusicController>();
+            }
+
+            music.Configure();
+            StrategyDebugLogger.Info("Bootstrap", "MusicReady");
+
             StrategyBuildMenuController buildMenu = Object.FindAnyObjectByType<StrategyBuildMenuController>();
             if (buildMenu == null)
             {
@@ -204,6 +227,45 @@ namespace ProjectUnknown.Strategy
 
             selection.Configure(mainCamera, buildMenu, upgrades, fog, population, forestry);
             StrategyDebugLogger.Info("Bootstrap", "SelectionReady");
+
+            StrategyProfessionHudController professionHud = Object.FindAnyObjectByType<StrategyProfessionHudController>();
+            if (professionHud == null)
+            {
+                GameObject professionHudObject = new GameObject("Strategy Profession HUD");
+                professionHud = professionHudObject.AddComponent<StrategyProfessionHudController>();
+            }
+
+            professionHud.Configure(population);
+            StrategyDebugLogger.Info("Bootstrap", "ProfessionHudReady");
+
+            StrategyTopStatusHudController topStatusHud = Object.FindAnyObjectByType<StrategyTopStatusHudController>();
+            if (topStatusHud == null)
+            {
+                GameObject topStatusHudObject = new GameObject("Strategy Top Status HUD");
+                topStatusHud = topStatusHudObject.AddComponent<StrategyTopStatusHudController>();
+            }
+
+            topStatusHud.Configure(population);
+            StrategyDebugLogger.Info("Bootstrap", "TopStatusHudReady");
+
+            StrategyRefugeeDialogController refugeeDialog = Object.FindAnyObjectByType<StrategyRefugeeDialogController>();
+            if (refugeeDialog == null)
+            {
+                GameObject refugeeDialogObject = new GameObject("Strategy Refugee Dialog");
+                refugeeDialog = refugeeDialogObject.AddComponent<StrategyRefugeeDialogController>();
+            }
+
+            refugeeDialog.Configure();
+
+            StrategyRefugeeArrivalController refugees = Object.FindAnyObjectByType<StrategyRefugeeArrivalController>();
+            if (refugees == null)
+            {
+                GameObject refugeesObject = new GameObject("Strategy Refugee Arrivals");
+                refugees = refugeesObject.AddComponent<StrategyRefugeeArrivalController>();
+            }
+
+            refugees.Configure(map, population, timeScale, refugeeDialog);
+            StrategyDebugLogger.Info("Bootstrap", "RefugeesReady");
         }
     }
 }

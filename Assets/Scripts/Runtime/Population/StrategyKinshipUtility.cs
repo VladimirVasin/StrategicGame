@@ -50,12 +50,46 @@ namespace ProjectUnknown.Strategy
                 return 0;
             }
 
+            Dictionary<int, int> firstAncestors = CollectAncestorDepths(first, population, maxDepth);
+            Dictionary<int, int> secondAncestors = CollectAncestorDepths(second, population, maxDepth);
+            if (secondAncestors.TryGetValue(first.ResidentId, out int secondToFirst))
+            {
+                return secondToFirst;
+            }
+
+            if (firstAncestors.TryGetValue(second.ResidentId, out int firstToSecond))
+            {
+                return firstToSecond;
+            }
+
+            int bestDegree = int.MaxValue;
+            foreach (KeyValuePair<int, int> ancestor in firstAncestors)
+            {
+                if (!secondAncestors.TryGetValue(ancestor.Key, out int secondDepth))
+                {
+                    continue;
+                }
+
+                int degree = ancestor.Value + secondDepth;
+                if (degree > 0 && degree <= maxDepth && degree < bestDegree)
+                {
+                    bestDegree = degree;
+                }
+            }
+
+            return bestDegree == int.MaxValue ? -1 : bestDegree;
+        }
+
+        private static Dictionary<int, int> CollectAncestorDepths(
+            StrategyResidentAgent resident,
+            StrategyPopulationController population,
+            int maxDepth)
+        {
+            Dictionary<int, int> ancestors = new();
             Queue<int> openIds = new();
             Queue<int> openDepths = new();
-            HashSet<int> visited = new();
-            openIds.Enqueue(first.ResidentId);
-            openDepths.Enqueue(0);
-            visited.Add(first.ResidentId);
+            EnqueueParent(resident.FatherId, 1, ancestors, openIds, openDepths, maxDepth);
+            EnqueueParent(resident.MotherId, 1, ancestors, openIds, openDepths, maxDepth);
 
             while (openIds.Count > 0)
             {
@@ -71,53 +105,32 @@ namespace ProjectUnknown.Strategy
                     continue;
                 }
 
-                TryVisit(current.FatherId, depth + 1, second.ResidentId, visited, openIds, openDepths, out int foundDegree);
-                if (foundDegree >= 0)
-                {
-                    return foundDegree;
-                }
-
-                TryVisit(current.MotherId, depth + 1, second.ResidentId, visited, openIds, openDepths, out foundDegree);
-                if (foundDegree >= 0)
-                {
-                    return foundDegree;
-                }
-
-                IReadOnlyList<int> childIds = current.ChildIds;
-                for (int i = 0; i < childIds.Count; i++)
-                {
-                    TryVisit(childIds[i], depth + 1, second.ResidentId, visited, openIds, openDepths, out foundDegree);
-                    if (foundDegree >= 0)
-                    {
-                        return foundDegree;
-                    }
-                }
+                EnqueueParent(current.FatherId, depth + 1, ancestors, openIds, openDepths, maxDepth);
+                EnqueueParent(current.MotherId, depth + 1, ancestors, openIds, openDepths, maxDepth);
             }
 
-            return -1;
+            return ancestors;
         }
 
-        private static void TryVisit(
+        private static void EnqueueParent(
             int candidateId,
             int degree,
-            int targetId,
-            HashSet<int> visited,
+            Dictionary<int, int> ancestors,
             Queue<int> openIds,
             Queue<int> openDepths,
-            out int foundDegree)
+            int maxDepth)
         {
-            foundDegree = -1;
-            if (candidateId <= 0 || !visited.Add(candidateId))
+            if (candidateId <= 0 || degree > maxDepth)
             {
                 return;
             }
 
-            if (candidateId == targetId)
+            if (ancestors.TryGetValue(candidateId, out int knownDegree) && knownDegree <= degree)
             {
-                foundDegree = degree;
                 return;
             }
 
+            ancestors[candidateId] = degree;
             openIds.Enqueue(candidateId);
             openDepths.Enqueue(degree);
         }

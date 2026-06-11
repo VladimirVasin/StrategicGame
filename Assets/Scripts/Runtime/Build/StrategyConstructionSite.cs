@@ -10,6 +10,8 @@ namespace ProjectUnknown.Strategy
         private const float BuilderRequestInterval = 2f;
 
         private readonly List<StrategyResidentAgent> builders = new();
+        private readonly List<Vector2Int> bridgeCells = new();
+        private readonly List<Vector2Int> bridgeWorkCells = new();
         private readonly HashSet<int> futureHomeResidentIds = new();
         private StrategyBuildPlacementController placement;
         private CityMapController map;
@@ -24,6 +26,8 @@ namespace ProjectUnknown.Strategy
         private Vector2Int footprint;
         private Vector2Int blockOrigin;
         private Vector2Int blockFootprint;
+        private Vector2Int bridgeStartCell;
+        private Vector2Int bridgeEndCell;
         private Bounds footprintBounds;
         private int visualVariant;
         private int deliveredLogs;
@@ -33,6 +37,7 @@ namespace ProjectUnknown.Strategy
         private float builderRequestTimer;
         private bool hasBegun;
         private bool completed;
+        private bool hasBridgeSpan;
 
         public StrategyBuildTool Tool => tool;
         public string Title => title;
@@ -54,6 +59,10 @@ namespace ProjectUnknown.Strategy
         public float Progress => buildHitsRequired <= 0 ? 1f : Mathf.Clamp01(buildHits / (float)buildHitsRequired);
         public int BuilderCount => builders.Count;
         public IReadOnlyList<StrategyResidentAgent> Builders => builders;
+        public bool HasBridgeSpan => hasBridgeSpan;
+        public IReadOnlyList<Vector2Int> BridgeCells => bridgeCells;
+        public Vector2Int BridgeStartCell => bridgeStartCell;
+        public Vector2Int BridgeEndCell => bridgeEndCell;
 
         public void Configure(
             StrategyBuildPlacementController placementController,
@@ -81,6 +90,38 @@ namespace ProjectUnknown.Strategy
             spriteRenderer = renderer;
             buildHitsRequired = Mathf.Max(16, cost.Total * 4 + footprint.x * footprint.y * 5);
             EnsureStockRenderers();
+            UpdateVisuals();
+            EnsureClickCollider();
+        }
+
+        public void ConfigureBridgeSpan(
+            IReadOnlyList<Vector2Int> cells,
+            Vector2Int startBankCell,
+            Vector2Int endBankCell)
+        {
+            bridgeCells.Clear();
+            bridgeWorkCells.Clear();
+            if (cells == null || cells.Count <= 0)
+            {
+                hasBridgeSpan = false;
+                return;
+            }
+
+            for (int i = 0; i < cells.Count; i++)
+            {
+                Vector2Int cell = cells[i];
+                if (!bridgeCells.Contains(cell))
+                {
+                    bridgeCells.Add(cell);
+                }
+            }
+
+            AddBridgeWorkCell(startBankCell);
+            AddBridgeWorkCell(endBankCell);
+            bridgeStartCell = startBankCell;
+            bridgeEndCell = endBankCell;
+            hasBridgeSpan = bridgeCells.Count > 0;
+            buildHitsRequired = Mathf.Max(buildHitsRequired, cost.Total * 4 + bridgeCells.Count * 5);
             UpdateVisuals();
             EnsureClickCollider();
         }
@@ -206,11 +247,21 @@ namespace ProjectUnknown.Strategy
 
         public bool TryFindDropoffCell(out Vector2Int cell)
         {
+            if (TryFindBridgeWorkCell(out cell))
+            {
+                return true;
+            }
+
             return TryFindAdjacentWorkCell(blockOrigin, blockFootprint, 4, out cell);
         }
 
         public bool TryFindBuildWorkCell(out Vector2Int cell)
         {
+            if (TryFindBridgeWorkCell(out cell))
+            {
+                return true;
+            }
+
             if (TryFindCloseBuildWorkCell(out cell))
             {
                 return true;
@@ -334,6 +385,32 @@ namespace ProjectUnknown.Strategy
             return false;
         }
 
+        private void AddBridgeWorkCell(Vector2Int candidate)
+        {
+            if (map != null && map.IsCellWalkable(candidate) && !bridgeWorkCells.Contains(candidate))
+            {
+                bridgeWorkCells.Add(candidate);
+            }
+        }
+
+        private bool TryFindBridgeWorkCell(out Vector2Int cell)
+        {
+            for (int i = bridgeWorkCells.Count - 1; i >= 0; i--)
+            {
+                Vector2Int candidate = bridgeWorkCells[i];
+                if (map != null && map.IsCellWalkable(candidate))
+                {
+                    cell = candidate;
+                    return true;
+                }
+
+                bridgeWorkCells.RemoveAt(i);
+            }
+
+            cell = default;
+            return false;
+        }
+
         private void AddWalkableCandidate(Vector2Int candidate, List<Vector2Int> candidates)
         {
             if (map != null && map.IsCellWalkable(candidate) && !candidates.Contains(candidate))
@@ -432,7 +509,9 @@ namespace ProjectUnknown.Strategy
                 int stage = ResourcesComplete
                     ? Mathf.Clamp(1 + Mathf.FloorToInt(Progress * (StrategyConstructionSpriteFactory.StageCount - 1)), 1, StrategyConstructionSpriteFactory.StageCount - 1)
                     : Mathf.Clamp(Mathf.FloorToInt(((deliveredLogs + deliveredStone) / Mathf.Max(1f, cost.Total)) * 2f), 0, 2);
-                spriteRenderer.sprite = StrategyConstructionSpriteFactory.GetConstructionSprite(tool, visualVariant, stage);
+                spriteRenderer.sprite = tool == StrategyBuildTool.Bridge
+                    ? StrategyConstructionSpriteFactory.GetBridgeConstructionSprite(footprint, stage)
+                    : StrategyConstructionSpriteFactory.GetConstructionSprite(tool, visualVariant, stage);
                 spriteRenderer.color = Color.white;
             }
 
@@ -488,6 +567,8 @@ namespace ProjectUnknown.Strategy
             }
 
             builders.Clear();
+            bridgeCells.Clear();
+            bridgeWorkCells.Clear();
             futureHomeResidentIds.Clear();
         }
     }

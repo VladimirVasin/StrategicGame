@@ -30,6 +30,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Creates `Strategy Wind` with a Unity `WindZone` if none exists
     - Finds or creates `Main Camera`
     - Wires camera bounds to the generated map
+    - Creates and configures runtime ambience audio after camera setup
     - Focuses the initial camera view on the startup campfire after population startup
     - Creates runtime water/shore animation overlay after map generation
     - Creates the Stone resource registry before nature generation
@@ -38,23 +39,37 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Places a starter Storage Yard near the campfire with initial Logs and Stone after placement is configured
     - Creates and wires runtime wildlife after starter placement so deer, rabbits, fish, and birds spawn in valid terrain/water/habitat areas
     - Creates runtime time-scale controls for simulation speed hotkeys
+    - Creates the refugee-arrival event controller and modal refugee decision HUD
+    - Creates the top status HUD with settlement population counts
   - Strategy debug logging
     - Writes structured session logs to `debug.log`
     - Uses the project root path in the Unity Editor and persistent data in player builds
     - Mirrors Unity logs, warnings, errors, and exceptions
-    - Logs bootstrap, map, nature, Stone, build menu, placement, population, forestry, lumberjack camp, selection, and time-scale events
+    - Logs bootstrap, audio, map, nature, Stone, build menu, placement, population, forestry, lumberjack camp, selection, and time-scale events
   - Strategy time scale
     - Runtime-created time control component
     - F1 sets x1 simulation speed
     - F2 sets x2 simulation speed
     - F3 sets x3 simulation speed
     - Updates both `Time.timeScale` and `Time.fixedDeltaTime`
+    - Supports pause locks for modal gameplay decisions while preserving the requested x1/x2/x3 speed
+  - Strategy audio
+    - Runtime-created ambience controller
+    - Loads non-generated nature loops and grass footsteps from `Assets/Resources/Audio`
+    - Loads in-game music playlist clips from `Assets/Resources/Audio/Music`
+    - Plays forest birds, cicadas, night, rain, calm wind, and forest wind as global ambience layers
+    - Plays river ambience through a spatial source positioned at the nearest water cell to the camera
+    - Adds quiet spatial grass footsteps to resident walk animation step frames
+    - Plays one random music track at a time and avoids repeating the previous track when 2+ tracks exist
+    - Pauses current in-game music on focus loss and resumes the same clip on focus return
   - Generated city map
     - 128x128 default 2D terrain grid
     - Runtime texture/sprite rendering
     - Grass, meadow, forest, dirt, shore, and water cells
     - Randomized active generation seed by default per map generation
     - Seed-derived generation profile for river direction, curve, width, shoreline, and optional water blobs
+    - Water and shore cells carry a `CityMapWaterKind` tag so river-generated cells and lake/blob-generated cells can be queried directly
+    - Generated rivers expose `RiverFlowDirection`, used by river water animation and one-way river fish movement
     - Multi-octave noise creates broader forest, meadow, grass, and dirt clusters
     - Light land-only smoothing reduces isolated terrain noise without changing water/shore boundaries
     - Procedural 16px pixel-art terrain tile painter
@@ -96,7 +111,8 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Runtime-created wildlife controller
       - Spawns 8-12 deer in small herds on suitable walkable meadow, grass, dirt, and forest-edge cells
       - Spawns 12-18 rabbits in small groups on suitable walkable meadow, grass, dirt, and forest-edge cells
-      - Spawns 18-28 fish in small shoals on generated water cells
+      - Spawns initial lake fish on generated lake water regions with hard per-lake population caps
+      - Spawns one-way pass-through river fish on a single timer along the generated river current
       - Spawns 20-32 decorative birds on species-appropriate meadow/grass, forest/near-forest, water, and shore cells
       - Avoids the startup campfire area when choosing herd spawn cells
       - Wildlife agents do not block walkability and do not act as fog reveal sources
@@ -110,7 +126,8 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Birds animate idle movement, pecking, hopping, flying, landing, and duck swimming with frame-based sprites and flight shadows
       - Deer use short local grid paths inside a loose herd/home range
       - Rabbits use short local grid paths inside a loose group/home range
-      - Fish use short local water-cell paths inside a loose shoal/home range
+      - Lake fish use short local lake-water paths inside a loose shoal/home range
+      - River fish follow the generated river route from current start to end, then despawn
       - Birds fly between nearby habitat cells inside a loose home range and react to noisy residents by taking off
       - Deer, rabbits, and fish react to nearby residents or noisy work such as chopping, mining, and construction
       - Adult does can reproduce when an adult buck is nearby in the same herd
@@ -121,9 +138,10 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Rabbit reproduction stops at a hard 36-rabbit population cap
       - Hunter camps can reserve adult rabbits in range, stopping their relaxed/flee behavior for the shot sequence
       - Hunted rabbits can be hit by arrow projectiles, become carcasses, and yield `Дичь` after butchering
-      - Adult fish can reproduce when another adult of the same species is nearby in the same shoal
+      - Adult lake fish can reproduce when another adult of the same species is nearby in the same shoal and the lake-region cap has room
       - Newborn fish appear as small fry, use scaled fish sprites, and grow into adults after scaled simulation time
-      - Fish reproduction stops at a hard 60-fish population cap
+      - Fish reproduction stops at the hard 60-fish global cap and the stricter per-lake region cap
+      - River fish do not reproduce
       - Fisher huts can reserve adult fish in range, hold them near the hook sequence, and yield `Рыба` after reeling
     - Fog of war
       - Runtime-generated texture overlay above world sprites and below screen-space UI
@@ -175,6 +193,8 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Creates storage yard components when the storage tool is placed
     - Creates granary components when the granary tool is placed
     - Fisher huts require nearby water with adjacent walkable shore access before placement is accepted
+    - Bridge uses a two-click placement flow: first river bank cell, then highlighted opposite-bank candidate across contiguous River water
+    - Completed bridges make their selected River water span walkable through the map bridge-walkability overlay without changing water identity
     - Closes the Build menu after successful placement and suppresses same-click auto-selection of the new object
   - Runtime building art
     - Generates 5 larger 2.5D pixel-art medieval house sprite variants in code
@@ -184,6 +204,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Generates 3 procedural 2.5D fisher hut sprite variants in code
     - Generates 3 procedural 2.5D storage yard sprite variants in code
     - Generates 3 procedural 2.5D granary sprite variants in code
+    - Generates dynamic span-sized 2.5D bridge sprites in code
     - Generates separate lumberjack camp Logs stockpile sprites that visually grow as Logs are deposited
     - Generates separate stonecutter camp Stone stockpile sprites that visually grow as Stone is deposited
     - Generates separate hunter camp `Дичь` stockpile sprites that visually grow as hunters deposit game
@@ -191,6 +212,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Generates separate storage yard Logs and Stone stockpile sprites that visually grow with stored resources
     - Generates separate granary `Дичь` and `Рыба` stockpile sprites that visually grow with stored food
     - Generates staged construction-site sprites and delivered Logs/Stone construction stockpile sprites
+    - Generates staged bridge construction sprites sized to the selected span
     - Reuses a stable default sprite for Build menu icon and ghost preview
     - Chooses a random building visual variant for each successfully placed supported building
     - Placed houses add ambient smoke/window-light overlay animation without changing colliders
@@ -217,7 +239,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Resource amounts live on placed house objects, not in a global economy yet
     - Runtime-generated pixel-art resource icons for the selected-house HUD
   - Storage yard logistics MVP
-    - Storage Yard is a placed stockpile building with up to 2 logistics workers and up to 2 hired builders
+    - Storage Yard is a placed stockpile building with uncapped logistics workers and uncapped hired builders
     - A starter Storage Yard appears near the campfire with 13 Logs and 9 Stone
     - Storage workers reserve available Logs from lumberjack camps
     - Storage workers reserve available Stone from stonecutter camps
@@ -246,7 +268,10 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Houses support up to 5 residents and attach a household state after residents move in
     - Adult male/female house pairs can have children after a randomized household cooldown when they are not close relatives
     - Full houses do not produce more children until a resident leaves
-    - Children inherit parent/family links, idle/walk around home, cannot be workers/builders, and grow into adults after scaled game time
+    - Children inherit parent/family links, idle/walk around home, cannot be workers/builders, and grow into adults at age 16 after scaled game time
+    - The first refugee family arrives after 3 completed houses; later families periodically arrive from a map edge, walk to the startup campfire, and ask for settlement acceptance through a modal paused decision
+    - Refugee families contain one adult man, one adult woman, and 1-3 children with normal names, ages, visual variants, and parent/child kinship links
+    - Accepted refugees join the normal resident registry; rejected refugee families walk back off-map and are removed
     - Adult children continue aging and can move from a parental home into an empty house, oldest first
     - Single adult-child households periodically search for an adult opposite-gender partner from another parental home or the free camp pool, with close-relative checks
     - Residents keep a reference to their home building once assigned
@@ -261,7 +286,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Residents assigned to a storage yard also path to stonecutter camp stock, carry Stone to storage, and deposit it
     - Residents assigned to a granary path to Hunter Camp/Fisher Hut food stock, carry `Дичь`/`Рыба` to the granary, and deposit it
     - Residents hired as Storage Yard builders fetch reserved Logs/Stone, deliver them to construction sites, then build with hammer animations
-    - Completed houses first try to pull a homeless adult male/female pair, including residents who already have workplaces, then fall back to adult-child migration and partner lookup
+    - Completed houses first try to pull a homeless adult male/female pair, including residents who already have workplaces or construction assignments, then fall back to adult-child migration and partner lookup
     - Runtime-generated resident sprites include 5 male variants, 5 female variants, child sprites, and matching portrait sprites
     - Resident movement uses cached 8-frame procedural walk cycles for adult and child variants
     - Lumberjack work uses cached frame-based axe swing sprites for all male/female visual variants
@@ -283,14 +308,8 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - The house HUD exposes visual upgrade actions for Garden Beds and Chicken Coop
     - House upgrade actions are shown as compact state/action rows
     - The house HUD shows resource icons/counts and the current Garden Beds crop
-    - The lumberjack camp HUD shows 2 worker slots with assign/remove actions, Logs stock, and nearby tree/trunk counts
-    - The stonecutter camp HUD shows 2 worker slots with assign/remove actions, Stone stock, and nearby deposit counts
-    - The hunter camp HUD shows 2 worker slots with assign/remove actions, `Дичь` stock, and nearby huntable rabbit count
-    - The fisher hut HUD shows 2 worker slots with assign/remove actions, `Рыба` stock, and nearby catchable fish count
-    - The granary HUD shows 2 worker slots with assign/remove actions, `Дичь`/`Рыба` stock, and available food-source counts
-    - The storage yard HUD shows 2 worker slots with assign/remove actions, Logs stock, and available source count
+    - The lumberjack, stonecutter, hunter, fisher, granary, and storage building HUDs show status/resource context without assignment controls
     - The construction site HUD shows final building type, cost, delivered resources, assigned builders, and build progress
-    - The Storage Yard HUD shows separate logistics-worker and builder slots with assign/remove actions
     - The resident HUD shows full name, portrait, profile, age/life stage, current activity, and home/camp assignment
 
 - Input foundation
@@ -303,6 +322,14 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Unity UI package installed
   - UI Toolkit module available through Unity modules
   - Custom runtime Build menu HUD
+  - Custom runtime top status HUD showing total population, adults, and children
+  - Custom runtime Profession HUD
+    - Top-menu `Профессии` button
+    - Dynamic profession rows for built worksites
+    - Generated profession icons
+    - `-` / `+` assignment controls for lumberjacks, stonecutters, hunters, fishers, storage workers, builders, and granary workers
+    - Storage workers and builders use unlimited settlement-level assignment capacity when at least one Storage Yard exists; other production/storage roles still use worksite slot caps
+  - Custom modal refugee decision HUD pauses the simulation and asks whether to accept or reject arriving families
 
 - Testing foundation
   - Unity Test Framework package installed
@@ -317,6 +344,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 
 - Rendering settings affect all scenes using the URP pipeline.
 - Runtime bootstrap depends on scene load order and the presence of a usable `Main Camera` or permission to create one.
+- Audio bootstrap depends on map generation, camera setup, strategy wind values, `Resources/Audio` assets, the in-game music folder, and resident walk animation frames.
 - Strategy camera bounds depend on generated map dimensions.
 - Input action changes do not affect current camera controls yet because MVP controls read direct Input System devices.
 - Build menu active tool state drives the placement controller when catalog tools exist.
@@ -330,8 +358,10 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Storage yard logistics depends on lumberjack camp stock, stonecutter camp stock, resident work states, placed-building records, map walkability, and the world-selection HUD.
 - Granary food logistics depends on hunter camp stock, fisher hut stock, resident work states, placed-building records, map walkability, and the world-selection HUD.
 - Construction depends on Storage Yard resource reservations, hired Storage Yard builder assignments, construction-site blockers, placed-building finalization, and the world-selection HUD.
-- Population uses placed-building records, construction sites, the generated map walkability layer, and workplace assignments.
+- Population uses placed-building records, construction sites, the generated map walkability layer, and workplace assignments; home/family assignment is independent from work/construction assignment.
+- Resident footsteps depend on population agents and the non-generated grass footstep clip set.
 - World selection uses placed-building/resident/construction-site colliders and the strategy camera.
+- Profession HUD depends on population adults and current worksite components; it owns player-facing worker assignment/removal while existing worksite components still own role state and work loops, with Storage Yard workers/builders treated as uncapped roles.
 - Strategy camera checks UI pointer state so bottom HUD interaction does not pan/zoom the map.
 - New gameplay systems should be added here and mapped to concrete files/assets in `systems-map.md`.
 

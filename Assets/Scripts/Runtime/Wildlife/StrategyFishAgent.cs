@@ -20,10 +20,17 @@ namespace ProjectUnknown.Strategy
         Adult
     }
 
+    public enum StrategyFishHabitatKind
+    {
+        Lake,
+        River
+    }
+
     [DisallowMultipleComponent]
     public sealed class StrategyFishAgent : MonoBehaviour
     {
         private const float SwimSpeed = 0.92f;
+        private const float RiverSwimSpeed = 1.08f;
         private const float FleeSpeed = 2.25f;
         private const float TargetReachDistance = 0.04f;
         private const float MovingThresholdSqr = 0.000001f;
@@ -62,6 +69,7 @@ namespace ProjectUnknown.Strategy
         private StrategyFishSpecies species;
         private StrategyFishBehaviorState state;
         private StrategyFishLifeStage lifeStage = StrategyFishLifeStage.Adult;
+        private StrategyFishHabitatKind habitatKind = StrategyFishHabitatKind.Lake;
         private StrategyFishSpritePose appliedPose;
         private Vector2Int homeCell;
         private Vector3 lastThreatWorld;
@@ -70,6 +78,7 @@ namespace ProjectUnknown.Strategy
         private int pathIndex;
         private int homeRadius;
         private int shoalId;
+        private int waterRegionId = -1;
         private int frame;
         private int appliedFrame = -1;
         private int reelHits;
@@ -80,14 +89,19 @@ namespace ProjectUnknown.Strategy
         private float bobPhase;
         private float ageSeconds;
         private float visualScale = 1f;
+        private float riverSpeedMultiplier = 1f;
         private bool hasTarget;
         private bool hasAppliedPose;
         private bool isCaught;
+        private bool riverRouteActive;
 
         public StrategyFishSpecies Species => species;
         public StrategyFishBehaviorState State => state;
         public StrategyFishLifeStage LifeStage => lifeStage;
+        public StrategyFishHabitatKind HabitatKind => habitatKind;
         public bool IsAdult => lifeStage == StrategyFishLifeStage.Adult;
+        public bool IsLakeFish => habitatKind == StrategyFishHabitatKind.Lake;
+        public bool IsRiverFish => habitatKind == StrategyFishHabitatKind.River;
         public bool IsHooked => state == StrategyFishBehaviorState.Hooked;
         public bool IsCaught => isCaught;
         public bool CanBeFished => IsAdult
@@ -96,13 +110,15 @@ namespace ProjectUnknown.Strategy
             && state != StrategyFishBehaviorState.Fleeing
             && state != StrategyFishBehaviorState.Hooked
             && state != StrategyFishBehaviorState.Caught;
-        public bool CanBreed => IsAdult
+        public bool CanBreed => IsLakeFish
+            && IsAdult
             && !isCaught
             && fishingReservationOwner == null
             && state != StrategyFishBehaviorState.Fleeing
             && state != StrategyFishBehaviorState.Hooked
             && state != StrategyFishBehaviorState.Caught;
         public int ShoalId => shoalId;
+        public int WaterRegionId => waterRegionId;
         public Vector2Int HomeCell => homeCell;
         public int HomeRadius => homeRadius;
 
@@ -116,17 +132,23 @@ namespace ProjectUnknown.Strategy
             Vector3 spawnWorld,
             SpriteRenderer renderer,
             StrategyFishLifeStage fishLifeStage = StrategyFishLifeStage.Adult,
-            float initialAgeSeconds = 0f)
+            float initialAgeSeconds = 0f,
+            StrategyFishHabitatKind fishHabitatKind = StrategyFishHabitatKind.Lake,
+            int fishWaterRegionId = -1)
         {
             map = mapController;
             population = populationController;
             species = fishSpecies;
             lifeStage = fishLifeStage;
+            habitatKind = fishHabitatKind;
             homeCell = shoalCenterCell;
             homeRadius = Mathf.Max(4, shoalHomeRadius);
             shoalId = shoalIdentifier;
+            waterRegionId = fishWaterRegionId;
             spriteRenderer = renderer;
             bobPhase = Random.Range(0f, 100f);
+            riverRouteActive = false;
+            riverSpeedMultiplier = 1f;
             ageSeconds = lifeStage == StrategyFishLifeStage.Fry
                 ? Mathf.Clamp(initialAgeSeconds, 0f, FryMaturitySeconds)
                 : FryMaturitySeconds;
@@ -146,6 +168,29 @@ namespace ProjectUnknown.Strategy
             UpdateWorldSorting();
         }
 
+        public void ConfigureRiverRoute(IReadOnlyList<Vector3> routeWorldPoints, float speedMultiplier)
+        {
+            if (routeWorldPoints == null || routeWorldPoints.Count <= 0)
+            {
+                return;
+            }
+
+            habitatKind = StrategyFishHabitatKind.River;
+            riverRouteActive = true;
+            riverSpeedMultiplier = Mathf.Clamp(speedMultiplier, 0.72f, 1.34f);
+            path.Clear();
+            for (int i = 0; i < routeWorldPoints.Count; i++)
+            {
+                Vector3 point = routeWorldPoints[i];
+                path.Add(new Vector3(point.x, point.y, -0.068f));
+            }
+
+            pathIndex = 0;
+            hasTarget = path.Count > 0;
+            waitTimer = 0f;
+            SetState(StrategyFishBehaviorState.Swimming, false, false);
+        }
+
         public bool TryGetCurrentCell(out Vector2Int cell)
         {
             cell = default;
@@ -161,8 +206,12 @@ namespace ProjectUnknown.Strategy
 
             fishingReservationOwner = owner;
             hasTarget = false;
-            path.Clear();
-            pathIndex = 0;
+            if (!riverRouteActive)
+            {
+                path.Clear();
+                pathIndex = 0;
+            }
+
             waitTimer = Random.Range(0.25f, 0.85f);
             SetState(StrategyFishBehaviorState.Idle, false, false);
             return true;
@@ -177,7 +226,19 @@ namespace ProjectUnknown.Strategy
 
             fishingReservationOwner = null;
             reelHits = 0;
-            if (!isCaught && state == StrategyFishBehaviorState.Hooked)
+            if (isCaught)
+            {
+                return;
+            }
+
+            if (riverRouteActive && pathIndex < path.Count)
+            {
+                hasTarget = true;
+                SetState(StrategyFishBehaviorState.Swimming, false, false);
+                return;
+            }
+
+            if (state == StrategyFishBehaviorState.Hooked)
             {
                 StartIdle(Random.Range(0.3f, 0.9f));
             }
@@ -193,8 +254,12 @@ namespace ProjectUnknown.Strategy
             hookWorld = new Vector3(hookPosition.x, hookPosition.y, transform.position.z);
             reelHits = 0;
             hasTarget = false;
-            path.Clear();
-            pathIndex = 0;
+            if (!riverRouteActive)
+            {
+                path.Clear();
+                pathIndex = 0;
+            }
+
             SetState(StrategyFishBehaviorState.Hooked, true, false);
             StrategyDebugLogger.Info(
                 "Fishing",
@@ -271,7 +336,10 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            UpdateThreatAwareness();
+            if (!riverRouteActive)
+            {
+                UpdateThreatAwareness();
+            }
 
             switch (state)
             {
@@ -349,12 +417,25 @@ namespace ProjectUnknown.Strategy
         {
             if (!hasTarget || pathIndex >= path.Count)
             {
+                if (riverRouteActive)
+                {
+                    CompleteRiverRoute();
+                    return;
+                }
+
                 StartIdle(Random.Range(0.2f, 0.9f));
                 return;
             }
 
-            if (MoveAlongPath(SwimSpeed, false))
+            float speed = riverRouteActive ? RiverSwimSpeed * riverSpeedMultiplier : SwimSpeed;
+            if (MoveAlongPath(speed, false))
             {
+                if (riverRouteActive)
+                {
+                    CompleteRiverRoute();
+                    return;
+                }
+
                 StartIdle(Random.Range(0.2f, 0.8f));
             }
         }
@@ -421,19 +502,19 @@ namespace ProjectUnknown.Strategy
         private void PickRelaxedBehavior()
         {
             float roll = Random.value;
-            if (roll < 0.34f)
+            if (roll < 0.24f)
             {
                 StartFeeding();
                 return;
             }
 
-            if (roll < 0.78f && TryPickSwimTarget(false))
+            if (roll < 0.90f && TryPickSwimTarget(false))
             {
                 SetState(StrategyFishBehaviorState.Swimming, false, false);
                 return;
             }
 
-            if (roll < 0.93f)
+            if (roll < 0.96f)
             {
                 StartTurning();
                 return;
@@ -560,6 +641,23 @@ namespace ProjectUnknown.Strategy
             }
 
             return false;
+        }
+
+        private void CompleteRiverRoute()
+        {
+            if (isCaught)
+            {
+                return;
+            }
+
+            isCaught = true;
+            StrategyDebugLogger.Info(
+                "Wildlife",
+                "RiverFishDespawned",
+                StrategyDebugLogger.F("species", species),
+                StrategyDebugLogger.F("shoal", shoalId),
+                StrategyDebugLogger.F("world", transform.position));
+            Destroy(gameObject);
         }
 
         private bool TryPickSwimTarget(bool awayFromThreat)
@@ -835,9 +933,13 @@ namespace ProjectUnknown.Strategy
 
         private bool IsFishWaterCell(Vector2Int cell)
         {
+            CityMapWaterKind waterKind = habitatKind == StrategyFishHabitatKind.River
+                ? CityMapWaterKind.River
+                : CityMapWaterKind.Lake;
             return map != null
                 && map.TryGetCell(cell.x, cell.y, out CityMapCell mapCell)
-                && mapCell.Kind == CityMapCellKind.Water;
+                && mapCell.Kind == CityMapCellKind.Water
+                && mapCell.WaterKind == waterKind;
         }
 
         private int CountWaterNeighbors(Vector2Int cell, int radius)
@@ -853,7 +955,10 @@ namespace ProjectUnknown.Strategy
                     }
 
                     if (map.TryGetCell(cell.x + x, cell.y + y, out CityMapCell neighbor)
-                        && neighbor.Kind == CityMapCellKind.Water)
+                        && neighbor.Kind == CityMapCellKind.Water
+                        && neighbor.WaterKind == (habitatKind == StrategyFishHabitatKind.River
+                            ? CityMapWaterKind.River
+                            : CityMapWaterKind.Lake))
                     {
                         count++;
                     }
@@ -888,7 +993,10 @@ namespace ProjectUnknown.Strategy
                     }
 
                     if (map.TryGetCell(cell.x + x, cell.y + y, out CityMapCell neighbor)
-                        && neighbor.Kind == CityMapCellKind.Shore)
+                        && neighbor.Kind == CityMapCellKind.Shore
+                        && neighbor.WaterKind == (habitatKind == StrategyFishHabitatKind.River
+                            ? CityMapWaterKind.River
+                            : CityMapWaterKind.Lake))
                     {
                         count++;
                     }

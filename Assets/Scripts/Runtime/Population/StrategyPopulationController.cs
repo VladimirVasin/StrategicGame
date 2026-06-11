@@ -95,6 +95,10 @@ namespace ProjectUnknown.Strategy
         private bool hasStarterCamp;
 
         public IReadOnlyList<StrategyResidentAgent> Residents => residents;
+        public int TotalResidentCount => CountResidents(false, false);
+        public int AdultResidentCount => CountResidents(true, false);
+        public int ChildResidentCount => CountResidents(false, true);
+        public int CompletedHouseCount => CountRegisteredHouses();
 
         public void Configure(CityMapController mapController)
         {
@@ -345,6 +349,156 @@ namespace ProjectUnknown.Strategy
             return true;
         }
 
+        public bool TryCreateRefugeeFamily(
+            Vector3 spawnWorld,
+            Vector2 formationAxis,
+            Vector2Int temporaryIdleOrigin,
+            int childCount,
+            out List<StrategyResidentAgent> family)
+        {
+            family = new List<StrategyResidentAgent>();
+            if (map == null)
+            {
+                return false;
+            }
+
+            EnsureResidentRoot();
+
+            int normalizedChildCount = Mathf.Clamp(childCount, 1, 3);
+            Vector2 axis = formationAxis.sqrMagnitude > 0.001f
+                ? formationAxis.normalized
+                : Vector2.right;
+            string familyName = GetRandomFamilyName();
+            int fatherId = AllocateResidentId();
+            int motherId = AllocateResidentId();
+
+            StrategyResidentAgent father = CreateRefugeeResident(
+                StrategyResidentGender.Male,
+                fatherId,
+                0,
+                0,
+                familyName,
+                Random.Range(24f, 42f),
+                StrategyResidentLifeStage.Adult,
+                spawnWorld + GetRefugeeFormationOffset(axis, 0) * map.CellSize,
+                temporaryIdleOrigin);
+
+            StrategyResidentAgent mother = CreateRefugeeResident(
+                StrategyResidentGender.Female,
+                motherId,
+                0,
+                0,
+                familyName,
+                Random.Range(22f, 39f),
+                StrategyResidentLifeStage.Adult,
+                spawnWorld + GetRefugeeFormationOffset(axis, 1) * map.CellSize,
+                temporaryIdleOrigin);
+
+            if (father == null || mother == null)
+            {
+                if (father != null)
+                {
+                    Destroy(father.gameObject);
+                }
+
+                if (mother != null)
+                {
+                    Destroy(mother.gameObject);
+                }
+
+                DestroyTemporaryResidents(family);
+                return false;
+            }
+
+            family.Add(father);
+            family.Add(mother);
+
+            for (int i = 0; i < normalizedChildCount; i++)
+            {
+                StrategyResidentGender gender = Random.value < 0.5f
+                    ? StrategyResidentGender.Male
+                    : StrategyResidentGender.Female;
+                int childId = AllocateResidentId();
+                StrategyResidentAgent child = CreateRefugeeResident(
+                    gender,
+                    childId,
+                    fatherId,
+                    motherId,
+                    familyName,
+                    Random.Range(2f, 15f),
+                    StrategyResidentLifeStage.Child,
+                    spawnWorld + GetRefugeeFormationOffset(axis, i + 2) * map.CellSize,
+                    temporaryIdleOrigin);
+
+                if (child == null)
+                {
+                    continue;
+                }
+
+                father.AddChildId(childId);
+                mother.AddChildId(childId);
+                family.Add(child);
+            }
+
+            StrategyDebugLogger.Info(
+                "Refugees",
+                "FamilyCreated",
+                StrategyDebugLogger.F("family", familyName),
+                StrategyDebugLogger.F("members", family.Count),
+                StrategyDebugLogger.F("children", family.Count - 2),
+                StrategyDebugLogger.F("spawnWorld", spawnWorld));
+            return family.Count >= 3;
+        }
+
+        public void AcceptRefugeeFamily(IReadOnlyList<StrategyResidentAgent> family)
+        {
+            if (family == null)
+            {
+                return;
+            }
+
+            int accepted = 0;
+            for (int i = 0; i < family.Count; i++)
+            {
+                StrategyResidentAgent resident = family[i];
+                if (resident == null)
+                {
+                    continue;
+                }
+
+                resident.SetPendingRefugee(false);
+                resident.SetCampIdleOrigin(campCell);
+                RegisterResident(resident);
+                accepted++;
+            }
+
+            TryPopulateAvailableHouses();
+            StrategyDebugLogger.Info(
+                "Refugees",
+                "FamilyAccepted",
+                StrategyDebugLogger.F("accepted", accepted),
+                StrategyDebugLogger.F("totalResidents", TotalResidentCount),
+                StrategyDebugLogger.F("adults", AdultResidentCount),
+                StrategyDebugLogger.F("children", ChildResidentCount));
+        }
+
+        public void DestroyTemporaryResidents(IReadOnlyList<StrategyResidentAgent> temporaryResidents)
+        {
+            if (temporaryResidents == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < temporaryResidents.Count; i++)
+            {
+                StrategyResidentAgent resident = temporaryResidents[i];
+                if (resident != null)
+                {
+                    Destroy(resident.gameObject);
+                }
+            }
+        }
+
         public bool TryPopulateFreeHouse(StrategyPlacedBuilding house)
         {
             if (map == null || house == null || house.Tool != StrategyBuildTool.House)
@@ -566,7 +720,6 @@ namespace ProjectUnknown.Strategy
             return resident != null
                 && destinationHouse != null
                 && resident.IsAdult
-                && !resident.HasConstructionAssignment
                 && resident.Home != destinationHouse
                 && destinationHouse.HasFreeResidentSlot;
         }
@@ -734,6 +887,47 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("usedFallback", !foundSpawnCell));
         }
 
+        private StrategyResidentAgent CreateRefugeeResident(
+            StrategyResidentGender gender,
+            int residentId,
+            int fatherIdentifier,
+            int motherIdentifier,
+            string familyName,
+            float age,
+            StrategyResidentLifeStage lifeStage,
+            Vector3 spawnWorld,
+            Vector2Int temporaryIdleOrigin)
+        {
+            int visualVariant = Random.Range(0, StrategyResidentSpriteFactory.VariantCountPerGender);
+            string residentName = GenerateResidentName(gender, familyName);
+
+            GameObject residentObject = new GameObject(residentName);
+            residentObject.transform.SetParent(residentRoot, false);
+
+            SpriteRenderer renderer = residentObject.AddComponent<SpriteRenderer>();
+            renderer.sprite = StrategyResidentSpriteFactory.GetSprite(gender, visualVariant, lifeStage);
+
+            StrategyResidentAgent agent = residentObject.AddComponent<StrategyResidentAgent>();
+            agent.Configure(
+                map,
+                null,
+                gender,
+                visualVariant,
+                residentName,
+                spawnWorld,
+                renderer,
+                temporaryIdleOrigin,
+                Vector2Int.one,
+                residentId,
+                age,
+                lifeStage,
+                fatherIdentifier,
+                motherIdentifier,
+                familyName);
+            agent.SetPendingRefugee(true);
+            return agent;
+        }
+
         private bool TryFindAvailableResident(StrategyResidentGender gender, out StrategyResidentAgent resident)
         {
             List<StrategyResidentAgent> candidates = new();
@@ -743,8 +937,7 @@ namespace ProjectUnknown.Strategy
                 if (candidate != null
                     && candidate.Gender == gender
                     && candidate.CanWork
-                    && candidate.Home == null
-                    && !candidate.HasConstructionAssignment)
+                    && candidate.Home == null)
                 {
                     candidates.Add(candidate);
                 }
@@ -966,6 +1159,64 @@ namespace ProjectUnknown.Strategy
             }
 
             household.Configure(this, house);
+        }
+
+        private int CountResidents(bool adultsOnly, bool childrenOnly)
+        {
+            int count = 0;
+            for (int i = 0; i < residents.Count; i++)
+            {
+                StrategyResidentAgent resident = residents[i];
+                if (resident == null || resident.IsPendingRefugee)
+                {
+                    continue;
+                }
+
+                if (adultsOnly && !resident.IsAdult)
+                {
+                    continue;
+                }
+
+                if (childrenOnly && resident.IsAdult)
+                {
+                    continue;
+                }
+
+                count++;
+            }
+
+            return count;
+        }
+
+        private int CountRegisteredHouses()
+        {
+            int count = 0;
+            for (int i = 0; i < houses.Count; i++)
+            {
+                StrategyPlacedBuilding house = houses[i];
+                if (house != null && house.Tool == StrategyBuildTool.House)
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
+        private static Vector3 GetRefugeeFormationOffset(Vector2 axis, int index)
+        {
+            float side = index switch
+            {
+                0 => -0.35f,
+                1 => 0.35f,
+                2 => -0.75f,
+                3 => 0.75f,
+                _ => 0f
+            };
+            float back = index <= 1 ? 0f : -0.42f - (index - 2) * 0.18f;
+            Vector2 perpendicular = new Vector2(-axis.y, axis.x);
+            Vector2 offset = axis * back + perpendicular * side;
+            return new Vector3(offset.x, offset.y, 0f);
         }
 
         private int AllocateResidentId()

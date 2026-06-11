@@ -11,8 +11,10 @@ namespace ProjectUnknown.Strategy
         private const float TripleScale = 3f;
 
         private float baseFixedDeltaTime;
+        private int pauseLockCount;
 
         public float CurrentScale { get; private set; } = NormalScale;
+        public bool IsPausedByLock => pauseLockCount > 0;
 
         public void Configure()
         {
@@ -54,17 +56,50 @@ namespace ProjectUnknown.Strategy
         {
             if (baseFixedDeltaTime > 0f)
             {
+                pauseLockCount = 0;
                 Time.timeScale = NormalScale;
                 Time.fixedDeltaTime = baseFixedDeltaTime;
             }
+        }
+
+        public void PushPauseLock(string reason)
+        {
+            pauseLockCount++;
+            ApplyEffectiveTimeScale();
+            StrategyDebugLogger.Info(
+                "Time",
+                "PauseLockPushed",
+                StrategyDebugLogger.F("reason", reason),
+                StrategyDebugLogger.F("locks", pauseLockCount),
+                StrategyDebugLogger.F("currentScale", CurrentScale));
+        }
+
+        public void PopPauseLock(string reason)
+        {
+            if (pauseLockCount <= 0)
+            {
+                StrategyDebugLogger.Warn(
+                    "Time",
+                    "PauseLockPopRejected",
+                    StrategyDebugLogger.F("reason", reason));
+                return;
+            }
+
+            pauseLockCount--;
+            ApplyEffectiveTimeScale();
+            StrategyDebugLogger.Info(
+                "Time",
+                "PauseLockPopped",
+                StrategyDebugLogger.F("reason", reason),
+                StrategyDebugLogger.F("locks", pauseLockCount),
+                StrategyDebugLogger.F("currentScale", CurrentScale));
         }
 
         private void SetTimeScale(float scale)
         {
             float previousScale = CurrentScale;
             CurrentScale = Mathf.Max(NormalScale, scale);
-            Time.timeScale = CurrentScale;
-            Time.fixedDeltaTime = baseFixedDeltaTime * CurrentScale;
+            ApplyEffectiveTimeScale();
             if (!Mathf.Approximately(previousScale, CurrentScale))
             {
                 StrategyDebugLogger.Info(
@@ -74,6 +109,13 @@ namespace ProjectUnknown.Strategy
                     StrategyDebugLogger.F("current", CurrentScale),
                     StrategyDebugLogger.F("fixedDeltaTime", Time.fixedDeltaTime));
             }
+        }
+
+        private void ApplyEffectiveTimeScale()
+        {
+            float fixedScale = Mathf.Max(NormalScale, CurrentScale);
+            Time.timeScale = pauseLockCount > 0 ? 0f : CurrentScale;
+            Time.fixedDeltaTime = baseFixedDeltaTime * fixedScale;
         }
     }
 }

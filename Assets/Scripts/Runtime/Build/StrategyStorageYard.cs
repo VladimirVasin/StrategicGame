@@ -6,9 +6,6 @@ namespace ProjectUnknown.Strategy
     [DisallowMultipleComponent]
     public sealed class StrategyStorageYard : MonoBehaviour
     {
-        public const int MaxWorkers = 2;
-        public const int MaxBuilders = 2;
-
         private readonly List<StrategyResidentAgent> workers = new();
         private readonly List<StrategyResidentAgent> builders = new();
         private StrategyPlacedBuilding building;
@@ -44,8 +41,8 @@ namespace ProjectUnknown.Strategy
                 "StorageYard",
                 "Configured",
                 StrategyDebugLogger.F("origin", Origin),
-                StrategyDebugLogger.F("maxWorkers", MaxWorkers),
-                StrategyDebugLogger.F("maxBuilders", MaxBuilders));
+                StrategyDebugLogger.F("workerLimit", "unlimited"),
+                StrategyDebugLogger.F("builderLimit", "unlimited"));
         }
 
         public static bool TryAssignBuildersToSite(StrategyConstructionSite site)
@@ -317,7 +314,7 @@ namespace ProjectUnknown.Strategy
 
         public bool CanAssignNextAvailableWorker()
         {
-            if (workers.Count >= MaxWorkers || population == null)
+            if (population == null)
             {
                 return false;
             }
@@ -343,7 +340,7 @@ namespace ProjectUnknown.Strategy
         public bool TryAssignNextAvailableWorker(out StrategyResidentAgent assigned)
         {
             assigned = null;
-            if (workers.Count >= MaxWorkers || population == null)
+            if (population == null)
             {
                 return false;
             }
@@ -376,8 +373,8 @@ namespace ProjectUnknown.Strategy
         public bool AssignWorker(StrategyResidentAgent resident)
         {
             if (resident == null
-                || workers.Count >= MaxWorkers
                 || workers.Contains(resident)
+                || builders.Contains(resident)
                 || !resident.CanWork
                 || resident.HasWorkplace
                 || resident.HasConstructionAssignment)
@@ -425,7 +422,7 @@ namespace ProjectUnknown.Strategy
 
         public bool CanAssignNextAvailableBuilder()
         {
-            if (builders.Count >= MaxBuilders || population == null)
+            if (population == null)
             {
                 return false;
             }
@@ -451,7 +448,7 @@ namespace ProjectUnknown.Strategy
         public bool TryAssignNextAvailableBuilder(out StrategyResidentAgent assigned)
         {
             assigned = null;
-            if (builders.Count >= MaxBuilders || population == null)
+            if (population == null)
             {
                 return false;
             }
@@ -490,7 +487,6 @@ namespace ProjectUnknown.Strategy
         public bool AssignBuilder(StrategyResidentAgent resident)
         {
             if (resident == null
-                || builders.Count >= MaxBuilders
                 || workers.Contains(resident)
                 || builders.Contains(resident)
                 || !resident.CanWork
@@ -855,13 +851,11 @@ namespace ProjectUnknown.Strategy
             int sourceCount = CountAvailableSources();
             return "\u041a\u043b\u0430\u0434\u043e\u0432\u0449\u0438\u043a\u0438: "
                 + workers.Count
-                + "/"
-                + MaxWorkers
+                + "/\u221e"
                 + "\n"
                 + "\u0421\u0442\u0440\u043e\u0438\u0442\u0435\u043b\u0438: "
                 + builders.Count
-                + "/"
-                + MaxBuilders
+                + "/\u221e"
                 + "\n"
                 + "Logs: "
                 + logsStored

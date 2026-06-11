@@ -8,6 +8,131 @@ Last updated: 2026-06-11
 
 ## Done
 
+### 2026-06-11 - Bridge building and river crossing placement
+
+- Added Bridge to the Build catalog under Infrastructure with Logs/Stone construction cost.
+- Added two-click bridge placement: the first click selects a valid explored river-bank cell, the game highlights opposite-bank candidates across contiguous River water, and the second click creates a construction site.
+- Bridge construction sites store custom span cells and use bank endpoint cells for builder delivery/build work so builders do not stand in water.
+- Completed bridges store their span on the placed-building record and make River water cells walkable through a map bridge overlay without changing water kind.
+- Added dynamic runtime bridge sprites plus staged bridge construction sprites sized to the selected span.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-11 - Resident adulthood age lowered
+
+- Lowered the resident adulthood threshold from 18 to 16 years.
+- Child-to-adult growth, adult/child population counts, worker eligibility, household migration, and partner search now all follow the same life-stage threshold.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-11 - First refugee arrival gated by three houses
+
+- Changed the refugee arrival schedule so the first family no longer uses a random initial timer.
+- The first refugee family now starts as soon as the settlement has 3 completed registered houses.
+- Repeat refugee families still use the existing randomized interval after the first family is accepted or rejected.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-11 - Refugee family arrival event and population counter
+
+- Added a runtime refugee-arrival controller: a random family periodically spawns from a map edge, walks to the starter campfire, and opens a settlement decision dialog on arrival.
+- Refugee families contain one adult man, one adult woman, and 1-3 random-gender children with shared family name, ages, visual variants, and parent/child kinship links.
+- Added a modal refugee decision HUD; accepting registers the family as normal residents, rejecting sends them back off-map and destroys the temporary agents.
+- Added pause-lock support to `StrategyTimeScaleController` so the decision dialog pauses simulation without letting F1/F2/F3 accidentally unpause it.
+- Added a top status HUD population counter showing total residents, adults, and children.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-11 - Quieter footsteps and river ambience
+
+- Reduced resident grass footstep one-shot volumes to `0.16` for adults and `0.095` for children.
+- Reduced spatial river ambience target volume to `0.075` near the river.
+- Added short custom `AudioReverbFilter` settings to resident footstep sources and the river ambience source for softer tails without a strong cave-like wash.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-11 - Profession HUD scroll
+
+- Made the Profession HUD list visibly scrollable with a vertical scrollbar.
+- Kept the header and bottom free-worker/status line outside the scrolling viewport so profession rows no longer get visually cut off behind the footer.
+- Opening the panel resets the scroll position to the top.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-11 - Lake and river fish behavior split
+
+- Added `CityMapController.RiverFlowDirection` so generated rivers expose a technical current direction; the water overlay now animates river flow along that direction while lakes keep the calmer local shimmer.
+- Split fish behavior by habitat: lake fish belong to a lake water-region, stay on lake water, reproduce only inside that region, and count fry/adults against a hard per-lake cap.
+- Added a single-timer river fish spawner: adult river fish spawn at the upstream route start, swim with the river current along the generated route, and despawn at the far end instead of reproducing.
+- Fisher huts can still reserve both lake and river fish through the existing fishing API.
+- Added structured debug events for fish water-region setup, lake birth cap blocks, river fish spawn, and river fish despawn.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-11 - River and lake water identity
+
+- Added `CityMapWaterKind` to map cells so generated water and shore cells are technically tagged as `River` or `Lake`.
+- River water comes from the generated river corridor; lake water comes from generated water blobs.
+- Added `CityMapCell.WaterKind`, `IsRiver`, `IsLake`, and `CityMapController` water-kind helper methods for future systems.
+- Map generation debug logs now include river/lake water and shore cell counts.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-11 - Household second-child kinship fix
+
+- Fixed household birth checks treating existing parents as close relatives after their first child was born.
+- `StrategyKinshipUtility` now measures close blood relation through parent/ancestor chains and shared ancestors instead of traversing through shared descendants.
+- This keeps parent/child, sibling, cousin, and other close blood-relative couple blocks while allowing the same adult house pair to have additional children while the house has free resident slots.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-11 - Louder resident footsteps
+
+- Increased resident footstep one-shot volume from `0.075` to `0.32` for adults and from `0.045` to `0.2` for children.
+- Reduced footstep spatial attenuation by lowering spatial blend and widening min/max distance so steps remain audible from the game camera.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-11 - Music focus pause/resume
+
+- Changed `StrategyMusicController` so losing application/game focus pauses the current music `AudioSource` instead of advancing the playlist.
+- Restoring focus resumes the same clip from the paused playback position via `AudioSource.UnPause()`.
+- `Update` now ignores paused-for-focus music so `AudioSource.isPlaying == false` does not get mistaken for track completion during focus loss.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-11 - House assignment ignores construction work
+
+- Fixed completed houses rejecting homeless adults who were already hired as builders or assigned to active construction work.
+- House-pair selection and later home migration now treat "free" as no current home/pair, independent from workplace or construction assignment.
+- Assigning a home no longer cancels the resident's current work/construction task; idle residents still start walking to the new home immediately, while busy residents keep the home binding and return there after their current task flow allows it.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-11 - In-game music volume and reverb
+
+- Lowered `StrategyMusicController` target volume from `0.22` to `0.12`.
+- Added a custom `AudioReverbFilter` to the in-game music source for a soft atmospheric reverb tail.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-11 - In-game music playlist folder
+
+- Added `Assets/Resources/Audio/Music/` as the drop folder for in-game music clips.
+- Added `StrategyMusicController`, loaded by bootstrap, to play all AudioClips in `Audio/Music` as a random playlist.
+- The playlist avoids repeating the same track twice in a row when 2+ tracks exist; with one track it naturally repeats after finishing.
+- Added a folder instruction file with recommended names like `Music_01.mp3`, `Music_02.mp3`, and `Music_03.ogg`.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-11 - Gruzovichky ambience audio transfer
+
+- Copied the non-generated `Gruzovichky` ambience assets into `Assets/Resources/Audio`: nature loops and grass walking footsteps.
+- Added `StrategyAmbientAudioController` for runtime forest birds, cicadas, night, rain, wind, and spatial river ambience loaded from Resources.
+- Added `StrategyResidentFootstepAudio` and wired residents to play quiet spatial grass footsteps on walk animation step frames.
+- Runtime bootstrap now configures ambience audio after camera setup and logs loaded footstep clip count.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-11 - Unlimited storage workers/builders
+
+- Removed the per-Storage-Yard assignment caps for storage workers and hired builders; both roles are now limited by available adult residents and existing workplace/construction assignments.
+- Profession HUD and selected Storage Yard context now show storage workers/builders as unlimited capacity, while production roles and granary workers still use their worksite slot caps.
+- Kept the per-construction-site active builder cap at 2 so each site still stages construction with a small visible crew.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-11 - Profession assignment HUD
+
+- Added a runtime `Профессии` HUD opened from a top-menu button, with generated profession icons, dynamic rows for available professions, assigned/capacity counters, and `-`/`+` controls.
+- Moved worker assignment/removal out of selected-building microHUDs; selected production/storage buildings now keep status/resource context only.
+- Profession HUD aggregates current built worksites and routes assignment through existing worksite APIs for lumberjacks, stonecutters, hunters, fishers, storage workers, builders, and granary workers.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
 ### 2026-06-11 - Build menu partial-class refactor
 
 - Refactored the runtime Build menu so the public `StrategyBuildMenuController` remains the same MonoBehaviour API while its implementation lives in a non-partial `StrategyBuildMenuControllerDriver`.
@@ -115,7 +240,7 @@ Last updated: 2026-06-11
 
 - Fixed completed houses staying empty after the first house when the remaining homeless residents already had jobs such as Storage Yard builder/logistics roles.
 - `StrategyPopulationController.TryFindAvailableResident` now treats home assignment and workplace assignment as independent: homeless adults can move into houses even if they already have a workplace.
-- Active construction assignments still block house pickup so residents are not pulled away from another in-progress construction site.
+- Follow-up on 2026-06-11 also made construction assignment independent from house pickup; home assignment is based on family/home state, not job state.
 - Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
 
 ### 2026-06-11 - Starter settlement Stone guarantee

@@ -78,6 +78,7 @@ Responsibilities:
 - Ensure a Unity `WindZone`-backed strategy wind source exists.
 - Ensure a usable orthographic main camera exists.
 - Wire camera bounds to generated map bounds.
+- Configure runtime ambience audio after camera setup.
 - Focus the initial camera view on the startup campfire after population creates it.
 - Configure water/shore animation after map generation.
 - Create/configure the Stone resource registry before nature generation.
@@ -86,22 +87,31 @@ Responsibilities:
 - Place the starter Storage Yard near the campfire with initial Logs and Stone after placement is configured.
 - Create/configure runtime wildlife after starter placement so deer/rabbits use valid land and fish use valid water cells.
 - Create the runtime time-scale controller for F1/F2/F3 speed controls.
+- Create/configure the top status HUD with population counts.
+- Create/configure refugee arrivals and the modal refugee decision HUD.
 
 Primary files/assets:
 
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.cs`
 - `Assets/Scripts/Runtime/Core/StrategyDebugLogger.cs`
 - `Assets/Scripts/Runtime/Core/StrategyTimeScaleController.cs`
+- `Assets/Scripts/Runtime/Audio/StrategyAmbientAudioController.cs`
+- `Assets/Scripts/Runtime/Audio/StrategyMusicController.cs`
+- `Assets/Scripts/Runtime/Audio/StrategyResidentFootstepAudio.cs`
 - `Assets/Scripts/Runtime/Map/StrategyFogOfWarController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyWaterAnimationController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyStoneResourceController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyWindController.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.cs`
+- `Assets/Scripts/Runtime/Population/StrategyRefugeeArrivalController.cs`
+- `Assets/Scripts/Runtime/UI/StrategyRefugeeDialogController.cs`
+- `Assets/Scripts/Runtime/UI/StrategyTopStatusHudController.cs`
 - `Assets/Scenes/SampleScene.unity`
 
 Impact hints:
 
 - Bootstrap runs through `RuntimeInitializeOnLoadMethod` and does not require scene YAML wiring.
+- Audio bootstrap expects non-generated clips under `Assets/Resources/Audio`; missing ambience or music clips should degrade quietly rather than blocking scene startup.
 - Any future menu, multi-scene, loading, or mode system should decide whether bootstrap remains global or becomes scene-specific.
 
 ### Strategy Debug Logging
@@ -111,7 +121,7 @@ Responsibilities:
 - Create a structured runtime `debug.log` for gameplay debugging.
 - Mirror Unity log messages, warnings, errors, and exceptions into the same file.
 - Provide static event helpers for strategy systems without forcing scene references.
-- Record important events and failure reasons for bootstrap, map generation, nature/Stone generation, build menu/tool flow, placement, population, forestry, wildlife, lumberjack camps, selection, and time-scale changes.
+- Record important events and failure reasons for bootstrap, map generation, nature/Stone generation, build menu/tool flow, placement, population, refugees, forestry, wildlife, lumberjack camps, selection, and time-scale changes.
 
 Primary files/assets:
 
@@ -126,6 +136,40 @@ Impact hints:
 - Prefer meaningful state-change, command, failure, and completion events over per-frame logging.
 - Add future categories through `StrategyDebugLogger.Info/Warn/Error` so log formatting remains consistent.
 
+### Strategy Audio
+
+Responsibilities:
+
+- Load non-generated ambience and footstep clips from `Assets/Resources/Audio`.
+- Load in-game music clips from `Assets/Resources/Audio/Music` as a playlist.
+- Create runtime AudioSources without scene YAML wiring.
+- Play layered forest birds, cicadas, night, rain, calm wind, and forest wind ambience.
+- Position a spatial river ambience source at the nearest generated water cell to the active camera.
+- Play random in-game music tracks without repeating the previous track when 2+ tracks exist.
+- Pause current in-game music on application focus loss and resume the same clip on focus return.
+- Add quiet spatial grass footsteps to resident walk animation step frames.
+
+Primary files/assets:
+
+- `Assets/Scripts/Runtime/Audio/StrategyAmbientAudioController.cs`
+- `Assets/Scripts/Runtime/Audio/StrategyMusicController.cs`
+- `Assets/Scripts/Runtime/Audio/StrategyResidentFootstepAudio.cs`
+- `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.cs`
+- `Assets/Scripts/Runtime/Audio/StrategyResidentFootstepAudio.cs`
+- `Assets/Resources/Audio/Nature/`
+- `Assets/Resources/Audio/Music/`
+- `Assets/Resources/Audio/Footsteps/GrassWalk/`
+- `Assembly-CSharp.csproj`
+
+Impact hints:
+
+- Ambience depends on generated map water cells, camera position, and strategy wind values.
+- Music files can be named freely, but `Music_01.mp3`, `Music_02.mp3`, etc. are the recommended convention; all direct AudioClips in `Resources/Audio/Music` are part of the playlist.
+- Music focus handling must use `AudioSource.Pause`/`UnPause` so losing focus does not trigger playlist advancement.
+- Footsteps are tied to resident walk sprite frames 1 and 5; changing walk frame counts or animation pacing should retune footstep phases.
+- Keep imported ambience/footstep clips under `Resources/Audio` unless the loading path is updated at the same time.
+
 ### Generated City Map
 
 Responsibilities:
@@ -134,6 +178,8 @@ Responsibilities:
 - Generate a visible 2D terrain map at runtime.
 - Randomize the active map seed by default and derive a generation profile from it.
 - Generate variable rivers, shorelines, optional water blobs, and clustered land terrain.
+- Tag generated water and shore cells with `CityMapWaterKind.River` or `CityMapWaterKind.Lake` for direct future gameplay queries.
+- Expose `RiverFlowDirection` for systems that need to move or animate along the generated river current.
 - Paint procedural pixel-art terrain textures for generated map cells.
 - Render animated water waves, sparkles, and shoreline foam as a transparent overlay.
 - Feed generated cell kinds and active seed into the visual nature-props layer.
@@ -141,6 +187,7 @@ Responsibilities:
 - Provide the campfire exclusion center used by nature generation to guarantee starter-area Stone.
 - Expose map bounds and cell buildability for future zoning/economy systems.
 - Track dynamic walkability blockers for placed buildings and early agents.
+- Track completed bridge walkability over River water cells without changing water/shore identity.
 - Host runtime fog-of-war exploration and visibility state.
 
 Primary files/assets:
@@ -161,6 +208,8 @@ Impact hints:
 
 - Current map is runtime-generated with a randomized active seed by default and is not saved.
 - Current terrain painter covers Grass, Meadow, Forest, Dirt, Shore, and Water with seeded variants and neighbor transition overlays.
+- Water source identity is stored on `CityMapCell.WaterKind`; future systems should query that instead of guessing river/lake from geometry.
+- River current direction is stored on `CityMapController.RiverFlowDirection`; river-specific ambience/gameplay should follow that instead of creating independent direction timers.
 - Terrain kind generation now uses a seed-derived profile plus multi-octave noise; texture painting consumes the active seed.
 - Nature prop placement consumes the active seed and generated cell kinds.
 - Stone deposit placement consumes the active seed and generated cell kinds.
@@ -280,7 +329,8 @@ Responsibilities:
 
 - Spawn ambient deer herds on suitable walkable land away from the starter camp.
 - Spawn ambient rabbit groups on suitable walkable land away from the starter camp.
-- Spawn ambient fish shoals on suitable generated water cells.
+- Spawn lake fish on suitable generated lake regions with strict per-lake population caps.
+- Spawn one-way pass-through river fish along the generated river current through a single timer.
 - Spawn decorative birds on species-appropriate land/water cells without reproduction or resources.
 - Provide adult-rabbit reservation/count lookup for hunter camps.
 - Provide catchable-fish reservation/count lookup for fisher huts.
@@ -295,7 +345,8 @@ Responsibilities:
 - Animate birds idle movement, pecking, hopping, flying, landing, duck swimming, and flight shadows.
 - Keep deer on local walkable-cell paths inside loose herd/home ranges without blocking map cells.
 - Keep rabbits on local walkable-cell paths inside loose group/home ranges without blocking map cells.
-- Keep fish on local water-cell paths inside loose shoal/home ranges without blocking map cells.
+- Keep lake fish on local lake-water paths inside loose shoal/home ranges without blocking map cells.
+- Keep river fish on the generated river route until they despawn at the route end.
 - Keep birds on local habitat choices inside loose home ranges without blocking map cells.
 - React to nearby residents and noisy work by switching to alert/flee states.
 - Let adult does reproduce when an adult buck is nearby in the same herd.
@@ -305,9 +356,10 @@ Responsibilities:
 - Spawn kits that grow into adults after scaled simulation time.
 - Keep rabbit reproduction under the hard 36-rabbit runtime population cap.
 - Let hunter camps reserve adult rabbits, stop their normal behavior during the shot sequence, and yield `Дичь` after butchering.
-- Let adult fish reproduce when another adult of the same species is nearby in the same shoal.
+- Let adult lake fish reproduce when another adult of the same species is nearby in the same shoal.
 - Spawn fry that grow into adults after scaled simulation time.
-- Keep fish reproduction under the hard 60-fish runtime population cap.
+- Keep fish reproduction under the hard 60-fish runtime population cap and the stricter per-lake region cap.
+- Keep river fish non-reproductive and controlled by the active river-fish cap.
 - Let fisher huts reserve adult fish, hold them during the hook/reel sequence, and yield local `Рыба`.
 
 Primary files/assets:
@@ -336,7 +388,7 @@ Impact hints:
 - Deer and birds do not reveal fog, block walkability, or provide resources yet; rabbits can yield `Дичь` through the hunter-camp work loop, and fish can yield `Рыба` through the fisher-hut work loop.
 - Deer pathing depends on `CityMapController.IsCellWalkable` and should stay local/cheap until a shared pathfinding service exists.
 - Rabbit pathing uses the same local walkable-cell approach and should stay cheap until a shared pathfinding service exists.
-- Fish pathing uses `CityMapCellKind.Water` instead of `IsCellWalkable`, because water is intentionally not walkable for land agents.
+- Fish pathing uses `CityMapCellKind.Water` plus `CityMapWaterKind` instead of `IsCellWalkable`, because water is intentionally not walkable for land agents and lake/river fish now have separate movement rules.
 - Reproduction is owned by `StrategyWildlifeController`; deer/rabbit/fish agents own species or sex, life stage, growth, movement, and animation state. Birds are decorative and do not reproduce yet.
 - Future deer hunting, leather, predators, broader mortality, or animal HUD should extend this subsystem instead of adding animal behavior into population or nature-prop code.
 
@@ -399,6 +451,7 @@ Responsibilities:
 - Provide runtime simulation speed controls.
 - Map F1/F2/F3 to x1/x2/x3 speed.
 - Keep `Time.fixedDeltaTime` synchronized with `Time.timeScale`.
+- Provide pause locks for modal gameplay decisions while preserving the requested x1/x2/x3 speed.
 - Reset simulation speed back to x1 when the controller is disabled.
 
 Primary files/assets:
@@ -412,6 +465,7 @@ Impact hints:
 - Current controls read direct Input System keyboard state, not generated input actions.
 - Time scale affects gameplay timers using scaled `Time.deltaTime`; UI using `Time.unscaledDeltaTime` should remain visually stable.
 - Future pause, speed HUD, or settings should extend this controller instead of adding separate `Time.timeScale` writes.
+- Modal systems should use pause locks instead of writing `Time.timeScale = 0` directly.
 
 ### Build Menu HUD
 
@@ -453,6 +507,83 @@ Impact hints:
 - Successful placement asks the menu to close all open layers and records the placement frame.
 - If a full HUD/menu shell appears later, decide whether this controller remains standalone or becomes part of the HUD shell.
 
+### Top Status HUD
+
+Responsibilities:
+
+- Runtime-created top status canvas.
+- Show total settlement population, adult count, and child count.
+- Refresh counts from `StrategyPopulationController` without owning population state.
+
+Primary files/assets:
+
+- `Assets/Scripts/Runtime/UI/StrategyTopStatusHudController.cs`
+- `Assets/Scripts/Runtime/Population/StrategyPopulationController.cs`
+- `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.cs`
+- `Assembly-CSharp.csproj`
+
+Impact hints:
+
+- Population counts exclude pending refugee families until they are accepted into the settlement.
+- Keep this HUD informational; future clickable top-bar controls should coordinate with Build/Profession HUD positioning and raycasts.
+
+### Refugee Decision HUD
+
+Responsibilities:
+
+- Runtime-created modal decision canvas for arriving refugee families.
+- Show a family summary with names, roles, and ages.
+- Block world interaction while visible and return accept/reject decisions to the refugee-arrival controller.
+
+Primary files/assets:
+
+- `Assets/Scripts/Runtime/UI/StrategyRefugeeDialogController.cs`
+- `Assets/Scripts/Runtime/Population/StrategyRefugeeArrivalController.cs`
+- `Assets/Scripts/Runtime/Core/StrategyTimeScaleController.cs`
+- `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.cs`
+- `Assembly-CSharp.csproj`
+
+Impact hints:
+
+- Modal gameplay decisions should pause through `StrategyTimeScaleController` pause locks rather than direct `Time.timeScale` writes.
+- Dialog UI should stay above Build, Selection, and Profession HUD canvases.
+
+### Profession HUD
+
+Responsibilities:
+
+- Runtime-created top-menu `Профессии` button.
+- Show a large profession panel with dynamic rows only for professions unlocked by currently built worksites.
+- Show generated pixel-art profession icons, role labels, short role descriptions, assigned/capacity counts, and `-`/`+` controls.
+- Aggregate assignment capacity/counts across all current lumberjack camps, stonecutter camps, hunter camps, fisher huts, storage yards, and granaries.
+- Treat Storage Yard storage workers and hired builders as unlimited-capacity roles once at least one Storage Yard exists; other worksite roles keep their own slot caps.
+- Assign the next free adult resident to the first available worksite slot for the requested profession.
+- Remove one currently assigned resident from the requested profession through the owning worksite API.
+- Log player assignment/removal attempts and results.
+
+Primary files/assets:
+
+- `Assets/Scripts/Runtime/UI/StrategyProfessionHudController.cs`
+- `Assets/Scripts/Runtime/UI/StrategyProfessionIconFactory.cs`
+- `Assets/Scripts/Runtime/Population/StrategyProfessionType.cs`
+- `Assets/Scripts/Runtime/Population/StrategyPopulationController.cs`
+- `Assets/Scripts/Runtime/Build/StrategyLumberjackCamp.cs`
+- `Assets/Scripts/Runtime/Build/StrategyStonecutterCamp.cs`
+- `Assets/Scripts/Runtime/Build/StrategyHunterCamp.cs`
+- `Assets/Scripts/Runtime/Build/StrategyFisherHut.cs`
+- `Assets/Scripts/Runtime/Build/StrategyStorageYard.cs`
+- `Assets/Scripts/Runtime/Build/StrategyGranary.cs`
+- `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.cs`
+- `Assembly-CSharp.csproj`
+
+Impact hints:
+
+- This HUD owns player-facing worker assignment/removal; selected-building microHUDs should remain informational for worksite status/resource context.
+- Assignment still uses each worksite's existing `TryAssignNextAvailable...` / `Unassign...At` API, so role state, reservations, and work loops remain owned by the worksite/resident systems.
+- Storage worker and builder `+` buttons should stay enabled as long as a Storage Yard exists and at least one free adult resident can work.
+- Dynamic rows are derived from currently existing worksite components, not from the build catalog.
+- New professions should be added here when a new worksite role becomes assignable by the player.
+
 ### Build Placement
 
 Responsibilities:
@@ -473,8 +604,10 @@ Responsibilities:
 - Add ambient smoke/window-light overlays to placed houses.
 - Reserve construction Logs/Stone from Storage Yards before accepting a construction site.
 - Mark occupied cells when construction sites are accepted.
+- Support Bridge as a special two-click placement tool: select one valid river bank, highlight opposite-bank candidates across contiguous River water, then create a construction site from the selected span.
 - Create runtime placed-building records with selected visual variant data after construction completes.
 - Mark construction/final building walk-blocker cells as not walkable.
+- Mark completed Bridge span cells as occupied and set their River water cells walkable through the map bridge overlay instead of blocking them like buildings.
 - House uses an expanded 2.5D visual/navigation blocker around and above its technical footprint.
 - Lumberjack camp places a `StrategyLumberjackCamp` worksite component, blocks its technical 2x2 footprint plus one visual row above, and hosts a local visual Logs stockpile.
 - Stonecutter camp places a `StrategyStonecutterCamp` worksite component, blocks its technical 2x2 footprint plus one visual row above, and hosts a local visual Stone stockpile.
@@ -482,7 +615,8 @@ Responsibilities:
 - Hunter camp places a `StrategyHunterCamp` worksite component, blocks its technical 2x2 footprint plus one visual row above, and hosts a local visual `Дичь` stockpile.
 - Fisher hut places a `StrategyFisherHut` worksite component, blocks its technical 2x2 footprint plus one visual row above, requires nearby water/shore access, and hosts a local visual `Рыба` stockpile.
 - Granary places a `StrategyGranary` food-storage component, blocks its technical 3x2 footprint plus one visual row above, and hosts local visual `Дичь`/`Рыба` stockpiles.
-- Accepted construction sites request up to 2 hired Storage Yard builders and can wait if none are free yet.
+- Accepted construction sites request up to 2 active builders from the uncapped hired Storage Yard builder pool and can wait if none are free yet.
+- Bridge creates no worksite component, stores its selected span cells/endpoints on the placed-building record, and uses bank endpoint cells as construction work/dropoff cells so builders do not stand in water.
 - Completed house sites ask population to populate the finished house separately from the construction crew.
 - Seed placed-building records used by later visual upgrades.
 
@@ -506,6 +640,8 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Map/StrategyFogOfWarController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyForestryController.cs`
 - `Assets/Scripts/Runtime/UI/StrategyBuildMenuController.cs`
+- `Assets/Scripts/Runtime/UI/StrategyBuildMenuController.Driver.cs`
+- `Assets/Scripts/Runtime/UI/StrategyBuildMenuController.Catalog.cs`
 - `Assets/Scripts/Runtime/Economy/StrategyConstructionResourceCost.cs`
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.cs`
 - `Assembly-CSharp.csproj`
@@ -516,6 +652,7 @@ Impact hints:
 - Placed objects use tool-specific sprites when available; unknown future tools still fall back to colored sprites/TextMesh labels.
 - Build placement consults fog exploration state, so early expansion starts around the camp and other revealed areas unless player fog is toggled off with F9.
 - House ambient overlays are visual-only child sprites and should not be used for footprint/collider calculations.
+- Bridge placement requires two valid explored, unoccupied, walkable river-bank endpoint cells with a straight contiguous River water span between them; Lake water is rejected.
 - With the current catalog, `Дом`, `Лагерь дровосеков`, `Лагерь каменотёсов`, `Лагерь охотников`, `Хижина рыбака`, `Склад`, and `Амбар` can be selected and placed only where their technical footprint and tool-specific walk blocker fit on buildable terrain.
 - `Хижина рыбака` additionally requires a nearby water cell with adjacent walkable shore access.
 - Successful player placement creates a construction site, closes the full Build menu, and marks the frame so world selection ignores the placement click.
@@ -599,8 +736,8 @@ Responsibilities:
 
 - Add `Склад` as a placed storage building with local Logs and Stone stock.
 - Spawn a starter Storage Yard near the campfire with 13 Logs and 9 Stone.
-- Assign up to 2 residents as storage workers.
-- Hire up to 2 additional residents as dedicated construction builders.
+- Assign uncapped residents as storage workers, constrained by available adult residents and exclusive workplace state.
+- Hire uncapped additional residents as dedicated construction builders, constrained by available adult residents and exclusive workplace/construction state.
 - Find lumberjack camps with available stored Logs and reserve stock for haulers.
 - Find stonecutter camps with available stored Stone and reserve stock for haulers.
 - Reserve Logs/Stone for accepted construction sites.
@@ -609,7 +746,7 @@ Responsibilities:
 - Route storage workers to source camps, pick up Logs, carry them to storage, and deposit them.
 - Route storage workers to stonecutter camps, pick up Stone, carry it to storage, and deposit it.
 - Update lumberjack/stonecutter camp and storage yard stock visuals as resources move, and show Stone as a separate storage pile.
-- Show separate storage worker and builder slots, staff statuses, Logs/Stone stock, and available source count in the selection HUD.
+- Show storage worker/builder counts, Logs/Stone stock, and available source count in the selection HUD; player assignment/removal lives in the Profession HUD.
 
 Primary files/assets:
 
@@ -630,6 +767,7 @@ Primary files/assets:
 Impact hints:
 
 - Storage workers reserve camp Logs/Stone before walking to prevent multiple haulers from targeting the same stock.
+- Storage worker and builder staffing has no per-yard slot limit; construction sites still cap their active visible builder crew at 2.
 - Construction resources are reserved against Storage Yard stock at site creation, then physically removed when builders pick them up.
 - Residents currently support one active workplace: lumberjack camp, stonecutter camp, hunter camp, fisher hut, storage logistics, or storage builder crew.
 - Storage is runtime-only and does not yet feed a global economy, save data, or consumption loop.
@@ -682,7 +820,7 @@ Responsibilities:
 - Track placed house records for household migration checks.
 - Attach household birth state to occupied houses.
 - Check close kinship through resident parent/child links for future family/couple rules.
-- Populate completed houses from the homeless adult male/female pool when possible, even if those residents already have workplaces.
+- Populate completed houses from the homeless adult male/female pool when possible, even if those residents already have workplaces or construction assignments.
 - Fall back to free-house migration and partner lookup when no free pair can immediately occupy a completed house.
 - Bind assigned residents to their home building.
 - Spawn children for valid adult male/female house pairs after randomized household cooldowns when house capacity allows.
@@ -690,6 +828,10 @@ Responsibilities:
 - Continue resident aging after adulthood.
 - Move the oldest adult child still living with parents into empty houses.
 - Move an eligible adult opposite-gender partner into single-resident adult-child houses while blocking close relatives.
+- Create temporary refugee families with one adult man, one adult woman, and 1-3 children.
+- Gate the first refugee family on 3 completed registered houses; schedule later families with the repeat interval.
+- Keep pending refugees outside the normal resident registry until accepted.
+- Accept refugee families into the normal resident registry or destroy rejected temporary families after they leave the map.
 - Drive simple idle movement around the current camp/home through short walkable grid paths.
 - Periodically send residents to work at their home's Garden Beds upgrade.
 - Add the Garden Beds crop to the owning house when garden work completes.
@@ -726,6 +868,7 @@ Responsibilities:
 Primary files/assets:
 
 - `Assets/Scripts/Runtime/Population/StrategyPopulationController.cs`
+- `Assets/Scripts/Runtime/Population/StrategyRefugeeArrivalController.cs`
 - `Assets/Scripts/Runtime/Population/StrategyHouseholdState.cs`
 - `Assets/Scripts/Runtime/Population/StrategyKinshipUtility.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.cs`
@@ -762,13 +905,16 @@ Impact hints:
 
 - Current residents are runtime-only and are not saved.
 - Resident names are assigned at runtime from built-in first-name and family-name pools.
-- Startup residents receive runtime ages 18-30; children start at age 0, use scaled game time for growth, and continue aging after adulthood.
+- Startup residents receive runtime ages 18-30; children start at age 0, become adults at age 16 through scaled game time, and continue aging after adulthood.
 - `StrategyPopulationController` owns the runtime resident ID registry used by kinship lookup.
 - `StrategyPopulationController` also owns the runtime house registry used for free-house migration and partner retry checks.
+- Pending refugee families are rendered as resident agents but are not counted as residents, workers, or fog sources until accepted.
+- Accepted refugee adults join the same homeless/free resident pool as camp adults; accepted children keep parent links and grow normally.
 - `StrategyHouseholdState` lives on occupied houses and owns the randomized birth timer.
 - `StrategyKinshipUtility` treats close parent/child graph distance as a block for future couple/family rules.
 - Resident readability helpers are visual-only child `SpriteRenderer`s and should stay synced when changing resident animation frames.
 - Residents use short local grid paths for idle movement and frame-based sprite walk cycles while moving; no global pathfinding/job routing exists yet.
+- Resident footstep audio is attached by `StrategyResidentAgent` and plays grass clips on selected walk frames; keep it low-volume/spatial when adding more residents or faster simulation speeds.
 - Lumberjack work is the first explicit job assignment loop and remains local to the selected camp radius; it now includes tree chopping, trunk bucking, Logs delivery, and sapling planting.
 - Resident woodcut sprites are generated for every male/female visual variant and should stay in sync with readability outline mirroring.
 - Stonecutter work follows the same local-camp assignment model, but mines finite Stone deposits and does not plant/regrow Stone.
@@ -778,11 +924,12 @@ Impact hints:
 - Fisher work follows the same local-camp assignment model, reserves fish through `StrategyWildlifeController`, requires shore access around the target, and stores produced `Рыба` locally at the fisher hut for now.
 - Resident fishing sprites are generated for every male/female visual variant and should stay in sync with readability outline mirroring.
 - Granary work follows the same local-logistics model as Storage Yard workers, but moves food from production buildings into food storage instead of moving construction resources.
-- Construction assignment is a temporary exclusive task for hired Storage Yard builders; workplace assignment skips residents already attached to a construction site.
+- Construction assignment is a temporary exclusive task for hired Storage Yard builders; there is no hired-builder pool cap, but each construction site still accepts up to 2 active builders and workplace assignment skips residents already attached to a construction site. Construction assignment does not block home/family assignment.
 - Worker and builder assignment must check `StrategyResidentAgent.CanWork`; children idle/walk but cannot work.
 - Resident construction sprites are generated for every male/female visual variant and should stay in sync with readability outline mirroring.
 - Chickens use the same local path style as before; their animation is visual-only.
-- House construction no longer consumes residents as builders; after completion, the finished house tries to pull one homeless adult male and one homeless adult female from the starter camp/free pool, regardless of workplace role.
+- House construction no longer consumes residents as builders; after completion, the finished house tries to pull one homeless adult male and one homeless adult female from the starter camp/free pool, regardless of workplace or construction role.
+- Assigning a home should not cancel active workplace/construction tasks; idle residents can walk home immediately, and busy residents keep the home binding for later idle/home behavior.
 - If no free pair exists, the completed house is available for adult-child migration and partner lookup.
 - House occupation consumes the finite free-resident pool from the starter camp while it exists; later household births and adult-child migration are the first internal population growth path.
 - Future jobs/families/economy should extend resident state rather than replacing the home/free-camp assignment model.
@@ -799,12 +946,8 @@ Responsibilities:
 - Show selected-object preview sprites and status/context blocks.
 - Expose house-specific visual upgrade actions in the selected-house HUD.
 - Show selected-house resident portraits/names/age/life stage/statuses up to house capacity, compact upgrade action rows, resource icons/counts, and Garden Beds crop.
-- Show selected-lumberjack-camp worker slots with assign/remove actions, worker forestry statuses, Logs stock, and nearby tree/trunk counts.
-- Show selected-stonecutter-camp worker slots with assign/remove actions, worker mining statuses, Stone stock, and nearby deposit counts.
-- Show selected-hunter-camp worker slots with assign/remove actions, worker hunting statuses, `Дичь` stock, and nearby huntable rabbit counts.
-- Show selected-fisher-hut worker slots with assign/remove actions, worker fishing statuses, `Рыба` stock, and nearby catchable fish counts.
-- Show selected-granary worker slots with assign/remove actions, worker food-hauling statuses, `Дичь`/`Рыба` stock, and available food-source counts.
-- Show selected-storage-yard logistics-worker and builder slots with assign/remove actions, staff statuses, Logs/Stone stock, and available source count.
+- Show selected worksite status/resource context without worker assignment controls.
+- Show selected lumberjack/stonecutter/hunter/fisher/granary/storage stock and nearby source/target counts.
 - Show selected-construction-site cost, delivered resources, builder count, and progress/status context.
 - Show selected-resident full name, portrait, profile, age/life stage, current activity, and home/camp assignment.
 
@@ -836,12 +979,7 @@ Impact hints:
 - Selection consults fog exploration state before checking 2D world colliders.
 - Selection HUD is runtime-created in the world selection controller and slides in from the right.
 - House resident rows use the assigned resident references stored on `StrategyPlacedBuilding` and grow to the current house capacity.
-- Lumberjack camp worker rows and stock context use references/counts stored on `StrategyLumberjackCamp`.
-- Stonecutter camp worker rows and stock context use references/counts stored on `StrategyStonecutterCamp`.
-- Hunter camp worker rows and stock context use references/counts stored on `StrategyHunterCamp`.
-- Fisher hut worker rows and stock context use references/counts stored on `StrategyFisherHut`.
-- Storage yard logistics-worker/builder rows and stock context use references/counts stored on `StrategyStorageYard`.
-- Granary worker rows and stock context use references/counts stored on `StrategyGranary`.
+- Worksite context uses references/counts stored on the selected worksite component, but player assignment/removal is owned by the Profession HUD.
 - Construction site context uses cost/progress/builder data stored on `StrategyConstructionSite`.
 - Current HUD layout is code-built with Unity UI primitives; future HUD shell work should decide whether this remains local or moves into a shared UI view layer.
 

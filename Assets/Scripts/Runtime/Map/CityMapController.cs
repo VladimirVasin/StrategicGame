@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace ProjectUnknown.Strategy
@@ -12,18 +13,33 @@ namespace ProjectUnknown.Strategy
         Shore
     }
 
+    public enum CityMapWaterKind
+    {
+        None,
+        River,
+        Lake
+    }
+
     public readonly struct CityMapCell
     {
-        public CityMapCell(int x, int y, CityMapCellKind kind)
+        public CityMapCell(int x, int y, CityMapCellKind kind, CityMapWaterKind waterKind = CityMapWaterKind.None)
         {
             X = x;
             Y = y;
             Kind = kind;
+            WaterKind = kind == CityMapCellKind.Water || kind == CityMapCellKind.Shore
+                ? waterKind
+                : CityMapWaterKind.None;
         }
 
         public int X { get; }
         public int Y { get; }
         public CityMapCellKind Kind { get; }
+        public CityMapWaterKind WaterKind { get; }
+        public bool IsWater => Kind == CityMapCellKind.Water;
+        public bool IsShore => Kind == CityMapCellKind.Shore;
+        public bool IsRiver => WaterKind == CityMapWaterKind.River;
+        public bool IsLake => WaterKind == CityMapWaterKind.Lake;
         public bool IsBuildable => Kind != CityMapCellKind.Water;
     }
 
@@ -45,13 +61,18 @@ namespace ProjectUnknown.Strategy
         private Texture2D mapTexture;
         private CityMapCell[,] cells;
         private bool[,] blockedWalkCells;
+        private bool[,] bridgeWalkableCells;
         private int activeSeed;
+        private Vector2Int riverFlowDirection = Vector2Int.right;
 
         public Bounds WorldBounds { get; private set; }
         public int Width => width;
         public int Height => height;
         public float CellSize => cellSize;
         public int ActiveSeed => activeSeed;
+        public Vector2Int RiverFlowDirection => riverFlowDirection == Vector2Int.zero
+            ? Vector2Int.right
+            : riverFlowDirection;
 
         public void GenerateMap()
         {
@@ -63,6 +84,7 @@ namespace ProjectUnknown.Strategy
 
             cells = new CityMapCell[width, height];
             blockedWalkCells = new bool[width, height];
+            bridgeWalkableCells = new bool[width, height];
             BuildCells();
             BuildTexture();
 
@@ -76,7 +98,11 @@ namespace ProjectUnknown.Strategy
                 out int forest,
                 out int dirt,
                 out int water,
-                out int shore);
+                out int shore,
+                out int riverWater,
+                out int riverShore,
+                out int lakeWater,
+                out int lakeShore);
             StrategyDebugLogger.Info(
                 "Map",
                 "Generated",
@@ -89,7 +115,12 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("forest", forest),
                 StrategyDebugLogger.F("dirt", dirt),
                 StrategyDebugLogger.F("water", water),
-                StrategyDebugLogger.F("shore", shore));
+                StrategyDebugLogger.F("shore", shore),
+                StrategyDebugLogger.F("riverWater", riverWater),
+                StrategyDebugLogger.F("riverShore", riverShore),
+                StrategyDebugLogger.F("lakeWater", lakeWater),
+                StrategyDebugLogger.F("lakeShore", lakeShore),
+                StrategyDebugLogger.F("riverFlow", RiverFlowDirection));
         }
 
         public bool TryGetCell(int x, int y, out CityMapCell cell)
@@ -121,8 +152,46 @@ namespace ProjectUnknown.Strategy
         public bool IsCellWalkable(int x, int y)
         {
             return TryGetCell(x, y, out CityMapCell cell)
-                && cell.IsBuildable
+                && (cell.IsBuildable || IsBridgeWalkableCell(x, y))
                 && (blockedWalkCells == null || !blockedWalkCells[x, y]);
+        }
+
+        public bool TryGetWaterKind(Vector2Int cell, out CityMapWaterKind waterKind)
+        {
+            return TryGetWaterKind(cell.x, cell.y, out waterKind);
+        }
+
+        public bool TryGetWaterKind(int x, int y, out CityMapWaterKind waterKind)
+        {
+            if (TryGetCell(x, y, out CityMapCell cell)
+                && (cell.Kind == CityMapCellKind.Water || cell.Kind == CityMapCellKind.Shore))
+            {
+                waterKind = cell.WaterKind;
+                return waterKind != CityMapWaterKind.None;
+            }
+
+            waterKind = CityMapWaterKind.None;
+            return false;
+        }
+
+        public bool IsRiverCell(Vector2Int cell)
+        {
+            return IsRiverCell(cell.x, cell.y);
+        }
+
+        public bool IsRiverCell(int x, int y)
+        {
+            return TryGetCell(x, y, out CityMapCell cell) && cell.IsRiver;
+        }
+
+        public bool IsLakeCell(Vector2Int cell)
+        {
+            return IsLakeCell(cell.x, cell.y);
+        }
+
+        public bool IsLakeCell(int x, int y)
+        {
+            return TryGetCell(x, y, out CityMapCell cell) && cell.IsLake;
         }
 
         public void SetCellsWalkable(Vector2Int origin, Vector2Int size, bool isWalkable)
@@ -143,6 +212,41 @@ namespace ProjectUnknown.Strategy
                     blockedWalkCells[cellX, cellY] = !isWalkable;
                 }
             }
+        }
+
+        public void SetBridgeCellsWalkable(IReadOnlyList<Vector2Int> bridgeCells, bool isWalkable)
+        {
+            if (bridgeCells == null)
+            {
+                return;
+            }
+
+            EnsureBridgeWalkabilityLayer();
+            for (int i = 0; i < bridgeCells.Count; i++)
+            {
+                Vector2Int cell = bridgeCells[i];
+                if (cell.x < 0 || cell.x >= width || cell.y < 0 || cell.y >= height)
+                {
+                    continue;
+                }
+
+                bridgeWalkableCells[cell.x, cell.y] = isWalkable;
+            }
+        }
+
+        public bool IsBridgeWalkableCell(Vector2Int cell)
+        {
+            return IsBridgeWalkableCell(cell.x, cell.y);
+        }
+
+        public bool IsBridgeWalkableCell(int x, int y)
+        {
+            return bridgeWalkableCells != null
+                && x >= 0
+                && x < width
+                && y >= 0
+                && y < height
+                && bridgeWalkableCells[x, y];
         }
 
         public Vector3 GetCellCenterWorld(int x, int y)
@@ -171,13 +275,27 @@ namespace ProjectUnknown.Strategy
             }
         }
 
+        private void EnsureBridgeWalkabilityLayer()
+        {
+            if (bridgeWalkableCells == null
+                || bridgeWalkableCells.GetLength(0) != width
+                || bridgeWalkableCells.GetLength(1) != height)
+            {
+                bridgeWalkableCells = new bool[width, height];
+            }
+        }
+
         private void CountTerrain(
             out int grass,
             out int meadow,
             out int forest,
             out int dirt,
             out int water,
-            out int shore)
+            out int shore,
+            out int riverWater,
+            out int riverShore,
+            out int lakeWater,
+            out int lakeShore)
         {
             grass = 0;
             meadow = 0;
@@ -185,6 +303,10 @@ namespace ProjectUnknown.Strategy
             dirt = 0;
             water = 0;
             shore = 0;
+            riverWater = 0;
+            riverShore = 0;
+            lakeWater = 0;
+            lakeShore = 0;
 
             if (cells == null)
             {
@@ -211,9 +333,27 @@ namespace ProjectUnknown.Strategy
                             break;
                         case CityMapCellKind.Water:
                             water++;
+                            if (cells[x, y].WaterKind == CityMapWaterKind.River)
+                            {
+                                riverWater++;
+                            }
+                            else if (cells[x, y].WaterKind == CityMapWaterKind.Lake)
+                            {
+                                lakeWater++;
+                            }
+
                             break;
                         case CityMapCellKind.Shore:
                             shore++;
+                            if (cells[x, y].WaterKind == CityMapWaterKind.River)
+                            {
+                                riverShore++;
+                            }
+                            else if (cells[x, y].WaterKind == CityMapWaterKind.Lake)
+                            {
+                                lakeShore++;
+                            }
+
                             break;
                     }
                 }
@@ -223,25 +363,32 @@ namespace ProjectUnknown.Strategy
         private void BuildCells()
         {
             MapGenerationProfile profile = CreateGenerationProfile(activeSeed);
+            riverFlowDirection = profile.RiverHorizontal ? Vector2Int.right : Vector2Int.up;
 
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
                 {
-                    CityMapCellKind kind = PickCellKind(x, y, profile);
-                    cells[x, y] = new CityMapCell(x, y, kind);
+                    CityMapCellKind kind = PickCellKind(x, y, profile, out CityMapWaterKind waterKind);
+                    cells[x, y] = new CityMapCell(x, y, kind, waterKind);
                 }
             }
 
             SmoothLandCells();
         }
 
-        private CityMapCellKind PickCellKind(int x, int y, MapGenerationProfile profile)
+        private CityMapCellKind PickCellKind(
+            int x,
+            int y,
+            MapGenerationProfile profile,
+            out CityMapWaterKind waterKind)
         {
-            if (TryPickWaterKind(x, y, profile, out CityMapCellKind waterKind))
+            if (TryPickWaterKind(x, y, profile, out CityMapCellKind kind, out waterKind))
             {
-                return waterKind;
+                return kind;
             }
+
+            waterKind = CityMapWaterKind.None;
 
             float broadNoise = FractalNoise(x, y, profile.BroadOffset, profile.BroadScale, 3, 0.54f);
             float detailNoise = FractalNoise(x, y, profile.DetailOffset, profile.DetailScale, 2, 0.48f);
@@ -276,7 +423,12 @@ namespace ProjectUnknown.Strategy
             return CityMapCellKind.Grass;
         }
 
-        private bool TryPickWaterKind(int x, int y, MapGenerationProfile profile, out CityMapCellKind kind)
+        private bool TryPickWaterKind(
+            int x,
+            int y,
+            MapGenerationProfile profile,
+            out CityMapCellKind kind,
+            out CityMapWaterKind waterKind)
         {
             float along = profile.RiverHorizontal ? x : y;
             float across = profile.RiverHorizontal ? y : x;
@@ -294,12 +446,14 @@ namespace ProjectUnknown.Strategy
             if (riverDistance <= profile.WaterHalfWidth)
             {
                 kind = CityMapCellKind.Water;
+                waterKind = CityMapWaterKind.River;
                 return true;
             }
 
             if (riverDistance <= profile.WaterHalfWidth + profile.ShoreWidth)
             {
                 kind = CityMapCellKind.Shore;
+                waterKind = CityMapWaterKind.River;
                 return true;
             }
 
@@ -317,31 +471,39 @@ namespace ProjectUnknown.Strategy
                 if (edge <= 1f)
                 {
                     kind = CityMapCellKind.Water;
+                    waterKind = CityMapWaterKind.Lake;
                     return true;
                 }
 
                 if (edge <= 1f + blob.ShoreWidth)
                 {
                     kind = CityMapCellKind.Shore;
+                    waterKind = CityMapWaterKind.Lake;
                     return true;
                 }
             }
 
             kind = default;
+            waterKind = CityMapWaterKind.None;
             return false;
         }
 
         private void SmoothLandCells()
         {
-            CityMapCellKind[,] smoothed = new CityMapCellKind[width, height];
+            CityMapCell[,] smoothed = new CityMapCell[width, height];
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
                 {
-                    CityMapCellKind current = cells[x, y].Kind;
-                    smoothed[x, y] = IsWaterBoundaryKind(current)
+                    CityMapCell currentCell = cells[x, y];
+                    CityMapCellKind current = currentCell.Kind;
+                    CityMapCellKind smoothedKind = IsWaterBoundaryKind(current)
                         ? current
                         : PickSmoothedLandKind(x, y, current);
+                    CityMapWaterKind waterKind = IsWaterBoundaryKind(smoothedKind)
+                        ? currentCell.WaterKind
+                        : CityMapWaterKind.None;
+                    smoothed[x, y] = new CityMapCell(x, y, smoothedKind, waterKind);
                 }
             }
 
@@ -349,7 +511,7 @@ namespace ProjectUnknown.Strategy
             {
                 for (int x = 0; x < width; x++)
                 {
-                    cells[x, y] = new CityMapCell(x, y, smoothed[x, y]);
+                    cells[x, y] = smoothed[x, y];
                 }
             }
         }

@@ -126,7 +126,7 @@ namespace ProjectUnknown.Strategy
 
                     if (cell.Kind == CityMapCellKind.Water)
                     {
-                        PaintWaterCell(x, y);
+                        PaintWaterCell(x, y, cell);
                     }
                     else if (cell.Kind == CityMapCellKind.Shore)
                     {
@@ -139,7 +139,18 @@ namespace ProjectUnknown.Strategy
             overlayTexture.Apply(false, false);
         }
 
-        private void PaintWaterCell(int cellX, int cellY)
+        private void PaintWaterCell(int cellX, int cellY, CityMapCell cell)
+        {
+            if (cell.IsRiver)
+            {
+                PaintRiverWaterCell(cellX, cellY);
+                return;
+            }
+
+            PaintLakeWaterCell(cellX, cellY);
+        }
+
+        private void PaintLakeWaterCell(int cellX, int cellY)
         {
             for (int py = 0; py < PixelsPerCell; py++)
             {
@@ -158,6 +169,40 @@ namespace ProjectUnknown.Strategy
                     if (sparkle == 0 && noise > 0.56f)
                     {
                         SetOverlayPixel(cellX, cellY, px, py, new Color(0.78f, 0.96f, 1f, 0.26f));
+                    }
+                }
+            }
+        }
+
+        private void PaintRiverWaterCell(int cellX, int cellY)
+        {
+            Vector2Int flow = map != null ? map.RiverFlowDirection : Vector2Int.right;
+            bool horizontal = Mathf.Abs(flow.x) >= Mathf.Abs(flow.y);
+            int flowSign = horizontal
+                ? flow.x >= 0 ? 1 : -1
+                : flow.y >= 0 ? 1 : -1;
+
+            for (int py = 0; py < PixelsPerCell; py++)
+            {
+                for (int px = 0; px < PixelsPerCell; px++)
+                {
+                    float noise = Hash01(map.ActiveSeed, cellX, cellY, px, py, 101);
+                    int worldPx = cellX * PixelsPerCell + px;
+                    int worldPy = cellY * PixelsPerCell + py;
+                    int along = horizontal ? worldPx : worldPy;
+                    int across = horizontal ? worldPy : worldPx;
+                    int wave = PositiveModulo(along * flowSign - frameIndex + across / 3, 7);
+                    if (wave == 0 && noise > 0.22f)
+                    {
+                        float alpha = 0.22f + noise * 0.24f;
+                        SetOverlayPixel(cellX, cellY, px, py, new Color(0.62f, 0.88f, 0.98f, alpha));
+                        continue;
+                    }
+
+                    int currentFleck = PositiveModulo(along * flowSign - frameIndex * 2 + across * 5 + cellX - cellY, 29);
+                    if (currentFleck == 0 && noise > 0.58f)
+                    {
+                        SetOverlayPixel(cellX, cellY, px, py, new Color(0.80f, 0.97f, 1f, 0.28f));
                     }
                 }
             }

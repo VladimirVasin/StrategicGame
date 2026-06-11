@@ -23,6 +23,13 @@ namespace ProjectUnknown.Strategy
         private const int MaxFishShoals = 7;
         private const int FishHomeRadius = 8;
         private const int MaxFishPopulation = 60;
+        private const int LakeFishRegionMinCap = 4;
+        private const int LakeFishRegionMaxCap = 12;
+        private const int LakeFishCellsPerCapacity = 10;
+        private const int MaxRiverFishPopulation = 8;
+        private const int RiverFishShoalIdBase = 10000;
+        private const float RiverFishSpawnIntervalMin = 7.5f;
+        private const float RiverFishSpawnIntervalMax = 14.0f;
         private const int MinBirds = 20;
         private const int MaxBirds = 32;
         private const int BirdHomeRadius = 14;
@@ -52,7 +59,17 @@ namespace ProjectUnknown.Strategy
         private readonly Dictionary<StrategyRabbitAgent, float> rabbitBreedCooldowns = new();
         private readonly List<StrategyFishAgent> fish = new();
         private readonly Dictionary<StrategyFishAgent, float> fishBreedCooldowns = new();
+        private readonly List<FishWaterRegion> lakeFishRegions = new();
+        private readonly Dictionary<Vector2Int, int> lakeRegionByCell = new();
+        private readonly List<Vector2Int> riverRouteCells = new();
         private readonly List<StrategyBirdAgent> birds = new();
+        private static readonly Vector2Int[] CardinalDirections =
+        {
+            new Vector2Int(1, 0),
+            new Vector2Int(-1, 0),
+            new Vector2Int(0, 1),
+            new Vector2Int(0, -1)
+        };
         private CityMapController map;
         private StrategyPopulationController population;
         private Transform wildlifeRoot;
@@ -60,6 +77,8 @@ namespace ProjectUnknown.Strategy
         private float breedingTimer;
         private float rabbitBreedingTimer;
         private float fishBreedingTimer;
+        private float riverFishSpawnTimer;
+        private int nextRiverShoalId = RiverFishShoalIdBase;
         private bool hasCampCell;
 
         public static StrategyWildlifeController Active { get; private set; }
@@ -67,6 +86,14 @@ namespace ProjectUnknown.Strategy
         public IReadOnlyList<StrategyRabbitAgent> Rabbits => rabbits;
         public IReadOnlyList<StrategyFishAgent> Fish => fish;
         public IReadOnlyList<StrategyBirdAgent> Birds => birds;
+
+        private sealed class FishWaterRegion
+        {
+            public readonly List<Vector2Int> Cells = new();
+            public int Id;
+            public int Capacity;
+            public Vector2Int Center;
+        }
 
         private void Awake()
         {
@@ -109,6 +136,8 @@ namespace ProjectUnknown.Strategy
                     UpdateFishBreeding(BreedingCheckInterval);
                 }
             }
+
+            UpdateRiverFishSpawning(Time.deltaTime);
         }
 
         public void Configure(CityMapController mapController, StrategyPopulationController populationController)
@@ -132,6 +161,9 @@ namespace ProjectUnknown.Strategy
             breedingTimer = Random.Range(8f, 18f);
             rabbitBreedingTimer = Random.Range(5f, 14f);
             fishBreedingTimer = Random.Range(6f, 16f);
+            riverFishSpawnTimer = Random.Range(2.0f, 5.5f);
+            nextRiverShoalId = RiverFishShoalIdBase + (Hash(map.ActiveSeed, 347, 563, 719, 887) % 997);
+            BuildFishWaterRegions();
 
             int targetDeer = MinDeer + (Hash(map.ActiveSeed, 17, 31, 43, 59) % (MaxDeer - MinDeer + 1));
             int targetRabbits = MinRabbits + (Hash(map.ActiveSeed, 19, 37, 53, 79) % (MaxRabbits - MinRabbits + 1));
@@ -177,6 +209,7 @@ namespace ProjectUnknown.Strategy
             int spawnedRabbitGroups = GenerateRabbits(targetRabbits, usedCells);
             int spawnedFishShoals = GenerateFish(targetFish);
             int spawnedBirds = GenerateBirds(targetBirds);
+            int lakeFishCapacity = GetTotalLakeFishCapacity();
 
             StrategyDebugLogger.Info(
                 "Wildlife",
@@ -193,6 +226,10 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("fishTarget", targetFish),
                 StrategyDebugLogger.F("fishCap", MaxFishPopulation),
                 StrategyDebugLogger.F("fishShoals", spawnedFishShoals),
+                StrategyDebugLogger.F("lakeFishRegions", lakeFishRegions.Count),
+                StrategyDebugLogger.F("lakeFishCapacity", lakeFishCapacity),
+                StrategyDebugLogger.F("riverRouteCells", riverRouteCells.Count),
+                StrategyDebugLogger.F("riverFishCap", MaxRiverFishPopulation),
                 StrategyDebugLogger.F("birds", spawnedBirds),
                 StrategyDebugLogger.F("birdTarget", targetBirds),
                 StrategyDebugLogger.F("seed", map.ActiveSeed),
@@ -389,43 +426,483 @@ namespace ProjectUnknown.Strategy
 
         private int GenerateFish(int targetFish)
         {
-            int targetShoals = Mathf.Clamp(Mathf.CeilToInt(targetFish / 5.0f), 4, MaxFishShoals);
+            int totalLakeCapacity = GetTotalLakeFishCapacity();
+            if (lakeFishRegions.Count <= 0 || totalLakeCapacity <= 0)
+            {
+                StrategyDebugLogger.Info(
+                    "Wildlife",
+                    "LakeFishInitialSpawnSkipped",
+                    StrategyDebugLogger.F("reason", "no lake regions"),
+                    StrategyDebugLogger.F("target", targetFish));
+                return 0;
+            }
+
+            int targetLakeFish = Mathf.Min(targetFish, totalLakeCapacity);
+            int targetShoals = Mathf.Clamp(
+                Mathf.CeilToInt(targetLakeFish / 5.0f),
+                1,
+                Mathf.Min(MaxFishShoals, lakeFishRegions.Count * 2));
             HashSet<Vector2Int> usedWaterCells = new();
-            int remaining = targetFish;
+            int remaining = targetLakeFish;
             int spawnedShoals = 0;
 
             for (int shoal = 0; shoal < targetShoals && remaining > 0; shoal++)
             {
-                if (!TryFindFishShoalCenter(shoal, usedWaterCells, out Vector2Int shoalCenter))
+                FishWaterRegion region = PickLakeFishRegionForShoal(shoal);
+                if (region == null)
+                {
+                    continue;
+                }
+
+                int regionRoom = region.Capacity - CountFishInLakeRegion(region.Id);
+                if (regionRoom <= 0)
+                {
+                    continue;
+                }
+
+                if (!TryFindFishShoalCenter(region, shoal, usedWaterCells, out Vector2Int shoalCenter))
                 {
                     continue;
                 }
 
                 int shoalsLeft = targetShoals - shoal;
-                int reserveForLater = Mathf.Max(0, (shoalsLeft - 1) * 3);
-                int maxThisShoal = Mathf.Min(7, remaining - reserveForLater);
+                int reserveForLater = Mathf.Max(0, (shoalsLeft - 1) * 2);
+                int maxThisShoal = Mathf.Min(6, regionRoom, Mathf.Max(1, remaining - reserveForLater));
                 int shoalSize = Mathf.Clamp(
                     4 + (Hash(map.ActiveSeed, shoal, 173, 197, 223) % 3),
-                    3,
-                    Mathf.Max(3, maxThisShoal));
+                    1,
+                    Mathf.Max(1, maxThisShoal));
                 StrategyFishSpecies species = PickFishSpecies(shoal, shoalCenter);
+                int spawnedInShoal = 0;
 
                 for (int slot = 0; slot < shoalSize && remaining > 0; slot++)
                 {
-                    if (!TryFindFishSpawnCell(shoalCenter, shoal, slot, usedWaterCells, out Vector2Int spawnCell))
+                    if (!TryFindFishSpawnCell(region, shoalCenter, shoal, slot, usedWaterCells, out Vector2Int spawnCell))
                     {
                         continue;
                     }
 
-                    SpawnFish(species, shoal, shoalCenter, spawnCell, StrategyFishLifeStage.Adult);
+                    SpawnFish(
+                        species,
+                        shoal,
+                        shoalCenter,
+                        spawnCell,
+                        StrategyFishLifeStage.Adult,
+                        0f,
+                        StrategyFishHabitatKind.Lake,
+                        region.Id);
                     usedWaterCells.Add(spawnCell);
                     remaining--;
+                    spawnedInShoal++;
                 }
 
-                spawnedShoals++;
+                if (spawnedInShoal > 0)
+                {
+                    spawnedShoals++;
+                }
             }
 
             return spawnedShoals;
+        }
+
+        private void BuildFishWaterRegions()
+        {
+            lakeFishRegions.Clear();
+            lakeRegionByCell.Clear();
+            riverRouteCells.Clear();
+
+            BuildLakeFishRegions();
+            BuildRiverFishRoute();
+
+            StrategyDebugLogger.Info(
+                "Wildlife",
+                "FishWaterRegionsBuilt",
+                StrategyDebugLogger.F("lakeRegions", lakeFishRegions.Count),
+                StrategyDebugLogger.F("lakeCapacity", GetTotalLakeFishCapacity()),
+                StrategyDebugLogger.F("riverRouteCells", riverRouteCells.Count),
+                StrategyDebugLogger.F("riverFlow", map != null ? map.RiverFlowDirection : Vector2Int.zero));
+        }
+
+        private void BuildLakeFishRegions()
+        {
+            if (map == null)
+            {
+                return;
+            }
+
+            bool[,] visited = new bool[map.Width, map.Height];
+            int nextRegionId = 0;
+            Queue<Vector2Int> open = new();
+            for (int y = 0; y < map.Height; y++)
+            {
+                for (int x = 0; x < map.Width; x++)
+                {
+                    if (visited[x, y] || !IsWaterCellOfKind(new Vector2Int(x, y), CityMapWaterKind.Lake))
+                    {
+                        continue;
+                    }
+
+                    FishWaterRegion region = new FishWaterRegion
+                    {
+                        Id = nextRegionId++
+                    };
+                    open.Clear();
+                    open.Enqueue(new Vector2Int(x, y));
+                    visited[x, y] = true;
+
+                    while (open.Count > 0)
+                    {
+                        Vector2Int current = open.Dequeue();
+                        region.Cells.Add(current);
+                        lakeRegionByCell[current] = region.Id;
+
+                        for (int i = 0; i < CardinalDirections.Length; i++)
+                        {
+                            Vector2Int next = current + CardinalDirections[i];
+                            if (next.x < 0
+                                || next.x >= map.Width
+                                || next.y < 0
+                                || next.y >= map.Height
+                                || visited[next.x, next.y]
+                                || !IsWaterCellOfKind(next, CityMapWaterKind.Lake))
+                            {
+                                continue;
+                            }
+
+                            visited[next.x, next.y] = true;
+                            open.Enqueue(next);
+                        }
+                    }
+
+                    if (region.Cells.Count <= 0)
+                    {
+                        continue;
+                    }
+
+                    region.Center = PickWaterRegionCenter(region.Cells);
+                    region.Capacity = Mathf.Clamp(
+                        Mathf.CeilToInt(region.Cells.Count / (float)LakeFishCellsPerCapacity),
+                        LakeFishRegionMinCap,
+                        LakeFishRegionMaxCap);
+                    lakeFishRegions.Add(region);
+                }
+            }
+        }
+
+        private void BuildRiverFishRoute()
+        {
+            if (map == null)
+            {
+                return;
+            }
+
+            List<Vector2Int> riverCells = new();
+            for (int y = 0; y < map.Height; y++)
+            {
+                for (int x = 0; x < map.Width; x++)
+                {
+                    Vector2Int cell = new Vector2Int(x, y);
+                    if (IsWaterCellOfKind(cell, CityMapWaterKind.River))
+                    {
+                        riverCells.Add(cell);
+                    }
+                }
+            }
+
+            if (riverCells.Count <= 0)
+            {
+                return;
+            }
+
+            Vector2Int flow = map.RiverFlowDirection;
+            bool horizontal = Mathf.Abs(flow.x) >= Mathf.Abs(flow.y);
+            int flowSign = horizontal
+                ? flow.x >= 0 ? 1 : -1
+                : flow.y >= 0 ? 1 : -1;
+            BuildRiverRouteByAxis(riverCells, horizontal, flowSign);
+        }
+
+        private void BuildRiverRouteByAxis(List<Vector2Int> riverCells, bool horizontal, int flowSign)
+        {
+            int minAlong = int.MaxValue;
+            int maxAlong = int.MinValue;
+            for (int i = 0; i < riverCells.Count; i++)
+            {
+                int along = horizontal ? riverCells[i].x : riverCells[i].y;
+                minAlong = Mathf.Min(minAlong, along);
+                maxAlong = Mathf.Max(maxAlong, along);
+            }
+
+            if (minAlong > maxAlong)
+            {
+                return;
+            }
+
+            int step = flowSign >= 0 ? 1 : -1;
+            int start = flowSign >= 0 ? minAlong : maxAlong;
+            int end = flowSign >= 0 ? maxAlong : minAlong;
+            for (int along = start; flowSign >= 0 ? along <= end : along >= end; along += step)
+            {
+                int count = 0;
+                float acrossSum = 0f;
+                for (int i = 0; i < riverCells.Count; i++)
+                {
+                    Vector2Int cell = riverCells[i];
+                    if ((horizontal ? cell.x : cell.y) != along)
+                    {
+                        continue;
+                    }
+
+                    acrossSum += horizontal ? cell.y : cell.x;
+                    count++;
+                }
+
+                if (count <= 0)
+                {
+                    continue;
+                }
+
+                int targetAcross = Mathf.RoundToInt(acrossSum / count);
+                Vector2Int best = default;
+                int bestDistance = int.MaxValue;
+                bool found = false;
+                for (int i = 0; i < riverCells.Count; i++)
+                {
+                    Vector2Int cell = riverCells[i];
+                    if ((horizontal ? cell.x : cell.y) != along)
+                    {
+                        continue;
+                    }
+
+                    int across = horizontal ? cell.y : cell.x;
+                    int distance = Mathf.Abs(across - targetAcross);
+                    if (distance >= bestDistance)
+                    {
+                        continue;
+                    }
+
+                    bestDistance = distance;
+                    best = cell;
+                    found = true;
+                }
+
+                if (found && (riverRouteCells.Count <= 0 || riverRouteCells[riverRouteCells.Count - 1] != best))
+                {
+                    riverRouteCells.Add(best);
+                }
+            }
+        }
+
+        private Vector2Int PickWaterRegionCenter(List<Vector2Int> cells)
+        {
+            if (cells == null || cells.Count <= 0)
+            {
+                return Vector2Int.zero;
+            }
+
+            float sumX = 0f;
+            float sumY = 0f;
+            for (int i = 0; i < cells.Count; i++)
+            {
+                sumX += cells[i].x;
+                sumY += cells[i].y;
+            }
+
+            Vector2 average = new Vector2(sumX / cells.Count, sumY / cells.Count);
+            Vector2Int best = cells[0];
+            float bestScore = float.NegativeInfinity;
+            for (int i = 0; i < cells.Count; i++)
+            {
+                Vector2Int cell = cells[i];
+                float distance = Vector2.Distance(cell, average);
+                float score = CountWaterNeighbors(cell, 2, CityMapWaterKind.Lake) * 0.45f - distance;
+                if (score > bestScore)
+                {
+                    bestScore = score;
+                    best = cell;
+                }
+            }
+
+            return best;
+        }
+
+        private FishWaterRegion PickLakeFishRegionForShoal(int shoal)
+        {
+            if (lakeFishRegions.Count <= 0)
+            {
+                return null;
+            }
+
+            int start = Hash(map.ActiveSeed, shoal, 811, 853, 907) % lakeFishRegions.Count;
+            for (int offset = 0; offset < lakeFishRegions.Count; offset++)
+            {
+                FishWaterRegion region = lakeFishRegions[(start + offset) % lakeFishRegions.Count];
+                if (CountFishInLakeRegion(region.Id) < region.Capacity)
+                {
+                    return region;
+                }
+            }
+
+            return null;
+        }
+
+        private int GetTotalLakeFishCapacity()
+        {
+            int capacity = 0;
+            for (int i = 0; i < lakeFishRegions.Count; i++)
+            {
+                capacity += lakeFishRegions[i].Capacity;
+            }
+
+            return capacity;
+        }
+
+        private int CountFishInLakeRegion(int regionId)
+        {
+            int count = 0;
+            for (int i = 0; i < fish.Count; i++)
+            {
+                StrategyFishAgent agent = fish[i];
+                if (agent != null
+                    && agent.IsLakeFish
+                    && !agent.IsCaught
+                    && agent.WaterRegionId == regionId)
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
+        private bool TryGetLakeRegion(int regionId, out FishWaterRegion region)
+        {
+            for (int i = 0; i < lakeFishRegions.Count; i++)
+            {
+                if (lakeFishRegions[i].Id == regionId)
+                {
+                    region = lakeFishRegions[i];
+                    return true;
+                }
+            }
+
+            region = null;
+            return false;
+        }
+
+        private void UpdateRiverFishSpawning(float elapsedSeconds)
+        {
+            if (map == null || wildlifeRoot == null || riverRouteCells.Count < 2)
+            {
+                return;
+            }
+
+            RemoveMissingFish();
+            riverFishSpawnTimer -= elapsedSeconds;
+            if (riverFishSpawnTimer > 0f)
+            {
+                return;
+            }
+
+            int activeRiverFish = CountRiverFish();
+            if (activeRiverFish < MaxRiverFishPopulation)
+            {
+                TrySpawnRiverFish(activeRiverFish);
+            }
+
+            riverFishSpawnTimer = Random.Range(RiverFishSpawnIntervalMin, RiverFishSpawnIntervalMax);
+        }
+
+        private int CountRiverFish()
+        {
+            int count = 0;
+            for (int i = 0; i < fish.Count; i++)
+            {
+                StrategyFishAgent agent = fish[i];
+                if (agent != null && agent.IsRiverFish && !agent.IsCaught)
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
+        private bool TrySpawnRiverFish(int activeRiverFish)
+        {
+            Vector2Int spawnCell = riverRouteCells[0];
+            for (int i = 0; i < fish.Count; i++)
+            {
+                StrategyFishAgent agent = fish[i];
+                if (agent == null
+                    || !agent.IsRiverFish
+                    || !agent.TryGetCurrentCell(out Vector2Int cell)
+                    || Vector2Int.Distance(cell, spawnCell) >= 5f)
+                {
+                    continue;
+                }
+
+                return false;
+            }
+
+            int shoalId = nextRiverShoalId++;
+            StrategyFishSpecies species = PickFishSpecies(shoalId, spawnCell);
+            List<Vector3> route = BuildRiverFishWorldRoute(shoalId);
+            if (route.Count < 2)
+            {
+                return false;
+            }
+
+            float speedMultiplier = 0.88f + Hash01(map.ActiveSeed, shoalId, route.Count, 1201) * 0.24f;
+            SpawnFish(
+                species,
+                shoalId,
+                spawnCell,
+                spawnCell,
+                StrategyFishLifeStage.Adult,
+                0f,
+                StrategyFishHabitatKind.River,
+                -1,
+                route,
+                speedMultiplier);
+
+            StrategyDebugLogger.Info(
+                "Wildlife",
+                "RiverFishSpawned",
+                StrategyDebugLogger.F("species", species),
+                StrategyDebugLogger.F("shoal", shoalId),
+                StrategyDebugLogger.F("activeRiverFish", activeRiverFish + 1),
+                StrategyDebugLogger.F("riverFishCap", MaxRiverFishPopulation),
+                StrategyDebugLogger.F("routeCells", riverRouteCells.Count),
+                StrategyDebugLogger.F("spawnCell", spawnCell),
+                StrategyDebugLogger.F("endCell", riverRouteCells[riverRouteCells.Count - 1]),
+                StrategyDebugLogger.F("flow", map.RiverFlowDirection));
+            return true;
+        }
+
+        private List<Vector3> BuildRiverFishWorldRoute(int routeSeed)
+        {
+            List<Vector3> route = new(riverRouteCells.Count);
+            Vector2Int flow = map != null ? map.RiverFlowDirection : Vector2Int.right;
+            bool horizontal = Mathf.Abs(flow.x) >= Mathf.Abs(flow.y);
+            for (int i = 0; i < riverRouteCells.Count; i++)
+            {
+                Vector2Int cell = riverRouteCells[i];
+                Vector3 world = map.GetCellCenterWorld(cell.x, cell.y);
+                float jitter = (Hash01(map.ActiveSeed, routeSeed + i, cell.x + cell.y, 1301) - 0.5f) * map.CellSize * 0.44f;
+                if (horizontal)
+                {
+                    world.y += jitter;
+                }
+                else
+                {
+                    world.x += jitter;
+                }
+
+                route.Add(new Vector3(world.x, world.y, -0.068f));
+            }
+
+            return route;
         }
 
         private int GenerateBirds(int targetBirds)
@@ -574,7 +1051,11 @@ namespace ProjectUnknown.Strategy
             Vector2Int shoalCenter,
             Vector2Int spawnCell,
             StrategyFishLifeStage lifeStage,
-            float initialAgeSeconds = 0f)
+            float initialAgeSeconds = 0f,
+            StrategyFishHabitatKind habitatKind = StrategyFishHabitatKind.Lake,
+            int waterRegionId = -1,
+            IReadOnlyList<Vector3> riverRoute = null,
+            float riverSpeedMultiplier = 1f)
         {
             Vector3 spawnWorld = map.GetCellCenterWorld(spawnCell.x, spawnCell.y);
             Vector2 jitter = GetJitter(spawnCell.x, spawnCell.y, shoalId + 1289) * (map.CellSize * 0.30f);
@@ -601,9 +1082,16 @@ namespace ProjectUnknown.Strategy
                 spawnWorld,
                 renderer,
                 lifeStage,
-                initialAgeSeconds);
+                initialAgeSeconds,
+                habitatKind,
+                waterRegionId);
+            if (habitatKind == StrategyFishHabitatKind.River && riverRoute != null)
+            {
+                agent.ConfigureRiverRoute(riverRoute, riverSpeedMultiplier);
+            }
+
             fish.Add(agent);
-            if (agent.IsAdult)
+            if (agent.IsLakeFish && agent.IsAdult)
             {
                 fishBreedCooldowns[agent] = Random.Range(FishBreedCooldownMin * 0.45f, FishBreedCooldownMax);
             }
@@ -613,6 +1101,8 @@ namespace ProjectUnknown.Strategy
                 lifeStage == StrategyFishLifeStage.Fry ? "FishBorn" : "FishSpawned",
                 StrategyDebugLogger.F("species", species),
                 StrategyDebugLogger.F("lifeStage", lifeStage),
+                StrategyDebugLogger.F("habitat", habitatKind),
+                StrategyDebugLogger.F("waterRegion", waterRegionId),
                 StrategyDebugLogger.F("shoal", shoalId),
                 StrategyDebugLogger.F("cell", spawnCell),
                 StrategyDebugLogger.F("home", shoalCenter),
@@ -976,7 +1466,7 @@ namespace ProjectUnknown.Strategy
             for (int i = 0; i < fish.Count && fish.Count < MaxFishPopulation; i++)
             {
                 StrategyFishAgent adult = fish[i];
-                if (adult == null || !adult.IsAdult)
+                if (adult == null || !adult.IsLakeFish || !adult.IsAdult)
                 {
                     continue;
                 }
@@ -988,6 +1478,27 @@ namespace ProjectUnknown.Strategy
                     continue;
                 }
 
+                if (!TryGetLakeRegion(adult.WaterRegionId, out FishWaterRegion region))
+                {
+                    fishBreedCooldowns[adult] = Random.Range(FishFailedBreedRetryMin, FishFailedBreedRetryMax);
+                    continue;
+                }
+
+                int regionPopulation = CountFishInLakeRegion(region.Id);
+                if (regionPopulation >= region.Capacity)
+                {
+                    fishBreedCooldowns[adult] = Random.Range(FishFailedBreedRetryMin, FishFailedBreedRetryMax);
+                    StrategyDebugLogger.Info(
+                        "Wildlife",
+                        "FishLakeBirthBlocked",
+                        StrategyDebugLogger.F("reason", "lake cap"),
+                        StrategyDebugLogger.F("region", region.Id),
+                        StrategyDebugLogger.F("regionPopulation", regionPopulation),
+                        StrategyDebugLogger.F("regionCapacity", region.Capacity),
+                        StrategyDebugLogger.F("shoal", adult.ShoalId));
+                    continue;
+                }
+
                 if (!adult.CanBreed
                     || !HasAdultFishMateNear(adult)
                     || !TryFindFishBirthCell(adult, out Vector2Int birthCell))
@@ -996,13 +1507,24 @@ namespace ProjectUnknown.Strategy
                     continue;
                 }
 
-                SpawnFish(adult.Species, adult.ShoalId, adult.HomeCell, birthCell, StrategyFishLifeStage.Fry);
+                SpawnFish(
+                    adult.Species,
+                    adult.ShoalId,
+                    adult.HomeCell,
+                    birthCell,
+                    StrategyFishLifeStage.Fry,
+                    0f,
+                    StrategyFishHabitatKind.Lake,
+                    region.Id);
                 fishBreedCooldowns[adult] = Random.Range(FishBreedCooldownMin, FishBreedCooldownMax);
                 StrategyDebugLogger.Info(
                     "Wildlife",
                     "FishPopulationChanged",
                     StrategyDebugLogger.F("count", fish.Count),
                     StrategyDebugLogger.F("cap", MaxFishPopulation),
+                    StrategyDebugLogger.F("lakeRegion", region.Id),
+                    StrategyDebugLogger.F("lakeRegionPopulation", CountFishInLakeRegion(region.Id)),
+                    StrategyDebugLogger.F("lakeRegionCapacity", region.Capacity),
                     StrategyDebugLogger.F("shoal", adult.ShoalId));
             }
         }
@@ -1036,6 +1558,7 @@ namespace ProjectUnknown.Strategy
                 if (candidate == null
                     || candidate == adult
                     || candidate.ShoalId != adult.ShoalId
+                    || candidate.WaterRegionId != adult.WaterRegionId
                     || candidate.Species != adult.Species
                     || !candidate.IsAdult)
                 {
@@ -1093,7 +1616,7 @@ namespace ProjectUnknown.Strategy
         private bool IsFishBirthCellCandidate(Vector2Int cell, StrategyFishAgent parent)
         {
             return parent != null
-                && IsFishSpawnCandidate(cell)
+                && IsLakeFishSpawnCandidate(cell, parent.WaterRegionId)
                 && Vector2Int.Distance(cell, parent.HomeCell) <= parent.HomeRadius + 1
                 && !IsTooCloseToOtherFish(cell);
         }
@@ -1308,19 +1831,27 @@ namespace ProjectUnknown.Strategy
             return true;
         }
 
-        private bool TryFindFishShoalCenter(int shoal, HashSet<Vector2Int> usedWaterCells, out Vector2Int cell)
+        private bool TryFindFishShoalCenter(
+            FishWaterRegion region,
+            int shoal,
+            HashSet<Vector2Int> usedWaterCells,
+            out Vector2Int cell)
         {
             cell = default;
+            if (region == null || region.Cells.Count <= 0)
+            {
+                return false;
+            }
+
             Vector2Int bestCell = default;
             float bestScore = float.NegativeInfinity;
             bool found = false;
 
             for (int attempt = 0; attempt < SpawnSearchAttempts; attempt++)
             {
-                int x = Hash(map.ActiveSeed, shoal, attempt, 601, 653) % map.Width;
-                int y = Hash(map.ActiveSeed, shoal, attempt, 677, 733) % map.Height;
-                Vector2Int candidate = new Vector2Int(x, y);
-                if (usedWaterCells.Contains(candidate) || !IsFishShoalCenterCandidate(candidate))
+                int index = Hash(map.ActiveSeed, region.Id, shoal, attempt, 601) % region.Cells.Count;
+                Vector2Int candidate = region.Cells[index];
+                if (usedWaterCells.Contains(candidate) || !IsFishShoalCenterCandidate(candidate, region.Id))
                 {
                     continue;
                 }
@@ -1349,12 +1880,19 @@ namespace ProjectUnknown.Strategy
         }
 
         private bool TryFindFishSpawnCell(
+            FishWaterRegion region,
             Vector2Int shoalCenter,
             int shoal,
             int slot,
             HashSet<Vector2Int> usedWaterCells,
             out Vector2Int cell)
         {
+            if (region == null)
+            {
+                cell = default;
+                return false;
+            }
+
             for (int radius = 0; radius <= 5; radius++)
             {
                 List<Vector2Int> candidates = new();
@@ -1369,8 +1907,8 @@ namespace ProjectUnknown.Strategy
 
                         Vector2Int candidate = shoalCenter + new Vector2Int(x, y);
                         if (!usedWaterCells.Contains(candidate)
-                            && IsFishSpawnCandidate(candidate)
-                            && CountWaterNeighbors(candidate, 1) >= 1)
+                            && IsLakeFishSpawnCandidate(candidate, region.Id)
+                            && CountWaterNeighbors(candidate, 1, CityMapWaterKind.Lake) >= 1)
                         {
                             candidates.Add(candidate);
                         }
@@ -1389,10 +1927,10 @@ namespace ProjectUnknown.Strategy
             return false;
         }
 
-        private bool IsFishShoalCenterCandidate(Vector2Int cell)
+        private bool IsFishShoalCenterCandidate(Vector2Int cell, int regionId)
         {
-            return IsFishSpawnCandidate(cell)
-                && CountWaterNeighbors(cell, 1) >= 2
+            return IsLakeFishSpawnCandidate(cell, regionId)
+                && CountWaterNeighbors(cell, 1, CityMapWaterKind.Lake) >= 2
                 && GetFishSpawnTerrainScore(cell) > 0f;
         }
 
@@ -1527,9 +2065,15 @@ namespace ProjectUnknown.Strategy
 
         private bool IsFishSpawnCandidate(Vector2Int cell)
         {
+            return IsFishSpawnCandidate(cell, CityMapWaterKind.Lake);
+        }
+
+        private bool IsFishSpawnCandidate(Vector2Int cell, CityMapWaterKind waterKind)
+        {
             if (map == null
                 || !map.TryGetCell(cell.x, cell.y, out CityMapCell mapCell)
-                || mapCell.Kind != CityMapCellKind.Water)
+                || mapCell.Kind != CityMapCellKind.Water
+                || mapCell.WaterKind != waterKind)
             {
                 return false;
             }
@@ -1540,6 +2084,21 @@ namespace ProjectUnknown.Strategy
             }
 
             return true;
+        }
+
+        private bool IsLakeFishSpawnCandidate(Vector2Int cell, int regionId)
+        {
+            return IsFishSpawnCandidate(cell, CityMapWaterKind.Lake)
+                && lakeRegionByCell.TryGetValue(cell, out int candidateRegionId)
+                && candidateRegionId == regionId;
+        }
+
+        private bool IsWaterCellOfKind(Vector2Int cell, CityMapWaterKind waterKind)
+        {
+            return map != null
+                && map.TryGetCell(cell.x, cell.y, out CityMapCell mapCell)
+                && mapCell.Kind == CityMapCellKind.Water
+                && mapCell.WaterKind == waterKind;
         }
 
         private bool IsBirdSpawnCandidate(StrategyBirdSpecies species, Vector2Int cell)
@@ -1644,7 +2203,7 @@ namespace ProjectUnknown.Strategy
                 return -10f;
             }
 
-            int waterNeighbors = CountWaterNeighbors(cell, 2);
+            int waterNeighbors = CountWaterNeighbors(cell, 2, CityMapWaterKind.Lake);
             int shoreNeighbors = CountShoreNeighbors(cell, 2);
             float score = 1f + waterNeighbors * 0.34f + Mathf.Min(shoreNeighbors, 5) * 0.10f;
             if (waterNeighbors >= 12)
@@ -1700,6 +2259,11 @@ namespace ProjectUnknown.Strategy
 
         private int CountWaterNeighbors(Vector2Int cell, int radius)
         {
+            return CountWaterNeighbors(cell, radius, null);
+        }
+
+        private int CountWaterNeighbors(Vector2Int cell, int radius, CityMapWaterKind? waterKind)
+        {
             int count = 0;
             for (int y = -radius; y <= radius; y++)
             {
@@ -1711,7 +2275,8 @@ namespace ProjectUnknown.Strategy
                     }
 
                     if (map.TryGetCell(cell.x + x, cell.y + y, out CityMapCell neighbor)
-                        && neighbor.Kind == CityMapCellKind.Water)
+                        && neighbor.Kind == CityMapCellKind.Water
+                        && (!waterKind.HasValue || neighbor.WaterKind == waterKind.Value))
                     {
                         count++;
                     }
@@ -1794,6 +2359,9 @@ namespace ProjectUnknown.Strategy
             rabbitBreedCooldowns.Clear();
             fish.Clear();
             fishBreedCooldowns.Clear();
+            lakeFishRegions.Clear();
+            lakeRegionByCell.Clear();
+            riverRouteCells.Clear();
             birds.Clear();
             if (wildlifeRoot == null)
             {

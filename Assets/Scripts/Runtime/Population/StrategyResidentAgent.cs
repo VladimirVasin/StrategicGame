@@ -48,7 +48,7 @@ namespace ProjectUnknown.Strategy
         private const float ButcherAnimationFrameRate = 10.5f;
         private const float FishingAnimationFrameRate = 10.5f;
         private const float SecondsPerYear = 100f;
-        private const int AdultAgeYears = 18;
+        private const int AdultAgeYears = 16;
         private const int WoodcutImpactFrame = 5;
         private const int StonecutImpactFrame = 5;
         private const int ConstructionImpactFrame = 6;
@@ -74,6 +74,8 @@ namespace ProjectUnknown.Strategy
         {
             Idle,
             MovingHome,
+            ArrivingAsRefugee,
+            LeavingSettlement,
             MovingToGarden,
             WorkingGarden,
             MovingToTree,
@@ -151,6 +153,7 @@ namespace ProjectUnknown.Strategy
         private SpriteRenderer carriedFishRenderer;
         private SpriteRenderer fishingLineRenderer;
         private SpriteRenderer fishingBobberRenderer;
+        private StrategyResidentFootstepAudio footstepAudio;
         private readonly List<Vector3> path = new();
         private ResidentActivity activity;
         private StrategyBuildingUpgrade activeGarden;
@@ -219,7 +222,10 @@ namespace ProjectUnknown.Strategy
             || granaryWorkplace != null;
         public bool HasConstructionAssignment => constructionSite != null;
         public bool IsAdult => lifeStage == StrategyResidentLifeStage.Adult;
-        public bool CanWork => IsAdult;
+        public bool CanWork => IsAdult && !IsPendingRefugee;
+        public bool IsPendingRefugee { get; private set; }
+        public bool IsRefugeeTraveling => activity == ResidentActivity.ArrivingAsRefugee
+            || activity == ResidentActivity.LeavingSettlement;
         public StrategyResidentGender Gender => gender;
         public StrategyResidentLifeStage LifeStage => lifeStage;
         public int ResidentId => residentId;
@@ -290,6 +296,7 @@ namespace ProjectUnknown.Strategy
             EnsureReadabilityRenderers();
             SyncReadabilityRenderers();
             EnsureClickCollider();
+            EnsureFootstepAudio();
         }
 
         public void AddChildId(int childIdentifier)
@@ -298,6 +305,58 @@ namespace ProjectUnknown.Strategy
             {
                 childIds.Add(childIdentifier);
             }
+        }
+
+        public void SetPendingRefugee(bool pending)
+        {
+            IsPendingRefugee = pending;
+            if (!pending && activity == ResidentActivity.ArrivingAsRefugee)
+            {
+                activity = ResidentActivity.Idle;
+                hasTarget = false;
+                path.Clear();
+                pathIndex = 0;
+                waitTimer = Random.Range(0.35f, 0.85f);
+                UseIdleSprite();
+            }
+        }
+
+        public void SetCampIdleOrigin(Vector2Int origin)
+        {
+            idleOrigin = origin;
+            idleFootprint = Vector2Int.one;
+            if (home == null && !IsRefugeeTraveling)
+            {
+                waitTimer = Random.Range(0.25f, 0.85f);
+            }
+        }
+
+        public bool FollowRefugeePath(IReadOnlyList<Vector3> worldPath, bool leaving)
+        {
+            path.Clear();
+            if (worldPath != null)
+            {
+                for (int i = 0; i < worldPath.Count; i++)
+                {
+                    Vector3 point = worldPath[i];
+                    path.Add(new Vector3(point.x, point.y, -0.08f));
+                }
+            }
+
+            pathIndex = 0;
+            hasTarget = path.Count > 0;
+            activity = leaving ? ResidentActivity.LeavingSettlement : ResidentActivity.ArrivingAsRefugee;
+            waitTimer = 0f;
+            usingWorkSprite = false;
+            appliedWorkFrame = -1;
+            if (!hasTarget)
+            {
+                activity = ResidentActivity.Idle;
+                waitTimer = Random.Range(0.35f, 0.85f);
+                UseIdleSprite();
+            }
+
+            return hasTarget;
         }
 
         public void AssignHome(StrategyPlacedBuilding newHome)
@@ -325,18 +384,8 @@ namespace ProjectUnknown.Strategy
             idleOrigin = home.Origin;
             idleFootprint = home.Footprint;
             activeGarden = null;
-            CancelLumberWork();
-            CancelStoneWork();
-            CancelStorageWork(true);
-            activity = ResidentActivity.Idle;
-            path.Clear();
-            pathIndex = 0;
-            hasTarget = false;
             gardenWorkTimer = 0f;
             gardenWorkCooldown = Random.Range(2.5f, 6.5f);
-            waitTimer = Random.Range(0.05f, 0.35f);
-            transform.localRotation = Quaternion.identity;
-            transform.localScale = Vector3.one;
             StrategyDebugLogger.Info(
                 "Population",
                 "ResidentHomeAssigned",
@@ -348,10 +397,17 @@ namespace ProjectUnknown.Strategy
         public void AssignHome(StrategyPlacedBuilding newHome, Vector3 targetWorld)
         {
             AssignHome(newHome);
-            if (home == newHome)
+            if (home == newHome && CanStartHomeMoveNow())
             {
                 StartMovingHome(targetWorld);
             }
+        }
+
+        private bool CanStartHomeMoveNow()
+        {
+            return constructionSite == null
+                && activity == ResidentActivity.Idle
+                && !hasTarget;
         }
 
         public void AssignConstructionSite(StrategyConstructionSite site, bool willLiveThere)
@@ -4165,6 +4221,7 @@ namespace ProjectUnknown.Strategy
         private void AnimateIdle()
         {
             UseIdleSprite();
+            footstepAudio?.ResetStepPhase();
             SyncReadabilityRenderers();
             float pulse = 1f + Mathf.Sin((Time.time + bobPhase) * 5f) * 0.035f;
             transform.localScale = new Vector3(1f, pulse, 1f);
@@ -4202,8 +4259,25 @@ namespace ProjectUnknown.Strategy
             {
                 spriteRenderer.sprite = StrategyResidentSpriteFactory.GetWalkSprite(gender, VisualVariant, lifeStage, walkFrame);
                 appliedWalkFrame = walkFrame;
+                footstepAudio?.PlayWalkFrame(walkFrame, lifeStage);
                 SyncReadabilityRenderers();
             }
+        }
+
+        private void EnsureFootstepAudio()
+        {
+            if (footstepAudio != null)
+            {
+                return;
+            }
+
+            footstepAudio = GetComponent<StrategyResidentFootstepAudio>();
+            if (footstepAudio == null)
+            {
+                footstepAudio = gameObject.AddComponent<StrategyResidentFootstepAudio>();
+            }
+
+            footstepAudio.Configure(this);
         }
 
         private void AnimateGardenWork()
