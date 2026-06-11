@@ -8,6 +8,35 @@ Last updated: 2026-06-11
 
 ## Done
 
+### 2026-06-11 - Decorative bird wildlife MVP
+
+- Added ambient decorative birds as a runtime wildlife layer alongside deer, rabbits, and fish.
+- Birds spawn as Sparrows, Crows, and Ducks on species-appropriate terrain: meadows/grass for sparrows, forest/near-forest land for crows, and water/shore cells for ducks.
+- Added procedural bird sprites with idle, pecking, hopping, flying, landing, and duck swimming frames, plus lightweight flight shadows.
+- Bird agents roam inside loose home ranges, react to nearby residents/noisy work by flying away, and remain visual-only: no reproduction, resources, fog reveal, save data, or walkability blocking.
+- Added structured debug events for bird spawn and flee reactions.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-11 - Fish wildlife MVP
+
+- Added ambient fish as a water-only runtime wildlife species alongside deer and rabbits.
+- Fish spawn in 18-28 initial adults across small shoals on generated `Water` cells with nearby water neighbors.
+- Added three procedural fish species visuals: Minnow, Carp, and Perch, with idle, swim, dart/flee, turn, and feed sprite frames plus lightweight surface ripple renderers.
+- Fish agents use local water-cell paths, do not block map cells, do not reveal fog, and react to nearby residents/noisy work by darting away through water.
+- Adult fish can reproduce when another adult of the same species is nearby in the same shoal, up to a hard population cap of 60; fry grow into adults after scaled simulation time.
+- Added structured debug events for fish spawn/birth/growth, population changes, and flee reactions.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-11 - Rabbit wildlife MVP
+
+- Added ambient rabbits as a second runtime wildlife species alongside deer.
+- Rabbits spawn in 12-18 initial adults across small groups on walkable meadow/grass/forest-edge land away from the starter camp.
+- Added procedural 2.5D rabbit sprites for male/female visuals with idle, hopping, nibbling, alert, fleeing, grooming, and resting animation frames.
+- Rabbit agents use local walkable-cell paths, do not block map cells, do not reveal fog, and react to residents/noisy work by becoming alert or fleeing.
+- Adult female rabbits can reproduce with nearby adult males in the same group up to a hard population cap of 36; kits grow into adults after scaled simulation time.
+- Added structured debug events for rabbit spawn/birth/growth, population changes, alert, and flee reactions.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
 ### 2026-06-11 - Smaller deer visual scale
 
 - Reduced all deer visuals by applying a shared 0.88 global scale in `StrategyDeerAgent`, affecting adult deer and fawns consistently without changing behavior, pathing, reproduction, or sprite frame generation.

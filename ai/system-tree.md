@@ -36,7 +36,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Generates nature props after population startup so the camp clear-radius exclusion is known
     - Creates and wires the runtime fog-of-war layer after population and placement controllers exist
     - Places a starter Storage Yard near the campfire with initial Logs and Stone after placement is configured
-    - Creates and wires runtime wildlife after starter placement so deer avoid the camp and occupied cells
+    - Creates and wires runtime wildlife after starter placement so deer, rabbits, and fish spawn in valid terrain/water areas
     - Creates runtime time-scale controls for simulation speed hotkeys
   - Strategy debug logging
     - Writes structured session logs to `debug.log`
@@ -95,15 +95,33 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Wildlife MVP
       - Runtime-created wildlife controller
       - Spawns 8-12 deer in small herds on suitable walkable meadow, grass, dirt, and forest-edge cells
+      - Spawns 12-18 rabbits in small groups on suitable walkable meadow, grass, dirt, and forest-edge cells
+      - Spawns 18-28 fish in small shoals on generated water cells
+      - Spawns 20-32 decorative birds on species-appropriate meadow/grass, forest/near-forest, water, and shore cells
       - Avoids the startup campfire area when choosing herd spawn cells
-      - Deer do not block walkability and do not act as fog reveal sources
+      - Wildlife agents do not block walkability and do not act as fog reveal sources
       - Two procedural 2.5D deer models exist: antlered male buck and smaller female doe
+      - Two procedural 2.5D rabbit models exist: male buck and female doe variants, with smaller kits using scaled visuals
+      - Three procedural fish models exist: Minnow, Carp, and Perch, with smaller fry using scaled visuals
+      - Three procedural bird models exist: Sparrow, Crow, and Duck
       - Deer animate idle breathing, walking, grazing, alert stance, fleeing/running, and resting with frame-based sprites
+      - Rabbits animate idle ear/breathing movement, hopping, nibbling, alert stance, fleeing, grooming, and resting with frame-based sprites
+      - Fish animate idle swimming, swimming, darting/fleeing, turning, feeding, and surface ripples with frame-based sprites
+      - Birds animate idle movement, pecking, hopping, flying, landing, and duck swimming with frame-based sprites and flight shadows
       - Deer use short local grid paths inside a loose herd/home range
-      - Deer become alert near residents and flee from close residents or noisy work such as chopping, mining, and construction
+      - Rabbits use short local grid paths inside a loose group/home range
+      - Fish use short local water-cell paths inside a loose shoal/home range
+      - Birds fly between nearby habitat cells inside a loose home range and react to noisy residents by taking off
+      - Deer, rabbits, and fish react to nearby residents or noisy work such as chopping, mining, and construction
       - Adult does can reproduce when an adult buck is nearby in the same herd
       - Newborn deer appear as small fawns, use scaled deer sprites, and grow into adults after scaled simulation time
       - Deer reproduction stops at a hard 20-deer population cap
+      - Adult female rabbits can reproduce when an adult male is nearby in the same group
+      - Newborn rabbits appear as small kits, use scaled rabbit sprites, and grow into adults after scaled simulation time
+      - Rabbit reproduction stops at a hard 36-rabbit population cap
+      - Adult fish can reproduce when another adult of the same species is nearby in the same shoal
+      - Newborn fish appear as small fry, use scaled fish sprites, and grow into adults after scaled simulation time
+      - Fish reproduction stops at a hard 60-fish population cap
     - Fog of war
       - Runtime-generated texture overlay above world sprites and below screen-space UI
       - Tracks persistent explored cells separately from current visible cells
@@ -280,7 +298,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - House visual upgrades and house resources depend on placed-building records, map walkability checks, generated upgrade/chicken/resource sprites, early idle/work agents, and the world-selection HUD.
 - Forestry depends on generated tree props, map walkability, placed lumberjack camps, resident work states, and the world-selection HUD.
 - Stone resources depend on generated nature props, map walkability, stonecutter camps, resident work states, and storage logistics.
-- Wildlife depends on generated terrain, map walkability, population/resident positions, starter-camp location, and Y-based world sorting; it does not feed fog visibility or resources yet.
+- Wildlife depends on generated terrain/water cells, map walkability for land animals, population/resident positions, starter-camp location, and Y-based world sorting; deer, rabbits, fish, and birds do not feed fog visibility or resources yet.
 - Storage yard logistics depends on lumberjack camp stock, stonecutter camp stock, resident work states, placed-building records, map walkability, and the world-selection HUD.
 - Construction depends on Storage Yard resource reservations, hired Storage Yard builder assignments, construction-site blockers, placed-building finalization, and the world-selection HUD.
 - Population uses placed-building records, construction sites, the generated map walkability layer, and workplace assignments.

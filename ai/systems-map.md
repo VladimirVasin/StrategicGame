@@ -84,7 +84,7 @@ Responsibilities:
 - Configure nature props after the starter camp exists so generated props can avoid the campfire clear radius.
 - Configure fog of war after population, placement, and map controllers exist.
 - Place the starter Storage Yard near the campfire with initial Logs and Stone after placement is configured.
-- Create/configure runtime wildlife after starter placement so deer avoid the camp and occupied cells.
+- Create/configure runtime wildlife after starter placement so deer/rabbits use valid land and fish use valid water cells.
 - Create the runtime time-scale controller for F1/F2/F3 speed controls.
 
 Primary files/assets:
@@ -279,19 +279,43 @@ Impact hints:
 Responsibilities:
 
 - Spawn ambient deer herds on suitable walkable land away from the starter camp.
+- Spawn ambient rabbit groups on suitable walkable land away from the starter camp.
+- Spawn ambient fish shoals on suitable generated water cells.
+- Spawn decorative birds on species-appropriate land/water cells without reproduction or resources.
 - Generate and cache runtime 2.5D pixel-art deer sprites for male bucks and female does.
+- Generate and cache runtime 2.5D pixel-art rabbit sprites for male and female visuals.
+- Generate and cache runtime pixel-art fish sprites for Minnow, Carp, and Perch visuals.
+- Generate and cache runtime 2.5D pixel-art bird sprites for Sparrow, Crow, and Duck visuals.
 - Animate deer idle breathing, walking, grazing, alert stance, fleeing/running, and resting.
+- Animate rabbits idle movement, hopping, nibbling, alert stance, fleeing, grooming, and resting.
+- Animate fish idle swimming, swimming, dart/flee, turning, feeding, and surface ripples.
+- Animate birds idle movement, pecking, hopping, flying, landing, duck swimming, and flight shadows.
 - Keep deer on local walkable-cell paths inside loose herd/home ranges without blocking map cells.
+- Keep rabbits on local walkable-cell paths inside loose group/home ranges without blocking map cells.
+- Keep fish on local water-cell paths inside loose shoal/home ranges without blocking map cells.
+- Keep birds on local habitat choices inside loose home ranges without blocking map cells.
 - React to nearby residents and noisy work by switching to alert/flee states.
 - Let adult does reproduce when an adult buck is nearby in the same herd.
 - Spawn fawns that grow into adults after scaled simulation time.
 - Keep deer reproduction under the hard 20-deer runtime population cap.
+- Let adult female rabbits reproduce when an adult male is nearby in the same group.
+- Spawn kits that grow into adults after scaled simulation time.
+- Keep rabbit reproduction under the hard 36-rabbit runtime population cap.
+- Let adult fish reproduce when another adult of the same species is nearby in the same shoal.
+- Spawn fry that grow into adults after scaled simulation time.
+- Keep fish reproduction under the hard 60-fish runtime population cap.
 
 Primary files/assets:
 
 - `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyDeerAgent.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyDeerSpriteFactory.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyRabbitAgent.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyRabbitSpriteFactory.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyFishAgent.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyFishSpriteFactory.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyBirdAgent.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyBirdSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.cs`
 - `Assets/Scripts/Runtime/Core/StrategyWorldSorting.cs`
 - `Assets/Scripts/Runtime/Map/CityMapController.cs`
@@ -301,9 +325,11 @@ Primary files/assets:
 Impact hints:
 
 - Wildlife is runtime-only and not saved yet.
-- Deer do not reveal fog, block walkability, or provide resources yet.
+- Deer, rabbits, fish, and birds do not reveal fog, block walkability, or provide resources yet.
 - Deer pathing depends on `CityMapController.IsCellWalkable` and should stay local/cheap until a shared pathfinding service exists.
-- Reproduction is owned by `StrategyWildlifeController`; `StrategyDeerAgent` owns sex, life stage, growth, movement, and animation state.
+- Rabbit pathing uses the same local walkable-cell approach and should stay cheap until a shared pathfinding service exists.
+- Fish pathing uses `CityMapCellKind.Water` instead of `IsCellWalkable`, because water is intentionally not walkable for land agents.
+- Reproduction is owned by `StrategyWildlifeController`; deer/rabbit/fish agents own species or sex, life stage, growth, movement, and animation state. Birds are decorative and do not reproduce yet.
 - Future hunting, butchering, leather/meat resources, predators, mortality, or animal HUD should extend this subsystem instead of adding animal behavior into population or nature-prop code.
 
 ### Stone Resources MVP

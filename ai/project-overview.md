@@ -55,7 +55,7 @@ Confirmed from `Packages/manifest.json`:
 - A generated 2D city map appears at runtime with randomized seed-driven terrain generation and procedural pixel-art terrain textures.
 - Current terrain generation covers grass, meadow, forest, dirt, shore, and water with randomized rivers/water blobs, clustered land biomes, seeded texture variants, and transition overlays.
 - A runtime nature-props layer places procedural 2.5D trees, forest groups, and bushes over the generated terrain.
-- A runtime wildlife layer spawns small deer herds on suitable walkable land away from the starter camp; deer have male/female procedural 2.5D sprites, idle/walk/graze/alert/flee/rest animations, reproduce with fawns up to a 20-deer population cap, and react to nearby residents without revealing fog or blocking cells.
+- A runtime wildlife layer spawns deer herds and rabbit groups on suitable walkable land, fish shoals on water cells, and decorative birds across species-appropriate land/water habitats; current wildlife has procedural 2.5D/pixel-art sprites, frame-based ambient/threat animations, and reacts to nearby residents without revealing fog or blocking cells. Deer, rabbits, and fish have capped reproduction/growth; birds are decorative-only.
 - The nature layer also places procedural Stone resource deposits as standalone boulders, rock clusters, and larger cliffs.
 - Trees, forest groups, and bushes sway through a 2D adapter driven by the Unity `WindZone` values.
 - Forest terrain cells receive dense visual forest props, while grass/meadow/dirt/shore cells can receive sparse standalone trees or bushes.
