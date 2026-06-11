@@ -17,7 +17,11 @@ namespace ProjectUnknown.Strategy
         Alert,
         Fleeing,
         Grooming,
-        Resting
+        Resting,
+        Hunted,
+        Hit,
+        Dead,
+        Carcass
     }
 
     public enum StrategyRabbitLifeStage
@@ -45,11 +49,15 @@ namespace ProjectUnknown.Strategy
         private const float FleeAnimationRate = 17.5f;
         private const float GroomAnimationRate = 10.0f;
         private const float RestAnimationRate = 4.5f;
+        private const float HitAnimationRate = 14.0f;
+        private const float DeathAnimationRate = 10.0f;
         private const float ReadabilityOutlineScale = 1.14f;
         private const float RabbitGlobalScale = 0.82f;
         private const float KitMaturitySeconds = 120f;
         private const float KitStartScale = 0.52f;
         private const float KitMatureScale = 0.86f;
+        private const int GameYield = 2;
+        private const int ButcherHitsRequired = 3;
 
         private static Sprite readabilityShadowSprite;
         private static readonly Vector2Int[] CardinalDirections =
@@ -84,15 +92,28 @@ namespace ProjectUnknown.Strategy
         private float bobPhase;
         private float ageSeconds;
         private float visualScale = 1f;
+        private object huntReservationOwner;
+        private int butcherHits;
         private bool hasTarget;
         private bool hasThreat;
         private bool hasAppliedPose;
+        private bool isAlive = true;
+        private bool isCarcass;
 
         public StrategyRabbitSex Sex => sex;
         public StrategyRabbitBehaviorState State => state;
         public StrategyRabbitLifeStage LifeStage => lifeStage;
         public bool IsAdult => lifeStage == StrategyRabbitLifeStage.Adult;
-        public bool CanBreed => IsAdult && sex == StrategyRabbitSex.Female && state != StrategyRabbitBehaviorState.Alert && state != StrategyRabbitBehaviorState.Fleeing;
+        public bool IsAlive => isAlive;
+        public bool IsCarcass => isCarcass;
+        public bool CanBeHunted => IsAdult && isAlive && !isCarcass && huntReservationOwner == null;
+        public bool CanBreed => IsAdult
+            && isAlive
+            && !isCarcass
+            && huntReservationOwner == null
+            && sex == StrategyRabbitSex.Female
+            && state != StrategyRabbitBehaviorState.Alert
+            && state != StrategyRabbitBehaviorState.Fleeing;
         public int GroupId => groupId;
         public Vector2Int HomeCell => homeCell;
         public int HomeRadius => homeRadius;
@@ -140,6 +161,123 @@ namespace ProjectUnknown.Strategy
             return map != null && map.TryWorldToCell(transform.position, out cell);
         }
 
+        public bool TryReserveForHunt(object owner)
+        {
+            if (owner == null)
+            {
+                return false;
+            }
+
+            if (huntReservationOwner == owner)
+            {
+                return isAlive || isCarcass;
+            }
+
+            if (!CanBeHunted)
+            {
+                return false;
+            }
+
+            huntReservationOwner = owner;
+            hasTarget = false;
+            hasThreat = false;
+            path.Clear();
+            pathIndex = 0;
+            stateTimer = Random.Range(0.45f, 0.95f);
+            SetState(StrategyRabbitBehaviorState.Hunted, true, false);
+            StrategyDebugLogger.Info(
+                "Wildlife",
+                "RabbitHuntReserved",
+                StrategyDebugLogger.F("sex", sex),
+                StrategyDebugLogger.F("group", groupId),
+                StrategyDebugLogger.F("world", transform.position));
+            return true;
+        }
+
+        public void ReleaseHuntReservation(object owner)
+        {
+            if (owner == null || huntReservationOwner != owner)
+            {
+                return;
+            }
+
+            huntReservationOwner = null;
+            if (isAlive)
+            {
+                StartAlert(transform.position + Vector3.left, false);
+            }
+
+            StrategyDebugLogger.Info(
+                "Wildlife",
+                "RabbitHuntReservationReleased",
+                StrategyDebugLogger.F("sex", sex),
+                StrategyDebugLogger.F("group", groupId),
+                StrategyDebugLogger.F("world", transform.position));
+        }
+
+        public bool ReceiveArrowHit(object owner, Vector3 hitWorld)
+        {
+            if (owner == null || huntReservationOwner != owner || !isAlive || isCarcass)
+            {
+                return false;
+            }
+
+            isAlive = false;
+            isCarcass = false;
+            butcherHits = 0;
+            hasTarget = false;
+            hasThreat = false;
+            path.Clear();
+            pathIndex = 0;
+            lastThreatWorld = hitWorld;
+            SetAnimatedScale(1f, 1f);
+            SetState(StrategyRabbitBehaviorState.Hit, true, false);
+            StrategyDebugLogger.Info(
+                "Wildlife",
+                "RabbitHit",
+                StrategyDebugLogger.F("sex", sex),
+                StrategyDebugLogger.F("group", groupId),
+                StrategyDebugLogger.F("world", transform.position),
+                StrategyDebugLogger.F("hitWorld", hitWorld));
+            return true;
+        }
+
+        public bool ReceiveButcherHit(object owner, Vector3 hitWorld, out int gameAmount)
+        {
+            gameAmount = 0;
+            if (owner == null || huntReservationOwner != owner || isAlive || !isCarcass)
+            {
+                return false;
+            }
+
+            butcherHits++;
+            FaceWorldPoint(hitWorld);
+            StrategyDebugLogger.Info(
+                "Wildlife",
+                "RabbitButcherHit",
+                StrategyDebugLogger.F("sex", sex),
+                StrategyDebugLogger.F("group", groupId),
+                StrategyDebugLogger.F("hit", butcherHits),
+                StrategyDebugLogger.F("required", ButcherHitsRequired),
+                StrategyDebugLogger.F("world", transform.position));
+            if (butcherHits < ButcherHitsRequired)
+            {
+                return false;
+            }
+
+            gameAmount = GameYield;
+            huntReservationOwner = null;
+            StrategyDebugLogger.Info(
+                "Wildlife",
+                "RabbitButchered",
+                StrategyDebugLogger.F("sex", sex),
+                StrategyDebugLogger.F("group", groupId),
+                StrategyDebugLogger.F("yield", gameAmount),
+                StrategyDebugLogger.F("world", transform.position));
+            Destroy(gameObject);
+            return true;
+        }
+
         private void Update()
         {
             if (map == null || spriteRenderer == null)
@@ -148,6 +286,18 @@ namespace ProjectUnknown.Strategy
             }
 
             UpdateAge();
+            if (!isAlive)
+            {
+                UpdateHuntDeath();
+                return;
+            }
+
+            if (huntReservationOwner != null)
+            {
+                UpdateHunted();
+                return;
+            }
+
             UpdateThreatAwareness();
 
             switch (state)
@@ -169,6 +319,9 @@ namespace ProjectUnknown.Strategy
                     break;
                 case StrategyRabbitBehaviorState.Resting:
                     UpdateResting();
+                    break;
+                case StrategyRabbitBehaviorState.Hunted:
+                    UpdateHunted();
                     break;
                 default:
                     UpdateIdle();
@@ -306,6 +459,55 @@ namespace ProjectUnknown.Strategy
             {
                 StartIdle(Random.Range(0.2f, 0.85f));
             }
+        }
+
+        private void UpdateHunted()
+        {
+            hasTarget = false;
+            path.Clear();
+            pathIndex = 0;
+            stateTimer -= Time.deltaTime;
+            AnimateAlert();
+            if (stateTimer <= -1.0f)
+            {
+                stateTimer = Random.Range(0.2f, 0.65f);
+            }
+        }
+
+        private void UpdateHuntDeath()
+        {
+            hasTarget = false;
+            path.Clear();
+            pathIndex = 0;
+
+            if (state == StrategyRabbitBehaviorState.Hit)
+            {
+                AnimateHit();
+                if (frame >= StrategyRabbitSpriteFactory.HitFrameCount - 1)
+                {
+                    SetState(StrategyRabbitBehaviorState.Dead, false, false);
+                }
+
+                return;
+            }
+
+            if (state == StrategyRabbitBehaviorState.Dead)
+            {
+                AnimateDeath();
+                if (frame >= StrategyRabbitSpriteFactory.DeathFrameCount - 1)
+                {
+                    isCarcass = true;
+                    SetState(StrategyRabbitBehaviorState.Carcass, false, false);
+                    ApplySprite(StrategyRabbitSpritePose.Carcass, 0);
+                    SetAnimatedScale(1f, 1f);
+                }
+
+                return;
+            }
+
+            isCarcass = true;
+            ApplySprite(StrategyRabbitSpritePose.Carcass, 0);
+            SetAnimatedScale(1f, 1f);
         }
 
         private void PickRelaxedBehavior()
@@ -688,6 +890,8 @@ namespace ProjectUnknown.Strategy
                 || activity == StrategyResidentAgent.ResidentActivity.BuckingTree
                 || activity == StrategyResidentAgent.ResidentActivity.MiningStone
                 || activity == StrategyResidentAgent.ResidentActivity.BuildingConstruction
+                || activity == StrategyResidentAgent.ResidentActivity.AimingBow
+                || activity == StrategyResidentAgent.ResidentActivity.ButcheringRabbit
                 || activity == StrategyResidentAgent.ResidentActivity.PlantingTree
                 || activity == StrategyResidentAgent.ResidentActivity.DepositingLogs
                 || activity == StrategyResidentAgent.ResidentActivity.DepositingStone
@@ -785,6 +989,20 @@ namespace ProjectUnknown.Strategy
             ApplySprite(StrategyRabbitSpritePose.Rest, frame);
         }
 
+        private void AnimateHit()
+        {
+            SetAnimatedScale(1f, 1f);
+            AdvanceClampedFrame(HitAnimationRate, StrategyRabbitSpriteFactory.HitFrameCount);
+            ApplySprite(StrategyRabbitSpritePose.Hit, frame);
+        }
+
+        private void AnimateDeath()
+        {
+            SetAnimatedScale(1f, 1f);
+            AdvanceClampedFrame(DeathAnimationRate, StrategyRabbitSpriteFactory.DeathFrameCount);
+            ApplySprite(StrategyRabbitSpritePose.Death, frame);
+        }
+
         private void AdvanceLoopingFrame(float frameRate, int frameCount)
         {
             frameTimer += Time.deltaTime * frameRate;
@@ -795,6 +1013,19 @@ namespace ProjectUnknown.Strategy
             }
 
             frame = (frame + frameSteps) % frameCount;
+            frameTimer -= frameSteps;
+        }
+
+        private void AdvanceClampedFrame(float frameRate, int frameCount)
+        {
+            frameTimer += Time.deltaTime * frameRate;
+            int frameSteps = Mathf.FloorToInt(frameTimer);
+            if (frameSteps <= 0)
+            {
+                return;
+            }
+
+            frame = Mathf.Min(frame + frameSteps, Mathf.Max(0, frameCount - 1));
             frameTimer -= frameSteps;
         }
 
@@ -819,6 +1050,9 @@ namespace ProjectUnknown.Strategy
                 StrategyRabbitSpritePose.Flee => StrategyRabbitSpriteFactory.GetFleeSprite(spriteSex, spriteFrame),
                 StrategyRabbitSpritePose.Groom => StrategyRabbitSpriteFactory.GetGroomSprite(spriteSex, spriteFrame),
                 StrategyRabbitSpritePose.Rest => StrategyRabbitSpriteFactory.GetRestSprite(spriteSex, spriteFrame),
+                StrategyRabbitSpritePose.Hit => StrategyRabbitSpriteFactory.GetHitSprite(spriteSex, spriteFrame),
+                StrategyRabbitSpritePose.Death => StrategyRabbitSpriteFactory.GetDeathSprite(spriteSex, spriteFrame),
+                StrategyRabbitSpritePose.Carcass => StrategyRabbitSpriteFactory.GetCarcassSprite(spriteSex),
                 _ => StrategyRabbitSpriteFactory.GetIdleSprite(spriteSex, spriteFrame)
             };
 

@@ -11,7 +11,10 @@ namespace ProjectUnknown.Strategy
         Alert,
         Flee,
         Groom,
-        Rest
+        Rest,
+        Hit,
+        Death,
+        Carcass
     }
 
     internal static class StrategyRabbitSpriteFactory
@@ -24,6 +27,8 @@ namespace ProjectUnknown.Strategy
         public const int FleeFrameCount = 10;
         public const int GroomFrameCount = 8;
         public const int RestFrameCount = 4;
+        public const int HitFrameCount = 4;
+        public const int DeathFrameCount = 8;
 
         private static readonly Dictionary<int, Sprite> CachedSprites = new();
 
@@ -62,6 +67,21 @@ namespace ProjectUnknown.Strategy
             return GetSprite(sex, StrategyRabbitSpritePose.Rest, NormalizeFrame(frame, RestFrameCount));
         }
 
+        public static Sprite GetHitSprite(StrategyRabbitSex sex, int frame)
+        {
+            return GetSprite(sex, StrategyRabbitSpritePose.Hit, NormalizeFrame(frame, HitFrameCount));
+        }
+
+        public static Sprite GetDeathSprite(StrategyRabbitSex sex, int frame)
+        {
+            return GetSprite(sex, StrategyRabbitSpritePose.Death, Mathf.Clamp(frame, 0, DeathFrameCount - 1));
+        }
+
+        public static Sprite GetCarcassSprite(StrategyRabbitSex sex)
+        {
+            return GetSprite(sex, StrategyRabbitSpritePose.Carcass, 0);
+        }
+
         private static Sprite GetSprite(StrategyRabbitSex sex, StrategyRabbitSpritePose pose, int frame)
         {
             int cacheKey = ((int)sex * 4096) + ((int)pose * 128) + frame;
@@ -89,6 +109,20 @@ namespace ProjectUnknown.Strategy
             RabbitFrame rabbitFrame = GetFrame(pose, frame);
             RabbitPalette palette = GetPalette(sex);
 
+            if (pose == StrategyRabbitSpritePose.Carcass)
+            {
+                DrawCarcassRabbit(texture, rabbitFrame, palette, DeathFrameCount - 1, true);
+                texture.Apply(false, false);
+                return Sprite.Create(texture, new Rect(3f, 3f, 48f, 34f), new Vector2(0.5f, 0.12f), PixelsPerUnit);
+            }
+
+            if (pose == StrategyRabbitSpritePose.Death)
+            {
+                DrawCarcassRabbit(texture, rabbitFrame, palette, frame, false);
+                texture.Apply(false, false);
+                return Sprite.Create(texture, new Rect(3f, 3f, 48f, 34f), new Vector2(0.5f, 0.12f), PixelsPerUnit);
+            }
+
             if (pose == StrategyRabbitSpritePose.Rest)
             {
                 DrawRestingRabbit(texture, rabbitFrame, palette);
@@ -97,6 +131,11 @@ namespace ProjectUnknown.Strategy
             }
 
             DrawStandingRabbit(texture, sex, pose, frame, rabbitFrame, palette);
+            if (pose == StrategyRabbitSpritePose.Hit)
+            {
+                DrawArrowWound(texture, frame, palette);
+            }
+
             texture.Apply(false, false);
             return Sprite.Create(texture, new Rect(3f, 3f, 48f, 34f), new Vector2(0.5f, 0.12f), PixelsPerUnit);
         }
@@ -173,6 +212,43 @@ namespace ProjectUnknown.Strategy
             FillEllipse(texture, headX + 6, headY - 1, 3, 2, palette.Muzzle);
             SetPixelSafe(texture, headX + 2, headY + 1, palette.Outline);
             SetPixelSafe(texture, headX + 8, headY - 1, palette.Nose);
+        }
+
+        private static void DrawCarcassRabbit(Texture2D texture, RabbitFrame frame, RabbitPalette palette, int spriteFrame, bool finalFrame)
+        {
+            int slide = Mathf.Clamp(spriteFrame, 0, DeathFrameCount - 1);
+            int bodyCenterX = 25 - Mathf.Min(4, slide / 2);
+            int bodyCenterY = 12 + frame.BodyY - Mathf.Min(2, slide / 3);
+            int headX = bodyCenterX + 13 - Mathf.Min(5, slide);
+            int headY = bodyCenterY + 2 - Mathf.Min(2, slide / 2);
+            Color blood = finalFrame ? Rgb(112, 42, 36) : Rgb(147, 50, 42);
+
+            FillEllipse(texture, bodyCenterX - 1, 7, 17, 4, new Color(0f, 0f, 0f, 0.22f));
+            FillEllipse(texture, bodyCenterX, bodyCenterY, 15, 6, palette.Outline);
+            FillEllipse(texture, bodyCenterX, bodyCenterY + 1, 14, 5, palette.BodyDark);
+            FillEllipse(texture, bodyCenterX - 3, bodyCenterY + 1, 11, 4, palette.Body);
+            FillEllipse(texture, bodyCenterX + 7, bodyCenterY + 1, 6, 3, palette.BodyLight);
+
+            DrawFoldedEars(texture, headX, headY, frame, palette);
+            FillEllipse(texture, headX, headY, 7, 4, palette.Outline);
+            FillEllipse(texture, headX + 1, headY, 6, 3, palette.FaceDark);
+            FillEllipse(texture, headX + 4, headY + 1, 3, 2, palette.Face);
+            FillEllipse(texture, headX + 7, headY - 1, 3, 2, palette.Muzzle);
+            SetPixelSafe(texture, headX + 1, headY + 1, palette.Outline);
+
+            FillEllipse(texture, bodyCenterX - 5, bodyCenterY - 2, 4, 2, blood);
+            DrawLine(texture, P(bodyCenterX - 8, bodyCenterY - 2), P(bodyCenterX - 14, bodyCenterY - 3), blood);
+            DrawLine(texture, P(bodyCenterX - 3, bodyCenterY - 3), P(bodyCenterX + 4, bodyCenterY - 5), Rgb(83, 50, 32));
+            SetPixelSafe(texture, bodyCenterX + 5, bodyCenterY - 6, Rgb(210, 185, 125));
+        }
+
+        private static void DrawArrowWound(Texture2D texture, int frame, RabbitPalette palette)
+        {
+            int y = 19 + (frame % 2);
+            DrawLine(texture, P(19, y), P(8, y + 6), palette.Outline);
+            DrawLine(texture, P(18, y), P(9, y + 5), Rgb(128, 83, 43));
+            FillRect(texture, 6, y + 5, 3, 2, Rgb(218, 198, 136));
+            FillEllipse(texture, 21, y - 1, 2, 2, Rgb(139, 44, 39));
         }
 
         private static void DrawFeet(Texture2D texture, int bodyCenterX, int bodyCenterY, RabbitFrame frame, RabbitPalette palette)
@@ -308,6 +384,25 @@ namespace ProjectUnknown.Strategy
                         1 => new RabbitFrame(0, 0, 0, -1, 0, -1, 0, 0, 0, 0, 0),
                         3 => new RabbitFrame(0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0),
                         _ => new RabbitFrame(0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0)
+                    };
+                case StrategyRabbitSpritePose.Hit:
+                    normalized = NormalizeFrame(frame, HitFrameCount);
+                    return normalized switch
+                    {
+                        1 => new RabbitFrame(1, 1, -1, 2, -1, 2, 0, 0, 0, 0, 0),
+                        2 => new RabbitFrame(0, 0, -2, 1, -2, 1, 1, -1, 0, -1, 0),
+                        _ => new RabbitFrame(0, 0, -1, 3, 0, 2, 0, 0, -1, 1, 0)
+                    };
+                case StrategyRabbitSpritePose.Death:
+                case StrategyRabbitSpritePose.Carcass:
+                    normalized = Mathf.Clamp(frame, 0, DeathFrameCount - 1);
+                    return normalized switch
+                    {
+                        0 => new RabbitFrame(0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0),
+                        1 => new RabbitFrame(-1, 0, -1, -1, 0, -1, 0, 0, 0, -1, 0),
+                        2 => new RabbitFrame(-2, 0, -2, -1, -1, -1, 0, 0, 0, -1, 0),
+                        3 => new RabbitFrame(-2, 0, -3, -2, -1, -2, 0, 0, 0, -1, 0),
+                        _ => new RabbitFrame(-3, 0, -4, -2, -1, -2, 0, 0, 0, -1, 0)
                     };
                 default:
                     normalized = NormalizeFrame(frame, IdleFrameCount);

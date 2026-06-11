@@ -11,6 +11,9 @@ namespace ProjectUnknown.Strategy
         public const int WoodcutFrameCount = 10;
         public const int StonecutFrameCount = 10;
         public const int ConstructionFrameCount = 12;
+        public const int BowFrameCount = 12;
+        public const int ButcherFrameCount = 10;
+        public const int FishingFrameCount = 14;
 
         private static readonly Dictionary<int, Sprite> CachedSprites = new();
 
@@ -98,6 +101,48 @@ namespace ProjectUnknown.Strategy
             return sprite;
         }
 
+        public static Sprite GetBowSprite(StrategyResidentGender gender, int variant, int frame)
+        {
+            int normalizedVariant = NormalizeVariant(variant, VariantCountPerGender);
+            int normalizedFrame = NormalizeVariant(frame, BowFrameCount);
+            int cacheKey = GetCacheKey(gender, normalizedVariant, ResidentSpritePose.Bow, normalizedFrame, StrategyResidentLifeStage.Adult);
+            if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
+            {
+                sprite = CreateSprite(gender, normalizedVariant, ResidentSpritePose.Bow, normalizedFrame, StrategyResidentLifeStage.Adult);
+                CachedSprites[cacheKey] = sprite;
+            }
+
+            return sprite;
+        }
+
+        public static Sprite GetButcherSprite(StrategyResidentGender gender, int variant, int frame)
+        {
+            int normalizedVariant = NormalizeVariant(variant, VariantCountPerGender);
+            int normalizedFrame = NormalizeVariant(frame, ButcherFrameCount);
+            int cacheKey = GetCacheKey(gender, normalizedVariant, ResidentSpritePose.Butcher, normalizedFrame, StrategyResidentLifeStage.Adult);
+            if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
+            {
+                sprite = CreateSprite(gender, normalizedVariant, ResidentSpritePose.Butcher, normalizedFrame, StrategyResidentLifeStage.Adult);
+                CachedSprites[cacheKey] = sprite;
+            }
+
+            return sprite;
+        }
+
+        public static Sprite GetFishingSprite(StrategyResidentGender gender, int variant, int frame)
+        {
+            int normalizedVariant = NormalizeVariant(variant, VariantCountPerGender);
+            int normalizedFrame = NormalizeVariant(frame, FishingFrameCount);
+            int cacheKey = GetCacheKey(gender, normalizedVariant, ResidentSpritePose.Fishing, normalizedFrame, StrategyResidentLifeStage.Adult);
+            if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
+            {
+                sprite = CreateSprite(gender, normalizedVariant, ResidentSpritePose.Fishing, normalizedFrame, StrategyResidentLifeStage.Adult);
+                CachedSprites[cacheKey] = sprite;
+            }
+
+            return sprite;
+        }
+
         public static Sprite GetPortraitSprite(StrategyResidentGender gender, int variant)
         {
             return GetPortraitSprite(gender, variant, StrategyResidentLifeStage.Adult);
@@ -165,6 +210,9 @@ namespace ProjectUnknown.Strategy
                 ResidentSpritePose.Woodcut => GetWoodcutBodyFrame(frame),
                 ResidentSpritePose.Stonecut => GetStonecutBodyFrame(frame),
                 ResidentSpritePose.Construction => GetConstructionBodyFrame(frame),
+                ResidentSpritePose.Bow => GetBowBodyFrame(frame),
+                ResidentSpritePose.Butcher => GetButcherBodyFrame(frame),
+                ResidentSpritePose.Fishing => GetFishingBodyFrame(frame),
                 _ => ResidentWalkFrame.Idle
             };
 
@@ -188,6 +236,18 @@ namespace ProjectUnknown.Strategy
             else if (pose == ResidentSpritePose.Construction)
             {
                 DrawConstructionHammer(texture, frame, outline);
+            }
+            else if (pose == ResidentSpritePose.Bow)
+            {
+                DrawBowAndArrow(texture, frame, outline);
+            }
+            else if (pose == ResidentSpritePose.Butcher)
+            {
+                DrawButcherKnife(texture, frame, outline);
+            }
+            else if (pose == ResidentSpritePose.Fishing)
+            {
+                DrawFishingRod(texture, frame, outline);
             }
 
             texture.Apply(false, false);
@@ -785,6 +845,78 @@ namespace ProjectUnknown.Strategy
             DrawHammerHead(texture, tool.HeadX, tool.HeadY, tool.HeadDirection, outline, metal, metalLight);
         }
 
+        private static void DrawBowAndArrow(Texture2D texture, int frame, Color outline)
+        {
+            int normalized = NormalizeVariant(frame, BowFrameCount);
+            float draw = normalized <= 7 ? normalized / 7f : Mathf.Max(0f, 1f - ((normalized - 7) / 4f));
+            int gripX = 15;
+            int gripY = 15;
+            int stringX = Mathf.RoundToInt(Mathf.Lerp(18f, 10f, draw));
+            Color bowDark = Rgb(77, 47, 30);
+            Color bow = Rgb(138, 86, 42);
+            Color stringColor = Rgb(218, 202, 156);
+            Color arrow = Rgb(180, 120, 58);
+            Color feather = Rgb(225, 206, 143);
+
+            DrawThickLine(texture, P(gripX + 2, gripY - 8), P(gripX + 4, gripY), outline, 1);
+            DrawThickLine(texture, P(gripX + 4, gripY), P(gripX + 2, gripY + 8), outline, 1);
+            DrawLine(texture, P(gripX + 2, gripY - 8), P(gripX + 4, gripY), bow);
+            DrawLine(texture, P(gripX + 4, gripY), P(gripX + 2, gripY + 8), bow);
+            DrawLine(texture, P(gripX + 3, gripY - 7), P(gripX + 3, gripY + 7), bowDark);
+            DrawLine(texture, P(gripX + 2, gripY - 8), P(stringX, gripY), stringColor);
+            DrawLine(texture, P(stringX, gripY), P(gripX + 2, gripY + 8), stringColor);
+            DrawLine(texture, P(stringX - 1, gripY), P(gripX + 12, gripY), outline);
+            DrawLine(texture, P(stringX, gripY), P(gripX + 11, gripY), arrow);
+            SetPixelSafe(texture, gripX + 13, gripY, outline);
+            FillRect(texture, stringX - 3, gripY - 1, 3, 2, feather);
+        }
+
+        private static void DrawButcherKnife(Texture2D texture, int frame, Color outline)
+        {
+            WoodcutToolFrame tool = GetButcherToolFrame(frame);
+            Color handle = Rgb(104, 64, 39);
+            Color metal = Rgb(150, 158, 150);
+            Color metalLight = Rgb(218, 224, 211);
+
+            DrawThickLine(texture, P(tool.HandleFromX, tool.HandleFromY), P(tool.HandleToX, tool.HandleToY), outline, 1);
+            DrawLine(texture, P(tool.HandleFromX, tool.HandleFromY), P(tool.HandleToX, tool.HandleToY), handle);
+            int dir = tool.HeadDirection >= 0 ? 1 : -1;
+            FillRect(texture, tool.HeadX - 1, tool.HeadY - 1, 4, 3, outline);
+            FillRect(texture, tool.HeadX, tool.HeadY, 3, 2, metal);
+            DrawLine(texture, P(tool.HeadX + dir * 2, tool.HeadY + 1), P(tool.HeadX + dir * 6, tool.HeadY - 2), metalLight);
+            SetPixelSafe(texture, tool.HeadX + dir * 7, tool.HeadY - 3, outline);
+        }
+
+        private static void DrawFishingRod(Texture2D texture, int frame, Color outline)
+        {
+            int normalized = NormalizeVariant(frame, FishingFrameCount);
+            float castT = normalized <= 5
+                ? normalized / 5f
+                : normalized >= 9
+                    ? Mathf.Max(0.1f, 1f - ((normalized - 9) / 5f) * 0.45f)
+                    : 1f;
+            int gripX = 13;
+            int gripY = 15;
+            int tipX = Mathf.RoundToInt(Mathf.Lerp(12f, 19f, castT));
+            int tipY = Mathf.RoundToInt(Mathf.Lerp(26f, 24f, castT));
+            int hookX = Mathf.RoundToInt(Mathf.Lerp(11f, 22f, castT));
+            int hookY = Mathf.RoundToInt(Mathf.Lerp(24f, 10f, castT)) + (normalized >= 8 ? (normalized % 2 == 0 ? 1 : -1) : 0);
+            Color rodDark = Rgb(72, 48, 31);
+            Color rod = Rgb(139, 92, 48);
+            Color line = new Color(0.86f, 0.90f, 0.84f, 0.85f);
+            Color floatRed = Rgb(206, 48, 43);
+            Color floatWhite = Rgb(239, 231, 196);
+
+            DrawThickLine(texture, P(gripX, gripY), P(tipX, tipY), outline, 1);
+            DrawLine(texture, P(gripX, gripY), P(tipX, tipY), rod);
+            DrawLine(texture, P(gripX + 1, gripY), P(tipX, tipY), rodDark);
+            DrawLine(texture, P(tipX, tipY), P(hookX, hookY), line);
+            FillRect(texture, hookX - 1, hookY - 1, 3, 4, outline);
+            SetPixelSafe(texture, hookX, hookY + 1, floatRed);
+            SetPixelSafe(texture, hookX, hookY, floatWhite);
+            SetPixelSafe(texture, hookX + 1, hookY - 1, outline);
+        }
+
         private static void DrawAxeHead(Texture2D texture, int x, int y, int direction, Color outline, Color metal, Color metalLight)
         {
             int dir = direction >= 0 ? 1 : -1;
@@ -892,6 +1024,9 @@ namespace ProjectUnknown.Strategy
                 ResidentSpritePose.Woodcut => $"{genderName} Resident Woodcut {variant + 1}-{frame + 1}",
                 ResidentSpritePose.Stonecut => $"{genderName} Resident Stonecut {variant + 1}-{frame + 1}",
                 ResidentSpritePose.Construction => $"{genderName} Resident Construction {variant + 1}-{frame + 1}",
+                ResidentSpritePose.Bow => $"{genderName} Resident Bow {variant + 1}-{frame + 1}",
+                ResidentSpritePose.Butcher => $"{genderName} Resident Butcher {variant + 1}-{frame + 1}",
+                ResidentSpritePose.Fishing => $"{genderName} Resident Fishing {variant + 1}-{frame + 1}",
                 _ => $"{genderName} Resident Walk {variant + 1}-{frame + 1}"
             };
         }
@@ -916,6 +1051,21 @@ namespace ProjectUnknown.Strategy
             return ConstructionBodyFrames[NormalizeVariant(frame, ConstructionFrameCount)];
         }
 
+        private static ResidentWalkFrame GetBowBodyFrame(int frame)
+        {
+            return BowBodyFrames[NormalizeVariant(frame, BowFrameCount)];
+        }
+
+        private static ResidentWalkFrame GetButcherBodyFrame(int frame)
+        {
+            return ButcherBodyFrames[NormalizeVariant(frame, ButcherFrameCount)];
+        }
+
+        private static ResidentWalkFrame GetFishingBodyFrame(int frame)
+        {
+            return FishingBodyFrames[NormalizeVariant(frame, FishingFrameCount)];
+        }
+
         private static WoodcutToolFrame GetWoodcutToolFrame(int frame)
         {
             return WoodcutToolFrames[NormalizeVariant(frame, WoodcutFrameCount)];
@@ -929,6 +1079,11 @@ namespace ProjectUnknown.Strategy
         private static WoodcutToolFrame GetConstructionToolFrame(int frame)
         {
             return ConstructionToolFrames[NormalizeVariant(frame, ConstructionFrameCount)];
+        }
+
+        private static WoodcutToolFrame GetButcherToolFrame(int frame)
+        {
+            return ButcherToolFrames[NormalizeVariant(frame, ButcherFrameCount)];
         }
 
         private static int GetCacheKey(
@@ -963,7 +1118,10 @@ namespace ProjectUnknown.Strategy
             Portrait,
             Woodcut,
             Stonecut,
-            Construction
+            Construction,
+            Bow,
+            Butcher,
+            Fishing
         }
 
         private static readonly ResidentWalkFrame[] WalkFrames =
@@ -1064,6 +1222,68 @@ namespace ProjectUnknown.Strategy
             new WoodcutToolFrame(9, 10, 16, 14, 25, 14, 25, -1),
             new WoodcutToolFrame(10, 12, 14, 17, 20, 17, 20, 1),
             new WoodcutToolFrame(11, 12, 13, 16, 21, 16, 21, 1)
+        };
+
+        private static readonly ResidentWalkFrame[] BowBodyFrames =
+        {
+            new ResidentWalkFrame(0, 0, 0, 0, 0, -1, 1, 0, 0),
+            new ResidentWalkFrame(0, 0, 0, 0, 0, -2, 2, 1, 1),
+            new ResidentWalkFrame(0, -1, 1, -1, 1, -2, 2, 1, 1),
+            new ResidentWalkFrame(1, -1, 1, -1, 1, -2, 2, 2, 2),
+            new ResidentWalkFrame(1, -1, 1, -1, 1, -3, 2, 2, 2),
+            new ResidentWalkFrame(1, -1, 1, -1, 1, -3, 3, 2, 2),
+            new ResidentWalkFrame(0, -1, 1, -1, 1, -3, 3, 2, 2),
+            new ResidentWalkFrame(0, -1, 1, -1, 1, -3, 3, 2, 2),
+            new ResidentWalkFrame(0, 0, 0, 0, 0, -1, 2, 1, 1),
+            new ResidentWalkFrame(0, 0, 0, 0, 0, 0, 1, 0, 0),
+            new ResidentWalkFrame(0, 0, 0, 0, 0, -1, 1, 0, 0),
+            new ResidentWalkFrame(0, 0, 0, 0, 0, -1, 1, 0, 0)
+        };
+
+        private static readonly ResidentWalkFrame[] ButcherBodyFrames =
+        {
+            new ResidentWalkFrame(0, 0, 0, 0, 0, 1, -1, 1, 1),
+            new ResidentWalkFrame(0, -1, 1, -1, 1, 0, -2, 1, 2),
+            new ResidentWalkFrame(1, -1, 1, -1, 1, -1, -2, 2, 3),
+            new ResidentWalkFrame(1, -2, 2, -2, 2, -2, -1, 3, 2),
+            new ResidentWalkFrame(0, -1, 1, -1, 1, -1, 1, 1, -1),
+            new ResidentWalkFrame(-1, -1, 1, -1, 1, 1, 2, -2, -2),
+            new ResidentWalkFrame(0, 0, 0, 0, 0, 1, 1, -1, -1),
+            new ResidentWalkFrame(0, 1, -1, 1, -1, 0, -1, 1, 1),
+            new ResidentWalkFrame(1, 1, -1, 1, -1, -1, -2, 2, 3),
+            new ResidentWalkFrame(0, 0, 0, 0, 0, 0, -1, 1, 1)
+        };
+
+        private static readonly WoodcutToolFrame[] ButcherToolFrames =
+        {
+            new WoodcutToolFrame(0, 12, 13, 15, 18, 15, 18, 1),
+            new WoodcutToolFrame(1, 11, 15, 14, 23, 14, 23, -1),
+            new WoodcutToolFrame(2, 9, 17, 15, 25, 15, 25, 1),
+            new WoodcutToolFrame(3, 7, 18, 16, 24, 16, 24, 1),
+            new WoodcutToolFrame(4, 8, 18, 17, 16, 17, 16, 1),
+            new WoodcutToolFrame(5, 7, 18, 18, 10, 18, 10, 1),
+            new WoodcutToolFrame(6, 8, 16, 18, 12, 18, 12, 1),
+            new WoodcutToolFrame(7, 11, 14, 16, 21, 16, 21, 1),
+            new WoodcutToolFrame(8, 10, 16, 14, 25, 14, 25, -1),
+            new WoodcutToolFrame(9, 12, 13, 15, 18, 15, 18, 1)
+        };
+
+        private static readonly ResidentWalkFrame[] FishingBodyFrames =
+        {
+            new ResidentWalkFrame(0, 0, 0, 0, 0, -1, 1, 1, 1),
+            new ResidentWalkFrame(0, -1, 1, -1, 1, -2, 1, 2, 2),
+            new ResidentWalkFrame(1, -1, 1, -1, 1, -3, 2, 2, 2),
+            new ResidentWalkFrame(1, -1, 1, -1, 1, -3, 3, 2, 2),
+            new ResidentWalkFrame(0, -1, 1, -1, 1, -2, 3, 1, 1),
+            new ResidentWalkFrame(0, 0, 0, 0, 0, -1, 2, 0, 0),
+            new ResidentWalkFrame(0, 0, 0, 0, 0, -1, 1, 0, 0),
+            new ResidentWalkFrame(0, 0, 0, 0, 0, -1, 1, 0, 0),
+            new ResidentWalkFrame(0, 1, -1, 1, -1, -2, 2, 1, 1),
+            new ResidentWalkFrame(1, 1, -1, 1, -1, -3, 3, 2, 2),
+            new ResidentWalkFrame(1, 0, 0, 0, 0, -2, 3, 2, 2),
+            new ResidentWalkFrame(0, -1, 1, -1, 1, -2, 2, 1, 1),
+            new ResidentWalkFrame(0, 0, 0, 0, 0, -1, 1, 0, 0),
+            new ResidentWalkFrame(0, 0, 0, 0, 0, -1, 1, 0, 0)
         };
 
         private readonly struct ResidentWalkFrame

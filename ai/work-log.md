@@ -8,6 +8,43 @@ Last updated: 2026-06-11
 
 ## Done
 
+### 2026-06-11 - Build menu partial-class refactor
+
+- Refactored the runtime Build menu so the public `StrategyBuildMenuController` remains the same MonoBehaviour API while its implementation lives in a non-partial `StrategyBuildMenuControllerDriver`.
+- Converted the build catalog/icon helper from a `partial` controller file into the non-partial `StrategyBuildMenuCatalog` helper.
+- Verified there are no remaining `partial class` declarations under `Assets`, so the maximum partial-class file size is `0 <= 900` characters.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-11 - Granary food storage MVP
+
+- Added `Амбар` as a buildable 3x2 food-storage building under `Хранилища`, with Logs/Stone construction cost, generated 2.5D art, food stockpile visuals, and 2 assignable worker slots.
+- Added `StrategyGranary` local food storage for `Дичь` and `Рыба`, with selected-building HUD support showing workers, stored food, and available food sources.
+- Added food logistics for granary workers: reserve `Дичь` from Hunter Camps or `Рыба` from Fisher Huts, walk to the source, pick up a reserved batch, carry it to the granary, and deposit it into granary stock.
+- Extended Hunter Camp and Fisher Hut stock APIs with reservation/take/release methods so multiple granary workers do not target the same local food stock.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-11 - Fisher hut and fishing MVP
+
+- Added `Хижина рыбака` as a buildable 2x2 production camp under `Промыслы`, with Logs/Stone construction cost, shoreline placement validation, generated 2.5D hut art, worker slots, and a visual local `Рыба` stockpile.
+- Added fisher work loop for up to 2 adult workers: reserve a nearby fish, move to a walkable shore cell, cast a fishing line, wait for a bite, reel the fish through hit-driven animation, carry `Рыба` back, and deposit it at the hut.
+- Extended fish with fishing reservation, hooked/caught states, hooked sprite animation, and fish yield; reserved fish pause normal shoal movement so the cast/reel sequence is stable.
+- Added `Рыба` as a resource type with HUD icon/future economy identity, plus carried-fish sprites and selected fisher-hut HUD support.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-11 - Hunter camp and rabbit hunting MVP
+
+- Added `Лагерь охотников` as a buildable 2x2 production camp under `Промыслы`, with construction cost, generated 2.5D camp art, local worker slots, and visual `Дичь` stockpile.
+- Added hunter work loop for up to 2 adult workers: reserve a nearby adult rabbit, move into bow range, animate aiming/shooting with an arrow projectile, wait for the carcass, butcher it over several animated hits, carry `Дичь` back, and deposit it at the hunter camp.
+- Extended rabbits with hunt reservation, hit/death/carcass states, generated hit/death/carcass sprites, and butchering yield; reserved rabbits stop normal idle/flee behavior so the shot sequence is stable.
+- Added `Дичь` as a resource type with HUD icon/future economy identity, plus carried game sprites and selected hunter-camp HUD support.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-11 - Resident aging cadence tune
+
+- Changed resident age progression in `StrategyResidentAgent` from 120 seconds per year to 100 seconds per year.
+- Children now take roughly 30 minutes at x1 speed to grow from birth to adulthood, or about 10 minutes at x3 speed.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
 ### 2026-06-11 - Decorative bird wildlife MVP
 
 - Added ambient decorative birds as a runtime wildlife layer alongside deer, rabbits, and fish.

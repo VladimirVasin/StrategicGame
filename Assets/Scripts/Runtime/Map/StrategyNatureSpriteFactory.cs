@@ -123,6 +123,30 @@ namespace ProjectUnknown.Strategy
             return sprite;
         }
 
+        public static Sprite GetCarriedGameSprite()
+        {
+            const int cacheKey = 12480;
+            if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
+            {
+                sprite = CreateCarriedGameSprite();
+                CachedSprites[cacheKey] = sprite;
+            }
+
+            return sprite;
+        }
+
+        public static Sprite GetCarriedFishSprite()
+        {
+            const int cacheKey = 12540;
+            if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
+            {
+                sprite = CreateCarriedFishSprite();
+                CachedSprites[cacheKey] = sprite;
+            }
+
+            return sprite;
+        }
+
         private static Sprite CreateSprite(StrategyNaturePropKind kind, int variant)
         {
             return kind switch
@@ -390,6 +414,56 @@ namespace ProjectUnknown.Strategy
 
             texture.Apply(false, false);
             return Sprite.Create(texture, new Rect(3f, 5f, 24f, 14f), new Vector2(0.5f, 0.35f), TreePixelsPerUnit);
+        }
+
+        private static Sprite CreateCarriedGameSprite()
+        {
+            Texture2D texture = CreateTexture(32, 22, "Carried Game");
+            Color outline = Rgb(58, 34, 27);
+            Color meatDark = Rgb(120, 44, 38);
+            Color meat = Rgb(174, 72, 54);
+            Color meatLight = Rgb(222, 126, 83);
+            Color bone = Rgb(226, 206, 164);
+            Color cord = Rgb(93, 59, 36);
+
+            DrawLine(texture, P(6, 7), P(25, 15), cord);
+            FillEllipse(texture, 11, 10, 6, 4, outline);
+            FillEllipse(texture, 11, 10, 5, 3, meat);
+            FillEllipse(texture, 19, 14, 7, 5, outline);
+            FillEllipse(texture, 19, 14, 6, 4, meatDark);
+            FillEllipse(texture, 21, 15, 3, 2, meatLight);
+            FillRect(texture, 4, 7, 5, 2, bone);
+            FillEllipse(texture, 4, 8, 2, 2, bone);
+            FillRect(texture, 24, 14, 5, 2, bone);
+            FillEllipse(texture, 29, 15, 2, 2, bone);
+
+            texture.Apply(false, false);
+            return Sprite.Create(texture, new Rect(3f, 5f, 26f, 14f), new Vector2(0.5f, 0.35f), TreePixelsPerUnit);
+        }
+
+        private static Sprite CreateCarriedFishSprite()
+        {
+            Texture2D texture = CreateTexture(34, 22, "Carried Fish");
+            Color outline = Rgb(31, 59, 70);
+            Color fishDark = Rgb(59, 117, 139);
+            Color fish = Rgb(88, 162, 183);
+            Color fishLight = Rgb(151, 215, 224);
+            Color fin = Rgb(222, 151, 77);
+            Color cord = Rgb(82, 62, 42);
+
+            DrawLine(texture, P(5, 7), P(28, 14), cord);
+            FillEllipse(texture, 15, 12, 9, 5, outline);
+            FillEllipse(texture, 15, 12, 8, 4, fishDark);
+            FillEllipse(texture, 17, 13, 5, 3, fish);
+            FillEllipse(texture, 20, 14, 2, 2, fishLight);
+            FillTriangle(texture, P(7, 12), P(3, 8), P(3, 16), outline);
+            FillTriangle(texture, P(7, 12), P(4, 9), P(4, 15), fin);
+            FillTriangle(texture, P(13, 15), P(16, 20), P(18, 15), outline);
+            FillTriangle(texture, P(14, 15), P(16, 18), P(17, 15), fin);
+            SetPixelSafe(texture, 23, 14, outline);
+
+            texture.Apply(false, false);
+            return Sprite.Create(texture, new Rect(3f, 5f, 28f, 14f), new Vector2(0.5f, 0.35f), TreePixelsPerUnit);
         }
 
         private static Sprite CreateBoulderSprite(int variant)
@@ -760,6 +834,33 @@ namespace ProjectUnknown.Strategy
             {
                 DrawLine(texture, points[i], points[(i + 1) % points.Length], color);
             }
+        }
+
+        private static void FillTriangle(Texture2D texture, Vector2Int a, Vector2Int b, Vector2Int c, Color color)
+        {
+            int minX = Mathf.Min(a.x, Mathf.Min(b.x, c.x));
+            int maxX = Mathf.Max(a.x, Mathf.Max(b.x, c.x));
+            int minY = Mathf.Min(a.y, Mathf.Min(b.y, c.y));
+            int maxY = Mathf.Max(a.y, Mathf.Max(b.y, c.y));
+
+            for (int y = minY; y <= maxY; y++)
+            {
+                for (int x = minX; x <= maxX; x++)
+                {
+                    float w0 = Edge(b, c, P(x, y));
+                    float w1 = Edge(c, a, P(x, y));
+                    float w2 = Edge(a, b, P(x, y));
+                    if ((w0 >= 0f && w1 >= 0f && w2 >= 0f) || (w0 <= 0f && w1 <= 0f && w2 <= 0f))
+                    {
+                        SetPixelSafe(texture, x, y, color);
+                    }
+                }
+            }
+        }
+
+        private static float Edge(Vector2Int a, Vector2Int b, Vector2Int c)
+        {
+            return (c.x - a.x) * (b.y - a.y) - (c.y - a.y) * (b.x - a.x);
         }
 
         private static void DrawLine(Texture2D texture, Vector2Int from, Vector2Int to, Color color)

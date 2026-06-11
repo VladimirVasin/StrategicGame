@@ -49,6 +49,12 @@ namespace ProjectUnknown.Strategy
                 case StrategyResourceType.Potato:
                     PaintPotato(texture);
                     break;
+                case StrategyResourceType.Game:
+                    PaintGame(texture);
+                    break;
+                case StrategyResourceType.Fish:
+                    PaintFish(texture);
+                    break;
             }
 
             texture.Apply(false, false);
@@ -165,6 +171,48 @@ namespace ProjectUnknown.Strategy
             SetPixelSafe(texture, 17, 10, eye);
         }
 
+        private static void PaintGame(Texture2D texture)
+        {
+            Color outline = Rgb(67, 37, 31);
+            Color meatDark = Rgb(130, 47, 40);
+            Color meat = Rgb(178, 75, 57);
+            Color meatLight = Rgb(224, 127, 84);
+            Color bone = Rgb(225, 209, 169);
+
+            DrawLine(texture, 5, 8, 10, 13, bone);
+            FillEllipse(texture, 5, 8, 2, 2, bone);
+            FillEllipse(texture, 10, 13, 3, 2, bone);
+            FillEllipse(texture, 14, 12, 8, 6, outline);
+            FillEllipse(texture, 14, 12, 7, 5, meatDark);
+            FillEllipse(texture, 15, 13, 5, 4, meat);
+            FillEllipse(texture, 17, 14, 2, 2, meatLight);
+            SetPixelSafe(texture, 9, 14, outline);
+            SetPixelSafe(texture, 18, 9, outline);
+        }
+
+        private static void PaintFish(Texture2D texture)
+        {
+            Color outline = Rgb(34, 65, 76);
+            Color fishDark = Rgb(58, 118, 139);
+            Color fish = Rgb(86, 157, 178);
+            Color fishLight = Rgb(148, 210, 219);
+            Color fin = Rgb(224, 154, 75);
+            Color water = new Color(0.50f, 0.76f, 0.86f, 0.55f);
+
+            DrawLine(texture, 3, 7, 8, 7, water);
+            DrawLine(texture, 16, 18, 21, 18, water);
+            FillEllipse(texture, 12, 12, 8, 5, outline);
+            FillEllipse(texture, 12, 12, 7, 4, fishDark);
+            FillEllipse(texture, 14, 13, 5, 3, fish);
+            FillEllipse(texture, 17, 13, 2, 2, fishLight);
+            FillTriangle(texture, 5, 12, 1, 7, 1, 17, outline);
+            FillTriangle(texture, 5, 12, 2, 8, 2, 16, fin);
+            FillTriangle(texture, 10, 16, 14, 21, 16, 16, outline);
+            FillTriangle(texture, 11, 16, 14, 19, 15, 16, fin);
+            SetPixelSafe(texture, 18, 14, outline);
+            DrawLine(texture, 15, 16, 18, 10, outline);
+        }
+
         private static void FillRect(Texture2D texture, int x, int y, int width, int height, Color color)
         {
             for (int py = y; py < y + height; py++)
@@ -231,6 +279,38 @@ namespace ProjectUnknown.Strategy
                     y0 += sy;
                 }
             }
+        }
+
+        private static void FillTriangle(Texture2D texture, int x0, int y0, int x1, int y1, int x2, int y2, Color color)
+        {
+            int minX = Mathf.Min(x0, Mathf.Min(x1, x2));
+            int maxX = Mathf.Max(x0, Mathf.Max(x1, x2));
+            int minY = Mathf.Min(y0, Mathf.Min(y1, y2));
+            int maxY = Mathf.Max(y0, Mathf.Max(y1, y2));
+            float area = Edge(x0, y0, x1, y1, x2, y2);
+            if (Mathf.Approximately(area, 0f))
+            {
+                return;
+            }
+
+            for (int y = minY; y <= maxY; y++)
+            {
+                for (int x = minX; x <= maxX; x++)
+                {
+                    float w0 = Edge(x1, y1, x2, y2, x, y);
+                    float w1 = Edge(x2, y2, x0, y0, x, y);
+                    float w2 = Edge(x0, y0, x1, y1, x, y);
+                    if ((w0 >= 0f && w1 >= 0f && w2 >= 0f) || (w0 <= 0f && w1 <= 0f && w2 <= 0f))
+                    {
+                        SetPixelSafe(texture, x, y, color);
+                    }
+                }
+            }
+        }
+
+        private static float Edge(int ax, int ay, int bx, int by, int cx, int cy)
+        {
+            return (cx - ax) * (by - ay) - (cy - ay) * (bx - ax);
         }
 
         private static void SetPixelSafe(Texture2D texture, int x, int y, Color color)

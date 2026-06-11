@@ -9,7 +9,9 @@ namespace ProjectUnknown.Strategy
         Swimming,
         Feeding,
         Fleeing,
-        Turning
+        Turning,
+        Hooked,
+        Caught
     }
 
     public enum StrategyFishLifeStage
@@ -35,10 +37,13 @@ namespace ProjectUnknown.Strategy
         private const float FeedAnimationRate = 7.5f;
         private const float FleeAnimationRate = 16.0f;
         private const float TurnAnimationRate = 11.0f;
+        private const float HookedAnimationRate = 18.0f;
         private const float FishGlobalScale = 0.82f;
         private const float FryMaturitySeconds = 90f;
         private const float FryStartScale = 0.42f;
         private const float FryMatureScale = 0.78f;
+        private const int FishYield = 2;
+        private const int ReelHitsRequired = 4;
 
         private static Sprite rippleSprite;
         private static readonly Vector2Int[] CardinalDirections =
@@ -60,11 +65,14 @@ namespace ProjectUnknown.Strategy
         private StrategyFishSpritePose appliedPose;
         private Vector2Int homeCell;
         private Vector3 lastThreatWorld;
+        private Vector3 hookWorld;
+        private object fishingReservationOwner;
         private int pathIndex;
         private int homeRadius;
         private int shoalId;
         private int frame;
         private int appliedFrame = -1;
+        private int reelHits;
         private float waitTimer;
         private float stateTimer;
         private float threatCheckTimer;
@@ -74,12 +82,26 @@ namespace ProjectUnknown.Strategy
         private float visualScale = 1f;
         private bool hasTarget;
         private bool hasAppliedPose;
+        private bool isCaught;
 
         public StrategyFishSpecies Species => species;
         public StrategyFishBehaviorState State => state;
         public StrategyFishLifeStage LifeStage => lifeStage;
         public bool IsAdult => lifeStage == StrategyFishLifeStage.Adult;
-        public bool CanBreed => IsAdult && state != StrategyFishBehaviorState.Fleeing;
+        public bool IsHooked => state == StrategyFishBehaviorState.Hooked;
+        public bool IsCaught => isCaught;
+        public bool CanBeFished => IsAdult
+            && !isCaught
+            && fishingReservationOwner == null
+            && state != StrategyFishBehaviorState.Fleeing
+            && state != StrategyFishBehaviorState.Hooked
+            && state != StrategyFishBehaviorState.Caught;
+        public bool CanBreed => IsAdult
+            && !isCaught
+            && fishingReservationOwner == null
+            && state != StrategyFishBehaviorState.Fleeing
+            && state != StrategyFishBehaviorState.Hooked
+            && state != StrategyFishBehaviorState.Caught;
         public int ShoalId => shoalId;
         public Vector2Int HomeCell => homeCell;
         public int HomeRadius => homeRadius;
@@ -114,6 +136,9 @@ namespace ProjectUnknown.Strategy
             transform.localRotation = Quaternion.identity;
             SetAnimatedScale(1f, 1f);
             state = StrategyFishBehaviorState.Idle;
+            fishingReservationOwner = null;
+            reelHits = 0;
+            isCaught = false;
             waitTimer = Random.Range(0.4f, 1.4f);
             stateTimer = waitTimer;
             ApplySprite(StrategyFishSpritePose.Idle, Random.Range(0, StrategyFishSpriteFactory.IdleFrameCount));
@@ -127,6 +152,96 @@ namespace ProjectUnknown.Strategy
             return map != null && map.TryWorldToCell(transform.position, out cell);
         }
 
+        public bool TryReserveForFishing(object owner)
+        {
+            if (owner == null || !CanBeFished)
+            {
+                return false;
+            }
+
+            fishingReservationOwner = owner;
+            hasTarget = false;
+            path.Clear();
+            pathIndex = 0;
+            waitTimer = Random.Range(0.25f, 0.85f);
+            SetState(StrategyFishBehaviorState.Idle, false, false);
+            return true;
+        }
+
+        public void ReleaseFishingReservation(object owner)
+        {
+            if (owner == null || fishingReservationOwner != owner)
+            {
+                return;
+            }
+
+            fishingReservationOwner = null;
+            reelHits = 0;
+            if (!isCaught && state == StrategyFishBehaviorState.Hooked)
+            {
+                StartIdle(Random.Range(0.3f, 0.9f));
+            }
+        }
+
+        public bool ReceiveFishingHook(object owner, Vector3 hookPosition)
+        {
+            if (owner == null || fishingReservationOwner != owner || isCaught)
+            {
+                return false;
+            }
+
+            hookWorld = new Vector3(hookPosition.x, hookPosition.y, transform.position.z);
+            reelHits = 0;
+            hasTarget = false;
+            path.Clear();
+            pathIndex = 0;
+            SetState(StrategyFishBehaviorState.Hooked, true, false);
+            StrategyDebugLogger.Info(
+                "Fishing",
+                "FishHooked",
+                StrategyDebugLogger.F("species", species),
+                StrategyDebugLogger.F("shoal", shoalId),
+                StrategyDebugLogger.F("world", transform.position),
+                StrategyDebugLogger.F("hookWorld", hookWorld));
+            return true;
+        }
+
+        public bool ReceiveReelPull(object owner, Vector3 pullWorld, out int fishAmount)
+        {
+            fishAmount = 0;
+            if (owner == null || fishingReservationOwner != owner || isCaught || state != StrategyFishBehaviorState.Hooked)
+            {
+                return false;
+            }
+
+            reelHits++;
+            hookWorld = new Vector3(pullWorld.x, pullWorld.y, transform.position.z);
+            if (reelHits < ReelHitsRequired)
+            {
+                StrategyDebugLogger.Info(
+                    "Fishing",
+                    "FishReelPull",
+                    StrategyDebugLogger.F("species", species),
+                    StrategyDebugLogger.F("shoal", shoalId),
+                    StrategyDebugLogger.F("reelHits", reelHits),
+                    StrategyDebugLogger.F("world", transform.position));
+                return false;
+            }
+
+            isCaught = true;
+            fishAmount = FishYield;
+            SetState(StrategyFishBehaviorState.Caught, true, false);
+            StrategyDebugLogger.Info(
+                "Fishing",
+                "FishCaught",
+                StrategyDebugLogger.F("species", species),
+                StrategyDebugLogger.F("shoal", shoalId),
+                StrategyDebugLogger.F("yield", fishAmount),
+                StrategyDebugLogger.F("world", transform.position));
+            Destroy(gameObject);
+            return true;
+        }
+
         private void Update()
         {
             if (map == null || spriteRenderer == null)
@@ -135,6 +250,27 @@ namespace ProjectUnknown.Strategy
             }
 
             UpdateAge();
+            if (state == StrategyFishBehaviorState.Hooked)
+            {
+                UpdateHooked();
+                UpdateRipple();
+                return;
+            }
+
+            if (state == StrategyFishBehaviorState.Caught || isCaught)
+            {
+                AnimateHooked();
+                UpdateRipple();
+                return;
+            }
+
+            if (fishingReservationOwner != null)
+            {
+                AnimateIdle();
+                UpdateRipple();
+                return;
+            }
+
             UpdateThreatAwareness();
 
             switch (state)
@@ -150,6 +286,9 @@ namespace ProjectUnknown.Strategy
                     break;
                 case StrategyFishBehaviorState.Turning:
                     UpdateTurning();
+                    break;
+                case StrategyFishBehaviorState.Hooked:
+                    UpdateHooked();
                     break;
                 default:
                     UpdateIdle();
@@ -263,6 +402,22 @@ namespace ProjectUnknown.Strategy
             }
         }
 
+        private void UpdateHooked()
+        {
+            Vector3 previous = transform.position;
+            transform.position = Vector3.MoveTowards(transform.position, hookWorld, FleeSpeed * 0.55f * Time.deltaTime);
+            Vector3 delta = transform.position - previous;
+            if (spriteRenderer != null && Mathf.Abs(delta.x) > 0.001f)
+            {
+                spriteRenderer.flipX = delta.x < 0f;
+            }
+
+            float jitterX = Mathf.Sin((Time.time + bobPhase) * 18f) * 0.025f;
+            float jitterY = Mathf.Cos((Time.time + bobPhase) * 15f) * 0.018f;
+            transform.position = new Vector3(transform.position.x + jitterX * Time.deltaTime, transform.position.y + jitterY * Time.deltaTime, -0.068f);
+            AnimateHooked();
+        }
+
         private void PickRelaxedBehavior()
         {
             float roll = Random.value;
@@ -344,9 +499,14 @@ namespace ProjectUnknown.Strategy
 
             if (logImportant)
             {
+                string eventName = nextState == StrategyFishBehaviorState.Hooked
+                    ? "FishHookedState"
+                    : nextState == StrategyFishBehaviorState.Fleeing
+                        ? "FishFleeing"
+                        : "FishStateChanged";
                 StrategyDebugLogger.Info(
                     "Wildlife",
-                    "FishFleeing",
+                    eventName,
                     StrategyDebugLogger.F("species", species),
                     StrategyDebugLogger.F("shoal", shoalId),
                     StrategyDebugLogger.F("noisyThreat", noisyThreat),
@@ -651,6 +811,8 @@ namespace ProjectUnknown.Strategy
                 || activity == StrategyResidentAgent.ResidentActivity.BuckingTree
                 || activity == StrategyResidentAgent.ResidentActivity.MiningStone
                 || activity == StrategyResidentAgent.ResidentActivity.BuildingConstruction
+                || activity == StrategyResidentAgent.ResidentActivity.CastingFishingLine
+                || activity == StrategyResidentAgent.ResidentActivity.ReelingFish
                 || activity == StrategyResidentAgent.ResidentActivity.PlantingTree
                 || activity == StrategyResidentAgent.ResidentActivity.DepositingLogs
                 || activity == StrategyResidentAgent.ResidentActivity.DepositingStone
@@ -773,6 +935,15 @@ namespace ProjectUnknown.Strategy
             SetAnimatedScale(0.98f, 1.02f);
         }
 
+        private void AnimateHooked()
+        {
+            AdvanceLoopingFrame(HookedAnimationRate, StrategyFishSpriteFactory.HookedFrameCount);
+            ApplySprite(StrategyFishSpritePose.Hooked, frame);
+            float thrash = Mathf.Sin((Time.time + bobPhase) * 22f);
+            transform.localRotation = Quaternion.Euler(0f, 0f, thrash * 7.5f);
+            SetAnimatedScale(1.05f, 0.92f);
+        }
+
         private void AdvanceLoopingFrame(float frameRate, int frameCount)
         {
             frameTimer += Time.deltaTime * frameRate;
@@ -804,6 +975,7 @@ namespace ProjectUnknown.Strategy
                 StrategyFishSpritePose.Dart => StrategyFishSpriteFactory.GetDartSprite(species, spriteFrame),
                 StrategyFishSpritePose.Turn => StrategyFishSpriteFactory.GetTurnSprite(species, spriteFrame),
                 StrategyFishSpritePose.Feed => StrategyFishSpriteFactory.GetFeedSprite(species, spriteFrame),
+                StrategyFishSpritePose.Hooked => StrategyFishSpriteFactory.GetHookedSprite(species, spriteFrame),
                 _ => StrategyFishSpriteFactory.GetIdleSprite(species, spriteFrame)
             };
 
@@ -883,7 +1055,9 @@ namespace ProjectUnknown.Strategy
 
             float alpha = state == StrategyFishBehaviorState.Fleeing
                 ? 0.28f
-                : state == StrategyFishBehaviorState.Swimming
+                : state == StrategyFishBehaviorState.Hooked
+                    ? 0.34f
+                    : state == StrategyFishBehaviorState.Swimming
                     ? 0.18f
                     : 0.08f;
             float pulse = 1f + Mathf.Sin((Time.time + bobPhase) * 5f) * 0.08f;

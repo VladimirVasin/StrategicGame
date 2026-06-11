@@ -61,7 +61,17 @@ namespace ProjectUnknown.Strategy
             Color stone = Rgb(126, 130, 119);
             Color stoneLight = Rgb(174, 176, 160);
             Color rope = Rgb(199, 158, 91);
-            Color cloth = tool == StrategyBuildTool.House ? Rgb(164, 64, 45) : tool == StrategyBuildTool.StonecutterCamp ? Rgb(112, 120, 118) : Rgb(130, 117, 73);
+            Color cloth = tool == StrategyBuildTool.House
+                ? Rgb(164, 64, 45)
+                : tool == StrategyBuildTool.StonecutterCamp
+                    ? Rgb(112, 120, 118)
+                    : tool == StrategyBuildTool.HunterCamp
+                        ? Rgb(126, 93, 61)
+                        : tool == StrategyBuildTool.FisherHut
+                            ? Rgb(78, 120, 130)
+                            : tool == StrategyBuildTool.Granary
+                                ? Rgb(168, 132, 61)
+                                : Rgb(130, 117, 73);
 
             FillEllipse(texture, 52, 16, 39, 9, shadow);
             FillPolygon(texture, new[] { P(19, 18), P(76, 18), P(86, 26), P(29, 27) }, dirt);

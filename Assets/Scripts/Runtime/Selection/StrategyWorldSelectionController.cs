@@ -329,8 +329,14 @@ namespace ProjectUnknown.Strategy
                         ? "\u0434\u0440\u043e\u0432\u043e\u0441\u0435\u043a"
                         : resident.StoneWorkplace != null
                             ? "\u043a\u0430\u043c\u0435\u043d\u043e\u0442\u0451\u0441"
-                            : resident.StorageWorkplace != null
+                            : resident.HunterWorkplace != null
+                                ? "\u043e\u0445\u043e\u0442\u043d\u0438\u043a"
+                                : resident.FisherWorkplace != null
+                                    ? "\u0440\u044b\u0431\u0430\u043a"
+                                : resident.StorageWorkplace != null
                                 ? "\u043a\u043b\u0430\u0434\u043e\u0432\u0449\u0438\u043a"
+                                : resident.GranaryWorkplace != null
+                                ? "\u0430\u043c\u0431\u0430\u0440\u0449\u0438\u043a"
                                 : "\u043f\u043e\u0441\u0435\u043b\u0435\u043d\u0435\u0446")
                     + "\n"
                     + "\u0412\u043e\u0437\u0440\u0430\u0441\u0442: "
@@ -376,17 +382,23 @@ namespace ProjectUnknown.Strategy
                 bool isHouse = building.Tool == StrategyBuildTool.House;
                 StrategyLumberjackCamp camp = building.GetComponent<StrategyLumberjackCamp>();
                 StrategyStonecutterCamp stoneCamp = building.GetComponent<StrategyStonecutterCamp>();
+                StrategyHunterCamp hunterCamp = building.GetComponent<StrategyHunterCamp>();
+                StrategyFisherHut fisherHut = building.GetComponent<StrategyFisherHut>();
                 StrategyStorageYard yard = building.GetComponent<StrategyStorageYard>();
+                StrategyGranary granary = building.GetComponent<StrategyGranary>();
                 bool isLumberjackCamp = camp != null;
                 bool isStonecutterCamp = stoneCamp != null;
+                bool isHunterCamp = hunterCamp != null;
+                bool isFisherHut = fisherHut != null;
                 bool isStorageYard = yard != null;
+                bool isGranary = granary != null;
                 SetResidentsSectionVisible(isHouse);
                 if (isHouse)
                 {
                     RefreshResidents(building);
                 }
 
-                SetWorkersSectionVisible(isLumberjackCamp || isStonecutterCamp || isStorageYard);
+                SetWorkersSectionVisible(isLumberjackCamp || isStonecutterCamp || isHunterCamp || isFisherHut || isStorageYard || isGranary);
                 if (isLumberjackCamp)
                 {
                     RefreshWorkers(camp);
@@ -401,11 +413,32 @@ namespace ProjectUnknown.Strategy
                     hudContextBodyText.text = stoneCamp.GetHudStatusText();
                     SetContextSectionVisible(true);
                 }
+                else if (isHunterCamp)
+                {
+                    RefreshWorkers(hunterCamp);
+                    hudContextTitleText.text = "\u041e\u0445\u043e\u0442\u0430 \u0438 \u0441\u043a\u043b\u0430\u0434";
+                    hudContextBodyText.text = hunterCamp.GetHudStatusText();
+                    SetContextSectionVisible(true);
+                }
+                else if (isFisherHut)
+                {
+                    RefreshWorkers(fisherHut);
+                    hudContextTitleText.text = "\u0420\u044b\u0431\u0430\u043b\u043a\u0430 \u0438 \u0441\u043a\u043b\u0430\u0434";
+                    hudContextBodyText.text = fisherHut.GetHudStatusText();
+                    SetContextSectionVisible(true);
+                }
                 else if (isStorageYard)
                 {
                     RefreshWorkers(yard);
                     hudContextTitleText.text = "\u0421\u043a\u043b\u0430\u0434";
                     hudContextBodyText.text = yard.GetHudStatusText();
+                    SetContextSectionVisible(true);
+                }
+                else if (isGranary)
+                {
+                    RefreshWorkers(granary);
+                    hudContextTitleText.text = "\u0415\u0434\u0430 \u0438 \u0437\u0430\u043f\u0430\u0441\u044b";
+                    hudContextBodyText.text = granary.GetHudStatusText();
                     SetContextSectionVisible(true);
                 }
 
@@ -795,6 +828,210 @@ namespace ProjectUnknown.Strategy
             }
         }
 
+        private void RefreshWorkers(StrategyHunterCamp camp)
+        {
+            int workerCount = camp != null ? camp.WorkerCount : 0;
+            bool canAssign = camp != null && camp.CanAssignNextAvailableWorker();
+
+            if (workersEmptyText != null)
+            {
+                workersEmptyText.gameObject.SetActive(workerCount <= 0);
+                workersEmptyText.text = canAssign
+                    ? "\u043d\u0430\u0437\u043d\u0430\u0447\u044c\u0442\u0435 \u043e\u0445\u043e\u0442\u043d\u0438\u043a\u043e\u0432"
+                    : "\u043d\u0435\u0442 \u0441\u0432\u043e\u0431\u043e\u0434\u043d\u044b\u0445 \u0436\u0438\u0442\u0435\u043b\u0435\u0439";
+            }
+
+            for (int i = 0; i < workerRows.Length; i++)
+            {
+                bool slotVisible = i < StrategyHunterCamp.MaxWorkers;
+                if (workerRows[i] != null)
+                {
+                    workerRows[i].gameObject.SetActive(slotVisible);
+                }
+
+                if (!slotVisible)
+                {
+                    continue;
+                }
+
+                StrategyResidentAgent worker = null;
+                bool hasWorker = camp != null && camp.TryGetWorker(i, out worker);
+
+                if (workerPortraitImages[i] != null)
+                {
+                    workerPortraitImages[i].sprite = hasWorker
+                        ? StrategyResidentSpriteFactory.GetPortraitSprite(worker.Gender, worker.VisualVariant, worker.LifeStage)
+                        : null;
+                    workerPortraitImages[i].color = hasWorker ? Color.white : new Color(1f, 1f, 1f, 0f);
+                }
+
+                if (workerNameTexts[i] != null)
+                {
+                    workerNameTexts[i].text = hasWorker
+                        ? worker.FullName
+                        : "\u041e\u0445\u043e\u0442\u043d\u0438\u043a: \u0441\u0432\u043e\u0431\u043e\u0434\u043d\u043e";
+                    workerNameTexts[i].color = hasWorker ? Color.white : new Color(0.72f, 0.80f, 0.76f);
+                }
+
+                if (workerStatusTexts[i] != null)
+                {
+                    workerStatusTexts[i].text = hasWorker
+                        ? GetResidentStatus(worker)
+                        : "\u043e\u0445\u043e\u0442\u0438\u0442\u0441\u044f \u043d\u0430 \u0437\u0430\u0439\u0446\u0435\u0432";
+                }
+
+                bool buttonEnabled = hasWorker || (i == workerCount && canAssign);
+                if (workerButtons[i] != null)
+                {
+                    workerButtons[i].interactable = buttonEnabled;
+                }
+
+                if (workerActionTexts[i] != null)
+                {
+                    workerActionTexts[i].text = hasWorker
+                        ? "\u0421\u043d\u044f\u0442\u044c"
+                        : "\u041d\u0430\u0437\u043d\u0430\u0447\u0438\u0442\u044c";
+                    workerActionTexts[i].color = buttonEnabled ? Color.white : new Color(0.55f, 0.61f, 0.59f);
+                }
+            }
+        }
+
+        private void RefreshWorkers(StrategyFisherHut hut)
+        {
+            int workerCount = hut != null ? hut.WorkerCount : 0;
+            bool canAssign = hut != null && hut.CanAssignNextAvailableWorker();
+
+            if (workersEmptyText != null)
+            {
+                workersEmptyText.gameObject.SetActive(workerCount <= 0);
+                workersEmptyText.text = canAssign
+                    ? "\u043d\u0430\u0437\u043d\u0430\u0447\u044c\u0442\u0435 \u0440\u044b\u0431\u0430\u043a\u043e\u0432"
+                    : "\u043d\u0435\u0442 \u0441\u0432\u043e\u0431\u043e\u0434\u043d\u044b\u0445 \u0436\u0438\u0442\u0435\u043b\u0435\u0439";
+            }
+
+            for (int i = 0; i < workerRows.Length; i++)
+            {
+                bool slotVisible = i < StrategyFisherHut.MaxWorkers;
+                if (workerRows[i] != null)
+                {
+                    workerRows[i].gameObject.SetActive(slotVisible);
+                }
+
+                if (!slotVisible)
+                {
+                    continue;
+                }
+
+                StrategyResidentAgent worker = null;
+                bool hasWorker = hut != null && hut.TryGetWorker(i, out worker);
+
+                if (workerPortraitImages[i] != null)
+                {
+                    workerPortraitImages[i].sprite = hasWorker
+                        ? StrategyResidentSpriteFactory.GetPortraitSprite(worker.Gender, worker.VisualVariant, worker.LifeStage)
+                        : null;
+                    workerPortraitImages[i].color = hasWorker ? Color.white : new Color(1f, 1f, 1f, 0f);
+                }
+
+                if (workerNameTexts[i] != null)
+                {
+                    workerNameTexts[i].text = hasWorker
+                        ? worker.FullName
+                        : "\u0420\u044b\u0431\u0430\u043a: \u0441\u0432\u043e\u0431\u043e\u0434\u043d\u043e";
+                    workerNameTexts[i].color = hasWorker ? Color.white : new Color(0.72f, 0.80f, 0.76f);
+                }
+
+                if (workerStatusTexts[i] != null)
+                {
+                    workerStatusTexts[i].text = hasWorker
+                        ? GetResidentStatus(worker)
+                        : "\u043b\u043e\u0432\u0438\u0442 \u0440\u044b\u0431\u0443 \u0443 \u0432\u043e\u0434\u044b";
+                }
+
+                bool buttonEnabled = hasWorker || (i == workerCount && canAssign);
+                if (workerButtons[i] != null)
+                {
+                    workerButtons[i].interactable = buttonEnabled;
+                }
+
+                if (workerActionTexts[i] != null)
+                {
+                    workerActionTexts[i].text = hasWorker
+                        ? "\u0421\u043d\u044f\u0442\u044c"
+                        : "\u041d\u0430\u0437\u043d\u0430\u0447\u0438\u0442\u044c";
+                    workerActionTexts[i].color = buttonEnabled ? Color.white : new Color(0.55f, 0.61f, 0.59f);
+                }
+            }
+        }
+
+        private void RefreshWorkers(StrategyGranary granary)
+        {
+            int workerCount = granary != null ? granary.WorkerCount : 0;
+            bool canAssign = granary != null && granary.CanAssignNextAvailableWorker();
+
+            if (workersEmptyText != null)
+            {
+                workersEmptyText.gameObject.SetActive(workerCount <= 0);
+                workersEmptyText.text = canAssign
+                    ? "\u043d\u0430\u0437\u043d\u0430\u0447\u044c\u0442\u0435 \u0430\u043c\u0431\u0430\u0440\u0449\u0438\u043a\u043e\u0432"
+                    : "\u043d\u0435\u0442 \u0441\u0432\u043e\u0431\u043e\u0434\u043d\u044b\u0445 \u0436\u0438\u0442\u0435\u043b\u0435\u0439";
+            }
+
+            for (int i = 0; i < workerRows.Length; i++)
+            {
+                bool slotVisible = i < StrategyGranary.MaxWorkers;
+                if (workerRows[i] != null)
+                {
+                    workerRows[i].gameObject.SetActive(slotVisible);
+                }
+
+                if (!slotVisible)
+                {
+                    continue;
+                }
+
+                StrategyResidentAgent worker = null;
+                bool hasWorker = granary != null && granary.TryGetWorker(i, out worker);
+
+                if (workerPortraitImages[i] != null)
+                {
+                    workerPortraitImages[i].sprite = hasWorker
+                        ? StrategyResidentSpriteFactory.GetPortraitSprite(worker.Gender, worker.VisualVariant, worker.LifeStage)
+                        : null;
+                    workerPortraitImages[i].color = hasWorker ? Color.white : new Color(1f, 1f, 1f, 0f);
+                }
+
+                if (workerNameTexts[i] != null)
+                {
+                    workerNameTexts[i].text = hasWorker
+                        ? worker.FullName
+                        : "\u0410\u043c\u0431\u0430\u0440\u0449\u0438\u043a: \u0441\u0432\u043e\u0431\u043e\u0434\u043d\u043e";
+                    workerNameTexts[i].color = hasWorker ? Color.white : new Color(0.72f, 0.80f, 0.76f);
+                }
+
+                if (workerStatusTexts[i] != null)
+                {
+                    workerStatusTexts[i].text = hasWorker
+                        ? GetResidentStatus(worker)
+                        : "\u043d\u043e\u0441\u0438\u0442 \u0435\u0434\u0443 \u0432 \u0430\u043c\u0431\u0430\u0440";
+                }
+
+                bool buttonEnabled = hasWorker || (i == workerCount && canAssign);
+                if (workerButtons[i] != null)
+                {
+                    workerButtons[i].interactable = buttonEnabled;
+                }
+
+                if (workerActionTexts[i] != null)
+                {
+                    workerActionTexts[i].text = hasWorker
+                        ? "\u0421\u043d\u044f\u0442\u044c"
+                        : "\u041d\u0430\u0437\u043d\u0430\u0447\u0438\u0442\u044c";
+                    workerActionTexts[i].color = buttonEnabled ? Color.white : new Color(0.55f, 0.61f, 0.59f);
+                }
+            }
+        }
+
         private void RefreshWorkers(StrategyStorageYard yard)
         {
             int workerCount = yard != null ? yard.WorkerCount : 0;
@@ -1028,6 +1265,33 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            StrategyHunterCamp hunterCamp = selectedTransform != null
+                ? selectedTransform.GetComponent<StrategyHunterCamp>()
+                : null;
+            if (hunterCamp != null)
+            {
+                ToggleHunterWorkerSlot(hunterCamp, index);
+                return;
+            }
+
+            StrategyFisherHut fisherHut = selectedTransform != null
+                ? selectedTransform.GetComponent<StrategyFisherHut>()
+                : null;
+            if (fisherHut != null)
+            {
+                ToggleFisherWorkerSlot(fisherHut, index);
+                return;
+            }
+
+            StrategyGranary granary = selectedTransform != null
+                ? selectedTransform.GetComponent<StrategyGranary>()
+                : null;
+            if (granary != null)
+            {
+                ToggleGranaryWorkerSlot(granary, index);
+                return;
+            }
+
             StrategyStorageYard yard = selectedTransform != null
                 ? selectedTransform.GetComponent<StrategyStorageYard>()
                 : null;
@@ -1067,6 +1331,117 @@ namespace ProjectUnknown.Strategy
                     StrategyDebugLogger.F("success", assigned),
                     StrategyDebugLogger.F("worker", worker != null ? worker.FullName : string.Empty),
                     StrategyDebugLogger.F("campOrigin", camp.Origin));
+            }
+
+            RefreshHud();
+        }
+
+        private void ToggleHunterWorkerSlot(StrategyHunterCamp camp, int index)
+        {
+            if (camp == null)
+            {
+                return;
+            }
+
+            if (index < camp.WorkerCount)
+            {
+                camp.TryGetWorker(index, out StrategyResidentAgent worker);
+                camp.UnassignWorkerAt(index);
+                StrategyDebugLogger.Info(
+                    "Selection",
+                    "WorkerSlotClicked",
+                    StrategyDebugLogger.F("action", "unassign"),
+                    StrategyDebugLogger.F("slot", index),
+                    StrategyDebugLogger.F("worker", worker != null ? worker.FullName : string.Empty),
+                    StrategyDebugLogger.F("campOrigin", camp.Origin),
+                    StrategyDebugLogger.F("profession", "hunter"));
+            }
+            else
+            {
+                bool assigned = camp.TryAssignNextAvailableWorker(out StrategyResidentAgent worker);
+                StrategyDebugLogger.Info(
+                    "Selection",
+                    "WorkerSlotClicked",
+                    StrategyDebugLogger.F("action", "assign"),
+                    StrategyDebugLogger.F("slot", index),
+                    StrategyDebugLogger.F("success", assigned),
+                    StrategyDebugLogger.F("worker", worker != null ? worker.FullName : string.Empty),
+                    StrategyDebugLogger.F("campOrigin", camp.Origin),
+                    StrategyDebugLogger.F("profession", "hunter"));
+            }
+
+            RefreshHud();
+        }
+
+        private void ToggleFisherWorkerSlot(StrategyFisherHut hut, int index)
+        {
+            if (hut == null)
+            {
+                return;
+            }
+
+            if (index < hut.WorkerCount)
+            {
+                hut.TryGetWorker(index, out StrategyResidentAgent worker);
+                hut.UnassignWorkerAt(index);
+                StrategyDebugLogger.Info(
+                    "Selection",
+                    "WorkerSlotClicked",
+                    StrategyDebugLogger.F("action", "unassign"),
+                    StrategyDebugLogger.F("slot", index),
+                    StrategyDebugLogger.F("worker", worker != null ? worker.FullName : string.Empty),
+                    StrategyDebugLogger.F("hutOrigin", hut.Origin),
+                    StrategyDebugLogger.F("profession", "fisher"));
+            }
+            else
+            {
+                bool assigned = hut.TryAssignNextAvailableWorker(out StrategyResidentAgent worker);
+                StrategyDebugLogger.Info(
+                    "Selection",
+                    "WorkerSlotClicked",
+                    StrategyDebugLogger.F("action", "assign"),
+                    StrategyDebugLogger.F("slot", index),
+                    StrategyDebugLogger.F("success", assigned),
+                    StrategyDebugLogger.F("worker", worker != null ? worker.FullName : string.Empty),
+                    StrategyDebugLogger.F("hutOrigin", hut.Origin),
+                    StrategyDebugLogger.F("profession", "fisher"));
+            }
+
+            RefreshHud();
+        }
+
+        private void ToggleGranaryWorkerSlot(StrategyGranary granary, int index)
+        {
+            if (granary == null)
+            {
+                return;
+            }
+
+            if (index < granary.WorkerCount)
+            {
+                granary.TryGetWorker(index, out StrategyResidentAgent worker);
+                granary.UnassignWorkerAt(index);
+                StrategyDebugLogger.Info(
+                    "Selection",
+                    "WorkerSlotClicked",
+                    StrategyDebugLogger.F("action", "unassign"),
+                    StrategyDebugLogger.F("slot", index),
+                    StrategyDebugLogger.F("worker", worker != null ? worker.FullName : string.Empty),
+                    StrategyDebugLogger.F("granaryOrigin", granary.Origin),
+                    StrategyDebugLogger.F("profession", "granary"));
+            }
+            else
+            {
+                bool assigned = granary.TryAssignNextAvailableWorker(out StrategyResidentAgent worker);
+                StrategyDebugLogger.Info(
+                    "Selection",
+                    "WorkerSlotClicked",
+                    StrategyDebugLogger.F("action", "assign"),
+                    StrategyDebugLogger.F("slot", index),
+                    StrategyDebugLogger.F("success", assigned),
+                    StrategyDebugLogger.F("worker", worker != null ? worker.FullName : string.Empty),
+                    StrategyDebugLogger.F("granaryOrigin", granary.Origin),
+                    StrategyDebugLogger.F("profession", "granary"));
             }
 
             RefreshHud();
@@ -1683,7 +2058,10 @@ namespace ProjectUnknown.Strategy
                 StrategyBuildTool.House => "\u0414\u043e\u043c",
                 StrategyBuildTool.LumberjackCamp => "\u041b\u0430\u0433\u0435\u0440\u044c \u0434\u0440\u043e\u0432\u043e\u0441\u0435\u043a\u043e\u0432",
                 StrategyBuildTool.StonecutterCamp => "\u041b\u0430\u0433\u0435\u0440\u044c \u043a\u0430\u043c\u0435\u043d\u043e\u0442\u0451\u0441\u043e\u0432",
+                StrategyBuildTool.HunterCamp => "\u041b\u0430\u0433\u0435\u0440\u044c \u043e\u0445\u043e\u0442\u043d\u0438\u043a\u043e\u0432",
+                StrategyBuildTool.FisherHut => "\u0425\u0438\u0436\u0438\u043d\u0430 \u0440\u044b\u0431\u0430\u043a\u0430",
                 StrategyBuildTool.StorageYard => "\u0421\u043a\u043b\u0430\u0434",
+                StrategyBuildTool.Granary => "\u0410\u043c\u0431\u0430\u0440",
                 _ => tool.ToString()
             };
         }
@@ -1705,6 +2083,8 @@ namespace ProjectUnknown.Strategy
                 StrategyResourceType.Onion => "\u041b\u0443\u043a",
                 StrategyResourceType.Carrot => "\u041c\u043e\u0440\u043a\u043e\u0432\u044c",
                 StrategyResourceType.Potato => "\u041a\u0430\u0440\u0442\u043e\u0444\u0435\u043b\u044c",
+                StrategyResourceType.Game => "\u0414\u0438\u0447\u044c",
+                StrategyResourceType.Fish => "\u0420\u044b\u0431\u0430",
                 _ => "\u043d\u0435\u0442"
             };
         }
@@ -1744,12 +2124,48 @@ namespace ProjectUnknown.Strategy
                 StrategyResidentAgent.ResidentActivity.DepositingConstructionResource => "\u0441\u043a\u043b\u0430\u0434\u044b\u0432\u0430\u0435\u0442 \u043c\u0430\u0442\u0435\u0440\u0438\u0430\u043b\u044b",
                 StrategyResidentAgent.ResidentActivity.MovingToConstructionSite => "\u0438\u0434\u0435\u0442 \u0441\u0442\u0440\u043e\u0438\u0442\u044c",
                 StrategyResidentAgent.ResidentActivity.BuildingConstruction => "\u0441\u0442\u0440\u043e\u0438\u0442",
+                StrategyResidentAgent.ResidentActivity.MovingToHuntingRange => "\u0438\u0434\u0435\u0442 \u043d\u0430 \u043e\u0445\u043e\u0442\u0443",
+                StrategyResidentAgent.ResidentActivity.AimingBow => "\u0446\u0435\u043b\u0438\u0442\u0441\u044f \u0438\u0437 \u043b\u0443\u043a\u0430",
+                StrategyResidentAgent.ResidentActivity.WaitingForHuntHit => "\u0441\u043b\u0435\u0434\u0438\u0442 \u0437\u0430 \u0441\u0442\u0440\u0435\u043b\u043e\u0439",
+                StrategyResidentAgent.ResidentActivity.MovingToHuntCarcass => "\u0438\u0434\u0435\u0442 \u043a \u0434\u043e\u0431\u044b\u0447\u0435",
+                StrategyResidentAgent.ResidentActivity.ButcheringRabbit => "\u0440\u0430\u0437\u0434\u0435\u043b\u044b\u0432\u0430\u0435\u0442 \u0434\u043e\u0431\u044b\u0447\u0443",
+                StrategyResidentAgent.ResidentActivity.CarryingGame => "\u043d\u0435\u0441\u0435\u0442 \u0434\u0438\u0447\u044c",
+                StrategyResidentAgent.ResidentActivity.DepositingGame => "\u0441\u043a\u043b\u0430\u0434\u0438\u0440\u0443\u0435\u0442 \u0434\u0438\u0447\u044c",
+                StrategyResidentAgent.ResidentActivity.MovingToFishingSpot => "\u0438\u0434\u0435\u0442 \u043a \u0431\u0435\u0440\u0435\u0433\u0443",
+                StrategyResidentAgent.ResidentActivity.CastingFishingLine => "\u0437\u0430\u0431\u0440\u0430\u0441\u044b\u0432\u0430\u0435\u0442 \u0443\u0434\u043e\u0447\u043a\u0443",
+                StrategyResidentAgent.ResidentActivity.WaitingForFishBite => "\u0436\u0434\u0435\u0442 \u043a\u043b\u0451\u0432\u0430",
+                StrategyResidentAgent.ResidentActivity.ReelingFish => "\u0432\u044b\u0432\u0430\u0436\u0438\u0432\u0430\u0435\u0442 \u0440\u044b\u0431\u0443",
+                StrategyResidentAgent.ResidentActivity.CarryingFish => "\u043d\u0435\u0441\u0435\u0442 \u0440\u044b\u0431\u0443",
+                StrategyResidentAgent.ResidentActivity.DepositingFish => "\u0441\u043a\u043b\u0430\u0434\u0438\u0440\u0443\u0435\u0442 \u0440\u044b\u0431\u0443",
+                StrategyResidentAgent.ResidentActivity.MovingToGranaryGamePickup => "\u0438\u0434\u0435\u0442 \u0437\u0430 \u0434\u0438\u0447\u044c\u044e",
+                StrategyResidentAgent.ResidentActivity.PickingUpGranaryGame => "\u0437\u0430\u0431\u0438\u0440\u0430\u0435\u0442 \u0434\u0438\u0447\u044c",
+                StrategyResidentAgent.ResidentActivity.CarryingGameToGranary => "\u043d\u0435\u0441\u0435\u0442 \u0434\u0438\u0447\u044c \u0432 \u0430\u043c\u0431\u0430\u0440",
+                StrategyResidentAgent.ResidentActivity.DepositingGranaryGame => "\u0441\u043a\u043b\u0430\u0434\u0438\u0440\u0443\u0435\u0442 \u0434\u0438\u0447\u044c \u0432 \u0430\u043c\u0431\u0430\u0440",
+                StrategyResidentAgent.ResidentActivity.MovingToGranaryFishPickup => "\u0438\u0434\u0435\u0442 \u0437\u0430 \u0440\u044b\u0431\u043e\u0439",
+                StrategyResidentAgent.ResidentActivity.PickingUpGranaryFish => "\u0437\u0430\u0431\u0438\u0440\u0430\u0435\u0442 \u0440\u044b\u0431\u0443",
+                StrategyResidentAgent.ResidentActivity.CarryingFishToGranary => "\u043d\u0435\u0441\u0435\u0442 \u0440\u044b\u0431\u0443 \u0432 \u0430\u043c\u0431\u0430\u0440",
+                StrategyResidentAgent.ResidentActivity.DepositingGranaryFish => "\u0441\u043a\u043b\u0430\u0434\u0438\u0440\u0443\u0435\u0442 \u0440\u044b\u0431\u0443 \u0432 \u0430\u043c\u0431\u0430\u0440",
                 _ => "idle"
             };
 
             if (resident.BuilderWorkplace != null && resident.Activity == StrategyResidentAgent.ResidentActivity.Idle)
             {
                 return "\u0436\u0434\u0435\u0442 \u0441\u0442\u0440\u043e\u0439\u043a\u0443";
+            }
+
+            if (resident.HunterWorkplace != null && resident.Activity == StrategyResidentAgent.ResidentActivity.Idle)
+            {
+                return "\u0436\u0434\u0435\u0442 \u0434\u043e\u0431\u044b\u0447\u0443";
+            }
+
+            if (resident.FisherWorkplace != null && resident.Activity == StrategyResidentAgent.ResidentActivity.Idle)
+            {
+                return "\u0436\u0434\u0435\u0442 \u043a\u043b\u0451\u0432\u0430";
+            }
+
+            if (resident.GranaryWorkplace != null && resident.Activity == StrategyResidentAgent.ResidentActivity.Idle)
+            {
+                return "\u0436\u0434\u0435\u0442 \u0435\u0434\u0443";
             }
 
             if (resident.Home == null && resident.Activity == StrategyResidentAgent.ResidentActivity.Idle)

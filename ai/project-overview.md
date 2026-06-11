@@ -55,7 +55,7 @@ Confirmed from `Packages/manifest.json`:
 - A generated 2D city map appears at runtime with randomized seed-driven terrain generation and procedural pixel-art terrain textures.
 - Current terrain generation covers grass, meadow, forest, dirt, shore, and water with randomized rivers/water blobs, clustered land biomes, seeded texture variants, and transition overlays.
 - A runtime nature-props layer places procedural 2.5D trees, forest groups, and bushes over the generated terrain.
-- A runtime wildlife layer spawns deer herds and rabbit groups on suitable walkable land, fish shoals on water cells, and decorative birds across species-appropriate land/water habitats; current wildlife has procedural 2.5D/pixel-art sprites, frame-based ambient/threat animations, and reacts to nearby residents without revealing fog or blocking cells. Deer, rabbits, and fish have capped reproduction/growth; birds are decorative-only.
+- A runtime wildlife layer spawns deer herds and rabbit groups on suitable walkable land, fish shoals on water cells, and decorative birds across species-appropriate land/water habitats; current wildlife has procedural 2.5D/pixel-art sprites, frame-based ambient/threat/work animations, and reacts to nearby residents without revealing fog or blocking cells. Deer, rabbits, and fish have capped reproduction/growth; birds are decorative-only, while adult rabbits can be reserved and hunted by Hunter Camp workers for local `Дичь`, and adult fish can be reserved and caught by Fisher Hut workers for local `Рыба`.
 - The nature layer also places procedural Stone resource deposits as standalone boulders, rock clusters, and larger cliffs.
 - Trees, forest groups, and bushes sway through a 2D adapter driven by the Unity `WindZone` values.
 - Forest terrain cells receive dense visual forest props, while grass/meadow/dirt/shore cells can receive sparse standalone trees or bushes.
@@ -63,14 +63,18 @@ Confirmed from `Packages/manifest.json`:
 - Orthographic strategy camera supports map pan/scroll and zoom controls.
 - Runtime time controls support F1/F2/F3 for x1/x2/x3 simulation speed.
 - Storage Yard is implemented as the first storage/logistics building: it has procedural 2.5D art, up to 2 assigned workers, local Logs and Stone stock, growing visual stockpiles, resident hauling from production camps, and construction resource reservations.
+- Granary is implemented as the first food-storage/logistics building: it has procedural 2.5D art, up to 2 assigned workers, local `Дичь` and `Рыба` stock, growing visual food stockpiles, and resident hauling from Hunter Camps and Fisher Huts.
 - A starter Storage Yard appears near the campfire with 13 Logs and 9 Stone at the beginning of play.
 - Runtime Build menu appears as the first HUD layer, inspired by the `Gruzovichky` bottom Build dock/category tray.
 - Build menu infrastructure supports category cards, build item cards, Logs/Stone construction costs, active tool state, `B` open/close, numeric hotkeys, and Escape/right-click layer cancel.
-- Current Build catalog has Houses/Home, Industries/Lumberjack Camp and Stonecutter Camp, and Storage/Storage Yard.
+- Current Build catalog has Houses/Home, Industries/Lumberjack Camp, Stonecutter Camp, Hunter Camp, and Fisher Hut, and Storage/Storage Yard and Granary.
 - Build placement mode is implemented for catalog tools: hover preview, valid/invalid placement coloring, left-click construction-site creation, occupied-cell blocking, non-water terrain checks, fog checks, and Storage Yard resource affordability.
 - Player-built tools now construct through runtime construction sites: resources are reserved from Storage Yards, builders carry Logs/Stone to the site, residents animate hammer/build work, staged site sprites progress, and the final building appears only after progress completes.
 - `Дом` uses runtime-generated 2.5D pixel-art sprites: a stable default for the menu/preview and 5 random visual variants for placed houses.
 - `Лагерь дровосеков` uses runtime-generated 2.5D pixel-art sprites and supports up to 2 assigned resident workers.
+- `Лагерь охотников` uses runtime-generated 2.5D pixel-art sprites, supports up to 2 assigned resident workers, and keeps a local visual `Дичь` stockpile.
+- `Хижина рыбака` uses runtime-generated 2.5D pixel-art sprites, requires nearby water/shore access for placement, supports up to 2 assigned resident workers, and keeps a local visual `Рыба` stockpile.
+- `Амбар` uses runtime-generated 2.5D pixel-art sprites, supports up to 2 assigned resident workers, and keeps local visual `Дичь`/`Рыба` stockpiles.
 - A startup camp places an animated procedural campfire and 6 initial residents: 3 men and 3 women, each with a random age from 18 to 30.
 - The startup camp reserves a 3-cell clear radius where generated trees, bushes, forest groups, and other nature props are skipped.
 - The initial camera view starts focused near the startup campfire with a medium-close zoom.
@@ -80,11 +84,17 @@ Confirmed from `Packages/manifest.json`:
 - Residents have runtime IDs, full names, family names, age, life stage, parent/child links, 5 runtime-generated male variants, 5 runtime-generated female variants, child sprites, matching portrait sprites, and idle movement around their current camp/home through nearby walkable cells.
 - Children are attached to their birth house, cannot be assigned as workers/builders, idle/walk near home, grow into adults after scaled game time, and continue aging after adulthood.
 - Residents assigned to a lumberjack camp walk to nearby mature trees, chop them, buck fallen trunks into Logs, carry Logs to the camp stockpile, then walk to planting cells and plant new saplings.
+- Residents assigned to a hunter camp walk into bow range of reserved adult rabbits, fire animated arrows, butcher carcasses, carry `Дичь`, and deposit it at the camp stockpile.
+- Residents assigned to a fisher hut walk to nearby shore cells, cast fishing lines toward reserved fish, reel hooked fish in, carry `Рыба`, and deposit it at the hut stockpile.
+- Residents assigned to a granary reserve stored `Дичь` from Hunter Camps or stored `Рыба` from Fisher Huts, carry it to the granary, and deposit it into food stock.
 - Residents assigned to construction sites fetch reserved Logs/Stone from Storage Yards, deliver them to the site, and build with generated hammer animation frames.
 - Lumberjack chopping now uses generated axe-swing sprite frames; impact frames shake/damage the tree, spawn woodchip/leaf effects, final tree hits make the tree fall, and final trunk hits split it into collectable Logs.
 - Houses mark an expanded 2.5D visual/navigation blocker as not walkable after successful construction, not only the technical 2x2 footprint.
 - Placed houses and residents are clickable world objects with a simple selection marker and right-side selection HUD.
 - Placed lumberjack camps are clickable, expose worker assignment/removal in the right-side selection HUD, and keep a local visual Logs stockpile.
+- Placed hunter camps are clickable, expose worker assignment/removal in the right-side selection HUD, and show local `Дичь` stock plus nearby huntable rabbit counts.
+- Placed fisher huts are clickable, expose worker assignment/removal in the right-side selection HUD, and show local `Рыба` stock plus nearby catchable fish counts.
+- Placed granaries are clickable, expose worker assignment/removal in the right-side selection HUD, and show local `Дичь`/`Рыба` stock plus available food-source counts.
 - Selected houses can install Garden Beds and Chicken Coop upgrades from the right-side HUD, spending small Logs/Stone costs from Storage Yard stock.
 - Residents periodically work at their house's Garden Beds with a simple animation.
 - Installing Chicken Coop spawns idle chickens that walk around the coop.
@@ -93,7 +103,7 @@ Confirmed from `Packages/manifest.json`:
 - Chicken Coop passively produces Eggs.
 - Standalone trees, forest groups, bushes, and fallen trunks block their occupied map cells; forestry trees release their cell back to walkable after Logs are collected.
 - Generated Stone deposits block their occupied map cells and are mined by assigned stonecutter residents.
-- No global economy simulation, save system, or full UI shell is implemented yet.
+- No global economy simulation, save system, or full UI shell is implemented yet; hunter-camp `Дичь` and fisher-hut `Рыба` can be hauled to Granaries, but food is still runtime-local and not consumed by residents yet.
 
 ## Source Of Truth
 

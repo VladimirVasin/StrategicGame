@@ -71,6 +71,7 @@
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyFishAgent.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyBirdAgent.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyBuildMenuController.Catalog.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyBuildMenuController.Driver.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyConstructionSpriteFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyFogOfWarController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyGameBootstrap.cs" />
@@ -88,6 +89,9 @@
     <Compile Include="Assets\Scripts\Runtime\Camera\StrategyCameraController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyDeerAgent.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyStoneResourceController.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyHunterCamp.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyFisherHut.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyGranary.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingUpgradeAnimator.cs" />
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyResourceType.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyStonecutterCamp.cs" />
@@ -107,6 +111,7 @@
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyForestryController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyPlacedBuilding.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyTerrainTexturePainter.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Population\StrategyHuntingArrowProjectile.cs" />
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyResourceIconFactory.cs" />
   </ItemGroup>
   <ItemGroup>

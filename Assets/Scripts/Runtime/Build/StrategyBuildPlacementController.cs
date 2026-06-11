@@ -448,10 +448,25 @@ namespace ProjectUnknown.Strategy
                 StrategyStonecutterCamp camp = placed.AddComponent<StrategyStonecutterCamp>();
                 camp.Configure(building, map, stone, population);
             }
+            else if (toolInfo.Tool == StrategyBuildTool.HunterCamp)
+            {
+                StrategyHunterCamp camp = placed.AddComponent<StrategyHunterCamp>();
+                camp.Configure(building, map, population, StrategyWildlifeController.Active);
+            }
+            else if (toolInfo.Tool == StrategyBuildTool.FisherHut)
+            {
+                StrategyFisherHut hut = placed.AddComponent<StrategyFisherHut>();
+                hut.Configure(building, map, population, StrategyWildlifeController.Active);
+            }
             else if (toolInfo.Tool == StrategyBuildTool.StorageYard)
             {
                 StrategyStorageYard yard = placed.AddComponent<StrategyStorageYard>();
                 yard.Configure(building, map, population);
+            }
+            else if (toolInfo.Tool == StrategyBuildTool.Granary)
+            {
+                StrategyGranary granary = placed.AddComponent<StrategyGranary>();
+                granary.Configure(building, map, population);
             }
 
             StrategyDebugLogger.Info(
@@ -493,7 +508,8 @@ namespace ProjectUnknown.Strategy
         private bool CanPlace(Vector2Int origin, StrategyBuildToolInfo toolInfo)
         {
             GetWalkBlockFootprint(toolInfo.Tool, origin, toolInfo.Footprint, out Vector2Int blockOrigin, out Vector2Int blockFootprint);
-            return CanPlaceFootprint(blockOrigin, blockFootprint);
+            return CanPlaceFootprint(blockOrigin, blockFootprint)
+                && (toolInfo.Tool != StrategyBuildTool.FisherHut || HasFishingWaterAccess(origin));
         }
 
         private bool TryFindStarterStorageOrigin(Vector2Int nearCell, StrategyBuildToolInfo toolInfo, out Vector2Int origin)
@@ -591,6 +607,11 @@ namespace ProjectUnknown.Strategy
                 }
             }
 
+            if (toolInfo.Tool == StrategyBuildTool.FisherHut && !HasFishingWaterAccess(origin))
+            {
+                return "no_water_access";
+            }
+
             return hasValidHover ? "unknown" : "invalid_hover";
         }
 
@@ -636,7 +657,19 @@ namespace ProjectUnknown.Strategy
             {
                 blockFootprint = new Vector2Int(footprint.x, footprint.y + 1);
             }
+            else if (tool == StrategyBuildTool.HunterCamp)
+            {
+                blockFootprint = new Vector2Int(footprint.x, footprint.y + 1);
+            }
+            else if (tool == StrategyBuildTool.FisherHut)
+            {
+                blockFootprint = new Vector2Int(footprint.x, footprint.y + 1);
+            }
             else if (tool == StrategyBuildTool.StorageYard)
+            {
+                blockFootprint = new Vector2Int(footprint.x, footprint.y + 1);
+            }
+            else if (tool == StrategyBuildTool.Granary)
             {
                 blockFootprint = new Vector2Int(footprint.x, footprint.y + 1);
             }
@@ -750,9 +783,63 @@ namespace ProjectUnknown.Strategy
                 StrategyBuildTool.House => "HM",
                 StrategyBuildTool.LumberjackCamp => "LC",
                 StrategyBuildTool.StonecutterCamp => "SC",
+                StrategyBuildTool.HunterCamp => "HC",
+                StrategyBuildTool.FisherHut => "FH",
                 StrategyBuildTool.StorageYard => "ST",
+                StrategyBuildTool.Granary => "GR",
                 _ => "?"
             };
+        }
+
+        private bool HasFishingWaterAccess(Vector2Int origin)
+        {
+            if (map == null)
+            {
+                return false;
+            }
+
+            int radius = StrategyFisherHut.WorkRadius;
+            for (int y = -radius; y <= radius; y++)
+            {
+                for (int x = -radius; x <= radius; x++)
+                {
+                    Vector2Int cell = origin + new Vector2Int(x, y);
+                    if ((cell - origin).sqrMagnitude > radius * radius)
+                    {
+                        continue;
+                    }
+
+                    if (map.TryGetCell(cell.x, cell.y, out CityMapCell mapCell)
+                        && mapCell.Kind == CityMapCellKind.Water
+                        && HasAdjacentWalkableCell(cell))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private bool HasAdjacentWalkableCell(Vector2Int waterCell)
+        {
+            for (int y = -1; y <= 1; y++)
+            {
+                for (int x = -1; x <= 1; x++)
+                {
+                    if (x == 0 && y == 0)
+                    {
+                        continue;
+                    }
+
+                    if (map.IsCellWalkable(waterCell + new Vector2Int(x, y)))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         private static bool IsPointerOverUi()

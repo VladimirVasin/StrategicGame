@@ -9,7 +9,10 @@ namespace ProjectUnknown.Strategy
         public const int HouseVariantCount = 5;
         public const int LumberjackCampVariantCount = 3;
         public const int StonecutterCampVariantCount = 3;
+        public const int HunterCampVariantCount = 3;
+        public const int FisherHutVariantCount = 3;
         public const int StorageYardVariantCount = 3;
+        public const int GranaryVariantCount = 3;
 
         private static readonly Dictionary<int, Sprite> CachedSprites = new();
 
@@ -20,7 +23,10 @@ namespace ProjectUnknown.Strategy
                 StrategyBuildTool.House => HouseVariantCount,
                 StrategyBuildTool.LumberjackCamp => LumberjackCampVariantCount,
                 StrategyBuildTool.StonecutterCamp => StonecutterCampVariantCount,
+                StrategyBuildTool.HunterCamp => HunterCampVariantCount,
+                StrategyBuildTool.FisherHut => FisherHutVariantCount,
                 StrategyBuildTool.StorageYard => StorageYardVariantCount,
+                StrategyBuildTool.Granary => GranaryVariantCount,
                 _ => 1
             };
         }
@@ -36,7 +42,10 @@ namespace ProjectUnknown.Strategy
             if (tool != StrategyBuildTool.House
                 && tool != StrategyBuildTool.LumberjackCamp
                 && tool != StrategyBuildTool.StonecutterCamp
-                && tool != StrategyBuildTool.StorageYard)
+                && tool != StrategyBuildTool.HunterCamp
+                && tool != StrategyBuildTool.FisherHut
+                && tool != StrategyBuildTool.StorageYard
+                && tool != StrategyBuildTool.Granary)
             {
                 sprite = null;
                 return false;
@@ -50,7 +59,10 @@ namespace ProjectUnknown.Strategy
                 {
                     StrategyBuildTool.LumberjackCamp => CreateLumberjackCampSprite(normalizedVariant),
                     StrategyBuildTool.StonecutterCamp => CreateStonecutterCampSprite(normalizedVariant),
+                    StrategyBuildTool.HunterCamp => CreateHunterCampSprite(normalizedVariant),
+                    StrategyBuildTool.FisherHut => CreateFisherHutSprite(normalizedVariant),
                     StrategyBuildTool.StorageYard => CreateStorageYardSprite(normalizedVariant),
+                    StrategyBuildTool.Granary => CreateGranarySprite(normalizedVariant),
                     _ => CreateHouseSprite(normalizedVariant)
                 };
                 CachedSprites[cacheKey] = sprite;
@@ -95,6 +107,42 @@ namespace ProjectUnknown.Strategy
             return sprite;
         }
 
+        public static Sprite GetHunterCampStockSprite(int gameStored)
+        {
+            if (gameStored <= 0)
+            {
+                return null;
+            }
+
+            int level = Mathf.Clamp((gameStored + 1) / 2, 1, 5);
+            int cacheKey = 38912 + level;
+            if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
+            {
+                sprite = CreateHunterCampStockSprite(level);
+                CachedSprites[cacheKey] = sprite;
+            }
+
+            return sprite;
+        }
+
+        public static Sprite GetFisherHutStockSprite(int fishStored)
+        {
+            if (fishStored <= 0)
+            {
+                return null;
+            }
+
+            int level = Mathf.Clamp((fishStored + 1) / 2, 1, 5);
+            int cacheKey = 43008 + level;
+            if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
+            {
+                sprite = CreateFisherHutStockSprite(level);
+                CachedSprites[cacheKey] = sprite;
+            }
+
+            return sprite;
+        }
+
         public static Sprite GetStorageYardStockSprite(int logsStored)
         {
             if (logsStored <= 0)
@@ -125,6 +173,42 @@ namespace ProjectUnknown.Strategy
             if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
             {
                 sprite = CreateStorageYardStoneStockSprite(level);
+                CachedSprites[cacheKey] = sprite;
+            }
+
+            return sprite;
+        }
+
+        public static Sprite GetGranaryGameStockSprite(int gameStored)
+        {
+            if (gameStored <= 0)
+            {
+                return null;
+            }
+
+            int level = Mathf.Clamp((gameStored + 1) / 2, 1, 6);
+            int cacheKey = 49152 + level;
+            if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
+            {
+                sprite = CreateGranaryGameStockSprite(level);
+                CachedSprites[cacheKey] = sprite;
+            }
+
+            return sprite;
+        }
+
+        public static Sprite GetGranaryFishStockSprite(int fishStored)
+        {
+            if (fishStored <= 0)
+            {
+                return null;
+            }
+
+            int level = Mathf.Clamp((fishStored + 1) / 2, 1, 6);
+            int cacheKey = 53248 + level;
+            if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
+            {
+                sprite = CreateGranaryFishStockSprite(level);
                 CachedSprites[cacheKey] = sprite;
             }
 
@@ -689,6 +773,260 @@ namespace ProjectUnknown.Strategy
             DrawLine(texture, P(x + 1, y + height / 2), P(x + 3, y + height / 2), rings);
         }
 
+        private static Sprite CreateHunterCampSprite(int variant)
+        {
+            Texture2D texture = CreateTexture(96, 96, $"Hunter Camp 2.5D Sprite {variant + 1}");
+
+            Color outline = Rgb(42, 30, 23);
+            Color shadow = new Color(0f, 0f, 0f, 0.23f);
+            Color dirtDark = variant == 1 ? Rgb(78, 66, 43) : Rgb(70, 61, 41);
+            Color dirtLight = variant == 2 ? Rgb(137, 112, 72) : Rgb(119, 98, 60);
+            Color woodDark = Rgb(75, 48, 30);
+            Color wood = variant == 1 ? Rgb(133, 88, 48) : Rgb(118, 76, 43);
+            Color woodLight = Rgb(179, 122, 65);
+            Color hide = variant switch
+            {
+                1 => Rgb(116, 93, 62),
+                2 => Rgb(103, 114, 77),
+                _ => Rgb(129, 89, 58)
+            };
+            Color hideDark = Shift(hide, -0.18f);
+            Color hideLight = Shift(hide, 0.14f);
+            Color leather = Rgb(96, 58, 37);
+            Color feather = Rgb(207, 185, 129);
+
+            FillEllipse(texture, 48, 12, 35, 8, shadow);
+
+            Vector2Int[] ground = { P(13, 18), P(46, 7), P(84, 18), P(53, 33) };
+            FillPolygon(texture, ground, dirtDark);
+            DrawPolygon(texture, ground, outline);
+            Vector2Int[] groundTop = { P(20, 18), P(47, 10), P(77, 19), P(52, 28) };
+            FillPolygon(texture, groundTop, dirtLight);
+
+            DrawThickLine(texture, P(30, 22), P(30, 52), woodDark, 2);
+            DrawThickLine(texture, P(65, 23), P(65, 50), woodDark, 2);
+            DrawThickLine(texture, P(31, 22), P(31, 52), wood, 1);
+            DrawThickLine(texture, P(66, 23), P(66, 50), wood, 1);
+
+            Vector2Int[] rearHide = { P(33, 29), P(63, 29), P(65, 42), P(32, 41) };
+            FillPolygon(texture, rearHide, hideDark);
+            DrawPolygon(texture, rearHide, outline);
+
+            Vector2Int[] awning = { P(20, 43), P(47, 65), P(76, 44), P(67, 38), P(47, 56), P(29, 37) };
+            FillPolygon(texture, awning, hide);
+            DrawPolygon(texture, awning, outline);
+            DrawThickLine(texture, P(30, 43), P(47, 59), hideLight, 1);
+            DrawLine(texture, P(52, 55), P(77, 46), hideLight);
+            DrawLine(texture, P(40, 44), P(64, 44), leather);
+            DrawLine(texture, P(45, 48), P(55, 55), leather);
+
+            DrawCampBow(texture, 22, 25, outline, wood, woodLight);
+            DrawCampBow(texture, 72, 28, outline, woodDark, woodLight);
+            DrawArrowBundle(texture, 56, 21, outline, woodLight, feather);
+
+            FillRect(texture, 31, 18, 17, 10, Rgb(109, 69, 39));
+            FillRect(texture, 32, 19, 15, 8, Rgb(152, 101, 54));
+            DrawRectOutline(texture, 31, 18, 17, 10, outline);
+            DrawLine(texture, P(34, 25), P(45, 25), woodLight);
+
+            FillEllipse(texture, 62, 17, 10, 5, new Color(0f, 0f, 0f, 0.18f));
+            FillEllipse(texture, 61, 20, 5, 5, leather);
+            FillEllipse(texture, 66, 18, 3, 3, Rgb(154, 107, 72));
+            DrawCanopyRim(texture, 61, 20, 5, 5, outline);
+
+            texture.Apply(false, false);
+            return Sprite.Create(texture, new Rect(8f, 6f, 80f, 74f), new Vector2(0.5f, 0.10f), PixelsPerUnit);
+        }
+
+        private static Sprite CreateHunterCampStockSprite(int level)
+        {
+            Texture2D texture = CreateTexture(58, 38, $"Hunter Camp Stock {level}");
+            Color outline = Rgb(50, 30, 25);
+            Color shadow = new Color(0f, 0f, 0f, 0.18f);
+            Color meatDark = Rgb(103, 38, 34);
+            Color meat = Rgb(166, 70, 54);
+            Color meatLight = Rgb(214, 118, 81);
+            Color bone = Rgb(222, 205, 164);
+            Color rack = Rgb(93, 58, 35);
+
+            FillEllipse(texture, 29, 7, 19, 5, shadow);
+            DrawThickLine(texture, P(8, 11), P(48, 18), rack, 1);
+            DrawThickLine(texture, P(9, 10), P(47, 17), outline, 0);
+
+            int pieces = Mathf.Clamp(level + 1, 2, 6);
+            for (int i = 0; i < pieces; i++)
+            {
+                int x = 12 + (i % 3) * 13 + (i / 3) * 4;
+                int y = 13 + (i / 3) * 8 + (i % 2) * 2;
+                FillEllipse(texture, x, y, 5, 4, outline);
+                FillEllipse(texture, x, y, 4, 3, i % 2 == 0 ? meat : meatDark);
+                FillEllipse(texture, x + 3, y + 2, 2, 2, meatLight);
+                FillRect(texture, x - 6, y - 1, 4, 2, bone);
+                FillEllipse(texture, x - 7, y, 2, 2, bone);
+                SetPixelSafe(texture, x + 4, y - 3, outline);
+            }
+
+            texture.Apply(false, false);
+            return Sprite.Create(texture, new Rect(4f, 4f, 50f, 28f), new Vector2(0.5f, 0.18f), PixelsPerUnit);
+        }
+
+        private static Sprite CreateFisherHutSprite(int variant)
+        {
+            Texture2D texture = CreateTexture(100, 96, $"Fisher Hut 2.5D Sprite {variant + 1}");
+
+            Color outline = Rgb(34, 36, 31);
+            Color shadow = new Color(0f, 0f, 0f, 0.22f);
+            Color dirtDark = variant == 1 ? Rgb(74, 69, 48) : Rgb(67, 62, 44);
+            Color dirtLight = variant == 2 ? Rgb(134, 116, 76) : Rgb(118, 103, 67);
+            Color plankDark = Rgb(71, 50, 33);
+            Color plank = variant == 1 ? Rgb(129, 87, 51) : Rgb(113, 75, 45);
+            Color plankLight = Rgb(174, 121, 70);
+            Color wall = variant == 2 ? Rgb(151, 128, 82) : Rgb(139, 111, 70);
+            Color wallLight = Shift(wall, 0.15f);
+            Color roof = variant switch
+            {
+                1 => Rgb(83, 117, 121),
+                2 => Rgb(95, 91, 74),
+                _ => Rgb(71, 107, 122)
+            };
+            Color roofDark = Shift(roof, -0.18f);
+            Color water = new Color(0.29f, 0.55f, 0.68f, 0.72f);
+            Color waterLight = new Color(0.55f, 0.80f, 0.88f, 0.58f);
+
+            FillEllipse(texture, 50, 12, 36, 8, shadow);
+            Vector2Int[] ground = { P(12, 19), P(48, 8), P(88, 19), P(55, 34) };
+            FillPolygon(texture, ground, dirtDark);
+            DrawPolygon(texture, ground, outline);
+            Vector2Int[] groundTop = { P(20, 19), P(49, 11), P(80, 20), P(55, 28) };
+            FillPolygon(texture, groundTop, dirtLight);
+
+            Vector2Int[] waterPatch = { P(54, 9), P(86, 17), P(62, 28), P(33, 18) };
+            FillPolygon(texture, waterPatch, water);
+            DrawLine(texture, P(40, 18), P(75, 21), waterLight);
+            DrawLine(texture, P(49, 14), P(83, 18), waterLight);
+
+            DrawThickLine(texture, P(28, 18), P(28, 46), plankDark, 2);
+            DrawThickLine(texture, P(72, 20), P(72, 45), plankDark, 2);
+            DrawThickLine(texture, P(29, 19), P(29, 46), plank, 1);
+            DrawThickLine(texture, P(73, 21), P(73, 45), plank, 1);
+
+            Vector2Int[] bodySide = { P(37, 24), P(70, 25), P(70, 46), P(37, 45) };
+            FillPolygon(texture, bodySide, Shift(wall, -0.10f));
+            DrawPolygon(texture, bodySide, outline);
+            Vector2Int[] bodyFront = { P(25, 25), P(43, 21), P(43, 45), P(25, 48) };
+            FillPolygon(texture, bodyFront, wall);
+            DrawPolygon(texture, bodyFront, outline);
+            FillRect(texture, 30, 27, 8, 18, plankDark);
+            FillRect(texture, 31, 28, 6, 16, plank);
+            DrawRectOutline(texture, 30, 27, 8, 18, outline);
+            FillRect(texture, 54, 31, 10, 8, Rgb(91, 143, 150));
+            DrawRectOutline(texture, 54, 31, 10, 8, outline);
+            DrawLine(texture, P(55, 35), P(63, 35), wallLight);
+
+            Vector2Int[] roofFront = { P(19, 46), P(43, 66), P(73, 45), P(68, 39), P(43, 57), P(27, 39) };
+            FillPolygon(texture, roofFront, roof);
+            DrawPolygon(texture, roofFront, outline);
+            Vector2Int[] roofSide = { P(43, 57), P(73, 45), P(80, 39), P(53, 52) };
+            FillPolygon(texture, roofSide, roofDark);
+            DrawPolygon(texture, roofSide, outline);
+            DrawThickLine(texture, P(30, 44), P(43, 60), Shift(roof, 0.15f), 1);
+            DrawLine(texture, P(50, 55), P(75, 44), Shift(roof, 0.12f));
+
+            for (int i = 0; i < 3; i++)
+            {
+                int x = 45 + i * 5;
+                DrawLine(texture, P(x, 20), P(x + 9, 43), outline);
+                DrawLine(texture, P(x + 1, 20), P(x + 10, 43), plankLight);
+            }
+
+            DrawFishingPole(texture, 22, 25, outline, plankDark, plankLight);
+            DrawFishNet(texture, 76, 25, outline, Rgb(178, 163, 112), waterLight);
+            DrawFishIcon(texture, 59, 19, outline, Rgb(70, 137, 161), Rgb(223, 151, 76));
+
+            texture.Apply(false, false);
+            return Sprite.Create(texture, new Rect(8f, 6f, 84f, 76f), new Vector2(0.5f, 0.10f), PixelsPerUnit);
+        }
+
+        private static Sprite CreateFisherHutStockSprite(int level)
+        {
+            Texture2D texture = CreateTexture(60, 38, $"Fisher Hut Stock {level}");
+            Color outline = Rgb(29, 55, 66);
+            Color shadow = new Color(0f, 0f, 0f, 0.18f);
+            Color crate = Rgb(108, 72, 44);
+            Color crateLight = Rgb(153, 103, 60);
+            Color fishDark = Rgb(57, 111, 134);
+            Color fish = Rgb(86, 161, 182);
+            Color fin = Rgb(224, 151, 76);
+
+            FillEllipse(texture, 30, 7, 20, 5, shadow);
+            FillRect(texture, 9, 10, 42, 15, crate);
+            FillRect(texture, 10, 11, 40, 13, crateLight);
+            DrawRectOutline(texture, 9, 10, 42, 15, outline);
+            DrawLine(texture, P(12, 18), P(48, 18), Rgb(94, 60, 37));
+
+            int fishCount = Mathf.Clamp(level + 1, 2, 6);
+            for (int i = 0; i < fishCount; i++)
+            {
+                int x = 17 + (i % 3) * 12;
+                int y = 21 + (i / 3) * 6 + (i % 2);
+                DrawFishIcon(texture, x, y, outline, i % 2 == 0 ? fish : fishDark, fin);
+            }
+
+            texture.Apply(false, false);
+            return Sprite.Create(texture, new Rect(4f, 4f, 52f, 28f), new Vector2(0.5f, 0.18f), PixelsPerUnit);
+        }
+
+        private static void DrawFishingPole(Texture2D texture, int x, int y, Color outline, Color wood, Color light)
+        {
+            DrawThickLine(texture, P(x, y), P(x + 23, y + 35), outline, 1);
+            DrawLine(texture, P(x + 1, y), P(x + 23, y + 35), wood);
+            DrawLine(texture, P(x + 7, y + 10), P(x + 22, y + 34), light);
+            DrawLine(texture, P(x + 23, y + 34), P(x + 34, y + 17), new Color(0.20f, 0.24f, 0.22f, 0.75f));
+            FillEllipse(texture, x + 34, y + 16, 2, 3, Rgb(198, 50, 43));
+            SetPixelSafe(texture, x + 34, y + 18, Rgb(240, 232, 198));
+        }
+
+        private static void DrawFishNet(Texture2D texture, int x, int y, Color outline, Color rope, Color water)
+        {
+            DrawLine(texture, P(x, y), P(x - 14, y + 18), outline);
+            DrawLine(texture, P(x + 1, y), P(x - 13, y + 18), rope);
+            DrawCanopyRim(texture, x - 18, y + 14, 8, 6, outline);
+            DrawCanopyRim(texture, x - 18, y + 14, 7, 5, rope);
+            DrawLine(texture, P(x - 25, y + 14), P(x - 11, y + 14), water);
+            DrawLine(texture, P(x - 18, y + 8), P(x - 18, y + 20), water);
+        }
+
+        private static void DrawFishIcon(Texture2D texture, int x, int y, Color outline, Color body, Color fin)
+        {
+            FillEllipse(texture, x, y, 6, 3, outline);
+            FillEllipse(texture, x, y, 5, 2, body);
+            Vector2Int[] tailOutline = { P(x - 5, y), P(x - 10, y + 4), P(x - 10, y - 4) };
+            FillPolygon(texture, tailOutline, outline);
+            Vector2Int[] tail = { P(x - 5, y), P(x - 9, y + 3), P(x - 9, y - 3) };
+            FillPolygon(texture, tail, fin);
+            SetPixelSafe(texture, x + 4, y + 1, outline);
+        }
+
+        private static void DrawCampBow(Texture2D texture, int x, int y, Color outline, Color wood, Color light)
+        {
+            DrawThickLine(texture, P(x, y), P(x + 4, y + 15), outline, 1);
+            DrawThickLine(texture, P(x + 4, y + 15), P(x + 1, y + 30), outline, 1);
+            DrawLine(texture, P(x, y), P(x + 4, y + 15), wood);
+            DrawLine(texture, P(x + 4, y + 15), P(x + 1, y + 30), wood);
+            DrawLine(texture, P(x + 1, y + 1), P(x + 2, y + 29), light);
+        }
+
+        private static void DrawArrowBundle(Texture2D texture, int x, int y, Color outline, Color shaft, Color feather)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                int offset = i * 3;
+                DrawLine(texture, P(x + offset, y), P(x - 7 + offset, y + 20), outline);
+                DrawLine(texture, P(x + offset, y + 1), P(x - 7 + offset, y + 19), shaft);
+                FillRect(texture, x + offset - 2, y + 17, 4, 2, feather);
+            }
+        }
+
         private static Sprite CreateStorageYardSprite(int variant)
         {
             Texture2D texture = CreateTexture(112, 88, $"Storage Yard 2.5D Sprite {variant + 1}");
@@ -836,6 +1174,154 @@ namespace ProjectUnknown.Strategy
 
             texture.Apply(false, false);
             return Sprite.Create(texture, new Rect(4f, 5f, 56f, 32f), new Vector2(0.5f, 0.18f), PixelsPerUnit);
+        }
+
+        private static Sprite CreateGranarySprite(int variant)
+        {
+            Texture2D texture = CreateTexture(112, 96, $"Granary 2.5D Sprite {variant + 1}");
+
+            Color outline = Rgb(42, 29, 22);
+            Color shadow = new Color(0f, 0f, 0f, 0.24f);
+            Color woodDark = variant == 1 ? Rgb(86, 53, 34) : Rgb(79, 48, 31);
+            Color wood = variant == 2 ? Rgb(151, 96, 52) : Rgb(132, 82, 45);
+            Color woodLight = variant == 1 ? Rgb(193, 128, 70) : Rgb(178, 114, 61);
+            Color roofDark = variant == 2 ? Rgb(103, 78, 44) : Rgb(91, 68, 39);
+            Color thatch = variant == 1 ? Rgb(191, 156, 74) : Rgb(177, 137, 61);
+            Color thatchLight = Rgb(224, 190, 99);
+            Color stone = Rgb(96, 89, 75);
+            Color grain = Rgb(218, 174, 72);
+
+            FillEllipse(texture, 56, 12, 42, 8, shadow);
+
+            Vector2Int[] foundation = { P(16, 18), P(52, 7), P(96, 20), P(62, 35) };
+            FillPolygon(texture, foundation, Rgb(93, 75, 52));
+            DrawPolygon(texture, foundation, outline);
+            Vector2Int[] foundationTop = { P(24, 19), P(53, 11), P(88, 21), P(61, 31) };
+            FillPolygon(texture, foundationTop, Rgb(129, 102, 66));
+
+            FillRect(texture, 28, 24, 54, 37, outline);
+            FillRect(texture, 31, 26, 48, 32, wood);
+            for (int x = 34; x <= 75; x += 8)
+            {
+                DrawLine(texture, P(x, 27), P(x, 57), woodDark);
+                DrawLine(texture, P(x + 1, 27), P(x + 1, 56), woodLight);
+            }
+
+            FillRect(texture, 43, 25, 20, 30, woodDark);
+            FillRect(texture, 46, 28, 15, 26, Rgb(105, 64, 36));
+            DrawRectOutline(texture, 43, 25, 20, 30, outline);
+            DrawLine(texture, P(47, 41), P(61, 41), woodLight);
+            DrawLine(texture, P(52, 28), P(52, 54), outline);
+
+            FillRect(texture, 67, 35, 9, 10, outline);
+            FillRect(texture, 68, 36, 7, 8, Rgb(226, 190, 112));
+            DrawLine(texture, P(71, 36), P(71, 44), outline);
+            DrawLine(texture, P(68, 40), P(75, 40), outline);
+
+            Vector2Int[] roof = { P(20, 60), P(54, 81), P(91, 60), P(82, 51), P(54, 69), P(29, 50) };
+            FillPolygon(texture, roof, outline);
+            Vector2Int[] roofInner = { P(25, 60), P(54, 77), P(86, 60), P(79, 54), P(54, 69), P(32, 53) };
+            FillPolygon(texture, roofInner, thatch);
+            DrawLine(texture, P(29, 60), P(54, 73), thatchLight);
+            DrawLine(texture, P(55, 72), P(82, 60), thatchLight);
+            for (int i = 0; i < 5; i++)
+            {
+                int x = 31 + i * 10;
+                DrawLine(texture, P(x, 58), P(x + 13, 66), roofDark);
+            }
+
+            DrawThickLine(texture, P(27, 19), P(27, 62), outline, 2);
+            DrawThickLine(texture, P(80, 20), P(80, 61), outline, 2);
+            DrawThickLine(texture, P(29, 20), P(29, 61), woodLight, 1);
+            DrawThickLine(texture, P(78, 21), P(78, 60), woodLight, 1);
+
+            FillRect(texture, 20, 18, 8, 12, stone);
+            FillRect(texture, 78, 19, 8, 12, stone);
+            DrawRectOutline(texture, 20, 18, 8, 12, outline);
+            DrawRectOutline(texture, 78, 19, 8, 12, outline);
+
+            for (int i = 0; i < 3; i++)
+            {
+                int x = 21 + i * 8;
+                int y = 18 + (i % 2) * 3;
+                FillEllipse(texture, x, y, 5, 3, Rgb(117, 76, 43));
+                FillEllipse(texture, x, y + 1, 4, 2, grain);
+                DrawLine(texture, P(x - 3, y + 2), P(x + 3, y + 2), outline);
+            }
+
+            texture.Apply(false, false);
+            return Sprite.Create(texture, new Rect(8f, 5f, 96f, 84f), new Vector2(0.5f, 0.10f), PixelsPerUnit);
+        }
+
+        private static Sprite CreateGranaryGameStockSprite(int level)
+        {
+            Texture2D texture = CreateTexture(72, 46, $"Granary Game Stock {level}");
+            Color outline = Rgb(42, 29, 22);
+            Color shadow = new Color(0f, 0f, 0f, 0.18f);
+            Color hide = Rgb(128, 77, 45);
+            Color meat = Rgb(145, 58, 47);
+            Color meatLight = Rgb(204, 106, 76);
+            Color bone = Rgb(224, 205, 161);
+            Color basket = Rgb(133, 91, 48);
+            Color basketLight = Rgb(186, 132, 70);
+
+            FillEllipse(texture, 36, 8, 26, 5, shadow);
+            int count = Mathf.Clamp(level + 1, 2, 7);
+            for (int i = 0; i < count; i++)
+            {
+                int x = 15 + (i % 4) * 11 + (i / 4) * 4;
+                int y = 13 + (i / 4) * 8;
+                FillEllipse(texture, x, y, 7, 4, outline);
+                FillEllipse(texture, x, y + 1, 6, 3, hide);
+                FillEllipse(texture, x + 1, y + 1, 3, 2, meat);
+                SetPixelSafe(texture, x + 2, y + 3, meatLight);
+                DrawLine(texture, P(x - 5, y + 1), P(x + 5, y + 1), bone);
+            }
+
+            if (level >= 3)
+            {
+                FillRect(texture, 44, 13, 15, 12, basket);
+                FillRect(texture, 46, 15, 11, 8, basketLight);
+                DrawRectOutline(texture, 44, 13, 15, 12, outline);
+                DrawLine(texture, P(45, 19), P(58, 19), outline);
+            }
+
+            texture.Apply(false, false);
+            return Sprite.Create(texture, new Rect(4f, 5f, 64f, 34f), new Vector2(0.5f, 0.18f), PixelsPerUnit);
+        }
+
+        private static Sprite CreateGranaryFishStockSprite(int level)
+        {
+            Texture2D texture = CreateTexture(72, 46, $"Granary Fish Stock {level}");
+            Color outline = Rgb(36, 46, 48);
+            Color shadow = new Color(0f, 0f, 0f, 0.18f);
+            Color barrel = Rgb(116, 74, 43);
+            Color barrelLight = Rgb(173, 116, 60);
+            Color hoop = Rgb(72, 79, 76);
+            Color fish = Rgb(83, 151, 169);
+            Color fishLight = Rgb(168, 217, 214);
+            Color fin = Rgb(222, 153, 76);
+
+            FillEllipse(texture, 36, 8, 25, 5, shadow);
+            FillEllipse(texture, 33, 17, 18, 8, outline);
+            FillEllipse(texture, 33, 18, 16, 7, barrel);
+            FillRect(texture, 18, 16, 30, 11, barrel);
+            FillRect(texture, 20, 18, 26, 7, barrelLight);
+            DrawRectOutline(texture, 18, 16, 30, 11, outline);
+            DrawLine(texture, P(19, 20), P(47, 20), hoop);
+            DrawLine(texture, P(24, 16), P(24, 27), hoop);
+            DrawLine(texture, P(42, 16), P(42, 27), hoop);
+
+            int count = Mathf.Clamp(level + 1, 2, 7);
+            for (int i = 0; i < count; i++)
+            {
+                int x = 19 + (i % 4) * 10 + (i / 4) * 5;
+                int y = 27 + (i / 4) * 5;
+                DrawFishIcon(texture, x, y, outline, i % 2 == 0 ? fish : fishLight, fin);
+            }
+
+            texture.Apply(false, false);
+            return Sprite.Create(texture, new Rect(4f, 5f, 64f, 34f), new Vector2(0.5f, 0.18f), PixelsPerUnit);
         }
 
         private static Texture2D CreateTexture(int width, int height, string name)

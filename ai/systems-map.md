@@ -282,13 +282,16 @@ Responsibilities:
 - Spawn ambient rabbit groups on suitable walkable land away from the starter camp.
 - Spawn ambient fish shoals on suitable generated water cells.
 - Spawn decorative birds on species-appropriate land/water cells without reproduction or resources.
+- Provide adult-rabbit reservation/count lookup for hunter camps.
+- Provide catchable-fish reservation/count lookup for fisher huts.
 - Generate and cache runtime 2.5D pixel-art deer sprites for male bucks and female does.
 - Generate and cache runtime 2.5D pixel-art rabbit sprites for male and female visuals.
 - Generate and cache runtime pixel-art fish sprites for Minnow, Carp, and Perch visuals.
 - Generate and cache runtime 2.5D pixel-art bird sprites for Sparrow, Crow, and Duck visuals.
 - Animate deer idle breathing, walking, grazing, alert stance, fleeing/running, and resting.
 - Animate rabbits idle movement, hopping, nibbling, alert stance, fleeing, grooming, and resting.
-- Animate fish idle swimming, swimming, dart/flee, turning, feeding, and surface ripples.
+- Animate hunted rabbits through arrow hit, death, carcass, and butchering-ready states.
+- Animate fish idle swimming, swimming, dart/flee, turning, feeding, hooked/reeling, and surface ripples.
 - Animate birds idle movement, pecking, hopping, flying, landing, duck swimming, and flight shadows.
 - Keep deer on local walkable-cell paths inside loose herd/home ranges without blocking map cells.
 - Keep rabbits on local walkable-cell paths inside loose group/home ranges without blocking map cells.
@@ -301,9 +304,11 @@ Responsibilities:
 - Let adult female rabbits reproduce when an adult male is nearby in the same group.
 - Spawn kits that grow into adults after scaled simulation time.
 - Keep rabbit reproduction under the hard 36-rabbit runtime population cap.
+- Let hunter camps reserve adult rabbits, stop their normal behavior during the shot sequence, and yield `Дичь` after butchering.
 - Let adult fish reproduce when another adult of the same species is nearby in the same shoal.
 - Spawn fry that grow into adults after scaled simulation time.
 - Keep fish reproduction under the hard 60-fish runtime population cap.
+- Let fisher huts reserve adult fish, hold them during the hook/reel sequence, and yield local `Рыба`.
 
 Primary files/assets:
 
@@ -312,6 +317,9 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Wildlife/StrategyDeerSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyRabbitAgent.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyRabbitSpriteFactory.cs`
+- `Assets/Scripts/Runtime/Build/StrategyHunterCamp.cs`
+- `Assets/Scripts/Runtime/Build/StrategyFisherHut.cs`
+- `Assets/Scripts/Runtime/Population/StrategyHuntingArrowProjectile.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyFishAgent.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyFishSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyBirdAgent.cs`
@@ -325,12 +333,12 @@ Primary files/assets:
 Impact hints:
 
 - Wildlife is runtime-only and not saved yet.
-- Deer, rabbits, fish, and birds do not reveal fog, block walkability, or provide resources yet.
+- Deer and birds do not reveal fog, block walkability, or provide resources yet; rabbits can yield `Дичь` through the hunter-camp work loop, and fish can yield `Рыба` through the fisher-hut work loop.
 - Deer pathing depends on `CityMapController.IsCellWalkable` and should stay local/cheap until a shared pathfinding service exists.
 - Rabbit pathing uses the same local walkable-cell approach and should stay cheap until a shared pathfinding service exists.
 - Fish pathing uses `CityMapCellKind.Water` instead of `IsCellWalkable`, because water is intentionally not walkable for land agents.
 - Reproduction is owned by `StrategyWildlifeController`; deer/rabbit/fish agents own species or sex, life stage, growth, movement, and animation state. Birds are decorative and do not reproduce yet.
-- Future hunting, butchering, leather/meat resources, predators, mortality, or animal HUD should extend this subsystem instead of adding animal behavior into population or nature-prop code.
+- Future deer hunting, leather, predators, broader mortality, or animal HUD should extend this subsystem instead of adding animal behavior into population or nature-prop code.
 
 ### Stone Resources MVP
 
@@ -413,7 +421,7 @@ Responsibilities:
 - Bottom Build button.
 - Category cards and item tray.
 - Build item cards with Logs/Stone construction costs, affordability state, and active state.
-- Current catalog entries: `Жилища` / `Дом`, `Промыслы` / `Лагерь дровосеков` and `Лагерь каменотёсов`, and `Хранилища` / `Склад`.
+- Current catalog entries: `Жилища` / `Дом`, `Промыслы` / `Лагерь дровосеков`, `Лагерь каменотёсов`, `Лагерь охотников`, and `Хижина рыбака`, and `Хранилища` / `Склад` and `Амбар`.
 - Hotkeys for open/close, category/item selection, and layered cancel.
 - EventSystem/Input System UI setup when the scene has no UI event module.
 - Add tools/buildings gradually only by explicit user request.
@@ -426,19 +434,22 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Build/StrategyBuildingSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Build/StrategyLumberjackCamp.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStonecutterCamp.cs`
+- `Assets/Scripts/Runtime/Build/StrategyHunterCamp.cs`
+- `Assets/Scripts/Runtime/Build/StrategyFisherHut.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStorageYard.cs`
+- `Assets/Scripts/Runtime/Build/StrategyGranary.cs`
 - `Assets/Scripts/Runtime/Economy/StrategyConstructionResourceCost.cs`
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.cs`
 - `Assembly-CSharp.csproj`
 
 Impact hints:
 
-- The menu owns selected active build tool data and reads Storage Yard construction resources for affordability.
+- The public `StrategyBuildMenuController` component is a thin wrapper; `StrategyBuildMenuControllerDriver` owns selected active build tool data and reads Storage Yard construction resources for affordability.
 - Placement reads `StrategyBuildMenuController.ActiveTool` / active tool info.
-- Current catalog has user-requested buildings only: `Дом`, `Лагерь дровосеков`, `Лагерь каменотёсов`, and `Склад`; do not add more without a user request.
+- Current catalog has user-requested buildings only: `Дом`, `Лагерь дровосеков`, `Лагерь каменотёсов`, `Лагерь охотников`, `Хижина рыбака`, `Склад`, and `Амбар`; do not add more without a user request.
 - Current `Жилища` category directly activates `Дом` because it has one item.
-- Current `Промыслы` category opens a tray with `Лагерь дровосеков` and `Лагерь каменотёсов`.
-- Current `Хранилища` category directly activates `Склад` because it has one item.
+- Current `Промыслы` category opens a tray with `Лагерь дровосеков`, `Лагерь каменотёсов`, `Лагерь охотников`, and `Хижина рыбака`.
+- Current `Хранилища` category opens a tray with `Склад` and `Амбар`.
 - Successful placement asks the menu to close all open layers and records the placement frame.
 - If a full HUD/menu shell appears later, decide whether this controller remains standalone or becomes part of the HUD shell.
 
@@ -456,6 +467,9 @@ Responsibilities:
 - Choose random lumberjack camp visual variants for placed camps while keeping menu/preview art stable.
 - Choose random stonecutter camp visual variants for placed camps while keeping menu/preview art stable.
 - Choose random storage yard visual variants for placed storage yards while keeping menu/preview art stable.
+- Choose random hunter camp visual variants for placed camps while keeping menu/preview art stable.
+- Choose random fisher hut visual variants for placed huts while keeping menu/preview art stable.
+- Choose random granary visual variants for placed granaries while keeping menu/preview art stable.
 - Add ambient smoke/window-light overlays to placed houses.
 - Reserve construction Logs/Stone from Storage Yards before accepting a construction site.
 - Mark occupied cells when construction sites are accepted.
@@ -465,6 +479,9 @@ Responsibilities:
 - Lumberjack camp places a `StrategyLumberjackCamp` worksite component, blocks its technical 2x2 footprint plus one visual row above, and hosts a local visual Logs stockpile.
 - Stonecutter camp places a `StrategyStonecutterCamp` worksite component, blocks its technical 2x2 footprint plus one visual row above, and hosts a local visual Stone stockpile.
 - Storage yard places a `StrategyStorageYard` worksite component, blocks its technical 3x2 footprint plus one visual row above, and hosts local visual Logs/Stone stockpiles.
+- Hunter camp places a `StrategyHunterCamp` worksite component, blocks its technical 2x2 footprint plus one visual row above, and hosts a local visual `Дичь` stockpile.
+- Fisher hut places a `StrategyFisherHut` worksite component, blocks its technical 2x2 footprint plus one visual row above, requires nearby water/shore access, and hosts a local visual `Рыба` stockpile.
+- Granary places a `StrategyGranary` food-storage component, blocks its technical 3x2 footprint plus one visual row above, and hosts local visual `Дичь`/`Рыба` stockpiles.
 - Accepted construction sites request up to 2 hired Storage Yard builders and can wait if none are free yet.
 - Completed house sites ask population to populate the finished house separately from the construction crew.
 - Seed placed-building records used by later visual upgrades.
@@ -478,7 +495,10 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Build/StrategyBuildingSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Build/StrategyLumberjackCamp.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStonecutterCamp.cs`
+- `Assets/Scripts/Runtime/Build/StrategyHunterCamp.cs`
+- `Assets/Scripts/Runtime/Build/StrategyFisherHut.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStorageYard.cs`
+- `Assets/Scripts/Runtime/Build/StrategyGranary.cs`
 - `Assets/Scripts/Runtime/Build/StrategyHouseAmbientAnimator.cs`
 - `Assets/Scripts/Runtime/Build/StrategyHouseAmbientSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Population/StrategyPopulationController.cs`
@@ -496,7 +516,8 @@ Impact hints:
 - Placed objects use tool-specific sprites when available; unknown future tools still fall back to colored sprites/TextMesh labels.
 - Build placement consults fog exploration state, so early expansion starts around the camp and other revealed areas unless player fog is toggled off with F9.
 - House ambient overlays are visual-only child sprites and should not be used for footprint/collider calculations.
-- With the current catalog, `Дом`, `Лагерь дровосеков`, `Лагерь каменотёсов`, and `Склад` can be selected and placed only where their technical footprint and tool-specific walk blocker fit on buildable terrain.
+- With the current catalog, `Дом`, `Лагерь дровосеков`, `Лагерь каменотёсов`, `Лагерь охотников`, `Хижина рыбака`, `Склад`, and `Амбар` can be selected and placed only where their technical footprint and tool-specific walk blocker fit on buildable terrain.
+- `Хижина рыбака` additionally requires a nearby water cell with adjacent walkable shore access.
 - Successful player placement creates a construction site, closes the full Build menu, and marks the frame so world selection ignores the placement click.
 - Construction site placement depends on reservable Logs/Stone, not on immediately available builders; waiting sites retry hired-builder dispatch.
 - Final building creation happens through construction-site completion, not the original placement click.
@@ -552,6 +573,7 @@ Responsibilities:
 - Store resource counts locally on placed houses.
 - Generate runtime pixel-art resource icons for HUD display.
 - Provide resource display ordering for the selected-house HUD.
+- Provide shared HUD icon support for non-house stock resources such as hunted `Дичь` and caught `Рыба`.
 
 Primary files/assets:
 
@@ -568,6 +590,7 @@ Impact hints:
 
 - Current resources are house-local runtime counts, not global economy inventory.
 - Current resource sources are Garden Beds work completion and Chicken Coop passive egg production.
+- `Дичь` and `Рыба` are currently local production-building stock resources with shared HUD icons, not house-local resources.
 - Future trade, taxes, storage caps, spoilage, and needs should decide whether house stores remain local or feed into a settlement-level resource service.
 
 ### Storage Yard Logistics
@@ -608,9 +631,44 @@ Impact hints:
 
 - Storage workers reserve camp Logs/Stone before walking to prevent multiple haulers from targeting the same stock.
 - Construction resources are reserved against Storage Yard stock at site creation, then physically removed when builders pick them up.
-- Residents currently support one active workplace: lumberjack camp, stonecutter camp, storage logistics, or storage builder crew.
+- Residents currently support one active workplace: lumberjack camp, stonecutter camp, hunter camp, fisher hut, storage logistics, or storage builder crew.
 - Storage is runtime-only and does not yet feed a global economy, save data, or consumption loop.
 - Future resources should extend the logistics stock model; current Logs and Stone still have explicit carrying visuals/states.
+
+### Granary Food Logistics
+
+Responsibilities:
+
+- Add `Амбар` as a placed food-storage building with local `Дичь` and `Рыба` stock.
+- Assign up to 2 residents as granary workers.
+- Find Hunter Camps with available stored `Дичь` and reserve stock for haulers.
+- Find Fisher Huts with available stored `Рыба` and reserve stock for haulers.
+- Route granary workers to source camps/huts, pick up reserved food, carry it to the granary, and deposit it.
+- Update Hunter Camp/Fisher Hut stock visuals as food is picked up.
+- Update Granary `Дичь`/`Рыба` stock visuals as food is deposited.
+- Show granary worker slots, worker statuses, food stock, and available source counts in the selection HUD.
+
+Primary files/assets:
+
+- `Assets/Scripts/Runtime/Build/StrategyGranary.cs`
+- `Assets/Scripts/Runtime/Build/StrategyHunterCamp.cs`
+- `Assets/Scripts/Runtime/Build/StrategyFisherHut.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.cs`
+- `Assets/Scripts/Runtime/Build/StrategyBuildPlacementController.cs`
+- `Assets/Scripts/Runtime/Build/StrategyBuildingSpriteFactory.cs`
+- `Assets/Scripts/Runtime/Economy/StrategyResourceType.cs`
+- `Assets/Scripts/Runtime/UI/StrategyBuildMenuController.cs`
+- `Assets/Scripts/Runtime/UI/StrategyBuildMenuController.Driver.cs`
+- `Assets/Scripts/Runtime/UI/StrategyBuildMenuController.Catalog.cs`
+- `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.cs`
+- `Assembly-CSharp.csproj`
+
+Impact hints:
+
+- Granary workers reserve food before walking so multiple haulers do not target the same local stock.
+- `Дичь` and `Рыба` remain runtime-local food stock and are not consumed by residents yet.
+- Residents currently support one active workplace: lumberjack camp, stonecutter camp, hunter camp, fisher hut, storage logistics, granary food logistics, or storage builder crew.
+- Future spoilage, food needs, cooking, market logistics, or settlement-level food services should extend this subsystem rather than folding food into construction Storage Yards.
 
 ### Population MVP
 
@@ -639,13 +697,21 @@ Responsibilities:
 - Route assigned lumberjacks to mature trees, chopping work, fallen-trunk bucking, Logs pickup, camp stock deposit, planting cells, and sapling planting.
 - Assign residents to stonecutter camps as workplace targets.
 - Route assigned stonecutters to Stone deposits, pickaxe mining, Stone carrying, and camp stock deposit.
+- Assign residents to hunter camps as workplace targets.
+- Route assigned hunters to reserved adult rabbits, bow aiming, arrow shots, carcass approach, butchering, `Дичь` carrying, and camp stock deposit.
+- Assign residents to fisher huts as workplace targets.
+- Route assigned fishers to shore cells, line casting, hooked-fish reeling, `Рыба` carrying, and hut stock deposit.
 - Assign residents to storage yards as workplace targets.
 - Route assigned storage workers to lumberjack camp stock, stored-Logs pickup, storage-yard delivery, and deposit.
 - Route assigned storage workers to stonecutter camp stock, stored-Stone pickup, storage-yard delivery, and deposit.
+- Assign residents to granaries as workplace targets.
+- Route assigned granary workers to Hunter Camp/Fisher Hut stock, stored-food pickup, granary delivery, and deposit.
 - Assign residents to Storage Yards as dedicated builders.
 - Route hired builders to reserved Storage Yard stock, construction resource pickup, site delivery, and hammer/build work after materials arrive.
 - Drive frame-based axe swing animation and hit timing for lumberjacks.
 - Drive frame-based pickaxe swing animation and hit timing for stonecutters.
+- Drive frame-based bow shot and butchering animation/timing for hunters.
+- Drive frame-based fishing rod/cast/reel animation and timing for fishers.
 - Drive frame-based hammer/build animation and progress hit timing for construction builders.
 - Generate 5 male and 5 female resident sprite variants at runtime.
 - Generate child resident sprites at runtime.
@@ -665,12 +731,19 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.cs`
 - `Assets/Scripts/Runtime/Build/StrategyLumberjackCamp.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStonecutterCamp.cs`
+- `Assets/Scripts/Runtime/Build/StrategyHunterCamp.cs`
+- `Assets/Scripts/Runtime/Build/StrategyFisherHut.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStorageYard.cs`
+- `Assets/Scripts/Runtime/Build/StrategyGranary.cs`
 - `Assets/Scripts/Runtime/Build/StrategyConstructionSite.cs`
 - `Assets/Scripts/Runtime/Map/StrategyForestryController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyForestryTree.cs`
 - `Assets/Scripts/Runtime/Map/StrategyStoneDeposit.cs`
 - `Assets/Scripts/Runtime/Map/StrategyStonecutEffectAnimator.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyRabbitAgent.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyFishAgent.cs`
+- `Assets/Scripts/Runtime/Population/StrategyHuntingArrowProjectile.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Population/StrategyCampfireAnimator.cs`
 - `Assets/Scripts/Runtime/Population/StrategyCampfireAmbientSpriteFactory.cs`
@@ -700,6 +773,11 @@ Impact hints:
 - Resident woodcut sprites are generated for every male/female visual variant and should stay in sync with readability outline mirroring.
 - Stonecutter work follows the same local-camp assignment model, but mines finite Stone deposits and does not plant/regrow Stone.
 - Resident stonecut sprites are generated for every male/female visual variant and should stay in sync with readability outline mirroring.
+- Hunter work follows the same local-camp assignment model, reserves adult rabbits through `StrategyWildlifeController`, and stores produced `Дичь` locally at the hunter camp for now.
+- Resident bow and butchering sprites are generated for every male/female visual variant and should stay in sync with readability outline mirroring.
+- Fisher work follows the same local-camp assignment model, reserves fish through `StrategyWildlifeController`, requires shore access around the target, and stores produced `Рыба` locally at the fisher hut for now.
+- Resident fishing sprites are generated for every male/female visual variant and should stay in sync with readability outline mirroring.
+- Granary work follows the same local-logistics model as Storage Yard workers, but moves food from production buildings into food storage instead of moving construction resources.
 - Construction assignment is a temporary exclusive task for hired Storage Yard builders; workplace assignment skips residents already attached to a construction site.
 - Worker and builder assignment must check `StrategyResidentAgent.CanWork`; children idle/walk but cannot work.
 - Resident construction sprites are generated for every male/female visual variant and should stay in sync with readability outline mirroring.
@@ -723,6 +801,9 @@ Responsibilities:
 - Show selected-house resident portraits/names/age/life stage/statuses up to house capacity, compact upgrade action rows, resource icons/counts, and Garden Beds crop.
 - Show selected-lumberjack-camp worker slots with assign/remove actions, worker forestry statuses, Logs stock, and nearby tree/trunk counts.
 - Show selected-stonecutter-camp worker slots with assign/remove actions, worker mining statuses, Stone stock, and nearby deposit counts.
+- Show selected-hunter-camp worker slots with assign/remove actions, worker hunting statuses, `Дичь` stock, and nearby huntable rabbit counts.
+- Show selected-fisher-hut worker slots with assign/remove actions, worker fishing statuses, `Рыба` stock, and nearby catchable fish counts.
+- Show selected-granary worker slots with assign/remove actions, worker food-hauling statuses, `Дичь`/`Рыба` stock, and available food-source counts.
 - Show selected-storage-yard logistics-worker and builder slots with assign/remove actions, staff statuses, Logs/Stone stock, and available source count.
 - Show selected-construction-site cost, delivered resources, builder count, and progress/status context.
 - Show selected-resident full name, portrait, profile, age/life stage, current activity, and home/camp assignment.
@@ -734,7 +815,10 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Build/StrategyBuildingUpgradeController.cs`
 - `Assets/Scripts/Runtime/Build/StrategyLumberjackCamp.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStonecutterCamp.cs`
+- `Assets/Scripts/Runtime/Build/StrategyHunterCamp.cs`
+- `Assets/Scripts/Runtime/Build/StrategyFisherHut.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStorageYard.cs`
+- `Assets/Scripts/Runtime/Build/StrategyGranary.cs`
 - `Assets/Scripts/Runtime/Build/StrategyConstructionSite.cs`
 - `Assets/Scripts/Runtime/Economy/StrategyHouseResourceStore.cs`
 - `Assets/Scripts/Runtime/Economy/StrategyResourceIconFactory.cs`
@@ -754,7 +838,10 @@ Impact hints:
 - House resident rows use the assigned resident references stored on `StrategyPlacedBuilding` and grow to the current house capacity.
 - Lumberjack camp worker rows and stock context use references/counts stored on `StrategyLumberjackCamp`.
 - Stonecutter camp worker rows and stock context use references/counts stored on `StrategyStonecutterCamp`.
+- Hunter camp worker rows and stock context use references/counts stored on `StrategyHunterCamp`.
+- Fisher hut worker rows and stock context use references/counts stored on `StrategyFisherHut`.
 - Storage yard logistics-worker/builder rows and stock context use references/counts stored on `StrategyStorageYard`.
+- Granary worker rows and stock context use references/counts stored on `StrategyGranary`.
 - Construction site context uses cost/progress/builder data stored on `StrategyConstructionSite`.
 - Current HUD layout is code-built with Unity UI primitives; future HUD shell work should decide whether this remains local or moves into a shared UI view layer.
 

@@ -9,6 +9,8 @@ namespace ProjectUnknown.Strategy
         Onion,
         Carrot,
         Potato,
+        Game,
+        Fish,
         Stone
     }
 }

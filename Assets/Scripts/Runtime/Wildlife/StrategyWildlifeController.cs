@@ -199,6 +199,150 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("hasCampAvoidance", hasCampCell));
         }
 
+        public bool TryReserveRabbitForHunt(Vector2Int center, int radius, object owner, out StrategyRabbitAgent rabbit)
+        {
+            rabbit = null;
+            if (owner == null || map == null)
+            {
+                return false;
+            }
+
+            RemoveMissingRabbits();
+            float radiusSqr = radius * radius;
+            float bestSqr = float.MaxValue;
+            StrategyRabbitAgent best = null;
+            for (int i = 0; i < rabbits.Count; i++)
+            {
+                StrategyRabbitAgent candidate = rabbits[i];
+                if (candidate == null || !candidate.CanBeHunted || !candidate.TryGetCurrentCell(out Vector2Int cell))
+                {
+                    continue;
+                }
+
+                float sqr = (cell - center).sqrMagnitude;
+                if (sqr > radiusSqr || sqr >= bestSqr)
+                {
+                    continue;
+                }
+
+                bestSqr = sqr;
+                best = candidate;
+            }
+
+            if (best == null || !best.TryReserveForHunt(owner))
+            {
+                return false;
+            }
+
+            rabbit = best;
+            StrategyDebugLogger.Info(
+                "Wildlife",
+                "RabbitReservedForHunt",
+                StrategyDebugLogger.F("campCenter", center),
+                StrategyDebugLogger.F("radius", radius),
+                StrategyDebugLogger.F("rabbitWorld", rabbit.transform.position));
+            return true;
+        }
+
+        public int CountHuntableRabbits(Vector2Int center, int radius)
+        {
+            if (map == null)
+            {
+                return 0;
+            }
+
+            RemoveMissingRabbits();
+            int count = 0;
+            float radiusSqr = radius * radius;
+            for (int i = 0; i < rabbits.Count; i++)
+            {
+                StrategyRabbitAgent rabbit = rabbits[i];
+                if (rabbit == null || !rabbit.CanBeHunted || !rabbit.TryGetCurrentCell(out Vector2Int cell))
+                {
+                    continue;
+                }
+
+                if ((cell - center).sqrMagnitude <= radiusSqr)
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
+        public bool TryReserveFishForFishing(Vector2Int center, int radius, object owner, out StrategyFishAgent reservedFish)
+        {
+            reservedFish = null;
+            if (owner == null || map == null)
+            {
+                return false;
+            }
+
+            RemoveMissingFish();
+            float radiusSqr = radius * radius;
+            float bestSqr = float.MaxValue;
+            StrategyFishAgent best = null;
+            for (int i = 0; i < fish.Count; i++)
+            {
+                StrategyFishAgent candidate = fish[i];
+                if (candidate == null || !candidate.CanBeFished || !candidate.TryGetCurrentCell(out Vector2Int cell))
+                {
+                    continue;
+                }
+
+                float sqr = (cell - center).sqrMagnitude;
+                if (sqr > radiusSqr || sqr >= bestSqr)
+                {
+                    continue;
+                }
+
+                bestSqr = sqr;
+                best = candidate;
+            }
+
+            if (best == null || !best.TryReserveForFishing(owner))
+            {
+                return false;
+            }
+
+            reservedFish = best;
+            StrategyDebugLogger.Info(
+                "Wildlife",
+                "FishReservedForFishing",
+                StrategyDebugLogger.F("hutCenter", center),
+                StrategyDebugLogger.F("radius", radius),
+                StrategyDebugLogger.F("fishWorld", reservedFish.transform.position));
+            return true;
+        }
+
+        public int CountCatchableFish(Vector2Int center, int radius)
+        {
+            if (map == null)
+            {
+                return 0;
+            }
+
+            RemoveMissingFish();
+            int count = 0;
+            float radiusSqr = radius * radius;
+            for (int i = 0; i < fish.Count; i++)
+            {
+                StrategyFishAgent candidate = fish[i];
+                if (candidate == null || !candidate.CanBeFished || !candidate.TryGetCurrentCell(out Vector2Int cell))
+                {
+                    continue;
+                }
+
+                if ((cell - center).sqrMagnitude <= radiusSqr)
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
         private int GenerateRabbits(int targetRabbits, HashSet<Vector2Int> usedCells)
         {
             int targetGroups = Mathf.Clamp(Mathf.CeilToInt(targetRabbits / 4.0f), 3, MaxRabbitGroups);

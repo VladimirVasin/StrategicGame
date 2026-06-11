@@ -36,7 +36,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Generates nature props after population startup so the camp clear-radius exclusion is known
     - Creates and wires the runtime fog-of-war layer after population and placement controllers exist
     - Places a starter Storage Yard near the campfire with initial Logs and Stone after placement is configured
-    - Creates and wires runtime wildlife after starter placement so deer, rabbits, and fish spawn in valid terrain/water areas
+    - Creates and wires runtime wildlife after starter placement so deer, rabbits, fish, and birds spawn in valid terrain/water/habitat areas
     - Creates runtime time-scale controls for simulation speed hotkeys
   - Strategy debug logging
     - Writes structured session logs to `debug.log`
@@ -105,8 +105,8 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Three procedural fish models exist: Minnow, Carp, and Perch, with smaller fry using scaled visuals
       - Three procedural bird models exist: Sparrow, Crow, and Duck
       - Deer animate idle breathing, walking, grazing, alert stance, fleeing/running, and resting with frame-based sprites
-      - Rabbits animate idle ear/breathing movement, hopping, nibbling, alert stance, fleeing, grooming, and resting with frame-based sprites
-      - Fish animate idle swimming, swimming, darting/fleeing, turning, feeding, and surface ripples with frame-based sprites
+      - Rabbits animate idle ear/breathing movement, hopping, nibbling, alert stance, fleeing, grooming, resting, hunting hit/death, and carcass states with frame-based sprites
+      - Fish animate idle swimming, swimming, darting/fleeing, turning, feeding, hooked/reeling, and surface ripples with frame-based sprites
       - Birds animate idle movement, pecking, hopping, flying, landing, and duck swimming with frame-based sprites and flight shadows
       - Deer use short local grid paths inside a loose herd/home range
       - Rabbits use short local grid paths inside a loose group/home range
@@ -119,9 +119,12 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Adult female rabbits can reproduce when an adult male is nearby in the same group
       - Newborn rabbits appear as small kits, use scaled rabbit sprites, and grow into adults after scaled simulation time
       - Rabbit reproduction stops at a hard 36-rabbit population cap
+      - Hunter camps can reserve adult rabbits in range, stopping their relaxed/flee behavior for the shot sequence
+      - Hunted rabbits can be hit by arrow projectiles, become carcasses, and yield `Дичь` after butchering
       - Adult fish can reproduce when another adult of the same species is nearby in the same shoal
       - Newborn fish appear as small fry, use scaled fish sprites, and grow into adults after scaled simulation time
       - Fish reproduction stops at a hard 60-fish population cap
+      - Fisher huts can reserve adult fish in range, hold them near the hook sequence, and yield `Рыба` after reeling
     - Fog of war
       - Runtime-generated texture overlay above world sprites and below screen-space UI
       - Tracks persistent explored cells separately from current visible cells
@@ -148,7 +151,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Fully closes category/tool UI after a successful placement
     - Exposes selected tool info, footprint, color, and cost
     - Reads Storage Yard construction stock availability for build affordability
-    - Current catalog contains `Жилища` / `Дом`, `Промыслы` / `Лагерь дровосеков` and `Лагерь каменотёсов`, and `Хранилища` / `Склад`
+    - Current catalog contains `Жилища` / `Дом`, `Промыслы` / `Лагерь дровосеков`, `Лагерь каменотёсов`, `Лагерь охотников`, and `Хижина рыбака`, and `Хранилища` / `Склад` and `Амбар`
     - Single-item categories directly activate their only build tool on click
   - Build placement
     - Runtime-created placement controller
@@ -167,16 +170,26 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Completed houses try to populate after construction instead of using their builders as future residents
     - Creates lumberjack camp components when the camp tool is placed
     - Creates stonecutter camp components when the camp tool is placed
+    - Creates hunter camp components when the camp tool is placed
+    - Creates fisher hut components when the hut tool is placed
     - Creates storage yard components when the storage tool is placed
+    - Creates granary components when the granary tool is placed
+    - Fisher huts require nearby water with adjacent walkable shore access before placement is accepted
     - Closes the Build menu after successful placement and suppresses same-click auto-selection of the new object
   - Runtime building art
     - Generates 5 larger 2.5D pixel-art medieval house sprite variants in code
     - Generates 3 procedural 2.5D lumberjack camp sprite variants in code
     - Generates 3 procedural 2.5D stonecutter camp sprite variants in code
+    - Generates 3 procedural 2.5D hunter camp sprite variants in code
+    - Generates 3 procedural 2.5D fisher hut sprite variants in code
     - Generates 3 procedural 2.5D storage yard sprite variants in code
+    - Generates 3 procedural 2.5D granary sprite variants in code
     - Generates separate lumberjack camp Logs stockpile sprites that visually grow as Logs are deposited
     - Generates separate stonecutter camp Stone stockpile sprites that visually grow as Stone is deposited
+    - Generates separate hunter camp `Дичь` stockpile sprites that visually grow as hunters deposit game
+    - Generates separate fisher hut `Рыба` stockpile sprites that visually grow as fishers deposit fish
     - Generates separate storage yard Logs and Stone stockpile sprites that visually grow with stored resources
+    - Generates separate granary `Дичь` and `Рыба` stockpile sprites that visually grow with stored food
     - Generates staged construction-site sprites and delivered Logs/Stone construction stockpile sprites
     - Reuses a stable default sprite for Build menu icon and ghost preview
     - Chooses a random building visual variant for each successfully placed supported building
@@ -199,7 +212,8 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Garden Beds and Chicken Coop sprites animate procedurally while installed
   - House resources MVP
     - Runtime house-local resource store
-    - Current resources: Eggs, Turnip, Cabbage, Onion, Carrot, Potato
+    - Current house-local resources: Eggs, Turnip, Cabbage, Onion, Carrot, Potato
+    - Shared resource identity/icon layer also includes Stone, `Дичь`, and `Рыба` for production/storage-style HUDs and future economy work
     - Resource amounts live on placed house objects, not in a global economy yet
     - Runtime-generated pixel-art resource icons for the selected-house HUD
   - Storage yard logistics MVP
@@ -215,6 +229,13 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Lumberjack camp local Logs stock decreases when haulers pick up reserved Logs
     - Stonecutter camp local Stone stock decreases when haulers pick up reserved Stone
     - Storage Yard local Logs and Stone stock update their visible stockpiles
+  - Granary food logistics MVP
+    - Granary is a placed food-storage building with up to 2 food logistics workers
+    - Granary workers reserve available `Дичь` from Hunter Camps
+    - Granary workers reserve available `Рыба` from Fisher Huts
+    - Granary workers walk to source camps/huts, pick up reserved food, carry it to the Granary, and deposit it
+    - Hunter Camp and Fisher Hut local food stock decreases when granary haulers pick up reserved food
+    - Granary local `Дичь` and `Рыба` stock update their visible stockpiles
   - Population MVP
     - Runtime-created population controller
     - Startup camp creates an animated procedural campfire
@@ -234,8 +255,11 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Residents periodically work at their house's Garden Beds when that upgrade exists
     - Residents assigned to a lumberjack camp path to trees, chop mature trees, buck fallen trunks into Logs, carry Logs to camp stock, and plant new saplings nearby
     - Residents assigned to a stonecutter camp path to Stone deposits, mine chunks with pickaxes, carry Stone to camp stock, and do not plant/regrow Stone
+    - Residents assigned to a hunter camp reserve adult rabbits, move to bow range, shoot arrow projectiles, butcher carcasses, carry `Дичь`, and deposit it into hunter camp stock
+    - Residents assigned to a fisher hut reserve fish, move to shore, cast and reel fishing lines, carry `Рыба`, and deposit it into fisher hut stock
     - Residents assigned to a storage yard path to lumberjack camp stock, carry Logs to storage, and deposit them
     - Residents assigned to a storage yard also path to stonecutter camp stock, carry Stone to storage, and deposit it
+    - Residents assigned to a granary path to Hunter Camp/Fisher Hut food stock, carry `Дичь`/`Рыба` to the granary, and deposit it
     - Residents hired as Storage Yard builders fetch reserved Logs/Stone, deliver them to construction sites, then build with hammer animations
     - Completed houses first try to pull a homeless adult male/female pair, including residents who already have workplaces, then fall back to adult-child migration and partner lookup
     - Runtime-generated resident sprites include 5 male variants, 5 female variants, child sprites, and matching portrait sprites
@@ -243,6 +267,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Lumberjack work uses cached frame-based axe swing sprites for all male/female visual variants
     - Stonecutter work uses cached frame-based pickaxe swing sprites for all male/female visual variants
     - Construction work uses cached frame-based hammer/build sprites for all male/female visual variants
+    - Hunter work uses cached frame-based bow and butchering sprites for all male/female visual variants
     - Manual and automatic worker/builder assignment only accepts adult residents
     - Residents render with a synced silhouette outline and ground shadow for readability over busy terrain
     - Runtime-generated campfire sprites include flame, smoke, and spark animation frames
@@ -260,6 +285,9 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - The house HUD shows resource icons/counts and the current Garden Beds crop
     - The lumberjack camp HUD shows 2 worker slots with assign/remove actions, Logs stock, and nearby tree/trunk counts
     - The stonecutter camp HUD shows 2 worker slots with assign/remove actions, Stone stock, and nearby deposit counts
+    - The hunter camp HUD shows 2 worker slots with assign/remove actions, `Дичь` stock, and nearby huntable rabbit count
+    - The fisher hut HUD shows 2 worker slots with assign/remove actions, `Рыба` stock, and nearby catchable fish count
+    - The granary HUD shows 2 worker slots with assign/remove actions, `Дичь`/`Рыба` stock, and available food-source counts
     - The storage yard HUD shows 2 worker slots with assign/remove actions, Logs stock, and available source count
     - The construction site HUD shows final building type, cost, delivered resources, assigned builders, and build progress
     - The Storage Yard HUD shows separate logistics-worker and builder slots with assign/remove actions
@@ -298,8 +326,9 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - House visual upgrades and house resources depend on placed-building records, map walkability checks, generated upgrade/chicken/resource sprites, early idle/work agents, and the world-selection HUD.
 - Forestry depends on generated tree props, map walkability, placed lumberjack camps, resident work states, and the world-selection HUD.
 - Stone resources depend on generated nature props, map walkability, stonecutter camps, resident work states, and storage logistics.
-- Wildlife depends on generated terrain/water cells, map walkability for land animals, population/resident positions, starter-camp location, and Y-based world sorting; deer, rabbits, fish, and birds do not feed fog visibility or resources yet.
+- Wildlife depends on generated terrain/water cells, map walkability for land animals, population/resident positions, starter-camp location, hunter/fisher production buildings, and Y-based world sorting; deer and birds do not feed fog visibility or resources yet, while hunted rabbits can yield `Дичь` and caught fish can yield `Рыба`.
 - Storage yard logistics depends on lumberjack camp stock, stonecutter camp stock, resident work states, placed-building records, map walkability, and the world-selection HUD.
+- Granary food logistics depends on hunter camp stock, fisher hut stock, resident work states, placed-building records, map walkability, and the world-selection HUD.
 - Construction depends on Storage Yard resource reservations, hired Storage Yard builder assignments, construction-site blockers, placed-building finalization, and the world-selection HUD.
 - Population uses placed-building records, construction sites, the generated map walkability layer, and workplace assignments.
 - World selection uses placed-building/resident/construction-site colliders and the strategy camera.
@@ -311,7 +340,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Economy simulation
 - Zoning
 - Durable building/economy state beyond runtime construction and placement records
-- Wildlife resources, hunting, predators, mortality, and save/load
+- Predators, non-hunting wildlife mortality, broader wildlife resources, and save/load
 - Full pathfinding beyond local resident idle grid paths
 - Core gameplay loop beyond map/camera
 - Player/controller system

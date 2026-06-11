@@ -16,7 +16,8 @@ namespace ProjectUnknown.Strategy
         Swim,
         Dart,
         Turn,
-        Feed
+        Feed,
+        Hooked
     }
 
     internal static class StrategyFishSpriteFactory
@@ -27,6 +28,7 @@ namespace ProjectUnknown.Strategy
         public const int DartFrameCount = 8;
         public const int TurnFrameCount = 6;
         public const int FeedFrameCount = 6;
+        public const int HookedFrameCount = 8;
 
         private static readonly Dictionary<int, Sprite> CachedSprites = new();
 
@@ -53,6 +55,11 @@ namespace ProjectUnknown.Strategy
         public static Sprite GetFeedSprite(StrategyFishSpecies species, int frame)
         {
             return GetSprite(species, StrategyFishSpritePose.Feed, NormalizeFrame(frame, FeedFrameCount));
+        }
+
+        public static Sprite GetHookedSprite(StrategyFishSpecies species, int frame)
+        {
+            return GetSprite(species, StrategyFishSpritePose.Hooked, NormalizeFrame(frame, HookedFrameCount));
         }
 
         private static Sprite GetSprite(StrategyFishSpecies species, StrategyFishSpritePose pose, int frame)
@@ -104,6 +111,11 @@ namespace ProjectUnknown.Strategy
                 bodyRadiusX += 2;
                 bodyRadiusY = Mathf.Max(4, bodyRadiusY - 1);
             }
+            else if (pose == StrategyFishSpritePose.Hooked)
+            {
+                bodyRadiusX += 1;
+                bodyRadiusY = Mathf.Max(4, bodyRadiusY - 1);
+            }
 
             DrawRippleGlints(texture, bodyX, bodyY, spriteFrame, pose);
             DrawTail(texture, bodyX - bodyRadiusX + 1, bodyY, frame.TailSwing, palette);
@@ -120,6 +132,10 @@ namespace ProjectUnknown.Strategy
             if (pose == StrategyFishSpritePose.Feed)
             {
                 DrawBubbles(texture, bodyX + bodyRadiusX + 6, bodyY + frame.HeadY, spriteFrame);
+            }
+            else if (pose == StrategyFishSpritePose.Hooked)
+            {
+                DrawHook(texture, bodyX + bodyRadiusX + 3, bodyY + frame.HeadY, spriteFrame, palette.Outline);
             }
         }
 
@@ -197,6 +213,17 @@ namespace ProjectUnknown.Strategy
             SetPixelSafe(texture, x + 7, y + 2 + frame % 2, bubble);
         }
 
+        private static void DrawHook(Texture2D texture, int x, int y, int frame, Color outline)
+        {
+            Color line = new Color(0.86f, 0.91f, 0.88f, 0.82f);
+            Color metal = Rgb(210, 216, 202);
+            int sway = frame % 2 == 0 ? -1 : 1;
+            DrawLine(texture, P(x + sway, y + 12), P(x, y + 2), line);
+            DrawLine(texture, P(x, y + 2), P(x + 4, y - 1), outline);
+            DrawLine(texture, P(x + 1, y + 2), P(x + 4, y), metal);
+            SetPixelSafe(texture, x + 2, y - 2, outline);
+        }
+
         private static void DrawRippleGlints(Texture2D texture, int x, int y, int frame, StrategyFishSpritePose pose)
         {
             if (pose == StrategyFishSpritePose.Idle && frame % 3 != 0)
@@ -256,6 +283,18 @@ namespace ProjectUnknown.Strategy
                         2 => new FishFrame(0, -1, 0, -1, -2),
                         3 => new FishFrame(0, -1, -1, -1, -1),
                         4 => new FishFrame(0, 0, 0, 0, 0),
+                        _ => new FishFrame(0, 0, 0, 0, 0)
+                    };
+                case StrategyFishSpritePose.Hooked:
+                    normalized = NormalizeFrame(frame, HookedFrameCount);
+                    return normalized switch
+                    {
+                        1 => new FishFrame(2, 1, 5, 1, -1),
+                        2 => new FishFrame(-1, 2, -4, 1, 1),
+                        3 => new FishFrame(-2, 0, -5, -1, 2),
+                        4 => new FishFrame(1, -2, 4, -1, -1),
+                        5 => new FishFrame(2, -1, 5, 0, -2),
+                        6 => new FishFrame(-1, 1, -3, 1, 1),
                         _ => new FishFrame(0, 0, 0, 0, 0)
                     };
                 default:
