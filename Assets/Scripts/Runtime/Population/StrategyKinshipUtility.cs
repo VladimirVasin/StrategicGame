@@ -100,7 +100,7 @@ namespace ProjectUnknown.Strategy
                     continue;
                 }
 
-                if (!population.TryGetResidentById(currentId, out StrategyResidentAgent current) || current == null)
+                if (!population.TryGetFamilyRecord(currentId, out StrategyResidentFamilyRecord current) || current == null)
                 {
                     continue;
                 }

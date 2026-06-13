@@ -33,6 +33,7 @@ namespace ProjectUnknown.Strategy
         private StrategyFogOfWarController fog;
         private StrategyForestryController forestry;
         private StrategyStoneResourceController stone;
+        private StrategyBuildingUpgradeController upgrades;
         private Camera strategyCamera;
         private Sprite whiteSprite;
         private SpriteRenderer previewRenderer;
@@ -90,7 +91,8 @@ namespace ProjectUnknown.Strategy
             StrategyPopulationController populationController,
             StrategyFogOfWarController fogController,
             StrategyForestryController forestryController,
-            StrategyStoneResourceController stoneController)
+            StrategyStoneResourceController stoneController,
+            StrategyBuildingUpgradeController upgradeController = null)
         {
             map = mapController;
             buildMenu = menuController;
@@ -99,13 +101,15 @@ namespace ProjectUnknown.Strategy
             fog = fogController;
             forestry = forestryController;
             stone = stoneController;
+            upgrades = upgradeController;
             EnsureRuntimeObjects();
             StrategyDebugLogger.Info(
                 "Build",
                 "PlacementConfigured",
                 StrategyDebugLogger.F("hasFog", fog != null),
                 StrategyDebugLogger.F("hasForestry", forestry != null),
-                StrategyDebugLogger.F("hasStone", stone != null));
+                StrategyDebugLogger.F("hasStone", stone != null),
+                StrategyDebugLogger.F("hasUpgrades", upgrades != null));
         }
 
         public bool TryPlaceStarterStorageYard(Vector2Int nearCell, int initialLogs, int initialStone)
@@ -133,7 +137,7 @@ namespace ProjectUnknown.Strategy
 
             StrategyBuildToolInfo toolInfo = new StrategyBuildToolInfo(
                 StrategyBuildTool.StorageYard,
-                "\u0421\u043a\u043b\u0430\u0434",
+                "Storage Yard",
                 new StrategyConstructionResourceCost(0, 0),
                 new Color(0.61f, 0.50f, 0.38f),
                 new Vector2Int(3, 2));
@@ -554,6 +558,7 @@ namespace ProjectUnknown.Strategy
                 return null;
             }
 
+            ReleaseConstructionSiteMapState(site);
             StrategyBuildToolInfo toolInfo = new StrategyBuildToolInfo(
                 site.Tool,
                 site.Title,
@@ -586,12 +591,90 @@ namespace ProjectUnknown.Strategy
             return building;
         }
 
+        public bool CancelConstructionSite(StrategyConstructionSite site)
+        {
+            if (site == null || map == null || site.IsCompleted)
+            {
+                return false;
+            }
+
+            int looseLogs = site.DeliveredLogs;
+            int looseStone = site.DeliveredStone;
+            IReadOnlyList<StrategyResidentAgent> builders = site.Builders;
+            for (int i = 0; i < builders.Count; i++)
+            {
+                StrategyResidentAgent builder = builders[i];
+                if (builder == null)
+                {
+                    continue;
+                }
+
+                builder.ExtractCarriedConstructionResources(site, out int carriedLogs, out int carriedStone);
+                looseLogs += carriedLogs;
+                looseStone += carriedStone;
+            }
+
+            ReleaseConstructionSiteMapState(site);
+            SpawnLooseConstructionResources(site, looseLogs, looseStone);
+            StrategyDebugLogger.Info(
+                "Build",
+                "ConstructionCancelled",
+                StrategyDebugLogger.F("tool", site.Tool),
+                StrategyDebugLogger.F("origin", site.Origin),
+                StrategyDebugLogger.F("looseLogs", looseLogs),
+                StrategyDebugLogger.F("looseStone", looseStone));
+            Destroy(site.gameObject);
+            fog?.RequestRefresh();
+            return true;
+        }
+
+        public bool DemolishBuilding(StrategyPlacedBuilding building)
+        {
+            if (building == null || map == null)
+            {
+                return false;
+            }
+
+            StrategyBuildTool tool = building.Tool;
+            Vector2Int origin = building.Origin;
+            if (tool == StrategyBuildTool.House)
+            {
+                population?.UnregisterHouse(building);
+                building.DetachResidentsForDemolition();
+            }
+
+            if (tool == StrategyBuildTool.Bridge && building.BridgeCells.Count > 0)
+            {
+                UnmarkOccupiedCells(building.BridgeCells);
+                map.SetBridgeCellsWalkable(building.BridgeCells, false);
+            }
+            else
+            {
+                GetWalkBlockFootprint(tool, building.Origin, building.Footprint, out Vector2Int blockOrigin, out Vector2Int blockFootprint);
+                UnmarkOccupied(blockOrigin, blockFootprint);
+                map.SetCellsWalkable(blockOrigin, blockFootprint, true);
+            }
+
+            placedBuildings.Remove(building);
+            Destroy(building.gameObject);
+            fog?.RequestRefresh();
+            StrategyDebugLogger.Info(
+                "Build",
+                "BuildingDemolished",
+                StrategyDebugLogger.F("tool", tool),
+                StrategyDebugLogger.F("origin", origin),
+                StrategyDebugLogger.F("placedCount", placedBuildings.Count));
+            return true;
+        }
+
         private StrategyConstructionSite PlaceConstructionSite(StrategyBuildToolInfo toolInfo, Vector2Int origin)
         {
             Bounds bounds = map.GetCellRectWorld(origin, toolInfo.Footprint);
-            GetWalkBlockFootprint(toolInfo.Tool, origin, toolInfo.Footprint, out Vector2Int blockOrigin, out Vector2Int blockFootprint);
+            GetWalkBlockFootprint(toolInfo.Tool, origin, toolInfo.Footprint, out Vector2Int finalBlockOrigin, out Vector2Int finalBlockFootprint);
+            Vector2Int constructionBlockOrigin = origin;
+            Vector2Int constructionBlockFootprint = toolInfo.Footprint;
 
-            GameObject siteObject = new GameObject("\u0421\u0442\u0440\u043e\u0439\u043a\u0430: " + toolInfo.Title);
+            GameObject siteObject = new GameObject("Construction: " + toolInfo.Title);
             siteObject.transform.SetParent(placedRoot, false);
 
             SpriteRenderer renderer = siteObject.AddComponent<SpriteRenderer>();
@@ -602,7 +685,16 @@ namespace ProjectUnknown.Strategy
             StrategyWorldSorting.Apply(renderer, siteObject.transform.position);
 
             StrategyConstructionSite site = siteObject.AddComponent<StrategyConstructionSite>();
-            site.Configure(this, map, toolInfo, origin, bounds, blockOrigin, blockFootprint, visualVariant, renderer);
+            site.Configure(
+                this,
+                map,
+                toolInfo,
+                origin,
+                bounds,
+                constructionBlockOrigin,
+                constructionBlockFootprint,
+                visualVariant,
+                renderer);
 
             if (!StrategyStorageYard.TryReserveConstructionResources(toolInfo.Cost, site, bounds.center))
             {
@@ -619,8 +711,8 @@ namespace ProjectUnknown.Strategy
                 return null;
             }
 
-            MarkOccupied(blockOrigin, blockFootprint);
-            map.SetCellsWalkable(blockOrigin, blockFootprint, false);
+            MarkOccupied(finalBlockOrigin, finalBlockFootprint);
+            map.SetCellsWalkable(constructionBlockOrigin, constructionBlockFootprint, false);
             fog?.RequestRefresh();
             site.Begin();
             bool buildersAssigned = StrategyStorageYard.TryAssignBuildersToSite(site);
@@ -632,8 +724,10 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("title", toolInfo.Title),
                 StrategyDebugLogger.F("origin", origin),
                 StrategyDebugLogger.F("footprint", toolInfo.Footprint),
-                StrategyDebugLogger.F("blockOrigin", blockOrigin),
-                StrategyDebugLogger.F("blockFootprint", blockFootprint),
+                StrategyDebugLogger.F("constructionBlockOrigin", constructionBlockOrigin),
+                StrategyDebugLogger.F("constructionBlockFootprint", constructionBlockFootprint),
+                StrategyDebugLogger.F("reservedBlockOrigin", finalBlockOrigin),
+                StrategyDebugLogger.F("reservedBlockFootprint", finalBlockFootprint),
                 StrategyDebugLogger.F("visualVariant", visualVariant),
                 StrategyDebugLogger.F("buildersAssigned", buildersAssigned));
             return site;
@@ -665,7 +759,7 @@ namespace ProjectUnknown.Strategy
                 footprint);
             Bounds bounds = map.GetCellRectWorld(origin, footprint);
 
-            GameObject siteObject = new GameObject("\u0421\u0442\u0440\u043e\u0439\u043a\u0430: " + toolInfo.Title);
+            GameObject siteObject = new GameObject("Construction: " + toolInfo.Title);
             siteObject.transform.SetParent(placedRoot, false);
 
             SpriteRenderer renderer = siteObject.AddComponent<SpriteRenderer>();
@@ -811,6 +905,7 @@ namespace ProjectUnknown.Strategy
             {
                 StrategyHouseAmbientAnimator ambient = placed.AddComponent<StrategyHouseAmbientAnimator>();
                 ambient.Configure(renderer, visualVariant);
+                TryInstallDefaultGardenBeds(building);
                 population?.RegisterHouse(building);
                 if (autoAssignHouseResidents)
                 {
@@ -866,6 +961,36 @@ namespace ProjectUnknown.Strategy
             return building;
         }
 
+        private void TryInstallDefaultGardenBeds(StrategyPlacedBuilding building)
+        {
+            if (building == null || building.Tool != StrategyBuildTool.House || building.HasUpgrade(StrategyBuildingUpgradeType.GardenBeds))
+            {
+                return;
+            }
+
+            if (upgrades == null)
+            {
+                StrategyDebugLogger.Warn(
+                    "Build",
+                    "DefaultGardenBedsSkipped",
+                    StrategyDebugLogger.F("houseOrigin", building.Origin),
+                    StrategyDebugLogger.F("reason", "upgrades_not_ready"));
+                return;
+            }
+
+            if (!upgrades.TryInstallDefaultGardenBeds(
+                    building,
+                    out _,
+                    out StrategyBuildingUpgradeInstallFailureReason failureReason))
+            {
+                StrategyDebugLogger.Warn(
+                    "Build",
+                    "DefaultGardenBedsSkipped",
+                    StrategyDebugLogger.F("houseOrigin", building.Origin),
+                    StrategyDebugLogger.F("reason", failureReason));
+            }
+        }
+
         private void AddLabel(Transform parent, StrategyBuildToolInfo toolInfo)
         {
             GameObject labelObject = new GameObject("Label");
@@ -895,8 +1020,10 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            GetWalkBlockFootprint(toolInfo.Tool, origin, toolInfo.Footprint, out Vector2Int blockOrigin, out Vector2Int blockFootprint);
-            return CanPlaceFootprint(blockOrigin, blockFootprint)
+            GetWalkBlockFootprint(toolInfo.Tool, origin, toolInfo.Footprint, out Vector2Int finalBlockOrigin, out Vector2Int finalBlockFootprint);
+            return CanPlaceFoundation(origin, toolInfo.Footprint)
+                && CanReserveFinalBlock(finalBlockOrigin, finalBlockFootprint)
+                && HasBuilderWorkAccess(origin, toolInfo.Footprint)
                 && (toolInfo.Tool != StrategyBuildTool.FisherHut || HasFishingWaterAccess(origin));
         }
 
@@ -1187,37 +1314,22 @@ namespace ProjectUnknown.Strategy
                 return "map_missing";
             }
 
-            GetWalkBlockFootprint(toolInfo.Tool, origin, toolInfo.Footprint, out Vector2Int blockOrigin, out Vector2Int blockFootprint);
-            for (int y = 0; y < blockFootprint.y; y++)
+            string reason = GetFoundationFailureReason(origin, toolInfo.Footprint);
+            if (!string.IsNullOrEmpty(reason))
             {
-                for (int x = 0; x < blockFootprint.x; x++)
-                {
-                    Vector2Int cell = new Vector2Int(blockOrigin.x + x, blockOrigin.y + y);
-                    if (!map.TryGetCell(cell.x, cell.y, out CityMapCell mapCell))
-                    {
-                        return "out_of_bounds@" + cell.x + "," + cell.y;
-                    }
+                return reason;
+            }
 
-                    if (!mapCell.IsBuildable)
-                    {
-                        return "terrain_" + mapCell.Kind + "@" + cell.x + "," + cell.y;
-                    }
+            GetWalkBlockFootprint(toolInfo.Tool, origin, toolInfo.Footprint, out Vector2Int finalBlockOrigin, out Vector2Int finalBlockFootprint);
+            reason = GetFinalBlockFailureReason(finalBlockOrigin, finalBlockFootprint);
+            if (!string.IsNullOrEmpty(reason))
+            {
+                return reason;
+            }
 
-                    if (fog != null && !fog.IsCellExplored(cell))
-                    {
-                        return "unexplored@" + cell.x + "," + cell.y;
-                    }
-
-                    if (occupiedCells.Contains(cell))
-                    {
-                        return "occupied@" + cell.x + "," + cell.y;
-                    }
-
-                    if (!map.IsCellWalkable(cell))
-                    {
-                        return "not_walkable@" + cell.x + "," + cell.y;
-                    }
-                }
+            if (!HasBuilderWorkAccess(origin, toolInfo.Footprint))
+            {
+                return "no_builder_access";
             }
 
             if (toolInfo.Tool == StrategyBuildTool.FisherHut && !HasFishingWaterAccess(origin))
@@ -1226,6 +1338,114 @@ namespace ProjectUnknown.Strategy
             }
 
             return hasValidHover ? "unknown" : "invalid_hover";
+        }
+
+        private bool CanPlaceFoundation(Vector2Int origin, Vector2Int footprint)
+        {
+            return string.IsNullOrEmpty(GetFoundationFailureReason(origin, footprint));
+        }
+
+        private string GetFoundationFailureReason(Vector2Int origin, Vector2Int footprint)
+        {
+            for (int y = 0; y < footprint.y; y++)
+            {
+                for (int x = 0; x < footprint.x; x++)
+                {
+                    Vector2Int cell = new Vector2Int(origin.x + x, origin.y + y);
+                    if (!map.TryGetCell(cell.x, cell.y, out CityMapCell mapCell))
+                    {
+                        return "foundation_out_of_bounds@" + cell.x + "," + cell.y;
+                    }
+
+                    if (!mapCell.IsBuildable)
+                    {
+                        return "foundation_terrain_" + mapCell.Kind + "@" + cell.x + "," + cell.y;
+                    }
+
+                    if (fog != null && !fog.IsCellExplored(cell))
+                    {
+                        return "foundation_unexplored@" + cell.x + "," + cell.y;
+                    }
+
+                    if (occupiedCells.Contains(cell))
+                    {
+                        return "foundation_occupied@" + cell.x + "," + cell.y;
+                    }
+
+                    if (!map.IsCellWalkable(cell))
+                    {
+                        return "foundation_not_walkable@" + cell.x + "," + cell.y;
+                    }
+                }
+            }
+
+            return string.Empty;
+        }
+
+        private bool CanReserveFinalBlock(Vector2Int origin, Vector2Int footprint)
+        {
+            return string.IsNullOrEmpty(GetFinalBlockFailureReason(origin, footprint));
+        }
+
+        private string GetFinalBlockFailureReason(Vector2Int origin, Vector2Int footprint)
+        {
+            for (int y = 0; y < footprint.y; y++)
+            {
+                for (int x = 0; x < footprint.x; x++)
+                {
+                    Vector2Int cell = new Vector2Int(origin.x + x, origin.y + y);
+                    if (!map.TryGetCell(cell.x, cell.y, out CityMapCell mapCell))
+                    {
+                        return "final_block_out_of_bounds@" + cell.x + "," + cell.y;
+                    }
+
+                    if (!mapCell.IsBuildable)
+                    {
+                        return "final_block_terrain_" + mapCell.Kind + "@" + cell.x + "," + cell.y;
+                    }
+
+                    if (fog != null && !fog.IsCellExplored(cell))
+                    {
+                        return "final_block_unexplored@" + cell.x + "," + cell.y;
+                    }
+
+                    if (occupiedCells.Contains(cell))
+                    {
+                        return "final_block_occupied@" + cell.x + "," + cell.y;
+                    }
+                }
+            }
+
+            return string.Empty;
+        }
+
+        private bool HasBuilderWorkAccess(Vector2Int origin, Vector2Int footprint)
+        {
+            for (int radius = 1; radius <= 2; radius++)
+            {
+                for (int y = -radius; y < footprint.y + radius; y++)
+                {
+                    for (int x = -radius; x < footprint.x + radius; x++)
+                    {
+                        bool isEdge = x == -radius
+                            || y == -radius
+                            || x == footprint.x + radius - 1
+                            || y == footprint.y + radius - 1;
+                        if (!isEdge)
+                        {
+                            continue;
+                        }
+
+                        Vector2Int candidate = origin + new Vector2Int(x, y);
+                        if (map.IsCellWalkable(candidate) && !occupiedCells.Contains(candidate))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
         }
 
         private bool CanPlaceFootprint(Vector2Int origin, Vector2Int footprint)
@@ -1310,6 +1530,63 @@ namespace ProjectUnknown.Strategy
             {
                 occupiedCells.Add(cells[i]);
             }
+        }
+
+        private void UnmarkOccupied(Vector2Int origin, Vector2Int footprint)
+        {
+            for (int y = 0; y < footprint.y; y++)
+            {
+                for (int x = 0; x < footprint.x; x++)
+                {
+                    occupiedCells.Remove(new Vector2Int(origin.x + x, origin.y + y));
+                }
+            }
+        }
+
+        private void UnmarkOccupiedCells(IReadOnlyList<Vector2Int> cells)
+        {
+            if (cells == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < cells.Count; i++)
+            {
+                occupiedCells.Remove(cells[i]);
+            }
+        }
+
+        private void ReleaseConstructionSiteMapState(StrategyConstructionSite site)
+        {
+            if (site == null)
+            {
+                return;
+            }
+
+            if (site.HasBridgeSpan)
+            {
+                UnmarkOccupiedCells(site.BridgeCells);
+            }
+            else
+            {
+                GetWalkBlockFootprint(site.Tool, site.Origin, site.Footprint, out Vector2Int finalBlockOrigin, out Vector2Int finalBlockFootprint);
+                UnmarkOccupied(finalBlockOrigin, finalBlockFootprint);
+                map.SetCellsWalkable(site.BlockOrigin, site.BlockFootprint, true);
+            }
+        }
+
+        private void SpawnLooseConstructionResources(StrategyConstructionSite site, int logs, int stone)
+        {
+            if (site == null || (logs <= 0 && stone <= 0))
+            {
+                return;
+            }
+
+            Vector2Int resourceCell = site.HasBridgeSpan ? site.BridgeStartCell : site.Origin;
+            Vector3 world = site.HasBridgeSpan
+                ? map.GetCellRectWorld(resourceCell, Vector2Int.one).center
+                : site.FootprintBounds.center;
+            StrategyLooseConstructionResourcePile.Create(map, resourceCell, world, logs, stone);
         }
 
         private static bool TryGetCellBounds(

@@ -31,6 +31,7 @@ namespace ProjectUnknown.Strategy
         private const float LandAnimationRate = 10.0f;
         private const float SwimAnimationRate = 6.0f;
         private const float BirdGlobalScale = 0.78f;
+        private const float FlightShadowScale = 0.6f;
         private const float FlyingSortOffset = 3600f;
         private const float LandedSortOffset = 16f;
 
@@ -710,7 +711,7 @@ namespace ProjectUnknown.Strategy
             shadowRenderer.transform.localPosition = new Vector3(0f, -altitude, 0.015f);
             float heightFade = Mathf.Clamp01(1f - altitude * 0.38f);
             shadowRenderer.color = new Color(0f, 0f, 0f, Mathf.Lerp(0.08f, 0.25f, heightFade));
-            float shadowScale = Mathf.Lerp(0.62f, 1.0f, heightFade) * GetSpeciesScale();
+            float shadowScale = Mathf.Lerp(0.62f, 1.0f, heightFade) * GetSpeciesScale() * FlightShadowScale;
             shadowRenderer.transform.localScale = new Vector3(shadowScale, shadowScale * 0.52f, 1f);
         }
 

@@ -100,9 +100,9 @@ namespace ProjectUnknown.Strategy
             int adults = population != null ? population.AdultResidentCount : 0;
             int children = population != null ? population.ChildResidentCount : 0;
             int total = adults + children;
-            populationText.text = "\u041d\u0430\u0441\u0435\u043b\u0435\u043d\u0438\u0435 " + total
-                + "   \u0432\u0437\u0440. " + adults
-                + " / \u0434\u0435\u0442\u0438 " + children;
+            populationText.text = "Population " + total
+                + "   adults " + adults
+                + " / children " + children;
         }
 
         private static GameObject CreateUiObject(string name, Transform parent)
@@ -117,7 +117,7 @@ namespace ProjectUnknown.Strategy
             RectTransform root = CreateUiObject(name, parent).GetComponent<RectTransform>();
             Text text = root.gameObject.AddComponent<Text>();
             text.text = value;
-            text.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             text.fontSize = size;
             text.alignment = anchor;
             text.color = color;

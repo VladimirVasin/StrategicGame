@@ -45,6 +45,50 @@ namespace ProjectUnknown.Strategy
             amounts[type] = current + amount;
         }
 
+        public int GetTotalFoodAmount()
+        {
+            int total = 0;
+            for (int i = 0; i < DisplayOrder.Length; i++)
+            {
+                total += GetAmount(DisplayOrder[i]);
+            }
+
+            return total;
+        }
+
+        public int ConsumeFood(int requested)
+        {
+            int remaining = Mathf.Max(0, requested);
+            if (remaining <= 0)
+            {
+                return 0;
+            }
+
+            for (int i = 0; i < DisplayOrder.Length && remaining > 0; i++)
+            {
+                StrategyResourceType type = DisplayOrder[i];
+                int available = GetAmount(type);
+                if (available <= 0)
+                {
+                    continue;
+                }
+
+                int taken = Mathf.Min(available, remaining);
+                remaining -= taken;
+                int nextAmount = available - taken;
+                if (nextAmount > 0)
+                {
+                    amounts[type] = nextAmount;
+                }
+                else
+                {
+                    amounts.Remove(type);
+                }
+            }
+
+            return requested - remaining;
+        }
+
         public int GetAmount(StrategyResourceType type)
         {
             return amounts.TryGetValue(type, out int amount) ? amount : 0;

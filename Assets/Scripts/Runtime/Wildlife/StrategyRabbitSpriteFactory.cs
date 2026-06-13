@@ -19,7 +19,8 @@ namespace ProjectUnknown.Strategy
 
     internal static class StrategyRabbitSpriteFactory
     {
-        private const float PixelsPerUnit = 38f;
+        private const float AnimalVisualScale = 0.6f;
+        private const float PixelsPerUnit = 38f / AnimalVisualScale;
         public const int IdleFrameCount = 6;
         public const int HopFrameCount = 8;
         public const int NibbleFrameCount = 6;

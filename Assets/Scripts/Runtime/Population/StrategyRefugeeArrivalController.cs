@@ -308,6 +308,16 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
+            if (!TryBuildCampArrivalTargets(campCell, out HashSet<Vector2Int> campArrivalTargets))
+            {
+                StrategyDebugLogger.Warn(
+                    "Refugees",
+                    "ArrivalRouteTargetsRejected",
+                    StrategyDebugLogger.F("reason", "no_reachable_camp_targets"),
+                    StrategyDebugLogger.F("campCell", campCell));
+                return false;
+            }
+
             for (int attempt = 0; attempt < MaxRouteAttempts; attempt++)
             {
                 Vector2Int entryCell = GetRandomEdgeCell();
@@ -321,7 +331,7 @@ namespace ProjectUnknown.Strategy
                 bool allReady = true;
                 for (int i = 0; i < memberCount; i++)
                 {
-                    if (!TryFindCampRoute(entryCell, campCell, usedTargets, i, out List<Vector2Int> cellPath))
+                    if (!TryFindCampRoute(entryCell, campCell, campArrivalTargets, usedTargets, i, out List<Vector2Int> cellPath))
                     {
                         allReady = false;
                         break;
@@ -353,6 +363,7 @@ namespace ProjectUnknown.Strategy
         private bool TryFindCampRoute(
             Vector2Int entryCell,
             Vector2Int campCell,
+            HashSet<Vector2Int> campArrivalTargets,
             HashSet<Vector2Int> usedTargets,
             int salt,
             out List<Vector2Int> cellPath)
@@ -371,7 +382,10 @@ namespace ProjectUnknown.Strategy
                         }
 
                         Vector2Int candidate = campCell + new Vector2Int(x, y);
-                        if (usedTargets.Contains(candidate) || !map.IsCellWalkable(candidate))
+                        if (usedTargets.Contains(candidate)
+                            || campArrivalTargets == null
+                            || !campArrivalTargets.Contains(candidate)
+                            || !map.IsCellWalkable(candidate))
                         {
                             continue;
                         }
@@ -394,6 +408,171 @@ namespace ProjectUnknown.Strategy
             }
 
             return false;
+        }
+
+        private bool TryBuildCampArrivalTargets(
+            Vector2Int campCell,
+            out HashSet<Vector2Int> arrivalTargets)
+        {
+            arrivalTargets = null;
+            List<Vector2Int> candidates = new();
+            for (int radius = 1; radius <= MaxCampGatherRadius; radius++)
+            {
+                for (int y = -radius; y <= radius; y++)
+                {
+                    for (int x = -radius; x <= radius; x++)
+                    {
+                        if (Mathf.Abs(x) != radius && Mathf.Abs(y) != radius)
+                        {
+                            continue;
+                        }
+
+                        Vector2Int candidate = campCell + new Vector2Int(x, y);
+                        if (map.IsCellWalkable(candidate) && !candidates.Contains(candidate))
+                        {
+                            candidates.Add(candidate);
+                        }
+                    }
+                }
+            }
+
+            if (candidates.Count <= 0)
+            {
+                return false;
+            }
+
+            HashSet<Vector2Int> assigned = new();
+            HashSet<Vector2Int> bestTargets = null;
+            int bestResidentScore = -1;
+            int bestTargetCount = -1;
+            float bestDistanceScore = float.MaxValue;
+
+            for (int i = 0; i < candidates.Count; i++)
+            {
+                Vector2Int start = candidates[i];
+                if (assigned.Contains(start) || !BuildReachableSet(start, out HashSet<Vector2Int> reachable))
+                {
+                    continue;
+                }
+
+                HashSet<Vector2Int> componentTargets = new();
+                float distanceScore = 0f;
+                for (int candidateIndex = 0; candidateIndex < candidates.Count; candidateIndex++)
+                {
+                    Vector2Int candidate = candidates[candidateIndex];
+                    if (!reachable.Contains(candidate))
+                    {
+                        continue;
+                    }
+
+                    componentTargets.Add(candidate);
+                    assigned.Add(candidate);
+                    distanceScore += (candidate - campCell).sqrMagnitude;
+                }
+
+                if (componentTargets.Count <= 0)
+                {
+                    continue;
+                }
+
+                int residentScore = CountAcceptedResidentsInReachableSet(reachable);
+                float averageDistance = distanceScore / Mathf.Max(1, componentTargets.Count);
+                bool better = residentScore > bestResidentScore
+                    || (residentScore == bestResidentScore && componentTargets.Count > bestTargetCount)
+                    || (residentScore == bestResidentScore
+                        && componentTargets.Count == bestTargetCount
+                        && averageDistance < bestDistanceScore);
+                if (!better)
+                {
+                    continue;
+                }
+
+                bestTargets = componentTargets;
+                bestResidentScore = residentScore;
+                bestTargetCount = componentTargets.Count;
+                bestDistanceScore = averageDistance;
+            }
+
+            if (bestTargets == null || bestTargets.Count <= 0)
+            {
+                return false;
+            }
+
+            arrivalTargets = bestTargets;
+            StrategyDebugLogger.Info(
+                "Refugees",
+                "ArrivalRouteTargetsPrepared",
+                StrategyDebugLogger.F("campCell", campCell),
+                StrategyDebugLogger.F("targetCount", arrivalTargets.Count),
+                StrategyDebugLogger.F("residentScore", bestResidentScore));
+            return true;
+        }
+
+        private bool BuildReachableSet(Vector2Int startCell, out HashSet<Vector2Int> reachable)
+        {
+            reachable = null;
+            if (!map.IsCellWalkable(startCell))
+            {
+                return false;
+            }
+
+            reachable = new HashSet<Vector2Int>();
+            Queue<Vector2Int> open = new();
+            open.Enqueue(startCell);
+            reachable.Add(startCell);
+
+            int visitLimit = Mathf.Max(256, map.Width * map.Height);
+            while (open.Count > 0 && reachable.Count < visitLimit)
+            {
+                Vector2Int current = open.Dequeue();
+                TryVisitReachableNeighbor(current + Vector2Int.right, open, reachable);
+                TryVisitReachableNeighbor(current + Vector2Int.left, open, reachable);
+                TryVisitReachableNeighbor(current + Vector2Int.up, open, reachable);
+                TryVisitReachableNeighbor(current + Vector2Int.down, open, reachable);
+            }
+
+            return reachable.Count > 0;
+        }
+
+        private void TryVisitReachableNeighbor(
+            Vector2Int candidate,
+            Queue<Vector2Int> open,
+            HashSet<Vector2Int> reachable)
+        {
+            if (reachable.Contains(candidate) || !map.IsCellWalkable(candidate))
+            {
+                return;
+            }
+
+            reachable.Add(candidate);
+            open.Enqueue(candidate);
+        }
+
+        private int CountAcceptedResidentsInReachableSet(HashSet<Vector2Int> reachable)
+        {
+            if (population == null || reachable == null)
+            {
+                return 0;
+            }
+
+            int count = 0;
+            IReadOnlyList<StrategyResidentAgent> residents = population.Residents;
+            for (int i = 0; i < residents.Count; i++)
+            {
+                StrategyResidentAgent resident = residents[i];
+                if (resident == null || resident.IsPendingRefugee)
+                {
+                    continue;
+                }
+
+                if (map.TryWorldToCell(resident.transform.position, out Vector2Int residentCell)
+                    && reachable.Contains(residentCell))
+                {
+                    count++;
+                }
+            }
+
+            return count;
         }
 
         private List<Vector3> BuildDepartureRoute(StrategyResidentAgent resident, int memberIndex)

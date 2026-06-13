@@ -14,6 +14,7 @@ namespace ProjectUnknown.Strategy
         public const int BowFrameCount = 12;
         public const int ButcherFrameCount = 10;
         public const int FishingFrameCount = 14;
+        public const int CryFrameCount = 6;
 
         private static readonly Dictionary<int, Sprite> CachedSprites = new();
 
@@ -143,6 +144,24 @@ namespace ProjectUnknown.Strategy
             return sprite;
         }
 
+        public static Sprite GetCryingSprite(
+            StrategyResidentGender gender,
+            int variant,
+            StrategyResidentLifeStage lifeStage,
+            int frame)
+        {
+            int normalizedVariant = NormalizeVariant(variant, VariantCountPerGender);
+            int normalizedFrame = NormalizeVariant(frame, CryFrameCount);
+            int cacheKey = GetCacheKey(gender, normalizedVariant, ResidentSpritePose.Crying, normalizedFrame, lifeStage);
+            if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
+            {
+                sprite = CreateSprite(gender, normalizedVariant, ResidentSpritePose.Crying, normalizedFrame, lifeStage);
+                CachedSprites[cacheKey] = sprite;
+            }
+
+            return sprite;
+        }
+
         public static Sprite GetPortraitSprite(StrategyResidentGender gender, int variant)
         {
             return GetPortraitSprite(gender, variant, StrategyResidentLifeStage.Adult);
@@ -213,6 +232,7 @@ namespace ProjectUnknown.Strategy
                 ResidentSpritePose.Bow => GetBowBodyFrame(frame),
                 ResidentSpritePose.Butcher => GetButcherBodyFrame(frame),
                 ResidentSpritePose.Fishing => GetFishingBodyFrame(frame),
+                ResidentSpritePose.Crying => GetCryingBodyFrame(frame),
                 _ => ResidentWalkFrame.Idle
             };
 
@@ -225,7 +245,11 @@ namespace ProjectUnknown.Strategy
                 DrawFemale(texture, variant, outline, skin, hair, tunic, tunicDark, leg, accent, walkFrame);
             }
 
-            if (pose == ResidentSpritePose.Woodcut)
+            if (pose == ResidentSpritePose.Crying)
+            {
+                DrawCryingOverlay(texture, frame, outline, skin, walkFrame.BodyYOffset);
+            }
+            else if (pose == ResidentSpritePose.Woodcut)
             {
                 DrawWoodcutAxe(texture, frame, outline);
             }
@@ -375,9 +399,12 @@ namespace ProjectUnknown.Strategy
             Color tunicDark = Color.Lerp(GetTunicDarkColor(gender, variant), Rgb(84, 61, 44), 0.16f);
             Color leg = Rgb(66, 54, 45);
             Color accent = GetAccentColor(gender, variant);
-            ResidentWalkFrame walkFrame = pose == ResidentSpritePose.Walk
-                ? GetWalkFrame(frame)
-                : ResidentWalkFrame.Idle;
+            ResidentWalkFrame walkFrame = pose switch
+            {
+                ResidentSpritePose.Walk => GetWalkFrame(frame),
+                ResidentSpritePose.Crying => GetCryingBodyFrame(frame),
+                _ => ResidentWalkFrame.Idle
+            };
             int bodyY = Mathf.Clamp(walkFrame.BodyYOffset, 0, 1);
 
             FillEllipse(texture, 9, 2, 5, 2, new Color(0f, 0f, 0f, 0.24f));
@@ -429,6 +456,10 @@ namespace ProjectUnknown.Strategy
             SetPixelSafe(texture, 7, 17 + bodyY, outline);
             SetPixelSafe(texture, 11, 17 + bodyY, outline);
             SetPixelSafe(texture, 9, 15 + bodyY, Rgb(138, 92, 70));
+            if (pose == ResidentSpritePose.Crying)
+            {
+                DrawChildCryingOverlay(texture, frame, outline, skin, bodyY);
+            }
 
             texture.Apply(false, false);
             return Sprite.Create(texture, new Rect(0f, 0f, 18f, 22f), new Vector2(0.5f, 0.08f), PixelsPerUnit);
@@ -578,6 +609,64 @@ namespace ProjectUnknown.Strategy
 
             SetPixelSafe(texture, 8, 21 + bodyY, outline);
             SetPixelSafe(texture, 12, 21 + bodyY, outline);
+        }
+
+        private static void DrawCryingOverlay(Texture2D texture, int frame, Color outline, Color skin, int bodyY)
+        {
+            int sobFrame = NormalizeVariant(frame, CryFrameCount);
+            int tremble = sobFrame == 2 || sobFrame == 3 ? 1 : 0;
+            Color tear = Rgb(104, 179, 222);
+            Color tearLight = Rgb(167, 220, 245);
+
+            FillRect(texture, 5, 17 + bodyY + tremble, 4, 2, skin);
+            FillRect(texture, 11, 17 + bodyY + (sobFrame >= 3 ? 1 : 0), 4, 2, skin);
+            SetPixelSafe(texture, 7, 21 + bodyY, outline);
+            SetPixelSafe(texture, 8, 20 + bodyY, outline);
+            SetPixelSafe(texture, 12, 21 + bodyY, outline);
+            SetPixelSafe(texture, 11, 20 + bodyY, outline);
+
+            if (sobFrame != 1)
+            {
+                SetPixelSafe(texture, 7, 20 + bodyY, tearLight);
+                SetPixelSafe(texture, 12, 20 + bodyY, tear);
+            }
+
+            if (sobFrame == 2 || sobFrame == 4)
+            {
+                SetPixelSafe(texture, 7, 19 + bodyY, tear);
+                SetPixelSafe(texture, 12, 19 + bodyY, tearLight);
+            }
+
+            if (sobFrame >= 3)
+            {
+                FillRect(texture, 8, 19 + bodyY, 4, 1, outline);
+            }
+        }
+
+        private static void DrawChildCryingOverlay(Texture2D texture, int frame, Color outline, Color skin, int bodyY)
+        {
+            int sobFrame = NormalizeVariant(frame, CryFrameCount);
+            Color tear = Rgb(104, 179, 222);
+            Color tearLight = Rgb(167, 220, 245);
+
+            FillRect(texture, 4, 14 + bodyY, 3, 2, skin);
+            FillRect(texture, 11, 14 + bodyY + (sobFrame >= 3 ? 1 : 0), 3, 2, skin);
+            SetPixelSafe(texture, 7, 17 + bodyY, outline);
+            SetPixelSafe(texture, 8, 16 + bodyY, outline);
+            SetPixelSafe(texture, 11, 17 + bodyY, outline);
+            SetPixelSafe(texture, 10, 16 + bodyY, outline);
+
+            if (sobFrame != 1)
+            {
+                SetPixelSafe(texture, 7, 16 + bodyY, tearLight);
+                SetPixelSafe(texture, 11, 16 + bodyY, tear);
+            }
+
+            if (sobFrame == 2 || sobFrame == 4)
+            {
+                SetPixelSafe(texture, 7, 15 + bodyY, tear);
+                SetPixelSafe(texture, 11, 15 + bodyY, tearLight);
+            }
         }
 
         private static void DrawFemale(
@@ -1027,6 +1116,7 @@ namespace ProjectUnknown.Strategy
                 ResidentSpritePose.Bow => $"{genderName} Resident Bow {variant + 1}-{frame + 1}",
                 ResidentSpritePose.Butcher => $"{genderName} Resident Butcher {variant + 1}-{frame + 1}",
                 ResidentSpritePose.Fishing => $"{genderName} Resident Fishing {variant + 1}-{frame + 1}",
+                ResidentSpritePose.Crying => $"{genderName} Resident Crying {variant + 1}-{frame + 1}",
                 _ => $"{genderName} Resident Walk {variant + 1}-{frame + 1}"
             };
         }
@@ -1064,6 +1154,11 @@ namespace ProjectUnknown.Strategy
         private static ResidentWalkFrame GetFishingBodyFrame(int frame)
         {
             return FishingBodyFrames[NormalizeVariant(frame, FishingFrameCount)];
+        }
+
+        private static ResidentWalkFrame GetCryingBodyFrame(int frame)
+        {
+            return CryingBodyFrames[NormalizeVariant(frame, CryFrameCount)];
         }
 
         private static WoodcutToolFrame GetWoodcutToolFrame(int frame)
@@ -1121,7 +1216,8 @@ namespace ProjectUnknown.Strategy
             Construction,
             Bow,
             Butcher,
-            Fishing
+            Fishing,
+            Crying
         }
 
         private static readonly ResidentWalkFrame[] WalkFrames =
@@ -1134,6 +1230,16 @@ namespace ProjectUnknown.Strategy
             new ResidentWalkFrame(0, 1, -1, 1, -1, -1, 1, -1, 1),
             new ResidentWalkFrame(1, 2, -2, 2, -2, -1, 1, -1, 1),
             new ResidentWalkFrame(0, 1, -1, 1, -1, 0, 0, 0, 0)
+        };
+
+        private static readonly ResidentWalkFrame[] CryingBodyFrames =
+        {
+            new ResidentWalkFrame(0, 0, 0, 0, 0, 1, -1, 3, 3),
+            new ResidentWalkFrame(0, 0, 0, 0, 0, 1, -1, 2, 3),
+            new ResidentWalkFrame(1, 0, 0, 0, 0, 2, -2, 3, 3),
+            new ResidentWalkFrame(1, 0, 0, 0, 0, 2, -1, 4, 3),
+            new ResidentWalkFrame(0, 0, 0, 0, 0, 1, -2, 3, 4),
+            new ResidentWalkFrame(0, 0, 0, 0, 0, 1, -1, 2, 3)
         };
 
         private static readonly ResidentWalkFrame[] WoodcutBodyFrames =

@@ -146,6 +146,15 @@ namespace ProjectUnknown.Strategy
             }
         }
 
+        public void UnassignWorker(StrategyResidentAgent worker)
+        {
+            int index = workers.IndexOf(worker);
+            if (index >= 0)
+            {
+                UnassignWorkerAt(index);
+            }
+        }
+
         public bool TryGetWorker(int index, out StrategyResidentAgent worker)
         {
             worker = index >= 0 && index < workers.Count ? workers[index] : null;
@@ -345,7 +354,7 @@ namespace ProjectUnknown.Strategy
             int mature = forestry != null ? forestry.CountMatureTrees(Origin, WorkRadius) : 0;
             int growing = forestry != null ? forestry.CountGrowingTrees(Origin, WorkRadius) : 0;
             int processable = forestry != null ? forestry.CountProcessableWood(Origin, WorkRadius) : 0;
-            return "\u0420\u0430\u0431\u043e\u0447\u0438\u0435: "
+            return "Workers: "
                 + workers.Count
                 + "/"
                 + MaxWorkers
@@ -354,13 +363,13 @@ namespace ProjectUnknown.Strategy
                 + logsStored
                 + (reservedLogs > 0 ? " (" + reservedLogs + " reserved)" : string.Empty)
                 + "\n"
-                + "\u0414\u0435\u0440\u0435\u0432\u044c\u044f: "
+                + "Trees: "
                 + mature
                 + "\n"
-                + "\u0421\u0442\u0432\u043e\u043b\u044b: "
+                + "Trunks: "
                 + processable
                 + "\n"
-                + "\u0421\u0430\u0436\u0435\u043d\u0446\u044b: "
+                + "Saplings: "
                 + growing;
         }
 

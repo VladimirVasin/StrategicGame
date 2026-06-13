@@ -146,6 +146,15 @@ namespace ProjectUnknown.Strategy
             }
         }
 
+        public void UnassignWorker(StrategyResidentAgent worker)
+        {
+            int index = workers.IndexOf(worker);
+            if (index >= 0)
+            {
+                UnassignWorkerAt(index);
+            }
+        }
+
         public bool TryGetWorker(int index, out StrategyResidentAgent worker)
         {
             worker = index >= 0 && index < workers.Count ? workers[index] : null;
@@ -314,16 +323,16 @@ namespace ProjectUnknown.Strategy
         public string GetHudStatusText()
         {
             int deposits = stone != null ? stone.CountAvailableDeposits(Origin, WorkRadius) : 0;
-            return "\u0420\u0430\u0431\u043e\u0447\u0438\u0435: "
+            return "Workers: "
                 + workers.Count
                 + "/"
                 + MaxWorkers
                 + "\n"
-                + "\u041a\u0430\u043c\u0435\u043d\u044c: "
+                + "Stone: "
                 + stoneStored
                 + (reservedStone > 0 ? " (" + reservedStone + " reserved)" : string.Empty)
                 + "\n"
-                + "\u0417\u0430\u043b\u0435\u0436\u0438: "
+                + "Deposits: "
                 + deposits;
         }
 

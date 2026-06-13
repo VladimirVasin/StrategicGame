@@ -6,6 +6,7 @@ namespace ProjectUnknown.Strategy
     {
         public const int TerrainOrder = 0;
         public const int WaterOverlayOrder = 1;
+        public const int DayNightOverlayOrder = 27000;
         public const int PreviewOrder = 28000;
         public const int FogOrder = 30000;
 

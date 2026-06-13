@@ -46,6 +46,7 @@ namespace ProjectUnknown.Strategy
         private const float TurnAnimationRate = 11.0f;
         private const float HookedAnimationRate = 18.0f;
         private const float FishGlobalScale = 0.82f;
+        private const float SurfaceRippleScale = 0.6f;
         private const float FryMaturitySeconds = 90f;
         private const float FryStartScale = 0.42f;
         private const float FryMatureScale = 0.78f;
@@ -1169,7 +1170,10 @@ namespace ProjectUnknown.Strategy
                     ? 0.18f
                     : 0.08f;
             float pulse = 1f + Mathf.Sin((Time.time + bobPhase) * 5f) * 0.08f;
-            rippleRenderer.transform.localScale = new Vector3(pulse, 0.72f + (pulse - 1f) * 0.35f, 1f);
+            rippleRenderer.transform.localScale = new Vector3(
+                pulse * SurfaceRippleScale,
+                (0.72f + (pulse - 1f) * 0.35f) * SurfaceRippleScale,
+                1f);
             rippleRenderer.color = new Color(0.65f, 0.90f, 1f, alpha);
         }
 

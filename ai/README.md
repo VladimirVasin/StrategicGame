@@ -68,6 +68,12 @@ Rule:
 10. Read `Design/worker-thought-influence-matrix.md` when the task touches explicit thought influence rules, opinion feedback loops, source-thought -> target-thought bias, influence windows/caps, or human-logic links between thoughts.
 11. Scan only the code/assets relevant to the requested change.
 
+## Language Standard
+
+- Use English for runtime UI text, debug/log event labels, code comments, AI memory, documentation, commit messages, and future development notes.
+- Keep third-party asset filenames as-is unless a rename is explicitly required.
+- Only add non-English project-facing text when the user explicitly asks for it.
+
 ## Workflow Contract
 
 ### Before coding
@@ -100,7 +106,7 @@ Rule:
 - Treat all source and project text files as `UTF-8`.
 - Prefer `apply_patch` for code/text edits, especially in files with localization.
 - Avoid whole-file rewrite scripts unless the write path is explicitly `UTF-8`.
-- After localized UI/tutorial/HUD text edits, run a quick scan for mojibake markers such as `вЂ`, `Р`, `С`, or `�`.
+- After editing localized UI/HUD/tutorial/state text, run a quick scan for common UTF-8 mojibake or replacement-character markers.
 - If encoding corruption appears in diff output, treat it as a bug to fix immediately.
 
 ### After implementation

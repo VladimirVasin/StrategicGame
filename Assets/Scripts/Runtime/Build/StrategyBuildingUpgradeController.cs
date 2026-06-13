@@ -43,6 +43,37 @@ namespace ProjectUnknown.Strategy
             out StrategyBuildingUpgrade upgrade,
             out StrategyBuildingUpgradeInstallFailureReason failureReason)
         {
+            return TryInstallUpgrade(
+                building,
+                type,
+                true,
+                "upgrade_" + type,
+                out upgrade,
+                out failureReason);
+        }
+
+        public bool TryInstallDefaultGardenBeds(
+            StrategyPlacedBuilding building,
+            out StrategyBuildingUpgrade upgrade,
+            out StrategyBuildingUpgradeInstallFailureReason failureReason)
+        {
+            return TryInstallUpgrade(
+                building,
+                StrategyBuildingUpgradeType.GardenBeds,
+                false,
+                "default_house_garden",
+                out upgrade,
+                out failureReason);
+        }
+
+        private bool TryInstallUpgrade(
+            StrategyPlacedBuilding building,
+            StrategyBuildingUpgradeType type,
+            bool spendResources,
+            string installReason,
+            out StrategyBuildingUpgrade upgrade,
+            out StrategyBuildingUpgradeInstallFailureReason failureReason)
+        {
             upgrade = null;
             failureReason = StrategyBuildingUpgradeInstallFailureReason.None;
             if (building == null
@@ -68,7 +99,8 @@ namespace ProjectUnknown.Strategy
 
             StrategyConstructionResourceCost cost = GetUpgradeCost(type);
             Bounds bounds = map.GetCellRectWorld(origin, size);
-            if (!StrategyStorageYard.TrySpendConstructionResources(cost, bounds.center, "upgrade_" + type))
+            if (spendResources
+                && !StrategyStorageYard.TrySpendConstructionResources(cost, bounds.center, installReason))
             {
                 failureReason = StrategyBuildingUpgradeInstallFailureReason.NotEnoughResources;
                 return false;
@@ -81,8 +113,6 @@ namespace ProjectUnknown.Strategy
             SpriteRenderer renderer = upgradeObject.AddComponent<SpriteRenderer>();
             renderer.sprite = StrategyBuildingUpgradeSpriteFactory.GetSprite(type);
             StrategyWorldSorting.Apply(renderer, upgradeObject.transform.position);
-            StrategyBuildingUpgradeAnimator animator = upgradeObject.AddComponent<StrategyBuildingUpgradeAnimator>();
-            animator.Configure(renderer, type);
 
             upgrade = upgradeObject.AddComponent<StrategyBuildingUpgrade>();
             StrategyResourceType producedResource = DetermineProducedResource(building, origin, type);
@@ -94,6 +124,9 @@ namespace ProjectUnknown.Strategy
                 failureReason = StrategyBuildingUpgradeInstallFailureReason.AlreadyInstalled;
                 return false;
             }
+
+            StrategyBuildingUpgradeAnimator animator = upgradeObject.AddComponent<StrategyBuildingUpgradeAnimator>();
+            animator.Configure(renderer, type, upgrade);
 
             MarkVisualCells(origin, size);
             if (type == StrategyBuildingUpgradeType.ChickenCoop)
@@ -107,8 +140,9 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("type", type),
                 StrategyDebugLogger.F("houseOrigin", building.Origin),
                 StrategyDebugLogger.F("upgradeOrigin", origin),
-                StrategyDebugLogger.F("costLogs", cost.Logs),
-                StrategyDebugLogger.F("costStone", cost.Stone));
+                StrategyDebugLogger.F("costLogs", spendResources ? cost.Logs : 0),
+                StrategyDebugLogger.F("costStone", spendResources ? cost.Stone : 0),
+                StrategyDebugLogger.F("reason", installReason));
             return true;
         }
 

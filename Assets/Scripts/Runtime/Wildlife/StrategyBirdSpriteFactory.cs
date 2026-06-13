@@ -22,7 +22,8 @@ namespace ProjectUnknown.Strategy
 
     internal static class StrategyBirdSpriteFactory
     {
-        private const float PixelsPerUnit = 36f;
+        private const float AnimalVisualScale = 0.6f;
+        private const float PixelsPerUnit = 36f / AnimalVisualScale;
         public const int IdleFrameCount = 6;
         public const int PeckFrameCount = 6;
         public const int HopFrameCount = 6;

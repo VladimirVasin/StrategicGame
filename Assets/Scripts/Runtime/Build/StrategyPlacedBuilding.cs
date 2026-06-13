@@ -13,6 +13,7 @@ namespace ProjectUnknown.Strategy
         private readonly List<Vector2Int> bridgeCells = new();
         private SpriteRenderer spriteRenderer;
         private StrategyHouseResourceStore resources;
+        private StrategyResidentAgent householder;
 
         public StrategyBuildTool Tool { get; private set; }
         public Vector2Int Origin { get; private set; }
@@ -32,6 +33,7 @@ namespace ProjectUnknown.Strategy
         public IReadOnlyList<StrategyResidentAgent> Residents => residents;
         public IReadOnlyList<Vector2Int> BridgeCells => bridgeCells;
         public StrategyHouseResourceStore Resources => resources;
+        public StrategyResidentAgent Householder => householder;
 
         public void Configure(
             StrategyBuildTool tool,
@@ -48,6 +50,7 @@ namespace ProjectUnknown.Strategy
             VisualVariant = visualVariant;
             residents.Clear();
             bridgeCells.Clear();
+            householder = null;
             BridgeStartCell = origin;
             BridgeEndCell = origin;
             spriteRenderer = renderer;
@@ -94,6 +97,7 @@ namespace ProjectUnknown.Strategy
                 residents.Add(resident);
             }
 
+            EnsureHouseholder();
             return true;
         }
 
@@ -110,6 +114,88 @@ namespace ProjectUnknown.Strategy
             }
 
             residents.Remove(resident);
+            if (householder == resident)
+            {
+                householder = null;
+            }
+
+            EnsureHouseholder();
+        }
+
+        public void DetachResidentsForDemolition()
+        {
+            for (int i = residents.Count - 1; i >= 0; i--)
+            {
+                StrategyResidentAgent resident = residents[i];
+                if (resident != null)
+                {
+                    resident.ClearHome(this);
+                }
+            }
+
+            residents.Clear();
+            householder = null;
+        }
+
+        public void EnsureHouseholder()
+        {
+            if (Tool != StrategyBuildTool.House)
+            {
+                householder = null;
+                return;
+            }
+
+            StrategyResidentAgent previous = householder;
+            householder = FindHouseholderCandidate();
+            if (householder != null
+                && (householder != previous
+                    || householder.HasExternalWorkplace
+                    || householder.HasConstructionAssignment))
+            {
+                householder.PrepareHouseholderHomeDuty();
+            }
+
+            if (householder != previous)
+            {
+                StrategyDebugLogger.Info(
+                    "Population",
+                    "HouseholderAssigned",
+                    StrategyDebugLogger.F("houseOrigin", Origin),
+                    StrategyDebugLogger.F("resident", householder != null ? householder.FullName : string.Empty),
+                    StrategyDebugLogger.F("age", householder != null ? householder.DisplayAgeYears : -1));
+            }
+        }
+
+        private StrategyResidentAgent FindHouseholderCandidate()
+        {
+            return FindOldestAdultFemaleResident();
+        }
+
+        private StrategyResidentAgent FindOldestAdultFemaleResident()
+        {
+            StrategyResidentAgent oldest = null;
+            for (int i = 0; i < residents.Count; i++)
+            {
+                StrategyResidentAgent candidate = residents[i];
+                if (candidate == null
+                    || candidate.Home != this
+                    || candidate.IsPendingRefugee
+                    || !candidate.IsAdult
+                    || candidate.Gender != StrategyResidentGender.Female)
+                {
+                    continue;
+                }
+
+                if (oldest == null
+                    || candidate.AgeYears > oldest.AgeYears + 0.01f
+                    || (Mathf.Abs(candidate.AgeYears - oldest.AgeYears) <= 0.01f
+                        && candidate.ResidentId > oldest.ResidentId))
+                {
+                    oldest = candidate;
+                }
+            }
+
+            return oldest;
         }
 
         public bool HasUpgrade(StrategyBuildingUpgradeType type)

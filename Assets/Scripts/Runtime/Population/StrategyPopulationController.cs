@@ -3,6 +3,45 @@ using UnityEngine;
 
 namespace ProjectUnknown.Strategy
 {
+    internal sealed class StrategyResidentFamilyRecord
+    {
+        private readonly List<int> childIds = new();
+
+        public int ResidentId { get; private set; }
+        public StrategyResidentGender Gender { get; private set; }
+        public int FatherId { get; private set; }
+        public int MotherId { get; private set; }
+        public string FamilyName { get; private set; }
+        public bool IsAlive { get; private set; }
+        public IReadOnlyList<int> ChildIds => childIds;
+
+        public void Configure(StrategyResidentAgent resident, bool isAlive)
+        {
+            if (resident == null)
+            {
+                return;
+            }
+
+            ResidentId = resident.ResidentId;
+            Gender = resident.Gender;
+            FatherId = resident.FatherId;
+            MotherId = resident.MotherId;
+            FamilyName = resident.FamilyName;
+            IsAlive = isAlive;
+            childIds.Clear();
+
+            IReadOnlyList<int> residentChildren = resident.ChildIds;
+            for (int i = 0; i < residentChildren.Count; i++)
+            {
+                int childId = residentChildren[i];
+                if (childId > 0 && !childIds.Contains(childId))
+                {
+                    childIds.Add(childId);
+                }
+            }
+        }
+    }
+
     [DisallowMultipleComponent]
     public sealed class StrategyPopulationController : MonoBehaviour
     {
@@ -10,6 +49,15 @@ namespace ProjectUnknown.Strategy
         private const int InitialFemaleResidents = 3;
         private const int CampSpawnRadius = 3;
         private const float HouseholdMigrationCheckInterval = 4f;
+        private const int MortalityStartAgeYears = 1;
+        private const int MortalityAccelerationAgeYears = 40;
+        private const int MortalityHighRiskAgeYears = 50;
+        private const float MortalityChanceAtAgeOne = 0.0004f;
+        private const float MortalityChanceAtAccelerationAge = 0.008f;
+        private const float MortalityChanceAtAgeFifty = 0.30f;
+        private const float MortalityChanceAfterFiftyPerYear = 0.025f;
+        private const float MortalityMaxAnnualChance = 0.80f;
+        private const float StarvationMortalityMaxAnnualChance = 0.95f;
 
         private static readonly string[] MaleFirstNames =
         {
@@ -86,8 +134,10 @@ namespace ProjectUnknown.Strategy
         private readonly List<StrategyResidentAgent> residents = new();
         private readonly List<StrategyPlacedBuilding> houses = new();
         private readonly Dictionary<int, StrategyResidentAgent> residentsById = new();
+        private readonly Dictionary<int, StrategyResidentFamilyRecord> familyRecordsById = new();
         private CityMapController map;
         private Transform residentRoot;
+        private StrategyFuneralController funeralController;
         private Vector2Int campCell;
         private Vector3 campWorld;
         private float householdMigrationTimer;
@@ -104,6 +154,7 @@ namespace ProjectUnknown.Strategy
         {
             map = mapController;
             EnsureResidentRoot();
+            EnsureFuneralController();
             EnsureStarterCamp();
             StrategyDebugLogger.Info(
                 "Population",
@@ -155,6 +206,103 @@ namespace ProjectUnknown.Strategy
             return false;
         }
 
+        internal bool TryGetFamilyRecord(int residentId, out StrategyResidentFamilyRecord record)
+        {
+            record = null;
+            return residentId > 0
+                && familyRecordsById.TryGetValue(residentId, out record)
+                && record != null;
+        }
+
+        public bool TryResolveAnnualMortality(StrategyResidentAgent resident, int ageYears)
+        {
+            if (resident == null
+                || resident.IsPendingRefugee
+                || !residents.Contains(resident))
+            {
+                return false;
+            }
+
+            float baseAnnualChance = GetAnnualDeathChance(ageYears);
+            float starvationMultiplier = GetStarvationMortalityMultiplier(
+                resident,
+                out int starvationLevel,
+                out Vector2Int starvingHouseOrigin);
+            float annualChance = Mathf.Min(
+                StarvationMortalityMaxAnnualChance,
+                baseAnnualChance * starvationMultiplier);
+            if (annualChance <= 0f || Random.value >= annualChance)
+            {
+                return false;
+            }
+
+            string reason = starvationMultiplier > 1f ? "starvation_mortality" : "annual_mortality";
+            return HandleResidentDeath(
+                resident,
+                reason,
+                annualChance,
+                baseAnnualChance,
+                starvationMultiplier,
+                starvationLevel,
+                starvingHouseOrigin);
+        }
+
+        private bool HandleResidentDeath(
+            StrategyResidentAgent resident,
+            string reason,
+            float annualChance,
+            float baseAnnualChance = 0f,
+            float starvationMultiplier = 1f,
+            int starvationLevel = 0,
+            Vector2Int starvingHouseOrigin = default)
+        {
+            if (resident == null || resident.IsPendingRefugee || !residents.Contains(resident))
+            {
+                return false;
+            }
+
+            int residentId = resident.ResidentId;
+            string residentName = resident.FullName;
+            int age = resident.DisplayAgeYears;
+            StrategyPlacedBuilding home = resident.Home;
+            Vector2Int homeOrigin = home != null ? home.Origin : Vector2Int.zero;
+            StrategyResidentDeathSnapshot snapshot = CreateDeathSnapshot(resident, home);
+
+            UpsertFamilyRecord(resident, false);
+            RemoveResidentFromAssignments(resident);
+            home?.UnregisterResident(resident);
+            resident.PrepareForDeath();
+            residents.Remove(resident);
+            if (residentId > 0)
+            {
+                residentsById.Remove(residentId);
+            }
+
+            ClearSelectionForResident(resident);
+            EnsureFuneralController();
+            funeralController?.NotifyResidentDeath(snapshot);
+            Destroy(resident.gameObject);
+            householdMigrationTimer = 0f;
+
+            StrategyDebugLogger.Info(
+                "Population",
+                "ResidentDied",
+                StrategyDebugLogger.F("resident", residentName),
+                StrategyDebugLogger.F("residentId", residentId),
+                StrategyDebugLogger.F("age", age),
+                StrategyDebugLogger.F("reason", reason),
+                StrategyDebugLogger.F("annualChance", annualChance),
+                StrategyDebugLogger.F("baseAnnualChance", baseAnnualChance),
+                StrategyDebugLogger.F("starvationMultiplier", starvationMultiplier),
+                StrategyDebugLogger.F("starvationLevel", starvationLevel),
+                StrategyDebugLogger.F("starvingHouseOrigin", starvingHouseOrigin),
+                StrategyDebugLogger.F("homeOrigin", homeOrigin),
+                StrategyDebugLogger.F("totalResidents", TotalResidentCount),
+                StrategyDebugLogger.F("adults", AdultResidentCount),
+                StrategyDebugLogger.F("children", ChildResidentCount));
+            return true;
+        }
+
         public void RegisterHouse(StrategyPlacedBuilding house)
         {
             if (house == null || house.Tool != StrategyBuildTool.House)
@@ -173,6 +321,22 @@ namespace ProjectUnknown.Strategy
             }
 
             ConfigureHousehold(house);
+        }
+
+        public void UnregisterHouse(StrategyPlacedBuilding house)
+        {
+            if (house == null)
+            {
+                return;
+            }
+
+            if (houses.Remove(house))
+            {
+                StrategyDebugLogger.Info(
+                    "Population",
+                    "HouseUnregistered",
+                    StrategyDebugLogger.F("houseOrigin", house.Origin));
+            }
         }
 
         public bool AssignResidentsToHouse(StrategyPlacedBuilding house)
@@ -255,8 +419,14 @@ namespace ProjectUnknown.Strategy
 
             RegisterHouse(house);
 
-            bool assignedPair = AssignResidentsToHouse(house);
-            if (!assignedPair)
+            bool assignedFamily = TryPopulateHomelessFamilyHouse(house);
+            bool assignedPair = false;
+            if (!assignedFamily)
+            {
+                assignedPair = AssignResidentsToHouse(house);
+            }
+
+            if (!assignedFamily && !assignedPair)
             {
                 TryPopulateFreeHouse(house);
             }
@@ -265,6 +435,7 @@ namespace ProjectUnknown.Strategy
                 "Population",
                 "ConstructionHouseResidentsBound",
                 StrategyDebugLogger.F("houseOrigin", house.Origin),
+                StrategyDebugLogger.F("assignedFamily", assignedFamily),
                 StrategyDebugLogger.F("assignedPair", assignedPair),
                 StrategyDebugLogger.F("residentCount", house.ResidentCount));
         }
@@ -333,6 +504,8 @@ namespace ProjectUnknown.Strategy
 
             father.AddChildId(childId);
             mother.AddChildId(childId);
+            UpsertFamilyRecord(father, true);
+            UpsertFamilyRecord(mother, true);
             RegisterResident(child);
 
             StrategyDebugLogger.Info(
@@ -458,6 +631,7 @@ namespace ProjectUnknown.Strategy
             }
 
             int accepted = 0;
+            List<StrategyResidentAgent> acceptedFamily = new();
             for (int i = 0; i < family.Count; i++)
             {
                 StrategyResidentAgent resident = family[i];
@@ -469,14 +643,21 @@ namespace ProjectUnknown.Strategy
                 resident.SetPendingRefugee(false);
                 resident.SetCampIdleOrigin(campCell);
                 RegisterResident(resident);
+                acceptedFamily.Add(resident);
                 accepted++;
             }
 
-            TryPopulateAvailableHouses();
+            bool housedFamily = TryPlaceAcceptedRefugeeFamily(acceptedFamily);
+            if (!housedFamily)
+            {
+                TryPopulateAvailableHouses();
+            }
+
             StrategyDebugLogger.Info(
                 "Refugees",
                 "FamilyAccepted",
                 StrategyDebugLogger.F("accepted", accepted),
+                StrategyDebugLogger.F("housedFamily", housedFamily),
                 StrategyDebugLogger.F("totalResidents", TotalResidentCount),
                 StrategyDebugLogger.F("adults", AdultResidentCount),
                 StrategyDebugLogger.F("children", ChildResidentCount));
@@ -510,6 +691,12 @@ namespace ProjectUnknown.Strategy
 
             if (house.ResidentCount <= 0)
             {
+                if (IsHouseBlockedByFoodShortage(house))
+                {
+                    LogHouseMoveBlockedByFood(house, "empty_house_starving");
+                    return false;
+                }
+
                 if (!TryFindEldestAdultChildLivingWithParents(house, out StrategyResidentAgent resident))
                 {
                     return false;
@@ -552,7 +739,7 @@ namespace ProjectUnknown.Strategy
                 StrategyPlacedBuilding house = houses[i];
                 if (house != null && house.Tool == StrategyBuildTool.House && house.ResidentCount <= 0)
                 {
-                    changed |= TryPopulateFreeHouse(house);
+                    changed |= TryPopulateHomelessFamilyHouse(house) || TryPopulateFreeHouse(house);
                 }
             }
 
@@ -568,6 +755,170 @@ namespace ProjectUnknown.Strategy
             return changed;
         }
 
+        private bool TryPlaceAcceptedRefugeeFamily(IReadOnlyList<StrategyResidentAgent> family)
+        {
+            if (family == null || family.Count <= 0)
+            {
+                return false;
+            }
+
+            RemoveMissingHouses();
+            for (int i = 0; i < houses.Count; i++)
+            {
+                StrategyPlacedBuilding house = houses[i];
+                if (house == null
+                    || house.Tool != StrategyBuildTool.House
+                    || house.ResidentCount > 0
+                    || IsHouseBlockedByFoodShortage(house)
+                    || family.Count > house.ResidentCapacity)
+                {
+                    continue;
+                }
+
+                if (MoveFamilyToHouse(family, house, "RefugeeFamilyHoused"))
+                {
+                    return true;
+                }
+            }
+
+            StrategyDebugLogger.Info(
+                "Refugees",
+                "FamilyAcceptedWithoutHouse",
+                StrategyDebugLogger.F("members", family.Count),
+                StrategyDebugLogger.F("reason", "no_empty_house"));
+            return false;
+        }
+
+        private bool TryPopulateHomelessFamilyHouse(StrategyPlacedBuilding house)
+        {
+            if (map == null
+                || house == null
+                || house.Tool != StrategyBuildTool.House
+                || house.ResidentCount > 0
+                || IsHouseBlockedByFoodShortage(house)
+                || !TryFindHomelessFamilyForHouse(house, out List<StrategyResidentAgent> family))
+            {
+                return false;
+            }
+
+            return MoveFamilyToHouse(family, house, "HomelessFamilyMovedToHouse");
+        }
+
+        private bool TryFindHomelessFamilyForHouse(
+            StrategyPlacedBuilding destinationHouse,
+            out List<StrategyResidentAgent> family)
+        {
+            family = null;
+            if (destinationHouse == null || destinationHouse.Tool != StrategyBuildTool.House)
+            {
+                return false;
+            }
+
+            HashSet<int> checkedCouples = new();
+            for (int i = 0; i < residents.Count; i++)
+            {
+                StrategyResidentAgent child = residents[i];
+                if (child == null
+                    || child.IsPendingRefugee
+                    || child.Home != null
+                    || child.FatherId <= 0
+                    || child.MotherId <= 0)
+                {
+                    continue;
+                }
+
+                int coupleKey = child.FatherId * 397 ^ child.MotherId;
+                if (checkedCouples.Contains(coupleKey))
+                {
+                    continue;
+                }
+
+                checkedCouples.Add(coupleKey);
+                if (!TryGetResidentById(child.FatherId, out StrategyResidentAgent father)
+                    || !TryGetResidentById(child.MotherId, out StrategyResidentAgent mother)
+                    || !CanMoveResidentToHouse(father, destinationHouse)
+                    || !CanMoveResidentToHouse(mother, destinationHouse)
+                    || father.Gender != StrategyResidentGender.Male
+                    || mother.Gender != StrategyResidentGender.Female)
+                {
+                    continue;
+                }
+
+                List<StrategyResidentAgent> candidateFamily = new() { father, mother };
+                for (int memberIndex = 0; memberIndex < residents.Count; memberIndex++)
+                {
+                    StrategyResidentAgent candidate = residents[memberIndex];
+                    if (candidate == null
+                        || candidate == father
+                        || candidate == mother
+                        || candidate.IsPendingRefugee
+                        || candidate.Home != null
+                        || candidate.FatherId != father.ResidentId
+                        || candidate.MotherId != mother.ResidentId)
+                    {
+                        continue;
+                    }
+
+                    candidateFamily.Add(candidate);
+                }
+
+                if (candidateFamily.Count >= 3 && candidateFamily.Count <= destinationHouse.ResidentCapacity)
+                {
+                    family = candidateFamily;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool MoveFamilyToHouse(
+            IReadOnlyList<StrategyResidentAgent> family,
+            StrategyPlacedBuilding house,
+            string logEvent)
+        {
+            if (map == null
+                || family == null
+                || family.Count <= 0
+                || house == null
+                || house.Tool != StrategyBuildTool.House
+                || house.ResidentCount > 0
+                || family.Count > house.ResidentCapacity)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < family.Count; i++)
+            {
+                StrategyResidentAgent resident = family[i];
+                if (resident == null || resident.IsPendingRefugee || resident.Home != null)
+                {
+                    return false;
+                }
+            }
+
+            HashSet<Vector2Int> usedCells = new();
+            for (int i = 0; i < family.Count; i++)
+            {
+                StrategyResidentAgent resident = family[i];
+                Vector3 targetWorld = GetHouseResidentTargetWorld(house, usedCells, i);
+                resident.AssignHome(house, targetWorld);
+                if (resident.Home != house)
+                {
+                    return false;
+                }
+            }
+
+            ConfigureHousehold(house);
+            StrategyDebugLogger.Info(
+                "Population",
+                logEvent,
+                StrategyDebugLogger.F("houseOrigin", house.Origin),
+                StrategyDebugLogger.F("members", family.Count),
+                StrategyDebugLogger.F("family", family[0] != null ? family[0].FamilyName : string.Empty));
+            return true;
+        }
+
         private bool TryPopulateSingleResidentHouse(StrategyPlacedBuilding house)
         {
             if (map == null
@@ -576,6 +927,12 @@ namespace ProjectUnknown.Strategy
                 || house.ResidentCount != 1
                 || !house.HasFreeResidentSlot)
             {
+                return false;
+            }
+
+            if (IsHouseBlockedByFoodShortage(house))
+            {
+                LogHouseMoveBlockedByFood(house, "single_house_starving");
                 return false;
             }
 
@@ -715,6 +1072,30 @@ namespace ProjectUnknown.Strategy
             return moved;
         }
 
+        private static bool IsHouseBlockedByFoodShortage(StrategyPlacedBuilding house)
+        {
+            if (house == null || house.Tool != StrategyBuildTool.House)
+            {
+                return false;
+            }
+
+            StrategyHouseholdFoodState food = house.GetComponent<StrategyHouseholdFoodState>();
+            return food != null && food.IsStarving;
+        }
+
+        private static void LogHouseMoveBlockedByFood(StrategyPlacedBuilding house, string reason)
+        {
+            StrategyHouseholdFoodState food = house != null ? house.GetComponent<StrategyHouseholdFoodState>() : null;
+            StrategyDebugLogger.Info(
+                "Population",
+                "HouseholdMoveBlockedFoodShortage",
+                StrategyDebugLogger.F("houseOrigin", house != null ? house.Origin : Vector2Int.zero),
+                StrategyDebugLogger.F("reason", reason),
+                StrategyDebugLogger.F("starvation", food != null ? food.StarvationLevel : 0),
+                StrategyDebugLogger.F("requiredFood", food != null ? food.LastRequiredFood : 0),
+                StrategyDebugLogger.F("lastConsumedFood", food != null ? food.LastConsumedFood : 0));
+        }
+
         private bool CanMoveResidentToHouse(StrategyResidentAgent resident, StrategyPlacedBuilding destinationHouse)
         {
             return resident != null
@@ -812,7 +1193,7 @@ namespace ProjectUnknown.Strategy
             StrategyWorldSorting.Apply(renderer, campObject.transform.position);
 
             StrategyCampfireAnimator animator = campObject.AddComponent<StrategyCampfireAnimator>();
-            animator.Configure(renderer);
+            animator.Configure(renderer, map, campCell);
         }
 
         private void SpawnInitialResidents()
@@ -1159,6 +1540,38 @@ namespace ProjectUnknown.Strategy
             }
 
             household.Configure(this, house);
+
+            StrategyHouseholdFoodState food = house.GetComponent<StrategyHouseholdFoodState>();
+            if (food == null)
+            {
+                food = house.gameObject.AddComponent<StrategyHouseholdFoodState>();
+            }
+
+            food.Configure(this, house);
+        }
+
+        private static float GetStarvationMortalityMultiplier(
+            StrategyResidentAgent resident,
+            out int starvationLevel,
+            out Vector2Int houseOrigin)
+        {
+            starvationLevel = 0;
+            houseOrigin = Vector2Int.zero;
+            StrategyPlacedBuilding home = resident != null ? resident.Home : null;
+            if (home == null || home.Tool != StrategyBuildTool.House)
+            {
+                return 1f;
+            }
+
+            houseOrigin = home.Origin;
+            StrategyHouseholdFoodState food = home.GetComponent<StrategyHouseholdFoodState>();
+            if (food == null)
+            {
+                return 1f;
+            }
+
+            starvationLevel = food.StarvationLevel;
+            return food.MortalityMultiplier;
         }
 
         private int CountResidents(bool adultsOnly, bool childrenOnly)
@@ -1224,6 +1637,388 @@ namespace ProjectUnknown.Strategy
             return nextResidentId++;
         }
 
+        internal List<StrategyResidentAgent> CollectFuneralParticipants(
+            StrategyResidentDeathSnapshot snapshot,
+            int maxCount)
+        {
+            List<StrategyResidentAgent> participants = new();
+            int limit = Mathf.Max(1, maxCount);
+
+            AddFuneralParticipantIds(participants, snapshot.HouseholdResidentIds, limit);
+            AddFuneralParticipantById(participants, snapshot.FatherId, limit);
+            AddFuneralParticipantById(participants, snapshot.MotherId, limit);
+            AddFuneralParticipantIds(participants, snapshot.ChildIds, limit);
+
+            for (int i = 0; i < residents.Count && participants.Count < limit; i++)
+            {
+                StrategyResidentAgent resident = residents[i];
+                if (resident == null
+                    || resident.IsPendingRefugee
+                    || resident.ResidentId == snapshot.ResidentId
+                    || participants.Contains(resident))
+                {
+                    continue;
+                }
+
+                if (IsCloseFuneralRelative(resident, snapshot))
+                {
+                    participants.Add(resident);
+                }
+            }
+
+            return participants;
+        }
+
+        private StrategyResidentDeathSnapshot CreateDeathSnapshot(
+            StrategyResidentAgent resident,
+            StrategyPlacedBuilding home)
+        {
+            Vector2Int deathCell = Vector2Int.zero;
+            if (map != null)
+            {
+                map.TryWorldToCell(resident.transform.position, out deathCell);
+            }
+
+            List<int> householdIds = new();
+            if (home != null)
+            {
+                IReadOnlyList<StrategyResidentAgent> homeResidents = home.Residents;
+                for (int i = 0; i < homeResidents.Count; i++)
+                {
+                    StrategyResidentAgent homeResident = homeResidents[i];
+                    if (homeResident != null
+                        && homeResident != resident
+                        && homeResident.ResidentId > 0
+                        && !householdIds.Contains(homeResident.ResidentId))
+                    {
+                        householdIds.Add(homeResident.ResidentId);
+                    }
+                }
+            }
+
+            List<int> childIds = new();
+            IReadOnlyList<int> residentChildren = resident.ChildIds;
+            for (int i = 0; i < residentChildren.Count; i++)
+            {
+                int childId = residentChildren[i];
+                if (childId > 0 && !childIds.Contains(childId))
+                {
+                    childIds.Add(childId);
+                }
+            }
+
+            return new StrategyResidentDeathSnapshot(
+                resident.ResidentId,
+                resident.FullName,
+                resident.Gender,
+                resident.LifeStage,
+                resident.VisualVariant,
+                resident.DisplayAgeYears,
+                resident.FatherId,
+                resident.MotherId,
+                resident.FamilyName,
+                resident.transform.position,
+                deathCell,
+                home != null ? home.Origin : Vector2Int.zero,
+                householdIds.ToArray(),
+                childIds.ToArray());
+        }
+
+        private void AddFuneralParticipantIds(
+            List<StrategyResidentAgent> participants,
+            IReadOnlyList<int> residentIds,
+            int limit)
+        {
+            if (residentIds == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < residentIds.Count && participants.Count < limit; i++)
+            {
+                AddFuneralParticipantById(participants, residentIds[i], limit);
+            }
+        }
+
+        private void AddFuneralParticipantById(
+            List<StrategyResidentAgent> participants,
+            int residentId,
+            int limit)
+        {
+            if (participants.Count >= limit
+                || residentId <= 0
+                || !TryGetResidentById(residentId, out StrategyResidentAgent resident)
+                || resident == null
+                || resident.IsPendingRefugee
+                || participants.Contains(resident))
+            {
+                return;
+            }
+
+            participants.Add(resident);
+        }
+
+        private bool IsCloseFuneralRelative(
+            StrategyResidentAgent resident,
+            StrategyResidentDeathSnapshot snapshot)
+        {
+            if (resident.FatherId == snapshot.ResidentId
+                || resident.MotherId == snapshot.ResidentId
+                || resident.ResidentId == snapshot.FatherId
+                || resident.ResidentId == snapshot.MotherId)
+            {
+                return true;
+            }
+
+            if (snapshot.FatherId > 0
+                && resident.FatherId == snapshot.FatherId)
+            {
+                return true;
+            }
+
+            if (snapshot.MotherId > 0
+                && resident.MotherId == snapshot.MotherId)
+            {
+                return true;
+            }
+
+            IReadOnlyList<int> childIds = resident.ChildIds;
+            for (int i = 0; i < childIds.Count; i++)
+            {
+                if (childIds[i] == snapshot.ResidentId)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static float GetAnnualDeathChance(int ageYears)
+        {
+            if (ageYears < MortalityStartAgeYears)
+            {
+                return 0f;
+            }
+
+            if (ageYears <= MortalityAccelerationAgeYears)
+            {
+                float t = Mathf.InverseLerp(
+                    MortalityStartAgeYears,
+                    MortalityAccelerationAgeYears,
+                    ageYears);
+                return Mathf.Lerp(MortalityChanceAtAgeOne, MortalityChanceAtAccelerationAge, t * t);
+            }
+
+            if (ageYears <= MortalityHighRiskAgeYears)
+            {
+                float t = Mathf.InverseLerp(
+                    MortalityAccelerationAgeYears,
+                    MortalityHighRiskAgeYears,
+                    ageYears);
+                return Mathf.Lerp(MortalityChanceAtAccelerationAge, MortalityChanceAtAgeFifty, t * t);
+            }
+
+            float lateAgeChance = MortalityChanceAtAgeFifty
+                + (ageYears - MortalityHighRiskAgeYears) * MortalityChanceAfterFiftyPerYear;
+            return Mathf.Min(MortalityMaxAnnualChance, lateAgeChance);
+        }
+
+        private static void RemoveResidentFromAssignments(StrategyResidentAgent resident)
+        {
+            if (resident == null)
+            {
+                return;
+            }
+
+            UnassignFromLumberjackCamp(resident);
+            UnassignFromStonecutterCamp(resident);
+            UnassignFromHunterCamp(resident);
+            UnassignFromFisherHut(resident);
+            UnassignFromStorageWorkerRole(resident);
+            UnassignFromStorageBuilderRole(resident);
+            UnassignFromGranary(resident);
+            resident.ClearConstructionSite(null);
+        }
+
+        private static void UnassignFromLumberjackCamp(StrategyResidentAgent resident)
+        {
+            StrategyLumberjackCamp camp = resident.Workplace;
+            if (camp == null)
+            {
+                return;
+            }
+
+            IReadOnlyList<StrategyResidentAgent> workers = camp.Workers;
+            for (int i = workers.Count - 1; i >= 0; i--)
+            {
+                if (workers[i] == resident)
+                {
+                    camp.UnassignWorkerAt(i);
+                    return;
+                }
+            }
+
+            resident.ClearWorkplace(camp);
+        }
+
+        private static void UnassignFromStonecutterCamp(StrategyResidentAgent resident)
+        {
+            StrategyStonecutterCamp camp = resident.StoneWorkplace;
+            if (camp == null)
+            {
+                return;
+            }
+
+            IReadOnlyList<StrategyResidentAgent> workers = camp.Workers;
+            for (int i = workers.Count - 1; i >= 0; i--)
+            {
+                if (workers[i] == resident)
+                {
+                    camp.UnassignWorkerAt(i);
+                    return;
+                }
+            }
+
+            resident.ClearStoneWorkplace(camp);
+        }
+
+        private static void UnassignFromHunterCamp(StrategyResidentAgent resident)
+        {
+            StrategyHunterCamp camp = resident.HunterWorkplace;
+            if (camp == null)
+            {
+                return;
+            }
+
+            IReadOnlyList<StrategyResidentAgent> workers = camp.Workers;
+            for (int i = workers.Count - 1; i >= 0; i--)
+            {
+                if (workers[i] == resident)
+                {
+                    camp.UnassignWorkerAt(i);
+                    return;
+                }
+            }
+
+            resident.ClearHunterWorkplace(camp);
+        }
+
+        private static void UnassignFromFisherHut(StrategyResidentAgent resident)
+        {
+            StrategyFisherHut hut = resident.FisherWorkplace;
+            if (hut == null)
+            {
+                return;
+            }
+
+            IReadOnlyList<StrategyResidentAgent> workers = hut.Workers;
+            for (int i = workers.Count - 1; i >= 0; i--)
+            {
+                if (workers[i] == resident)
+                {
+                    hut.UnassignWorkerAt(i);
+                    return;
+                }
+            }
+
+            resident.ClearFisherWorkplace(hut);
+        }
+
+        private static void UnassignFromStorageWorkerRole(StrategyResidentAgent resident)
+        {
+            StrategyStorageYard yard = resident.StorageWorkplace;
+            if (yard == null)
+            {
+                return;
+            }
+
+            IReadOnlyList<StrategyResidentAgent> workers = yard.Workers;
+            for (int i = workers.Count - 1; i >= 0; i--)
+            {
+                if (workers[i] == resident)
+                {
+                    yard.UnassignWorkerAt(i);
+                    return;
+                }
+            }
+
+            resident.ClearStorageWorkplace(yard);
+        }
+
+        private static void UnassignFromStorageBuilderRole(StrategyResidentAgent resident)
+        {
+            StrategyStorageYard yard = resident.BuilderWorkplace;
+            if (yard == null)
+            {
+                return;
+            }
+
+            IReadOnlyList<StrategyResidentAgent> builders = yard.Builders;
+            for (int i = builders.Count - 1; i >= 0; i--)
+            {
+                if (builders[i] == resident)
+                {
+                    yard.UnassignBuilderAt(i);
+                    return;
+                }
+            }
+
+            resident.ClearBuilderWorkplace(yard);
+        }
+
+        private static void UnassignFromGranary(StrategyResidentAgent resident)
+        {
+            StrategyGranary granary = resident.GranaryWorkplace;
+            if (granary == null)
+            {
+                return;
+            }
+
+            IReadOnlyList<StrategyResidentAgent> workers = granary.Workers;
+            for (int i = workers.Count - 1; i >= 0; i--)
+            {
+                if (workers[i] == resident)
+                {
+                    granary.UnassignWorkerAt(i);
+                    return;
+                }
+            }
+
+            resident.ClearGranaryWorkplace(granary);
+        }
+
+        private static void ClearSelectionForResident(StrategyResidentAgent resident)
+        {
+            if (resident == null)
+            {
+                return;
+            }
+
+            StrategyWorldSelectionController[] controllers = Object.FindObjectsByType<StrategyWorldSelectionController>();
+            for (int i = 0; i < controllers.Length; i++)
+            {
+                controllers[i]?.ClearSelectionIfTarget(resident);
+            }
+        }
+
+        private void UpsertFamilyRecord(StrategyResidentAgent resident, bool isAlive)
+        {
+            if (resident == null || resident.ResidentId <= 0)
+            {
+                return;
+            }
+
+            if (!familyRecordsById.TryGetValue(resident.ResidentId, out StrategyResidentFamilyRecord record)
+                || record == null)
+            {
+                record = new StrategyResidentFamilyRecord();
+                familyRecordsById[resident.ResidentId] = record;
+            }
+
+            record.Configure(resident, isAlive);
+        }
+
         private void RegisterResident(StrategyResidentAgent resident)
         {
             if (resident == null)
@@ -1240,6 +2035,8 @@ namespace ProjectUnknown.Strategy
             {
                 residentsById[resident.ResidentId] = resident;
             }
+
+            UpsertFamilyRecord(resident, true);
         }
 
         private int StableIndex(int count, int salt)
@@ -1278,6 +2075,23 @@ namespace ProjectUnknown.Strategy
             GameObject rootObject = new GameObject("Residents");
             rootObject.transform.SetParent(transform, false);
             residentRoot = rootObject.transform;
+        }
+
+        private void EnsureFuneralController()
+        {
+            if (funeralController == null)
+            {
+                funeralController = GetComponentInChildren<StrategyFuneralController>();
+            }
+
+            if (funeralController == null)
+            {
+                GameObject funeralObject = new GameObject("Funeral Controller");
+                funeralObject.transform.SetParent(transform, false);
+                funeralController = funeralObject.AddComponent<StrategyFuneralController>();
+            }
+
+            funeralController.Configure(map, this);
         }
     }
 }

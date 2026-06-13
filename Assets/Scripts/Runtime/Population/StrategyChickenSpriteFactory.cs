@@ -4,7 +4,8 @@ namespace ProjectUnknown.Strategy
 {
     internal static class StrategyChickenSpriteFactory
     {
-        private const float PixelsPerUnit = 32f;
+        private const float AnimalVisualScale = 0.6f;
+        private const float PixelsPerUnit = 32f / AnimalVisualScale;
         public const int WalkFrameCount = 6;
         public const int PeckFrameCount = 5;
 

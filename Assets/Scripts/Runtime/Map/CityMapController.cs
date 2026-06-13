@@ -60,7 +60,7 @@ namespace ProjectUnknown.Strategy
         private SpriteRenderer spriteRenderer;
         private Texture2D mapTexture;
         private CityMapCell[,] cells;
-        private bool[,] blockedWalkCells;
+        private int[,] blockedWalkCounts;
         private bool[,] bridgeWalkableCells;
         private int activeSeed;
         private Vector2Int riverFlowDirection = Vector2Int.right;
@@ -83,7 +83,7 @@ namespace ProjectUnknown.Strategy
             activeSeed = ResolveActiveSeed();
 
             cells = new CityMapCell[width, height];
-            blockedWalkCells = new bool[width, height];
+            blockedWalkCounts = new int[width, height];
             bridgeWalkableCells = new bool[width, height];
             BuildCells();
             BuildTexture();
@@ -153,7 +153,7 @@ namespace ProjectUnknown.Strategy
         {
             return TryGetCell(x, y, out CityMapCell cell)
                 && (cell.IsBuildable || IsBridgeWalkableCell(x, y))
-                && (blockedWalkCells == null || !blockedWalkCells[x, y]);
+                && (blockedWalkCounts == null || blockedWalkCounts[x, y] <= 0);
         }
 
         public bool TryGetWaterKind(Vector2Int cell, out CityMapWaterKind waterKind)
@@ -209,7 +209,14 @@ namespace ProjectUnknown.Strategy
                         continue;
                     }
 
-                    blockedWalkCells[cellX, cellY] = !isWalkable;
+                    if (isWalkable)
+                    {
+                        blockedWalkCounts[cellX, cellY] = Mathf.Max(0, blockedWalkCounts[cellX, cellY] - 1);
+                    }
+                    else
+                    {
+                        blockedWalkCounts[cellX, cellY]++;
+                    }
                 }
             }
         }
@@ -267,11 +274,11 @@ namespace ProjectUnknown.Strategy
 
         private void EnsureWalkabilityLayer()
         {
-            if (blockedWalkCells == null
-                || blockedWalkCells.GetLength(0) != width
-                || blockedWalkCells.GetLength(1) != height)
+            if (blockedWalkCounts == null
+                || blockedWalkCounts.GetLength(0) != width
+                || blockedWalkCounts.GetLength(1) != height)
             {
-                blockedWalkCells = new bool[width, height];
+                blockedWalkCounts = new int[width, height];
             }
         }
 

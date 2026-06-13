@@ -43,7 +43,7 @@ namespace ProjectUnknown.Strategy
             decisionLocked = false;
             if (bodyText != null)
             {
-                bodyText.text = "\u041a \u043a\u043e\u0441\u0442\u0440\u0443 \u043f\u0440\u0438\u0448\u043b\u0430 \u0441\u0435\u043c\u044c\u044f \u0431\u0435\u0436\u0435\u043d\u0446\u0435\u0432. \u041e\u043d\u0438 \u043f\u0440\u043e\u0441\u044f\u0442 \u0443\u0431\u0435\u0436\u0438\u0449\u0435 \u0432 \u043f\u043e\u0441\u0435\u043b\u0435\u043d\u0438\u0438.";
+                bodyText.text = "A refugee family has reached the campfire. They are asking for shelter in the settlement.";
             }
 
             if (familyText != null)
@@ -132,11 +132,11 @@ namespace ProjectUnknown.Strategy
             accentImage.color = new Color(0.86f, 0.63f, 0.28f, 1f);
             accentImage.raycastTarget = false;
 
-            Text title = CreateText("Title", panel, "\u0411\u0435\u0436\u0435\u043d\u0446\u044b", 27, TextAnchor.UpperLeft, Color.white);
+            Text title = CreateText("Title", panel, "Refugees", 27, TextAnchor.UpperLeft, Color.white);
             title.fontStyle = FontStyle.Bold;
             SetTopStretch(title.rectTransform, 28f, 24f, 28f, 34f);
 
-            Text subtitle = CreateText("Subtitle", panel, "\u0440\u0435\u0448\u0435\u043d\u0438\u0435 \u043f\u043e\u0441\u0435\u043b\u0435\u043d\u0438\u044f", 14, TextAnchor.UpperLeft, new Color(0.86f, 0.70f, 0.42f));
+            Text subtitle = CreateText("Subtitle", panel, "settlement decision", 14, TextAnchor.UpperLeft, new Color(0.86f, 0.70f, 0.42f));
             subtitle.fontStyle = FontStyle.Bold;
             SetTopStretch(subtitle.rectTransform, 28f, 60f, 28f, 20f);
 
@@ -163,8 +163,8 @@ namespace ProjectUnknown.Strategy
             familyText.resizeTextMaxSize = 14;
             Stretch(familyText.rectTransform, 14f, 10f, 14f, 10f);
 
-            CreateDecisionButton(panel, "Accept", "\u041f\u0440\u0438\u043d\u044f\u0442\u044c", new Vector2(-112f, 28f), new Color(0.22f, 0.39f, 0.30f, 0.98f), true);
-            CreateDecisionButton(panel, "Reject", "\u041e\u0442\u043a\u0430\u0437\u0430\u0442\u044c", new Vector2(112f, 28f), new Color(0.34f, 0.18f, 0.17f, 0.98f), false);
+            CreateDecisionButton(panel, "Accept", "Accept", new Vector2(-112f, 28f), new Color(0.22f, 0.39f, 0.30f, 0.98f), true);
+            CreateDecisionButton(panel, "Reject", "Refuse", new Vector2(112f, 28f), new Color(0.34f, 0.18f, 0.17f, 0.98f), false);
         }
 
         private void CreateDecisionButton(RectTransform parent, string name, string label, Vector2 anchoredPosition, Color color, bool accepted)
@@ -199,7 +199,7 @@ namespace ProjectUnknown.Strategy
         {
             if (family == null || family.Count <= 0)
             {
-                return "\u0421\u0435\u043c\u044c\u044f: \u043d\u0435\u0442 \u0434\u0430\u043d\u043d\u044b\u0445";
+                return "Family: no data";
             }
 
             StringBuilder builder = new StringBuilder(192);
@@ -217,12 +217,12 @@ namespace ProjectUnknown.Strategy
                 }
 
                 string role = i == 0
-                    ? "\u043c\u0443\u0436\u0447\u0438\u043d\u0430"
+                    ? "male"
                     : i == 1
-                        ? "\u0436\u0435\u043d\u0449\u0438\u043d\u0430"
+                        ? "female"
                         : resident.Gender == StrategyResidentGender.Male
-                            ? "\u0441\u044b\u043d"
-                            : "\u0434\u043e\u0447\u044c";
+                            ? "son"
+                            : "daughter";
                 builder.Append(resident.FullName);
                 builder.Append("  -  ");
                 builder.Append(role);
@@ -240,14 +240,14 @@ namespace ProjectUnknown.Strategy
             int mod100 = age % 100;
             if (mod100 >= 11 && mod100 <= 14)
             {
-                return "\u043b\u0435\u0442";
+                return "years";
             }
 
             return age % 10 == 1
-                ? "\u0433\u043e\u0434"
+                ? "year"
                 : age % 10 >= 2 && age % 10 <= 4
-                    ? "\u0433\u043e\u0434\u0430"
-                    : "\u043b\u0435\u0442";
+                    ? "years"
+                    : "years";
         }
 
         private static GameObject CreateUiObject(string name, Transform parent)
@@ -262,7 +262,7 @@ namespace ProjectUnknown.Strategy
             RectTransform root = CreateUiObject(name, parent).GetComponent<RectTransform>();
             Text text = root.gameObject.AddComponent<Text>();
             text.text = value;
-            text.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             text.fontSize = size;
             text.alignment = anchor;
             text.color = color;

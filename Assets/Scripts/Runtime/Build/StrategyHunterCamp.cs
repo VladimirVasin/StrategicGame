@@ -146,6 +146,15 @@ namespace ProjectUnknown.Strategy
             }
         }
 
+        public void UnassignWorker(StrategyResidentAgent worker)
+        {
+            int index = workers.IndexOf(worker);
+            if (index >= 0)
+            {
+                UnassignWorkerAt(index);
+            }
+        }
+
         public bool TryGetWorker(int index, out StrategyResidentAgent worker)
         {
             worker = index >= 0 && index < workers.Count ? workers[index] : null;
@@ -307,16 +316,16 @@ namespace ProjectUnknown.Strategy
         public string GetHudStatusText()
         {
             int rabbits = wildlife != null ? wildlife.CountHuntableRabbits(Origin, WorkRadius) : 0;
-            return "\u0420\u0430\u0431\u043e\u0447\u0438\u0435: "
+            return "Workers: "
                 + workers.Count
                 + "/"
                 + MaxWorkers
                 + "\n"
-                + "\u0414\u0438\u0447\u044c: "
+                + "Game: "
                 + gameStored
-                + (reservedGame > 0 ? " (\u0431\u0440\u043e\u043d\u044c: " + reservedGame + ")" : string.Empty)
+                + (reservedGame > 0 ? " (reserved: " + reservedGame + ")" : string.Empty)
                 + "\n"
-                + "\u0417\u0430\u0439\u0446\u044b: "
+                + "Rabbits: "
                 + rabbits;
         }
 

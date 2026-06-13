@@ -36,8 +36,9 @@ namespace ProjectUnknown.Strategy
             Color earthLight = Rgb(146, 91, 48);
             Color sprout = Rgb(66, 142, 61);
             Color sproutLight = Rgb(110, 178, 74);
-            int sway = frame switch { 1 => 1, 2 => 1, 4 => -1, 5 => -1, _ => 0 };
-            int lift = frame == 2 || frame == 3 ? 1 : 0;
+            Color matureLeaf = Rgb(139, 196, 86);
+            Color crop = Rgb(224, 177, 76);
+            int growth = Mathf.Clamp(frame, 0, AnimationFrameCount - 1);
 
             FillEllipse(texture, 36, 10, 31, 7, new Color(0f, 0f, 0f, 0.20f));
             for (int row = 0; row < 3; row++)
@@ -49,14 +50,39 @@ namespace ProjectUnknown.Strategy
 
                 for (int x = 14; x <= 58; x += 9)
                 {
-                    SetPixelSafe(texture, x, y + 5, sprout);
-                    int leafY = y + 6 + lift;
-                    int localSway = ((x + row * 3) % 2 == 0) ? sway : -sway;
-                    SetPixelSafe(texture, x - 1 + localSway, leafY, sproutLight);
-                    SetPixelSafe(texture, x + 1 + localSway, leafY, sproutLight);
-                    if (frame == 3 && row == 1)
+                    if (growth <= 0)
                     {
-                        SetPixelSafe(texture, x + localSway, leafY + 1, Rgb(139, 196, 86));
+                        continue;
+                    }
+
+                    int stemHeight = growth >= 3 ? 4 : growth >= 2 ? 3 : 1;
+                    FillRect(texture, x, y + 5, 1, stemHeight, sprout);
+                    if (growth >= 2)
+                    {
+                        int leafY = y + 6 + Mathf.Min(2, growth - 2);
+                        SetPixelSafe(texture, x - 1, leafY, sproutLight);
+                        SetPixelSafe(texture, x + 1, leafY, sproutLight);
+                    }
+
+                    if (growth >= 3)
+                    {
+                        int leafY = y + 8;
+                        SetPixelSafe(texture, x - 2, leafY, matureLeaf);
+                        SetPixelSafe(texture, x + 2, leafY, matureLeaf);
+                    }
+
+                    if (growth >= 4)
+                    {
+                        int cropY = y + 9;
+                        if (growth >= 5)
+                        {
+                            FillEllipse(texture, x, cropY, 2, 1, crop);
+                            SetPixelSafe(texture, x, cropY + 1, Rgb(246, 207, 98));
+                        }
+                        else
+                        {
+                            SetPixelSafe(texture, x, cropY, crop);
+                        }
                     }
                 }
             }

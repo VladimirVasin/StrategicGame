@@ -44,6 +44,7 @@ namespace ProjectUnknown.Strategy
         private const float FleeAnimationRate = 15.0f;
         private const float RestAnimationRate = 4.0f;
         private const float ReadabilityOutlineScale = 1.11f;
+        private const float ReadabilityEffectScale = 0.6f;
         private const float DeerGlobalScale = 0.88f;
         private const float FawnMaturitySeconds = 240f;
         private const float FawnStartScale = 0.56f;
@@ -857,8 +858,8 @@ namespace ProjectUnknown.Strategy
                 shadowObject.transform.SetParent(transform, false);
                 shadowObject.transform.localPosition = new Vector3(0f, 0.07f, 0.02f);
                 shadowObject.transform.localScale = sex == StrategyDeerSex.Male
-                    ? new Vector3(1.25f, 0.78f, 1f)
-                    : new Vector3(1.08f, 0.68f, 1f);
+                    ? new Vector3(1.25f * ReadabilityEffectScale, 0.78f * ReadabilityEffectScale, 1f)
+                    : new Vector3(1.08f * ReadabilityEffectScale, 0.68f * ReadabilityEffectScale, 1f);
                 shadowRenderer = shadowObject.AddComponent<SpriteRenderer>();
                 shadowRenderer.sprite = readabilityShadowSprite;
                 shadowRenderer.color = new Color(0.02f, 0.025f, 0.02f, 0.32f);

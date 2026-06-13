@@ -21,8 +21,104 @@ namespace ProjectUnknown.Strategy
         public int WorkerCount => workers.Count;
         public int GameStored => gameStored;
         public int FishStored => fishStored;
+        public int TotalFoodStored => gameStored + fishStored;
         public Vector2Int Origin => building != null ? building.Origin : Vector2Int.zero;
         public Bounds FootprintBounds => building != null ? building.FootprintBounds : new Bounds(transform.position, Vector3.one);
+
+        public static int GetTotalSettlementFood()
+        {
+            int total = 0;
+            StrategyGranary[] granaries = Object.FindObjectsByType<StrategyGranary>();
+            for (int i = 0; i < granaries.Length; i++)
+            {
+                StrategyGranary granary = granaries[i];
+                if (granary != null)
+                {
+                    total += granary.TotalFoodStored;
+                }
+            }
+
+            return total;
+        }
+
+        public static int ConsumeSettlementFood(
+            int requested,
+            Vector3 requesterWorld,
+            out int gameTaken,
+            out int fishTaken)
+        {
+            gameTaken = 0;
+            fishTaken = 0;
+            int remaining = Mathf.Max(0, requested);
+            if (remaining <= 0)
+            {
+                return 0;
+            }
+
+            List<StrategyGranary> granaries = new();
+            StrategyGranary[] foundGranaries = Object.FindObjectsByType<StrategyGranary>();
+            for (int i = 0; i < foundGranaries.Length; i++)
+            {
+                StrategyGranary granary = foundGranaries[i];
+                if (granary != null && granary.TotalFoodStored > 0)
+                {
+                    granaries.Add(granary);
+                }
+            }
+
+            granaries.Sort((left, right) =>
+            {
+                float leftDistance = (left.FootprintBounds.center - requesterWorld).sqrMagnitude;
+                float rightDistance = (right.FootprintBounds.center - requesterWorld).sqrMagnitude;
+                return leftDistance.CompareTo(rightDistance);
+            });
+
+            for (int i = 0; i < granaries.Count && remaining > 0; i++)
+            {
+                int consumed = granaries[i].ConsumeFood(remaining, out int granaryGame, out int granaryFish);
+                remaining -= consumed;
+                gameTaken += granaryGame;
+                fishTaken += granaryFish;
+            }
+
+            return requested - remaining;
+        }
+
+        public static bool TryFindNearestGranary(Vector3 nearWorld, out StrategyGranary granary)
+        {
+            StrategyGranary[] granaries = GetGranariesSortedByDistance(nearWorld);
+            for (int i = 0; i < granaries.Length; i++)
+            {
+                if (granaries[i] != null)
+                {
+                    granary = granaries[i];
+                    return true;
+                }
+            }
+
+            granary = null;
+            return false;
+        }
+
+        public static bool TryFindNearestDropoff(
+            Vector3 nearWorld,
+            out StrategyGranary granary,
+            out Vector2Int dropoffCell)
+        {
+            StrategyGranary[] granaries = GetGranariesSortedByDistance(nearWorld);
+            for (int i = 0; i < granaries.Length; i++)
+            {
+                granary = granaries[i];
+                if (granary != null && granary.TryFindDropoffCell(out dropoffCell))
+                {
+                    return true;
+                }
+            }
+
+            granary = null;
+            dropoffCell = default;
+            return false;
+        }
 
         public void Configure(
             StrategyPlacedBuilding placedBuilding,
@@ -138,6 +234,15 @@ namespace ProjectUnknown.Strategy
                     StrategyDebugLogger.F("worker", worker.FullName),
                     StrategyDebugLogger.F("workerCount", workers.Count));
                 worker.ClearGranaryWorkplace(this);
+            }
+        }
+
+        public void UnassignWorker(StrategyResidentAgent worker)
+        {
+            int index = workers.IndexOf(worker);
+            if (index >= 0)
+            {
+                UnassignWorkerAt(index);
             }
         }
 
@@ -304,25 +409,63 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("stock", fishStored));
         }
 
+        public int ConsumeFood(int requested, out int gameTaken, out int fishTaken)
+        {
+            gameTaken = 0;
+            fishTaken = 0;
+            int remaining = Mathf.Max(0, requested);
+            if (remaining <= 0)
+            {
+                return 0;
+            }
+
+            gameTaken = Mathf.Min(gameStored, remaining);
+            gameStored -= gameTaken;
+            remaining -= gameTaken;
+
+            fishTaken = Mathf.Min(fishStored, remaining);
+            fishStored -= fishTaken;
+            remaining -= fishTaken;
+
+            int consumed = gameTaken + fishTaken;
+            if (consumed <= 0)
+            {
+                return 0;
+            }
+
+            UpdateStockVisual();
+            StrategyDebugLogger.Info(
+                "Granary",
+                "FoodConsumed",
+                StrategyDebugLogger.F("granaryOrigin", Origin),
+                StrategyDebugLogger.F("requested", requested),
+                StrategyDebugLogger.F("consumed", consumed),
+                StrategyDebugLogger.F("game", gameTaken),
+                StrategyDebugLogger.F("fish", fishTaken),
+                StrategyDebugLogger.F("gameStock", gameStored),
+                StrategyDebugLogger.F("fishStock", fishStored));
+            return consumed;
+        }
+
         public string GetHudStatusText()
         {
             CountAvailableSources(out int gameSources, out int fishSources);
-            return "\u0420\u0430\u0431\u043e\u0447\u0438\u0435: "
+            return "Workers: "
                 + workers.Count
                 + "/"
                 + MaxWorkers
                 + "\n"
-                + "\u0414\u0438\u0447\u044c: "
+                + "Game: "
                 + gameStored
                 + "\n"
-                + "\u0420\u044b\u0431\u0430: "
+                + "Fish: "
                 + fishStored
                 + "\n"
-                + "\u0418\u0441\u0442\u043e\u0447\u043d\u0438\u043a\u0438: "
-                + "\u0434\u0438\u0447\u044c "
+                + "Sources: "
+                + "game "
                 + gameSources
                 + " / "
-                + "\u0440\u044b\u0431\u0430 "
+                + "fish "
                 + fishSources;
         }
 
@@ -347,6 +490,35 @@ namespace ProjectUnknown.Strategy
                     fishSources++;
                 }
             }
+        }
+
+        private static StrategyGranary[] GetGranariesSortedByDistance(Vector3 nearWorld)
+        {
+            StrategyGranary[] granaries = Object.FindObjectsByType<StrategyGranary>();
+            System.Array.Sort(
+                granaries,
+                (left, right) =>
+                {
+                    if (left == null && right == null)
+                    {
+                        return 0;
+                    }
+
+                    if (left == null)
+                    {
+                        return 1;
+                    }
+
+                    if (right == null)
+                    {
+                        return -1;
+                    }
+
+                    float leftDistance = (left.FootprintBounds.center - nearWorld).sqrMagnitude;
+                    float rightDistance = (right.FootprintBounds.center - nearWorld).sqrMagnitude;
+                    return leftDistance.CompareTo(rightDistance);
+                });
+            return granaries;
         }
 
         private void EnsureStockRenderers()

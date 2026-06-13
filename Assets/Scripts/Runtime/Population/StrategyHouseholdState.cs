@@ -10,6 +10,8 @@ namespace ProjectUnknown.Strategy
         private const float BirthCooldownMax = 180f;
         private const float FullHouseRetryMin = 24f;
         private const float FullHouseRetryMax = 45f;
+        private const float FoodShortageRetryMin = 36f;
+        private const float FoodShortageRetryMax = 68f;
 
         private StrategyPopulationController population;
         private StrategyPlacedBuilding house;
@@ -40,6 +42,20 @@ namespace ProjectUnknown.Strategy
             if (!house.HasFreeResidentSlot)
             {
                 birthTimer = Random.Range(FullHouseRetryMin, FullHouseRetryMax);
+                return;
+            }
+
+            StrategyHouseholdFoodState food = house.GetComponent<StrategyHouseholdFoodState>();
+            if (food != null && food.IsBirthBlocked)
+            {
+                birthTimer = Random.Range(FoodShortageRetryMin, FoodShortageRetryMax);
+                StrategyDebugLogger.Info(
+                    "Population",
+                    "HouseholdBirthBlockedFoodShortage",
+                    StrategyDebugLogger.F("houseOrigin", house.Origin),
+                    StrategyDebugLogger.F("starvation", food.StarvationLevel),
+                    StrategyDebugLogger.F("requiredFood", food.LastRequiredFood),
+                    StrategyDebugLogger.F("lastConsumedFood", food.LastConsumedFood));
                 return;
             }
 

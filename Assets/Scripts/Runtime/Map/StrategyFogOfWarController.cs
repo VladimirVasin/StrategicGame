@@ -17,7 +17,7 @@ namespace ProjectUnknown.Strategy
         private const float ResidentRevealRadius = 5.25f;
         private const float BuildingRevealRadius = 6.25f;
 
-        private static readonly Color UnexploredColor = new Color(0.015f, 0.018f, 0.020f, 0.92f);
+        private static readonly Color UnexploredColor = new Color(0f, 0f, 0f, 1f);
         private static readonly Color ExploredColor = new Color(0.018f, 0.028f, 0.032f, 0.50f);
 
         private readonly List<RevealSource> revealSources = new();
@@ -296,9 +296,17 @@ namespace ProjectUnknown.Strategy
             {
                 for (int x = 0; x < map.Width; x++)
                 {
-                    float strength = Smooth01(visibilityStrength[x, y]);
-                    Color color = explored[x, y] ? ExploredColor : UnexploredColor;
-                    color.a *= 1f - strength;
+                    Color color;
+                    if (explored[x, y])
+                    {
+                        float strength = Smooth01(visibilityStrength[x, y]);
+                        color = ExploredColor;
+                        color.a *= 1f - strength;
+                    }
+                    else
+                    {
+                        color = UnexploredColor;
+                    }
 
                     int pixelX = x * FogPixelsPerCell;
                     int pixelY = y * FogPixelsPerCell;

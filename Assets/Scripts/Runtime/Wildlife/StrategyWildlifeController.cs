@@ -52,6 +52,7 @@ namespace ProjectUnknown.Strategy
         private const float FishFailedBreedRetryMax = 28f;
         private const float FishMateSearchRadius = 5.5f;
         private const int FishBirthCellSearchRadius = 4;
+        private const float FishLakeBirthBlockedLogIntervalSeconds = 20f;
 
         private readonly List<StrategyDeerAgent> deer = new();
         private readonly Dictionary<StrategyDeerAgent, float> breedCooldowns = new();
@@ -59,6 +60,7 @@ namespace ProjectUnknown.Strategy
         private readonly Dictionary<StrategyRabbitAgent, float> rabbitBreedCooldowns = new();
         private readonly List<StrategyFishAgent> fish = new();
         private readonly Dictionary<StrategyFishAgent, float> fishBreedCooldowns = new();
+        private readonly Dictionary<int, float> fishLakeBirthBlockedLogTimes = new();
         private readonly List<FishWaterRegion> lakeFishRegions = new();
         private readonly Dictionary<Vector2Int, int> lakeRegionByCell = new();
         private readonly List<Vector2Int> riverRouteCells = new();
@@ -1488,14 +1490,19 @@ namespace ProjectUnknown.Strategy
                 if (regionPopulation >= region.Capacity)
                 {
                     fishBreedCooldowns[adult] = Random.Range(FishFailedBreedRetryMin, FishFailedBreedRetryMax);
-                    StrategyDebugLogger.Info(
-                        "Wildlife",
-                        "FishLakeBirthBlocked",
-                        StrategyDebugLogger.F("reason", "lake cap"),
-                        StrategyDebugLogger.F("region", region.Id),
-                        StrategyDebugLogger.F("regionPopulation", regionPopulation),
-                        StrategyDebugLogger.F("regionCapacity", region.Capacity),
-                        StrategyDebugLogger.F("shoal", adult.ShoalId));
+                    if (ShouldLogFishLakeBirthBlocked(region.Id))
+                    {
+                        StrategyDebugLogger.Info(
+                            "Wildlife",
+                            "FishLakeBirthBlocked",
+                            StrategyDebugLogger.F("reason", "lake cap"),
+                            StrategyDebugLogger.F("region", region.Id),
+                            StrategyDebugLogger.F("regionPopulation", regionPopulation),
+                            StrategyDebugLogger.F("regionCapacity", region.Capacity),
+                            StrategyDebugLogger.F("shoal", adult.ShoalId),
+                            StrategyDebugLogger.F("throttleSeconds", FishLakeBirthBlockedLogIntervalSeconds));
+                    }
+
                     continue;
                 }
 
@@ -1543,6 +1550,19 @@ namespace ProjectUnknown.Strategy
             }
 
             return cooldown;
+        }
+
+        private bool ShouldLogFishLakeBirthBlocked(int regionId)
+        {
+            float now = Time.time;
+            if (fishLakeBirthBlockedLogTimes.TryGetValue(regionId, out float nextLogTime)
+                && now < nextLogTime)
+            {
+                return false;
+            }
+
+            fishLakeBirthBlockedLogTimes[regionId] = now + FishLakeBirthBlockedLogIntervalSeconds;
+            return true;
         }
 
         private bool HasAdultFishMateNear(StrategyFishAgent adult)
@@ -2359,6 +2379,7 @@ namespace ProjectUnknown.Strategy
             rabbitBreedCooldowns.Clear();
             fish.Clear();
             fishBreedCooldowns.Clear();
+            fishLakeBirthBlockedLogTimes.Clear();
             lakeFishRegions.Clear();
             lakeRegionByCell.Clear();
             riverRouteCells.Clear();

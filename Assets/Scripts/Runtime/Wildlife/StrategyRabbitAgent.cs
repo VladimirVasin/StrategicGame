@@ -52,6 +52,7 @@ namespace ProjectUnknown.Strategy
         private const float HitAnimationRate = 14.0f;
         private const float DeathAnimationRate = 10.0f;
         private const float ReadabilityOutlineScale = 1.14f;
+        private const float ReadabilityEffectScale = 0.6f;
         private const float RabbitGlobalScale = 0.82f;
         private const float KitMaturitySeconds = 120f;
         private const float KitStartScale = 0.52f;
@@ -1134,7 +1135,7 @@ namespace ProjectUnknown.Strategy
                 GameObject shadowObject = new GameObject("Rabbit Readability Shadow");
                 shadowObject.transform.SetParent(transform, false);
                 shadowObject.transform.localPosition = new Vector3(0f, 0.045f, 0.02f);
-                shadowObject.transform.localScale = new Vector3(0.72f, 0.45f, 1f);
+                shadowObject.transform.localScale = new Vector3(0.72f * ReadabilityEffectScale, 0.45f * ReadabilityEffectScale, 1f);
                 shadowRenderer = shadowObject.AddComponent<SpriteRenderer>();
                 shadowRenderer.sprite = readabilityShadowSprite;
                 shadowRenderer.color = new Color(0.015f, 0.018f, 0.015f, 0.34f);

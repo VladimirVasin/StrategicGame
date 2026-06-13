@@ -63,6 +63,10 @@ namespace ProjectUnknown.Strategy
         private Image buildButtonImage;
         private Text buildButtonText;
         private Text treasuryText;
+        private readonly Button[] speedButtons = new Button[3];
+        private readonly Image[] speedButtonImages = new Image[3];
+        private readonly Text[] speedButtonTexts = new Text[3];
+        private StrategyTimeScaleController timeScale;
         private Text statusText;
         private Font font;
         private bool initialized;
@@ -215,6 +219,12 @@ namespace ProjectUnknown.Strategy
             if (category.Items is { Length: 1 })
             {
                 BuildItemData item = category.Items[0].Data;
+                selectedCategoryIndex = category.Index;
+                if (!sameCategory)
+                {
+                    trayT = 0f;
+                }
+
                 if (!item.Cost.CanAfford(StrategyStorageYard.GetTotalConstructionResources()))
                 {
                     ActiveTool = StrategyBuildTool.None;
@@ -229,7 +239,6 @@ namespace ProjectUnknown.Strategy
                     return;
                 }
 
-                selectedCategoryIndex = category.Index;
                 ActiveTool = allowToggle && ActiveTool == item.Tool ? StrategyBuildTool.None : item.Tool;
                 StrategyDebugLogger.Info(
                     "BuildMenu",
@@ -238,10 +247,6 @@ namespace ProjectUnknown.Strategy
                     StrategyDebugLogger.F("category", category.Data != null ? category.Data.Label : string.Empty),
                     StrategyDebugLogger.F("cost", item.Cost),
                     StrategyDebugLogger.F("available", StrategyStorageYard.GetTotalConstructionResources()));
-                if (!sameCategory)
-                {
-                    trayT = 0f;
-                }
 
                 isDirty = true;
                 return;
@@ -260,6 +265,20 @@ namespace ProjectUnknown.Strategy
         {
             if (item == null)
             {
+                return;
+            }
+
+            if (!item.Cost.CanAfford(StrategyStorageYard.GetTotalConstructionResources()))
+            {
+                ActiveTool = StrategyBuildTool.None;
+                StrategyDebugLogger.Warn(
+                    "BuildMenu",
+                    "ToolSelectionRejected",
+                    StrategyDebugLogger.F("tool", item.Tool),
+                    StrategyDebugLogger.F("reason", "not_affordable"),
+                    StrategyDebugLogger.F("cost", item.Cost),
+                    StrategyDebugLogger.F("available", StrategyStorageYard.GetTotalConstructionResources()));
+                isDirty = true;
                 return;
             }
 
@@ -385,6 +404,7 @@ namespace ProjectUnknown.Strategy
             scaler.matchWidthOrHeight = 0.5f;
 
             CreateTreasuryHud(canvasObject.transform);
+            CreateSpeedControlsHud(canvasObject.transform);
             CreateBuildButton(canvasObject.transform);
             CreateMenuLayer(canvasObject.transform);
         }
@@ -408,6 +428,50 @@ namespace ProjectUnknown.Strategy
             treasuryText = CreateText("TreasuryText", panel, "Logs 0  Stone 0", 16, TextAnchor.MiddleCenter, new Color(0.95f, 0.88f, 0.62f));
             treasuryText.fontStyle = FontStyle.Bold;
             Stretch(treasuryText.rectTransform, 8f, 0f, 8f, 0f);
+        }
+
+        private void CreateSpeedControlsHud(Transform parent)
+        {
+            RectTransform panel = CreateUiObject("SpeedControlsPanel", parent).GetComponent<RectTransform>();
+            panel.anchorMin = new Vector2(0f, 1f);
+            panel.anchorMax = new Vector2(0f, 1f);
+            panel.pivot = new Vector2(0f, 1f);
+            panel.anchoredPosition = new Vector2(18f, -66f);
+            panel.sizeDelta = new Vector2(178f, 34f);
+
+            Image background = panel.gameObject.AddComponent<Image>();
+            background.color = new Color(0.06f, 0.09f, 0.10f, 0.88f);
+
+            Outline outline = panel.gameObject.AddComponent<Outline>();
+            outline.effectColor = new Color(0f, 0f, 0f, 0.30f);
+            outline.effectDistance = new Vector2(1.1f, -1.1f);
+
+            for (int i = 0; i < speedButtons.Length; i++)
+            {
+                int index = i;
+                RectTransform buttonRoot = CreateUiObject("SpeedX" + (i + 1), panel).GetComponent<RectTransform>();
+                buttonRoot.anchorMin = new Vector2(0f, 0.5f);
+                buttonRoot.anchorMax = new Vector2(0f, 0.5f);
+                buttonRoot.pivot = new Vector2(0f, 0.5f);
+                buttonRoot.anchoredPosition = new Vector2(6f + i * 56f, 0f);
+                buttonRoot.sizeDelta = new Vector2(52f, 24f);
+
+                Image image = buttonRoot.gameObject.AddComponent<Image>();
+                image.color = new Color(0.11f, 0.16f, 0.17f, 0.96f);
+
+                Button button = buttonRoot.gameObject.AddComponent<Button>();
+                button.targetGraphic = image;
+                button.onClick.AddListener(() => SetSpeedFromHud(index + 1));
+                ConfigureButtonColors(button);
+
+                Text label = CreateText("Label", buttonRoot, "x" + (i + 1), 13, TextAnchor.MiddleCenter, Color.white);
+                label.fontStyle = FontStyle.Bold;
+                Stretch(label.rectTransform, 0f, 0f, 0f, 1f);
+
+                speedButtons[i] = button;
+                speedButtonImages[i] = image;
+                speedButtonTexts[i] = label;
+            }
         }
 
         private void CreateBuildButton(Transform parent)
@@ -655,6 +719,8 @@ namespace ProjectUnknown.Strategy
                 treasuryText.text = "Logs " + available.Logs + "  Stone " + available.Stone;
             }
 
+            RefreshSpeedControls();
+
             if (buildButtonImage != null)
             {
                 buildButtonImage.color = isOpen
@@ -712,6 +778,49 @@ namespace ProjectUnknown.Strategy
             LayoutRebuilder.ForceRebuildLayoutImmediate(dockRoot);
             LayoutRebuilder.ForceRebuildLayoutImmediate(trayRoot);
             isDirty = false;
+        }
+
+        private void SetSpeedFromHud(int speed)
+        {
+            if (timeScale == null)
+            {
+                timeScale = UnityEngine.Object.FindAnyObjectByType<StrategyTimeScaleController>();
+            }
+
+            timeScale?.SetRequestedScale(speed);
+            RefreshSpeedControls();
+            StrategyDebugLogger.Info(
+                "BuildMenu",
+                "SpeedButtonClicked",
+                StrategyDebugLogger.F("speed", speed),
+                StrategyDebugLogger.F("timeScaleFound", timeScale != null));
+        }
+
+        private void RefreshSpeedControls()
+        {
+            if (timeScale == null)
+            {
+                timeScale = UnityEngine.Object.FindAnyObjectByType<StrategyTimeScaleController>();
+            }
+
+            float currentScale = timeScale != null ? timeScale.CurrentScale : 1f;
+            for (int i = 0; i < speedButtons.Length; i++)
+            {
+                bool active = Mathf.RoundToInt(currentScale) == i + 1;
+                if (speedButtonImages[i] != null)
+                {
+                    speedButtonImages[i].color = active
+                        ? new Color(0.25f, 0.36f, 0.36f, 0.98f)
+                        : new Color(0.11f, 0.16f, 0.17f, 0.96f);
+                }
+
+                if (speedButtonTexts[i] != null)
+                {
+                    speedButtonTexts[i].color = active
+                        ? new Color(0.95f, 0.88f, 0.62f)
+                        : Color.white;
+                }
+            }
         }
 
         private void UpdateAnimation()

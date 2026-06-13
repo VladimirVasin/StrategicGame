@@ -15,7 +15,8 @@ namespace ProjectUnknown.Strategy
 
     internal static class StrategyDeerSpriteFactory
     {
-        private const float PixelsPerUnit = 34f;
+        private const float AnimalVisualScale = 0.6f;
+        private const float PixelsPerUnit = 34f / AnimalVisualScale;
         public const int IdleFrameCount = 6;
         public const int WalkFrameCount = 8;
         public const int GrazeFrameCount = 8;

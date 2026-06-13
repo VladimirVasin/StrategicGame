@@ -1,12 +1,236 @@
 # Work Log
 
-Last updated: 2026-06-11
+Last updated: 2026-06-13
 
 ## Active
 
 - None.
 
 ## Done
+
+### 2026-06-13 - Accepted refugee family housing fix
+
+- Accepted refugee families now first try to occupy an empty House as a whole family instead of only joining the generic homeless resident pool.
+- If no empty House exists at acceptance time, the accepted family remains in camp idle and later gets priority for the next empty House before normal single-adult migration or random pair assignment.
+- Reset accepted homeless residents to camp idle so stale refugee paths cannot keep pulling them away from the settlement.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-13 - Strict unexplored fog visibility
+
+- Unexplored fog cells now render as fully black and no longer fade from low edge visibility strength before being marked explored.
+- Explored-but-currently-hidden cells keep the dim grey fog state, while currently visible cells still fade toward clear.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-13 - Refugee arrival bank-side routing
+
+- Refugee arrival now builds a reachable camp-side target set before choosing map-edge entry routes.
+- Arrival target selection prefers the connected walkable component around the camp that already contains accepted residents, preventing families from arriving on the opposite river bank when no Bridge makes that side reachable.
+- If a Bridge or other walkable route connects both banks, the normal pathfinder can still use that side because it is genuinely reachable.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-12 - Starter storage resource buffer
+
+- Increased starter Storage Yard resources from 13 Logs / 9 Stone to 16 Logs / 12 Stone, adding a small early-game buffer above the exact first-build sequence.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-12 - Carried resource return on role removal
+
+- Residents removed from a workplace while carrying Logs, Stone, Game, or Fish now keep the carried resource and first return it to the appropriate Storage Yard or Granary before continuing with a newly assigned role.
+- Construction builders who are unassigned after taking reserved Logs/Stone now return those materials instead of clearing `carriedLogAmount` / `carriedStoneAmount`, preventing construction resources from disappearing.
+- Added immediate safe storage/drop fallback for hard interruptions or unreachable storage so carried resources are preserved instead of silently zeroed.
+- Selected-resident status text now shows the new carried-resource return activities.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-12 - Mortality acceleration age raised
+
+- Resident annual mortality now keeps the low-risk curve until age 40 instead of age 30, reducing deaths in the 30-40 range.
+- Kept the age-1 mortality start, about 30% annual risk by age 50, the late-age cap, and starvation mortality multiplier behavior unchanged.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-12 - Funeral dragging, grave gathering, and crying animation
+
+- Corpse processions now drag the dead behind a primary carrier with a visible rope, clamping the corpse within one map-cell distance from the carrier instead of averaging between carriers.
+- Funeral flow now enters a grave-gathering phase after carriers reach the reserved grave; burial starts only after all reachable expected attendees arrive or a timeout prevents a deadlock.
+- Mourning and waiting funeral residents now use generated crying sprite frames for adult and child variants, while burial keeps its separate burial pose.
+- Added debug context for expected burial attendees, rejected burial paths, grave gathering start, and burial start reasons.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-12 - Build menu single-item category visibility fix
+
+- `Housing` no longer appears locked by house count when the single `House` item is unaffordable.
+- Single-item build categories now still open their item tray so the player can see the tool card and resource cost.
+- Unaffordable tools still cannot be activated by mouse or hotkey; the block is resource affordability only, not building count.
+- Verified there is no implemented house-count cap; the only current 3-house threshold gates the first refugee arrival.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-12 - Delete confirmation, demolition, and construction cancellation
+
+- Selected construction sites and completed buildings can now be acted on with `Delete`, opening a reusable confirmation dialog before destructive action.
+- Cancelling a construction site releases its reserved occupied/walkability state, clears builders, releases unused Storage Yard reservations, and drops already delivered or carried Logs/Stone as visible loose construction resource piles at the site.
+- Loose construction resource piles count toward construction affordability, can be reserved by new construction sites, can be picked up directly by builders, and can also be hauled back to Storage Yards by storage workers.
+- Completed building demolition releases occupied/walkability cells; bridges also remove their river walkability span, and demolished houses detach residents safely.
+- Construction completion now releases the temporary construction-site map blocker before creating the final building, preventing stale blocked cells after later demolition.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-12 - Householder garden duty state bugfix
+
+- Householders now enter a real `TendingHousehold` resident activity instead of relying on `Idle` status text for home duty.
+- Assigning a Householder clears external workplace/builder assignments through the owning worksite APIs, preventing stale worker slots while keeping the one-householder-per-house rule.
+- Householders now prioritize their home's Garden Beds from `TendingHousehold`/`Idle`, use a cooldown instead of the old random-chance gate, and return to `TendingHousehold` after garden work completes.
+- Added debug events for householder external-work cleanup, garden start/block reasons, and garden completion.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-12 - Funeral pathing and carried corpse bugfix
+
+- `debug.log` showed Maerwynn Grimwald's funeral selecting a grave at `28,62` and dispatching carriers to it; the resident funeral movement path could fall back to a direct world-space path, which allowed river crossing without a Bridge.
+- Funeral movement now fails with `ResidentFuneralMoveFailed` instead of using direct movement when no walkable grid path exists.
+- Cemetery grave selection now filters candidates by cells reachable from the selected carriers, so spontaneous graves are not placed across an unbridged river for that funeral.
+- Corpse processions now switch the corpse to a carried shroud/stretcher sprite above ground instead of sliding the lying death sprite along the terrain.
+- Residents stuck in `WaitingAtFuneral` now auto-release after a timeout and funeral duty release is logged.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-12 - Lower young mortality
+
+- Reduced the base annual mortality curve before the acceleration threshold from 0.2%-3.0% to 0.04%-0.8%.
+- The acceleration threshold was later raised to age 40; age-1 mortality start and starvation mortality multiplier behavior stayed unchanged.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-12 - Automatic householder assignment
+
+- Houses now automatically assign their oldest adult female resident as `Householder`; if no adult woman lives in the house, no householder is assigned.
+- `StrategyResidentAgent.HasWorkplace` now treats the householder role as home work, and only the householder can perform Garden Beds work when she has no external workplace.
+- Selected-house resident rows mark the `Householder`, and the selected-resident HUD shows `householder` as the resident role.
+- Growing children trigger a householder refresh so newly adult women can take over the household role.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-12 - Household edible resources and garden harvest ticks
+
+- House-local Eggs and crop resources now count as edible food and are consumed by `StrategyHouseholdFoodState` before any `Game`/`Fish` is taken from Granaries.
+- Garden Beds now produce their selected crop on a fixed 8-second harvest timer, enough to sustain a two-adult household at the current food consumption rate.
+- Garden Beds visuals now use growth-progress frames synced to the harvest timer; resident garden work boosts the current growth cycle instead of directly adding a free crop.
+- Selected-house food HUD now shows home food and Granary food, and the fed detail reports how much of the last meal came from home stock versus Granary stock.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-12 - Default Garden Beds for houses
+
+- Added a free default Garden Beds installation path in `StrategyBuildingUpgradeController` that reuses normal upgrade placement, sprite animation, crop selection, and house registration without spending Logs/Stone.
+- Wired `StrategyBuildPlacementController` to install Garden Beds automatically whenever a House is placed/completed.
+- Moved upgrade-controller bootstrap before placement configuration so default house upgrades are available for the first completed house.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-12 - Animal visual scale reduction
+
+- Reduced generated deer, rabbit, fish, bird, and chicken sprites to 60% of their previous world size by increasing their sprite factory pixels-per-unit values.
+- Scaled separate readability shadows, bird flight shadows, and fish surface ripples to match the smaller animal visuals.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-12 - House resources HUD polish
+
+- Replaced the selected-house Resources debug-style text line with a structured visual UI section.
+- House Resources now shows a colored food status row, last-meal meter, Granary stock row, crop row with crop icon when available, and a clean empty state for local household stock.
+- Household food state now exposes a structured `StrategyHouseholdFoodStatus` for UI instead of requiring the HUD to display compact debug text.
+- Kept household resource entries filtered to amounts greater than 1.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-12 - Immediate family funeral recall
+
+- Funeral creation now immediately recalls close family/household participants when a resident dies, instead of waiting for the corpse death animation or the funeral queue to become active.
+- Recalled family members use the resident funeral movement hook, which temporarily cancels active work/construction tasks and releases active reservations while keeping workplace roles intact for after the funeral.
+- Increased the close-family participant cap from 10 to 24 so larger related households can be recalled together.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-12 - Corpse self-motion visual bugfix
+
+- Removed the fallback that moved a corpse toward the cemetery when no live carriers were available; funerals now delay/retry carrier selection instead of letting corpses visually travel by themselves.
+- Made lying corpse death frames visually static by removing the subtle per-frame head offset that made corpses appear to breathe/move.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-12 - Debug-driven food, construction, cemetery, and fish-log fixes
+
+- Added a household food grace/no-supply path so starvation does not activate before the settlement food chain exists; once Granary food has existed, later shortages still increase starvation.
+- Replaced the early x16 starvation mortality curve with a gentler capped multiplier curve and blocked household births while a house is starving.
+- Prevented free-house/one-resident family formation while that house is currently starving, without changing the one-family-per-house rule.
+- Added per-builder construction pickup claims so multiple builders do not target the same reserved Logs/Stone unit; claims release on cancellation and resources are still physically removed only on pickup.
+- Added resident path-start recovery from blocked cells plus more detailed construction pickup `no_path` logging and repeated-failure assignment drop.
+- Tuned spontaneous cemetery placement to prefer a moderate settlement distance and penalize extreme map-edge cells.
+- Throttled `FishLakeBirthBlocked` debug logging per lake region to reduce repeated cap spam.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-12 - Homebound toddlers
+
+- Children younger than 3 years old now stay inside their assigned home instead of idling/walking outdoors.
+- Homebound young children hide their world sprite/collider, keep their household/family records, skip funeral travel/activity calls, and reappear at a nearby walkable home exit once they turn 3.
+- Selected-house resident rows now show the `inside home` status for these children.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-12 - Visual day/night cycle MVP
+
+- Added `StrategyDayNightCycleController`, a runtime world overlay that cycles through dawn, day, dusk, and night over a 220-second scaled-time loop.
+- The overlay renders above world sprites and below placement preview/fog/UI, so it tints the game world without darkening HUD panels.
+- The controller also blends the camera background color with the same phase and logs major phase changes.
+- Runtime bootstrap now creates/configures the day/night controller after camera setup.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-12 - Household food consumption and starvation mortality
+
+- Added `StrategyHouseholdFoodState` to completed houses: each household periodically consumes food based on resident count and tracks starvation level when settlement Granary food is insufficient.
+- Added settlement food consumption APIs to `StrategyGranary`; households consume nearby Granary stock, preferring `Game` before `Fish`, and Granary visuals update after food is eaten.
+- Resident annual mortality now applies a household starvation multiplier (`x2`/`x4`/`x8`/`x16`, capped) when the resident's home is short on food.
+- Selected-house HUD now shows compact household food status, last meal need/served values, settlement Granary food total, and crop info in the Resources block.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-12 - Looser construction-site placement validation
+
+- Split normal building placement validation into strict construction foundation checks, softer final 2.5D blocker reservation checks, and a required nearby builder work-access check.
+- Construction sites now block walking only on their technical foundation while reserving the future final blocker cells for placement collision; completed buildings still apply their full final 2.5D walk blocker.
+- Added clearer placement rejection reasons for foundation, final-block reservation, and builder-access failures.
+- Changed `CityMapController` runtime walkability blockers from a boolean layer to per-cell block counts so overlapping blockers cannot accidentally release each other when one temporary blocker disappears.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-11 - Temporary campfire walkability blocker
+
+- The startup campfire now blocks its own map cell while burning so residents and animals path around the fire instead of walking through it.
+- The campfire gradually burns out after a short delay, fades/shrinks away, destroys its visual object, and releases the campfire cell back to walkable.
+- Added debug log events for campfire cell blocking, burnout start, cell release, and final extinguish.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-11 - Funeral and cemetery MVP
+
+- Added death-to-funeral flow: resident death now creates an animated corpse snapshot instead of simply disappearing from the world.
+- Added a funeral controller that waits for the death animation, gathers close family/household participants, runs mourning, moves a procession toward a spontaneous cemetery, and completes burial.
+- Added runtime-generated corpse/death frames and grave sprites; completed burials create graves and mark grave cells as not walkable.
+- Added temporary resident funeral activities so participants can attend mourning/procession/burial without permanently losing their workplace roles.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-11 - Resident mortality MVP
+
+- Added annual resident mortality rolls starting at age 1, with a gentle youth curve, faster risk growth after the acceleration threshold, about 30% annual risk by age 50, and a capped late-age risk after that.
+- Added centralized resident death cleanup through `StrategyPopulationController`: dead residents leave live population counts, homes, worksite roles, construction assignments, active reservations, selection HUD targets, and click colliders.
+- Added persistent runtime family records so kinship checks still see dead parents/ancestors and close-relative couple blocking survives resident death.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-11 - Professions button top-HUD overlap fix
+
+- Moved the `Professions` top button into the left HUD column below the x1/x2/x3 speed controls so it no longer overlaps the top population panel on narrow/scaled views.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-11 - Unity built-in font bootstrap fix
+
+- Replaced the remaining runtime HUD `Resources.GetBuiltinResource<Font>("Arial.ttf")` calls in the top population HUD and refugee dialog with `LegacyRuntime.ttf`, matching Unity 6 built-in font requirements.
+- Verification: `rg "Arial\.ttf" Assets/Scripts` found no remaining references, and `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-11 - HUD speed buttons under resources
+
+- Added compact x1/x2/x3 speed buttons directly beneath the top-left Logs/Stone resource panel in the Build HUD canvas.
+- Exposed `StrategyTimeScaleController.SetRequestedScale` so F1/F2/F3 and the new HUD buttons share the same time-scale path and logging.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-11 - English-first project language pass
+
+- Translated runtime-facing strategy UI strings to English across the Build catalog, placement-created object names, selection HUD, profession HUD, refugee dialog, top population HUD, construction-site status, and worksite stock/status summaries.
+- Updated AI collaboration rules and memory entry points with an English-first language standard for UI, debug/log labels, code comments, AI memory, documentation, commits, and future development notes.
+- Replaced current AI memory references to Russian building/resource/profession names with English project terminology.
+- Verification: project text scan for Cyrillic/escaped Cyrillic passed, and `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
 
 ### 2026-06-11 - Bridge building and river crossing placement
 
@@ -128,7 +352,7 @@ Last updated: 2026-06-11
 
 ### 2026-06-11 - Profession assignment HUD
 
-- Added a runtime `Профессии` HUD opened from a top-menu button, with generated profession icons, dynamic rows for available professions, assigned/capacity counters, and `-`/`+` controls.
+- Added a runtime `Professions` HUD opened from a top-menu button, with generated profession icons, dynamic rows for available professions, assigned/capacity counters, and `-`/`+` controls.
 - Moved worker assignment/removal out of selected-building microHUDs; selected production/storage buildings now keep status/resource context only.
 - Profession HUD aggregates current built worksites and routes assignment through existing worksite APIs for lumberjacks, stonecutters, hunters, fishers, storage workers, builders, and granary workers.
 - Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
@@ -142,26 +366,26 @@ Last updated: 2026-06-11
 
 ### 2026-06-11 - Granary food storage MVP
 
-- Added `Амбар` as a buildable 3x2 food-storage building under `Хранилища`, with Logs/Stone construction cost, generated 2.5D art, food stockpile visuals, and 2 assignable worker slots.
-- Added `StrategyGranary` local food storage for `Дичь` and `Рыба`, with selected-building HUD support showing workers, stored food, and available food sources.
-- Added food logistics for granary workers: reserve `Дичь` from Hunter Camps or `Рыба` from Fisher Huts, walk to the source, pick up a reserved batch, carry it to the granary, and deposit it into granary stock.
+- Added `Granary` as a buildable 3x2 food-storage building under `Storage`, with Logs/Stone construction cost, generated 2.5D art, food stockpile visuals, and 2 assignable worker slots.
+- Added `StrategyGranary` local food storage for `Game` and `Fish`, with selected-building HUD support showing workers, stored food, and available food sources.
+- Added food logistics for granary workers: reserve `Game` from Hunter Camps or `Fish` from Fisher Huts, walk to the source, pick up a reserved batch, carry it to the granary, and deposit it into granary stock.
 - Extended Hunter Camp and Fisher Hut stock APIs with reservation/take/release methods so multiple granary workers do not target the same local food stock.
 - Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
 
 ### 2026-06-11 - Fisher hut and fishing MVP
 
-- Added `Хижина рыбака` as a buildable 2x2 production camp under `Промыслы`, with Logs/Stone construction cost, shoreline placement validation, generated 2.5D hut art, worker slots, and a visual local `Рыба` stockpile.
-- Added fisher work loop for up to 2 adult workers: reserve a nearby fish, move to a walkable shore cell, cast a fishing line, wait for a bite, reel the fish through hit-driven animation, carry `Рыба` back, and deposit it at the hut.
+- Added `Fisher Hut` as a buildable 2x2 production camp under `Production`, with Logs/Stone construction cost, shoreline placement validation, generated 2.5D hut art, worker slots, and a visual local `Fish` stockpile.
+- Added fisher work loop for up to 2 adult workers: reserve a nearby fish, move to a walkable shore cell, cast a fishing line, wait for a bite, reel the fish through hit-driven animation, carry `Fish` back, and deposit it at the hut.
 - Extended fish with fishing reservation, hooked/caught states, hooked sprite animation, and fish yield; reserved fish pause normal shoal movement so the cast/reel sequence is stable.
-- Added `Рыба` as a resource type with HUD icon/future economy identity, plus carried-fish sprites and selected fisher-hut HUD support.
+- Added `Fish` as a resource type with HUD icon/future economy identity, plus carried-fish sprites and selected fisher-hut HUD support.
 - Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
 
 ### 2026-06-11 - Hunter camp and rabbit hunting MVP
 
-- Added `Лагерь охотников` as a buildable 2x2 production camp under `Промыслы`, with construction cost, generated 2.5D camp art, local worker slots, and visual `Дичь` stockpile.
-- Added hunter work loop for up to 2 adult workers: reserve a nearby adult rabbit, move into bow range, animate aiming/shooting with an arrow projectile, wait for the carcass, butcher it over several animated hits, carry `Дичь` back, and deposit it at the hunter camp.
+- Added `Hunter Camp` as a buildable 2x2 production camp under `Production`, with construction cost, generated 2.5D camp art, local worker slots, and visual `Game` stockpile.
+- Added hunter work loop for up to 2 adult workers: reserve a nearby adult rabbit, move into bow range, animate aiming/shooting with an arrow projectile, wait for the carcass, butcher it over several animated hits, carry `Game` back, and deposit it at the hunter camp.
 - Extended rabbits with hunt reservation, hit/death/carcass states, generated hit/death/carcass sprites, and butchering yield; reserved rabbits stop normal idle/flee behavior so the shot sequence is stable.
-- Added `Дичь` as a resource type with HUD icon/future economy identity, plus carried game sprites and selected hunter-camp HUD support.
+- Added `Game` as a resource type with HUD icon/future economy identity, plus carried game sprites and selected hunter-camp HUD support.
 - Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
 
 ### 2026-06-11 - Resident aging cadence tune
@@ -317,12 +541,12 @@ Last updated: 2026-06-11
 
 ### 2026-06-10 - Stonecutter camp mining loop
 
-- Added `Лагерь каменотёсов` as a `Промыслы` Build menu item with a 2x2 footprint, 3 procedural 2.5D camp variants, and a growing local Stone stockpile.
-- Added worker assignment for `StrategyStonecutterCamp`: up to 2 residents can become каменотёсы from the selected building HUD.
+- Added `Stonecutter Camp` as a `Production` Build menu item with a 2x2 footprint, 3 procedural 2.5D camp variants, and a growing local Stone stockpile.
+- Added worker assignment for `StrategyStonecutterCamp`: up to 2 residents can become stonecutters from the selected building HUD.
 - Residents assigned to a stonecutter camp now reserve nearby Stone deposits, path to a walkable adjacent cell, play frame-based pickaxe animation, mine Stone chunks after several hits, carry Stone to camp, and deposit it into local camp stock.
 - Stone deposits now support hit-driven mining with shake, crack overlay, grey chip/dust effects, per-kind hit thresholds, chunk amounts, reservation release between chunks, and depletion cleanup.
 - Storage Yard logistics now reserve Stone from stonecutter camps, send storage workers to pick it up, carry it to the yard, and add it to Storage Yard Stone stock.
-- Selection HUD now shows stonecutter camp worker slots/status, resident каменотёс role/statuses, and the stonecutter camp building title/context.
+- Selection HUD now shows stonecutter camp worker slots/status, resident stonecutter role/statuses, and the stonecutter camp building title/context.
 - Added carried Stone sprites and stonecut effect sprites; added `StrategyStonecutEffectAnimator` and kept `Assembly-CSharp.csproj` in sync.
 - Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
 
@@ -419,7 +643,7 @@ Last updated: 2026-06-11
 
 ### 2026-06-10 - Lumberjack camp forestry MVP
 
-- Added `Лагерь дровосеков` as a new Build catalog tool under `Промыслы`, with procedural 2.5D camp sprites and a 2x2 footprint.
+- Added `Lumberjack Camp` as a new Build catalog tool under `Production`, with procedural 2.5D camp sprites and a 2x2 footprint.
 - Added `StrategyForestryController` / `StrategyForestryTree` to register generated trees, support chopping mature trees, and plant saplings that grow through 3 visual stages.
 - Added `StrategyLumberjackCamp` with up to 2 assigned workers and a selected-camp HUD section for assigning/removing workers.
 - Residents assigned to a lumberjack camp now path to nearby trees, chop them, then path to planting cells and plant new saplings without teleporting.
@@ -654,7 +878,7 @@ Last updated: 2026-06-11
 - Successful placement now marks the placed building footprint as not walkable.
 - Added `StrategyPlacedBuilding` runtime records for placed buildings.
 - Added `StrategyPopulationController` to spawn residents when a house is built.
-- Each placed `Дом` now spawns two residents: one male and one female.
+- Each placed `House` now spawns two residents: one male and one female.
 - Added `StrategyResidentAgent` for simple idle movement around the linked home.
 - Added `StrategyResidentSpriteFactory` for runtime male/female resident sprites.
 - Runtime bootstrap now creates/configures the population controller and wires it into placement.
@@ -664,20 +888,20 @@ Last updated: 2026-06-11
 ### 2026-06-10 - Build menu single-item category activation
 
 - Changed single-item Build categories to directly activate their only build tool on click.
-- `Жилища` now selects/toggles `Дом` immediately, so the player does not need a second click on the item card.
+- `Housing` now selects/toggles `House` immediately, so the player does not need a second click on the item card.
 - Disabled raycast targeting on the item cost badge background so decorative UI cannot intercept item-card clicks.
 - Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
 
 ### 2026-06-10 - Larger House sprite and housing category
 
-- Renamed the current Build category from `Medieval` to `Жилища`.
+- Renamed the current Build category from `Medieval` to `Housing`.
 - Enlarged the generated House world sprite by lowering sprite pixels-per-unit and cropping transparent padding.
 - Increased the Build item card/icon area so the House icon reads larger in the menu.
 - Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
 
 ### 2026-06-10 - First medieval building: House
 
-- Added the first requested medieval building Build catalog entry: `Дом`.
+- Added the first requested medieval building Build catalog entry: `House`.
 - Added `StrategyBuildTool.House` with a 2x2 footprint and placement cost.
 - Added `StrategyBuildingSpriteFactory` to generate/cache a 2.5D pixel-art house sprite at runtime.
 - Build menu uses the generated house sprite as the item icon.

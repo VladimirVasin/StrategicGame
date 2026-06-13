@@ -215,11 +215,11 @@ namespace ProjectUnknown.Strategy
 
         public bool TryFindResourcePickup(
             StrategyResidentAgent worker,
-            out StrategyStorageYard storage,
+            out IStrategyConstructionResourceSource source,
             out StrategyConstructionResourceKind kind,
             out Vector2Int pickupCell)
         {
-            storage = null;
+            source = null;
             kind = StrategyConstructionResourceKind.None;
             pickupCell = default;
 
@@ -229,14 +229,14 @@ namespace ProjectUnknown.Strategy
             }
 
             if (NeededLogs > 0
-                && StrategyStorageYard.TryFindConstructionPickup(this, StrategyConstructionResourceKind.Logs, footprintBounds.center, out storage, out pickupCell))
+                && StrategyStorageYard.TryFindConstructionPickup(this, StrategyConstructionResourceKind.Logs, footprintBounds.center, out source, out pickupCell))
             {
                 kind = StrategyConstructionResourceKind.Logs;
                 return true;
             }
 
             if (NeededStone > 0
-                && StrategyStorageYard.TryFindConstructionPickup(this, StrategyConstructionResourceKind.Stone, footprintBounds.center, out storage, out pickupCell))
+                && StrategyStorageYard.TryFindConstructionPickup(this, StrategyConstructionResourceKind.Stone, footprintBounds.center, out source, out pickupCell))
             {
                 kind = StrategyConstructionResourceKind.Stone;
                 return true;
@@ -324,21 +324,21 @@ namespace ProjectUnknown.Strategy
 
         public string GetHudStatusText()
         {
-            return "\u0420\u0435\u0441\u0443\u0440\u0441\u044b: Logs "
+            return "Resources: Logs "
                 + deliveredLogs
                 + "/"
                 + cost.Logs
-                + ", \u041a\u0430\u043c\u0435\u043d\u044c "
+                + ", Stone "
                 + deliveredStone
                 + "/"
                 + cost.Stone
                 + "\n"
-                + "\u0421\u0442\u0440\u043e\u0438\u0442\u0435\u043b\u0438: "
+                + "Builders: "
                 + builders.Count
                 + "/"
                 + MaxBuilders
                 + "\n"
-                + "\u041f\u0440\u043e\u0433\u0440\u0435\u0441\u0441: "
+                + "Progress: "
                 + Mathf.RoundToInt(Progress * 100f)
                 + "%";
         }

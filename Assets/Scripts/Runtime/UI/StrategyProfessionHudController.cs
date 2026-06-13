@@ -148,8 +148,8 @@ namespace ProjectUnknown.Strategy
             root.anchorMin = new Vector2(0f, 1f);
             root.anchorMax = new Vector2(0f, 1f);
             root.pivot = new Vector2(0f, 1f);
-            root.anchoredPosition = new Vector2(210f, -18f);
-            root.sizeDelta = new Vector2(176f, 42f);
+            root.anchoredPosition = new Vector2(18f, -106f);
+            root.sizeDelta = new Vector2(178f, 42f);
 
             Image background = root.gameObject.AddComponent<Image>();
             background.color = new Color(0.12f, 0.16f, 0.18f, 0.94f);
@@ -165,7 +165,7 @@ namespace ProjectUnknown.Strategy
             iconImage.preserveAspect = true;
             iconImage.raycastTarget = false;
 
-            buttonText = CreateText("Label", root, "Профессии", 15, TextAnchor.MiddleLeft, new Color(0.95f, 0.88f, 0.62f));
+            buttonText = CreateText("Label", root, "Professions", 15, TextAnchor.MiddleLeft, new Color(0.95f, 0.88f, 0.62f));
             buttonText.fontStyle = FontStyle.Bold;
             SetOffsets(buttonText.rectTransform, 46f, 0f, 12f, 0f);
 
@@ -203,11 +203,11 @@ namespace ProjectUnknown.Strategy
             accentImage.color = new Color(0.86f, 0.63f, 0.28f, 1f);
             accentImage.raycastTarget = false;
 
-            Text title = CreateText("Title", panelRoot, "Профессии", 25, TextAnchor.UpperLeft, Color.white);
+            Text title = CreateText("Title", panelRoot, "Professions", 25, TextAnchor.UpperLeft, Color.white);
             title.fontStyle = FontStyle.Bold;
             SetTopStretch(title.rectTransform, 24f, 18f, 84f, 34f);
 
-            Text subtitle = CreateText("Subtitle", panelRoot, "рабочие поселения", 13, TextAnchor.UpperLeft, new Color(0.86f, 0.70f, 0.42f));
+            Text subtitle = CreateText("Subtitle", panelRoot, "settlement workers", 13, TextAnchor.UpperLeft, new Color(0.86f, 0.70f, 0.42f));
             subtitle.fontStyle = FontStyle.Bold;
             SetTopStretch(subtitle.rectTransform, 24f, 52f, 84f, 20f);
 
@@ -414,14 +414,14 @@ namespace ProjectUnknown.Strategy
 
             if (freeWorkersText != null)
             {
-                freeWorkersText.text = "Свободные взрослые: " + freeWorkers;
+                freeWorkersText.text = "Free adults: " + freeWorkers;
             }
 
             if (actionStatusText != null && string.IsNullOrEmpty(actionStatusText.text))
             {
                 actionStatusText.text = visibleRows > 0
-                    ? "Доступно: " + visibleRows
-                    : "Нет рабочих мест";
+                    ? "Available: " + visibleRows
+                    : "No workplaces";
             }
         }
 
@@ -496,14 +496,14 @@ namespace ProjectUnknown.Strategy
         {
             return type switch
             {
-                StrategyProfessionType.Lumberjack => new ProfessionSnapshot(type, "Дровосеки", "рубят лес и складируют Logs", new Color(0.45f, 0.62f, 0.32f)),
-                StrategyProfessionType.Stonecutter => new ProfessionSnapshot(type, "Каменотёсы", "добывают камень кирками", new Color(0.47f, 0.53f, 0.55f)),
-                StrategyProfessionType.Hunter => new ProfessionSnapshot(type, "Охотники", "охотятся на зайцев", new Color(0.56f, 0.43f, 0.26f)),
-                StrategyProfessionType.Fisher => new ProfessionSnapshot(type, "Рыбаки", "ловят рыбу у воды", new Color(0.32f, 0.54f, 0.63f)),
-                StrategyProfessionType.StorageWorker => new ProfessionSnapshot(type, "Кладовщики", "носят дерево и камень", new Color(0.58f, 0.49f, 0.37f)),
-                StrategyProfessionType.Builder => new ProfessionSnapshot(type, "Строители", "строят здания", new Color(0.75f, 0.55f, 0.27f)),
-                StrategyProfessionType.GranaryWorker => new ProfessionSnapshot(type, "Амбарщики", "переносят еду в амбар", new Color(0.62f, 0.51f, 0.28f)),
-                _ => new ProfessionSnapshot(type, "Профессия", string.Empty, Color.white)
+                StrategyProfessionType.Lumberjack => new ProfessionSnapshot(type, "Lumberjacks", "chop trees and stockpile Logs", new Color(0.45f, 0.62f, 0.32f)),
+                StrategyProfessionType.Stonecutter => new ProfessionSnapshot(type, "Stonecutters", "mine Stone with pickaxes", new Color(0.47f, 0.53f, 0.55f)),
+                StrategyProfessionType.Hunter => new ProfessionSnapshot(type, "Hunters", "hunt rabbits", new Color(0.56f, 0.43f, 0.26f)),
+                StrategyProfessionType.Fisher => new ProfessionSnapshot(type, "Fishers", "catch fish near water", new Color(0.32f, 0.54f, 0.63f)),
+                StrategyProfessionType.StorageWorker => new ProfessionSnapshot(type, "Storekeepers", "haul Logs and Stone", new Color(0.58f, 0.49f, 0.37f)),
+                StrategyProfessionType.Builder => new ProfessionSnapshot(type, "Builders", "build structures", new Color(0.75f, 0.55f, 0.27f)),
+                StrategyProfessionType.GranaryWorker => new ProfessionSnapshot(type, "Granary Workers", "haul food to the granary", new Color(0.62f, 0.51f, 0.28f)),
+                _ => new ProfessionSnapshot(type, "Profession", string.Empty, Color.white)
             };
         }
 
@@ -748,15 +748,15 @@ namespace ProjectUnknown.Strategy
             if (!success)
             {
                 return assign
-                    ? title + ": нет свободных жителей или рабочих мест"
-                    : title + ": некого снять";
+                    ? title + ": no free residents or workplaces"
+                    : title + ": nobody to remove";
             }
 
             return worker != null
                 ? worker.FullName
                 : assign
-                    ? title + ": назначено"
-                    : title + ": снято";
+                    ? title + ": assigned"
+                    : title + ": removed";
         }
 
         private int CountFreeWorkers()

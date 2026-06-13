@@ -8,15 +8,22 @@ namespace ProjectUnknown.Strategy
         private const float FrameDuration = 0.22f;
 
         private SpriteRenderer spriteRenderer;
+        private StrategyBuildingUpgrade upgrade;
         private StrategyBuildingUpgradeType type;
         private int frameIndex;
         private float frameTimer;
 
-        public void Configure(SpriteRenderer renderer, StrategyBuildingUpgradeType upgradeType)
+        public void Configure(
+            SpriteRenderer renderer,
+            StrategyBuildingUpgradeType upgradeType,
+            StrategyBuildingUpgrade linkedUpgrade = null)
         {
             spriteRenderer = renderer;
+            upgrade = linkedUpgrade;
             type = upgradeType;
-            frameIndex = Random.Range(0, StrategyBuildingUpgradeSpriteFactory.AnimationFrameCount);
+            frameIndex = type == StrategyBuildingUpgradeType.GardenBeds
+                ? GetGardenGrowthFrame()
+                : Random.Range(0, StrategyBuildingUpgradeSpriteFactory.AnimationFrameCount);
             frameTimer = Random.Range(0f, FrameDuration);
             ApplyFrame();
         }
@@ -27,12 +34,29 @@ namespace ProjectUnknown.Strategy
             {
                 spriteRenderer = GetComponent<SpriteRenderer>();
             }
+
+            if (upgrade == null)
+            {
+                upgrade = GetComponent<StrategyBuildingUpgrade>();
+            }
         }
 
         private void Update()
         {
             if (spriteRenderer == null)
             {
+                return;
+            }
+
+            if (type == StrategyBuildingUpgradeType.GardenBeds)
+            {
+                int growthFrame = GetGardenGrowthFrame();
+                if (growthFrame != frameIndex)
+                {
+                    frameIndex = growthFrame;
+                    ApplyFrame();
+                }
+
                 return;
             }
 
@@ -53,6 +77,17 @@ namespace ProjectUnknown.Strategy
             {
                 spriteRenderer.sprite = StrategyBuildingUpgradeSpriteFactory.GetAnimatedSprite(type, frameIndex);
             }
+        }
+
+        private int GetGardenGrowthFrame()
+        {
+            if (upgrade == null)
+            {
+                return 0;
+            }
+
+            int frameCount = StrategyBuildingUpgradeSpriteFactory.AnimationFrameCount;
+            return Mathf.Clamp(Mathf.FloorToInt(upgrade.GardenGrowthProgress * frameCount), 0, frameCount - 1);
         }
     }
 }

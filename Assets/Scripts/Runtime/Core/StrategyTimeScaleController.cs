@@ -19,7 +19,7 @@ namespace ProjectUnknown.Strategy
         public void Configure()
         {
             baseFixedDeltaTime = Time.fixedDeltaTime / Mathf.Max(Time.timeScale, 0.0001f);
-            SetTimeScale(NormalScale);
+            SetRequestedScale(NormalScale);
         }
 
         private void Awake()
@@ -40,15 +40,15 @@ namespace ProjectUnknown.Strategy
 
             if (keyboard.f1Key.wasPressedThisFrame)
             {
-                SetTimeScale(NormalScale);
+                SetRequestedScale(NormalScale);
             }
             else if (keyboard.f2Key.wasPressedThisFrame)
             {
-                SetTimeScale(DoubleScale);
+                SetRequestedScale(DoubleScale);
             }
             else if (keyboard.f3Key.wasPressedThisFrame)
             {
-                SetTimeScale(TripleScale);
+                SetRequestedScale(TripleScale);
             }
         }
 
@@ -95,7 +95,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("currentScale", CurrentScale));
         }
 
-        private void SetTimeScale(float scale)
+        public void SetRequestedScale(float scale)
         {
             float previousScale = CurrentScale;
             CurrentScale = Mathf.Max(NormalScale, scale);

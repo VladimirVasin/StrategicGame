@@ -22,7 +22,8 @@ namespace ProjectUnknown.Strategy
 
     internal static class StrategyFishSpriteFactory
     {
-        private const float PixelsPerUnit = 42f;
+        private const float AnimalVisualScale = 0.6f;
+        private const float PixelsPerUnit = 42f / AnimalVisualScale;
         public const int IdleFrameCount = 6;
         public const int SwimFrameCount = 8;
         public const int DartFrameCount = 8;

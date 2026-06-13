@@ -87,6 +87,12 @@ the agent must:
 - Update `ai/release-notes.md` when version labels, release contents, changelogs, or player-facing patch notes change.
 - Update design maps only when the corresponding systems actually exist and change.
 
+## Language Standard
+
+- Use English for runtime UI text, debug/log event labels, code comments, AI memory, documentation, commit messages, and future development notes.
+- Keep third-party asset filenames as-is unless a rename is explicitly required.
+- Only add non-English project-facing text when the user explicitly asks for it.
+
 ## System Tree Rules
 
 - Keep `ai/system-tree.md` as the high-level informational tree of the project.
@@ -139,5 +145,5 @@ the agent must:
 - Treat all `.cs`, `.md`, `.json`, `.txt`, `.unity`, `.asset`, `.inputactions`, and other project text files as `UTF-8`.
 - Prefer `apply_patch` for manual edits, especially in files containing localized UI/tutorial/state text.
 - Do not rewrite project files through shell commands unless encoding is explicitly forced to UTF-8.
-- After editing localized UI/HUD/tutorial/state text, run a quick scan for mojibake markers such as `вЂ`, `Р`, `С`, or `�`.
+- After editing localized UI/HUD/tutorial/state text, run a quick scan for common UTF-8 mojibake or replacement-character markers.
 - If a diff shows broken Cyrillic or mojibake, stop and fix it before moving on.

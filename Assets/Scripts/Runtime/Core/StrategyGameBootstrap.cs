@@ -7,8 +7,8 @@ namespace ProjectUnknown.Strategy
         private const float InitialCameraSize = 18f;
         private const float InitialCampCameraSize = 11f;
         private const int CampNatureClearRadius = 3;
-        private const int InitialStorageLogs = 13;
-        private const int InitialStorageStone = 9;
+        private const int InitialStorageLogs = 16;
+        private const int InitialStorageStone = 12;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void BootstrapScene()
@@ -109,6 +109,16 @@ namespace ProjectUnknown.Strategy
             cameraController.FocusOn(map.WorldBounds.center, InitialCameraSize);
             StrategyDebugLogger.Info("Bootstrap", "CameraReady", StrategyDebugLogger.F("position", mainCamera.transform.position));
 
+            StrategyDayNightCycleController dayNight = Object.FindAnyObjectByType<StrategyDayNightCycleController>();
+            if (dayNight == null)
+            {
+                GameObject dayNightObject = new GameObject("Strategy Day Night Cycle");
+                dayNight = dayNightObject.AddComponent<StrategyDayNightCycleController>();
+            }
+
+            dayNight.Configure(map, mainCamera);
+            StrategyDebugLogger.Info("Bootstrap", "DayNightReady");
+
             StrategyAmbientAudioController ambientAudio = Object.FindAnyObjectByType<StrategyAmbientAudioController>();
             if (ambientAudio == null)
             {
@@ -189,8 +199,18 @@ namespace ProjectUnknown.Strategy
                 fog = fogObject.AddComponent<StrategyFogOfWarController>();
             }
 
+            StrategyBuildingUpgradeController upgrades = Object.FindAnyObjectByType<StrategyBuildingUpgradeController>();
+            if (upgrades == null)
+            {
+                GameObject upgradesObject = new GameObject("Strategy Building Upgrades");
+                upgrades = upgradesObject.AddComponent<StrategyBuildingUpgradeController>();
+            }
+
+            upgrades.Configure(map);
+            StrategyDebugLogger.Info("Bootstrap", "UpgradesReady");
+
             fog.Configure(map, population, placement);
-            placement.Configure(map, buildMenu, mainCamera, population, fog, forestry, stone);
+            placement.Configure(map, buildMenu, mainCamera, population, fog, forestry, stone, upgrades);
             if (population.TryGetCampCell(out Vector2Int starterStorageCampCell))
             {
                 placement.TryPlaceStarterStorageYard(starterStorageCampCell, InitialStorageLogs, InitialStorageStone);
@@ -208,15 +228,14 @@ namespace ProjectUnknown.Strategy
             wildlife.Configure(map, population);
             StrategyDebugLogger.Info("Bootstrap", "WildlifeReady");
 
-            StrategyBuildingUpgradeController upgrades = Object.FindAnyObjectByType<StrategyBuildingUpgradeController>();
-            if (upgrades == null)
+            StrategyConfirmationDialogController confirmationDialog = Object.FindAnyObjectByType<StrategyConfirmationDialogController>();
+            if (confirmationDialog == null)
             {
-                GameObject upgradesObject = new GameObject("Strategy Building Upgrades");
-                upgrades = upgradesObject.AddComponent<StrategyBuildingUpgradeController>();
+                GameObject confirmationDialogObject = new GameObject("Strategy Confirmation Dialog");
+                confirmationDialog = confirmationDialogObject.AddComponent<StrategyConfirmationDialogController>();
             }
 
-            upgrades.Configure(map);
-            StrategyDebugLogger.Info("Bootstrap", "UpgradesReady");
+            confirmationDialog.Configure();
 
             StrategyWorldSelectionController selection = Object.FindAnyObjectByType<StrategyWorldSelectionController>();
             if (selection == null)
@@ -225,7 +244,7 @@ namespace ProjectUnknown.Strategy
                 selection = selectionObject.AddComponent<StrategyWorldSelectionController>();
             }
 
-            selection.Configure(mainCamera, buildMenu, upgrades, fog, population, forestry);
+            selection.Configure(mainCamera, buildMenu, upgrades, fog, population, forestry, placement, confirmationDialog);
             StrategyDebugLogger.Info("Bootstrap", "SelectionReady");
 
             StrategyProfessionHudController professionHud = Object.FindAnyObjectByType<StrategyProfessionHudController>();
