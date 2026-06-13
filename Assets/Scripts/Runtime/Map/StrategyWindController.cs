@@ -12,6 +12,9 @@ namespace ProjectUnknown.Strategy
         [SerializeField] private float windTurbulence = 0.34f;
 
         private WindZone windZone;
+        private float weatherMainBoost;
+        private float weatherPulseBoost;
+        private float weatherTurbulenceBoost;
 
         public static StrategyWindController Active { get; private set; }
         public WindZone WindZone => windZone;
@@ -20,6 +23,15 @@ namespace ProjectUnknown.Strategy
         public void ConfigureDefault()
         {
             Active = this;
+            EnsureWindZone();
+            ApplyWindSettings();
+        }
+
+        public void SetWeatherInfluence(float mainBoost, float pulseBoost, float turbulenceBoost)
+        {
+            weatherMainBoost = Mathf.Max(0f, mainBoost);
+            weatherPulseBoost = Mathf.Max(0f, pulseBoost);
+            weatherTurbulenceBoost = Mathf.Max(0f, turbulenceBoost);
             EnsureWindZone();
             ApplyWindSettings();
         }
@@ -61,10 +73,10 @@ namespace ProjectUnknown.Strategy
             }
 
             windZone.mode = WindZoneMode.Directional;
-            windZone.windMain = Mathf.Max(0f, windMain);
-            windZone.windPulseMagnitude = Mathf.Max(0f, windPulseMagnitude);
+            windZone.windMain = Mathf.Max(0f, windMain + weatherMainBoost);
+            windZone.windPulseMagnitude = Mathf.Max(0f, windPulseMagnitude + weatherPulseBoost);
             windZone.windPulseFrequency = Mathf.Max(0.01f, windPulseFrequency);
-            windZone.windTurbulence = Mathf.Max(0f, windTurbulence);
+            windZone.windTurbulence = Mathf.Max(0f, windTurbulence + weatherTurbulenceBoost);
 
             Vector2 direction = GetNormalizedPlanarDirection();
             Vector3 forward = new Vector3(direction.x, direction.y, 0f);

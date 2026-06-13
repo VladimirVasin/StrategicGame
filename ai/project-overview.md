@@ -14,7 +14,7 @@ Last updated: 2026-06-13
 - `Assets/`
   Main Unity content folder.
 - `Assets/Scripts/Runtime/`
-  Runtime C# scripts for the MVP strategy foundation, camera, map, visual day/night cycle, simulation, and UI.
+  Runtime C# scripts for the MVP strategy foundation, camera, map, visual day/night/weather, simulation, and UI.
 - `Assets/Resources/Audio/`
   Runtime-loadable non-generated ambience, footstep, and in-game music audio.
 - `Assets/Scenes/SampleScene.unity`
@@ -52,19 +52,21 @@ Confirmed from `Packages/manifest.json`:
 
 ## Implemented Gameplay
 
-- Runtime bootstrap creates the first MVP strategy scene layer on play, including a Unity `WindZone`-backed strategy wind source and runtime ambience audio.
+- Runtime bootstrap creates the first MVP strategy scene layer on play, including a Unity `WindZone`-backed strategy wind source, runtime weather, and runtime ambience audio.
+- Runtime rendering includes visual day/night and weather overlays plus shared procedural ground/cast shadows for buildings, construction, nature props, Stone deposits, resource piles, and small ambient agents.
 - Runtime debug logging writes structured gameplay diagnostics to `debug.log`, including bootstrap, audio, map, nature, Stone, build, population, forestry, selection, time-scale, and Unity warning/error events.
 - A generated 2D city map appears at runtime with randomized seed-driven terrain generation and procedural pixel-art terrain textures.
 - Current terrain generation covers grass, meadow, forest, dirt, shore, and water with randomized rivers/water blobs, clustered land biomes, seeded texture variants, and transition overlays; generated water/shore cells are tagged as River or Lake for technical gameplay distinction, and generated rivers expose a technical flow direction used by river animation and river fish.
 - A runtime nature-props layer places procedural 2.5D trees, forest groups, and bushes over the generated terrain.
-- A runtime wildlife layer spawns deer herds and rabbit groups on suitable walkable land, lake fish populations on generated lake regions, one-way pass-through river fish along the river current, and decorative birds across species-appropriate land/water habitats; current wildlife has procedural 2.5D/pixel-art sprites, frame-based ambient/threat/work animations, and reacts to nearby residents without revealing fog or blocking cells. Deer, rabbits, and lake fish have capped reproduction/growth; river fish do not reproduce and despawn at the route end; birds are decorative-only, while adult rabbits can be reserved and hunted by Hunter Camp workers for local `Game`, and adult fish can be reserved and caught by Fisher Hut workers for local `Fish`.
+- A runtime wildlife layer spawns deer herds on suitable walkable land, rabbit groups in a near-camp walkable ring for early hunting access, lake fish populations on generated lake regions, one-way pass-through river fish along the river current, and decorative birds across species-appropriate land/water habitats; current wildlife has procedural 2.5D/pixel-art sprites, frame-based ambient/threat/work animations, and reacts to nearby residents without revealing fog or blocking cells. Deer, rabbits, and lake fish have capped reproduction/growth; river fish do not reproduce and despawn at the route end; birds are decorative-only, while adult rabbits can be reserved and hunted by Hunter Camp workers for local `Game`, and adult fish can be reserved and caught by Fisher Hut workers for local `Fish`.
 - The nature layer also places procedural Stone resource deposits as standalone boulders, rock clusters, and larger cliffs.
 - Trees, forest groups, and bushes sway through a 2D adapter driven by the Unity `WindZone` values.
 - Forest terrain cells receive dense visual forest props, while grass/meadow/dirt/shore cells can receive sparse standalone trees or bushes.
 - Standalone generated trees are registered as mature forestry trees; planted saplings grow through 3 visual stages.
 - Orthographic strategy camera supports map pan/scroll and zoom controls.
 - Runtime time controls support F1/F2/F3 for x1/x2/x3 simulation speed.
-- Runtime ambience audio loads non-generated forest birds, cicadas, night, rain, wind, and river loops from `Assets/Resources/Audio/Nature`; river ambience is spatial and follows the nearest water to the camera.
+- Runtime weather randomizes Clear, Cloudy, LightRain, HeavyRain, Fog, and Storm states, drives cloud-shadow/rain/mist/wet-ground overlays, boosts wind, intensifies water ripples, and feeds rain/wind ambience.
+- Runtime ambience audio loads non-generated forest birds, cicadas, night, rain, wind, and river loops from `Assets/Resources/Audio/Nature`; river ambience is spatial and follows the nearest water to the camera, while rain/wind ambience follows the current weather state.
 - Runtime in-game music loads all AudioClips from `Assets/Resources/Audio/Music` as a random playlist, avoids repeating the same track twice in a row when multiple tracks exist, and pauses/resumes the current clip when the game loses/regains focus.
 - Resident walking now uses non-generated grass footstep clips from `Assets/Resources/Audio/Footsteps/GrassWalk` through quiet spatial AudioSources on residents.
 - Storage Yard is implemented as the first storage/logistics building: it has procedural 2.5D art, uncapped assigned storage workers/builders, local Logs and Stone stock, growing visual stockpiles, resident hauling from production camps, and construction resource reservations.
@@ -91,7 +93,7 @@ Confirmed from `Packages/manifest.json`:
 - Empty houses can accept the oldest adult child still living with parents, and single adult-child households can pull in an adult opposite-gender partner from another parental home or the free camp pool after kinship checks.
 - Residents roll annual mortality from age 1, with low youth risk, accelerating risk after age 40, high risk around age 50, and persistent family records so dead ancestors still block close-relative pairings.
 - Residents living in starving houses receive a multiplicative annual mortality chance increase.
-- Resident death now creates an animated corpse; close family/household members gather, cry/mourn, drag the dead by rope to a spontaneous cemetery, wait for reachable attendees at the grave, and burial leaves a grave sprite that blocks its cell.
+- Resident death now creates an animated corpse; close family/household members gather, cry/mourn, drag the dead by rope to a spontaneous cemetery, wait for reachable attendees at the grave, and burial leaves a clickable grave sprite that blocks its cell.
 - The first refugee family spawns after 3 completed houses; later refugee families periodically spawn from a map edge that can route to the reachable camp-side arrival area, walk to the startup campfire, pause the game with a decision dialog, and either join the settlement or leave the map based on player choice.
 - The top status HUD shows total population with separate adult and child counts.
 - Residents have runtime IDs, full names, family names, age, life stage, parent/child links, 5 runtime-generated male variants, 5 runtime-generated female variants, child sprites, matching portrait sprites, and idle movement around their current camp/home through nearby walkable cells.
@@ -104,7 +106,7 @@ Confirmed from `Packages/manifest.json`:
 - Residents assigned to construction sites fetch reserved Logs/Stone from Storage Yards, deliver them to the site, and build with generated hammer animation frames.
 - Lumberjack chopping now uses generated axe-swing sprite frames; impact frames shake/damage the tree, spawn woodchip/leaf effects, final tree hits make the tree fall, and final trunk hits split it into collectable Logs.
 - Houses mark an expanded 2.5D visual/navigation blocker as not walkable after successful construction, not only the technical 2x2 footprint.
-- Placed houses and residents are clickable world objects with a simple selection marker and right-side selection HUD.
+- Placed houses, residents, and completed graves are clickable world objects with a simple selection marker and right-side selection HUD.
 - Placed lumberjack camps are clickable, expose worker assignment/removal in the right-side selection HUD, and keep a local visual Logs stockpile.
 - Placed hunter camps are clickable, expose worker assignment/removal in the right-side selection HUD, and show local `Game` stock plus nearby huntable rabbit counts.
 - Placed fisher huts are clickable, expose worker assignment/removal in the right-side selection HUD, and show local `Fish` stock plus nearby catchable fish counts.
@@ -114,7 +116,7 @@ Confirmed from `Packages/manifest.json`:
 - Installing Chicken Coop spawns idle chickens that walk around the coop.
 - Houses now have local runtime resource counts shown in the selected-house HUD.
 - Garden Beds produce one assigned crop per house from: Turnip, Cabbage, Onion, Carrot, or Potato.
-- Chicken Coop passively produces Eggs.
+- Chicken Coop produces Eggs through a cycle-driven timer synchronized with its nest/egg sprite animation.
 - Standalone trees, forest groups, bushes, and fallen trunks block their occupied map cells; forestry trees release their cell back to walkable after Logs are collected.
 - Generated Stone deposits block their occupied map cells and are mined by assigned stonecutter residents.
 - No global economy simulation, save system, or full UI shell is implemented yet; hunter-camp `Game` and fisher-hut `Fish` can be hauled to Granaries, but food is still runtime-local and not consumed by residents yet.

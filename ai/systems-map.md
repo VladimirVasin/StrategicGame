@@ -36,6 +36,7 @@ Responsibilities:
 - Default volume/rendering profiles.
 - Shared Y-based sorting constants/helper for 2.5D world sprites.
 - Runtime world tint overlay for the visual day/night cycle.
+- Runtime weather overlay sorting bands for wet ground, cloud shadows, mist, and rain.
 
 Primary files/assets:
 
@@ -45,12 +46,16 @@ Primary files/assets:
 - `Assets/Settings/Renderer2D.asset`
 - `Assets/Scripts/Runtime/Core/StrategyWorldSorting.cs`
 - `Assets/Scripts/Runtime/Core/StrategyDayNightCycleController.cs`
+- `Assets/Scripts/Runtime/Core/StrategyShadowCaster2D.cs`
+- `Assets/Scripts/Runtime/Core/StrategyShadowSpriteFactory.cs`
+- `Assets/Scripts/Runtime/Weather/StrategyWeatherVisualController.cs`
 
 Impact hints:
 
 - Rendering settings affect scene appearance globally.
 - World sprites should use `StrategyWorldSorting` instead of fixed type-based `sortingOrder` values so farther objects do not render in front of nearer ones.
-- The day/night overlay sorts above world sprites and below placement preview/fog/UI; keep that ordering when adding more world overlays.
+- The day/night and weather overlays sort around world sprites while staying below placement preview/fog/UI; keep that ordering when adding more world overlays.
+- `StrategyShadowCaster2D` is the shared runtime shadow path for world sprites; tune shape/scale/offset per object type and let day/night control opacity/length globally.
 - Verify scenes visually in Unity after meaningful changes.
 
 ### Scene Foundation
@@ -81,6 +86,7 @@ Responsibilities:
 - Ensure a Unity `WindZone`-backed strategy wind source exists.
 - Ensure a usable orthographic main camera exists.
 - Wire camera bounds to generated map bounds.
+- Configure runtime weather after camera/day-night setup and before ambience audio.
 - Configure runtime ambience audio after camera setup.
 - Focus the initial camera view on the startup campfire after population creates it.
 - Configure water/shore animation after map generation.
@@ -101,6 +107,9 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Core/StrategyDebugLogger.cs`
 - `Assets/Scripts/Runtime/Core/StrategyTimeScaleController.cs`
 - `Assets/Scripts/Runtime/Core/StrategyDayNightCycleController.cs`
+- `Assets/Scripts/Runtime/Weather/StrategyWeatherKind.cs`
+- `Assets/Scripts/Runtime/Weather/StrategyWeatherController.cs`
+- `Assets/Scripts/Runtime/Weather/StrategyWeatherVisualController.cs`
 - `Assets/Scripts/Runtime/Audio/StrategyAmbientAudioController.cs`
 - `Assets/Scripts/Runtime/Audio/StrategyMusicController.cs`
 - `Assets/Scripts/Runtime/Audio/StrategyResidentFootstepAudio.cs`
@@ -151,6 +160,7 @@ Responsibilities:
 - Load in-game music clips from `Assets/Resources/Audio/Music` as a playlist.
 - Create runtime AudioSources without scene YAML wiring.
 - Play layered forest birds, cicadas, night, rain, calm wind, and forest wind ambience.
+- Follow the active runtime weather state for rain and weather wind ambience.
 - Position a spatial river ambience source at the nearest generated water cell to the active camera.
 - Play random in-game music tracks without repeating the previous track when 2+ tracks exist.
 - Pause current in-game music on application focus loss and resume the same clip on focus return.
@@ -171,11 +181,40 @@ Primary files/assets:
 
 Impact hints:
 
-- Ambience depends on generated map water cells, camera position, and strategy wind values.
+- Ambience depends on generated map water cells, camera position, and strategy wind/weather values.
 - Music files can be named freely, but `Music_01.mp3`, `Music_02.mp3`, etc. are the recommended convention; all direct AudioClips in `Resources/Audio/Music` are part of the playlist.
 - Music focus handling must use `AudioSource.Pause`/`UnPause` so losing focus does not trigger playlist advancement.
 - Footsteps are tied to resident walk sprite frames 1 and 5; changing walk frame counts or animation pacing should retune footstep phases.
 - Keep imported ambience/footstep clips under `Resources/Audio` unless the loading path is updated at the same time.
+
+### Strategy Weather
+
+Responsibilities:
+
+- Own the current runtime weather state and smooth atmospheric intensities.
+- Randomly transition between Clear, Cloudy, LightRain, HeavyRain, Fog, and Storm.
+- Drive procedural wet-ground, cloud-shadow, mist, and rain world overlays.
+- Feed rain/wind ambience with a single weather source of truth.
+- Boost the strategy `WindZone` so nature sway reacts to rain and storms.
+- Expose rain intensity to water animation for rain ripple hits.
+
+Primary files/assets:
+
+- `Assets/Scripts/Runtime/Weather/StrategyWeatherKind.cs`
+- `Assets/Scripts/Runtime/Weather/StrategyWeatherController.cs`
+- `Assets/Scripts/Runtime/Weather/StrategyWeatherVisualController.cs`
+- `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.cs`
+- `Assets/Scripts/Runtime/Core/StrategyWorldSorting.cs`
+- `Assets/Scripts/Runtime/Map/StrategyWindController.cs`
+- `Assets/Scripts/Runtime/Map/StrategyWaterAnimationController.cs`
+- `Assets/Scripts/Runtime/Audio/StrategyAmbientAudioController.cs`
+- `Assembly-CSharp.csproj`
+
+Impact hints:
+
+- Weather visual overlays must stay below placement preview and fog-of-war UI-facing layers.
+- Rain/wind audio should continue reading `StrategyWeatherController.Active` instead of adding independent rain timers.
+- Weather currently has visual/audio/wind/water effects only; future gameplay effects should extend this system rather than duplicating weather rolls in crops, illness, movement, or fire logic.
 
 ### Generated City Map
 
@@ -188,7 +227,7 @@ Responsibilities:
 - Tag generated water and shore cells with `CityMapWaterKind.River` or `CityMapWaterKind.Lake` for direct future gameplay queries.
 - Expose `RiverFlowDirection` for systems that need to move or animate along the generated river current.
 - Paint procedural pixel-art terrain textures for generated map cells.
-- Render animated water waves, sparkles, and shoreline foam as a transparent overlay.
+- Render animated water waves, sparkles, shoreline foam, and weather-driven rain ripple hits as a transparent overlay.
 - Feed generated cell kinds and active seed into the visual nature-props layer.
 - Feed generated land cells and active seed into Stone deposit generation.
 - Provide the campfire exclusion center used by nature generation to guarantee starter-area Stone.
@@ -226,7 +265,7 @@ Impact hints:
 - Future placement/economy work should reuse `CityMapCell`/bounds rather than duplicating map dimensions.
 - Future movement/pathfinding should use `IsCellWalkable` rather than terrain kind alone.
 - Rendering is currently a generated point-filtered texture on a `SpriteRenderer`, not a Tilemap.
-- Water and shore animation is a separate transparent `SpriteRenderer` overlay above the static map and below world props.
+- Water and shore animation is a separate transparent `SpriteRenderer` overlay above the static map and below world props; it reads active weather intensity for rain ripple hits.
 
 ### Forestry MVP
 
@@ -335,7 +374,7 @@ Impact hints:
 Responsibilities:
 
 - Spawn ambient deer herds on suitable walkable land away from the starter camp.
-- Spawn ambient rabbit groups on suitable walkable land away from the starter camp.
+- Spawn ambient rabbit groups on suitable walkable land in a near-camp ring, not directly on the starter camp.
 - Spawn lake fish on suitable generated lake regions with strict per-lake population caps.
 - Spawn one-way pass-through river fish along the generated river current through a single timer.
 - Spawn decorative birds on species-appropriate land/water cells without reproduction or resources.
@@ -393,6 +432,7 @@ Impact hints:
 
 - Wildlife is runtime-only and not saved yet.
 - Deer and birds do not reveal fog, block walkability, or provide resources yet; rabbits can yield `Game` through the hunter-camp work loop, and fish can yield `Fish` through the fisher-hut work loop.
+- Initial rabbit spawn depends on the starter camp cell and should remain close enough for early hunter-camp use.
 - Deer pathing depends on `CityMapController.IsCellWalkable` and should stay local/cheap until a shared pathfinding service exists.
 - Rabbit pathing uses the same local walkable-cell approach and should stay cheap until a shared pathfinding service exists.
 - Fish pathing uses `CityMapCellKind.Water` plus `CityMapWaterKind` instead of `IsCellWalkable`, because water is intentionally not walkable for land agents and lake/river fish now have separate movement rules.
@@ -871,7 +911,7 @@ Responsibilities:
 - Create resident death snapshots and animated corpses when residents die.
 - Gather close family/household funeral participants for mourning, procession, and burial.
 - Create a spontaneous cemetery away from the settlement and reserve carrier-reachable grave cells for burials.
-- Create grave sprites after burial and mark grave cells as not walkable.
+- Create clickable grave sprites after burial and mark grave cells as not walkable.
 - Temporarily interrupt resident tasks for funeral activities without permanently removing workplace roles.
 - Move the oldest adult child still living with parents into empty houses.
 - Move an eligible adult opposite-gender partner into single-resident adult-child houses while blocking close relatives.
@@ -912,6 +952,7 @@ Responsibilities:
 - Generate and animate procedural campfire flame plus smoke/spark overlay frames at runtime.
 - Drive campfire burnout visuals and restore campfire-cell walkability after extinguish.
 - Drive simple chicken idle movement around a linked Chicken Coop upgrade with walk and peck sprite animations.
+- Drive Chicken Coop egg production from a cycle timer synchronized with the coop's nest/egg animation frames.
 - Expose runtime residents as read-only visibility sources for fog of war.
 
 Primary files/assets:
@@ -922,6 +963,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyCemeteryController.cs`
 - `Assets/Scripts/Runtime/Population/StrategyCorpse.cs`
 - `Assets/Scripts/Runtime/Population/StrategyFuneralSpriteFactory.cs`
+- `Assets/Scripts/Runtime/Population/StrategyGraveMarker.cs`
 - `Assets/Scripts/Runtime/Population/StrategyRefugeeArrivalController.cs`
 - `Assets/Scripts/Runtime/Population/StrategyHouseholdState.cs`
 - `Assets/Scripts/Runtime/Population/StrategyHouseholdFoodState.cs`
@@ -967,7 +1009,7 @@ Impact hints:
 - `StrategyFuneralController` builds a carrier reachable-cell set before reserving a grave; funeral resident movement must fail rather than fall back to direct world movement when no walkable path exists.
 - Funeral processions drag the corpse behind a primary carrier with a visible rope and clamp the corpse within one map-cell distance from that carrier.
 - Burial starts after reachable expected attendees gather around the reserved grave or after the grave-gather timeout prevents a deadlock.
-- `StrategyCemeteryController` owns spontaneous cemetery placement and grave reservation; graves are world blockers, so map walkability must be updated when grave cells are created.
+- `StrategyCemeteryController` owns spontaneous cemetery placement and grave reservation; graves are world blockers and clickable markers, so map walkability and grave HUD data must be updated when grave cells are created.
 - Cemetery placement should remain away from active settlement space without drifting to extreme map edges; current scoring favors a moderate camp distance, penalizes edge cells, and rejects grave candidates without enough carrier-reachable stand cells.
 - `StrategyPopulationController` also owns the runtime house registry used for free-house migration and partner retry checks.
 - Pending refugee families are rendered as resident agents but are not counted as residents, workers, or fog sources until accepted.
@@ -1009,7 +1051,7 @@ Impact hints:
 
 Responsibilities:
 
-- Select placed buildings, construction sites, and residents with left-click.
+- Select placed buildings, construction sites, residents, and completed graves with left-click.
 - Ignore left-click selection in unexplored fog cells unless player fog is toggled off.
 - Ignore world selection while the pointer is over UI.
 - Show a simple marker under the selected world object.
@@ -1021,6 +1063,7 @@ Responsibilities:
 - Show selected lumberjack/stonecutter/hunter/fisher/granary/storage stock and nearby source/target counts.
 - Show selected-construction-site cost, delivered resources, builder count, and progress/status context.
 - Show selected-resident full name, portrait, profile, age/life stage, current activity, and home/camp assignment.
+- Show selected-grave deceased name, epitaph, age, final profession, family role, and memory text.
 - Listen for `Delete` on selected construction sites/buildings and open the reusable confirmation dialog before cancellation or demolition.
 
 Primary files/assets:
@@ -1036,6 +1079,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Build/StrategyStorageYard.cs`
 - `Assets/Scripts/Runtime/Build/StrategyGranary.cs`
 - `Assets/Scripts/Runtime/Build/StrategyConstructionSite.cs`
+- `Assets/Scripts/Runtime/Population/StrategyGraveMarker.cs`
 - `Assets/Scripts/Runtime/Economy/StrategyHouseResourceStore.cs`
 - `Assets/Scripts/Runtime/Economy/StrategyResourceIconFactory.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.cs`

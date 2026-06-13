@@ -291,6 +291,8 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("residentId", residentId),
                 StrategyDebugLogger.F("age", age),
                 StrategyDebugLogger.F("reason", reason),
+                StrategyDebugLogger.F("finalProfession", snapshot.FinalProfession),
+                StrategyDebugLogger.F("familyRole", snapshot.FamilyRole),
                 StrategyDebugLogger.F("annualChance", annualChance),
                 StrategyDebugLogger.F("baseAnnualChance", baseAnnualChance),
                 StrategyDebugLogger.F("starvationMultiplier", starvationMultiplier),
@@ -1342,7 +1344,7 @@ namespace ProjectUnknown.Strategy
             {
                 StrategyResidentAgent candidate = residents[i];
                 if (candidate != null
-                    && candidate.CanWork
+                    && candidate.CanAcceptWorkAssignment
                     && !candidate.HasWorkplace
                     && !candidate.HasConstructionAssignment)
                 {
@@ -1720,8 +1722,90 @@ namespace ProjectUnknown.Strategy
                 resident.transform.position,
                 deathCell,
                 home != null ? home.Origin : Vector2Int.zero,
+                GetFinalProfession(resident),
+                GetFamilyRole(resident, home),
                 householdIds.ToArray(),
                 childIds.ToArray());
+        }
+
+        private static string GetFinalProfession(StrategyResidentAgent resident)
+        {
+            if (resident == null)
+            {
+                return "settler";
+            }
+
+            if (resident.LifeStage == StrategyResidentLifeStage.Child)
+            {
+                return "child";
+            }
+
+            if (resident.IsHouseholder)
+            {
+                return "householder";
+            }
+
+            if (resident.BuilderWorkplace != null || resident.ConstructionSite != null)
+            {
+                return "builder";
+            }
+
+            if (resident.Workplace != null)
+            {
+                return "lumberjack";
+            }
+
+            if (resident.StoneWorkplace != null)
+            {
+                return "stonecutter";
+            }
+
+            if (resident.HunterWorkplace != null)
+            {
+                return "hunter";
+            }
+
+            if (resident.FisherWorkplace != null)
+            {
+                return "fisher";
+            }
+
+            if (resident.StorageWorkplace != null)
+            {
+                return "storekeeper";
+            }
+
+            if (resident.GranaryWorkplace != null)
+            {
+                return "granary worker";
+            }
+
+            return "settler";
+        }
+
+        private static string GetFamilyRole(StrategyResidentAgent resident, StrategyPlacedBuilding home)
+        {
+            if (resident == null)
+            {
+                return "settler";
+            }
+
+            if (resident.LifeStage == StrategyResidentLifeStage.Child)
+            {
+                return "child";
+            }
+
+            if (resident.ChildIds != null && resident.ChildIds.Count > 0)
+            {
+                return resident.Gender == StrategyResidentGender.Male ? "father" : "mother";
+            }
+
+            if (home != null && home.ResidentCount > 1)
+            {
+                return resident.Gender == StrategyResidentGender.Male ? "husband" : "wife";
+            }
+
+            return "settler";
         }
 
         private void AddFuneralParticipantIds(

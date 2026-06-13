@@ -91,6 +91,7 @@ namespace ProjectUnknown.Strategy
             buildHitsRequired = Mathf.Max(16, cost.Total * 4 + footprint.x * footprint.y * 5);
             EnsureStockRenderers();
             UpdateVisuals();
+            EnsureWorldShadow();
             EnsureClickCollider();
         }
 
@@ -123,6 +124,7 @@ namespace ProjectUnknown.Strategy
             hasBridgeSpan = bridgeCells.Count > 0;
             buildHitsRequired = Mathf.Max(buildHitsRequired, cost.Total * 4 + bridgeCells.Count * 5);
             UpdateVisuals();
+            EnsureWorldShadow();
             EnsureClickCollider();
         }
 
@@ -147,7 +149,10 @@ namespace ProjectUnknown.Strategy
 
         public bool RegisterBuilder(StrategyResidentAgent resident, bool futureHomeResident)
         {
-            if (resident == null || builders.Contains(resident) || builders.Count >= MaxBuilders)
+            if (resident == null
+                || builders.Contains(resident)
+                || builders.Count >= MaxBuilders
+                || !resident.CanAcceptWorkAssignment)
             {
                 return false;
             }
@@ -500,6 +505,30 @@ namespace ProjectUnknown.Strategy
                 stoneObject.transform.SetParent(transform, false);
                 stoneRenderer = stoneObject.AddComponent<SpriteRenderer>();
             }
+        }
+
+        private void EnsureWorldShadow()
+        {
+            if (spriteRenderer == null)
+            {
+                return;
+            }
+
+            bool isBridge = tool == StrategyBuildTool.Bridge;
+            Vector2 scale = isBridge
+                ? new Vector2(Mathf.Max(0.8f, footprint.x * 0.68f), Mathf.Max(0.2f, footprint.y * 0.22f))
+                : new Vector2(Mathf.Max(0.9f, footprint.x * 0.78f), Mathf.Max(0.28f, footprint.y * 0.36f));
+            Vector2 offset = isBridge ? new Vector2(0f, -0.04f) : new Vector2(0.14f, -0.12f);
+
+            StrategyShadowCaster2D.Attach(
+                spriteRenderer,
+                StrategyShadowShape.CastOval,
+                offset,
+                scale,
+                isBridge ? 0.14f : 0.21f,
+                -7,
+                isBridge ? 0f : -6f,
+                !isBridge);
         }
 
         private void UpdateVisuals()

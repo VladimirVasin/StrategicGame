@@ -17,7 +17,11 @@ namespace ProjectUnknown.Strategy
         private const int MaxRabbits = 18;
         private const int MaxRabbitGroups = 5;
         private const int RabbitHomeRadius = 6;
+        private const int MaxRabbitsPerGroup = 5;
         private const int MaxRabbitPopulation = 36;
+        private const int RabbitCampMinDistance = 7;
+        private const int RabbitCampMaxDistance = 30;
+        private const int RabbitGroupCenterMaxCampDistance = RabbitCampMaxDistance - 4;
         private const int MinFish = 18;
         private const int MaxFish = 28;
         private const int MaxFishShoals = 7;
@@ -223,7 +227,9 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("rabbits", rabbits.Count),
                 StrategyDebugLogger.F("rabbitTarget", targetRabbits),
                 StrategyDebugLogger.F("rabbitCap", MaxRabbitPopulation),
+                StrategyDebugLogger.F("rabbitGroupCap", MaxRabbitsPerGroup),
                 StrategyDebugLogger.F("rabbitGroups", spawnedRabbitGroups),
+                StrategyDebugLogger.F("rabbitCampMaxDistance", hasCampCell ? RabbitCampMaxDistance : 0),
                 StrategyDebugLogger.F("fish", fish.Count),
                 StrategyDebugLogger.F("fishTarget", targetFish),
                 StrategyDebugLogger.F("fishCap", MaxFishPopulation),
@@ -397,7 +403,7 @@ namespace ProjectUnknown.Strategy
 
                 int groupsLeft = targetGroups - group;
                 int reserveForLater = Mathf.Max(0, (groupsLeft - 1) * 2);
-                int maxThisGroup = Mathf.Min(5, remaining - reserveForLater);
+                int maxThisGroup = Mathf.Min(MaxRabbitsPerGroup, remaining - reserveForLater);
                 int groupSize = Mathf.Clamp(
                     3 + (Hash(map.ActiveSeed, group, 97, 149, 211) % 3),
                     2,
@@ -1319,6 +1325,13 @@ namespace ProjectUnknown.Strategy
                     continue;
                 }
 
+                int groupCount = CountLivingRabbitsInGroup(doe.GroupId);
+                if (groupCount >= MaxRabbitsPerGroup)
+                {
+                    rabbitBreedCooldowns[doe] = Random.Range(RabbitFailedBreedRetryMin, RabbitFailedBreedRetryMax);
+                    continue;
+                }
+
                 float cooldown = GetRabbitBreedCooldown(doe) - elapsedSeconds;
                 if (cooldown > 0f)
                 {
@@ -1342,8 +1355,28 @@ namespace ProjectUnknown.Strategy
                     "RabbitPopulationChanged",
                     StrategyDebugLogger.F("count", rabbits.Count),
                     StrategyDebugLogger.F("cap", MaxRabbitPopulation),
-                    StrategyDebugLogger.F("motherGroup", doe.GroupId));
+                    StrategyDebugLogger.F("motherGroup", doe.GroupId),
+                    StrategyDebugLogger.F("groupCount", groupCount + 1),
+                    StrategyDebugLogger.F("groupCap", MaxRabbitsPerGroup));
             }
+        }
+
+        private int CountLivingRabbitsInGroup(int groupId)
+        {
+            int count = 0;
+            for (int i = 0; i < rabbits.Count; i++)
+            {
+                StrategyRabbitAgent rabbit = rabbits[i];
+                if (rabbit != null
+                    && rabbit.GroupId == groupId
+                    && rabbit.IsAlive
+                    && !rabbit.IsCarcass)
+                {
+                    count++;
+                }
+            }
+
+            return count;
         }
 
         private float GetRabbitBreedCooldown(StrategyRabbitAgent doe)
@@ -1693,6 +1726,75 @@ namespace ProjectUnknown.Strategy
 
         private bool TryFindRabbitGroupCenter(int group, HashSet<Vector2Int> usedCells, out Vector2Int cell)
         {
+            if (hasCampCell && TryFindRabbitGroupCenterNearCamp(group, usedCells, out cell))
+            {
+                return true;
+            }
+
+            bool found = TryFindRabbitGroupCenterMapWide(group, usedCells, out cell);
+            if (hasCampCell && !found)
+            {
+                StrategyDebugLogger.Warn(
+                    "Wildlife",
+                    "RabbitNearCampSpawnFailed",
+                    StrategyDebugLogger.F("group", group),
+                    StrategyDebugLogger.F("campCell", campCell),
+                    StrategyDebugLogger.F("minDistance", RabbitCampMinDistance),
+                    StrategyDebugLogger.F("maxDistance", RabbitCampMaxDistance));
+            }
+
+            return found;
+        }
+
+        private bool TryFindRabbitGroupCenterNearCamp(int group, HashSet<Vector2Int> usedCells, out Vector2Int cell)
+        {
+            cell = default;
+            Vector2Int bestCell = default;
+            float bestScore = float.NegativeInfinity;
+            bool found = false;
+
+            for (int radius = RabbitCampMinDistance; radius <= RabbitGroupCenterMaxCampDistance; radius++)
+            {
+                for (int y = -radius; y <= radius; y++)
+                {
+                    for (int x = -radius; x <= radius; x++)
+                    {
+                        if (Mathf.Abs(x) != radius && Mathf.Abs(y) != radius)
+                        {
+                            continue;
+                        }
+
+                        Vector2Int candidate = campCell + new Vector2Int(x, y);
+                        if (usedCells.Contains(candidate) || !IsRabbitGroupCenterCandidate(candidate))
+                        {
+                            continue;
+                        }
+
+                        float distance = Vector2Int.Distance(candidate, campCell);
+                        float score = GetRabbitGroupCenterScore(candidate)
+                            + Mathf.Clamp(RabbitGroupCenterMaxCampDistance - distance, 0f, RabbitGroupCenterMaxCampDistance) * 0.08f
+                            + Hash01(map.ActiveSeed, group, candidate.x, candidate.y) * 0.15f;
+                        if (score > bestScore)
+                        {
+                            bestScore = score;
+                            bestCell = candidate;
+                            found = true;
+                        }
+                    }
+                }
+            }
+
+            if (!found)
+            {
+                return false;
+            }
+
+            cell = bestCell;
+            return true;
+        }
+
+        private bool TryFindRabbitGroupCenterMapWide(int group, HashSet<Vector2Int> usedCells, out Vector2Int cell)
+        {
             cell = default;
             Vector2Int bestCell = default;
             float bestScore = float.NegativeInfinity;
@@ -1708,10 +1810,11 @@ namespace ProjectUnknown.Strategy
                     continue;
                 }
 
-                float score = GetRabbitSpawnTerrainScore(candidate) + CountWalkableNeighbors(candidate, 2) * 0.28f;
+                float score = GetRabbitGroupCenterScore(candidate);
                 if (hasCampCell)
                 {
-                    score += Mathf.Clamp(Vector2Int.Distance(candidate, campCell) - CampAvoidRadius, 0f, 16f) * 0.10f;
+                    float distance = Vector2Int.Distance(candidate, campCell);
+                    score += Mathf.Clamp(RabbitCampMaxDistance - distance, 0f, RabbitCampMaxDistance) * 0.08f;
                 }
 
                 if (score > bestScore)
@@ -1729,6 +1832,11 @@ namespace ProjectUnknown.Strategy
 
             cell = bestCell;
             return true;
+        }
+
+        private float GetRabbitGroupCenterScore(Vector2Int candidate)
+        {
+            return GetRabbitSpawnTerrainScore(candidate) + CountWalkableNeighbors(candidate, 2) * 0.28f;
         }
 
         private bool TryFindRabbitSpawnCell(
@@ -2050,9 +2158,13 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            if (hasCampCell && Vector2Int.Distance(cell, campCell) < CampAvoidRadius)
+            if (hasCampCell)
             {
-                return false;
+                float campDistance = Vector2Int.Distance(cell, campCell);
+                if (campDistance < RabbitCampMinDistance || campDistance > RabbitCampMaxDistance)
+                {
+                    return false;
+                }
             }
 
             return mapCell.Kind == CityMapCellKind.Meadow

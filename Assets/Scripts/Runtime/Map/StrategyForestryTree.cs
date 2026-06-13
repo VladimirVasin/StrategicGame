@@ -82,6 +82,7 @@ namespace ProjectUnknown.Strategy
             }
 
             EnsureWindSway();
+            EnsureStandingWorldShadow();
             BlockWalkability();
             controller?.RegisterTree(this);
         }
@@ -266,6 +267,56 @@ namespace ProjectUnknown.Strategy
             spriteRenderer.color = Color.white;
             StrategyWorldSorting.Apply(spriteRenderer, transform.position);
             SyncDamageSorting();
+            EnsureStandingWorldShadow();
+        }
+
+        private void EnsureStandingWorldShadow()
+        {
+            if (spriteRenderer == null)
+            {
+                return;
+            }
+
+            Vector2 scale = Stage switch
+            {
+                0 => new Vector2(0.34f, 0.12f),
+                1 => new Vector2(0.52f, 0.17f),
+                _ => new Vector2(0.78f, 0.24f)
+            };
+            float opacity = Stage switch
+            {
+                0 => 0.13f,
+                1 => 0.18f,
+                _ => 0.25f
+            };
+
+            StrategyShadowCaster2D.Attach(
+                spriteRenderer,
+                StrategyShadowShape.CastOval,
+                new Vector2(0.13f, -0.06f),
+                scale,
+                opacity,
+                -6,
+                -7f,
+                true);
+        }
+
+        private void EnsureFelledWorldShadow(bool splitLogs)
+        {
+            if (spriteRenderer == null)
+            {
+                return;
+            }
+
+            StrategyShadowCaster2D.Attach(
+                spriteRenderer,
+                StrategyShadowShape.SoftEllipse,
+                new Vector2(0.04f, -0.04f),
+                splitLogs ? new Vector2(0.56f, 0.15f) : new Vector2(0.78f, 0.19f),
+                splitLogs ? 0.16f : 0.18f,
+                -5,
+                0f,
+                false);
         }
 
         private void EnsureWindSway()
@@ -338,6 +389,7 @@ namespace ProjectUnknown.Strategy
                 spriteRenderer.flipX = fallDirection < 0;
                 StrategyWorldSorting.Apply(spriteRenderer, transform.position);
                 SyncDamageSorting();
+                EnsureFelledWorldShadow(false);
             }
 
             StrategyDebugLogger.Info(
@@ -363,6 +415,7 @@ namespace ProjectUnknown.Strategy
                 spriteRenderer.flipX = fallDirection < 0;
                 StrategyWorldSorting.Apply(spriteRenderer, transform.position);
                 SyncDamageSorting();
+                EnsureFelledWorldShadow(true);
             }
 
             StrategyWoodcutEffectAnimator.Spawn(GetBuckEffectWorld(), spriteRenderer != null ? spriteRenderer.sortingOrder + 4 : 7, buckHitCount + 50);

@@ -50,6 +50,7 @@ namespace ProjectUnknown.Strategy
             StoneAmount = Mathf.Max(0, stoneAmount);
             spriteRenderer = GetComponent<SpriteRenderer>();
             CaptureBaseTransform();
+            EnsureWorldShadow();
 
             BlockWalkability();
             controller?.RegisterDeposit(this);
@@ -266,6 +267,32 @@ namespace ProjectUnknown.Strategy
         {
             baseLocalPosition = transform.localPosition;
             baseLocalRotation = transform.localRotation;
+        }
+
+        private void EnsureWorldShadow()
+        {
+            if (spriteRenderer == null)
+            {
+                return;
+            }
+
+            Vector2 scale = Kind switch
+            {
+                StrategyStoneDepositKind.Cliff => new Vector2(Footprint.x * 0.58f, Footprint.y * 0.24f),
+                StrategyStoneDepositKind.RockCluster => new Vector2(Footprint.x * 0.46f, Mathf.Max(0.18f, Footprint.y * 0.18f)),
+                _ => new Vector2(0.38f, 0.14f)
+            };
+            float opacity = Kind == StrategyStoneDepositKind.Cliff ? 0.26f : 0.21f;
+
+            StrategyShadowCaster2D.Attach(
+                spriteRenderer,
+                StrategyShadowShape.CastOval,
+                new Vector2(0.07f, -0.04f),
+                scale,
+                opacity,
+                -5,
+                -6f,
+                true);
         }
 
         private Vector3 GetHitEffectWorld(Vector3 hitterWorld)

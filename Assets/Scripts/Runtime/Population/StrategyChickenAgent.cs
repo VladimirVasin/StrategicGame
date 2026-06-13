@@ -53,6 +53,15 @@ namespace ProjectUnknown.Strategy
             transform.position = new Vector3(spawnWorld.x, spawnWorld.y, -0.09f);
             transform.localScale = Vector3.one;
             StrategyWorldSorting.Apply(spriteRenderer, transform.position);
+            StrategyShadowCaster2D.Attach(
+                spriteRenderer,
+                StrategyShadowShape.SoftEllipse,
+                new Vector2(0f, 0.015f),
+                new Vector2(0.22f, 0.08f),
+                0.24f,
+                -4,
+                0f,
+                false);
             waitTimer = Random.Range(0.2f, 0.85f);
             peckCooldown = Random.Range(0.45f, 1.65f);
         }

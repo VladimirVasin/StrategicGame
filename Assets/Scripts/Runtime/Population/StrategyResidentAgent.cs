@@ -160,6 +160,7 @@ namespace ProjectUnknown.Strategy
         private StrategyStorageYard builderWorkplace;
         private StrategyGranary granaryWorkplace;
         private StrategyConstructionSite constructionSite;
+        private StrategyConstructionSite carriedConstructionReturnSite;
         private IStrategyConstructionResourceSource activeConstructionSource;
         private StrategyStorageYard returnStorageYard;
         private StrategyGranary returnGranary;
@@ -190,6 +191,7 @@ namespace ProjectUnknown.Strategy
         private StrategyRabbitAgent activeHuntTarget;
         private StrategyFishAgent activeFishTarget;
         private StrategyConstructionResourceKind activeConstructionResource;
+        private StrategyConstructionResourceKind carriedConstructionReturnResource = StrategyConstructionResourceKind.None;
         private StrategyResidentLifeStage lifeStage = StrategyResidentLifeStage.Adult;
         private Vector2Int plantingCell;
         private int residentId;
@@ -255,6 +257,8 @@ namespace ProjectUnknown.Strategy
         public bool HasConstructionAssignment => constructionSite != null;
         public bool IsAdult => lifeStage == StrategyResidentLifeStage.Adult;
         public bool CanWork => IsAdult && !IsPendingRefugee;
+        public bool IsFuneralDutyActive => IsFuneralActivity(activity);
+        public bool CanAcceptWorkAssignment => CanWork && !IsFuneralDutyActive;
         public bool IsHomeboundYoungChild => lifeStage == StrategyResidentLifeStage.Child
             && ageYears < HomeboundChildAgeYears
             && home != null
@@ -671,7 +675,7 @@ namespace ProjectUnknown.Strategy
                 || constructionSite == site
                 || builderWorkplace == null
                 || IsReturningCarriedResourceActivity(activity)
-                || !CanWork)
+                || !CanAcceptWorkAssignment)
             {
                 return;
             }
@@ -685,6 +689,7 @@ namespace ProjectUnknown.Strategy
             CancelFisherWork(true);
             constructionSite = site;
             constructionFutureHome = willLiveThere;
+            ClearCarriedConstructionReturnReservation();
             activeConstructionSource = null;
             activeConstructionResource = StrategyConstructionResourceKind.None;
             constructionPickupPathFailures = 0;
@@ -722,6 +727,7 @@ namespace ProjectUnknown.Strategy
 
             constructionSite = null;
             ReleaseActiveConstructionPickupReservation();
+            ClearCarriedConstructionReturnReservation();
             activeConstructionSource = null;
             activeConstructionResource = StrategyConstructionResourceKind.None;
             constructionPickupPathFailures = 0;
@@ -759,6 +765,7 @@ namespace ProjectUnknown.Strategy
                 || carriedStoneAmount > 0
                 || carriedGameAmount > 0
                 || carriedFishAmount > 0;
+            CaptureCarriedConstructionReturnReservation();
 
             if (constructionSite != null)
             {
@@ -816,6 +823,7 @@ namespace ProjectUnknown.Strategy
             carriedStoneAmount = 0;
             SetCarriedLogsVisible(false);
             SetCarriedStoneVisible(false);
+            ClearCarriedConstructionReturnReservation();
         }
 
         public void ClearHome(StrategyPlacedBuilding removedHome)
@@ -875,7 +883,7 @@ namespace ProjectUnknown.Strategy
                 || builderWorkplace != null
                 || granaryWorkplace != null
                 || constructionSite != null
-                || !CanWork)
+                || !CanAcceptWorkAssignment)
             {
                 return;
             }
@@ -901,7 +909,7 @@ namespace ProjectUnknown.Strategy
                 || builderWorkplace != null
                 || granaryWorkplace != null
                 || constructionSite != null
-                || !CanWork)
+                || !CanAcceptWorkAssignment)
             {
                 return;
             }
@@ -927,7 +935,7 @@ namespace ProjectUnknown.Strategy
                 || builderWorkplace != null
                 || granaryWorkplace != null
                 || constructionSite != null
-                || !CanWork)
+                || !CanAcceptWorkAssignment)
             {
                 return;
             }
@@ -1024,7 +1032,7 @@ namespace ProjectUnknown.Strategy
                 || builderWorkplace != null
                 || granaryWorkplace != null
                 || constructionSite != null
-                || !CanWork)
+                || !CanAcceptWorkAssignment)
             {
                 return;
             }
@@ -1077,7 +1085,7 @@ namespace ProjectUnknown.Strategy
                 || builderWorkplace != null
                 || granaryWorkplace != null
                 || constructionSite != null
-                || !CanWork)
+                || !CanAcceptWorkAssignment)
             {
                 return;
             }
@@ -1129,7 +1137,7 @@ namespace ProjectUnknown.Strategy
                 || storageWorkplace != null
                 || builderWorkplace != null
                 || constructionSite != null
-                || !CanWork)
+                || !CanAcceptWorkAssignment)
             {
                 return;
             }
@@ -1182,7 +1190,7 @@ namespace ProjectUnknown.Strategy
                 || storageWorkplace != null
                 || granaryWorkplace != null
                 || constructionSite != null
-                || !CanWork)
+                || !CanAcceptWorkAssignment)
             {
                 return;
             }
@@ -3701,6 +3709,7 @@ namespace ProjectUnknown.Strategy
                 activity = ResidentActivity.CarryingConstructionStone;
             }
 
+            CaptureCarriedConstructionReturnReservation();
             Vector2Int sourceOrigin = activeConstructionSource.Origin;
             activeConstructionSource = null;
             hasTarget = true;
@@ -3766,6 +3775,7 @@ namespace ProjectUnknown.Strategy
             carriedLogAmount = 0;
             carriedStoneAmount = 0;
             activeConstructionResource = StrategyConstructionResourceKind.None;
+            ClearCarriedConstructionReturnReservation();
             SetCarriedLogsVisible(false);
             SetCarriedStoneVisible(false);
             CompleteConstructionDelivery();
@@ -4373,10 +4383,131 @@ namespace ProjectUnknown.Strategy
             waitTimer = Random.Range(0.35f, 0.9f);
         }
 
+        private bool HasAnyCarriedResource()
+        {
+            return carriedLogAmount > 0
+                || carriedStoneAmount > 0
+                || carriedGameAmount > 0
+                || carriedFishAmount > 0;
+        }
+
+        private void CaptureCarriedConstructionReturnReservation()
+        {
+            if (constructionSite == null || constructionSite.IsCompleted)
+            {
+                return;
+            }
+
+            if (activeConstructionResource == StrategyConstructionResourceKind.Logs && carriedLogAmount > 0)
+            {
+                carriedConstructionReturnSite = constructionSite;
+                carriedConstructionReturnResource = StrategyConstructionResourceKind.Logs;
+                return;
+            }
+
+            if (activeConstructionResource == StrategyConstructionResourceKind.Stone && carriedStoneAmount > 0)
+            {
+                carriedConstructionReturnSite = constructionSite;
+                carriedConstructionReturnResource = StrategyConstructionResourceKind.Stone;
+                return;
+            }
+
+            if (carriedLogAmount > 0)
+            {
+                carriedConstructionReturnSite = constructionSite;
+                carriedConstructionReturnResource = StrategyConstructionResourceKind.Logs;
+                return;
+            }
+
+            if (carriedStoneAmount > 0)
+            {
+                carriedConstructionReturnSite = constructionSite;
+                carriedConstructionReturnResource = StrategyConstructionResourceKind.Stone;
+            }
+        }
+
+        private int GetRestorableCarriedConstructionReservationAmount(
+            StrategyConstructionResourceKind resource,
+            int amount,
+            out StrategyConstructionSite site)
+        {
+            site = null;
+            if (amount <= 0
+                || carriedConstructionReturnSite == null
+                || carriedConstructionReturnResource != resource
+                || resource == StrategyConstructionResourceKind.None)
+            {
+                return 0;
+            }
+
+            StrategyConstructionSite candidate = carriedConstructionReturnSite;
+            if (candidate == null || candidate.IsCompleted)
+            {
+                ClearCarriedConstructionReturnReservation();
+                return 0;
+            }
+
+            int needed = resource == StrategyConstructionResourceKind.Logs
+                ? candidate.NeededLogs
+                : candidate.NeededStone;
+            if (needed <= 0)
+            {
+                ClearCarriedConstructionReturnReservation();
+                return 0;
+            }
+
+            site = candidate;
+            return Mathf.Min(amount, needed);
+        }
+
+        private void ClearCarriedConstructionReturnReservation()
+        {
+            carriedConstructionReturnSite = null;
+            carriedConstructionReturnResource = StrategyConstructionResourceKind.None;
+        }
+
+        private void ClearEmptyCarriedResourceReturn(string reason)
+        {
+            returnStorageYard = null;
+            returnGranary = null;
+            hasTarget = false;
+            path.Clear();
+            pathIndex = 0;
+            ClearCarriedConstructionReturnReservation();
+            if (IsReturningCarriedResourceActivity(activity))
+            {
+                activity = GetRestingActivity();
+            }
+
+            transform.localRotation = Quaternion.identity;
+            transform.localScale = Vector3.one;
+            UseIdleSprite();
+            waitTimer = Random.Range(0.25f, 0.70f);
+            StrategyDebugLogger.Info(
+                "Logistics",
+                "EmptyCarriedResourceReturnCleared",
+                StrategyDebugLogger.F("resident", FullName),
+                StrategyDebugLogger.F("reason", reason));
+        }
+
         private bool TryStartCarriedResourceReturn(string reason, bool restartCurrentReturn = false)
         {
             if (deathRequested)
             {
+                return false;
+            }
+
+            if (!HasAnyCarriedResource())
+            {
+                if (IsReturningCarriedResourceActivity(activity) || restartCurrentReturn)
+                {
+                    ClearEmptyCarriedResourceReturn(reason);
+                }
+                else
+                {
+                    ClearCarriedConstructionReturnReservation();
+                }
+
                 return false;
             }
 
@@ -4535,7 +4666,7 @@ namespace ProjectUnknown.Strategy
                 else
                 {
                     storageOrigin = returnStorageYard.Origin;
-                    returnStorageYard.AddLogs(amount);
+                    StoreReturnedMaterialAtYard(returnStorageYard, StrategyConstructionResourceKind.Logs, amount);
                 }
 
                 carriedLogAmount = 0;
@@ -4560,7 +4691,7 @@ namespace ProjectUnknown.Strategy
                 else
                 {
                     storageOrigin = returnStorageYard.Origin;
-                    returnStorageYard.AddResource(StrategyResourceType.Stone, amount);
+                    StoreReturnedMaterialAtYard(returnStorageYard, StrategyConstructionResourceKind.Stone, amount);
                 }
 
                 carriedStoneAmount = 0;
@@ -4624,6 +4755,12 @@ namespace ProjectUnknown.Strategy
             transform.localScale = Vector3.one;
             UseIdleSprite();
 
+            if (amount <= 0)
+            {
+                ClearEmptyCarriedResourceReturn("completed_without_resource");
+                return;
+            }
+
             StrategyDebugLogger.Info(
                 "Logistics",
                 "CarriedResourceReturned",
@@ -4632,16 +4769,68 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("amount", amount),
                 StrategyDebugLogger.F("storageOrigin", storageOrigin));
 
-            if (TryStartCarriedResourceReturn("remaining_carried_resource"))
-            {
-                return;
-            }
-
             activity = GetRestingActivity();
             hasTarget = false;
             path.Clear();
             pathIndex = 0;
             waitTimer = Random.Range(0.25f, 0.70f);
+
+            if (HasAnyCarriedResource() && TryStartCarriedResourceReturn("remaining_carried_resource"))
+            {
+                return;
+            }
+        }
+
+        private void StoreReturnedMaterialAtYard(
+            StrategyStorageYard yard,
+            StrategyConstructionResourceKind resource,
+            int amount)
+        {
+            if (yard == null || amount <= 0)
+            {
+                return;
+            }
+
+            int reservedAmount = GetRestorableCarriedConstructionReservationAmount(resource, amount, out StrategyConstructionSite site);
+            if (reservedAmount > 0)
+            {
+                yard.ReturnReservedConstructionResource(site, resource, reservedAmount);
+            }
+
+            int regularAmount = amount - reservedAmount;
+            if (regularAmount > 0)
+            {
+                if (resource == StrategyConstructionResourceKind.Logs)
+                {
+                    yard.AddLogs(regularAmount);
+                }
+                else if (resource == StrategyConstructionResourceKind.Stone)
+                {
+                    yard.AddResource(StrategyResourceType.Stone, regularAmount);
+                }
+            }
+
+            ClearCarriedConstructionReturnReservation();
+        }
+
+        private void RestoreReturnedMaterialReservationOnPile(
+            StrategyLooseConstructionResourcePile pile,
+            StrategyConstructionResourceKind resource,
+            int amount)
+        {
+            if (pile == null || amount <= 0)
+            {
+                ClearCarriedConstructionReturnReservation();
+                return;
+            }
+
+            int reservedAmount = GetRestorableCarriedConstructionReservationAmount(resource, amount, out StrategyConstructionSite site);
+            if (reservedAmount > 0)
+            {
+                pile.TryRestoreConstructionReservation(site, resource, reservedAmount);
+            }
+
+            ClearCarriedConstructionReturnReservation();
         }
 
         private bool StoreCarriedMaterialImmediately(
@@ -4659,15 +4848,14 @@ namespace ProjectUnknown.Strategy
 
             if (StrategyStorageYard.TryFindNearestStorageYard(transform.position, out StrategyStorageYard yard))
             {
+                StoreReturnedMaterialAtYard(yard, resource, amount);
                 if (resource == StrategyConstructionResourceKind.Logs)
                 {
-                    yard.AddLogs(amount);
                     carriedLogAmount = 0;
                     SetCarriedLogsVisible(false);
                 }
                 else
                 {
-                    yard.AddResource(StrategyResourceType.Stone, amount);
                     carriedStoneAmount = 0;
                     SetCarriedStoneVisible(false);
                 }
@@ -4690,7 +4878,8 @@ namespace ProjectUnknown.Strategy
             {
                 int logs = resource == StrategyConstructionResourceKind.Logs ? amount : 0;
                 int stone = resource == StrategyConstructionResourceKind.Stone ? amount : 0;
-                StrategyLooseConstructionResourcePile.Create(map, cell, transform.position, logs, stone);
+                StrategyLooseConstructionResourcePile pile = StrategyLooseConstructionResourcePile.Create(map, cell, transform.position, logs, stone);
+                RestoreReturnedMaterialReservationOnPile(pile, resource, amount);
                 if (resource == StrategyConstructionResourceKind.Logs)
                 {
                     carriedLogAmount = 0;
@@ -4815,6 +5004,12 @@ namespace ProjectUnknown.Strategy
 
         private void ScheduleCarriedResourceReturnRetry()
         {
+            if (!HasAnyCarriedResource())
+            {
+                ClearEmptyCarriedResourceReturn("retry_without_resource");
+                return;
+            }
+
             returnStorageYard = null;
             returnGranary = null;
             hasTarget = false;
@@ -4955,6 +5150,7 @@ namespace ProjectUnknown.Strategy
 
         private void ResetConstructionWorkToIdle()
         {
+            CaptureCarriedConstructionReturnReservation();
             ReleaseActiveConstructionPickupReservation();
             activeConstructionSource = null;
             activeConstructionResource = StrategyConstructionResourceKind.None;
@@ -5984,7 +6180,7 @@ namespace ProjectUnknown.Strategy
                     }
                     else if (activity == ResidentActivity.ReelingFish && workFrame == FishingReelFrame && activeFishTarget != null)
                     {
-                        activeFishTarget.ReceiveReelPull(this, GetFishingBobberWorld(), out int fishAmount);
+                        activeFishTarget.ReceiveReelPull(this, GetFishingReelTargetWorld(), out int fishAmount);
                         if (fishAmount > 0)
                         {
                             ApplyFishingFrame(workFrame);
@@ -6018,6 +6214,11 @@ namespace ProjectUnknown.Strategy
         {
             if (activeFishTarget != null)
             {
+                if (activeFishTarget.IsHooked)
+                {
+                    return activeFishTarget.FishingHookWorld;
+                }
+
                 Vector3 fishWorld = activeFishTarget.transform.position;
                 float bob = Mathf.Sin((Time.time + bobPhase) * 8.0f) * 0.035f;
                 return new Vector3(fishWorld.x, fishWorld.y + 0.12f + bob, -0.11f);
@@ -6025,6 +6226,37 @@ namespace ProjectUnknown.Strategy
 
             float side = spriteRenderer != null && spriteRenderer.flipX ? -0.85f : 0.85f;
             return new Vector3(transform.position.x + side, transform.position.y + 0.10f, -0.11f);
+        }
+
+        private Vector3 GetFishingRodTipWorld()
+        {
+            if (spriteRenderer == null)
+            {
+                return new Vector3(transform.position.x, transform.position.y + 0.52f, -0.11f);
+            }
+
+            return new Vector3(
+                transform.position.x + (spriteRenderer.flipX ? -0.20f : 0.20f),
+                transform.position.y + 0.52f,
+                -0.11f);
+        }
+
+        private Vector3 GetFishingReelTargetWorld()
+        {
+            Vector3 fishWorld = activeFishTarget != null
+                ? activeFishTarget.transform.position
+                : GetFishingBobberWorld();
+            Vector3 towardFish = fishWorld - transform.position;
+            towardFish.z = 0f;
+            if (towardFish.sqrMagnitude < 0.001f)
+            {
+                float side = spriteRenderer != null && spriteRenderer.flipX ? -1f : 1f;
+                towardFish = new Vector3(side, 0f, 0f);
+            }
+
+            towardFish.Normalize();
+            Vector3 target = transform.position + towardFish * 0.48f;
+            return new Vector3(target.x, target.y + 0.06f, -0.068f);
         }
 
         private Vector3 GetBowWorldPosition()
@@ -6795,10 +7027,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            Vector3 rodWorld = new Vector3(
-                transform.position.x + (spriteRenderer.flipX ? -0.20f : 0.20f),
-                transform.position.y + 0.52f,
-                -0.11f);
+            Vector3 rodWorld = GetFishingRodTipWorld();
             Vector3 bobberWorld = GetFishingBobberWorld();
             Vector3 midpoint = (rodWorld + bobberWorld) * 0.5f;
             Vector3 delta = bobberWorld - rodWorld;

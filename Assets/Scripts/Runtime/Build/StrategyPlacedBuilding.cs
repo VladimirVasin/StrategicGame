@@ -55,6 +55,7 @@ namespace ProjectUnknown.Strategy
             BridgeEndCell = origin;
             spriteRenderer = renderer;
             EnsureResourceStore();
+            EnsureWorldShadow();
             EnsureClickCollider();
         }
 
@@ -77,6 +78,7 @@ namespace ProjectUnknown.Strategy
 
             BridgeStartCell = startCell;
             BridgeEndCell = endCell;
+            EnsureWorldShadow();
             EnsureClickCollider();
         }
 
@@ -245,6 +247,56 @@ namespace ProjectUnknown.Strategy
             {
                 resources = gameObject.AddComponent<StrategyHouseResourceStore>();
             }
+        }
+
+        private void EnsureWorldShadow()
+        {
+            if (spriteRenderer == null)
+            {
+                return;
+            }
+
+            Vector2 scale = GetShadowScale();
+            Vector2 offset = GetShadowOffset();
+            float alpha = GetShadowOpacity();
+            StrategyShadowShape shape = Tool == StrategyBuildTool.Bridge
+                ? StrategyShadowShape.SoftEllipse
+                : StrategyShadowShape.WideCastOval;
+            float rotation = Tool == StrategyBuildTool.Bridge ? 0f : -7f;
+            bool stretch = Tool != StrategyBuildTool.Bridge;
+            StrategyShadowCaster2D.Attach(spriteRenderer, shape, offset, scale, alpha, -7, rotation, stretch);
+        }
+
+        private Vector2 GetShadowScale()
+        {
+            float width = Mathf.Max(1f, Footprint.x);
+            float height = Mathf.Max(1f, Footprint.y);
+            return Tool switch
+            {
+                StrategyBuildTool.House => new Vector2(width * 0.92f, height * 0.46f),
+                StrategyBuildTool.Bridge => new Vector2(width * 0.70f, Mathf.Max(0.24f, height * 0.24f)),
+                StrategyBuildTool.StorageYard => new Vector2(width * 0.82f, height * 0.38f),
+                StrategyBuildTool.Granary => new Vector2(width * 0.86f, height * 0.42f),
+                StrategyBuildTool.FisherHut => new Vector2(width * 0.82f, height * 0.42f),
+                _ => new Vector2(width * 0.80f, height * 0.40f)
+            };
+        }
+
+        private Vector2 GetShadowOffset()
+        {
+            return Tool == StrategyBuildTool.Bridge
+                ? new Vector2(0f, -0.04f)
+                : new Vector2(0.24f, -0.18f);
+        }
+
+        private float GetShadowOpacity()
+        {
+            return Tool switch
+            {
+                StrategyBuildTool.Bridge => 0.18f,
+                StrategyBuildTool.StorageYard => 0.25f,
+                _ => 0.31f
+            };
         }
     }
 }

@@ -149,7 +149,7 @@ namespace ProjectUnknown.Strategy
             {
                 StrategyResidentAgent resident = residents[i];
                 if (resident != null
-                    && resident.CanWork
+                    && resident.CanAcceptWorkAssignment
                     && !resident.HasWorkplace
                     && !resident.HasConstructionAssignment
                     && !workers.Contains(resident))
@@ -175,7 +175,7 @@ namespace ProjectUnknown.Strategy
             {
                 StrategyResidentAgent resident = residents[i];
                 if (resident != null
-                    && resident.CanWork
+                    && resident.CanAcceptWorkAssignment
                     && !resident.HasWorkplace
                     && !resident.HasConstructionAssignment
                     && !workers.Contains(resident))
@@ -198,7 +198,7 @@ namespace ProjectUnknown.Strategy
             if (resident == null
                 || workers.Count >= MaxWorkers
                 || workers.Contains(resident)
-                || !resident.CanWork
+                || !resident.CanAcceptWorkAssignment
                 || resident.HasWorkplace
                 || resident.HasConstructionAssignment)
             {

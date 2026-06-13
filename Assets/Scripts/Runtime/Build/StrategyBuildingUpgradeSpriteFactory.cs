@@ -117,7 +117,7 @@ namespace ProjectUnknown.Strategy
             DrawLine(texture, P(12, 34), P(27, 45), roofLight);
             DrawLine(texture, P(18, 31), P(38, 31), roofLight);
 
-            bool doorOpen = frame == 2 || frame == 3;
+            bool doorOpen = frame >= 2 && frame <= 4;
             FillRect(texture, 23, 13, 9, 12, dark);
             DrawRectOutline(texture, 23, 13, 9, 12, outline);
             if (doorOpen)
@@ -126,14 +126,25 @@ namespace ProjectUnknown.Strategy
                 DrawRectOutline(texture, 20, 13, 4, 12, outline);
             }
 
-            int strawShift = frame == 1 || frame == 4 ? 1 : 0;
+            int strawShift = frame >= 2 && frame <= 4 ? 1 : 0;
             FillRect(texture, 36 + strawShift, 16, 4, 9, straw);
             FillRect(texture, 37 + strawShift, 15, 2, 12, outline);
             FillRect(texture, 10, 10, 34, 2, outline);
             if (frame >= 3)
             {
-                FillEllipse(texture, 18, 11, 3, 2, Rgb(239, 226, 185));
-                SetPixelSafe(texture, 17, 12, Rgb(255, 244, 210));
+                int eggRadiusX = frame >= 5 ? 3 : frame >= 4 ? 2 : 1;
+                int eggRadiusY = frame >= 5 ? 2 : 1;
+                FillEllipse(texture, 18, 11, eggRadiusX, eggRadiusY, Rgb(239, 226, 185));
+                if (frame >= 4)
+                {
+                    SetPixelSafe(texture, 17, 12, Rgb(255, 244, 210));
+                }
+
+                if (frame >= 5)
+                {
+                    SetPixelSafe(texture, 15, 14, Rgb(255, 244, 210));
+                    SetPixelSafe(texture, 22, 13, Rgb(255, 244, 210));
+                }
             }
 
             texture.Apply(false, false);

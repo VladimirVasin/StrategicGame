@@ -69,9 +69,10 @@ namespace ProjectUnknown.Strategy
             float dayBlend = Mathf.Clamp01(Mathf.Sin(dayPhase * Mathf.PI * 2f - 0.25f) * 0.55f + 0.55f);
             float nightBlend = 1f - dayBlend;
             float eveningBlend = Mathf.Clamp01(1f - Mathf.Abs(dayPhase - 0.72f) / 0.18f);
-            float rainWave = Mathf.Sin(Time.timeSinceLevelLoad / 91f - 1.45f) * 0.5f + 0.5f;
-            float rainBlend = Mathf.Clamp01((rainWave - 0.78f) / 0.22f);
-            float strongRainBlend = Mathf.Clamp01((rainBlend - 0.76f) / 0.24f);
+            StrategyWeatherController weather = StrategyWeatherController.Active;
+            float rainBlend = weather != null ? weather.RainIntensity : 0f;
+            float strongRainBlend = weather != null ? Mathf.Max(weather.HeavyRainIntensity, weather.StormIntensity) : 0f;
+            float weatherWindBlend = weather != null ? weather.WindIntensity : 0f;
             float windPulse = StrategyWindController.Active != null && StrategyWindController.Active.WindZone != null
                 ? Mathf.Clamp01(StrategyWindController.Active.WindZone.windMain
                     + StrategyWindController.Active.WindZone.windPulseMagnitude * 0.5f)
@@ -82,8 +83,8 @@ namespace ProjectUnknown.Strategy
             FadeLoop(nightSource, nightClip, 0.10f * nightBlend * (1f - rainBlend * 0.35f), dt);
             FadeLoop(rainCalmSource, rainCalmClip, 0.085f * rainBlend * (1f - strongRainBlend * 0.35f), dt);
             FadeLoop(rainStrongSource, rainStrongClip, 0.07f * strongRainBlend, dt);
-            FadeLoop(windCalmSource, windCalmClip, 0.08f + windPulse * 0.05f + rainBlend * 0.025f, dt);
-            FadeLoop(windForestSource, windForestClip, forestBlend * (0.06f + windPulse * 0.05f) * (1f - rainBlend * 0.25f), dt);
+            FadeLoop(windCalmSource, windCalmClip, 0.08f + windPulse * 0.05f + weatherWindBlend * 0.025f, dt);
+            FadeLoop(windForestSource, windForestClip, forestBlend * (0.06f + windPulse * 0.05f + weatherWindBlend * 0.025f) * (1f - rainBlend * 0.25f), dt);
             FadeLoop(riverSource, riverClip, RiverTargetVolume * riverDistanceBlend, dt);
         }
 

@@ -50,6 +50,8 @@ namespace ProjectUnknown.Strategy
         private const float FryMaturitySeconds = 90f;
         private const float FryStartScale = 0.42f;
         private const float FryMatureScale = 0.78f;
+        private const float HookVisualLift = 0.10f;
+        private const float ReelCatchDistance = 0.16f;
         private const int FishYield = 2;
         private const int ReelHitsRequired = 4;
 
@@ -75,6 +77,8 @@ namespace ProjectUnknown.Strategy
         private Vector2Int homeCell;
         private Vector3 lastThreatWorld;
         private Vector3 hookWorld;
+        private Vector3 hookStartWorld;
+        private Vector3 reelTargetWorld;
         private object fishingReservationOwner;
         private int pathIndex;
         private int homeRadius;
@@ -89,6 +93,7 @@ namespace ProjectUnknown.Strategy
         private float frameTimer;
         private float bobPhase;
         private float ageSeconds;
+        private float reelProgress;
         private float visualScale = 1f;
         private float riverSpeedMultiplier = 1f;
         private bool hasTarget;
@@ -105,6 +110,10 @@ namespace ProjectUnknown.Strategy
         public bool IsRiverFish => habitatKind == StrategyFishHabitatKind.River;
         public bool IsHooked => state == StrategyFishBehaviorState.Hooked;
         public bool IsCaught => isCaught;
+        public Vector3 FishingHookWorld => state == StrategyFishBehaviorState.Hooked
+            ? hookWorld
+            : new Vector3(transform.position.x, transform.position.y + HookVisualLift, -0.11f);
+        public float FishingReelProgress => reelProgress;
         public bool CanBeFished => IsAdult
             && !isCaught
             && fishingReservationOwner == null
@@ -161,6 +170,10 @@ namespace ProjectUnknown.Strategy
             state = StrategyFishBehaviorState.Idle;
             fishingReservationOwner = null;
             reelHits = 0;
+            reelProgress = 0f;
+            hookStartWorld = transform.position;
+            reelTargetWorld = transform.position;
+            hookWorld = FishingHookWorld;
             isCaught = false;
             waitTimer = Random.Range(0.4f, 1.4f);
             stateTimer = waitTimer;
@@ -227,6 +240,7 @@ namespace ProjectUnknown.Strategy
 
             fishingReservationOwner = null;
             reelHits = 0;
+            reelProgress = 0f;
             if (isCaught)
             {
                 return;
@@ -252,8 +266,11 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            hookWorld = new Vector3(hookPosition.x, hookPosition.y, transform.position.z);
+            hookStartWorld = transform.position;
+            reelTargetWorld = hookStartWorld;
+            hookWorld = new Vector3(hookPosition.x, hookPosition.y, -0.11f);
             reelHits = 0;
+            reelProgress = 0f;
             hasTarget = false;
             if (!riverRouteActive)
             {
@@ -281,8 +298,10 @@ namespace ProjectUnknown.Strategy
             }
 
             reelHits++;
-            hookWorld = new Vector3(pullWorld.x, pullWorld.y, transform.position.z);
-            if (reelHits < ReelHitsRequired)
+            reelTargetWorld = new Vector3(pullWorld.x, pullWorld.y, transform.position.z);
+            reelProgress = Mathf.Max(reelProgress, Mathf.Clamp01(reelHits / (float)ReelHitsRequired));
+            float distanceToCatch = Vector2.Distance(transform.position, reelTargetWorld);
+            if (reelProgress < 1f || distanceToCatch > ReelCatchDistance)
             {
                 StrategyDebugLogger.Info(
                     "Fishing",
@@ -290,7 +309,10 @@ namespace ProjectUnknown.Strategy
                     StrategyDebugLogger.F("species", species),
                     StrategyDebugLogger.F("shoal", shoalId),
                     StrategyDebugLogger.F("reelHits", reelHits),
-                    StrategyDebugLogger.F("world", transform.position));
+                    StrategyDebugLogger.F("progress", reelProgress),
+                    StrategyDebugLogger.F("world", transform.position),
+                    StrategyDebugLogger.F("targetWorld", reelTargetWorld),
+                    StrategyDebugLogger.F("distance", distanceToCatch));
                 return false;
             }
 
@@ -487,16 +509,24 @@ namespace ProjectUnknown.Strategy
         private void UpdateHooked()
         {
             Vector3 previous = transform.position;
-            transform.position = Vector3.MoveTowards(transform.position, hookWorld, FleeSpeed * 0.55f * Time.deltaTime);
+            float easedProgress = Mathf.SmoothStep(0f, 1f, reelProgress);
+            Vector3 pullTarget = Vector3.Lerp(hookStartWorld, reelTargetWorld, easedProgress);
+            float pullSpeed = Mathf.Lerp(SwimSpeed * 0.65f, FleeSpeed * 0.82f, easedProgress);
+            transform.position = Vector3.MoveTowards(transform.position, pullTarget, pullSpeed * Time.deltaTime);
             Vector3 delta = transform.position - previous;
             if (spriteRenderer != null && Mathf.Abs(delta.x) > 0.001f)
             {
                 spriteRenderer.flipX = delta.x < 0f;
             }
 
-            float jitterX = Mathf.Sin((Time.time + bobPhase) * 18f) * 0.025f;
-            float jitterY = Mathf.Cos((Time.time + bobPhase) * 15f) * 0.018f;
+            float jitterScale = Mathf.Lerp(1f, 0.35f, easedProgress);
+            float jitterX = Mathf.Sin((Time.time + bobPhase) * 18f) * 0.025f * jitterScale;
+            float jitterY = Mathf.Cos((Time.time + bobPhase) * 15f) * 0.018f * jitterScale;
             transform.position = new Vector3(transform.position.x + jitterX * Time.deltaTime, transform.position.y + jitterY * Time.deltaTime, -0.068f);
+            hookWorld = new Vector3(
+                transform.position.x,
+                transform.position.y + HookVisualLift + Mathf.Sin((Time.time + bobPhase) * 8.0f) * 0.025f,
+                -0.11f);
             AnimateHooked();
         }
 

@@ -253,6 +253,7 @@ namespace ProjectUnknown.Strategy
             StrategyResidentAgent bestResident = null;
             StrategyPlacedBuilding bestBuilding = null;
             StrategyConstructionSite bestConstructionSite = null;
+            StrategyGraveMarker bestGrave = null;
 
             for (int i = 0; i < hits.Length; i++)
             {
@@ -274,6 +275,12 @@ namespace ProjectUnknown.Strategy
                 {
                     bestConstructionSite = constructionSite;
                 }
+
+                StrategyGraveMarker grave = hits[i].GetComponentInParent<StrategyGraveMarker>();
+                if (grave != null)
+                {
+                    bestGrave = grave;
+                }
             }
 
             if (bestResident != null)
@@ -291,6 +298,12 @@ namespace ProjectUnknown.Strategy
             if (bestConstructionSite != null)
             {
                 Select(bestConstructionSite.transform, bestConstructionSite.SelectionBounds);
+                return;
+            }
+
+            if (bestGrave != null)
+            {
+                Select(bestGrave.transform, bestGrave.SelectionBounds);
                 return;
             }
 
@@ -383,6 +396,14 @@ namespace ProjectUnknown.Strategy
             {
                 UpdateSelectionMarker(constructionSite.SelectionBounds);
                 RefreshHud();
+                return;
+            }
+
+            StrategyGraveMarker grave = selectedTransform.GetComponent<StrategyGraveMarker>();
+            if (grave != null)
+            {
+                UpdateSelectionMarker(grave.SelectionBounds);
+                RefreshHud();
             }
         }
 
@@ -427,6 +448,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            LayoutStatusSection(272f, 76f);
             LayoutContextSection(366f, 118f);
             StrategyResidentAgent resident = selectedTransform.GetComponent<StrategyResidentAgent>();
             if (resident != null)
@@ -572,6 +594,30 @@ namespace ProjectUnknown.Strategy
                     RefreshUpgradeActions(building);
                 }
 
+                return;
+            }
+
+            StrategyGraveMarker grave = selectedTransform.GetComponent<StrategyGraveMarker>();
+            if (grave != null)
+            {
+                LayoutStatusSection(272f, 102f);
+                LayoutContextSection(392f, 122f);
+                hudTitleText.text = grave.DeceasedName;
+                hudSubtitleText.text = "Grave";
+                SetPreviewSprite(grave.PreviewSprite);
+                hudSummaryTitleText.text = "Epitaph";
+                hudBodyText.text = grave.Epitaph;
+                hudStatusTitleText.text = "Life";
+                hudStatusBodyText.text = grave.GetLifeText();
+                hudContextTitleText.text = "Memory";
+                hudContextBodyText.text = grave.GetMemoryText();
+                SetProfileSectionVisible(true);
+                SetStatusSectionVisible(true);
+                SetContextSectionVisible(true);
+                SetResidentsSectionVisible(false);
+                SetWorkersSectionVisible(false);
+                SetResourcesVisible(false);
+                SetUpgradeActionsVisible(false);
                 return;
             }
 
@@ -1408,6 +1454,24 @@ namespace ProjectUnknown.Strategy
             if (hudStatusBodyText != null)
             {
                 hudStatusBodyText.gameObject.SetActive(visible);
+            }
+        }
+
+        private void LayoutStatusSection(float top, float height)
+        {
+            if (statusBackground != null)
+            {
+                SetTopStretch(statusBackground, 18f, top, 18f, height);
+            }
+
+            if (hudStatusTitleText != null)
+            {
+                SetTopStretch(hudStatusTitleText.rectTransform, 24f, top + 12f, 24f, 20f);
+            }
+
+            if (hudStatusBodyText != null)
+            {
+                SetTopStretch(hudStatusBodyText.rectTransform, 24f, top + 38f, 24f, Mathf.Max(28f, height - 50f));
             }
         }
 
@@ -2637,6 +2701,12 @@ namespace ProjectUnknown.Strategy
             if (constructionSite != null)
             {
                 return "construction:" + constructionSite.Tool + "@" + constructionSite.Origin.x + "," + constructionSite.Origin.y;
+            }
+
+            StrategyGraveMarker grave = target.GetComponent<StrategyGraveMarker>();
+            if (grave != null)
+            {
+                return "grave:" + grave.DeceasedName;
             }
 
             return target.name;

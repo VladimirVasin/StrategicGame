@@ -448,6 +448,40 @@ namespace ProjectUnknown.Strategy
             return true;
         }
 
+        public void ReturnReservedConstructionResource(
+            object owner,
+            StrategyConstructionResourceKind kind,
+            int amount)
+        {
+            if (owner == null || amount <= 0 || kind == StrategyConstructionResourceKind.None)
+            {
+                return;
+            }
+
+            if (kind == StrategyConstructionResourceKind.Logs)
+            {
+                logsStored += amount;
+                AddReservation(constructionLogReservations, owner, amount);
+            }
+            else if (kind == StrategyConstructionResourceKind.Stone)
+            {
+                stoneStored += amount;
+                AddReservation(constructionStoneReservations, owner, amount);
+            }
+
+            UpdateStockVisual();
+            StrategyDebugLogger.Info(
+                "StorageYard",
+                "ConstructionResourceReturnedToReservation",
+                StrategyDebugLogger.F("yardOrigin", Origin),
+                StrategyDebugLogger.F("owner", owner),
+                StrategyDebugLogger.F("resource", kind),
+                StrategyDebugLogger.F("amount", amount),
+                StrategyDebugLogger.F("logsStock", logsStored),
+                StrategyDebugLogger.F("stoneStock", stoneStored),
+                StrategyDebugLogger.F("ownerUnclaimed", GetAvailableReservationAmount(owner, kind)));
+        }
+
         public bool CanAssignNextAvailableWorker()
         {
             if (population == null)
@@ -460,7 +494,7 @@ namespace ProjectUnknown.Strategy
             {
                 StrategyResidentAgent resident = residents[i];
                 if (resident != null
-                    && resident.CanWork
+                    && resident.CanAcceptWorkAssignment
                     && !resident.HasWorkplace
                     && !resident.HasConstructionAssignment
                     && !workers.Contains(resident)
@@ -487,7 +521,7 @@ namespace ProjectUnknown.Strategy
             {
                 StrategyResidentAgent resident = residents[i];
                 if (resident != null
-                    && resident.CanWork
+                    && resident.CanAcceptWorkAssignment
                     && !resident.HasWorkplace
                     && !resident.HasConstructionAssignment
                     && !workers.Contains(resident)
@@ -511,7 +545,7 @@ namespace ProjectUnknown.Strategy
             if (resident == null
                 || workers.Contains(resident)
                 || builders.Contains(resident)
-                || !resident.CanWork
+                || !resident.CanAcceptWorkAssignment
                 || resident.HasWorkplace
                 || resident.HasConstructionAssignment)
             {
@@ -577,7 +611,7 @@ namespace ProjectUnknown.Strategy
             {
                 StrategyResidentAgent resident = residents[i];
                 if (resident != null
-                    && resident.CanWork
+                    && resident.CanAcceptWorkAssignment
                     && !resident.HasWorkplace
                     && !resident.HasConstructionAssignment
                     && !workers.Contains(resident)
@@ -604,7 +638,7 @@ namespace ProjectUnknown.Strategy
             {
                 StrategyResidentAgent resident = residents[i];
                 if (resident != null
-                    && resident.CanWork
+                    && resident.CanAcceptWorkAssignment
                     && !resident.HasWorkplace
                     && !resident.HasConstructionAssignment
                     && !workers.Contains(resident)
@@ -634,7 +668,7 @@ namespace ProjectUnknown.Strategy
             if (resident == null
                 || workers.Contains(resident)
                 || builders.Contains(resident)
-                || !resident.CanWork
+                || !resident.CanAcceptWorkAssignment
                 || resident.HasWorkplace
                 || resident.HasConstructionAssignment)
             {
@@ -1107,7 +1141,7 @@ namespace ProjectUnknown.Strategy
             {
                 StrategyResidentAgent candidate = builders[i];
                 if (candidate != null
-                    && candidate.CanWork
+                    && candidate.CanAcceptWorkAssignment
                     && candidate.BuilderWorkplace == this
                     && !candidate.HasConstructionAssignment)
                 {
@@ -1121,7 +1155,7 @@ namespace ProjectUnknown.Strategy
 
         private void TryDispatchBuilder(StrategyResidentAgent builder)
         {
-            if (builder == null || builder.HasConstructionAssignment)
+            if (builder == null || builder.HasConstructionAssignment || !builder.CanAcceptWorkAssignment)
             {
                 return;
             }

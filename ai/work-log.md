@@ -8,6 +8,94 @@ Last updated: 2026-06-13
 
 ## Done
 
+### 2026-06-13 - Gradual fishing reel-in animation
+
+- Fish hooked by Fisher Hut workers now keep hook start, reel target, and reel progress state instead of resolving catch purely by reel hit count.
+- Resident fishing animation now sends reel pulls toward a near-shore rod target while the fishing line follows the fish's current hook point.
+- Hooked fish visibly move toward the fisher over multiple reel pulls, keep thrashing while pulled, and only become caught once fully reeled in and close to the target.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-13 - Rabbit group population cap
+
+- Added a per-group rabbit population cap so a single rabbit group cannot grow past 5 living rabbits through reproduction.
+- Initial rabbit generation now uses the same group cap instead of a hard-coded group-size limit.
+- Rabbit population debug output now includes the group cap and per-birth group count.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-13 - Construction material reservation return fix
+
+- `debug.log` showed a Stonecutter Camp stuck at 3/4 Stone after a builder picked up reserved Stone, was removed from Builder duty, returned that Stone to the Storage Yard, and the returned Stone became generic stock instead of the construction site's reserved stock.
+- Residents now remember the construction site/resource for carried construction Logs/Stone and restore that reservation when returning the material to a Storage Yard or loose construction pile.
+- Cleared stale carried-resource return state when a resident is still in a return activity but no longer carries Logs, Stone, Game, or Fish, preventing repeated zero-resource retry warnings.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-13 - Rain visual readability fix
+
+- Replaced the first full-map low-resolution rain texture with a pooled camera-area rain-drop renderer.
+- Rain now renders as thin moving diagonal streaks influenced by wind direction instead of large blocky checker/noise artifacts on terrain.
+- The existing cloud-shadow, mist, wet-ground, water-ripple, wind, and audio weather integration remains unchanged.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-13 - Runtime weather effects MVP
+
+- Added a runtime `StrategyWeatherController` with random Clear, Cloudy, LightRain, HeavyRain, Fog, and Storm states, smooth intensity transitions, weather-driven wind influence, and `Weather` debug events.
+- Added procedural weather visuals for cloud shadows, rain streaks, mist/fog, and wet-ground darkening using dedicated world overlay sorting bands.
+- Wired ambience rain/wind layers to the actual weather state instead of the previous hidden rain sine wave.
+- Water animation now intensifies ripples and rain hits while raining or storming.
+- Bootstrap now creates and configures weather before ambience audio so visuals, water, wind, and audio share one source of truth.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-13 - Chicken Coop production cycle sync
+
+- Reworked Chicken Coop egg production from random independent delays into a cycle-driven production timer around 22 seconds with small per-cycle jitter.
+- Chicken Coop upgrade animation now uses the same production progress as egg generation, so the final visual egg phase matches the moment Eggs enter the house resource store.
+- Chicken Coop sprites now stage nest/egg visibility across production frames instead of looping unrelated animation frames.
+- Added `ChickenCoopCycleStarted` and `ChickenCoopEggStored` debug events with house origin, coop origin, cycle length/progress, and egg count.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-13 - Clickable grave HUD
+
+- Added `StrategyGraveMarker` so completed graves keep the deceased resident snapshot, click collider, epitaph, final profession, family role, and selection bounds.
+- Resident death snapshots now preserve final profession and family role before assignment cleanup removes workplace/home context.
+- `StrategyCemeteryController` now creates clickable grave marker components when graves are created.
+- World selection can select graves and shows a right-side HUD with the deceased name, epitaph, age/profession/family role, and memory text.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-13 - Funeral corpse delivery and work assignment fix
+
+- `debug.log` showed a second funeral carrier being assigned to construction one frame after starting `CarryingCorpseToCemetery`, so the funeral controller still counted him as a carrier while normal builder logic took over.
+- Added resident work-assignment gating so residents in funeral activities cannot be assigned to professions, builders, or construction sites until funeral duty ends.
+- Burial now checks that the corpse is actually near the reserved grave before starting burial; family gather timeouts can still prevent deadlocks, but they no longer teleport an undelivered corpse into a grave.
+- Added `FuneralProcessionDeliveryFailed`, `BurialDelayed`, and `BurialRejected` debug events for future funeral-state diagnostics.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-13 - Cemetery founding hitch fix
+
+- Optimized first cemetery selection so placed-building origins and the starter camp cell are collected once before scanning candidate grave cells.
+- Removed repeated `FindObjectsByType<StrategyPlacedBuilding>()` calls from the per-cell cemetery scoring loop, which matched the death/funeral hitch seen in `debug.log` around `CemeteryFounded`.
+- `CemeteryFounded` debug output now includes tested cell count, building count, and search milliseconds for future performance checks.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-13 - Professions HUD scroll fix
+
+- Professions HUD list content now rebuilds its layout immediately after visible profession rows change.
+- Added direct mouse-wheel handling while the pointer is inside the professions panel so the list scrolls reliably even when Unity UI scroll events are not delivered.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-13 - Rabbit spawn near starter camp
+
+- Initial rabbit groups now search for group centers in a ring near the starter camp before any map-wide fallback.
+- Rabbit spawn cells require a camp distance from 7 to 30 cells when the camp cell is known, keeping huntable rabbits close to the settlement without placing them directly on the campfire.
+- Wildlife generation debug output now includes the configured rabbit camp max distance and logs a warning if no near-camp rabbit group center can be found.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-13 - Procedural world shadows
+
+- Added a shared `StrategyShadowCaster2D` and procedural shadow sprite factory for soft/cast ground shadows on runtime world sprites.
+- Completed buildings, construction sites, house upgrades, loose construction resource piles, forest groups, bushes, forestry trees, Stone deposits, and chickens now attach tuned runtime shadows.
+- Day/night now exposes shadow opacity and length multipliers so shadows become shorter/stronger in daytime and longer/softer around dawn/dusk/night.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
 ### 2026-06-13 - Accepted refugee family housing fix
 
 - Accepted refugee families now first try to occupy an empty House as a whole family instead of only joining the generic homeless resident pool.

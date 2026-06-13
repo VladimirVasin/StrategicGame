@@ -15,6 +15,8 @@ namespace ProjectUnknown.Strategy
         private Color[] pixels;
         private int frameIndex;
         private float frameTimer;
+        private float rainRippleIntensity;
+        private float stormRippleIntensity;
 
         public void Configure(CityMapController mapController)
         {
@@ -110,6 +112,10 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            StrategyWeatherController weather = StrategyWeatherController.Active;
+            rainRippleIntensity = weather != null ? weather.RainIntensity : 0f;
+            stormRippleIntensity = weather != null ? weather.StormIntensity : 0f;
+
             for (int i = 0; i < pixels.Length; i++)
             {
                 pixels[i] = Color.clear;
@@ -160,7 +166,7 @@ namespace ProjectUnknown.Strategy
                     int wave = PositiveModulo(py + cellX * 2 + cellY + frameIndex, 6);
                     if (wave == 0 && noise > 0.28f)
                     {
-                        float alpha = 0.20f + noise * 0.22f;
+                        float alpha = 0.20f + noise * 0.22f + rainRippleIntensity * 0.08f;
                         SetOverlayPixel(cellX, cellY, px, py, new Color(0.63f, 0.86f, 0.95f, alpha));
                         continue;
                     }
@@ -169,6 +175,16 @@ namespace ProjectUnknown.Strategy
                     if (sparkle == 0 && noise > 0.56f)
                     {
                         SetOverlayPixel(cellX, cellY, px, py, new Color(0.78f, 0.96f, 1f, 0.26f));
+                    }
+
+                    if (rainRippleIntensity > 0.08f)
+                    {
+                        int rainHit = PositiveModulo(px * 7 + py * 11 + frameIndex * 5 + cellX * 13 - cellY * 3, Mathf.RoundToInt(Mathf.Lerp(29f, 9f, rainRippleIntensity)));
+                        if (rainHit == 0 && noise > 0.46f)
+                        {
+                            float alpha = 0.08f + rainRippleIntensity * 0.16f + stormRippleIntensity * 0.05f;
+                            SetOverlayPixel(cellX, cellY, px, py, new Color(0.82f, 0.96f, 1f, alpha));
+                        }
                     }
                 }
             }
@@ -194,7 +210,7 @@ namespace ProjectUnknown.Strategy
                     int wave = PositiveModulo(along * flowSign - frameIndex + across / 3, 7);
                     if (wave == 0 && noise > 0.22f)
                     {
-                        float alpha = 0.22f + noise * 0.24f;
+                        float alpha = 0.22f + noise * 0.24f + rainRippleIntensity * 0.06f;
                         SetOverlayPixel(cellX, cellY, px, py, new Color(0.62f, 0.88f, 0.98f, alpha));
                         continue;
                     }
@@ -203,6 +219,16 @@ namespace ProjectUnknown.Strategy
                     if (currentFleck == 0 && noise > 0.58f)
                     {
                         SetOverlayPixel(cellX, cellY, px, py, new Color(0.80f, 0.97f, 1f, 0.28f));
+                    }
+
+                    if (rainRippleIntensity > 0.08f)
+                    {
+                        int rainHit = PositiveModulo(along * 3 + across * 7 + frameIndex * 4 + cellX * 5, Mathf.RoundToInt(Mathf.Lerp(31f, 10f, rainRippleIntensity)));
+                        if (rainHit == 0 && noise > 0.42f)
+                        {
+                            float alpha = 0.08f + rainRippleIntensity * 0.14f + stormRippleIntensity * 0.06f;
+                            SetOverlayPixel(cellX, cellY, px, py, new Color(0.82f, 0.97f, 1f, alpha));
+                        }
                     }
                 }
             }
@@ -236,7 +262,7 @@ namespace ProjectUnknown.Strategy
                     if (ripple <= 1)
                     {
                         float noise = Hash01(map.ActiveSeed, cellX, cellY, px, py, 211);
-                        SetOverlayPixel(cellX, cellY, px, py, new Color(0.86f, 0.94f, 0.86f, 0.18f + noise * 0.14f));
+                        SetOverlayPixel(cellX, cellY, px, py, new Color(0.86f, 0.94f, 0.86f, 0.18f + noise * 0.14f + rainRippleIntensity * 0.05f));
                     }
                 }
             }

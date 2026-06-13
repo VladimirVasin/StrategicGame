@@ -17,6 +17,8 @@ namespace ProjectUnknown.Strategy
         private int loggedPhaseIndex = -1;
 
         public float DayPhase => Mathf.Repeat(Time.timeSinceLevelLoad / CycleSeconds, 1f);
+        public static float ShadowOpacityMultiplier { get; private set; } = 1f;
+        public static float ShadowLengthMultiplier { get; private set; } = 1f;
 
         public void Configure(CityMapController mapController, Camera camera)
         {
@@ -83,6 +85,8 @@ namespace ProjectUnknown.Strategy
             float phase = DayPhase;
             Color overlayColor = EvaluateOverlayColor(phase);
             overlayRenderer.color = overlayColor;
+            ShadowOpacityMultiplier = EvaluateShadowOpacity(phase);
+            ShadowLengthMultiplier = EvaluateShadowLength(phase);
 
             if (strategyCamera != null)
             {
@@ -130,6 +134,56 @@ namespace ProjectUnknown.Strategy
             }
 
             return Color.Lerp(dusk, night, Smooth01((phase - 0.78f) / 0.22f));
+        }
+
+        private static float EvaluateShadowOpacity(float phase)
+        {
+            if (phase < 0.18f)
+            {
+                return Mathf.Lerp(0.38f, 0.74f, Smooth01(phase / 0.18f));
+            }
+
+            if (phase < 0.32f)
+            {
+                return Mathf.Lerp(0.74f, 1f, Smooth01((phase - 0.18f) / 0.14f));
+            }
+
+            if (phase < 0.62f)
+            {
+                return 1f;
+            }
+
+            if (phase < 0.78f)
+            {
+                return Mathf.Lerp(1f, 0.72f, Smooth01((phase - 0.62f) / 0.16f));
+            }
+
+            return Mathf.Lerp(0.72f, 0.38f, Smooth01((phase - 0.78f) / 0.22f));
+        }
+
+        private static float EvaluateShadowLength(float phase)
+        {
+            if (phase < 0.18f)
+            {
+                return Mathf.Lerp(0.78f, 1.36f, Smooth01(phase / 0.18f));
+            }
+
+            if (phase < 0.32f)
+            {
+                return Mathf.Lerp(1.36f, 0.92f, Smooth01((phase - 0.18f) / 0.14f));
+            }
+
+            if (phase < 0.62f)
+            {
+                return 0.92f;
+            }
+
+            if (phase < 0.78f)
+            {
+                return Mathf.Lerp(0.92f, 1.42f, Smooth01((phase - 0.62f) / 0.16f));
+            }
+
+            return Mathf.Lerp(1.42f, 0.78f, Smooth01((phase - 0.78f) / 0.22f));
         }
 
         private Color EvaluateCameraColor(float phase)

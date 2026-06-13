@@ -48,6 +48,7 @@
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\6000.4.10f1\Editor\Data\Tools\BuildPipeline\Unity.SourceGenerators\Unity.UIToolkit.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\Runtime\Core\StrategyShadowSpriteFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyCorpse.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyStonecutEffectAnimator.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyFishSpriteFactory.cs" />
@@ -78,6 +79,7 @@
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyFishAgent.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyBirdAgent.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyBuildMenuController.Catalog.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Weather\StrategyWeatherController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyConstructionSpriteFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyFogOfWarController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyGameBootstrap.cs" />
@@ -97,6 +99,7 @@
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyDeerAgent.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyStoneResourceController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyHunterCamp.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Weather\StrategyWeatherKind.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingUpgradeAnimator.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyTopStatusHudController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyResourceType.cs" />
@@ -106,6 +109,7 @@
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyHouseResourceStore.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyGranary.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingUpgrade.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Weather\StrategyWeatherVisualController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyCampfireSpriteFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyForestryTree.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyDeerSpriteFactory.cs" />
@@ -116,6 +120,7 @@
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingUpgradeSpriteFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyProfessionHudController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\CityMapController.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Core\StrategyShadowCaster2D.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyLooseConstructionResourcePile.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyBuildMenuController.Driver.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyRefugeeArrivalController.cs" />
@@ -126,6 +131,7 @@
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyFuneralController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyForestryController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyPlacedBuilding.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Population\StrategyGraveMarker.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyTerrainTexturePainter.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyRefugeeDialogController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyHuntingArrowProjectile.cs" />

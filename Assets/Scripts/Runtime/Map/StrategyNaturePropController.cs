@@ -319,6 +319,7 @@ namespace ProjectUnknown.Strategy
             StrategyWorldSorting.Apply(renderer, prop.transform.position);
             renderer.flipX = Hash01(map.ActiveSeed, cell.X, cell.Y, salt + 23) > 0.5f;
 
+            AttachNatureShadow(renderer, kind, scale);
             AddWindSway(prop, kind, cell, salt, scale);
             AddFrameAnimation(prop, renderer, kind, variant, cell, salt);
             RegisterForestryTree(prop, renderer, kind, cell, variant);
@@ -730,6 +731,43 @@ namespace ProjectUnknown.Strategy
             }
 
             map.SetCellsWalkable(new Vector2Int(cell.X, cell.Y), Vector2Int.one, false);
+        }
+
+        private static void AttachNatureShadow(SpriteRenderer renderer, StrategyNaturePropKind kind, float propScale)
+        {
+            if (renderer == null
+                || kind == StrategyNaturePropKind.LargeTree
+                || kind == StrategyNaturePropKind.SmallTree
+                || kind == StrategyNaturePropKind.Boulder
+                || kind == StrategyNaturePropKind.RockCluster
+                || kind == StrategyNaturePropKind.Cliff)
+            {
+                return;
+            }
+
+            if (kind == StrategyNaturePropKind.Bush)
+            {
+                StrategyShadowCaster2D.Attach(
+                    renderer,
+                    StrategyShadowShape.SoftEllipse,
+                    new Vector2(0.04f, -0.02f),
+                    new Vector2(0.36f * propScale, 0.13f * propScale),
+                    0.19f,
+                    -4,
+                    0f,
+                    false);
+                return;
+            }
+
+            StrategyShadowCaster2D.Attach(
+                renderer,
+                StrategyShadowShape.CastOval,
+                new Vector2(0.14f, -0.07f),
+                new Vector2(0.72f * propScale, 0.24f * propScale),
+                0.23f,
+                -5,
+                -7f,
+                true);
         }
 
         private void AddFrameAnimation(

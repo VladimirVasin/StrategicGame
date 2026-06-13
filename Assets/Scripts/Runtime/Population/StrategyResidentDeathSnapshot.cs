@@ -17,6 +17,8 @@ namespace ProjectUnknown.Strategy
             Vector3 deathWorld,
             Vector2Int deathCell,
             Vector2Int homeOrigin,
+            string finalProfession,
+            string familyRole,
             int[] householdResidentIds,
             int[] childIds)
         {
@@ -32,6 +34,8 @@ namespace ProjectUnknown.Strategy
             DeathWorld = deathWorld;
             DeathCell = deathCell;
             HomeOrigin = homeOrigin;
+            FinalProfession = string.IsNullOrWhiteSpace(finalProfession) ? "settler" : finalProfession;
+            FamilyRole = string.IsNullOrWhiteSpace(familyRole) ? "settler" : familyRole;
             HouseholdResidentIds = householdResidentIds ?? System.Array.Empty<int>();
             ChildIds = childIds ?? System.Array.Empty<int>();
         }
@@ -48,6 +52,8 @@ namespace ProjectUnknown.Strategy
         public Vector3 DeathWorld { get; }
         public Vector2Int DeathCell { get; }
         public Vector2Int HomeOrigin { get; }
+        public string FinalProfession { get; }
+        public string FamilyRole { get; }
         public int[] HouseholdResidentIds { get; }
         public int[] ChildIds { get; }
     }

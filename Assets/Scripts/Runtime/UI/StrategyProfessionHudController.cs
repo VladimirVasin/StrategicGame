@@ -27,6 +27,7 @@ namespace ProjectUnknown.Strategy
         private readonly ProfessionRow[] rows = new ProfessionRow[DisplayOrder.Length];
         private StrategyPopulationController population;
         private RectTransform panelRoot;
+        private RectTransform viewportRoot;
         private RectTransform contentRoot;
         private ScrollRect professionScroll;
         private CanvasGroup panelGroup;
@@ -68,6 +69,7 @@ namespace ProjectUnknown.Strategy
             }
 
             HandleInput();
+            HandleManualScroll();
             UpdateAnimation();
 
             if (isDirty || Time.frameCount % 15 == 0)
@@ -234,6 +236,7 @@ namespace ProjectUnknown.Strategy
             lineImage.raycastTarget = false;
 
             RectTransform viewport = CreateUiObject("ListViewport", panelRoot).GetComponent<RectTransform>();
+            viewportRoot = viewport;
             SetOffsets(viewport, 18f, 96f, 38f, 70f);
             Image viewportImage = viewport.gameObject.AddComponent<Image>();
             viewportImage.color = new Color(1f, 1f, 1f, 0.01f);
@@ -255,6 +258,10 @@ namespace ProjectUnknown.Strategy
             layout.childControlHeight = false;
             layout.childForceExpandWidth = true;
             layout.childForceExpandHeight = false;
+
+            ContentSizeFitter contentFitter = contentRoot.gameObject.AddComponent<ContentSizeFitter>();
+            contentFitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+            contentFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
             RectTransform scrollbarRoot = CreateUiObject("Scrollbar", panelRoot).GetComponent<RectTransform>();
             scrollbarRoot.anchorMin = new Vector2(1f, 0f);
@@ -407,6 +414,8 @@ namespace ProjectUnknown.Strategy
 
             float contentHeight = Mathf.Max(0f, visibleRows * RowHeight + Mathf.Max(0, visibleRows - 1) * 8f);
             contentRoot.sizeDelta = new Vector2(0f, contentHeight);
+            LayoutRebuilder.ForceRebuildLayoutImmediate(contentRoot);
+            professionScroll?.SetLayoutVertical();
             if (professionScroll != null && !isOpen)
             {
                 professionScroll.verticalNormalizedPosition = 1f;
@@ -770,7 +779,7 @@ namespace ProjectUnknown.Strategy
             foreach (StrategyResidentAgent resident in population.Residents)
             {
                 if (resident != null
-                    && resident.CanWork
+                    && resident.CanAcceptWorkAssignment
                     && !resident.HasWorkplace
                     && !resident.HasConstructionAssignment)
                 {
@@ -842,6 +851,41 @@ namespace ProjectUnknown.Strategy
             panelGroup.blocksRaycasts = isOpen;
             panelRoot.anchoredPosition = new Vector2(0f, -76f - (1f - smooth) * 18f);
             panelRoot.gameObject.SetActive(panelT > 0.001f || isOpen);
+        }
+
+        private void HandleManualScroll()
+        {
+            if (!isOpen
+                || professionScroll == null
+                || panelRoot == null
+                || viewportRoot == null
+                || contentRoot == null
+                || Mouse.current == null)
+            {
+                return;
+            }
+
+            Vector2 pointer = Mouse.current.position.ReadValue();
+            if (!RectTransformUtility.RectangleContainsScreenPoint(panelRoot, pointer))
+            {
+                return;
+            }
+
+            float wheel = Mouse.current.scroll.ReadValue().y;
+            if (Mathf.Abs(wheel) <= 0.01f)
+            {
+                return;
+            }
+
+            float overflow = Mathf.Max(0f, contentRoot.rect.height - viewportRoot.rect.height);
+            if (overflow <= 0.01f)
+            {
+                return;
+            }
+
+            float normalizedDelta = wheel * professionScroll.scrollSensitivity / overflow;
+            professionScroll.verticalNormalizedPosition = Mathf.Clamp01(
+                professionScroll.verticalNormalizedPosition + normalizedDelta);
         }
 
         private static void EnsureEventSystem()

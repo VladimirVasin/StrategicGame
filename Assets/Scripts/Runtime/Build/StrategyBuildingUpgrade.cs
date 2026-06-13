@@ -12,11 +12,14 @@ namespace ProjectUnknown.Strategy
     public sealed class StrategyBuildingUpgrade : MonoBehaviour
     {
         private const float GardenHarvestSeconds = 8f;
-        private const float MinEggProductionDelay = 8f;
-        private const float MaxEggProductionDelay = 14f;
+        private const float ChickenCoopEggCycleSeconds = 22f;
+        private const float ChickenCoopEggCycleJitterSeconds = 2.5f;
+        private const float ChickenCoopEggReadyProgress = 5f / 6f;
         private const float GardenWorkGrowthBoostSeconds = 2.5f;
 
         private float productionTimer;
+        private float productionCycleSeconds;
+        private bool chickenEggStoredThisCycle;
 
         public StrategyBuildingUpgradeType Type { get; private set; }
         public StrategyPlacedBuilding Owner { get; private set; }
@@ -27,6 +30,11 @@ namespace ProjectUnknown.Strategy
         public float GardenGrowthProgress => Type == StrategyBuildingUpgradeType.GardenBeds
             ? 1f - Mathf.Clamp01(productionTimer / GardenHarvestSeconds)
             : 0f;
+        public float ChickenCoopProductionProgress => Type == StrategyBuildingUpgradeType.ChickenCoop && productionCycleSeconds > 0f
+            ? 1f - Mathf.Clamp01(productionTimer / productionCycleSeconds)
+            : 0f;
+        public bool ChickenCoopEggVisible => Type == StrategyBuildingUpgradeType.ChickenCoop
+            && ChickenCoopProductionProgress >= ChickenCoopEggReadyProgress;
         public float NextProductionSeconds => Mathf.Max(0f, productionTimer);
 
         public void Configure(
@@ -46,10 +54,11 @@ namespace ProjectUnknown.Strategy
 
             if (Type == StrategyBuildingUpgradeType.ChickenCoop)
             {
-                productionTimer = Random.Range(MinEggProductionDelay * 0.5f, MaxEggProductionDelay);
+                StartChickenCoopCycle(Random.Range(0.05f, 0.65f), false);
             }
             else if (Type == StrategyBuildingUpgradeType.GardenBeds)
             {
+                productionCycleSeconds = GardenHarvestSeconds;
                 productionTimer = Random.Range(GardenHarvestSeconds * 0.35f, GardenHarvestSeconds);
             }
         }
@@ -70,18 +79,11 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            if (Type != StrategyBuildingUpgradeType.ChickenCoop)
+            if (Type == StrategyBuildingUpgradeType.ChickenCoop)
             {
+                UpdateChickenCoopProduction();
                 return;
             }
-
-            if (productionTimer > 0f)
-            {
-                return;
-            }
-
-            Owner.Resources.AddResource(ProducedResource, 1);
-            productionTimer = Random.Range(MinEggProductionDelay, MaxEggProductionDelay);
         }
 
         public void BoostGardenGrowthFromWork()
@@ -104,6 +106,50 @@ namespace ProjectUnknown.Strategy
             {
                 Owner.Resources.AddResource(ProducedResource, 1);
                 productionTimer += GardenHarvestSeconds;
+            }
+        }
+
+        private void UpdateChickenCoopProduction()
+        {
+            if (!chickenEggStoredThisCycle && ChickenCoopProductionProgress >= ChickenCoopEggReadyProgress)
+            {
+                Owner.Resources.AddResource(ProducedResource, 1);
+                chickenEggStoredThisCycle = true;
+                StrategyDebugLogger.Info(
+                    "BuildingUpgrade",
+                    "ChickenCoopEggStored",
+                    StrategyDebugLogger.F("houseOrigin", Owner.Origin),
+                    StrategyDebugLogger.F("coopOrigin", Origin),
+                    StrategyDebugLogger.F("progress", ChickenCoopProductionProgress),
+                    StrategyDebugLogger.F("eggCount", Owner.Resources.GetAmount(ProducedResource)));
+            }
+
+            if (productionTimer > 0f)
+            {
+                return;
+            }
+
+            float overflowSeconds = -productionTimer;
+            StartChickenCoopCycle(0f, true);
+            productionTimer = Mathf.Max(0.25f, productionTimer - overflowSeconds);
+        }
+
+        private void StartChickenCoopCycle(float startProgress, bool logStart)
+        {
+            productionCycleSeconds = Random.Range(
+                ChickenCoopEggCycleSeconds - ChickenCoopEggCycleJitterSeconds,
+                ChickenCoopEggCycleSeconds + ChickenCoopEggCycleJitterSeconds);
+            productionTimer = productionCycleSeconds * (1f - Mathf.Clamp01(startProgress));
+            chickenEggStoredThisCycle = false;
+
+            if (logStart && Owner != null)
+            {
+                StrategyDebugLogger.Info(
+                    "BuildingUpgrade",
+                    "ChickenCoopCycleStarted",
+                    StrategyDebugLogger.F("houseOrigin", Owner.Origin),
+                    StrategyDebugLogger.F("coopOrigin", Origin),
+                    StrategyDebugLogger.F("cycleSeconds", productionCycleSeconds));
             }
         }
     }

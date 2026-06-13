@@ -21,9 +21,7 @@ namespace ProjectUnknown.Strategy
             spriteRenderer = renderer;
             upgrade = linkedUpgrade;
             type = upgradeType;
-            frameIndex = type == StrategyBuildingUpgradeType.GardenBeds
-                ? GetGardenGrowthFrame()
-                : Random.Range(0, StrategyBuildingUpgradeSpriteFactory.AnimationFrameCount);
+            frameIndex = GetSyncedProductionFrame();
             frameTimer = Random.Range(0f, FrameDuration);
             ApplyFrame();
         }
@@ -48,12 +46,12 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            if (type == StrategyBuildingUpgradeType.GardenBeds)
+            if (type == StrategyBuildingUpgradeType.GardenBeds || type == StrategyBuildingUpgradeType.ChickenCoop)
             {
-                int growthFrame = GetGardenGrowthFrame();
-                if (growthFrame != frameIndex)
+                int productionFrame = GetSyncedProductionFrame();
+                if (productionFrame != frameIndex)
                 {
-                    frameIndex = growthFrame;
+                    frameIndex = productionFrame;
                     ApplyFrame();
                 }
 
@@ -88,6 +86,24 @@ namespace ProjectUnknown.Strategy
 
             int frameCount = StrategyBuildingUpgradeSpriteFactory.AnimationFrameCount;
             return Mathf.Clamp(Mathf.FloorToInt(upgrade.GardenGrowthProgress * frameCount), 0, frameCount - 1);
+        }
+
+        private int GetChickenCoopProductionFrame()
+        {
+            if (upgrade == null)
+            {
+                return 0;
+            }
+
+            int frameCount = StrategyBuildingUpgradeSpriteFactory.AnimationFrameCount;
+            return Mathf.Clamp(Mathf.FloorToInt(upgrade.ChickenCoopProductionProgress * frameCount), 0, frameCount - 1);
+        }
+
+        private int GetSyncedProductionFrame()
+        {
+            return type == StrategyBuildingUpgradeType.ChickenCoop
+                ? GetChickenCoopProductionFrame()
+                : GetGardenGrowthFrame();
         }
     }
 }

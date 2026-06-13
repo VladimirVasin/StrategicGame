@@ -94,11 +94,16 @@ namespace ProjectUnknown.Strategy
             renderer.sprite = StrategyFuneralSpriteFactory.GetGraveSprite(graves.Count - 1);
             StrategyWorldSorting.Apply(renderer, graveObject.transform.position, 1);
 
+            StrategyGraveMarker grave = graveObject.AddComponent<StrategyGraveMarker>();
+            grave.Configure(snapshot, renderer, graves.Count - 1);
+
             StrategyDebugLogger.Info(
                 "Funeral",
                 "GraveCreated",
                 StrategyDebugLogger.F("resident", snapshot.FullName),
                 StrategyDebugLogger.F("residentId", snapshot.ResidentId),
+                StrategyDebugLogger.F("profession", snapshot.FinalProfession),
+                StrategyDebugLogger.F("familyRole", snapshot.FamilyRole),
                 StrategyDebugLogger.F("graveCell", cell),
                 StrategyDebugLogger.F("cemeteryCenter", centerCell),
                 StrategyDebugLogger.F("graveCount", graves.Count));
@@ -112,6 +117,11 @@ namespace ProjectUnknown.Strategy
             bestCell = default;
             float bestScore = float.MinValue;
             bool found = false;
+            float searchStartedAt = Time.realtimeSinceStartup;
+            Vector2Int campCell = default;
+            bool hasCampCell = population != null && population.TryGetCampCell(out campCell);
+            List<Vector2Int> buildingOrigins = CollectBuildingOrigins();
+            int testedCells = 0;
 
             for (int pass = 0; pass < 2; pass++)
             {
@@ -126,8 +136,9 @@ namespace ProjectUnknown.Strategy
                             continue;
                         }
 
-                        float campDistance = GetCampDistance(candidate);
-                        float buildingDistance = GetNearestBuildingDistance(candidate);
+                        testedCells++;
+                        float campDistance = GetCampDistance(candidate, hasCampCell, campCell);
+                        float buildingDistance = GetNearestBuildingDistance(candidate, buildingOrigins);
                         if (pass == 0
                             && (campDistance < PreferredMinimumCampDistance
                                 || buildingDistance < PreferredMinimumBuildingDistance))
@@ -161,10 +172,13 @@ namespace ProjectUnknown.Strategy
                         "CemeteryFounded",
                         StrategyDebugLogger.F("cell", bestCell),
                         StrategyDebugLogger.F("pass", pass),
-                        StrategyDebugLogger.F("campDistance", GetCampDistance(bestCell)),
-                        StrategyDebugLogger.F("buildingDistance", GetNearestBuildingDistance(bestCell)),
+                        StrategyDebugLogger.F("campDistance", GetCampDistance(bestCell, hasCampCell, campCell)),
+                        StrategyDebugLogger.F("buildingDistance", GetNearestBuildingDistance(bestCell, buildingOrigins)),
                         StrategyDebugLogger.F("edgeDistance", GetMapEdgeDistance(bestCell)),
-                        StrategyDebugLogger.F("score", bestScore));
+                        StrategyDebugLogger.F("score", bestScore),
+                        StrategyDebugLogger.F("testedCells", testedCells),
+                        StrategyDebugLogger.F("buildingCount", buildingOrigins.Count),
+                        StrategyDebugLogger.F("searchMs", Mathf.RoundToInt((Time.realtimeSinceStartup - searchStartedAt) * 1000f)));
                     return true;
                 }
             }
@@ -262,34 +276,43 @@ namespace ProjectUnknown.Strategy
             return false;
         }
 
-        private float GetCampDistance(Vector2Int cell)
+        private static float GetCampDistance(Vector2Int cell, bool hasCampCell, Vector2Int campCell)
         {
-            if (population != null && population.TryGetCampCell(out Vector2Int campCell))
-            {
-                return Vector2Int.Distance(cell, campCell);
-            }
-
-            return 0f;
+            return hasCampCell ? Vector2Int.Distance(cell, campCell) : 0f;
         }
 
-        private float GetNearestBuildingDistance(Vector2Int cell)
+        private List<Vector2Int> CollectBuildingOrigins()
         {
+            List<Vector2Int> origins = new();
             StrategyPlacedBuilding[] buildings = Object.FindObjectsByType<StrategyPlacedBuilding>();
-            if (buildings == null || buildings.Length <= 0)
+            if (buildings == null)
+            {
+                return origins;
+            }
+
+            for (int i = 0; i < buildings.Length; i++)
+            {
+                StrategyPlacedBuilding building = buildings[i];
+                if (building != null)
+                {
+                    origins.Add(building.Origin);
+                }
+            }
+
+            return origins;
+        }
+
+        private float GetNearestBuildingDistance(Vector2Int cell, IReadOnlyList<Vector2Int> buildingOrigins)
+        {
+            if (buildingOrigins == null || buildingOrigins.Count <= 0)
             {
                 return map != null ? Mathf.Max(map.Width, map.Height) : 0f;
             }
 
             float best = float.MaxValue;
-            for (int i = 0; i < buildings.Length; i++)
+            for (int i = 0; i < buildingOrigins.Count; i++)
             {
-                StrategyPlacedBuilding building = buildings[i];
-                if (building == null)
-                {
-                    continue;
-                }
-
-                best = Mathf.Min(best, Vector2Int.Distance(cell, building.Origin));
+                best = Mathf.Min(best, Vector2Int.Distance(cell, buildingOrigins[i]));
             }
 
             return best == float.MaxValue ? 0f : best;

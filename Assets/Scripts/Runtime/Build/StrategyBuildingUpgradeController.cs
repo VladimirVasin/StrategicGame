@@ -113,6 +113,7 @@ namespace ProjectUnknown.Strategy
             SpriteRenderer renderer = upgradeObject.AddComponent<SpriteRenderer>();
             renderer.sprite = StrategyBuildingUpgradeSpriteFactory.GetSprite(type);
             StrategyWorldSorting.Apply(renderer, upgradeObject.transform.position);
+            AttachUpgradeShadow(renderer, type, size);
 
             upgrade = upgradeObject.AddComponent<StrategyBuildingUpgrade>();
             StrategyResourceType producedResource = DetermineProducedResource(building, origin, type);
@@ -373,6 +374,41 @@ namespace ProjectUnknown.Strategy
         private static Vector3 GetUpgradeAnchor(Bounds bounds)
         {
             return new Vector3(bounds.center.x, bounds.min.y + 0.05f, -0.12f);
+        }
+
+        private static void AttachUpgradeShadow(
+            SpriteRenderer renderer,
+            StrategyBuildingUpgradeType type,
+            Vector2Int size)
+        {
+            if (renderer == null)
+            {
+                return;
+            }
+
+            if (type == StrategyBuildingUpgradeType.GardenBeds)
+            {
+                StrategyShadowCaster2D.Attach(
+                    renderer,
+                    StrategyShadowShape.SoftEllipse,
+                    new Vector2(0.04f, -0.02f),
+                    new Vector2(Mathf.Max(0.8f, size.x * 0.46f), 0.16f),
+                    0.12f,
+                    -4,
+                    0f,
+                    false);
+                return;
+            }
+
+            StrategyShadowCaster2D.Attach(
+                renderer,
+                StrategyShadowShape.CastOval,
+                new Vector2(0.08f, -0.05f),
+                new Vector2(Mathf.Max(0.46f, size.x * 0.48f), 0.20f),
+                0.22f,
+                -5,
+                -5f,
+                true);
         }
 
         private static StrategyResourceType DetermineProducedResource(

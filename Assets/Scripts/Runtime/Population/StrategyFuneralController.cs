@@ -14,6 +14,7 @@ namespace ProjectUnknown.Strategy
         private const float MourningSeconds = 5.2f;
         private const float BurialSeconds = 4.5f;
         private const float ArrivalDistance = 1.35f;
+        private const float CorpseBurialDistance = 2.25f;
         private const float CorpseDragDistance = 0.72f;
         private const float CorpseMaxDragDistance = 0.96f;
         private const float CarrierRetrySeconds = 6.0f;
@@ -392,6 +393,23 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            if (!carriersArrived || !IsCorpseNearGrave(funeral))
+            {
+                StrategyDebugLogger.Warn(
+                    "Funeral",
+                    "FuneralProcessionDeliveryFailed",
+                    StrategyDebugLogger.F("resident", funeral.Snapshot.FullName),
+                    StrategyDebugLogger.F("residentId", funeral.Snapshot.ResidentId),
+                    StrategyDebugLogger.F("carriersArrived", carriersArrived),
+                    StrategyDebugLogger.F("corpseDistance", GetCorpseDistanceToGrave(funeral)),
+                    StrategyDebugLogger.F("graveCell", funeral.GraveCell));
+
+                funeral.Stage = FuneralStage.Mourning;
+                funeral.Timer = CarrierRetrySeconds;
+                funeral.Dispatched = false;
+                return;
+            }
+
             funeral.Stage = FuneralStage.GatheringAtGrave;
             funeral.Timer = BurialGatherTimeoutSeconds;
             UpdateDraggedCorpsePosition(funeral);
@@ -417,11 +435,42 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            if (!IsCorpseNearGrave(funeral))
+            {
+                StrategyDebugLogger.Warn(
+                    "Funeral",
+                    "BurialDelayed",
+                    StrategyDebugLogger.F("resident", funeral.Snapshot.FullName),
+                    StrategyDebugLogger.F("residentId", funeral.Snapshot.ResidentId),
+                    StrategyDebugLogger.F("reason", "corpse_not_delivered"),
+                    StrategyDebugLogger.F("corpseDistance", GetCorpseDistanceToGrave(funeral)),
+                    StrategyDebugLogger.F("graveCell", funeral.GraveCell));
+
+                funeral.Stage = FuneralStage.Procession;
+                funeral.Timer = CarrierRetrySeconds;
+                return;
+            }
+
             BeginBurial(funeral, allArrived ? "family_gathered" : "gather_timeout");
         }
 
         private void BeginBurial(FuneralProcess funeral, string reason)
         {
+            if (!IsCorpseNearGrave(funeral))
+            {
+                StrategyDebugLogger.Warn(
+                    "Funeral",
+                    "BurialRejected",
+                    StrategyDebugLogger.F("resident", funeral.Snapshot.FullName),
+                    StrategyDebugLogger.F("residentId", funeral.Snapshot.ResidentId),
+                    StrategyDebugLogger.F("reason", "corpse_not_delivered"),
+                    StrategyDebugLogger.F("corpseDistance", GetCorpseDistanceToGrave(funeral)),
+                    StrategyDebugLogger.F("graveCell", funeral.GraveCell));
+                funeral.Stage = FuneralStage.Procession;
+                funeral.Timer = CarrierRetrySeconds;
+                return;
+            }
+
             funeral.Corpse.SetBurialWorld(funeral.GraveWorld);
             funeral.Corpse.StartBurial();
             funeral.Stage = FuneralStage.Burial;
@@ -699,6 +748,23 @@ namespace ProjectUnknown.Strategy
         {
             return resident != null
                 && (resident.transform.position - target).sqrMagnitude <= distance * distance;
+        }
+
+        private static bool IsCorpseNearGrave(FuneralProcess funeral)
+        {
+            return funeral != null
+                && funeral.Corpse != null
+                && GetCorpseDistanceToGrave(funeral) <= CorpseBurialDistance;
+        }
+
+        private static float GetCorpseDistanceToGrave(FuneralProcess funeral)
+        {
+            if (funeral == null || funeral.Corpse == null)
+            {
+                return float.MaxValue;
+            }
+
+            return Vector3.Distance(funeral.Corpse.transform.position, funeral.GraveWorld);
         }
 
         private static void EndFuneralDuties(List<StrategyResidentAgent> residents)

@@ -346,6 +346,35 @@ namespace ProjectUnknown.Strategy
             return amount > 0;
         }
 
+        public bool TryRestoreConstructionReservation(
+            object owner,
+            StrategyConstructionResourceKind kind,
+            int amount)
+        {
+            if (owner == null || amount <= 0 || kind == StrategyConstructionResourceKind.None)
+            {
+                return false;
+            }
+
+            Dictionary<object, int> reservations = kind == StrategyConstructionResourceKind.Logs ? logReservations : stoneReservations;
+            int available = kind == StrategyConstructionResourceKind.Logs ? AvailableLogs : AvailableStone;
+            int reservedAmount = Mathf.Min(amount, available);
+            if (reservedAmount <= 0)
+            {
+                return false;
+            }
+
+            AddReservation(reservations, owner, reservedAmount);
+            StrategyDebugLogger.Info(
+                "Build",
+                "LooseConstructionResourceReservationRestored",
+                StrategyDebugLogger.F("origin", origin),
+                StrategyDebugLogger.F("owner", owner),
+                StrategyDebugLogger.F("resource", kind),
+                StrategyDebugLogger.F("amount", reservedAmount));
+            return true;
+        }
+
         private int ReserveConstruction(object owner, StrategyConstructionResourceKind kind, int requested)
         {
             Dictionary<object, int> reservations = kind == StrategyConstructionResourceKind.Logs ? logReservations : stoneReservations;
@@ -513,6 +542,7 @@ namespace ProjectUnknown.Strategy
             logsRenderer.transform.localPosition = transform.InverseTransformPoint(logsWorld);
             logsRenderer.transform.localScale = Vector3.one;
             StrategyWorldSorting.Apply(logsRenderer, logsWorld, 1);
+            AttachPileShadow(logsRenderer, logs > 0 ? logs : stone);
 
             Vector3 stoneWorld = transform.position + new Vector3(0.26f, -0.02f, 0f);
             stoneRenderer.sprite = StrategyConstructionSpriteFactory.GetConstructionStoneSprite(stone);
@@ -520,6 +550,26 @@ namespace ProjectUnknown.Strategy
             stoneRenderer.transform.localPosition = transform.InverseTransformPoint(stoneWorld);
             stoneRenderer.transform.localScale = Vector3.one;
             StrategyWorldSorting.Apply(stoneRenderer, stoneWorld, 2);
+            AttachPileShadow(stoneRenderer, stone > 0 ? stone : logs);
+        }
+
+        private static void AttachPileShadow(SpriteRenderer renderer, int amount)
+        {
+            if (renderer == null)
+            {
+                return;
+            }
+
+            float size = Mathf.Lerp(0.20f, 0.38f, Mathf.Clamp01(amount / 8f));
+            StrategyShadowCaster2D.Attach(
+                renderer,
+                StrategyShadowShape.SoftEllipse,
+                new Vector2(0.02f, -0.02f),
+                new Vector2(size, size * 0.36f),
+                0.13f,
+                -4,
+                0f,
+                false);
         }
 
         private void UpdateOrDestroy()

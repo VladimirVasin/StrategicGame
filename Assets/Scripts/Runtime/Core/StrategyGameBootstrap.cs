@@ -119,6 +119,25 @@ namespace ProjectUnknown.Strategy
             dayNight.Configure(map, mainCamera);
             StrategyDebugLogger.Info("Bootstrap", "DayNightReady");
 
+            StrategyWeatherController weather = Object.FindAnyObjectByType<StrategyWeatherController>();
+            if (weather == null)
+            {
+                GameObject weatherObject = new GameObject("Strategy Weather");
+                weather = weatherObject.AddComponent<StrategyWeatherController>();
+            }
+
+            weather.Configure(map, wind);
+
+            StrategyWeatherVisualController weatherVisuals = Object.FindAnyObjectByType<StrategyWeatherVisualController>();
+            if (weatherVisuals == null)
+            {
+                GameObject weatherVisualsObject = new GameObject("Strategy Weather Visuals");
+                weatherVisuals = weatherVisualsObject.AddComponent<StrategyWeatherVisualController>();
+            }
+
+            weatherVisuals.Configure(map, mainCamera, weather, wind);
+            StrategyDebugLogger.Info("Bootstrap", "WeatherReady");
+
             StrategyAmbientAudioController ambientAudio = Object.FindAnyObjectByType<StrategyAmbientAudioController>();
             if (ambientAudio == null)
             {

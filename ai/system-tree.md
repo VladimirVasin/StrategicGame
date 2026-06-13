@@ -18,6 +18,8 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Default volume profile
   - URP global settings
   - Runtime day/night overlay tints the world above sprites and below preview/fog/UI
+  - Runtime weather overlays add wet ground, cloud shadows, mist, and rain in dedicated sorting bands around day/night and fog-of-war
+  - Runtime procedural 2D shadow caster supplies soft ground/cast shadows below world sprites
 
 - Scene foundation
   - Default `SampleScene`
@@ -32,6 +34,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Finds or creates `Main Camera`
     - Wires camera bounds to the generated map
     - Creates and configures the visual day/night cycle after camera setup
+    - Creates and configures runtime weather state and visual weather overlays after camera/day-night setup
     - Creates and configures runtime ambience audio after camera setup
     - Focuses the initial camera view on the startup campfire after population startup
     - Creates runtime water/shore animation overlay after map generation
@@ -61,10 +64,19 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Loads non-generated nature loops and grass footsteps from `Assets/Resources/Audio`
     - Loads in-game music playlist clips from `Assets/Resources/Audio/Music`
     - Plays forest birds, cicadas, night, rain, calm wind, and forest wind as global ambience layers
+    - Rain and wind ambience follow the active runtime weather state
     - Plays river ambience through a spatial source positioned at the nearest water cell to the camera
     - Adds quiet spatial grass footsteps to resident walk animation step frames
     - Plays one random music track at a time and avoids repeating the previous track when 2+ tracks exist
     - Pauses current in-game music on focus loss and resumes the same clip on focus return
+  - Strategy weather
+    - Runtime-created weather controller
+    - Randomly transitions between Clear, Cloudy, LightRain, HeavyRain, Fog, and Storm states
+    - Smoothly exposes rain, cloud, fog, storm, wind, and wetness intensities
+    - Drives procedural cloud-shadow, rain-streak, mist, and wet-ground world overlays
+    - Boosts the Unity `WindZone` values so trees, forest groups, and bushes sway more during rain/storms
+    - Feeds rain/wind ambience and rain-driven water ripple intensity
+    - Logs weather configuration and state changes to `debug.log`
   - Generated city map
     - 128x128 default 2D terrain grid
     - Runtime texture/sprite rendering
@@ -78,7 +90,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Procedural 16px pixel-art terrain tile painter
     - Multiple deterministic variants per terrain kind
     - Neighbor-aware side and corner overlays for terrain transitions
-    - Runtime water/shore overlay animates waves, sparkles, and shoreline foam over the static map texture
+    - Runtime water/shore overlay animates waves, sparkles, shoreline foam, and weather-driven rain ripple hits over the static map texture
     - Runtime nature-props layer
       - Generated after map terrain cells are built
       - Uses active map seed for deterministic prop placement within a map session
@@ -93,6 +105,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Starter-area Stone deposits are placed outside the campfire clear radius before vegetation so nearby mining access is reliable
       - Nature props attach a 2D sway adapter driven by the strategy `WindZone`
       - Nature props add lightweight procedural leaf frame overlays
+      - Forest groups, bushes, generated trees, and Stone deposits attach tuned procedural ground/cast shadows
     - Stone resources MVP
       - Tracks generated Stone deposits in a runtime registry
       - Supports Boulder, Rock Cluster, and Cliff deposit kinds
@@ -109,15 +122,17 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Strategy wind
       - Runtime-created Unity `WindZone` in directional mode
       - Stores wind direction, main strength, pulse, frequency, and turbulence
+      - Accepts weather influence boosts for main strength, pulse, and turbulence
       - Drives tree, forest-group, and bush sway through per-prop animation phases
+      - Shared procedural shadows keep day/night opacity and length tuning while wind-driven props sway
     - Wildlife MVP
       - Runtime-created wildlife controller
       - Spawns 8-12 deer in small herds on suitable walkable meadow, grass, dirt, and forest-edge cells
-      - Spawns 12-18 rabbits in small groups on suitable walkable meadow, grass, dirt, and forest-edge cells
+      - Spawns 12-18 rabbits in small groups on suitable walkable meadow, grass, dirt, and forest-edge cells within a near-camp ring
       - Spawns initial lake fish on generated lake water regions with hard per-lake population caps
       - Spawns one-way pass-through river fish on a single timer along the generated river current
       - Spawns 20-32 decorative birds on species-appropriate meadow/grass, forest/near-forest, water, and shore cells
-      - Avoids the startup campfire area when choosing herd spawn cells
+      - Avoids the startup campfire area when choosing deer herd spawn cells and keeps rabbit groups close enough to the starter camp for early hunting
       - Wildlife agents do not block walkability and do not act as fog reveal sources
       - Two procedural 2.5D deer models exist: antlered male buck and smaller female doe
       - Two procedural 2.5D rabbit models exist: male buck and female doe variants, with smaller kits using scaled visuals
@@ -229,6 +244,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Reuses a stable default sprite for Build menu icon and ghost preview
     - Chooses a random building visual variant for each successfully placed supported building
     - Placed houses add ambient smoke/window-light overlay animation without changing colliders
+    - Completed buildings, construction sites, house upgrades, and loose construction resource piles attach shared procedural ground/cast shadows
   - House visual upgrades
     - Runtime-created building-upgrade controller
     - Current visual/production upgrades: Garden Beds and Chicken Coop
@@ -303,7 +319,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Resident death creates an animated corpse snapshot that remains in the world until burial
     - Funeral flow immediately recalls close family/household participants, runs crying/mourning, drags the corpse by rope behind a carrier to a spontaneous reachable cemetery, waits for reachable attendees near the grave, and completes burial
     - Spontaneous cemetery placement prefers a moderate distance from the settlement, penalizes extreme map edges, and filters graves by carrier-reachable walkable stand cells
-    - Completed burials create runtime-generated grave sprites and mark grave cells as not walkable
+    - Completed burials create runtime-generated clickable grave sprites with epitaph HUD data and mark grave cells as not walkable
     - Funeral activities temporarily interrupt active resident tasks without permanently removing workplace roles
     - The first refugee family arrives after 3 completed houses; later families periodically arrive from a map edge, route only to the reachable camp-side arrival area, walk to the startup campfire, and ask for settlement acceptance through a modal paused decision
     - Refugee families contain one adult man, one adult woman, and 1-3 children with normal names, ages, visual variants, and parent/child kinship links
@@ -386,13 +402,14 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 
 - Rendering settings affect all scenes using the URP pipeline.
 - Runtime bootstrap depends on scene load order and the presence of a usable `Main Camera` or permission to create one.
-- Audio bootstrap depends on map generation, camera setup, strategy wind values, `Resources/Audio` assets, the in-game music folder, and resident walk animation frames.
+- Audio bootstrap depends on map generation, camera setup, strategy wind/weather values, `Resources/Audio` assets, the in-game music folder, and resident walk animation frames.
 - Strategy camera bounds depend on generated map dimensions.
 - Input action changes do not affect current camera controls yet because MVP controls read direct Input System devices.
 - Build menu active tool state drives the placement controller when catalog tools exist.
 - Placement uses generated map cells and buildability data.
 - Fog of war uses population, residents, and placed-building records as visibility sources; placement and world selection consult fog exploration state, with F9 acting as a player-visible bypass toggle.
-- Terrain rendering uses generated map cell kinds, seeded tile variants, neighbor transition overlays, and a runtime water/shore animation overlay.
+- Terrain rendering uses generated map cell kinds, seeded tile variants, neighbor transition overlays, a runtime water/shore animation overlay, and weather visual overlays.
+- Weather depends on generated map bounds, the strategy camera, day/night/fog sorting bands, the strategy wind source, water animation, and ambience audio.
 - House visual upgrades and house resources depend on placed-building records, map walkability checks, generated upgrade/chicken/resource sprites, early idle/work agents, and the world-selection HUD.
 - Forestry depends on generated tree props, map walkability, placed lumberjack camps, resident work states, and the world-selection HUD.
 - Stone resources depend on generated nature props, map walkability, stonecutter camps, resident work states, and storage logistics.
