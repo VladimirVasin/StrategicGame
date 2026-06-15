@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace ProjectUnknown.Strategy
@@ -124,6 +123,7 @@ namespace ProjectUnknown.Strategy
         {
             return residentActivity == ResidentActivity.ReturningLogsToStorage
                 || residentActivity == ResidentActivity.ReturningStoneToStorage
+                || residentActivity == ResidentActivity.ReturningIronToStorage
                 || residentActivity == ResidentActivity.ReturningGameToGranary
                 || residentActivity == ResidentActivity.ReturningFishToGranary;
         }
@@ -488,6 +488,8 @@ namespace ProjectUnknown.Strategy
 
             SyncCarriedLogsRenderer();
             SyncCarriedStoneRenderer();
+            SyncCarriedIronRenderer();
+            SyncCarriedCoalRenderer();
             SyncCarriedGameRenderer();
             SyncCarriedFishRenderer();
             SyncCarriedForageRenderer();

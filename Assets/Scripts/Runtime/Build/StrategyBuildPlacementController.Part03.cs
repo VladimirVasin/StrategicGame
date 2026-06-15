@@ -50,6 +50,14 @@ namespace ProjectUnknown.Strategy
             {
                 blockFootprint = new Vector2Int(footprint.x, footprint.y + 1);
             }
+            else if (tool == StrategyBuildTool.Mine)
+            {
+                blockFootprint = new Vector2Int(footprint.x, footprint.y + 1);
+            }
+            else if (tool == StrategyBuildTool.CoalPit)
+            {
+                blockFootprint = new Vector2Int(footprint.x, footprint.y + 1);
+            }
             else if (tool == StrategyBuildTool.HunterCamp)
             {
                 blockFootprint = new Vector2Int(footprint.x, footprint.y + 1);
@@ -276,6 +284,8 @@ namespace ProjectUnknown.Strategy
                 StrategyBuildTool.House => "HM",
                 StrategyBuildTool.LumberjackCamp => "LC",
                 StrategyBuildTool.StonecutterCamp => "SC",
+                StrategyBuildTool.Mine => "MN",
+                StrategyBuildTool.CoalPit => "CP",
                 StrategyBuildTool.HunterCamp => "HC",
                 StrategyBuildTool.FisherHut => "FH",
                 StrategyBuildTool.StorageYard => "ST",
@@ -334,6 +344,45 @@ namespace ProjectUnknown.Strategy
             }
 
             return false;
+        }
+
+        private static bool HasMineIronAccess(Vector2Int origin, Vector2Int footprint)
+        {
+            StrategyIronResourceController iron = StrategyIronResourceController.Active;
+            if (iron == null)
+            {
+                return false;
+            }
+
+            return iron.CountAvailableDepositsInFootprint(origin, footprint) > 0;
+        }
+
+        private static bool HasCoalPitCoalAccess(Vector2Int origin, Vector2Int footprint)
+        {
+            StrategyCoalResourceController coal = StrategyCoalResourceController.Active;
+            return coal != null && coal.CountAvailableDepositsInFootprint(origin, footprint) > 0;
+        }
+
+        private static bool HasRequiredDepositAccess(
+            StrategyBuildTool tool,
+            Vector2Int origin,
+            Vector2Int footprint,
+            out string reason)
+        {
+            reason = string.Empty;
+            if (tool == StrategyBuildTool.Mine && !HasMineIronAccess(origin, footprint))
+            {
+                reason = "no_iron_deposit_under_mine";
+                return false;
+            }
+
+            if (tool == StrategyBuildTool.CoalPit && !HasCoalPitCoalAccess(origin, footprint))
+            {
+                reason = "no_coal_deposit_under_pit";
+                return false;
+            }
+
+            return true;
         }
 
         private static bool IsPointerOverUi()

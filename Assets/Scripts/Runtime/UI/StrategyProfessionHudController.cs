@@ -17,6 +17,8 @@ namespace ProjectUnknown.Strategy
         {
             StrategyProfessionType.Lumberjack,
             StrategyProfessionType.Stonecutter,
+            StrategyProfessionType.Miner,
+            StrategyProfessionType.CoalMiner,
             StrategyProfessionType.Hunter,
             StrategyProfessionType.Fisher,
             StrategyProfessionType.StorageWorker,

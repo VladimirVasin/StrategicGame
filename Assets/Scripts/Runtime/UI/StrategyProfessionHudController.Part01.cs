@@ -27,6 +27,16 @@ namespace ProjectUnknown.Strategy
                     snapshot.Assigned = CountAssigned(stoneCamps, camp => camp.WorkerCount);
                     snapshot.Capacity = stoneCamps.Length * StrategyStonecutterCamp.MaxWorkers;
                     break;
+                case StrategyProfessionType.Miner:
+                    StrategyMine[] mines = FindSorted<StrategyMine>();
+                    snapshot.Assigned = CountAssigned(mines, mine => mine.WorkerCount);
+                    snapshot.Capacity = mines.Length * StrategyMine.MaxWorkers;
+                    break;
+                case StrategyProfessionType.CoalMiner:
+                    StrategyCoalPit[] coalPits = FindSorted<StrategyCoalPit>();
+                    snapshot.Assigned = CountAssigned(coalPits, pit => pit.WorkerCount);
+                    snapshot.Capacity = coalPits.Length * StrategyCoalPit.MaxWorkers;
+                    break;
                 case StrategyProfessionType.Hunter:
                     StrategyHunterCamp[] hunterCamps = FindSorted<StrategyHunterCamp>();
                     snapshot.Assigned = CountAssigned(hunterCamps, camp => camp.WorkerCount);
@@ -65,9 +75,11 @@ namespace ProjectUnknown.Strategy
             {
                 StrategyProfessionType.Lumberjack => new ProfessionSnapshot(type, "Lumberjacks", "chop trees and stockpile Logs", new Color(0.45f, 0.62f, 0.32f)),
                 StrategyProfessionType.Stonecutter => new ProfessionSnapshot(type, "Stonecutters", "mine Stone with pickaxes", new Color(0.47f, 0.53f, 0.55f)),
+                StrategyProfessionType.Miner => new ProfessionSnapshot(type, "Miners", "work underground for Iron", new Color(0.61f, 0.42f, 0.30f)),
+                StrategyProfessionType.CoalMiner => new ProfessionSnapshot(type, "Coal Miners", "dig Coal inside pits", new Color(0.33f, 0.37f, 0.38f)),
                 StrategyProfessionType.Hunter => new ProfessionSnapshot(type, "Hunters", "hunt rabbits", new Color(0.56f, 0.43f, 0.26f)),
                 StrategyProfessionType.Fisher => new ProfessionSnapshot(type, "Fishers", "catch fish near water", new Color(0.32f, 0.54f, 0.63f)),
-                StrategyProfessionType.StorageWorker => new ProfessionSnapshot(type, "Storekeepers", "haul Logs and Stone", new Color(0.58f, 0.49f, 0.37f)),
+                StrategyProfessionType.StorageWorker => new ProfessionSnapshot(type, "Storekeepers", "haul Logs, Stone, and Iron", new Color(0.58f, 0.49f, 0.37f)),
                 StrategyProfessionType.Builder => new ProfessionSnapshot(type, "Builders", "build structures", new Color(0.75f, 0.55f, 0.27f)),
                 StrategyProfessionType.GranaryWorker => new ProfessionSnapshot(type, "Granary Workers", "haul food to the granary", new Color(0.62f, 0.51f, 0.28f)),
                 _ => new ProfessionSnapshot(type, "Profession", string.Empty, Color.white)
@@ -111,6 +123,26 @@ namespace ProjectUnknown.Strategy
                     foreach (StrategyStonecutterCamp camp in FindSorted<StrategyStonecutterCamp>())
                     {
                         if (camp != null && camp.TryAssignNextAvailableWorker(out worker))
+                        {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                case StrategyProfessionType.Miner:
+                    foreach (StrategyMine mine in FindSorted<StrategyMine>())
+                    {
+                        if (mine != null && mine.TryAssignNextAvailableWorker(out worker))
+                        {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                case StrategyProfessionType.CoalMiner:
+                    foreach (StrategyCoalPit pit in FindSorted<StrategyCoalPit>())
+                    {
+                        if (pit != null && pit.TryAssignNextAvailableWorker(out worker))
                         {
                             return true;
                         }
@@ -199,6 +231,28 @@ namespace ProjectUnknown.Strategy
                     }
 
                     return false;
+                case StrategyProfessionType.Miner:
+                    StrategyMine[] mines = FindSorted<StrategyMine>();
+                    for (int i = mines.Length - 1; i >= 0; i--)
+                    {
+                        if (TryRemoveWorker(mines[i], mines[i].WorkerCount, out worker, index => mines[i].UnassignWorkerAt(index)))
+                        {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                case StrategyProfessionType.CoalMiner:
+                    StrategyCoalPit[] coalPits = FindSorted<StrategyCoalPit>();
+                    for (int i = coalPits.Length - 1; i >= 0; i--)
+                    {
+                        if (TryRemoveWorker(coalPits[i], coalPits[i].WorkerCount, out worker, index => coalPits[i].UnassignWorkerAt(index)))
+                        {
+                            return true;
+                        }
+                    }
+
+                    return false;
                 case StrategyProfessionType.Hunter:
                     StrategyHunterCamp[] hunterCamps = FindSorted<StrategyHunterCamp>();
                     for (int i = hunterCamps.Length - 1; i >= 0; i--)
@@ -276,6 +330,12 @@ namespace ProjectUnknown.Strategy
                     break;
                 case StrategyStonecutterCamp camp:
                     camp.TryGetWorker(index, out worker);
+                    break;
+                case StrategyMine mine:
+                    mine.TryGetWorker(index, out worker);
+                    break;
+                case StrategyCoalPit pit:
+                    pit.TryGetWorker(index, out worker);
                     break;
                 case StrategyHunterCamp camp:
                     camp.TryGetWorker(index, out worker);
@@ -383,6 +443,8 @@ namespace ProjectUnknown.Strategy
             {
                 StrategyLumberjackCamp camp => camp.Origin,
                 StrategyStonecutterCamp camp => camp.Origin,
+                StrategyMine mine => mine.Origin,
+                StrategyCoalPit pit => pit.Origin,
                 StrategyHunterCamp camp => camp.Origin,
                 StrategyFisherHut hut => hut.Origin,
                 StrategyStorageYard yard => yard.Origin,
@@ -391,106 +453,5 @@ namespace ProjectUnknown.Strategy
             };
         }
 
-        private void UpdateAnimation(bool instant = false)
-        {
-            float target = isOpen ? 1f : 0f;
-            panelT = instant
-                ? target
-                : Mathf.MoveTowards(panelT, target, Time.unscaledDeltaTime * AnimationSpeed);
-
-            if (panelGroup == null || panelRoot == null)
-            {
-                return;
-            }
-
-            float smooth = Smooth01(panelT);
-            panelGroup.alpha = smooth;
-            panelGroup.interactable = isOpen;
-            panelGroup.blocksRaycasts = isOpen;
-            panelRoot.anchoredPosition = new Vector2(0f, -76f - (1f - smooth) * 18f);
-            panelRoot.gameObject.SetActive(panelT > 0.001f || isOpen);
-        }
-
-        private void HandleManualScroll()
-        {
-            if (!isOpen
-                || professionScroll == null
-                || panelRoot == null
-                || viewportRoot == null
-                || contentRoot == null
-                || Mouse.current == null)
-            {
-                return;
-            }
-
-            Vector2 pointer = Mouse.current.position.ReadValue();
-            if (!RectTransformUtility.RectangleContainsScreenPoint(panelRoot, pointer))
-            {
-                return;
-            }
-
-            float wheel = Mouse.current.scroll.ReadValue().y;
-            if (Mathf.Abs(wheel) <= 0.01f)
-            {
-                return;
-            }
-
-            float overflow = Mathf.Max(0f, contentRoot.rect.height - viewportRoot.rect.height);
-            if (overflow <= 0.01f)
-            {
-                return;
-            }
-
-            float normalizedDelta = wheel * professionScroll.scrollSensitivity / overflow;
-            professionScroll.verticalNormalizedPosition = Mathf.Clamp01(
-                professionScroll.verticalNormalizedPosition + normalizedDelta);
-        }
-
-        private static void EnsureEventSystem()
-        {
-            EventSystem eventSystem = EventSystem.current;
-            if (eventSystem == null)
-            {
-                GameObject eventSystemObject = new GameObject("EventSystem", typeof(EventSystem));
-                eventSystem = eventSystemObject.GetComponent<EventSystem>();
-            }
-
-            StandaloneInputModule standalone = eventSystem.GetComponent<StandaloneInputModule>();
-            if (standalone != null)
-            {
-                UnityEngine.Object.Destroy(standalone);
-            }
-
-            InputSystemUIInputModule inputModule = eventSystem.GetComponent<InputSystemUIInputModule>();
-            if (inputModule == null)
-            {
-                inputModule = eventSystem.gameObject.AddComponent<InputSystemUIInputModule>();
-            }
-
-            if (inputModule.actionsAsset == null)
-            {
-                inputModule.AssignDefaultActions();
-            }
-        }
-
-        private static Text CreateText(string name, Transform parent, string value, int size, TextAnchor anchor, Color color)
-        {
-            RectTransform rect = CreateUiObject(name, parent).GetComponent<RectTransform>();
-            Text text = rect.gameObject.AddComponent<Text>();
-            text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            text.text = value;
-            text.fontSize = size;
-            text.alignment = anchor;
-            text.color = color;
-            text.raycastTarget = false;
-            return text;
-        }
-
-        private static GameObject CreateUiObject(string name, Transform parent)
-        {
-            GameObject go = new GameObject(name, typeof(RectTransform));
-            go.transform.SetParent(parent, false);
-            return go;
-        }
     }
 }

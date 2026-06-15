@@ -13,6 +13,7 @@ namespace ProjectUnknown.Strategy
                 || workplace != null
                 || stoneWorkplace != null
                 || hunterWorkplace != null
+                || mineWorkplace != null
                 || storageWorkplace != null
                 || builderWorkplace != null
                 || granaryWorkplace != null
@@ -26,6 +27,7 @@ namespace ProjectUnknown.Strategy
             CancelStoneWork();
             CancelHunterWork(true);
             CancelFisherWork(true);
+            CancelMineWork();
             CancelStorageWork(true);
             CancelGranaryWork(true);
             fisherWorkplace = hut;
@@ -67,6 +69,7 @@ namespace ProjectUnknown.Strategy
                 || stoneWorkplace != null
                 || hunterWorkplace != null
                 || fisherWorkplace != null
+                || mineWorkplace != null
                 || builderWorkplace != null
                 || granaryWorkplace != null
                 || constructionSite != null
@@ -79,6 +82,7 @@ namespace ProjectUnknown.Strategy
             CancelStoneWork();
             CancelHunterWork(true);
             CancelFisherWork(true);
+            CancelMineWork();
             CancelGranaryWork(true);
             storageWorkplace = yard;
             logisticsWorkCooldown = Random.Range(0.35f, 1.45f);
@@ -119,6 +123,7 @@ namespace ProjectUnknown.Strategy
                 || stoneWorkplace != null
                 || hunterWorkplace != null
                 || fisherWorkplace != null
+                || mineWorkplace != null
                 || storageWorkplace != null
                 || builderWorkplace != null
                 || constructionSite != null
@@ -131,6 +136,7 @@ namespace ProjectUnknown.Strategy
             CancelStoneWork();
             CancelHunterWork(true);
             CancelFisherWork(true);
+            CancelMineWork();
             CancelStorageWork(true);
             CancelGranaryWork(true);
             granaryWorkplace = granary;
@@ -172,6 +178,7 @@ namespace ProjectUnknown.Strategy
                 || stoneWorkplace != null
                 || hunterWorkplace != null
                 || fisherWorkplace != null
+                || mineWorkplace != null
                 || storageWorkplace != null
                 || granaryWorkplace != null
                 || constructionSite != null
@@ -183,6 +190,8 @@ namespace ProjectUnknown.Strategy
             CancelLumberWork();
             CancelStoneWork();
             CancelHunterWork(true);
+            CancelFisherWork(true);
+            CancelMineWork();
             CancelStorageWork(true);
             CancelGranaryWork(true);
             builderWorkplace = yard;

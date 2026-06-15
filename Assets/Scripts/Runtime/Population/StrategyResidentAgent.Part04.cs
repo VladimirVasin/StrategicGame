@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace ProjectUnknown.Strategy
@@ -29,6 +28,11 @@ namespace ProjectUnknown.Strategy
                 ReleaseHomeboundChild();
             }
 
+            if (hiddenUnderground && activity != ResidentActivity.MiningUnderground)
+            {
+                ExitUndergroundAtMineEntrance();
+            }
+
             if (gardenWorkCooldown > 0f)
             {
                 gardenWorkCooldown -= Time.deltaTime;
@@ -42,6 +46,16 @@ namespace ProjectUnknown.Strategy
             if (stoneWorkCooldown > 0f)
             {
                 stoneWorkCooldown -= Time.deltaTime;
+            }
+
+            if (mineWorkCooldown > 0f)
+            {
+                mineWorkCooldown -= Time.deltaTime;
+            }
+
+            if (coalWorkCooldown > 0f)
+            {
+                coalWorkCooldown -= Time.deltaTime;
             }
 
             if (logisticsWorkCooldown > 0f)
@@ -124,6 +138,18 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            if (activity == ResidentActivity.MiningUnderground)
+            {
+                UpdateMiningUnderground();
+                return;
+            }
+
+            if (activity == ResidentActivity.MiningCoalInPit)
+            {
+                UpdateMiningCoalInPit();
+                return;
+            }
+
             if (activity == ResidentActivity.PickingUpStorageLogs)
             {
                 UpdatePickingUpStorageLogs();
@@ -145,6 +171,30 @@ namespace ProjectUnknown.Strategy
             if (activity == ResidentActivity.DepositingStorageStone)
             {
                 UpdateDepositingStorageStone();
+                return;
+            }
+
+            if (activity == ResidentActivity.PickingUpStorageIron)
+            {
+                UpdatePickingUpStorageIron();
+                return;
+            }
+
+            if (activity == ResidentActivity.DepositingStorageIron)
+            {
+                UpdateDepositingStorageIron();
+                return;
+            }
+
+            if (activity == ResidentActivity.PickingUpStorageCoal)
+            {
+                UpdatePickingUpStorageCoal();
+                return;
+            }
+
+            if (activity == ResidentActivity.DepositingStorageCoal)
+            {
+                UpdateDepositingStorageCoal();
                 return;
             }
 
@@ -276,6 +326,16 @@ namespace ProjectUnknown.Strategy
                     return;
                 }
 
+                if (activity == ResidentActivity.ReturningCoalToStorage)
+                {
+                    if (!TryStartCoalReturn("resource_return_retry", true))
+                    {
+                        ScheduleCoalResourceReturnRetry();
+                    }
+
+                    return;
+                }
+
                 if (TryStartHouseholdFoodPickupTask())
                 {
                     return;
@@ -292,6 +352,16 @@ namespace ProjectUnknown.Strategy
                 }
 
                 if (TryStartStoneTask())
+                {
+                    return;
+                }
+
+                if (TryStartMineTask())
+                {
+                    return;
+                }
+
+                if (TryStartCoalPitTask())
                 {
                     return;
                 }
@@ -331,137 +401,7 @@ namespace ProjectUnknown.Strategy
                 pathIndex++;
                 if (pathIndex >= path.Count)
                 {
-                    hasTarget = false;
-                    if (activity == ResidentActivity.MovingToGarden)
-                    {
-                        StartGardenWork();
-                    }
-                    else if (activity == ResidentActivity.MovingToForage)
-                    {
-                        StartGatheringForage();
-                    }
-                    else if (activity == ResidentActivity.MovingToLooseForagePickup)
-                    {
-                        StartPickingUpLooseForage();
-                    }
-                    else if (activity == ResidentActivity.CarryingForage)
-                    {
-                        StartDepositingForage();
-                    }
-                    else if (activity == ResidentActivity.MovingToTree)
-                    {
-                        StartChoppingTree();
-                    }
-                    else if (activity == ResidentActivity.MovingToLogs)
-                    {
-                        StartCollectingLogs();
-                    }
-                    else if (activity == ResidentActivity.CarryingLogs)
-                    {
-                        StartDepositingLogs();
-                    }
-                    else if (activity == ResidentActivity.MovingToStone)
-                    {
-                        StartMiningStone();
-                    }
-                    else if (activity == ResidentActivity.CarryingStone)
-                    {
-                        StartDepositingStone();
-                    }
-                    else if (activity == ResidentActivity.MovingToStoragePickup)
-                    {
-                        StartPickingUpStorageLogs();
-                    }
-                    else if (activity == ResidentActivity.CarryingLogsToStorage)
-                    {
-                        StartDepositingStorageLogs();
-                    }
-                    else if (activity == ResidentActivity.MovingToStorageStonePickup)
-                    {
-                        StartPickingUpStorageStone();
-                    }
-                    else if (activity == ResidentActivity.CarryingStoneToStorage)
-                    {
-                        StartDepositingStorageStone();
-                    }
-                    else if (activity == ResidentActivity.MovingToConstructionStorage)
-                    {
-                        StartPickingUpConstructionResource();
-                    }
-                    else if (activity == ResidentActivity.CarryingConstructionLogs
-                        || activity == ResidentActivity.CarryingConstructionStone)
-                    {
-                        StartDepositingConstructionResource();
-                    }
-                    else if (activity == ResidentActivity.MovingToConstructionSite)
-                    {
-                        StartBuildingConstruction();
-                    }
-                    else if (activity == ResidentActivity.MovingToHuntingRange)
-                    {
-                        StartAimingBow();
-                    }
-                    else if (activity == ResidentActivity.MovingToHuntCarcass)
-                    {
-                        StartButcheringRabbit();
-                    }
-                    else if (activity == ResidentActivity.CarryingGame)
-                    {
-                        StartDepositingGame();
-                    }
-                    else if (activity == ResidentActivity.MovingToFishingSpot)
-                    {
-                        StartCastingFishingLine();
-                    }
-                    else if (activity == ResidentActivity.CarryingFish)
-                    {
-                        StartDepositingFish();
-                    }
-                    else if (activity == ResidentActivity.MovingToGranaryGamePickup)
-                    {
-                        StartPickingUpGranaryGame();
-                    }
-                    else if (activity == ResidentActivity.CarryingGameToGranary)
-                    {
-                        StartDepositingGranaryGame();
-                    }
-                    else if (activity == ResidentActivity.MovingToGranaryFishPickup)
-                    {
-                        StartPickingUpGranaryFish();
-                    }
-                    else if (activity == ResidentActivity.CarryingFishToGranary)
-                    {
-                        StartDepositingGranaryFish();
-                    }
-                    else if (activity == ResidentActivity.MovingToHouseholdFoodPickup)
-                    {
-                        StartPickingUpHouseholdFood();
-                    }
-                    else if (activity == ResidentActivity.CarryingHouseholdFoodHome)
-                    {
-                        StartDepositingHouseholdFood();
-                    }
-                    else if (IsReturningCarriedResourceActivity(activity))
-                    {
-                        CompleteCarriedResourceReturn();
-                    }
-                    else if (activity == ResidentActivity.MovingToPlantTree)
-                    {
-                        StartPlantingTree();
-                    }
-                    else if (IsFuneralMoveActivity(activity))
-                    {
-                        activity = ResidentActivity.WaitingAtFuneral;
-                        funeralTimer = FuneralWaitingAutoReleaseSeconds;
-                        waitTimer = 0f;
-                        UseIdleSprite();
-                    }
-                    else
-                    {
-                        activity = GetRestingActivity();
-                        waitTimer = Random.Range(0.35f, 1.1f);
-                        UseIdleSprite();
-                    }
+                    HandleReachedPathTarget();
                 }
 
                 return;
@@ -485,6 +425,7 @@ namespace ProjectUnknown.Strategy
                 AnimateIdle();
             }
         }
+
         private void LateUpdate()
         {
             UpdateWorldSorting();

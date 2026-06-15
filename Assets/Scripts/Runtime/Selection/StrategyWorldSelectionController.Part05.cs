@@ -484,6 +484,8 @@ namespace ProjectUnknown.Strategy
                 StrategyBuildTool.House => "House",
                 StrategyBuildTool.LumberjackCamp => "Lumberjack Camp",
                 StrategyBuildTool.StonecutterCamp => "Stonecutter Camp",
+                StrategyBuildTool.Mine => "Mine",
+                StrategyBuildTool.CoalPit => "Coal Pit",
                 StrategyBuildTool.HunterCamp => "Hunter Camp",
                 StrategyBuildTool.FisherHut => "Fisher Hut",
                 StrategyBuildTool.StorageYard => "Storage Yard",

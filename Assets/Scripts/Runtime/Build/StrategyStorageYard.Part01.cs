@@ -5,7 +5,6 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyStorageYard
     {
-
         public void ReturnReservedConstructionResource(
             object owner,
             StrategyConstructionResourceKind kind,
@@ -443,11 +442,14 @@ namespace ProjectUnknown.Strategy
             {
                 AddStone(amount);
             }
-        }
-
-        public int GetAmount(StrategyResourceType resource)
-        {
-            return resource == StrategyResourceType.Stone ? stoneStored : 0;
+            else if (resource == StrategyResourceType.Iron)
+            {
+                AddIron(amount);
+            }
+            else if (resource == StrategyResourceType.Coal)
+            {
+                AddCoal(amount);
+            }
         }
 
         public void AddStone(int amount)

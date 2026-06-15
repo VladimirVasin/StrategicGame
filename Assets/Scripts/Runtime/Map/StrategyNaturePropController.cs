@@ -9,6 +9,8 @@ namespace ProjectUnknown.Strategy
         private const int MaxNatureProps = 3600;
         private const int MaxStoneDeposits = 440;
         private const int MinimumStoneDeposits = 112;
+        private const int MaxIronDeposits = 180;
+        private const int MinimumIronDeposits = 48;
         private const int StarterStoneMinimumDeposits = 5;
         private const int StarterStoneMinDistance = 4;
         private const int StarterStoneMaxDistance = StrategyStonecutterCamp.WorkRadius;
@@ -16,11 +18,13 @@ namespace ProjectUnknown.Strategy
         private const int ForestSortingOrder = 3;
         private const int BushSortingOrder = 2;
         private const int StoneSortingOrder = 2;
+        private const int IronSortingOrder = StrategyWorldSorting.WaterOverlayOrder + 1;
 
         private CityMapController map;
         private StrategyWindController wind;
         private StrategyForestryController forestry;
         private StrategyStoneResourceController stone;
+        private StrategyIronResourceController iron;
         private Transform propRoot;
         private Vector2Int excludedCenter;
         private int excludedRadius;
@@ -31,6 +35,9 @@ namespace ProjectUnknown.Strategy
         private int spawnedRockClusters;
         private int spawnedCliffs;
         private int stoneBlockedCells;
+        private int spawnedIronDeposits;
+        private int spawnedIronStainedGround;
+        private int spawnedIronVeins;
 
         public void Configure(CityMapController mapController)
         {
@@ -115,6 +122,8 @@ namespace ProjectUnknown.Strategy
             wind = windController;
             forestry = forestryController;
             stone = stoneController;
+            iron = StrategyIronResourceController.Active;
+            coal = StrategyCoalResourceController.Active;
             excludedCenter = natureExcludedCenter;
             excludedRadius = natureExcludedRadius;
             hasExclusion = useExclusion;
@@ -137,6 +146,12 @@ namespace ProjectUnknown.Strategy
             spawnedRockClusters = 0;
             spawnedCliffs = 0;
             stoneBlockedCells = 0;
+            spawnedIronDeposits = 0;
+            spawnedIronStainedGround = 0;
+            spawnedIronVeins = 0;
+            spawnedCoalDeposits = 0;
+            spawnedCoalDustGround = 0;
+            spawnedCoalSeams = 0;
 
             EnsureStarterStoneDeposits();
 
@@ -156,6 +171,8 @@ namespace ProjectUnknown.Strategy
             }
 
             EnsureMinimumStoneDeposits();
+            EnsureMinimumIronDeposits();
+            EnsureMinimumCoalDeposits();
 
             StrategyDebugLogger.Info(
                 "Nature",
@@ -163,6 +180,8 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("props", spawnedProps),
                 StrategyDebugLogger.F("max", MaxNatureProps),
                 StrategyDebugLogger.F("stoneDeposits", spawnedStoneDeposits),
+                StrategyDebugLogger.F("ironDeposits", spawnedIronDeposits),
+                StrategyDebugLogger.F("coalDeposits", spawnedCoalDeposits),
                 StrategyDebugLogger.F("hasExclusion", hasExclusion),
                 StrategyDebugLogger.F("excludedCenter", hasExclusion ? excludedCenter : Vector2Int.zero),
                 StrategyDebugLogger.F("excludedRadius", hasExclusion ? excludedRadius : 0));
@@ -175,6 +194,20 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("cliffs", spawnedCliffs),
                 StrategyDebugLogger.F("blockedCells", stoneBlockedCells),
                 StrategyDebugLogger.F("max", MaxStoneDeposits));
+            StrategyDebugLogger.Info(
+                "Iron",
+                "Generated",
+                StrategyDebugLogger.F("deposits", spawnedIronDeposits),
+                StrategyDebugLogger.F("stainedGround", spawnedIronStainedGround),
+                StrategyDebugLogger.F("veins", spawnedIronVeins),
+                StrategyDebugLogger.F("max", MaxIronDeposits));
+            StrategyDebugLogger.Info(
+                "Coal",
+                "Generated",
+                StrategyDebugLogger.F("deposits", spawnedCoalDeposits),
+                StrategyDebugLogger.F("dustGround", spawnedCoalDustGround),
+                StrategyDebugLogger.F("seams", spawnedCoalSeams),
+                StrategyDebugLogger.F("max", MaxCoalDeposits));
         }
 
         private void PlaceNatureForCell(CityMapCell cell)
@@ -185,6 +218,16 @@ namespace ProjectUnknown.Strategy
             }
 
             if (TryPlaceStoneForCell(cell))
+            {
+                return;
+            }
+
+            if (TryPlaceIronForCell(cell))
+            {
+                return;
+            }
+
+            if (TryPlaceCoalForCell(cell))
             {
                 return;
             }
@@ -207,83 +250,6 @@ namespace ProjectUnknown.Strategy
                 case CityMapCellKind.Shore:
                     PlaceShoreNature(cell, roll);
                     break;
-            }
-        }
-
-        private void PlaceForestNature(CityMapCell cell, float roll)
-        {
-            int forestNeighbors = CountSameNeighbors(cell.X, cell.Y, CityMapCellKind.Forest);
-            if (forestNeighbors >= 4 && roll < 0.26f)
-            {
-                CreateProp(cell, StrategyNaturePropKind.ForestGroup, 31, 0.88f, 1.08f, ForestSortingOrder);
-                return;
-            }
-
-            if (roll < 0.64f)
-            {
-                CreateProp(cell, StrategyNaturePropKind.LargeTree, 37, 0.86f, 1.16f, TreeSortingOrder);
-                return;
-            }
-
-            if (roll < 0.86f)
-            {
-                CreateProp(cell, StrategyNaturePropKind.SmallTree, 41, 0.82f, 1.12f, TreeSortingOrder);
-                return;
-            }
-
-            if (roll < 0.94f)
-            {
-                CreateProp(cell, StrategyNaturePropKind.Bush, 43, 0.86f, 1.18f, BushSortingOrder);
-            }
-        }
-
-        private void PlaceMeadowNature(CityMapCell cell, float roll)
-        {
-            if (roll < 0.018f)
-            {
-                CreateProp(cell, StrategyNaturePropKind.SmallTree, 53, 0.84f, 1.08f, TreeSortingOrder);
-                return;
-            }
-
-            if (roll < 0.105f)
-            {
-                CreateProp(cell, StrategyNaturePropKind.Bush, 59, 0.78f, 1.08f, BushSortingOrder);
-            }
-        }
-
-        private void PlaceGrassNature(CityMapCell cell, float roll)
-        {
-            if (roll < 0.018f)
-            {
-                CreateProp(cell, StrategyNaturePropKind.LargeTree, 61, 0.84f, 1.04f, TreeSortingOrder);
-                return;
-            }
-
-            if (roll < 0.055f)
-            {
-                CreateProp(cell, StrategyNaturePropKind.SmallTree, 67, 0.80f, 1.04f, TreeSortingOrder);
-                return;
-            }
-
-            if (roll < 0.095f)
-            {
-                CreateProp(cell, StrategyNaturePropKind.Bush, 71, 0.76f, 1.04f, BushSortingOrder);
-            }
-        }
-
-        private void PlaceDirtNature(CityMapCell cell, float roll)
-        {
-            if (roll < 0.022f)
-            {
-                CreateProp(cell, StrategyNaturePropKind.Bush, 73, 0.70f, 0.96f, BushSortingOrder);
-            }
-        }
-
-        private void PlaceShoreNature(CityMapCell cell, float roll)
-        {
-            if (roll < 0.016f)
-            {
-                CreateProp(cell, StrategyNaturePropKind.Bush, 79, 0.66f, 0.92f, BushSortingOrder);
             }
         }
 

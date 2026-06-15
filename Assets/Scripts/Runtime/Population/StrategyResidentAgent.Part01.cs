@@ -5,7 +5,6 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyResidentAgent
     {
-
         public bool TryStartHouseholdForaging(StrategyForageNode node, Vector2Int workCell)
         {
             if (node == null || !node.IsReservedBy(this) || !CanStartHouseholdForagingForHome(home))
@@ -198,12 +197,14 @@ namespace ProjectUnknown.Strategy
             transform.localScale = Vector3.one;
             carriedLogAmount = 0;
             carriedStoneAmount = 0;
+            carriedIronAmount = 0;
             carriedGameAmount = 0;
             carriedFishAmount = 0;
             carriedForageAmount = 0;
             carriedForageResource = StrategyResourceType.None;
             SetCarriedLogsVisible(false);
             SetCarriedStoneVisible(false);
+            SetCarriedIronVisible(false);
             SetCarriedGameVisible(false);
             SetCarriedFishVisible(false);
             SetCarriedForageVisible(false);
@@ -220,12 +221,16 @@ namespace ProjectUnknown.Strategy
         {
             int droppedLogs = carriedLogAmount;
             int droppedStone = carriedStoneAmount;
+            int droppedIron = carriedIronAmount;
+            int droppedCoal = carriedCoalAmount;
             int droppedGame = carriedGameAmount;
             int droppedFish = carriedFishAmount;
             int droppedForage = carriedForageAmount;
             StrategyResourceType droppedForageResource = carriedForageResource;
             if (droppedLogs <= 0
                 && droppedStone <= 0
+                && droppedIron <= 0
+                && droppedCoal <= 0
                 && droppedGame <= 0
                 && droppedFish <= 0
                 && droppedForage <= 0)
@@ -256,6 +261,8 @@ namespace ProjectUnknown.Strategy
 
                 DropLooseCarriedResourceOnDeath(cell, StrategyResourceType.Game, droppedGame);
                 DropLooseCarriedResourceOnDeath(cell, StrategyResourceType.Fish, droppedFish);
+                DropLooseCarriedResourceOnDeath(cell, StrategyResourceType.Iron, droppedIron);
+                DropLooseCarriedResourceOnDeath(cell, StrategyResourceType.Coal, droppedCoal);
                 DropLooseCarriedResourceOnDeath(cell, droppedForageResource, droppedForage);
             }
             else
@@ -266,15 +273,18 @@ namespace ProjectUnknown.Strategy
                     StrategyDebugLogger.F("resident", FullName),
                     StrategyDebugLogger.F("logs", droppedLogs),
                     StrategyDebugLogger.F("stone", droppedStone),
+                    StrategyDebugLogger.F("iron", droppedIron),
+                    StrategyDebugLogger.F("coal", droppedCoal),
                     StrategyDebugLogger.F("game", droppedGame),
                     StrategyDebugLogger.F("fish", droppedFish),
                     StrategyDebugLogger.F("forageResource", droppedForageResource),
                     StrategyDebugLogger.F("forage", droppedForage),
                     StrategyDebugLogger.F("reason", "no_map_cell"));
             }
-
             carriedLogAmount = 0;
             carriedStoneAmount = 0;
+            carriedIronAmount = 0;
+            carriedCoalAmount = 0;
             carriedGameAmount = 0;
             carriedFishAmount = 0;
             carriedForageAmount = 0;
@@ -283,34 +293,12 @@ namespace ProjectUnknown.Strategy
             ClearCarriedConstructionReturnReservation();
             SetCarriedLogsVisible(false);
             SetCarriedStoneVisible(false);
+            SetCarriedIronVisible(false);
+            SetCarriedCoalVisible(false);
             SetCarriedGameVisible(false);
             SetCarriedFishVisible(false);
             SetCarriedForageVisible(false);
         }
-
-        private void DropLooseCarriedResourceOnDeath(Vector2Int cell, StrategyResourceType resource, int amount)
-        {
-            if (resource == StrategyResourceType.None || amount <= 0)
-            {
-                return;
-            }
-
-            StrategyLooseCarriedResourcePile.Create(
-                map,
-                cell,
-                transform.position,
-                resource,
-                amount);
-            StrategyDebugLogger.Warn(
-                "Logistics",
-                "CarriedResourceDroppedOnDeath",
-                StrategyDebugLogger.F("resident", FullName),
-                StrategyDebugLogger.F("origin", cell),
-                StrategyDebugLogger.F("resource", resource),
-                StrategyDebugLogger.F("amount", amount),
-                StrategyDebugLogger.F("reservation", "cleared"));
-        }
-
         public bool TryStartFuneralMove(Vector3 targetWorld, ResidentActivity funeralMoveActivity)
         {
             if (map == null
@@ -370,7 +358,6 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("targetWorld", targetWorld));
             return hasTarget;
         }
-
         public void StartFuneralMourning(float seconds)
         {
             StartTimedFuneralActivity(ResidentActivity.MourningCorpse, seconds);

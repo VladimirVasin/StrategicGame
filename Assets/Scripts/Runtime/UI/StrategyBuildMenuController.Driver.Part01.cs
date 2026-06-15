@@ -454,6 +454,8 @@ namespace ProjectUnknown.Strategy
                 StrategyBuildTool.House => new Vector2Int(2, 2),
                 StrategyBuildTool.LumberjackCamp => new Vector2Int(2, 2),
                 StrategyBuildTool.StonecutterCamp => new Vector2Int(2, 2),
+                StrategyBuildTool.Mine => new Vector2Int(2, 2),
+                StrategyBuildTool.CoalPit => new Vector2Int(2, 2),
                 StrategyBuildTool.HunterCamp => new Vector2Int(2, 2),
                 StrategyBuildTool.FisherHut => new Vector2Int(2, 2),
                 StrategyBuildTool.StorageYard => new Vector2Int(3, 2),

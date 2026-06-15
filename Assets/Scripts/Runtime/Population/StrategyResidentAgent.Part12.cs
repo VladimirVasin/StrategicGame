@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace ProjectUnknown.Strategy
@@ -21,6 +20,7 @@ namespace ProjectUnknown.Strategy
         {
             activeLogSource = null;
             activeStoneSource = null;
+            activeIronSource = null;
             transform.localRotation = Quaternion.identity;
             transform.localScale = Vector3.one;
             UseIdleSprite();
@@ -80,6 +80,7 @@ namespace ProjectUnknown.Strategy
         {
             return carriedLogAmount > 0
                 || carriedStoneAmount > 0
+                || carriedIronAmount > 0
                 || carriedGameAmount > 0
                 || carriedFishAmount > 0;
         }
@@ -226,6 +227,11 @@ namespace ProjectUnknown.Strategy
             if (carriedStoneAmount > 0)
             {
                 return TryStartMaterialReturn(StrategyConstructionResourceKind.Stone, reason);
+            }
+
+            if (carriedIronAmount > 0)
+            {
+                return TryStartIronReturn(reason);
             }
 
             if (carriedGameAmount > 0)
@@ -389,6 +395,13 @@ namespace ProjectUnknown.Strategy
 
                 carriedStoneAmount = 0;
                 SetCarriedStoneVisible(false);
+            }
+            else if (completedActivity == ResidentActivity.ReturningIronToStorage)
+            {
+                if (!CompleteIronResourceReturn(out amount, out resource, out storageOrigin))
+                {
+                    return;
+                }
             }
             else if (completedActivity == ResidentActivity.ReturningGameToGranary)
             {

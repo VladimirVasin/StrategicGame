@@ -13,11 +13,15 @@ namespace ProjectUnknown.Strategy
         private StrategyPopulationController population;
         private SpriteRenderer logsStockRenderer;
         private SpriteRenderer stoneStockRenderer;
+        private SpriteRenderer ironStockRenderer;
+        private SpriteRenderer coalStockRenderer;
         private readonly Dictionary<object, int> constructionLogReservations = new();
         private readonly Dictionary<object, int> constructionStoneReservations = new();
         private readonly Dictionary<StrategyResidentAgent, ConstructionPickupReservation> constructionPickupReservations = new();
         private int logsStored;
         private int stoneStored;
+        private int ironStored;
+        private int coalStored;
 
         public IReadOnlyList<StrategyResidentAgent> Workers => workers;
         public IReadOnlyList<StrategyResidentAgent> Builders => builders;
@@ -25,6 +29,8 @@ namespace ProjectUnknown.Strategy
         public int BuilderCount => builders.Count;
         public int LogsStored => logsStored;
         public int StoneStored => stoneStored;
+        public int IronStored => ironStored;
+        public int CoalStored => coalStored;
         public int AvailableConstructionLogs => Mathf.Max(0, logsStored - CountReservations(constructionLogReservations));
         public int AvailableConstructionStone => Mathf.Max(0, stoneStored - CountReservations(constructionStoneReservations));
         public Vector2Int Origin => building != null ? building.Origin : Vector2Int.zero;

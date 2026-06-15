@@ -297,25 +297,7 @@ namespace ProjectUnknown.Strategy
                     + GetResidentGenderTitle(resident.Gender)
                     + "\n"
                     + "Role: "
-                    + (!resident.IsAdult
-                        ? "child"
-                        : resident.IsHouseholder
-                        ? "householder"
-                        : resident.BuilderWorkplace != null || resident.ConstructionSite != null
-                        ? "builder"
-                        : resident.Workplace != null
-                        ? "lumberjack"
-                        : resident.StoneWorkplace != null
-                            ? "stonecutter"
-                            : resident.HunterWorkplace != null
-                                ? "hunter"
-                                : resident.FisherWorkplace != null
-                                    ? "fisher"
-                                : resident.StorageWorkplace != null
-                                ? "storekeeper"
-                                : resident.GranaryWorkplace != null
-                                ? "granary worker"
-                                : "settler")
+                    + GetResidentRoleTitle(resident)
                     + "\n"
                     + "Age: "
                     + resident.DisplayAgeYears
@@ -360,12 +342,16 @@ namespace ProjectUnknown.Strategy
                 bool isHouse = building.Tool == StrategyBuildTool.House;
                 StrategyLumberjackCamp camp = building.GetComponent<StrategyLumberjackCamp>();
                 StrategyStonecutterCamp stoneCamp = building.GetComponent<StrategyStonecutterCamp>();
+                StrategyMine mine = building.GetComponent<StrategyMine>();
+                StrategyCoalPit coalPit = building.GetComponent<StrategyCoalPit>();
                 StrategyHunterCamp hunterCamp = building.GetComponent<StrategyHunterCamp>();
                 StrategyFisherHut fisherHut = building.GetComponent<StrategyFisherHut>();
                 StrategyStorageYard yard = building.GetComponent<StrategyStorageYard>();
                 StrategyGranary granary = building.GetComponent<StrategyGranary>();
                 bool isLumberjackCamp = camp != null;
                 bool isStonecutterCamp = stoneCamp != null;
+                bool isMine = mine != null;
+                bool isCoalPit = coalPit != null;
                 bool isHunterCamp = hunterCamp != null;
                 bool isFisherHut = fisherHut != null;
                 bool isStorageYard = yard != null;
@@ -377,7 +363,7 @@ namespace ProjectUnknown.Strategy
                 }
 
                 SetWorkersSectionVisible(false);
-                if (isLumberjackCamp || isStonecutterCamp || isHunterCamp || isFisherHut || isStorageYard || isGranary)
+                if (isLumberjackCamp || isStonecutterCamp || isMine || isCoalPit || isHunterCamp || isFisherHut || isStorageYard || isGranary)
                 {
                     LayoutContextSection(128f, 214f);
                 }
@@ -392,6 +378,18 @@ namespace ProjectUnknown.Strategy
                 {
                     hudContextTitleText.text = "Stone and Stock";
                     hudContextBodyText.text = stoneCamp.GetHudStatusText();
+                    SetContextSectionVisible(true);
+                }
+                else if (isMine)
+                {
+                    hudContextTitleText.text = "Iron and Stock";
+                    hudContextBodyText.text = mine.GetHudStatusText();
+                    SetContextSectionVisible(true);
+                }
+                else if (isCoalPit)
+                {
+                    hudContextTitleText.text = "Coal and Stock";
+                    hudContextBodyText.text = coalPit.GetHudStatusText();
                     SetContextSectionVisible(true);
                 }
                 else if (isHunterCamp)

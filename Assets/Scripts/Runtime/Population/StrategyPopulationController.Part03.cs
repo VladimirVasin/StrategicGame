@@ -361,6 +361,16 @@ namespace ProjectUnknown.Strategy
                 return "stonecutter";
             }
 
+            if (resident.MineWorkplace != null)
+            {
+                return "miner";
+            }
+
+            if (resident.CoalPitWorkplace != null)
+            {
+                return "coal miner";
+            }
+
             if (resident.HunterWorkplace != null)
             {
                 return "hunter";

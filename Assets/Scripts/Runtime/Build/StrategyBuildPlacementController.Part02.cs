@@ -1,13 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
-
 namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyBuildPlacementController
     {
-
         private void TryInstallDefaultGardenBeds(StrategyPlacedBuilding building)
         {
             if (building == null || building.Tool != StrategyBuildTool.House || building.HasUpgrade(StrategyBuildingUpgradeType.GardenBeds))
@@ -71,7 +67,8 @@ namespace ProjectUnknown.Strategy
             return CanPlaceFoundation(origin, toolInfo.Footprint)
                 && CanReserveFinalBlock(finalBlockOrigin, finalBlockFootprint)
                 && HasBuilderWorkAccess(origin, toolInfo.Footprint)
-                && (toolInfo.Tool != StrategyBuildTool.FisherHut || HasFishingWaterAccess(origin));
+                && (toolInfo.Tool != StrategyBuildTool.FisherHut || HasFishingWaterAccess(origin))
+                && HasRequiredDepositAccess(toolInfo.Tool, origin, toolInfo.Footprint, out _);
         }
 
         private bool TryGetBridgeCandidate(Vector2Int endCell, out BridgeCandidate bridgeCandidate)
@@ -382,6 +379,11 @@ namespace ProjectUnknown.Strategy
             if (toolInfo.Tool == StrategyBuildTool.FisherHut && !HasFishingWaterAccess(origin))
             {
                 return "no_water_access";
+            }
+
+            if (!HasRequiredDepositAccess(toolInfo.Tool, origin, toolInfo.Footprint, out string depositReason))
+            {
+                return depositReason;
             }
 
             return hasValidHover ? "unknown" : "invalid_hover";

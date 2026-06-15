@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -41,6 +40,18 @@ namespace ProjectUnknown.Strategy
             if (stoneCamp != null)
             {
                 return stoneCamp.GetHudStatusText();
+            }
+
+            StrategyMine mine = building.GetComponent<StrategyMine>();
+            if (mine != null)
+            {
+                return mine.GetHudStatusText();
+            }
+
+            StrategyCoalPit coalPit = building.GetComponent<StrategyCoalPit>();
+            if (coalPit != null)
+            {
+                return coalPit.GetHudStatusText();
             }
 
             StrategyHunterCamp hunterCamp = building.GetComponent<StrategyHunterCamp>();
@@ -97,6 +108,16 @@ namespace ProjectUnknown.Strategy
                 return "stonecutter";
             }
 
+            if (resident.MineWorkplace != null)
+            {
+                return "miner";
+            }
+
+            if (resident.CoalPitWorkplace != null)
+            {
+                return "coal miner";
+            }
+
             if (resident.HunterWorkplace != null)
             {
                 return "hunter";
@@ -147,6 +168,8 @@ namespace ProjectUnknown.Strategy
                 StrategyResourceType.Mushrooms => "Mushrooms",
                 StrategyResourceType.Game => "Game",
                 StrategyResourceType.Fish => "Fish",
+                StrategyResourceType.Iron => "Iron",
+                StrategyResourceType.Coal => "Coal",
                 _ => "none"
             };
         }
@@ -184,10 +207,22 @@ namespace ProjectUnknown.Strategy
                 StrategyResidentAgent.ResidentActivity.MiningStone => "mining Stone",
                 StrategyResidentAgent.ResidentActivity.CarryingStone => "carrying Stone",
                 StrategyResidentAgent.ResidentActivity.DepositingStone => "depositing Stone",
+                StrategyResidentAgent.ResidentActivity.MovingToMine => "going to mine",
+                StrategyResidentAgent.ResidentActivity.MiningUnderground => "working underground",
+                StrategyResidentAgent.ResidentActivity.MovingToCoalPit => "going to coal pit",
+                StrategyResidentAgent.ResidentActivity.MiningCoalInPit => "digging Coal",
                 StrategyResidentAgent.ResidentActivity.MovingToStorageStonePickup => "going for Stone",
                 StrategyResidentAgent.ResidentActivity.PickingUpStorageStone => "picking up Stone",
                 StrategyResidentAgent.ResidentActivity.CarryingStoneToStorage => "hauling Stone to storage",
                 StrategyResidentAgent.ResidentActivity.DepositingStorageStone => "depositing Stone",
+                StrategyResidentAgent.ResidentActivity.MovingToStorageIronPickup => "going for Iron",
+                StrategyResidentAgent.ResidentActivity.PickingUpStorageIron => "picking up Iron",
+                StrategyResidentAgent.ResidentActivity.CarryingIronToStorage => "hauling Iron to storage",
+                StrategyResidentAgent.ResidentActivity.DepositingStorageIron => "depositing Iron",
+                StrategyResidentAgent.ResidentActivity.MovingToStorageCoalPickup => "going for Coal",
+                StrategyResidentAgent.ResidentActivity.PickingUpStorageCoal => "picking up Coal",
+                StrategyResidentAgent.ResidentActivity.CarryingCoalToStorage => "hauling Coal to storage",
+                StrategyResidentAgent.ResidentActivity.DepositingStorageCoal => "depositing Coal",
                 StrategyResidentAgent.ResidentActivity.MovingToConstructionStorage => "going for materials",
                 StrategyResidentAgent.ResidentActivity.PickingUpConstructionLogs => "picking up construction Logs",
                 StrategyResidentAgent.ResidentActivity.PickingUpConstructionStone => "picking up construction Stone",
@@ -223,6 +258,8 @@ namespace ProjectUnknown.Strategy
                 StrategyResidentAgent.ResidentActivity.DepositingHouseholdFood => "storing household food",
                 StrategyResidentAgent.ResidentActivity.ReturningLogsToStorage => "returning Logs to storage",
                 StrategyResidentAgent.ResidentActivity.ReturningStoneToStorage => "returning Stone to storage",
+                StrategyResidentAgent.ResidentActivity.ReturningIronToStorage => "returning Iron to storage",
+                StrategyResidentAgent.ResidentActivity.ReturningCoalToStorage => "returning Coal to storage",
                 StrategyResidentAgent.ResidentActivity.ReturningGameToGranary => "returning Game to granary",
                 StrategyResidentAgent.ResidentActivity.ReturningFishToGranary => "returning Fish to granary",
                 StrategyResidentAgent.ResidentActivity.MovingToFuneral => "going to funeral",
@@ -252,6 +289,16 @@ namespace ProjectUnknown.Strategy
             if (resident.FisherWorkplace != null && resident.Activity == StrategyResidentAgent.ResidentActivity.Idle)
             {
                 return AppendResidentNutritionStatus(resident, "waiting for a bite");
+            }
+
+            if (resident.MineWorkplace != null && resident.Activity == StrategyResidentAgent.ResidentActivity.Idle)
+            {
+                return AppendResidentNutritionStatus(resident, "waiting for Iron");
+            }
+
+            if (resident.CoalPitWorkplace != null && resident.Activity == StrategyResidentAgent.ResidentActivity.Idle)
+            {
+                return AppendResidentNutritionStatus(resident, "waiting for Coal");
             }
 
             if (resident.GranaryWorkplace != null && resident.Activity == StrategyResidentAgent.ResidentActivity.Idle)
@@ -332,165 +379,5 @@ namespace ProjectUnknown.Strategy
                 : "adult";
         }
 
-        private void UpdateSelectionLinks(StrategyPlacedBuilding building)
-        {
-            linkedResidentsScratch.Clear();
-            CollectLinkedResidents(building, linkedResidentsScratch);
-            bool changed = linkedResidents.Count != linkedResidentsScratch.Count;
-            if (!changed)
-            {
-                for (int i = 0; i < linkedResidents.Count; i++)
-                {
-                    if (linkedResidents[i] != linkedResidentsScratch[i])
-                    {
-                        changed = true;
-                        break;
-                    }
-                }
-            }
-
-            if (changed)
-            {
-                linkedResidents.Clear();
-                for (int i = 0; i < linkedResidentsScratch.Count; i++)
-                {
-                    linkedResidents.Add(linkedResidentsScratch[i]);
-                }
-            }
-
-            if (linkedResidents.Count <= 0 || building == null)
-            {
-                HideSelectionLinks();
-                return;
-            }
-
-            EnsureSelectionLinkVisualCount(linkedResidents.Count);
-            Vector3 buildingAnchor = GetSelectionLinkBuildingAnchor(building);
-            int visibleCount = 0;
-            for (int i = 0; i < linkedResidents.Count; i++)
-            {
-                StrategyResidentAgent resident = linkedResidents[i];
-                if (resident == null)
-                {
-                    continue;
-                }
-
-                Vector3 residentAnchor = GetSelectionLinkResidentAnchor(resident);
-                SpriteRenderer marker = linkedResidentMarkers[visibleCount];
-                LineRenderer line = linkedResidentLines[visibleCount];
-                marker.gameObject.SetActive(true);
-                line.gameObject.SetActive(true);
-                marker.transform.position = new Vector3(residentAnchor.x, residentAnchor.y, -0.055f);
-                marker.transform.localScale = GetLinkedResidentMarkerScale(resident);
-                marker.sortingOrder = SelectionLinkSortingOrder + 2;
-                line.SetPosition(0, new Vector3(buildingAnchor.x, buildingAnchor.y, -0.06f));
-                line.SetPosition(1, new Vector3(residentAnchor.x, residentAnchor.y, -0.06f));
-                line.sortingOrder = SelectionLinkSortingOrder;
-                visibleCount++;
-            }
-
-            DisableSelectionLinkVisualsFrom(visibleCount);
-        }
-
-        private void CollectLinkedResidents(StrategyPlacedBuilding building, List<StrategyResidentAgent> results)
-        {
-            if (building == null || results == null)
-            {
-                return;
-            }
-
-            if (building.Tool == StrategyBuildTool.House)
-            {
-                AddResidents(building.Residents, results);
-                return;
-            }
-
-            StrategyLumberjackCamp lumberjackCamp = building.GetComponent<StrategyLumberjackCamp>();
-            if (lumberjackCamp != null)
-            {
-                AddResidents(lumberjackCamp.Workers, results);
-            }
-
-            StrategyStonecutterCamp stonecutterCamp = building.GetComponent<StrategyStonecutterCamp>();
-            if (stonecutterCamp != null)
-            {
-                AddResidents(stonecutterCamp.Workers, results);
-            }
-
-            StrategyHunterCamp hunterCamp = building.GetComponent<StrategyHunterCamp>();
-            if (hunterCamp != null)
-            {
-                AddResidents(hunterCamp.Workers, results);
-            }
-
-            StrategyFisherHut fisherHut = building.GetComponent<StrategyFisherHut>();
-            if (fisherHut != null)
-            {
-                AddResidents(fisherHut.Workers, results);
-            }
-
-            StrategyStorageYard storageYard = building.GetComponent<StrategyStorageYard>();
-            if (storageYard != null)
-            {
-                AddResidents(storageYard.Workers, results);
-                AddResidents(storageYard.Builders, results);
-            }
-
-            StrategyGranary granary = building.GetComponent<StrategyGranary>();
-            if (granary != null)
-            {
-                AddResidents(granary.Workers, results);
-            }
-        }
-
-        private static void AddResidents(IReadOnlyList<StrategyResidentAgent> source, List<StrategyResidentAgent> results)
-        {
-            if (source == null || results == null)
-            {
-                return;
-            }
-
-            for (int i = 0; i < source.Count; i++)
-            {
-                StrategyResidentAgent resident = source[i];
-                if (resident != null && !results.Contains(resident))
-                {
-                    results.Add(resident);
-                }
-            }
-        }
-
-        private Vector3 GetSelectionLinkBuildingAnchor(StrategyPlacedBuilding building)
-        {
-            if (building == null)
-            {
-                return Vector3.zero;
-            }
-
-            if (building.Tool == StrategyBuildTool.House)
-            {
-                return building.HomeAnchor;
-            }
-
-            Bounds bounds = building.SelectionBounds;
-            return new Vector3(bounds.center.x, bounds.min.y + bounds.size.y * 0.18f, -0.06f);
-        }
-
-        private static Vector3 GetSelectionLinkResidentAnchor(StrategyResidentAgent resident)
-        {
-            if (resident == null)
-            {
-                return Vector3.zero;
-            }
-
-            Bounds bounds = resident.SelectionBounds;
-            if (bounds.size.sqrMagnitude > 0.001f)
-            {
-                return new Vector3(bounds.center.x, bounds.min.y + bounds.size.y * 0.10f, -0.06f);
-            }
-
-            Vector3 position = resident.transform.position;
-            return new Vector3(position.x, position.y, -0.06f);
-        }
     }
 }

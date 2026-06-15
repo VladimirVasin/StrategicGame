@@ -27,6 +27,243 @@ namespace ProjectUnknown.Strategy
             }
         }
 
+        private bool TryPlaceIronForCell(CityMapCell cell)
+        {
+            if (iron == null
+                || spawnedProps >= MaxNatureProps
+                || spawnedIronDeposits >= MaxIronDeposits
+                || !IsIronAllowedKind(cell.Kind))
+            {
+                return false;
+            }
+
+            float score = GetIronScore(cell);
+            float roll = Hash01(map.ActiveSeed, cell.X, cell.Y, 2701);
+
+            if (score > 0.80f && roll < GetIronChance(cell.Kind, 0.036f))
+            {
+                Vector2Int veinFootprint = Hash01(map.ActiveSeed, cell.X, cell.Y, 2707) > 0.58f
+                    ? new Vector2Int(2, 1)
+                    : Vector2Int.one;
+                return TryCreateIronDeposit(
+                    cell,
+                    veinFootprint,
+                    StrategyNaturePropKind.IronVein,
+                    StrategyIronDepositKind.IronVein,
+                    2711,
+                    0.88f,
+                    1.08f,
+                    42,
+                    74);
+            }
+
+            if (score > 0.64f && roll < GetIronChance(cell.Kind, 0.075f))
+            {
+                return TryCreateIronDeposit(
+                    cell,
+                    Vector2Int.one,
+                    StrategyNaturePropKind.IronStainedGround,
+                    StrategyIronDepositKind.IronStainedGround,
+                    2719,
+                    0.82f,
+                    1.14f,
+                    18,
+                    36);
+            }
+
+            return false;
+        }
+
+        private bool TryCreateIronDeposit(
+            CityMapCell cell,
+            Vector2Int footprint,
+            StrategyNaturePropKind propKind,
+            StrategyIronDepositKind depositKind,
+            int salt,
+            float minScale,
+            float maxScale,
+            int minIron,
+            int maxIron)
+        {
+            Vector2Int origin = new Vector2Int(cell.X, cell.Y);
+            if (!CanPlaceIronFootprint(origin, footprint))
+            {
+                return false;
+            }
+
+            int variant = Hash(map.ActiveSeed, cell.X, cell.Y, salt, 11) % StrategyNatureSpriteFactory.GetVariantCount(propKind);
+            Vector2 jitter = GetJitter(cell.X, cell.Y, salt) * 0.24f;
+            Bounds bounds = map.GetCellRectWorld(origin, footprint);
+            GameObject prop = new GameObject(depositKind.ToString());
+            prop.transform.SetParent(propRoot, false);
+            prop.transform.position = new Vector3(
+                bounds.center.x + jitter.x * map.CellSize,
+                bounds.center.y + jitter.y * map.CellSize,
+                -0.14f);
+
+            float scale = Mathf.Lerp(minScale, maxScale, Hash01(map.ActiveSeed, cell.X, cell.Y, salt + 17));
+            prop.transform.localScale = Vector3.one * scale;
+
+            SpriteRenderer renderer = prop.AddComponent<SpriteRenderer>();
+            renderer.sprite = StrategyNatureSpriteFactory.GetSprite(propKind, variant);
+            renderer.color = Color.white;
+            renderer.sortingOrder = IronSortingOrder;
+            renderer.flipX = Hash01(map.ActiveSeed, cell.X, cell.Y, salt + 23) > 0.5f;
+
+            int amountRange = Mathf.Max(1, maxIron - minIron + 1);
+            int ironAmount = minIron + (Hash(map.ActiveSeed, cell.X, cell.Y, salt + 31, maxIron) % amountRange);
+            iron.RegisterGeneratedDeposit(prop, origin, footprint, depositKind, ironAmount);
+
+            spawnedProps++;
+            spawnedIronDeposits++;
+            if (depositKind == StrategyIronDepositKind.IronVein)
+            {
+                spawnedIronVeins++;
+            }
+            else
+            {
+                spawnedIronStainedGround++;
+            }
+
+            return true;
+        }
+
+        private bool CanPlaceIronFootprint(Vector2Int origin, Vector2Int footprint)
+        {
+            for (int y = 0; y < footprint.y; y++)
+            {
+                for (int x = 0; x < footprint.x; x++)
+                {
+                    int cellX = origin.x + x;
+                    int cellY = origin.y + y;
+                    if (IsInsideExclusion(cellX, cellY)
+                        || !map.TryGetCell(cellX, cellY, out CityMapCell cell)
+                        || !IsIronAllowedKind(cell.Kind)
+                        || !map.IsCellWalkable(cellX, cellY))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        private void EnsureMinimumIronDeposits()
+        {
+            if (iron == null || spawnedIronDeposits >= MinimumIronDeposits)
+            {
+                return;
+            }
+
+            int attempts = Mathf.Max(256, map.Width * map.Height);
+            for (int i = 0; i < attempts
+                && spawnedIronDeposits < MinimumIronDeposits
+                && spawnedProps < MaxNatureProps
+                && spawnedIronDeposits < MaxIronDeposits; i++)
+            {
+                int x = Hash(map.ActiveSeed, i, 0, 2801, map.Width) % map.Width;
+                int y = Hash(map.ActiveSeed, i, 0, 2807, map.Height) % map.Height;
+                if (!map.TryGetCell(x, y, out CityMapCell cell)
+                    || !IsIronAllowedKind(cell.Kind)
+                    || IsInsideExclusion(x, y)
+                    || !map.IsCellWalkable(x, y))
+                {
+                    continue;
+                }
+
+                float score = GetIronScore(cell);
+                if (score > 0.72f && Hash01(map.ActiveSeed, x, y, 2813) > 0.58f)
+                {
+                    Vector2Int footprint = Hash01(map.ActiveSeed, x, y, 2819) > 0.66f
+                        ? new Vector2Int(2, 1)
+                        : Vector2Int.one;
+                    if (TryCreateIronDeposit(
+                        cell,
+                        footprint,
+                        StrategyNaturePropKind.IronVein,
+                        StrategyIronDepositKind.IronVein,
+                        2827,
+                        0.86f,
+                        1.08f,
+                        38,
+                        68))
+                    {
+                        continue;
+                    }
+                }
+
+                TryCreateIronDeposit(
+                    cell,
+                    Vector2Int.one,
+                    StrategyNaturePropKind.IronStainedGround,
+                    StrategyIronDepositKind.IronStainedGround,
+                    2833,
+                    0.82f,
+                    1.12f,
+                    16,
+                    32);
+            }
+
+            if (spawnedIronDeposits < MinimumIronDeposits)
+            {
+                StrategyDebugLogger.Warn(
+                    "Iron",
+                    "MinimumDepositFallbackShort",
+                    StrategyDebugLogger.F("deposits", spawnedIronDeposits),
+                    StrategyDebugLogger.F("minimum", MinimumIronDeposits),
+                    StrategyDebugLogger.F("attempts", attempts));
+            }
+        }
+
+        private float GetIronScore(CityMapCell cell)
+        {
+            float broad = Mathf.PerlinNoise(
+                map.ActiveSeed * 0.0193f + cell.X * 0.046f,
+                map.ActiveSeed * 0.0217f + cell.Y * 0.046f);
+            float seamNoise = Mathf.PerlinNoise(
+                map.ActiveSeed * 0.0371f + cell.X * 0.128f,
+                map.ActiveSeed * 0.0419f + cell.Y * 0.128f);
+            float seam = Mathf.Abs(seamNoise - 0.5f) * 2f;
+            return Mathf.Clamp01(broad * 0.58f + seam * 0.32f + GetIronTerrainBias(cell.Kind));
+        }
+
+        private static float GetIronChance(CityMapCellKind kind, float baseChance)
+        {
+            float multiplier = kind switch
+            {
+                CityMapCellKind.Dirt => 1.45f,
+                CityMapCellKind.Grass => 1.0f,
+                CityMapCellKind.Meadow => 0.84f,
+                CityMapCellKind.Forest => 0.58f,
+                CityMapCellKind.Shore => 0.36f,
+                _ => 0f
+            };
+            return baseChance * multiplier;
+        }
+
+        private static float GetIronTerrainBias(CityMapCellKind kind)
+        {
+            return kind switch
+            {
+                CityMapCellKind.Dirt => 0.15f,
+                CityMapCellKind.Grass => 0.03f,
+                CityMapCellKind.Meadow => -0.02f,
+                CityMapCellKind.Forest => -0.06f,
+                CityMapCellKind.Shore => -0.12f,
+                _ => -1f
+            };
+        }
+
+        private static bool IsIronAllowedKind(CityMapCellKind kind)
+        {
+            return kind == CityMapCellKind.Grass
+                || kind == CityMapCellKind.Meadow
+                || kind == CityMapCellKind.Forest
+                || kind == CityMapCellKind.Dirt
+                || kind == CityMapCellKind.Shore;
+        }
+
         private static float Hash01(int seed, int x, int y, int salt)
         {
             return Hash(seed, x, y, salt, 0) / (float)int.MaxValue;

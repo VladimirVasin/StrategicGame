@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace ProjectUnknown.Strategy
@@ -281,7 +280,15 @@ namespace ProjectUnknown.Strategy
                 || activity == ResidentActivity.MovingToStorageStonePickup
                 || activity == ResidentActivity.PickingUpStorageStone
                 || activity == ResidentActivity.CarryingStoneToStorage
-                || activity == ResidentActivity.DepositingStorageStone)
+                || activity == ResidentActivity.DepositingStorageStone
+                || activity == ResidentActivity.MovingToStorageIronPickup
+                || activity == ResidentActivity.PickingUpStorageIron
+                || activity == ResidentActivity.CarryingIronToStorage
+                || activity == ResidentActivity.DepositingStorageIron
+                || activity == ResidentActivity.MovingToStorageCoalPickup
+                || activity == ResidentActivity.PickingUpStorageCoal
+                || activity == ResidentActivity.CarryingCoalToStorage
+                || activity == ResidentActivity.DepositingStorageCoal)
             {
                 ResetStorageWorkToIdle(storeCarriedLogs);
             }
@@ -294,6 +301,16 @@ namespace ProjectUnknown.Strategy
             {
                 activeStoneSource.ReleaseStoredStoneReservation(this);
                 activeStoneSource = null;
+            }
+            else if (activeIronSource != null)
+            {
+                activeIronSource.ReleaseStoredIronReservation(this);
+                activeIronSource = null;
+            }
+            else if (activeCoalSource != null)
+            {
+                activeCoalSource.ReleaseStoredCoalReservation(this);
+                activeCoalSource = null;
             }
         }
 

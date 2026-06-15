@@ -83,6 +83,26 @@ namespace ProjectUnknown.Strategy
             stone.Configure(map);
             StrategyDebugLogger.Info("Bootstrap", "StoneResourcesReady");
 
+            StrategyIronResourceController iron = Object.FindAnyObjectByType<StrategyIronResourceController>();
+            if (iron == null)
+            {
+                GameObject ironObject = new GameObject("Strategy Iron Resources");
+                iron = ironObject.AddComponent<StrategyIronResourceController>();
+            }
+
+            iron.Configure(map);
+            StrategyDebugLogger.Info("Bootstrap", "IronResourcesReady");
+
+            StrategyCoalResourceController coal = Object.FindAnyObjectByType<StrategyCoalResourceController>();
+            if (coal == null)
+            {
+                GameObject coalObject = new GameObject("Strategy Coal Resources");
+                coal = coalObject.AddComponent<StrategyCoalResourceController>();
+            }
+
+            coal.Configure(map);
+            StrategyDebugLogger.Info("Bootstrap", "CoalResourcesReady");
+
             Camera mainCamera = Camera.main;
             if (mainCamera == null)
             {

@@ -4,6 +4,8 @@ namespace ProjectUnknown.Strategy
     {
         Lumberjack,
         Stonecutter,
+        Miner,
+        CoalMiner,
         Hunter,
         Fisher,
         StorageWorker,

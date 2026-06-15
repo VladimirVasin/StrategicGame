@@ -14,7 +14,9 @@ namespace ProjectUnknown.Strategy
         Mushrooms,
         Game,
         Fish,
-        Stone
+        Stone,
+        Iron,
+        Coal
     }
 
     public static class StrategyFoodNutrition

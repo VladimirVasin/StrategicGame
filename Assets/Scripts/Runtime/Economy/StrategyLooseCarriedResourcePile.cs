@@ -325,6 +325,8 @@ namespace ProjectUnknown.Strategy
                 StrategyResourceType.Game => "Game",
                 StrategyResourceType.Fish => "Fish",
                 StrategyResourceType.Stone => "Stone",
+                StrategyResourceType.Iron => "Iron",
+                StrategyResourceType.Coal => "Coal",
                 _ => type.ToString()
             };
         }

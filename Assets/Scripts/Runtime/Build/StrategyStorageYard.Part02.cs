@@ -197,6 +197,12 @@ namespace ProjectUnknown.Strategy
                 + "Stone: "
                 + stoneStored
                 + "\n"
+                + "Iron: "
+                + ironStored
+                + "\n"
+                + "Coal: "
+                + coalStored
+                + "\n"
                 + "Sources: "
                 + sourceCount;
         }
@@ -224,6 +230,8 @@ namespace ProjectUnknown.Strategy
                 }
             }
 
+            count += CountAvailableIronSources();
+            count += CountAvailableCoalSources();
             return count;
         }
 
@@ -369,7 +377,7 @@ namespace ProjectUnknown.Strategy
 
         private void EnsureStockRenderer()
         {
-            if (logsStockRenderer != null && stoneStockRenderer != null)
+            if (logsStockRenderer != null && stoneStockRenderer != null && ironStockRenderer != null && coalStockRenderer != null)
             {
                 return;
             }
@@ -390,6 +398,8 @@ namespace ProjectUnknown.Strategy
                 stoneStockRenderer.color = Color.white;
             }
 
+            EnsureIronStockRenderer();
+            EnsureCoalStockRenderer();
             UpdateStockPosition();
         }
 
@@ -408,6 +418,8 @@ namespace ProjectUnknown.Strategy
                 stoneStockRenderer.gameObject.SetActive(stoneStored > 0 && stoneStockRenderer.sprite != null);
             }
 
+            UpdateIronStockVisual();
+            UpdateCoalStockVisual();
             UpdateStockPosition();
         }
 
@@ -434,6 +446,9 @@ namespace ProjectUnknown.Strategy
                 stoneStockRenderer.transform.localScale = Vector3.one;
                 StrategyWorldSorting.Apply(stoneStockRenderer, stoneWorld, 1);
             }
+
+            UpdateIronStockPosition(bounds);
+            UpdateCoalStockPosition(bounds);
         }
 
         private void OnDestroy()

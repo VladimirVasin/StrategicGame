@@ -45,6 +45,8 @@ namespace ProjectUnknown.Strategy
 
             UnassignFromLumberjackCamp(resident);
             UnassignFromStonecutterCamp(resident);
+            UnassignFromMine(resident);
+            UnassignFromCoalPit(resident);
             UnassignFromHunterCamp(resident);
             UnassignFromFisherHut(resident);
             UnassignFromStorageWorkerRole(resident);
@@ -93,6 +95,48 @@ namespace ProjectUnknown.Strategy
             }
 
             resident.ClearStoneWorkplace(camp);
+        }
+
+        private static void UnassignFromMine(StrategyResidentAgent resident)
+        {
+            StrategyMine mine = resident.MineWorkplace;
+            if (mine == null)
+            {
+                return;
+            }
+
+            IReadOnlyList<StrategyResidentAgent> workers = mine.Workers;
+            for (int i = workers.Count - 1; i >= 0; i--)
+            {
+                if (workers[i] == resident)
+                {
+                    mine.UnassignWorkerAt(i);
+                    return;
+                }
+            }
+
+            resident.ClearMineWorkplace(mine);
+        }
+
+        private static void UnassignFromCoalPit(StrategyResidentAgent resident)
+        {
+            StrategyCoalPit pit = resident.CoalPitWorkplace;
+            if (pit == null)
+            {
+                return;
+            }
+
+            IReadOnlyList<StrategyResidentAgent> workers = pit.Workers;
+            for (int i = workers.Count - 1; i >= 0; i--)
+            {
+                if (workers[i] == resident)
+                {
+                    pit.UnassignWorkerAt(i);
+                    return;
+                }
+            }
+
+            resident.ClearCoalPitWorkplace(pit);
         }
 
         private static void UnassignFromHunterCamp(StrategyResidentAgent resident)

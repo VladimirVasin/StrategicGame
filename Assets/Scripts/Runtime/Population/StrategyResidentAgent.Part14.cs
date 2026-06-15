@@ -276,12 +276,16 @@ namespace ProjectUnknown.Strategy
             appliedWorkFrame = -1;
             carriedLogAmount = 0;
             carriedStoneAmount = 0;
+            carriedIronAmount = 0;
+            carriedCoalAmount = 0;
             carriedGameAmount = 0;
             carriedFishAmount = 0;
             carriedForageAmount = 0;
             carriedForageResource = StrategyResourceType.None;
             SetCarriedLogsVisible(false);
             SetCarriedStoneVisible(false);
+            SetCarriedIronVisible(false);
+            SetCarriedCoalVisible(false);
             SetCarriedGameVisible(false);
             SetCarriedFishVisible(false);
             SetCarriedForageVisible(false);
@@ -437,6 +441,8 @@ namespace ProjectUnknown.Strategy
             {
                 SetCarriedLogsVisible(false);
                 SetCarriedStoneVisible(false);
+                SetCarriedIronVisible(false);
+                SetCarriedCoalVisible(false);
                 SetCarriedGameVisible(false);
                 SetCarriedFishVisible(false);
                 SetCarriedForageVisible(false);

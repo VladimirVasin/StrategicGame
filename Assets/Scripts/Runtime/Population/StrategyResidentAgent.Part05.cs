@@ -290,6 +290,16 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
+            if (TryStartStorageIronPickup())
+            {
+                return true;
+            }
+
+            if (TryStartStorageCoalPickup())
+            {
+                return true;
+            }
+
             logisticsWorkCooldown = Random.Range(2.5f, 5.5f);
             return false;
         }

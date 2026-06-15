@@ -11,7 +11,11 @@ namespace ProjectUnknown.Strategy
         ForestGroup,
         Boulder,
         RockCluster,
-        Cliff
+        Cliff,
+        IronStainedGround,
+        IronVein,
+        CoalDustGround,
+        CoalSeam
     }
 
     internal static partial class StrategyNatureSpriteFactory
@@ -32,6 +36,10 @@ namespace ProjectUnknown.Strategy
                 StrategyNaturePropKind.Boulder => 6,
                 StrategyNaturePropKind.RockCluster => 5,
                 StrategyNaturePropKind.Cliff => 4,
+                StrategyNaturePropKind.IronStainedGround => 4,
+                StrategyNaturePropKind.IronVein => 4,
+                StrategyNaturePropKind.CoalDustGround => 4,
+                StrategyNaturePropKind.CoalSeam => 4,
                 _ => 1
             };
         }
@@ -157,6 +165,10 @@ namespace ProjectUnknown.Strategy
                 StrategyNaturePropKind.Boulder => CreateBoulderSprite(variant),
                 StrategyNaturePropKind.RockCluster => CreateRockClusterSprite(variant),
                 StrategyNaturePropKind.Cliff => CreateCliffSprite(variant),
+                StrategyNaturePropKind.IronStainedGround => CreateIronStainedGroundSprite(variant),
+                StrategyNaturePropKind.IronVein => CreateIronVeinSprite(variant),
+                StrategyNaturePropKind.CoalDustGround => CreateCoalDustGroundSprite(variant),
+                StrategyNaturePropKind.CoalSeam => CreateCoalSeamSprite(variant),
                 _ => CreateLargeTreeSprite(variant)
             };
         }
@@ -465,32 +477,5 @@ namespace ProjectUnknown.Strategy
             return Sprite.Create(texture, new Rect(3f, 5f, 28f, 14f), new Vector2(0.5f, 0.35f), TreePixelsPerUnit);
         }
 
-        private static Sprite CreateBoulderSprite(int variant)
-        {
-            Texture2D texture = CreateTexture(44, 34, $"Boulder {variant + 1}");
-            Color outline = Rgb(45, 43, 40);
-            Color shadow = new Color(0f, 0f, 0f, 0.22f);
-            Color stone = GetStoneColor(variant);
-            Color dark = Shift(stone, -0.18f);
-            Color light = Shift(stone, 0.16f);
-
-            FillEllipse(texture, 22, 7, 15, 4, shadow);
-
-            Vector2Int[] back = { P(9, 14), P(19, 25), P(33, 23), P(38, 14), P(29, 8), P(15, 9) };
-            Vector2Int[] face = { P(8, 13), P(13, 22), P(27, 25), P(37, 17), P(31, 9), P(16, 8) };
-            FillPolygon(texture, back, dark);
-            FillPolygon(texture, face, stone);
-            DrawPolygon(texture, back, outline);
-            DrawPolygon(texture, face, outline);
-
-            DrawLine(texture, P(15, 21), P(22, 12), dark);
-            DrawLine(texture, P(23, 24), P(30, 12), dark);
-            DrawLine(texture, P(17, 11), P(29, 10), light);
-            DrawLine(texture, P(12, 15), P(18, 12), light);
-            AddStoneSpeckles(texture, variant, 9, 10, 27, 14, light, dark);
-
-            texture.Apply(false, false);
-            return Sprite.Create(texture, new Rect(4f, 5f, 36f, 25f), new Vector2(0.5f, 0.18f), StonePixelsPerUnit);
-        }
     }
 }

@@ -53,14 +53,14 @@ Confirmed from `Packages/manifest.json`:
 
 ## Implemented Gameplay
 
-- Runtime bootstrap creates the first MVP strategy scene layer on play, including a Unity `WindZone`-backed strategy wind source, runtime weather, and runtime ambience audio.
+- Runtime bootstrap creates the first MVP strategy scene layer on play, including a Unity `WindZone`-backed strategy wind source, runtime Stone/Iron/Coal resource registries, runtime weather, and runtime ambience audio.
 - Runtime rendering includes visual day/night and weather overlays plus shared procedural ground/cast shadows for buildings, construction, nature props, Stone deposits, resource piles, and small ambient agents.
-- Runtime debug logging writes structured gameplay diagnostics to `debug.log`, including bootstrap, audio, map, nature, Stone, build, population, forestry, selection, time-scale, and Unity warning/error events.
+- Runtime debug logging writes structured gameplay diagnostics to `debug.log`, including bootstrap, audio, map, nature, Stone, Iron, Coal, build, population, forestry, selection, time-scale, and Unity warning/error events.
 - A generated 2D city map appears at runtime with randomized seed-driven terrain generation and procedural pixel-art terrain textures.
 - Current terrain generation covers grass, meadow, forest, dirt, shore, and water with randomized rivers/water blobs, clustered land biomes, seeded texture variants, and transition overlays; generated water/shore cells are tagged as River or Lake for technical gameplay distinction, and generated rivers expose a technical flow direction used by river animation and river fish.
-- A runtime nature-props layer places procedural 2.5D trees, forest groups, and bushes over the generated terrain.
+- A runtime nature-props layer places procedural 2.5D trees, forest groups, bushes, Stone deposits, and walkable mineable underground Iron/Coal indicators over the generated terrain.
 - A runtime wildlife layer spawns more numerous compact deer herds distributed over suitable walkable land away from the camp, keeps the first few rabbit groups in a near-camp walkable ring for early hunting while distributing later groups map-wide, spawns compact lake fish shoals on generated lake regions, one-way pass-through river fish along the river current, compact wolf packs away from settlement pressure, and decorative birds across species-appropriate land/water habitats; current wildlife has procedural 2.5D/pixel-art sprites, frame-based ambient/threat/work animations, and reacts to nearby residents without revealing fog or blocking cells. Deer, rabbits, and lake fish have global and per-group reproduction/growth caps; river fish do not reproduce and despawn at the route end; birds are decorative-only, while adult rabbits can be reserved and hunted by Hunter Camp workers for local `Game`, and adult fish can be reserved and caught by Fisher Hut workers for local `Fish`.
-- The nature layer also places procedural Stone resource deposits as standalone boulders, rock clusters, and larger cliffs.
+- The nature layer also places procedural Stone resource deposits as standalone boulders, rock clusters, and larger cliffs, plus mineable underground Iron and Coal indicators as walkable surface stains/seams.
 - Trees, forest groups, and bushes sway through a 2D adapter driven by the Unity `WindZone` values.
 - Forest terrain cells receive dense visual forest props, while grass/meadow/dirt/shore cells can receive sparse standalone trees or bushes.
 - Standalone generated trees are registered as mature forestry trees; planted saplings grow through 3 visual stages.
@@ -70,19 +70,21 @@ Confirmed from `Packages/manifest.json`:
 - Runtime ambience audio loads non-generated forest birds, cicadas, night, rain, wind, and river loops from `Assets/Resources/Audio/Nature`; river ambience is spatial and follows the nearest water to the camera, while rain/wind ambience follows the current weather state.
 - Runtime in-game music loads all AudioClips from `Assets/Resources/Audio/Music` as a random playlist, avoids repeating the same track twice in a row when multiple tracks exist, and pauses/resumes the current clip when the game loses/regains focus.
 - Resident walking now uses non-generated grass footstep clips from `Assets/Resources/Audio/Footsteps/GrassWalk` through quiet spatial AudioSources on residents.
-- Storage Yard is implemented as the first storage/logistics building: it has procedural 2.5D art, uncapped assigned storage workers/builders, local Logs and Stone stock, growing visual stockpiles, resident hauling from production camps, and construction resource reservations.
+- Storage Yard is implemented as the first storage/logistics building: it has procedural 2.5D art, uncapped assigned storage workers/builders, local Logs, Stone, Iron, and Coal stock, growing visual stockpiles, resident hauling from production camps/Mines/Coal Pits, and construction resource reservations.
 - Granary is implemented as the first food-storage/logistics building: it has procedural 2.5D art, up to 2 assigned workers, local `Game` and `Fish` stock, growing visual food stockpiles, and resident hauling from Hunter Camps and Fisher Huts.
 - A starter Storage Yard appears near the campfire with 16 Logs and 12 Stone at the beginning of play.
 - Runtime Build menu appears as the first HUD layer, inspired by the `Gruzovichky` bottom Build dock/category tray.
 - Build menu infrastructure supports category cards, build item cards, Logs/Stone construction costs, active tool state, `B` open/close, numeric hotkeys, and Escape/right-click layer cancel.
-- Current Build catalog has Houses/Home, Industries/Lumberjack Camp, Stonecutter Camp, Hunter Camp, and Fisher Hut, Storage/Storage Yard and Granary, and Infrastructure/Bridge.
-- Build placement mode is implemented for catalog tools: hover preview, valid/invalid placement coloring, left-click construction-site creation, occupied-cell blocking, strict foundation checks, softer future 2.5D blocker reservation, builder-access checks, non-water terrain checks, fog checks, Storage Yard resource affordability, and Bridge's two-click river-bank placement.
+- Current Build catalog has Houses/Home, Industries/Lumberjack Camp, Stonecutter Camp, Hunter Camp, Fisher Hut, Mine, and Coal Pit, Storage/Storage Yard and Granary, and Infrastructure/Bridge.
+- Build placement mode is implemented for catalog tools: hover preview, valid/invalid placement coloring, left-click construction-site creation, occupied-cell blocking, strict foundation checks, softer future 2.5D blocker reservation, builder-access checks, non-water terrain checks, fog checks, Storage Yard resource affordability, Mine/Coal Pit matching-deposit-under-footprint validation, and Bridge's two-click river-bank placement.
 - Player-built tools now construct through runtime construction sites: resources are reserved from Storage Yards, builders carry Logs/Stone to the site, residents animate hammer/build work, staged site sprites progress, and the final building appears only after progress completes.
 - Bridge construction selects one valid river bank cell, highlights opposite-bank candidates across contiguous River water, creates a construction site after the second bank click, and makes the final bridge span walkable across the river without changing river/lake water identity.
 - `House` uses runtime-generated 2.5D pixel-art sprites: a stable default for the menu/preview and 5 random visual variants for placed houses.
 - `Lumberjack Camp` uses runtime-generated 2.5D pixel-art sprites and supports up to 2 assigned resident workers.
 - `Hunter Camp` uses runtime-generated 2.5D pixel-art sprites, supports up to 2 assigned resident workers, and keeps a local visual `Game` stockpile.
 - `Fisher Hut` uses runtime-generated 2.5D pixel-art sprites, requires nearby water/shore access for placement, supports up to 2 assigned resident workers, and keeps a local visual `Fish` stockpile.
+- `Mine` uses runtime-generated 2.5D pixel-art sprites, requires underground Iron under its footprint for placement, supports up to 2 assigned resident workers, hides miners while they work underground, and keeps a local visual Iron stockpile.
+- `Coal Pit` uses runtime-generated 2.5D pixel-art sprites, requires underground Coal under its footprint for placement, supports up to 2 assigned resident workers, keeps coal miners visible while they work inside the pit, and keeps a local visual Coal stockpile.
 - `Granary` uses runtime-generated 2.5D pixel-art sprites, supports up to 2 assigned resident workers, and keeps local visual `Game`/`Fish` stockpiles.
 - A startup camp places an animated procedural campfire and 6 initial residents: 3 men and 3 women, each with a random age from 18 to 30.
 - The startup campfire blocks its own cell while burning, then gradually burns out, disappears, and releases the cell back to walkable.
@@ -103,7 +105,10 @@ Confirmed from `Packages/manifest.json`:
 - Residents assigned to a lumberjack camp walk to nearby mature trees, chop them, buck fallen trunks into Logs, carry Logs to the camp stockpile, then walk to planting cells and plant new saplings.
 - Residents assigned to a hunter camp walk into bow range of reserved adult rabbits, fire animated arrows, butcher carcasses, carry `Game`, and deposit it at the camp stockpile.
 - Residents assigned to a fisher hut walk to nearby shore cells, cast fishing lines toward reserved fish, reel hooked fish in, carry `Fish`, and deposit it at the hut stockpile.
+- Residents assigned to a mine walk to the entrance, become hidden underground during work, mine reserved underground Iron deposits, and deposit Iron at the mine stockpile.
+- Residents assigned to a coal pit walk to the pit entrance, remain visible inside the pit during work, mine reserved underground Coal deposits, and deposit Coal at the pit stockpile.
 - Residents assigned to a granary reserve stored `Game` from Hunter Camps or stored `Fish` from Fisher Huts, carry it to the granary, and deposit it into food stock.
+- Residents assigned to storage yards can reserve Iron from Mines and Coal from Coal Pits, carry it to the Storage Yard, and deposit it into construction-resource storage.
 - Stored Granary `Game`/`Fish` is consumed by households for food before it becomes a broader food economy.
 - Residents assigned to construction sites fetch reserved Logs/Stone from Storage Yards, deliver them to the site, and build with generated hammer animation frames.
 - Lumberjack chopping now uses generated axe-swing sprite frames; impact frames shake/damage the tree, spawn woodchip/leaf effects, final tree hits make the tree fall, and final trunk hits split it into collectable Logs.
@@ -112,6 +117,8 @@ Confirmed from `Packages/manifest.json`:
 - Placed lumberjack camps are clickable, expose worker assignment/removal in the right-side selection HUD, and keep a local visual Logs stockpile.
 - Placed hunter camps are clickable, expose worker assignment/removal in the right-side selection HUD, and show local `Game` stock plus nearby huntable rabbit counts.
 - Placed fisher huts are clickable, expose worker assignment/removal in the right-side selection HUD, and show local `Fish` stock plus nearby catchable fish counts.
+- Placed mines are clickable, expose status/resource context in the right-side selection HUD, and show local Iron stock plus available underground Iron under the mine footprint.
+- Placed coal pits are clickable, expose status/resource context in the right-side selection HUD, and show local Coal stock plus available underground Coal under the pit footprint.
 - Placed granaries are clickable, expose worker assignment/removal in the right-side selection HUD, and show local `Game`/`Fish` stock plus available food-source counts.
 - Selected houses can install Garden Beds and Chicken Coop upgrades from the right-side HUD, spending small Logs/Stone costs from Storage Yard stock.
 - Residents periodically work at their house's Garden Beds with a simple animation.
@@ -121,7 +128,9 @@ Confirmed from `Packages/manifest.json`:
 - Chicken Coop produces Eggs through a cycle-driven timer synchronized with its nest/egg sprite animation.
 - Standalone trees, forest groups, bushes, and fallen trunks block their occupied map cells; forestry trees release their cell back to walkable after Logs are collected.
 - Generated Stone deposits block their occupied map cells and are mined by assigned stonecutter residents.
-- No global economy simulation, save system, or full UI shell is implemented yet; hunter-camp `Game` and fisher-hut `Fish` can be hauled to Granaries, moved into houses by Householders, and consumed by household daily rations, but food remains runtime-local.
+- Generated Iron indicators stay walkable because ore is underground, but Mines built over them can reserve and mine them into local Iron stock.
+- Generated Coal indicators stay walkable because coal is underground, but Coal Pits built over them can reserve and mine them into local Coal stock.
+- No global economy simulation, save system, or full UI shell is implemented yet; hunter-camp `Game` and fisher-hut `Fish` can be hauled to Granaries, moved into houses by Householders, and consumed by household daily rations, while Mine Iron and Coal Pit Coal can be hauled to Storage Yards but are not consumed or used in costs yet.
 
 ## Source Of Truth
 

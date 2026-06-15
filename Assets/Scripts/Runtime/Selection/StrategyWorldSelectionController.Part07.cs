@@ -9,6 +9,179 @@ namespace ProjectUnknown.Strategy
     public sealed partial class StrategyWorldSelectionController
     {
 
+        private void UpdateSelectionLinks(StrategyPlacedBuilding building)
+        {
+            linkedResidentsScratch.Clear();
+            CollectLinkedResidents(building, linkedResidentsScratch);
+            bool changed = linkedResidents.Count != linkedResidentsScratch.Count;
+            if (!changed)
+            {
+                for (int i = 0; i < linkedResidents.Count; i++)
+                {
+                    if (linkedResidents[i] != linkedResidentsScratch[i])
+                    {
+                        changed = true;
+                        break;
+                    }
+                }
+            }
+
+            if (changed)
+            {
+                linkedResidents.Clear();
+                for (int i = 0; i < linkedResidentsScratch.Count; i++)
+                {
+                    linkedResidents.Add(linkedResidentsScratch[i]);
+                }
+            }
+
+            if (linkedResidents.Count <= 0 || building == null)
+            {
+                HideSelectionLinks();
+                return;
+            }
+
+            EnsureSelectionLinkVisualCount(linkedResidents.Count);
+            Vector3 buildingAnchor = GetSelectionLinkBuildingAnchor(building);
+            int visibleCount = 0;
+            for (int i = 0; i < linkedResidents.Count; i++)
+            {
+                StrategyResidentAgent resident = linkedResidents[i];
+                if (resident == null)
+                {
+                    continue;
+                }
+
+                Vector3 residentAnchor = GetSelectionLinkResidentAnchor(resident);
+                SpriteRenderer marker = linkedResidentMarkers[visibleCount];
+                LineRenderer line = linkedResidentLines[visibleCount];
+                marker.gameObject.SetActive(true);
+                line.gameObject.SetActive(true);
+                marker.transform.position = new Vector3(residentAnchor.x, residentAnchor.y, -0.055f);
+                marker.transform.localScale = GetLinkedResidentMarkerScale(resident);
+                marker.sortingOrder = SelectionLinkSortingOrder + 2;
+                line.SetPosition(0, new Vector3(buildingAnchor.x, buildingAnchor.y, -0.06f));
+                line.SetPosition(1, new Vector3(residentAnchor.x, residentAnchor.y, -0.06f));
+                line.sortingOrder = SelectionLinkSortingOrder;
+                visibleCount++;
+            }
+
+            DisableSelectionLinkVisualsFrom(visibleCount);
+        }
+
+        private void CollectLinkedResidents(StrategyPlacedBuilding building, List<StrategyResidentAgent> results)
+        {
+            if (building == null || results == null)
+            {
+                return;
+            }
+
+            if (building.Tool == StrategyBuildTool.House)
+            {
+                AddResidents(building.Residents, results);
+                return;
+            }
+
+            StrategyLumberjackCamp lumberjackCamp = building.GetComponent<StrategyLumberjackCamp>();
+            if (lumberjackCamp != null)
+            {
+                AddResidents(lumberjackCamp.Workers, results);
+            }
+
+            StrategyStonecutterCamp stonecutterCamp = building.GetComponent<StrategyStonecutterCamp>();
+            if (stonecutterCamp != null)
+            {
+                AddResidents(stonecutterCamp.Workers, results);
+            }
+
+            StrategyMine mine = building.GetComponent<StrategyMine>();
+            if (mine != null)
+            {
+                AddResidents(mine.Workers, results);
+            }
+
+            StrategyCoalPit coalPit = building.GetComponent<StrategyCoalPit>();
+            if (coalPit != null)
+            {
+                AddResidents(coalPit.Workers, results);
+            }
+
+            StrategyHunterCamp hunterCamp = building.GetComponent<StrategyHunterCamp>();
+            if (hunterCamp != null)
+            {
+                AddResidents(hunterCamp.Workers, results);
+            }
+
+            StrategyFisherHut fisherHut = building.GetComponent<StrategyFisherHut>();
+            if (fisherHut != null)
+            {
+                AddResidents(fisherHut.Workers, results);
+            }
+
+            StrategyStorageYard storageYard = building.GetComponent<StrategyStorageYard>();
+            if (storageYard != null)
+            {
+                AddResidents(storageYard.Workers, results);
+                AddResidents(storageYard.Builders, results);
+            }
+
+            StrategyGranary granary = building.GetComponent<StrategyGranary>();
+            if (granary != null)
+            {
+                AddResidents(granary.Workers, results);
+            }
+        }
+
+        private static void AddResidents(IReadOnlyList<StrategyResidentAgent> source, List<StrategyResidentAgent> results)
+        {
+            if (source == null || results == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < source.Count; i++)
+            {
+                StrategyResidentAgent resident = source[i];
+                if (resident != null && !results.Contains(resident))
+                {
+                    results.Add(resident);
+                }
+            }
+        }
+
+        private Vector3 GetSelectionLinkBuildingAnchor(StrategyPlacedBuilding building)
+        {
+            if (building == null)
+            {
+                return Vector3.zero;
+            }
+
+            if (building.Tool == StrategyBuildTool.House)
+            {
+                return building.HomeAnchor;
+            }
+
+            Bounds bounds = building.SelectionBounds;
+            return new Vector3(bounds.center.x, bounds.min.y + bounds.size.y * 0.18f, -0.06f);
+        }
+
+        private static Vector3 GetSelectionLinkResidentAnchor(StrategyResidentAgent resident)
+        {
+            if (resident == null)
+            {
+                return Vector3.zero;
+            }
+
+            Bounds bounds = resident.SelectionBounds;
+            if (bounds.size.sqrMagnitude > 0.001f)
+            {
+                return new Vector3(bounds.center.x, bounds.min.y + bounds.size.y * 0.10f, -0.06f);
+            }
+
+            Vector3 position = resident.transform.position;
+            return new Vector3(position.x, position.y, -0.06f);
+        }
+
         private static Vector3 GetLinkedResidentMarkerScale(StrategyResidentAgent resident)
         {
             if (resident == null)

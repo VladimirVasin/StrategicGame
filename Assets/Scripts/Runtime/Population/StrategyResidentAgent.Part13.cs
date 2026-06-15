@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace ProjectUnknown.Strategy
@@ -250,6 +249,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("resident", FullName),
                 StrategyDebugLogger.F("logs", carriedLogAmount),
                 StrategyDebugLogger.F("stone", carriedStoneAmount),
+                StrategyDebugLogger.F("iron", carriedIronAmount),
                 StrategyDebugLogger.F("game", carriedGameAmount),
                 StrategyDebugLogger.F("fish", carriedFishAmount));
         }
@@ -297,33 +297,9 @@ namespace ProjectUnknown.Strategy
 
         private void ResetStorageWorkToIdle(bool storeCarriedLogs = false)
         {
-            if (activeLogSource != null)
-            {
-                activeLogSource.ReleaseStoredLogsReservation(this);
-            }
-
-            if (activeStoneSource != null)
-            {
-                activeStoneSource.ReleaseStoredStoneReservation(this);
-            }
-
-            if (activeLooseLogSource != null)
-            {
-                activeLooseLogSource.ReleaseStorageReservation(this);
-            }
-
-            if (activeLooseStoneSource != null)
-            {
-                activeLooseStoneSource.ReleaseStorageReservation(this);
-            }
-
-            activeLogSource = null;
-            activeStoneSource = null;
-            activeLooseLogSource = null;
-            activeLooseStoneSource = null;
-            if (storeCarriedLogs
-                && (carriedLogAmount > 0 || carriedStoneAmount > 0)
-                && TryStartCarriedResourceReturn("storage_work_cancelled"))
+            ReleaseActiveStorageWorkReservations();
+            ClearActiveStorageSources();
+            if (storeCarriedLogs && TryStartStorageCarriedReturn("storage_work_cancelled"))
             {
                 return;
             }
@@ -334,8 +310,12 @@ namespace ProjectUnknown.Strategy
             UseIdleSprite();
             carriedLogAmount = 0;
             carriedStoneAmount = 0;
+            carriedIronAmount = 0;
+            carriedCoalAmount = 0;
             SetCarriedLogsVisible(false);
             SetCarriedStoneVisible(false);
+            SetCarriedIronVisible(false);
+            SetCarriedCoalVisible(false);
             logisticsWorkCooldown = Random.Range(2.0f, 4.5f);
             waitTimer = Random.Range(0.35f, 0.85f);
         }

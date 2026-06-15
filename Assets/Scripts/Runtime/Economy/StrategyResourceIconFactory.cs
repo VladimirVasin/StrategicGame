@@ -64,6 +64,12 @@ namespace ProjectUnknown.Strategy
                 case StrategyResourceType.Fish:
                     PaintFish(texture);
                     break;
+                case StrategyResourceType.Iron:
+                    PaintIron(texture);
+                    break;
+                case StrategyResourceType.Coal:
+                    PaintCoal(texture);
+                    break;
             }
 
             texture.Apply(false, false);
@@ -288,6 +294,46 @@ namespace ProjectUnknown.Strategy
             FillTriangle(texture, 11, 16, 14, 19, 15, 16, fin);
             SetPixelSafe(texture, 18, 14, outline);
             DrawLine(texture, 15, 16, 18, 10, outline);
+        }
+
+        private static void PaintIron(Texture2D texture)
+        {
+            Color outline = Rgb(47, 39, 35);
+            Color oreDark = Rgb(69, 62, 58);
+            Color ore = Rgb(100, 90, 82);
+            Color rust = Rgb(154, 76, 38);
+            Color rustLight = Rgb(203, 110, 52);
+            Color shine = Rgb(194, 188, 168);
+
+            FillEllipse(texture, 12, 11, 8, 6, outline);
+            FillEllipse(texture, 12, 11, 7, 5, oreDark);
+            FillEllipse(texture, 14, 12, 5, 4, ore);
+            DrawLine(texture, 6, 12, 18, 8, rust);
+            DrawLine(texture, 7, 14, 18, 16, rustLight);
+            FillRect(texture, 9, 9, 3, 2, shine);
+            SetPixelSafe(texture, 16, 11, shine);
+            SetPixelSafe(texture, 13, 15, rustLight);
+            SetPixelSafe(texture, 8, 13, rust);
+        }
+
+        private static void PaintCoal(Texture2D texture)
+        {
+            Color outline = Rgb(22, 24, 27);
+            Color coalDark = Rgb(34, 38, 42);
+            Color coal = Rgb(52, 57, 61);
+            Color blue = Rgb(73, 86, 96);
+            Color shine = Rgb(132, 148, 154);
+
+            FillEllipse(texture, 12, 11, 8, 6, outline);
+            FillEllipse(texture, 12, 11, 7, 5, coalDark);
+            FillEllipse(texture, 14, 12, 5, 4, coal);
+            FillTriangle(texture, 7, 11, 12, 6, 17, 12, blue);
+            FillTriangle(texture, 8, 14, 13, 10, 19, 15, coal);
+            DrawLine(texture, 7, 15, 17, 7, outline);
+            FillRect(texture, 10, 9, 3, 2, shine);
+            SetPixelSafe(texture, 16, 12, shine);
+            SetPixelSafe(texture, 13, 15, blue);
+            SetPixelSafe(texture, 8, 13, coalDark);
         }
 
         private static void FillRect(Texture2D texture, int x, int y, int width, int height, Color color)

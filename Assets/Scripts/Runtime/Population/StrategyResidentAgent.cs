@@ -126,10 +126,22 @@ namespace ProjectUnknown.Strategy
             MiningStone,
             CarryingStone,
             DepositingStone,
+            MovingToMine,
+            MiningUnderground,
+            MovingToCoalPit,
+            MiningCoalInPit,
             MovingToStorageStonePickup,
             PickingUpStorageStone,
             CarryingStoneToStorage,
             DepositingStorageStone,
+            MovingToStorageIronPickup,
+            PickingUpStorageIron,
+            CarryingIronToStorage,
+            DepositingStorageIron,
+            MovingToStorageCoalPickup,
+            PickingUpStorageCoal,
+            CarryingCoalToStorage,
+            DepositingStorageCoal,
             MovingToConstructionStorage,
             PickingUpConstructionLogs,
             PickingUpConstructionStone,
@@ -165,6 +177,8 @@ namespace ProjectUnknown.Strategy
             DepositingHouseholdFood,
             ReturningLogsToStorage,
             ReturningStoneToStorage,
+            ReturningIronToStorage,
+            ReturningCoalToStorage,
             ReturningGameToGranary,
             ReturningFishToGranary,
             MovingToFuneral,
@@ -183,6 +197,7 @@ namespace ProjectUnknown.Strategy
         private StrategyStonecutterCamp stoneWorkplace;
         private StrategyHunterCamp hunterWorkplace;
         private StrategyFisherHut fisherWorkplace;
+        private StrategyMine mineWorkplace;
         private StrategyStorageYard storageWorkplace;
         private StrategyStorageYard builderWorkplace;
         private StrategyGranary granaryWorkplace;
@@ -199,6 +214,7 @@ namespace ProjectUnknown.Strategy
         private SpriteRenderer shadowRenderer;
         private SpriteRenderer carriedLogsRenderer;
         private SpriteRenderer carriedStoneRenderer;
+        private SpriteRenderer carriedIronRenderer;
         private SpriteRenderer carriedGameRenderer;
         private SpriteRenderer carriedFishRenderer;
         private SpriteRenderer carriedForageRenderer;
@@ -216,6 +232,9 @@ namespace ProjectUnknown.Strategy
         private StrategyStoneDeposit activeStoneDeposit;
         private StrategyStonecutterCamp activeStoneSource;
         private StrategyLooseConstructionResourcePile activeLooseStoneSource;
+        private StrategyMine activeMine;
+        private StrategyIronDeposit activeIronDeposit;
+        private StrategyMine activeIronSource;
         private StrategyHunterCamp activeGameSource;
         private StrategyFisherHut activeFishSource;
         private StrategyLooseCarriedResourcePile activeLooseFoodSource;
@@ -236,6 +255,8 @@ namespace ProjectUnknown.Strategy
         private float lumberWorkCooldown;
         private float lumberWorkTimer;
         private float stoneWorkCooldown;
+        private float mineWorkCooldown;
+        private float mineWorkTimer;
         private float logisticsWorkCooldown;
         private float huntingWorkCooldown;
         private float fishingWorkCooldown;
@@ -256,6 +277,7 @@ namespace ProjectUnknown.Strategy
         private int lastNutritionDayIndex = -1;
         private int carriedLogAmount;
         private int carriedStoneAmount;
+        private int carriedIronAmount;
         private int carriedGameAmount;
         private int carriedFishAmount;
         private StrategyResourceType carriedHouseholdFoodResource = StrategyResourceType.None;
@@ -273,6 +295,7 @@ namespace ProjectUnknown.Strategy
         private bool fishingLineCast;
         private bool deathRequested;
         private bool hiddenInsideHome;
+        private bool hiddenUnderground;
         private bool returnCarriedResourcesImmediately;
 
         public StrategyPlacedBuilding Home => home;
@@ -280,6 +303,7 @@ namespace ProjectUnknown.Strategy
         public StrategyStonecutterCamp StoneWorkplace => stoneWorkplace;
         public StrategyHunterCamp HunterWorkplace => hunterWorkplace;
         public StrategyFisherHut FisherWorkplace => fisherWorkplace;
+        public StrategyMine MineWorkplace => mineWorkplace;
         public StrategyStorageYard StorageWorkplace => storageWorkplace;
         public StrategyStorageYard BuilderWorkplace => builderWorkplace;
         public StrategyGranary GranaryWorkplace => granaryWorkplace;
@@ -290,6 +314,8 @@ namespace ProjectUnknown.Strategy
             || stoneWorkplace != null
             || hunterWorkplace != null
             || fisherWorkplace != null
+            || mineWorkplace != null
+            || coalPitWorkplace != null
             || storageWorkplace != null
             || builderWorkplace != null
             || granaryWorkplace != null;

@@ -443,6 +443,16 @@ namespace ProjectUnknown.Strategy
                 StrategyStonecutterCamp camp = placed.AddComponent<StrategyStonecutterCamp>();
                 camp.Configure(building, map, stone, population);
             }
+            else if (toolInfo.Tool == StrategyBuildTool.Mine)
+            {
+                StrategyMine mine = placed.AddComponent<StrategyMine>();
+                mine.Configure(building, map, StrategyIronResourceController.Active, population);
+            }
+            else if (toolInfo.Tool == StrategyBuildTool.CoalPit)
+            {
+                StrategyCoalPit pit = placed.AddComponent<StrategyCoalPit>();
+                pit.Configure(building, map, StrategyCoalResourceController.Active, population);
+            }
             else if (toolInfo.Tool == StrategyBuildTool.HunterCamp)
             {
                 StrategyHunterCamp camp = placed.AddComponent<StrategyHunterCamp>();

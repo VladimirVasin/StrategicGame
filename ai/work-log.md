@@ -8,6 +8,36 @@ Last updated: 2026-06-15
 
 ## Done
 
+### 2026-06-15 - Coal Pit mining and Coal logistics
+
+- Added player-buildable `Coal Pit` under Production with procedural 2.5D art, 2x2 footprint, Coal-under-footprint placement validation, and completed-building `StrategyCoalPit` worksite setup.
+- Added `Coal Miner` as a Profession HUD role; assigned coal miners enter the pit, remain visible inside the pit while working, mine reserved underground Coal deposits, and add Coal to the pit's local stock.
+- Storage Yard workers now reserve Coal from Coal Pits, haul it to Storage Yards, and Storage Yard HUD/visual stockpiles include Coal alongside Logs, Stone, and Iron.
+- Tightened Mine placement/extraction to require an available underground Iron deposit under the Mine footprint, matching the Coal Pit deposit rule.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; `.cs` line-count scan found no files over 500 lines; `git diff --check` passed.
+
+### 2026-06-15 - Coal resource groundwork
+
+- Added `Coal` as a technical `StrategyResourceType` with a generated HUD/resource icon, but did not connect it to food, construction costs, storage, logistics, worker production, or Mine behavior.
+- Added runtime Coal resource registry/deposit components and generated walkable underground Coal indicators as dark dust ground and coal seam markings during nature generation.
+- Coal deposits are inspectable and registered technically, but are explicitly not mineable yet and do not block walkability.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; `.cs` line-count scan found no files over 500 lines; `git diff --check` passed.
+
+### 2026-06-15 - Mine building and Miner profession
+
+- Added player-buildable `Mine` under Production with procedural 2.5D art, 2x2 footprint, Iron-access placement validation, and completed-building `StrategyMine` worksite setup.
+- Added `Miner` as a Profession HUD role; assigned miners enter the mine, become hidden underground while working, mine reserved underground Iron deposits, and add Iron to the mine's local stock.
+- Storage Yard workers now reserve Iron from Mines, haul it to Storage Yards, and Storage Yard HUD/visual stockpiles include Iron alongside Logs and Stone.
+- Selection HUD, resident final-profession cleanup, death/drop cleanup, carried Iron visuals, and `.csproj` entries were updated for Mine/Miner/Iron logistics.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; `.cs` line-count scan found no files over 500 lines; `git diff --check` passed.
+
+### 2026-06-15 - Iron resource groundwork
+
+- Added `Iron` as a technical `StrategyResourceType` with a generated HUD/resource icon, but did not connect it to food, construction costs, storage, logistics, or worker production.
+- Added runtime Iron resource registry/deposit components and generated walkable underground Iron indicators as rust-stained ground and shallow vein markings during nature generation.
+- Iron deposits are inspectable and registered technically, but are explicitly not mineable yet and do not block walkability.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; `.cs` line-count scan found no files over 500 lines.
+
 ### 2026-06-15 - C# 500-line rule recorded
 
 - Added the ongoing 500-line hard limit for `.cs` source files to `AGENTS.md`, `ai/README.md`, and `ai/prompt-templates.md`.

@@ -51,6 +51,7 @@ namespace ProjectUnknown.Strategy
             Color32 leaf = new Color32(91, 144, 76, 255);
             Color32 water = new Color32(72, 142, 171, 255);
             Color32 amber = new Color32(222, 173, 74, 255);
+            Color32 rust = new Color32(177, 82, 39, 255);
 
             switch (type)
             {
@@ -65,6 +66,22 @@ namespace ProjectUnknown.Strategy
                     DrawLine(texture, 10, 23, 22, 10, wood, 2);
                     DrawLine(texture, 9, 9, 25, 13, darkMetal, 3);
                     DrawLine(texture, 10, 8, 24, 12, metal, 2);
+                    break;
+                case StrategyProfessionType.Miner:
+                    DrawLine(texture, 9, 24, 21, 11, shadow, 3);
+                    DrawLine(texture, 9, 24, 21, 11, wood, 2);
+                    DrawLine(texture, 8, 10, 25, 13, darkMetal, 3);
+                    DrawLine(texture, 9, 9, 24, 12, metal, 2);
+                    FillRect(texture, 19, 18, 7, 5, rust);
+                    FillRect(texture, 22, 17, 3, 2, metal);
+                    break;
+                case StrategyProfessionType.CoalMiner:
+                    DrawLine(texture, 9, 24, 21, 11, shadow, 3);
+                    DrawLine(texture, 9, 24, 21, 11, wood, 2);
+                    DrawLine(texture, 8, 10, 25, 13, darkMetal, 3);
+                    DrawLine(texture, 9, 9, 24, 12, metal, 2);
+                    FillRect(texture, 18, 18, 9, 6, new Color32(28, 32, 35, 255));
+                    FillRect(texture, 22, 17, 3, 2, new Color32(104, 118, 124, 255));
                     break;
                 case StrategyProfessionType.Hunter:
                     DrawArc(texture, 10, 16, 9, new Color32(126, 82, 43, 255));
