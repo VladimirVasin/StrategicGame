@@ -13,6 +13,9 @@ debug.log
 # Unity cache/crash output
 MemoryCaptures/
 Recordings/
+/Assets/_Recovery/
+/Assets/_Recovery.meta
+/.unity-recovery-backup/
 *.pidb
 *.booproj
 *.svd

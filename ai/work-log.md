@@ -8,6 +8,12 @@ Last updated: 2026-06-16
 
 ## Done
 
+### 2026-06-16 - Unity recovery import guard
+
+- Moved the untracked `Assets/_Recovery` scene recovery folder out of `Assets` into a local ignored backup folder so Unity stops importing the stale recovery scene as a project asset.
+- Added ignore rules for Unity `_Recovery` artifacts under `Assets` and the local `.unity-recovery-backup` folder.
+- Investigation note: `Editor.log` showed `Assets/_Recovery/0.unity` imports before `Internal error - unexpected guid mismatch`, and no duplicate `.meta` GUIDs were found under `Assets`.
+
 ### 2026-06-16 - Wolf path refresh movement fix
 
 - Fixed wolves visually stalling during stalking by removing the current-cell center from rebuilt path waypoints, so frequent target refreshes no longer pull the wolf back to its own cell center.
