@@ -1,6 +1,6 @@
 # Systems Map
 
-Last updated: 2026-06-13
+Last updated: 2026-06-15
 
 Use this file as the first navigation pass before broad searches. Owner cards are starting points, not hard boundaries.
 
@@ -92,6 +92,7 @@ Responsibilities:
 - Configure water/shore animation after map generation.
 - Create/configure the Stone resource registry before nature generation.
 - Configure nature props after the starter camp exists so generated props can avoid the campfire clear radius.
+- Create/configure forage resource nodes after nature generation so they use current walkability.
 - Configure fog of war after population, placement, and map controllers exist.
 - Place the starter Storage Yard near the campfire with initial Logs and Stone after placement is configured.
 - Create/configure runtime wildlife after starter placement so deer/rabbits use valid land and fish use valid water cells.
@@ -116,6 +117,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Map/StrategyFogOfWarController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyWaterAnimationController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyStoneResourceController.cs`
+- `Assets/Scripts/Runtime/Map/StrategyForageResourceController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyWindController.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.cs`
 - `Assets/Scripts/Runtime/Population/StrategyRefugeeArrivalController.cs`
@@ -230,6 +232,7 @@ Responsibilities:
 - Render animated water waves, sparkles, shoreline foam, and weather-driven rain ripple hits as a transparent overlay.
 - Feed generated cell kinds and active seed into the visual nature-props layer.
 - Feed generated land cells and active seed into Stone deposit generation.
+- Feed generated walkable land cells and active seed into forage resource node generation.
 - Provide the campfire exclusion center used by nature generation to guarantee starter-area Stone.
 - Expose map bounds and cell buildability for future zoning/economy systems.
 - Track dynamic walkability blockers for placed buildings and early agents.
@@ -246,6 +249,9 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Map/StrategyNatureSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Map/StrategyStoneResourceController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyStoneDeposit.cs`
+- `Assets/Scripts/Runtime/Map/StrategyForageResourceController.cs`
+- `Assets/Scripts/Runtime/Map/StrategyForageNode.cs`
+- `Assets/Scripts/Runtime/Map/StrategyForageSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Map/StrategyForestryController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyForestryTree.cs`
 - `Assembly-CSharp.csproj`
@@ -259,6 +265,7 @@ Impact hints:
 - Terrain kind generation now uses a seed-derived profile plus multi-octave noise; texture painting consumes the active seed.
 - Nature prop placement consumes the active seed and generated cell kinds.
 - Stone deposit placement consumes the active seed and generated cell kinds.
+- Forage placement consumes the active seed, generated cell kinds, and current walkability; forage nodes are non-blocking but reserved/depleted/regrown by household foragers.
 - Generated standalone tree props register as mature forestry trees and block their cells.
 - Forest groups and bushes remain non-interactive but block their cells.
 - Generated Stone deposits register as Boulder, Rock Cluster, or Cliff resource deposits and block their cells.
@@ -373,40 +380,47 @@ Impact hints:
 
 Responsibilities:
 
-- Spawn ambient deer herds on suitable walkable land away from the starter camp.
-- Spawn ambient rabbit groups on suitable walkable land in a near-camp ring, not directly on the starter camp.
-- Spawn lake fish on suitable generated lake regions with strict per-lake population caps.
+- Spawn more numerous compact ambient deer herds on suitable walkable land away from the starter camp.
+- Spawn compact ambient rabbit groups on suitable walkable land, keeping the first few groups in a near-camp ring and distributing later groups map-wide.
+- Spawn compact lake fish shoals on suitable generated lake regions with strict per-shoal and per-lake population caps.
 - Spawn one-way pass-through river fish along the generated river current through a single timer.
 - Spawn decorative birds on species-appropriate land/water cells without reproduction or resources.
+- Spawn compact wolf packs on safe walkable land away from the startup camp and dense settlement pressure.
 - Provide adult-rabbit reservation/count lookup for hunter camps.
 - Provide catchable-fish reservation/count lookup for fisher huts.
+- Provide wolf predator reservation hooks for rabbits/deer and vulnerable far-from-settlement adult residents.
 - Generate and cache runtime 2.5D pixel-art deer sprites for male bucks and female does.
 - Generate and cache runtime 2.5D pixel-art rabbit sprites for male and female visuals.
 - Generate and cache runtime pixel-art fish sprites for Minnow, Carp, and Perch visuals.
 - Generate and cache runtime 2.5D pixel-art bird sprites for Sparrow, Crow, and Duck visuals.
+- Generate and cache runtime 2.5D pixel-art wolf sprites for pack members.
 - Animate deer idle breathing, walking, grazing, alert stance, fleeing/running, and resting.
 - Animate rabbits idle movement, hopping, nibbling, alert stance, fleeing, grooming, and resting.
 - Animate hunted rabbits through arrow hit, death, carcass, and butchering-ready states.
 - Animate fish idle swimming, swimming, dart/flee, turning, feeding, hooked/reeling, and surface ripples.
 - Animate birds idle movement, pecking, hopping, flying, landing, duck swimming, and flight shadows.
+- Animate wolves through idle, roaming, stalking, chasing, attacking, feeding, avoiding-settlement, resting, and howling states.
 - Keep deer on local walkable-cell paths inside loose herd/home ranges without blocking map cells.
 - Keep rabbits on local walkable-cell paths inside loose group/home ranges without blocking map cells.
 - Keep lake fish on local lake-water paths inside loose shoal/home ranges without blocking map cells.
 - Keep river fish on the generated river route until they despawn at the route end.
 - Keep birds on local habitat choices inside loose home ranges without blocking map cells.
+- Periodically migrate deer herds, rabbit groups, wolf packs, decorative bird homes, and lake fish shoals by retargeting their loose home centers toward new suitable habitat.
+- Keep land wildlife migration away from dense settlement pressure and advance it only through short connected walkable steps so herds/packs do not jump through water or blockers.
 - React to nearby residents and noisy work by switching to alert/flee states.
 - Let adult does reproduce when an adult buck is nearby in the same herd.
 - Spawn fawns that grow into adults after scaled simulation time.
-- Keep deer reproduction under the hard 20-deer runtime population cap.
+- Keep deer reproduction under the hard 24-deer runtime population cap and the 3-deer per-herd cap.
 - Let adult female rabbits reproduce when an adult male is nearby in the same group.
 - Spawn kits that grow into adults after scaled simulation time.
-- Keep rabbit reproduction under the hard 36-rabbit runtime population cap.
+- Keep rabbit reproduction under the hard 30-rabbit runtime population cap and the 3-rabbit per-group cap.
 - Let hunter camps reserve adult rabbits, stop their normal behavior during the shot sequence, and yield `Game` after butchering.
 - Let adult lake fish reproduce when another adult of the same species is nearby in the same shoal.
 - Spawn fry that grow into adults after scaled simulation time.
-- Keep fish reproduction under the hard 60-fish runtime population cap and the stricter per-lake region cap.
+- Keep fish reproduction under the hard 36-fish runtime population cap, the 3-fish per-shoal cap, and the stricter per-lake region cap.
 - Keep river fish non-reproductive and controlled by the active river-fish cap.
 - Let fisher huts reserve adult fish, hold them during the hook/reel sequence, and yield local `Fish`.
+- Let wolves hunt rabbits/deer and threaten adult residents only when the target is outside the settlement safety pressure.
 
 Primary files/assets:
 
@@ -415,6 +429,8 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Wildlife/StrategyDeerSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyRabbitAgent.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyRabbitSpriteFactory.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyWolfAgent.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyWolfSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Build/StrategyHunterCamp.cs`
 - `Assets/Scripts/Runtime/Build/StrategyFisherHut.cs`
 - `Assets/Scripts/Runtime/Population/StrategyHuntingArrowProjectile.cs`
@@ -431,14 +447,16 @@ Primary files/assets:
 Impact hints:
 
 - Wildlife is runtime-only and not saved yet.
-- Deer and birds do not reveal fog, block walkability, or provide resources yet; rabbits can yield `Game` through the hunter-camp work loop, and fish can yield `Fish` through the fisher-hut work loop.
-- Initial rabbit spawn depends on the starter camp cell and should remain close enough for early hunter-camp use.
+- Deer and birds do not reveal fog, block walkability, or provide resources yet; rabbits can yield `Game` through the hunter-camp work loop, fish can yield `Fish` through the fisher-hut work loop, and wolves are predators rather than player-harvestable resources.
+- Initial rabbit spawn depends on the starter camp cell; keep the first few groups close enough for early hunter-camp use, but keep later groups map-wide so rabbits do not collapse into one starter-area cluster.
 - Deer pathing depends on `CityMapController.IsCellWalkable` and should stay local/cheap until a shared pathfinding service exists.
 - Rabbit pathing uses the same local walkable-cell approach and should stay cheap until a shared pathfinding service exists.
 - Fish pathing uses `CityMapCellKind.Water` plus `CityMapWaterKind` instead of `IsCellWalkable`, because water is intentionally not walkable for land agents and lake/river fish now have separate movement rules.
-- Reproduction is owned by `StrategyWildlifeController`; deer/rabbit/fish agents own species or sex, life stage, growth, movement, and animation state. Birds are decorative and do not reproduce yet.
+- Migration state is owned by `StrategyWildlifeController`; agents only expose small retarget methods for their current home/roam center and should keep per-frame movement local.
+- Reproduction is owned by `StrategyWildlifeController`; deer/rabbit/fish agents own species or sex, life stage, growth, movement, and animation state. Birds are decorative and do not reproduce yet; wolves do not reproduce yet and use pack spawn only.
+- Wolf settlement avoidance is pressure-based and reads camp position, placed buildings, and nearby residents; keep it cheaper than per-frame global scans by using the controller cache.
 - `FishLakeBirthBlocked` debug logging is throttled per lake region; keep cap checks cheap and avoid per-fish spam when a lake is full.
-- Future deer hunting, leather, predators, broader mortality, or animal HUD should extend this subsystem instead of adding animal behavior into population or nature-prop code.
+- Future deer hunting, leather, broader predator ecology, wolf HUD, or animal saving should extend this subsystem instead of adding animal behavior into population or nature-prop code.
 
 ### Stone Resources MVP
 
@@ -468,7 +486,7 @@ Impact hints:
 
 - Stone deposits are runtime-only and are not saved yet.
 - Nature generation guarantees at least 5 Stone deposits within `StrategyStonecutterCamp.WorkRadius` of the startup campfire when the campfire cell is known.
-- Stone production currently flows from deposits to `StrategyStonecutterCamp` local stock, then optionally to `StrategyStorageYard` via storage workers.
+- Stone production currently flows from deposits to `StrategyStonecutterCamp` local stock, then either to `StrategyStorageYard` via storage workers or directly to construction builders when a site has reserved camp Stone.
 - Stone deposit walkability is footprint-based and should be respected by placement and resident pathing through `CityMapController.IsCellWalkable`.
 - Future quarries or richer Stone production should extend this registry instead of scanning visual sprites directly.
 
@@ -549,7 +567,7 @@ Primary files/assets:
 
 Impact hints:
 
-- The public `StrategyBuildMenuController` component is a thin wrapper; `StrategyBuildMenuControllerDriver` owns selected active build tool data and reads Storage Yard construction resources for affordability.
+- The public `StrategyBuildMenuController` component is a thin wrapper; `StrategyBuildMenuControllerDriver` owns selected active build tool data and reads `StrategyStorageYard.GetTotalConstructionResources()` for affordability, including Storage Yard stock, loose piles, and Stonecutter Camp Stone.
 - Placement reads `StrategyBuildMenuController.ActiveTool` / active tool info.
 - Current catalog has user-requested buildings only: `House`, `Lumberjack Camp`, `Stonecutter Camp`, `Hunter Camp`, `Fisher Hut`, `Storage Yard`, and `Granary`; do not add more without a user request.
 - Current `Housing` category directly activates `House` because it has one item.
@@ -654,7 +672,7 @@ Responsibilities:
 - Choose random fisher hut visual variants for placed huts while keeping menu/preview art stable.
 - Choose random granary visual variants for placed granaries while keeping menu/preview art stable.
 - Add ambient smoke/window-light overlays to placed houses.
-- Reserve construction Logs/Stone from Storage Yards before accepting a construction site.
+- Reserve construction Logs/Stone from Storage Yards before accepting a construction site, with Stonecutter Camp stock as a Stone fallback source.
 - Mark occupied cells when construction sites are accepted.
 - Support Bridge as a special two-click placement tool: select one valid river bank, highlight opposite-bank candidates across contiguous River water, then create a construction site from the selected span.
 - Create runtime placed-building records with selected visual variant data after construction completes.
@@ -771,6 +789,7 @@ Responsibilities:
 - Store resource counts locally on placed houses.
 - Generate runtime pixel-art resource icons for HUD display.
 - Provide resource display ordering for the selected-house HUD.
+- Include house-local forage food in household food availability and consumption.
 - Provide shared HUD icon support for non-house stock resources such as hunted `Game` and caught `Fish`.
 
 Primary files/assets:
@@ -780,14 +799,19 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Economy/StrategyResourceIconFactory.cs`
 - `Assets/Scripts/Runtime/Build/StrategyPlacedBuilding.cs`
 - `Assets/Scripts/Runtime/Build/StrategyBuildingUpgrade.cs`
+- `Assets/Scripts/Runtime/Population/StrategyHouseholdForagingState.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.cs`
+- `Assets/Scripts/Runtime/Map/StrategyForageResourceController.cs`
+- `Assets/Scripts/Runtime/Map/StrategyForageNode.cs`
+- `Assets/Scripts/Runtime/Map/StrategyForageSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.cs`
 - `Assembly-CSharp.csproj`
 
 Impact hints:
 
 - Current resources are house-local runtime counts, not global economy inventory.
-- Current resource sources are Garden Beds harvest ticks and Chicken Coop passive egg production.
+- Current resource sources are Garden Beds harvest ticks, Chicken Coop passive egg production, and household foraging of Berries/Roots/Mushrooms.
+- Household foraging is home labor, not a profession HUD assignment; householders are excluded and children younger than 7 do not forage.
 - Eggs and crops are edible house-local food consumed by the owning household before Granary food.
 - `Game` and `Fish` are currently local production-building/Granary stock resources with shared HUD icons, not house-local resources.
 - Future trade, taxes, storage caps, spoilage, and needs should decide whether house stores remain local or feed into a settlement-level resource service.
@@ -806,7 +830,7 @@ Responsibilities:
 - Reserve Logs/Stone for accepted construction sites.
 - Include loose construction resource piles in construction affordability and reservations.
 - Provide reserved construction resource pickup cells for builders.
-- Provide a shared construction resource source path so builders can pick up from Storage Yards or loose construction resource piles.
+- Provide a shared construction resource source path so builders can pick up from Storage Yards, loose construction resource piles, or Stonecutter Camp Stone reservations.
 - Dispatch hired builders to waiting construction sites.
 - Route storage workers to source camps, pick up Logs, carry them to storage, and deposit them.
 - Route storage workers to stonecutter camps, pick up Stone, carry it to storage, and deposit it.
@@ -836,8 +860,8 @@ Impact hints:
 
 - Storage workers reserve camp Logs/Stone before walking to prevent multiple haulers from targeting the same stock.
 - Storage worker and builder staffing has no per-yard slot limit; construction sites still cap their active visible builder crew at 2.
-- Construction resources are reserved against Storage Yard stock at site creation, then physically removed when builders pick them up.
-- Construction resources can also be reserved against loose construction resource piles created by cancelled sites.
+- Construction resources are reserved against Storage Yard stock, loose construction resource piles, and Stonecutter Camp Stone fallback stock at site creation, then physically removed when builders pick them up.
+- Stonecutter Camp construction reservations are separate from storage-worker haul reservations so builders and haulers do not double-claim camp Stone.
 - Builders also create a per-builder pickup claim after a path to the pickup cell is found; cancelled work releases that claim while the construction-site reservation remains intact.
 - Residents currently support one active workplace: lumberjack camp, stonecutter camp, hunter camp, fisher hut, storage logistics, or storage builder crew.
 - Storage is runtime-only and does not yet feed a global economy, save data, or consumption loop.
@@ -894,6 +918,7 @@ Responsibilities:
 - Track placed house records for household migration checks.
 - Attach household birth state to occupied houses.
 - Attach household food state to occupied houses.
+- Attach household foraging state to house buildings.
 - Assign the oldest adult female resident in each house as `Householder` and move her into home-duty work.
 - Check close kinship through resident parent/ancestor links for future family/couple rules.
 - Populate completed houses from the homeless adult male/female pool when possible, even if those residents already have workplaces or construction assignments.
@@ -921,6 +946,7 @@ Responsibilities:
 - Accept refugee families into the normal resident registry or destroy rejected temporary families after they leave the map.
 - Drive simple idle movement around the current camp/home through short walkable grid paths.
 - Periodically send Householders from `TendingHousehold` home duty to work at their home's default Garden Beds upgrade.
+- Periodically send non-householder, unemployed adults and older children to nearby forage nodes during daytime, then carry Berries/Roots/Mushrooms back to their own house.
 - Boost the Garden Beds growth cycle when garden work completes.
 - Assign residents to lumberjack camps as workplace targets.
 - Route assigned lumberjacks to mature trees, chopping work, fallen-trunk bucking, Logs pickup, camp stock deposit, planting cells, and sapling planting.
@@ -967,6 +993,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyRefugeeArrivalController.cs`
 - `Assets/Scripts/Runtime/Population/StrategyHouseholdState.cs`
 - `Assets/Scripts/Runtime/Population/StrategyHouseholdFoodState.cs`
+- `Assets/Scripts/Runtime/Population/StrategyHouseholdForagingState.cs`
 - `Assets/Scripts/Runtime/Population/StrategyKinshipUtility.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.cs`
 - `Assets/Scripts/Runtime/Build/StrategyLumberjackCamp.cs`
@@ -980,6 +1007,9 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Map/StrategyForestryTree.cs`
 - `Assets/Scripts/Runtime/Map/StrategyStoneDeposit.cs`
 - `Assets/Scripts/Runtime/Map/StrategyStonecutEffectAnimator.cs`
+- `Assets/Scripts/Runtime/Map/StrategyForageResourceController.cs`
+- `Assets/Scripts/Runtime/Map/StrategyForageNode.cs`
+- `Assets/Scripts/Runtime/Map/StrategyForageSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyRabbitAgent.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyFishAgent.cs`
@@ -1017,6 +1047,7 @@ Impact hints:
 - `StrategyHouseholdState` lives on occupied houses and owns the randomized birth timer.
 - `StrategyHouseholdState` blocks births while the same house is starving.
 - `StrategyHouseholdFoodState` lives on occupied houses, has an initial/no-supply grace path, consumes house-local Eggs/crops before `Game`/`Fish` from Granaries after the food chain activates, and exposes the starvation multiplier used by resident mortality.
+- `StrategyHouseholdForagingState` lives on house buildings and dispatches only unassigned non-householder residents; it should remain separate from the Profession HUD/worksite assignment model.
 - `StrategyPlacedBuilding` owns the current Householder reference for houses, preferring the oldest adult female resident and refreshing on home changes, death/unregister, and resident adulthood.
 - `StrategyResidentAgent.HasWorkplace` includes the Householder role, so profession assignment should treat householders as occupied home workers.
 - Householder assignment clears external worksite/builder roles through their owning worksite APIs and uses `TendingHousehold` instead of `Idle` for home duty.
@@ -1055,7 +1086,10 @@ Responsibilities:
 - Ignore left-click selection in unexplored fog cells unless player fog is toggled off.
 - Ignore world selection while the pointer is over UI.
 - Show a simple marker under the selected world object.
+- Show dynamic linked-resident markers/lines when a completed building is selected while keeping the HUD focused on the clicked object.
 - Show a compact full-height right-side selection HUD for the selected object.
+- Show a separate bottom-right world inspect microHUD for clicked resources, nature props, wildlife, and selected-object context.
+- Resolve inspect information through `IStrategyWorldInspectable` and visible sprite bounds for non-selectable world objects; empty terrain cells do not open the microHUD.
 - Show selected-object preview sprites and status/context blocks.
 - Expose house-specific visual upgrade actions in the selected-house HUD.
 - Show selected-house resident portraits/names/age/life stage/statuses up to house capacity, including the Householder marker, compact upgrade action rows, resource icons/counts, and Garden Beds crop.
@@ -1069,6 +1103,10 @@ Responsibilities:
 Primary files/assets:
 
 - `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.cs`
+- `Assets/Scripts/Runtime/Selection/IStrategyWorldInspectable.cs`
+- `Assets/Scripts/Runtime/Selection/StrategyWorldInspectInfo.cs`
+- `Assets/Scripts/Runtime/Selection/StrategyWorldInspectHudController.cs`
+- `Assets/Scripts/Runtime/Selection/StrategyStaticWorldInspectable.cs`
 - `Assets/Scripts/Runtime/UI/StrategyConfirmationDialogController.cs`
 - `Assets/Scripts/Runtime/Build/StrategyPlacedBuilding.cs`
 - `Assets/Scripts/Runtime/Build/StrategyBuildingUpgradeController.cs`
@@ -1096,6 +1134,9 @@ Impact hints:
 - Selection ignores the same frame that completed placement so the new building is not auto-selected by the placement click.
 - Selection consults fog exploration state before checking 2D world colliders.
 - Selection HUD is runtime-created in the world selection controller and slides in from the right.
+- World inspect microHUD is runtime-created by the selection controller, uses non-blocking Screen Space Overlay UI, and shifts left while the right-side selected-object HUD is open.
+- Non-selectable world objects should implement `IStrategyWorldInspectable`; do not add mass click-only physics colliders for inspect objects unless they are also truly selectable.
+- Building selection links are visual-only world overlays: Houses use `StrategyPlacedBuilding.Residents`; worksites use their assigned worker lists; Storage Yards include both storage workers and builders.
 - House resident rows use the assigned resident references stored on `StrategyPlacedBuilding` and grow to the current house capacity.
 - Worksite context uses references/counts stored on the selected worksite component, but player assignment/removal is owned by the Profession HUD.
 - Construction site context uses cost/progress/builder data stored on `StrategyConstructionSite`.

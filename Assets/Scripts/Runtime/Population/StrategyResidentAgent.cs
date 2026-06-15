@@ -44,6 +44,10 @@ namespace ProjectUnknown.Strategy
         private const float HuntingDepositSecondsMax = 1.05f;
         private const float FishingDepositSecondsMin = 0.65f;
         private const float FishingDepositSecondsMax = 1.05f;
+        private const float ForageGatherSecondsMin = 2.0f;
+        private const float ForageGatherSecondsMax = 3.8f;
+        private const float ForageDepositSecondsMin = 0.45f;
+        private const float ForageDepositSecondsMax = 0.85f;
         private const float WalkAnimationFrameRate = 12f;
         private const float WoodcutAnimationFrameRate = 11.5f;
         private const float StonecutAnimationFrameRate = 10.5f;
@@ -55,6 +59,7 @@ namespace ProjectUnknown.Strategy
         private const float SecondsPerYear = 100f;
         private const int AdultAgeYears = 16;
         private const int HomeboundChildAgeYears = 3;
+        private const int ForagingChildMinimumAge = 7;
         private const int WoodcutImpactFrame = 5;
         private const int StonecutImpactFrame = 5;
         private const int ConstructionImpactFrame = 6;
@@ -87,6 +92,12 @@ namespace ProjectUnknown.Strategy
             LeavingSettlement,
             MovingToGarden,
             WorkingGarden,
+            MovingToForage,
+            GatheringForage,
+            MovingToLooseForagePickup,
+            PickingUpLooseForage,
+            CarryingForage,
+            DepositingForage,
             MovingToTree,
             ChoppingTree,
             BuckingTree,
@@ -174,12 +185,15 @@ namespace ProjectUnknown.Strategy
         private SpriteRenderer carriedStoneRenderer;
         private SpriteRenderer carriedGameRenderer;
         private SpriteRenderer carriedFishRenderer;
+        private SpriteRenderer carriedForageRenderer;
         private SpriteRenderer fishingLineRenderer;
         private SpriteRenderer fishingBobberRenderer;
         private StrategyResidentFootstepAudio footstepAudio;
         private readonly List<Vector3> path = new();
         private ResidentActivity activity;
         private StrategyBuildingUpgrade activeGarden;
+        private StrategyForageNode activeForageNode;
+        private StrategyLooseCarriedResourcePile activeLooseForageSource;
         private StrategyForestryTree activeTree;
         private StrategyLumberjackCamp activeLogSource;
         private StrategyLooseConstructionResourcePile activeLooseLogSource;
@@ -188,6 +202,7 @@ namespace ProjectUnknown.Strategy
         private StrategyLooseConstructionResourcePile activeLooseStoneSource;
         private StrategyHunterCamp activeGameSource;
         private StrategyFisherHut activeFishSource;
+        private StrategyLooseCarriedResourcePile activeLooseFoodSource;
         private StrategyRabbitAgent activeHuntTarget;
         private StrategyFishAgent activeFishTarget;
         private StrategyConstructionResourceKind activeConstructionResource;
@@ -210,6 +225,7 @@ namespace ProjectUnknown.Strategy
         private float huntingWorkTimer;
         private float fishingWorkTimer;
         private float fishingBiteTimer;
+        private float forageWorkTimer;
         private float funeralTimer;
         private float walkFrameTimer;
         private float workFrameTimer;
@@ -223,6 +239,8 @@ namespace ProjectUnknown.Strategy
         private int carriedStoneAmount;
         private int carriedGameAmount;
         private int carriedFishAmount;
+        private StrategyResourceType carriedForageResource = StrategyResourceType.None;
+        private int carriedForageAmount;
         private int constructionPickupPathFailures;
         private float ageYears = AdultAgeYears;
         private bool hasTarget;
@@ -258,7 +276,8 @@ namespace ProjectUnknown.Strategy
         public bool IsAdult => lifeStage == StrategyResidentLifeStage.Adult;
         public bool CanWork => IsAdult && !IsPendingRefugee;
         public bool IsFuneralDutyActive => IsFuneralActivity(activity);
-        public bool CanAcceptWorkAssignment => CanWork && !IsFuneralDutyActive;
+        public bool IsHouseholdForaging => IsForagingActivity(activity);
+        public bool CanAcceptWorkAssignment => CanWork && !IsFuneralDutyActive && !IsHouseholdForaging;
         public bool IsHomeboundYoungChild => lifeStage == StrategyResidentLifeStage.Child
             && ageYears < HomeboundChildAgeYears
             && home != null
@@ -281,6 +300,127 @@ namespace ProjectUnknown.Strategy
         public Bounds SelectionBounds => spriteRenderer != null
             ? spriteRenderer.bounds
             : new Bounds(transform.position, new Vector3(0.55f, 0.75f, 0f));
+
+        public bool CanStartHouseholdForagingForHome(StrategyPlacedBuilding targetHome)
+        {
+            return targetHome != null
+                && home == targetHome
+                && targetHome.Tool == StrategyBuildTool.House
+                && !deathRequested
+                && !IsPendingRefugee
+                && !IsHouseholder
+                && !HasExternalWorkplace
+                && constructionSite == null
+                && !IsFuneralDutyActive
+                && !hiddenInsideHome
+                && !IsHomeboundYoungChild
+                && (IsAdult || ageYears >= ForagingChildMinimumAge)
+                && activity == ResidentActivity.Idle
+                && !hasTarget
+                && activeForageNode == null
+                && activeLooseForageSource == null
+                && carriedForageAmount <= 0;
+        }
+
+        public bool TryStartHouseholdForaging(StrategyForageNode node, Vector2Int workCell)
+        {
+            if (node == null || !node.IsReservedBy(this) || !CanStartHouseholdForagingForHome(home))
+            {
+                return false;
+            }
+
+            activeForageNode = node;
+            carriedForageResource = StrategyResourceType.None;
+            carriedForageAmount = 0;
+            SetCarriedForageVisible(false);
+            activeGarden = null;
+            activity = ResidentActivity.MovingToForage;
+            if (TryBuildPathTo(workCell))
+            {
+                hasTarget = true;
+                waitTimer = Random.Range(0.04f, 0.18f);
+                transform.localRotation = Quaternion.identity;
+                transform.localScale = Vector3.one;
+                UseIdleSprite();
+                StrategyDebugLogger.Info(
+                    "Forage",
+                    "ResidentForageStarted",
+                    StrategyDebugLogger.F("resident", FullName),
+                    StrategyDebugLogger.F("homeOrigin", home != null ? home.Origin : Vector2Int.zero),
+                    StrategyDebugLogger.F("resource", node.ResourceType),
+                    StrategyDebugLogger.F("nodeCell", node.Cell));
+                return true;
+            }
+
+            node.Release(this);
+            activeForageNode = null;
+            activity = ResidentActivity.Idle;
+            waitTimer = Random.Range(0.35f, 0.85f);
+            StrategyDebugLogger.Warn(
+                "Forage",
+                "ResidentForagePathRejected",
+                StrategyDebugLogger.F("resident", FullName),
+                StrategyDebugLogger.F("resource", node.ResourceType),
+                StrategyDebugLogger.F("nodeCell", node.Cell),
+                StrategyDebugLogger.F("workCell", workCell));
+            return false;
+        }
+
+        public bool TryStartHouseholdLooseForagePickup(
+            StrategyLooseCarriedResourcePile pile,
+            Vector2Int pickupCell)
+        {
+            if (pile == null || !pile.IsReservedBy(this) || !CanStartHouseholdForagingForHome(home))
+            {
+                return false;
+            }
+
+            StrategyResourceType resource = pile.Resource;
+            if (resource != StrategyResourceType.Berries
+                && resource != StrategyResourceType.Roots
+                && resource != StrategyResourceType.Mushrooms)
+            {
+                return false;
+            }
+
+            activeLooseForageSource = pile;
+            activeForageNode = null;
+            carriedForageResource = StrategyResourceType.None;
+            carriedForageAmount = 0;
+            SetCarriedForageVisible(false);
+            activeGarden = null;
+            activity = ResidentActivity.MovingToLooseForagePickup;
+            if (TryBuildPathTo(pickupCell))
+            {
+                hasTarget = true;
+                waitTimer = Random.Range(0.04f, 0.18f);
+                transform.localRotation = Quaternion.identity;
+                transform.localScale = Vector3.one;
+                UseIdleSprite();
+                StrategyDebugLogger.Info(
+                    "Forage",
+                    "ResidentLooseForagePickupStarted",
+                    StrategyDebugLogger.F("resident", FullName),
+                    StrategyDebugLogger.F("homeOrigin", home != null ? home.Origin : Vector2Int.zero),
+                    StrategyDebugLogger.F("resource", resource),
+                    StrategyDebugLogger.F("pileOrigin", pile.Origin),
+                    StrategyDebugLogger.F("pickupCell", pickupCell));
+                return true;
+            }
+
+            pile.ReleaseReservation(this);
+            activeLooseForageSource = null;
+            activity = ResidentActivity.Idle;
+            waitTimer = Random.Range(0.35f, 0.85f);
+            StrategyDebugLogger.Warn(
+                "Forage",
+                "ResidentLooseForagePathRejected",
+                StrategyDebugLogger.F("resident", FullName),
+                StrategyDebugLogger.F("resource", resource),
+                StrategyDebugLogger.F("pileOrigin", pile.Origin),
+                StrategyDebugLogger.F("pickupCell", pickupCell));
+            return false;
+        }
 
         public void Configure(
             CityMapController mapController,
@@ -353,6 +493,7 @@ namespace ProjectUnknown.Strategy
             }
 
             deathRequested = true;
+            DropCarriedResourcesOnDeath();
             ClearConstructionSite(null);
             CancelLumberWork();
             CancelStoneWork();
@@ -360,6 +501,7 @@ namespace ProjectUnknown.Strategy
             CancelGranaryWork(true);
             CancelHunterWork(true);
             CancelFisherWork(true);
+            CancelForageWork(false);
             activeGarden = null;
             home?.UnregisterResident(this);
             home = null;
@@ -373,10 +515,13 @@ namespace ProjectUnknown.Strategy
             carriedStoneAmount = 0;
             carriedGameAmount = 0;
             carriedFishAmount = 0;
+            carriedForageAmount = 0;
+            carriedForageResource = StrategyResourceType.None;
             SetCarriedLogsVisible(false);
             SetCarriedStoneVisible(false);
             SetCarriedGameVisible(false);
             SetCarriedFishVisible(false);
+            SetCarriedForageVisible(false);
             SetFishingLineVisible(false);
 
             Collider2D[] colliders = GetComponents<Collider2D>();
@@ -384,6 +529,101 @@ namespace ProjectUnknown.Strategy
             {
                 colliders[i].enabled = false;
             }
+        }
+
+        private void DropCarriedResourcesOnDeath()
+        {
+            int droppedLogs = carriedLogAmount;
+            int droppedStone = carriedStoneAmount;
+            int droppedGame = carriedGameAmount;
+            int droppedFish = carriedFishAmount;
+            int droppedForage = carriedForageAmount;
+            StrategyResourceType droppedForageResource = carriedForageResource;
+            if (droppedLogs <= 0
+                && droppedStone <= 0
+                && droppedGame <= 0
+                && droppedFish <= 0
+                && droppedForage <= 0)
+            {
+                ClearCarriedConstructionReturnReservation();
+                return;
+            }
+
+            if (map != null && map.TryWorldToCell(transform.position, out Vector2Int cell))
+            {
+                if (droppedLogs > 0 || droppedStone > 0)
+                {
+                    StrategyLooseConstructionResourcePile.Create(
+                        map,
+                        cell,
+                        transform.position,
+                        droppedLogs,
+                        droppedStone);
+                    StrategyDebugLogger.Warn(
+                        "Construction",
+                        "CarriedConstructionResourcesDroppedOnDeath",
+                        StrategyDebugLogger.F("resident", FullName),
+                        StrategyDebugLogger.F("origin", cell),
+                        StrategyDebugLogger.F("logs", droppedLogs),
+                        StrategyDebugLogger.F("stone", droppedStone),
+                        StrategyDebugLogger.F("reservation", "cleared"));
+                }
+
+                DropLooseCarriedResourceOnDeath(cell, StrategyResourceType.Game, droppedGame);
+                DropLooseCarriedResourceOnDeath(cell, StrategyResourceType.Fish, droppedFish);
+                DropLooseCarriedResourceOnDeath(cell, droppedForageResource, droppedForage);
+            }
+            else
+            {
+                StrategyDebugLogger.Warn(
+                    "Logistics",
+                    "CarriedResourcesLostOnDeath",
+                    StrategyDebugLogger.F("resident", FullName),
+                    StrategyDebugLogger.F("logs", droppedLogs),
+                    StrategyDebugLogger.F("stone", droppedStone),
+                    StrategyDebugLogger.F("game", droppedGame),
+                    StrategyDebugLogger.F("fish", droppedFish),
+                    StrategyDebugLogger.F("forageResource", droppedForageResource),
+                    StrategyDebugLogger.F("forage", droppedForage),
+                    StrategyDebugLogger.F("reason", "no_map_cell"));
+            }
+
+            carriedLogAmount = 0;
+            carriedStoneAmount = 0;
+            carriedGameAmount = 0;
+            carriedFishAmount = 0;
+            carriedForageAmount = 0;
+            carriedForageResource = StrategyResourceType.None;
+            activeConstructionResource = StrategyConstructionResourceKind.None;
+            ClearCarriedConstructionReturnReservation();
+            SetCarriedLogsVisible(false);
+            SetCarriedStoneVisible(false);
+            SetCarriedGameVisible(false);
+            SetCarriedFishVisible(false);
+            SetCarriedForageVisible(false);
+        }
+
+        private void DropLooseCarriedResourceOnDeath(Vector2Int cell, StrategyResourceType resource, int amount)
+        {
+            if (resource == StrategyResourceType.None || amount <= 0)
+            {
+                return;
+            }
+
+            StrategyLooseCarriedResourcePile.Create(
+                map,
+                cell,
+                transform.position,
+                resource,
+                amount);
+            StrategyDebugLogger.Warn(
+                "Logistics",
+                "CarriedResourceDroppedOnDeath",
+                StrategyDebugLogger.F("resident", FullName),
+                StrategyDebugLogger.F("origin", cell),
+                StrategyDebugLogger.F("resource", resource),
+                StrategyDebugLogger.F("amount", amount),
+                StrategyDebugLogger.F("reservation", "cleared"));
         }
 
         public bool TryStartFuneralMove(Vector3 targetWorld, ResidentActivity funeralMoveActivity)
@@ -405,6 +645,7 @@ namespace ProjectUnknown.Strategy
             CancelGranaryWork(true);
             CancelHunterWork(true);
             CancelFisherWork(true);
+            CancelForageWork(true);
             returnCarriedResourcesImmediately = false;
             activeGarden = null;
             funeralTimer = 0f;
@@ -634,6 +875,7 @@ namespace ProjectUnknown.Strategy
             previousBuilder?.UnassignBuilder(this);
             previousGranary?.UnassignWorker(this);
             ClearConstructionSite(null);
+            CancelForageWork(true);
 
             if (home != null)
             {
@@ -687,6 +929,7 @@ namespace ProjectUnknown.Strategy
             CancelGranaryWork(true);
             CancelHunterWork(true);
             CancelFisherWork(true);
+            CancelForageWork(true);
             constructionSite = site;
             constructionFutureHome = willLiveThere;
             ClearCarriedConstructionReturnReservation();
@@ -697,10 +940,13 @@ namespace ProjectUnknown.Strategy
             carriedStoneAmount = 0;
             carriedGameAmount = 0;
             carriedFishAmount = 0;
+            carriedForageAmount = 0;
+            carriedForageResource = StrategyResourceType.None;
             SetCarriedLogsVisible(false);
             SetCarriedStoneVisible(false);
             SetCarriedGameVisible(false);
             SetCarriedFishVisible(false);
+            SetCarriedForageVisible(false);
             activity = ResidentActivity.Idle;
             hasTarget = false;
             path.Clear();
@@ -736,10 +982,13 @@ namespace ProjectUnknown.Strategy
             carriedStoneAmount = 0;
             carriedGameAmount = 0;
             carriedFishAmount = 0;
+            carriedForageAmount = 0;
+            carriedForageResource = StrategyResourceType.None;
             SetCarriedLogsVisible(false);
             SetCarriedStoneVisible(false);
             SetCarriedGameVisible(false);
             SetCarriedFishVisible(false);
+            SetCarriedForageVisible(false);
             activity = ResidentActivity.Idle;
             hasTarget = false;
             path.Clear();
@@ -839,6 +1088,7 @@ namespace ProjectUnknown.Strategy
                 SetWorldPresenceVisible(true);
             }
 
+            CancelForageWork(false);
             home = null;
             activeGarden = null;
             gardenWorkTimer = 0f;
@@ -1304,6 +1554,24 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            if (activity == ResidentActivity.GatheringForage)
+            {
+                UpdateGatheringForage();
+                return;
+            }
+
+            if (activity == ResidentActivity.PickingUpLooseForage)
+            {
+                UpdatePickingUpLooseForage();
+                return;
+            }
+
+            if (activity == ResidentActivity.DepositingForage)
+            {
+                UpdateDepositingForage();
+                return;
+            }
+
             if (activity == ResidentActivity.ChoppingTree)
             {
                 UpdateChoppingTree();
@@ -1528,6 +1796,18 @@ namespace ProjectUnknown.Strategy
                     if (activity == ResidentActivity.MovingToGarden)
                     {
                         StartGardenWork();
+                    }
+                    else if (activity == ResidentActivity.MovingToForage)
+                    {
+                        StartGatheringForage();
+                    }
+                    else if (activity == ResidentActivity.MovingToLooseForagePickup)
+                    {
+                        StartPickingUpLooseForage();
+                    }
+                    else if (activity == ResidentActivity.CarryingForage)
+                    {
+                        StartDepositingForage();
                     }
                     else if (activity == ResidentActivity.MovingToTree)
                     {
@@ -1834,6 +2114,28 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
+            bool stoneFirst = storageWorkplace.ShouldPrioritizeStonePickup();
+            if (stoneFirst && TryStartStorageStonePickup())
+            {
+                return true;
+            }
+
+            if (TryStartStorageLogPickup())
+            {
+                return true;
+            }
+
+            if (!stoneFirst && TryStartStorageStonePickup())
+            {
+                return true;
+            }
+
+            logisticsWorkCooldown = Random.Range(2.5f, 5.5f);
+            return false;
+        }
+
+        private bool TryStartStorageLogPickup()
+        {
             if (storageWorkplace.TryReserveLogSource(this, out StrategyLumberjackCamp source))
             {
                 if (!source.TryFindDropoffCell(out Vector2Int pickupCell)
@@ -1903,6 +2205,11 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
+            return false;
+        }
+
+        private bool TryStartStorageStonePickup()
+        {
             if (storageWorkplace.TryReserveStoneSource(this, out StrategyStonecutterCamp stoneSource))
             {
                 if (!stoneSource.TryFindDropoffCell(out Vector2Int pickupCell)
@@ -1972,7 +2279,6 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
-            logisticsWorkCooldown = Random.Range(2.5f, 5.5f);
             return false;
         }
 
@@ -1990,6 +2296,44 @@ namespace ProjectUnknown.Strategy
                 || logisticsWorkCooldown > 0f)
             {
                 return false;
+            }
+
+            if (StrategyLooseCarriedResourcePile.TryReserveNearestForGranary(
+                    granaryWorkplace,
+                    this,
+                    out StrategyLooseCarriedResourcePile looseFoodSource,
+                    out StrategyResourceType looseResource,
+                    out Vector2Int loosePickupCell))
+            {
+                if (!TryBuildPathTo(loosePickupCell))
+                {
+                    looseFoodSource.ReleaseReservation(this);
+                    logisticsWorkCooldown = Random.Range(2.0f, 4.0f);
+                    StrategyDebugLogger.Warn(
+                        "Granary",
+                        "FoodPickupMoveRejected",
+                        StrategyDebugLogger.F("resident", FullName),
+                        StrategyDebugLogger.F("sourceOrigin", looseFoodSource.Origin),
+                        StrategyDebugLogger.F("resource", looseResource),
+                        StrategyDebugLogger.F("reason", "no_pickup_path"));
+                    return false;
+                }
+
+                activeLooseFoodSource = looseFoodSource;
+                activity = looseResource == StrategyResourceType.Game
+                    ? ResidentActivity.MovingToGranaryGamePickup
+                    : ResidentActivity.MovingToGranaryFishPickup;
+                hasTarget = true;
+                waitTimer = Random.Range(0.05f, 0.20f);
+                StrategyDebugLogger.Info(
+                    "Granary",
+                    "LooseFoodPickupMoveStarted",
+                    StrategyDebugLogger.F("resident", FullName),
+                    StrategyDebugLogger.F("sourceOrigin", looseFoodSource.Origin),
+                    StrategyDebugLogger.F("resource", looseResource),
+                    StrategyDebugLogger.F("pickupCell", loosePickupCell),
+                    StrategyDebugLogger.F("granaryOrigin", granaryWorkplace.Origin));
+                return true;
             }
 
             if (!granaryWorkplace.TryReserveFoodSource(
@@ -2725,6 +3069,262 @@ namespace ProjectUnknown.Strategy
             waitTimer = Random.Range(0.45f, 1.2f);
         }
 
+        private void StartGatheringForage()
+        {
+            if (activeForageNode == null || home == null || !activeForageNode.IsReservedBy(this))
+            {
+                ResetForageWorkToIdle(false);
+                return;
+            }
+
+            activity = ResidentActivity.GatheringForage;
+            hasTarget = false;
+            path.Clear();
+            pathIndex = 0;
+            forageWorkTimer = Random.Range(ForageGatherSecondsMin, ForageGatherSecondsMax);
+            FaceWorldPoint(activeForageNode.FootprintBounds.center);
+            StrategyDebugLogger.Info(
+                "Forage",
+                "ResidentForageGathering",
+                StrategyDebugLogger.F("resident", FullName),
+                StrategyDebugLogger.F("resource", activeForageNode.ResourceType),
+                StrategyDebugLogger.F("nodeCell", activeForageNode.Cell));
+        }
+
+        private void UpdateGatheringForage()
+        {
+            forageWorkTimer -= Time.deltaTime;
+            AnimateGardenWork();
+            if (activeForageNode != null)
+            {
+                FaceWorldPoint(activeForageNode.FootprintBounds.center);
+            }
+
+            if (forageWorkTimer > 0f)
+            {
+                return;
+            }
+
+            if (activeForageNode == null
+                || !activeForageNode.TryGather(this, out StrategyResourceType resource, out int amount))
+            {
+                ResetForageWorkToIdle(false);
+                return;
+            }
+
+            carriedForageResource = resource;
+            carriedForageAmount = IsAdult ? amount : Mathf.Min(1, amount);
+            activeForageNode = null;
+            SetCarriedForageVisible(true);
+
+            if (carriedForageAmount <= 0 || !TryBuildPathToHomeDropoff())
+            {
+                ResetForageWorkToIdle(true);
+                return;
+            }
+
+            activity = ResidentActivity.CarryingForage;
+            hasTarget = true;
+            waitTimer = Random.Range(0.02f, 0.12f);
+            transform.localRotation = Quaternion.identity;
+            transform.localScale = Vector3.one;
+            UseIdleSprite();
+            SetCarriedForageVisible(true);
+            StrategyDebugLogger.Info(
+                "Forage",
+                "ResidentForageCarrying",
+                StrategyDebugLogger.F("resident", FullName),
+                StrategyDebugLogger.F("resource", carriedForageResource),
+                StrategyDebugLogger.F("amount", carriedForageAmount),
+                StrategyDebugLogger.F("homeOrigin", home != null ? home.Origin : Vector2Int.zero));
+        }
+
+        private void StartPickingUpLooseForage()
+        {
+            if (activeLooseForageSource == null
+                || home == null
+                || !activeLooseForageSource.IsReservedBy(this))
+            {
+                ResetForageWorkToIdle(false);
+                return;
+            }
+
+            activity = ResidentActivity.PickingUpLooseForage;
+            hasTarget = false;
+            path.Clear();
+            pathIndex = 0;
+            forageWorkTimer = Random.Range(0.35f, 0.75f);
+            FaceWorldPoint(activeLooseForageSource.FootprintBounds.center);
+            StrategyDebugLogger.Info(
+                "Forage",
+                "ResidentLooseForagePickup",
+                StrategyDebugLogger.F("resident", FullName),
+                StrategyDebugLogger.F("resource", activeLooseForageSource.Resource),
+                StrategyDebugLogger.F("pileOrigin", activeLooseForageSource.Origin));
+        }
+
+        private void UpdatePickingUpLooseForage()
+        {
+            forageWorkTimer -= Time.deltaTime;
+            AnimateGardenWork();
+            if (activeLooseForageSource != null)
+            {
+                FaceWorldPoint(activeLooseForageSource.FootprintBounds.center);
+            }
+
+            if (forageWorkTimer > 0f)
+            {
+                return;
+            }
+
+            if (activeLooseForageSource == null
+                || !activeLooseForageSource.TryTakeReserved(this, out StrategyResourceType resource, out int amount))
+            {
+                ResetForageWorkToIdle(false);
+                return;
+            }
+
+            carriedForageResource = resource;
+            carriedForageAmount = amount;
+            activeLooseForageSource = null;
+            SetCarriedForageVisible(true);
+
+            if (carriedForageAmount <= 0 || !TryBuildPathToHomeDropoff())
+            {
+                ResetForageWorkToIdle(true);
+                return;
+            }
+
+            activity = ResidentActivity.CarryingForage;
+            hasTarget = true;
+            waitTimer = Random.Range(0.02f, 0.12f);
+            transform.localRotation = Quaternion.identity;
+            transform.localScale = Vector3.one;
+            UseIdleSprite();
+            SetCarriedForageVisible(true);
+            StrategyDebugLogger.Info(
+                "Forage",
+                "ResidentLooseForageCarrying",
+                StrategyDebugLogger.F("resident", FullName),
+                StrategyDebugLogger.F("resource", carriedForageResource),
+                StrategyDebugLogger.F("amount", carriedForageAmount),
+                StrategyDebugLogger.F("homeOrigin", home != null ? home.Origin : Vector2Int.zero));
+        }
+
+        private void StartDepositingForage()
+        {
+            if (home == null || home.Resources == null || carriedForageAmount <= 0)
+            {
+                ResetForageWorkToIdle(false);
+                return;
+            }
+
+            activity = ResidentActivity.DepositingForage;
+            hasTarget = false;
+            path.Clear();
+            pathIndex = 0;
+            forageWorkTimer = Random.Range(ForageDepositSecondsMin, ForageDepositSecondsMax);
+            FaceWorldPoint(home.FootprintBounds.center);
+            SetCarriedForageVisible(true);
+        }
+
+        private void UpdateDepositingForage()
+        {
+            forageWorkTimer -= Time.deltaTime;
+            AnimateGardenWork();
+            SetCarriedForageVisible(true);
+            if (forageWorkTimer > 0f)
+            {
+                return;
+            }
+
+            StrategyResourceType depositedResource = carriedForageResource;
+            int depositedAmount = carriedForageAmount;
+            if (home != null && home.Resources != null && depositedAmount > 0)
+            {
+                home.Resources.AddResource(depositedResource, depositedAmount);
+                StrategyDebugLogger.Info(
+                    "Forage",
+                    "ResidentForageDeposited",
+                    StrategyDebugLogger.F("resident", FullName),
+                    StrategyDebugLogger.F("resource", depositedResource),
+                    StrategyDebugLogger.F("amount", depositedAmount),
+                    StrategyDebugLogger.F("homeOrigin", home.Origin));
+            }
+
+            carriedForageResource = StrategyResourceType.None;
+            carriedForageAmount = 0;
+            SetCarriedForageVisible(false);
+            activity = GetRestingActivity();
+            transform.localRotation = Quaternion.identity;
+            transform.localScale = Vector3.one;
+            UseIdleSprite();
+            waitTimer = Random.Range(0.45f, 1.05f);
+        }
+
+        private bool TryBuildPathToHomeDropoff()
+        {
+            if (map == null || home == null || !TryFindHomeExitWorld(out Vector3 exitWorld))
+            {
+                return false;
+            }
+
+            return map.TryWorldToCell(exitWorld, out Vector2Int dropoffCell)
+                && TryBuildPathTo(dropoffCell);
+        }
+
+        private void CancelForageWork(bool storeCarried)
+        {
+            if (!IsForagingActivity(activity)
+                && activeForageNode == null
+                && activeLooseForageSource == null
+                && carriedForageAmount <= 0)
+            {
+                return;
+            }
+
+            ResetForageWorkToIdle(storeCarried);
+        }
+
+        private void ResetForageWorkToIdle(bool storeCarried)
+        {
+            if (activeForageNode != null)
+            {
+                activeForageNode.Release(this);
+                activeForageNode = null;
+            }
+
+            if (activeLooseForageSource != null)
+            {
+                activeLooseForageSource.ReleaseReservation(this);
+                activeLooseForageSource = null;
+            }
+
+            if (storeCarried && carriedForageAmount > 0 && home != null && home.Resources != null)
+            {
+                home.Resources.AddResource(carriedForageResource, carriedForageAmount);
+                StrategyDebugLogger.Info(
+                    "Forage",
+                    "ResidentForageStoredOnCancel",
+                    StrategyDebugLogger.F("resident", FullName),
+                    StrategyDebugLogger.F("resource", carriedForageResource),
+                    StrategyDebugLogger.F("amount", carriedForageAmount),
+                    StrategyDebugLogger.F("homeOrigin", home.Origin));
+            }
+
+            carriedForageResource = StrategyResourceType.None;
+            carriedForageAmount = 0;
+            SetCarriedForageVisible(false);
+            activity = GetRestingActivity();
+            hasTarget = false;
+            path.Clear();
+            pathIndex = 0;
+            transform.localRotation = Quaternion.identity;
+            transform.localScale = Vector3.one;
+            UseIdleSprite();
+            waitTimer = Random.Range(0.30f, 0.85f);
+        }
+
         private void StartChoppingTree()
         {
             hasTarget = false;
@@ -3387,7 +3987,7 @@ namespace ProjectUnknown.Strategy
             path.Clear();
             pathIndex = 0;
 
-            if (activeGameSource == null || granaryWorkplace == null)
+            if ((activeGameSource == null && activeLooseFoodSource == null) || granaryWorkplace == null)
             {
                 ResetGranaryWorkToIdle();
                 return;
@@ -3395,12 +3995,15 @@ namespace ProjectUnknown.Strategy
 
             activity = ResidentActivity.PickingUpGranaryGame;
             lumberWorkTimer = Random.Range(LogisticsPickupSecondsMin, LogisticsPickupSecondsMax);
-            FaceWorldPoint(activeGameSource.FootprintBounds.center);
+            Bounds sourceBounds = activeLooseFoodSource != null
+                ? activeLooseFoodSource.FootprintBounds
+                : activeGameSource.FootprintBounds;
+            FaceWorldPoint(sourceBounds.center);
             StrategyDebugLogger.Info(
                 "Granary",
                 "GamePickupStarted",
                 StrategyDebugLogger.F("resident", FullName),
-                StrategyDebugLogger.F("sourceOrigin", activeGameSource.Origin),
+                StrategyDebugLogger.F("sourceOrigin", activeLooseFoodSource != null ? activeLooseFoodSource.Origin : activeGameSource.Origin),
                 StrategyDebugLogger.F("granaryOrigin", granaryWorkplace.Origin));
         }
 
@@ -3413,12 +4016,13 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            if (activeGameSource == null
+            if ((activeGameSource == null && activeLooseFoodSource == null)
                 || granaryWorkplace == null
                 || !granaryWorkplace.TryFindDropoffCell(out Vector2Int dropoffCell)
                 || !TryBuildPathTo(dropoffCell))
             {
                 activeGameSource?.ReleaseStoredGameReservation(this);
+                activeLooseFoodSource?.ReleaseReservation(this);
                 StrategyDebugLogger.Warn(
                     "Granary",
                     "GamePickupRejected",
@@ -3429,7 +4033,27 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            if (!activeGameSource.TryTakeReservedGame(this, out carriedGameAmount))
+            Vector2Int sourceOrigin;
+            if (activeLooseFoodSource != null)
+            {
+                sourceOrigin = activeLooseFoodSource.Origin;
+                if (!activeLooseFoodSource.TryTakeReserved(this, out StrategyResourceType resource, out carriedGameAmount)
+                    || resource != StrategyResourceType.Game)
+                {
+                    StrategyDebugLogger.Warn(
+                        "Granary",
+                        "GamePickupRejected",
+                        StrategyDebugLogger.F("resident", FullName),
+                        StrategyDebugLogger.F("reason", "loose_take_failed"),
+                        StrategyDebugLogger.F("sourceOrigin", sourceOrigin));
+                    activeLooseFoodSource = null;
+                    ResetGranaryWorkToIdle();
+                    return;
+                }
+
+                activeLooseFoodSource = null;
+            }
+            else if (!activeGameSource.TryTakeReservedGame(this, out carriedGameAmount))
             {
                 StrategyDebugLogger.Warn(
                     "Granary",
@@ -3440,8 +4064,11 @@ namespace ProjectUnknown.Strategy
                 ResetGranaryWorkToIdle();
                 return;
             }
+            else
+            {
+                sourceOrigin = activeGameSource.Origin;
+            }
 
-            Vector2Int sourceOrigin = activeGameSource.Origin;
             activeGameSource = null;
             activity = ResidentActivity.CarryingGameToGranary;
             hasTarget = true;
@@ -3511,7 +4138,7 @@ namespace ProjectUnknown.Strategy
             path.Clear();
             pathIndex = 0;
 
-            if (activeFishSource == null || granaryWorkplace == null)
+            if ((activeFishSource == null && activeLooseFoodSource == null) || granaryWorkplace == null)
             {
                 ResetGranaryWorkToIdle();
                 return;
@@ -3519,12 +4146,15 @@ namespace ProjectUnknown.Strategy
 
             activity = ResidentActivity.PickingUpGranaryFish;
             lumberWorkTimer = Random.Range(LogisticsPickupSecondsMin, LogisticsPickupSecondsMax);
-            FaceWorldPoint(activeFishSource.FootprintBounds.center);
+            Bounds sourceBounds = activeLooseFoodSource != null
+                ? activeLooseFoodSource.FootprintBounds
+                : activeFishSource.FootprintBounds;
+            FaceWorldPoint(sourceBounds.center);
             StrategyDebugLogger.Info(
                 "Granary",
                 "FishPickupStarted",
                 StrategyDebugLogger.F("resident", FullName),
-                StrategyDebugLogger.F("sourceOrigin", activeFishSource.Origin),
+                StrategyDebugLogger.F("sourceOrigin", activeLooseFoodSource != null ? activeLooseFoodSource.Origin : activeFishSource.Origin),
                 StrategyDebugLogger.F("granaryOrigin", granaryWorkplace.Origin));
         }
 
@@ -3537,12 +4167,13 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            if (activeFishSource == null
+            if ((activeFishSource == null && activeLooseFoodSource == null)
                 || granaryWorkplace == null
                 || !granaryWorkplace.TryFindDropoffCell(out Vector2Int dropoffCell)
                 || !TryBuildPathTo(dropoffCell))
             {
                 activeFishSource?.ReleaseStoredFishReservation(this);
+                activeLooseFoodSource?.ReleaseReservation(this);
                 StrategyDebugLogger.Warn(
                     "Granary",
                     "FishPickupRejected",
@@ -3553,7 +4184,27 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            if (!activeFishSource.TryTakeReservedFish(this, out carriedFishAmount))
+            Vector2Int sourceOrigin;
+            if (activeLooseFoodSource != null)
+            {
+                sourceOrigin = activeLooseFoodSource.Origin;
+                if (!activeLooseFoodSource.TryTakeReserved(this, out StrategyResourceType resource, out carriedFishAmount)
+                    || resource != StrategyResourceType.Fish)
+                {
+                    StrategyDebugLogger.Warn(
+                        "Granary",
+                        "FishPickupRejected",
+                        StrategyDebugLogger.F("resident", FullName),
+                        StrategyDebugLogger.F("reason", "loose_take_failed"),
+                        StrategyDebugLogger.F("sourceOrigin", sourceOrigin));
+                    activeLooseFoodSource = null;
+                    ResetGranaryWorkToIdle();
+                    return;
+                }
+
+                activeLooseFoodSource = null;
+            }
+            else if (!activeFishSource.TryTakeReservedFish(this, out carriedFishAmount))
             {
                 StrategyDebugLogger.Warn(
                     "Granary",
@@ -3564,8 +4215,11 @@ namespace ProjectUnknown.Strategy
                 ResetGranaryWorkToIdle();
                 return;
             }
+            else
+            {
+                sourceOrigin = activeFishSource.Origin;
+            }
 
-            Vector2Int sourceOrigin = activeFishSource.Origin;
             activeFishSource = null;
             activity = ResidentActivity.CarryingFishToGranary;
             hasTarget = true;
@@ -5127,8 +5781,14 @@ namespace ProjectUnknown.Strategy
                 activeFishSource.ReleaseStoredFishReservation(this);
             }
 
+            if (activeLooseFoodSource != null)
+            {
+                activeLooseFoodSource.ReleaseReservation(this);
+            }
+
             activeGameSource = null;
             activeFishSource = null;
+            activeLooseFoodSource = null;
             if (storeCarriedFood
                 && (carriedGameAmount > 0 || carriedFishAmount > 0)
                 && TryStartCarriedResourceReturn("granary_work_cancelled"))
@@ -5482,10 +6142,13 @@ namespace ProjectUnknown.Strategy
             carriedStoneAmount = 0;
             carriedGameAmount = 0;
             carriedFishAmount = 0;
+            carriedForageAmount = 0;
+            carriedForageResource = StrategyResourceType.None;
             SetCarriedLogsVisible(false);
             SetCarriedStoneVisible(false);
             SetCarriedGameVisible(false);
             SetCarriedFishVisible(false);
+            SetCarriedForageVisible(false);
             SetFishingLineVisible(false);
             transform.position = GetHomeInteriorWorld();
             transform.localRotation = Quaternion.identity;
@@ -5640,6 +6303,7 @@ namespace ProjectUnknown.Strategy
                 SetCarriedStoneVisible(false);
                 SetCarriedGameVisible(false);
                 SetCarriedFishVisible(false);
+                SetCarriedForageVisible(false);
                 SetFishingLineVisible(false);
             }
         }
@@ -6658,6 +7322,16 @@ namespace ProjectUnknown.Strategy
                 || residentActivity == ResidentActivity.BuildingConstruction;
         }
 
+        private static bool IsForagingActivity(ResidentActivity residentActivity)
+        {
+            return residentActivity == ResidentActivity.MovingToForage
+                || residentActivity == ResidentActivity.GatheringForage
+                || residentActivity == ResidentActivity.MovingToLooseForagePickup
+                || residentActivity == ResidentActivity.PickingUpLooseForage
+                || residentActivity == ResidentActivity.CarryingForage
+                || residentActivity == ResidentActivity.DepositingForage;
+        }
+
         private static bool IsReturningCarriedResourceActivity(ResidentActivity residentActivity)
         {
             return residentActivity == ResidentActivity.ReturningLogsToStorage
@@ -6763,6 +7437,28 @@ namespace ProjectUnknown.Strategy
 
             carriedFishRenderer.gameObject.SetActive(true);
             SyncCarriedFishRenderer();
+        }
+
+        private void SetCarriedForageVisible(bool visible)
+        {
+            if (!visible || carriedForageAmount <= 0 || carriedForageResource == StrategyResourceType.None)
+            {
+                if (carriedForageRenderer != null)
+                {
+                    carriedForageRenderer.gameObject.SetActive(false);
+                }
+
+                return;
+            }
+
+            EnsureCarriedForageRenderer();
+            if (carriedForageRenderer == null)
+            {
+                return;
+            }
+
+            carriedForageRenderer.gameObject.SetActive(true);
+            SyncCarriedForageRenderer();
         }
 
         private void SetFishingLineVisible(bool visible)
@@ -6887,6 +7583,21 @@ namespace ProjectUnknown.Strategy
             carriedFishRenderer.gameObject.SetActive(false);
         }
 
+        private void EnsureCarriedForageRenderer()
+        {
+            if (spriteRenderer == null || carriedForageRenderer != null)
+            {
+                return;
+            }
+
+            GameObject forageObject = new GameObject("Carried Forage");
+            forageObject.transform.SetParent(transform, false);
+            carriedForageRenderer = forageObject.AddComponent<SpriteRenderer>();
+            carriedForageRenderer.sprite = StrategyForageSpriteFactory.GetCarriedSprite(carriedForageResource);
+            carriedForageRenderer.color = Color.white;
+            carriedForageRenderer.gameObject.SetActive(false);
+        }
+
         private void EnsureFishingRenderers()
         {
             if (spriteRenderer == null)
@@ -6948,6 +7659,7 @@ namespace ProjectUnknown.Strategy
             SyncCarriedStoneRenderer();
             SyncCarriedGameRenderer();
             SyncCarriedFishRenderer();
+            SyncCarriedForageRenderer();
             SyncFishingLineRenderer();
         }
 
@@ -7015,6 +7727,21 @@ namespace ProjectUnknown.Strategy
             float side = spriteRenderer.flipX ? -0.13f : 0.13f;
             carriedFishRenderer.transform.localPosition = new Vector3(side, 0.40f, -0.02f);
             carriedFishRenderer.transform.localScale = Vector3.one;
+        }
+
+        private void SyncCarriedForageRenderer()
+        {
+            if (spriteRenderer == null || carriedForageRenderer == null)
+            {
+                return;
+            }
+
+            carriedForageRenderer.sprite = StrategyForageSpriteFactory.GetCarriedSprite(carriedForageResource);
+            carriedForageRenderer.flipX = spriteRenderer.flipX;
+            carriedForageRenderer.sortingOrder = spriteRenderer.sortingOrder + 1;
+            float side = spriteRenderer.flipX ? -0.12f : 0.12f;
+            carriedForageRenderer.transform.localPosition = new Vector3(side, 0.43f, -0.02f);
+            carriedForageRenderer.transform.localScale = Vector3.one;
         }
 
         private void SyncFishingLineRenderer()

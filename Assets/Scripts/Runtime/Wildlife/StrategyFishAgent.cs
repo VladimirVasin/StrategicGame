@@ -27,7 +27,7 @@ namespace ProjectUnknown.Strategy
     }
 
     [DisallowMultipleComponent]
-    public sealed class StrategyFishAgent : MonoBehaviour
+    public sealed class StrategyFishAgent : MonoBehaviour, IStrategyWorldInspectable
     {
         private const float SwimSpeed = 0.92f;
         private const float RiverSwimSpeed = 1.08f;
@@ -182,6 +182,29 @@ namespace ProjectUnknown.Strategy
             UpdateWorldSorting();
         }
 
+        public bool TryGetWorldInspectInfo(out StrategyWorldInspectInfo info)
+        {
+            bool hasCell = TryGetCurrentCell(out Vector2Int currentCell);
+            string body = "Species: "
+                + Species
+                + "\nHabitat: "
+                + HabitatKind
+                + "\nStage: "
+                + LifeStage
+                + "\nState: "
+                + State
+                + "\nFishable: "
+                + (CanBeFished ? "yes" : "no");
+            info = new StrategyWorldInspectInfo(
+                "Fish",
+                HabitatKind == StrategyFishHabitatKind.River ? "River wildlife" : "Lake wildlife",
+                body,
+                spriteRenderer != null ? spriteRenderer.sprite : null,
+                currentCell,
+                hasCell);
+            return true;
+        }
+
         public void ConfigureRiverRoute(IReadOnlyList<Vector3> routeWorldPoints, float speedMultiplier)
         {
             if (routeWorldPoints == null || routeWorldPoints.Count <= 0)
@@ -209,6 +232,17 @@ namespace ProjectUnknown.Strategy
         {
             cell = default;
             return map != null && map.TryWorldToCell(transform.position, out cell);
+        }
+
+        public void RetargetShoalCenter(Vector2Int center, int radius)
+        {
+            if (IsRiverFish)
+            {
+                return;
+            }
+
+            homeCell = center;
+            homeRadius = Mathf.Max(4, radius);
         }
 
         public bool TryReserveForFishing(object owner)

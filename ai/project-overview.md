@@ -1,12 +1,12 @@
 # Project Overview
 
-Last updated: 2026-06-13
+Last updated: 2026-06-15
 
 ## Identity
 
 - Project name: `ProjectUnknown`
 - Engine: Unity
-- Unity Editor version: `6000.4.10f1`
+- Unity Editor version: `6000.4.11f1`
 - Current baseline: fresh 2D/URP starter project
 
 ## Current Shape
@@ -58,7 +58,7 @@ Confirmed from `Packages/manifest.json`:
 - A generated 2D city map appears at runtime with randomized seed-driven terrain generation and procedural pixel-art terrain textures.
 - Current terrain generation covers grass, meadow, forest, dirt, shore, and water with randomized rivers/water blobs, clustered land biomes, seeded texture variants, and transition overlays; generated water/shore cells are tagged as River or Lake for technical gameplay distinction, and generated rivers expose a technical flow direction used by river animation and river fish.
 - A runtime nature-props layer places procedural 2.5D trees, forest groups, and bushes over the generated terrain.
-- A runtime wildlife layer spawns deer herds on suitable walkable land, rabbit groups in a near-camp walkable ring for early hunting access, lake fish populations on generated lake regions, one-way pass-through river fish along the river current, and decorative birds across species-appropriate land/water habitats; current wildlife has procedural 2.5D/pixel-art sprites, frame-based ambient/threat/work animations, and reacts to nearby residents without revealing fog or blocking cells. Deer, rabbits, and lake fish have capped reproduction/growth; river fish do not reproduce and despawn at the route end; birds are decorative-only, while adult rabbits can be reserved and hunted by Hunter Camp workers for local `Game`, and adult fish can be reserved and caught by Fisher Hut workers for local `Fish`.
+- A runtime wildlife layer spawns more numerous compact deer herds distributed over suitable walkable land away from the camp, keeps the first few rabbit groups in a near-camp walkable ring for early hunting while distributing later groups map-wide, spawns compact lake fish shoals on generated lake regions, one-way pass-through river fish along the river current, compact wolf packs away from settlement pressure, and decorative birds across species-appropriate land/water habitats; current wildlife has procedural 2.5D/pixel-art sprites, frame-based ambient/threat/work animations, and reacts to nearby residents without revealing fog or blocking cells. Deer, rabbits, and lake fish have global and per-group reproduction/growth caps; river fish do not reproduce and despawn at the route end; birds are decorative-only, while adult rabbits can be reserved and hunted by Hunter Camp workers for local `Game`, and adult fish can be reserved and caught by Fisher Hut workers for local `Fish`.
 - The nature layer also places procedural Stone resource deposits as standalone boulders, rock clusters, and larger cliffs.
 - Trees, forest groups, and bushes sway through a 2D adapter driven by the Unity `WindZone` values.
 - Forest terrain cells receive dense visual forest props, while grass/meadow/dirt/shore cells can receive sparse standalone trees or bushes.

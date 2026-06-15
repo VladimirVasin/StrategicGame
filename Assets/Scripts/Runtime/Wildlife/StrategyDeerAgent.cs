@@ -26,7 +26,7 @@ namespace ProjectUnknown.Strategy
     }
 
     [DisallowMultipleComponent]
-    public sealed class StrategyDeerAgent : MonoBehaviour
+    public sealed class StrategyDeerAgent : MonoBehaviour, IStrategyWorldInspectable
     {
         private const float WalkSpeed = 0.78f;
         private const float FleeSpeed = 2.35f;
@@ -83,15 +83,24 @@ namespace ProjectUnknown.Strategy
         private float bobPhase;
         private float ageSeconds;
         private float visualScale = 1f;
+        private object predatorReservationOwner;
         private bool hasTarget;
         private bool hasThreat;
         private bool hasAppliedPose;
+        private bool isAlive = true;
 
         public StrategyDeerSex Sex => sex;
         public StrategyDeerBehaviorState State => state;
         public StrategyDeerLifeStage LifeStage => lifeStage;
         public bool IsAdult => lifeStage == StrategyDeerLifeStage.Adult;
-        public bool CanBreed => IsAdult && sex == StrategyDeerSex.Female && state != StrategyDeerBehaviorState.Alert && state != StrategyDeerBehaviorState.Fleeing;
+        public bool IsAlive => isAlive;
+        public bool CanBeWolfPrey => IsAdult && isAlive && predatorReservationOwner == null;
+        public bool CanBreed => IsAdult
+            && isAlive
+            && predatorReservationOwner == null
+            && sex == StrategyDeerSex.Female
+            && state != StrategyDeerBehaviorState.Alert
+            && state != StrategyDeerBehaviorState.Fleeing;
         public int HerdId => herdId;
         public Vector2Int HomeCell => homeCell;
         public int HomeRadius => homeRadius;
@@ -133,15 +142,149 @@ namespace ProjectUnknown.Strategy
             UpdateWorldSorting();
         }
 
+        public bool TryGetWorldInspectInfo(out StrategyWorldInspectInfo info)
+        {
+            bool hasCell = TryGetCurrentCell(out Vector2Int currentCell);
+            string body = "Sex: "
+                + Sex
+                + "\nStage: "
+                + LifeStage
+                + "\nState: "
+                + State
+                + "\nHerd: "
+                + HerdId
+                + "\nWolf prey: "
+                + (CanBeWolfPrey ? "yes" : "no");
+            info = new StrategyWorldInspectInfo(
+                Sex == StrategyDeerSex.Male ? "Stag" : "Doe",
+                "Wildlife",
+                body,
+                spriteRenderer != null ? spriteRenderer.sprite : null,
+                currentCell,
+                hasCell);
+            return true;
+        }
+
         public bool TryGetCurrentCell(out Vector2Int cell)
         {
             cell = default;
             return map != null && map.TryWorldToCell(transform.position, out cell);
         }
 
+        public void RetargetHerdCenter(Vector2Int center, int radius)
+        {
+            homeCell = center;
+            homeRadius = Mathf.Max(4, radius);
+        }
+
+        public bool TryReserveForPredator(object owner)
+        {
+            if (owner == null)
+            {
+                return false;
+            }
+
+            if (predatorReservationOwner == owner)
+            {
+                return isAlive;
+            }
+
+            if (!CanBeWolfPrey)
+            {
+                return false;
+            }
+
+            predatorReservationOwner = owner;
+            hasTarget = false;
+            hasThreat = true;
+            path.Clear();
+            pathIndex = 0;
+            lastThreatWorld = transform.position + Vector3.left;
+            stateTimer = Random.Range(0.7f, 1.4f);
+            SetState(StrategyDeerBehaviorState.Alert, true, true);
+            StrategyDebugLogger.Info(
+                "Wildlife",
+                "DeerPredatorReserved",
+                StrategyDebugLogger.F("sex", sex),
+                StrategyDebugLogger.F("herd", herdId),
+                StrategyDebugLogger.F("world", transform.position));
+            return true;
+        }
+
+        public void ReleasePredatorReservation(object owner)
+        {
+            if (owner == null || predatorReservationOwner != owner)
+            {
+                return;
+            }
+
+            predatorReservationOwner = null;
+            if (isAlive)
+            {
+                StartFleeing(transform.position + Vector3.left, true);
+            }
+
+            StrategyDebugLogger.Info(
+                "Wildlife",
+                "DeerPredatorReservationReleased",
+                StrategyDebugLogger.F("sex", sex),
+                StrategyDebugLogger.F("herd", herdId),
+                StrategyDebugLogger.F("world", transform.position));
+        }
+
+        public bool KillByPredator(object owner, Vector3 attackWorld)
+        {
+            if (owner == null || predatorReservationOwner != owner || !isAlive)
+            {
+                return false;
+            }
+
+            isAlive = false;
+            hasTarget = false;
+            hasThreat = false;
+            path.Clear();
+            pathIndex = 0;
+            lastThreatWorld = attackWorld;
+            state = StrategyDeerBehaviorState.Resting;
+            transform.localRotation = Quaternion.Euler(0f, 0f, spriteRenderer != null && spriteRenderer.flipX ? 11f : -11f);
+            SetAnimatedScale(1.04f, 0.72f);
+            ApplySprite(StrategyDeerSpritePose.Rest, 0);
+            StrategyDebugLogger.Info(
+                "Wildlife",
+                "DeerKilledByPredator",
+                StrategyDebugLogger.F("sex", sex),
+                StrategyDebugLogger.F("herd", herdId),
+                StrategyDebugLogger.F("world", transform.position),
+                StrategyDebugLogger.F("attackWorld", attackWorld));
+            return true;
+        }
+
+        public bool ConsumePredatorKill(object owner)
+        {
+            if (owner == null || predatorReservationOwner != owner || isAlive)
+            {
+                return false;
+            }
+
+            predatorReservationOwner = null;
+            StrategyDebugLogger.Info(
+                "Wildlife",
+                "DeerConsumedByPredator",
+                StrategyDebugLogger.F("sex", sex),
+                StrategyDebugLogger.F("herd", herdId),
+                StrategyDebugLogger.F("world", transform.position));
+            Destroy(gameObject);
+            return true;
+        }
+
         private void Update()
         {
             if (map == null || spriteRenderer == null)
+            {
+                return;
+            }
+
+            if (!isAlive)
             {
                 return;
             }

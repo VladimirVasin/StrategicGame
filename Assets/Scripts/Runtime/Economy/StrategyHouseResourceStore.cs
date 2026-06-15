@@ -13,7 +13,10 @@ namespace ProjectUnknown.Strategy
             StrategyResourceType.Cabbage,
             StrategyResourceType.Onion,
             StrategyResourceType.Carrot,
-            StrategyResourceType.Potato
+            StrategyResourceType.Potato,
+            StrategyResourceType.Berries,
+            StrategyResourceType.Roots,
+            StrategyResourceType.Mushrooms
         };
 
         private readonly Dictionary<StrategyResourceType, int> amounts = new();

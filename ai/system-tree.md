@@ -1,13 +1,13 @@
 # System Tree
 
-Last updated: 2026-06-13
+Last updated: 2026-06-15
 
 This is a conceptual map of the current project. Keep concrete file ownership in `ai/systems-map.md`.
 
 ## Project Root
 
 - Unity project foundation
-  - Unity Editor `6000.4.10f1`
+  - Unity Editor `6000.4.11f1`
   - Package-managed dependencies in `Packages/manifest.json`
   - Project settings in `ProjectSettings/`
   - Generated/local Unity state in `Library/`, `Temp/`, `Logs/`, and `UserSettings/`
@@ -40,6 +40,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Creates runtime water/shore animation overlay after map generation
     - Creates the Stone resource registry before nature generation
     - Generates nature props after population startup so the camp clear-radius exclusion is known
+    - Creates forage resources after nature generation so forage nodes avoid occupied/non-walkable cells
     - Creates and wires the runtime fog-of-war layer after population and placement controllers exist
     - Places a starter Storage Yard near the campfire with initial Logs and Stone after placement is configured
     - Creates and wires runtime wildlife after starter placement so deer, rabbits, fish, and birds spawn in valid terrain/water/habitat areas
@@ -119,6 +120,11 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Plants saplings that grow through sapling, young tree, and mature tree visual stages
       - Supplies nearby mature-tree and planting-cell targets to lumberjack camps
       - Mature trees receive chop hits, show cut marks, spawn chip/leaf effects, fall over, remain as buckable trunks, split into Logs, and are removed when Logs are collected
+    - Forage resources MVP
+      - Spawns Berries, Roots, and Mushrooms as small non-blocking resource nodes on suitable walkable land cells
+      - Guarantees a small starter ring of forage resources around the settlement outside the campfire clear radius
+      - Forage nodes can be reserved by one resident, depleted on gather, and regrow after a timed delay
+      - Procedural forage sprites include ready/depleted node visuals plus carried basket sprites
     - Strategy wind
       - Runtime-created Unity `WindZone` in directional mode
       - Stores wind direction, main strength, pulse, frequency, and turbulence
@@ -127,38 +133,45 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Shared procedural shadows keep day/night opacity and length tuning while wind-driven props sway
     - Wildlife MVP
       - Runtime-created wildlife controller
-      - Spawns 8-12 deer in small herds on suitable walkable meadow, grass, dirt, and forest-edge cells
-      - Spawns 12-18 rabbits in small groups on suitable walkable meadow, grass, dirt, and forest-edge cells within a near-camp ring
-      - Spawns initial lake fish on generated lake water regions with hard per-lake population caps
+      - Spawns 12-16 deer across up to 8 compact herds on suitable walkable meadow, grass, dirt, and forest-edge cells
+      - Spawns 16-22 rabbits across up to 10 compact groups, keeping the first few groups in a near-camp ring for early hunting and distributing later groups map-wide
+      - Spawns 22-32 initial lake fish across up to 12 compact shoals on generated lake water regions with hard per-lake population caps
       - Spawns one-way pass-through river fish on a single timer along the generated river current
       - Spawns 20-32 decorative birds on species-appropriate meadow/grass, forest/near-forest, water, and shore cells
-      - Avoids the startup campfire area when choosing deer herd spawn cells and keeps rabbit groups close enough to the starter camp for early hunting
+      - Spawns 3-4 compact wolf packs on safe walkable land away from the campfire and dense settlement pressure
+      - Avoids the startup campfire area when choosing deer herd and wolf pack spawn cells, and keeps only the first few rabbit groups close enough to the starter camp for early hunting
       - Wildlife agents do not block walkability and do not act as fog reveal sources
       - Two procedural 2.5D deer models exist: antlered male buck and smaller female doe
       - Two procedural 2.5D rabbit models exist: male buck and female doe variants, with smaller kits using scaled visuals
       - Three procedural fish models exist: Minnow, Carp, and Perch, with smaller fry using scaled visuals
       - Three procedural bird models exist: Sparrow, Crow, and Duck
+      - Four procedural wolf palette variants exist for pack members
       - Deer animate idle breathing, walking, grazing, alert stance, fleeing/running, and resting with frame-based sprites
       - Rabbits animate idle ear/breathing movement, hopping, nibbling, alert stance, fleeing, grooming, resting, hunting hit/death, and carcass states with frame-based sprites
       - Fish animate idle swimming, swimming, darting/fleeing, turning, feeding, hooked/reeling, and surface ripples with frame-based sprites
       - Birds animate idle movement, pecking, hopping, flying, landing, and duck swimming with frame-based sprites and flight shadows
+      - Wolves animate idle, walking, running, stalking, attacking, eating, and howling with frame-based sprites
       - Deer use short local grid paths inside a loose herd/home range
       - Rabbits use short local grid paths inside a loose group/home range
       - Lake fish use short local lake-water paths inside a loose shoal/home range
       - River fish follow the generated river route from current start to end, then despawn
       - Birds fly between nearby habitat cells inside a loose home range and react to noisy residents by taking off
+      - Deer herds, rabbit groups, wolf packs, bird homes, and lake fish shoals periodically migrate by retargeting their loose home centers across suitable habitat
+      - Land wildlife migration avoids dense settlement pressure and only advances through short connected walkable steps so groups do not jump through water or blockers
+      - Wolves use walkable-cell paths, roam near their current pack migration center, avoid high settlement pressure, and can hunt rabbits or deer to help control wildlife populations
+      - Wolves can reserve vulnerable adult residents away from the settlement and trigger normal `wolf_attack` resident death/funeral flow
       - Deer, rabbits, and fish react to nearby residents or noisy work such as chopping, mining, and construction
       - Adult does can reproduce when an adult buck is nearby in the same herd
       - Newborn deer appear as small fawns, use scaled deer sprites, and grow into adults after scaled simulation time
-      - Deer reproduction stops at a hard 20-deer population cap
+      - Deer reproduction stops at a hard 24-deer population cap and a 3-deer per-herd cap
       - Adult female rabbits can reproduce when an adult male is nearby in the same group
       - Newborn rabbits appear as small kits, use scaled rabbit sprites, and grow into adults after scaled simulation time
-      - Rabbit reproduction stops at a hard 36-rabbit population cap
+      - Rabbit reproduction stops at a hard 30-rabbit population cap and a 3-rabbit per-group cap
       - Hunter camps can reserve adult rabbits in range, stopping their relaxed/flee behavior for the shot sequence
       - Hunted rabbits can be hit by arrow projectiles, become carcasses, and yield `Game` after butchering
       - Adult lake fish can reproduce when another adult of the same species is nearby in the same shoal and the lake-region cap has room
       - Newborn fish appear as small fry, use scaled fish sprites, and grow into adults after scaled simulation time
-      - Fish reproduction stops at the hard 60-fish global cap and the stricter per-lake region cap
+      - Fish reproduction stops at the hard 36-fish global cap, a 3-fish per-shoal cap, and the stricter per-lake region cap
       - Lake fish cap debug logging is throttled per lake region so capped lakes do not spam `debug.log`
       - River fish do not reproduce
       - Fisher huts can reserve adult fish in range, hold them near the hook sequence, and yield `Fish` after reeling
@@ -187,7 +200,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Direct active-tool selection for placement/economy systems
     - Fully closes category/tool UI after a successful placement
     - Exposes selected tool info, footprint, color, and cost
-    - Reads Storage Yard construction stock availability for build affordability
+    - Reads construction stock availability through `StrategyStorageYard.GetTotalConstructionResources()`, including Storage Yard stock, loose piles, and Stonecutter Camp Stone fallback
     - Shows x1/x2/x3 simulation speed buttons under the top-left resource panel, reusing `StrategyTimeScaleController`
     - Current catalog contains `Housing` / `House`, `Production` / `Lumberjack Camp`, `Stonecutter Camp`, `Hunter Camp`, and `Fisher Hut`, and `Storage` / `Storage Yard` and `Granary`
     - Single-item categories directly activate their only build tool on click
@@ -204,7 +217,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Construction sites mark only their technical foundation as not walkable while reserving the future final blocker for placement collision
     - Completed buildings mark their full final walk-blocker cells as not walkable
     - House uses an expanded 2.5D visual/navigation blocker around and above the technical footprint
-    - Reserves construction resources from Storage Yards before the site is accepted
+    - Reserves construction resources from Storage Yards before the site is accepted, with loose piles and Stonecutter Camp Stone fallback included in the same availability path
     - Construction sites are accepted without an immediately free builder if resources can be reserved
     - Construction sites periodically request hired builders from Storage Yards until filled
     - Completed houses try to populate after construction instead of using their builders as future residents
@@ -264,9 +277,10 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Garden Beds sprites show growth progress toward the next harvest; Chicken Coop sprites animate procedurally while installed
   - House resources MVP
     - Runtime house-local resource store
-    - Current house-local resources: Eggs, Turnip, Cabbage, Onion, Carrot, Potato
-    - Households consume house-local Eggs/crops as food before drawing `Game`/`Fish` from Granaries
+    - Current house-local resources: Eggs, Turnip, Cabbage, Onion, Carrot, Potato, Berries, Roots, Mushrooms
+    - Households consume house-local Eggs/crops/forage as food before drawing `Game`/`Fish` from Granaries
     - Shared resource identity/icon layer also includes Stone, `Game`, and `Fish` for production/storage-style HUDs and future economy work
+    - Loose carried-resource piles preserve dropped `Game`, `Fish`, Berries, Roots, and Mushrooms after resident death
     - Resource amounts live on placed house objects, not in a global economy yet
     - Runtime-generated pixel-art resource icons for the selected-house HUD
   - Storage yard logistics MVP
@@ -274,12 +288,14 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - A starter Storage Yard appears near the campfire with 16 Logs and 12 Stone
     - Storage workers reserve available Logs from lumberjack camps
     - Storage workers reserve available Stone from stonecutter camps
-    - Storage Yards reserve Logs/Stone for accepted construction sites
+    - Storage Yards reserve Logs/Stone for accepted construction sites and can include Stonecutter Camp local Stone as a direct construction fallback
     - Loose construction resource piles from cancelled sites count as available construction resources and can be reserved by future sites
     - Storage Yards dispatch hired builders to waiting construction sites
     - Hired builders can pick up reserved construction Logs/Stone from Storage Yards
     - Hired builders can also pick up reserved construction Logs/Stone from loose construction resource piles
+    - Hired builders can pick up reserved construction Stone directly from Stonecutter Camps when the site reserved camp stock
     - Storage workers can haul loose construction Logs/Stone back to Storage Yards
+    - Storage workers prioritize Stone pickup when active construction needs Stone or yard Stone stock falls behind Logs
     - Hired builders claim per-builder construction resource pickups after pathing succeeds, release claims on cancellation, and drop repeatedly unreachable pickup assignments
     - Storage workers walk to source camps, pick up Logs, carry them to the Storage Yard, and deposit them
     - Storage workers walk to stonecutter camps, pick up Stone, carry it to the Storage Yard, and deposit it
@@ -290,6 +306,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Granary is a placed food-storage building with up to 2 food logistics workers
     - Granary workers reserve available `Game` from Hunter Camps
     - Granary workers reserve available `Fish` from Fisher Huts
+    - Granary workers can recover loose dropped `Game` and `Fish` piles
     - Granary workers walk to source camps/huts, pick up reserved food, carry it to the Granary, and deposit it
     - Hunter Camp and Fisher Hut local food stock decreases when granary haulers pick up reserved food
     - Granary local `Game` and `Fish` stock update their visible stockpiles
@@ -310,6 +327,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Assigning a Householder clears external workplace/building roles and moves her into `TendingHousehold` home duty
     - The Householder role counts as home work and can block normal worker assignment
     - Houses attach household food state that consumes food based on resident count and tracks starvation
+    - Houses attach household foraging state that sends non-householder, unemployed adults and older children to gather nearby forage during daytime
     - Household food has an initial/no-supply grace path so starvation activates only after the settlement food chain exists
     - Starving households block new births and use a gentler mortality multiplier curve than the early x16 debug version
     - Children inherit parent/family links, stay inside their assigned home until age 3, idle/walk around home after that, cannot be workers/builders, and grow into adults at age 16 after scaled game time
@@ -332,6 +350,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Residents perform simple idle movement near their current camp/home using short walkable grid paths
     - Resident pathing can recover a blocked start cell by moving the resident to a nearby walkable cell and logging the recovery
     - Householders periodically work at their house's default Garden Beds from `TendingHousehold` home duty
+    - Non-householder residents without external work forage Berries, Roots, and Mushrooms for their own house; children younger than 7 do not forage
     - Residents assigned to a lumberjack camp path to trees, chop mature trees, buck fallen trunks into Logs, carry Logs to camp stock, and plant new saplings nearby
     - Residents assigned to a stonecutter camp path to Stone deposits, mine chunks with pickaxes, carry Stone to camp stock, and do not plant/regrow Stone
     - Residents assigned to a hunter camp reserve adult rabbits, move to bow range, shoot arrow projectiles, butcher carcasses, carry `Game`, and deposit it into hunter camp stock
@@ -341,6 +360,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Residents assigned to a granary path to Hunter Camp/Fisher Hut food stock, carry `Game`/`Fish` to the granary, and deposit it
     - Residents hired as Storage Yard builders fetch reserved Logs/Stone, deliver them to construction sites, then build with hammer animations
     - Residents removed from a role while carrying Logs, Stone, `Game`, or `Fish` first return the carried resource to the appropriate Storage Yard or Granary; hard interruption fallbacks preserve materials instead of deleting carried stock
+    - Resident death drops all carried resources: Logs/Stone as loose construction piles, and `Game`, `Fish`, Berries, Roots, and Mushrooms as loose carried-resource piles
     - Completed houses first try to pull a homeless adult male/female pair, including residents who already have workplaces or construction assignments, then fall back to adult-child migration and partner lookup
     - Runtime-generated resident sprites include 5 male variants, 5 female variants, child sprites, and matching portrait sprites
     - Resident movement uses cached 8-frame procedural walk cycles for adult and child variants
@@ -359,7 +379,13 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Left-click selects the top resident/building under the cursor when not placing
     - Clicks in unexplored fog cells do not select world objects while player fog is enabled
     - Selected objects show a simple runtime selection marker
+    - Selected completed buildings also show linked-resident markers and lines without changing the selected-object HUD
     - Selection opens a compact full-height right-side HUD panel with selected-object preview art
+    - Left-click also updates a separate bottom-right world inspect microHUD without replacing the selected-object HUD
+    - World inspect priority is selected resident, inspectable world object, then building/construction/grave
+    - Empty terrain cells do not open inspect microHUD; empty clicks hide it
+    - Non-selectable inspect objects resolve from visible sprite bounds at click time instead of adding mass 2D physics colliders
+    - Trees, bushes/forest thickets, Stone deposits, forage nodes, house upgrades, loose resource piles, chickens, deer, rabbits, fish, birds, and wolves expose lightweight inspect data
     - The house HUD shows assigned residents up to house capacity with portraits, names, age/life stage, current statuses, and the Householder marker
     - The house HUD exposes default Garden Beds state and the Chicken Coop upgrade action
     - House upgrade actions are shown as compact state/action rows
@@ -380,6 +406,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - UI Toolkit module available through Unity modules
   - Custom runtime Build menu HUD
   - Custom runtime top status HUD showing total population, adults, and children
+  - Custom runtime world inspect microHUD for clicked resources, nature props, wildlife, and selected-object context
   - Custom runtime Profession HUD
     - Top-menu `Professions` button
     - Dynamic profession rows for built worksites
@@ -411,16 +438,18 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Terrain rendering uses generated map cell kinds, seeded tile variants, neighbor transition overlays, a runtime water/shore animation overlay, and weather visual overlays.
 - Weather depends on generated map bounds, the strategy camera, day/night/fog sorting bands, the strategy wind source, water animation, and ambience audio.
 - House visual upgrades and house resources depend on placed-building records, map walkability checks, generated upgrade/chicken/resource sprites, early idle/work agents, and the world-selection HUD.
+- Household foraging depends on generated walkable terrain, forage node reservations/regrowth, placed house records, resident work/funeral state, day/night phase, and the house-local food store.
 - Forestry depends on generated tree props, map walkability, placed lumberjack camps, resident work states, and the world-selection HUD.
 - Stone resources depend on generated nature props, map walkability, stonecutter camps, resident work states, and storage logistics.
 - Wildlife depends on generated terrain/water cells, map walkability for land animals, population/resident positions, starter-camp location, hunter/fisher production buildings, and Y-based world sorting; deer and birds do not feed fog visibility or resources yet, while hunted rabbits can yield `Game` and caught fish can yield `Fish`.
 - Storage yard logistics depends on lumberjack camp stock, stonecutter camp stock, resident work states, placed-building records, map walkability, and the world-selection HUD.
 - Loose construction resource piles bridge construction cancellation, build affordability, storage logistics, and builder pickup.
+- Loose carried-resource piles bridge resident death cleanup, Granary food logistics, and household foraging recovery.
 - Granary food logistics depends on hunter camp stock, fisher hut stock, resident work states, placed-building records, map walkability, and the world-selection HUD.
-- Construction depends on Storage Yard resource reservations, hired Storage Yard builder assignments, construction-site blockers, placed-building finalization, and the world-selection HUD.
+- Construction depends on Storage Yard resource reservations, Stonecutter Camp Stone fallback reservations, hired Storage Yard builder assignments, construction-site blockers, placed-building finalization, and the world-selection HUD.
 - Population uses placed-building records, construction sites, the generated map walkability layer, and workplace assignments; home/family assignment is independent from work/construction assignment.
 - Resident footsteps depend on population agents and the non-generated grass footstep clip set.
-- World selection uses placed-building/resident/construction-site colliders and the strategy camera.
+- World selection uses placed-building/resident/construction-site colliders, inspectable world-object sprite bounds, generated map cell data, fog state, and the strategy camera.
 - Profession HUD depends on population adults and current worksite components; it owns player-facing worker assignment/removal while existing worksite components still own role state and work loops, with Storage Yard workers/builders treated as uncapped roles.
 - Strategy camera checks UI pointer state so bottom HUD interaction does not pan/zoom the map.
 - New gameplay systems should be added here and mapped to concrete files/assets in `systems-map.md`.

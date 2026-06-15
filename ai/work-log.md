@@ -1,12 +1,90 @@
 # Work Log
 
-Last updated: 2026-06-13
+Last updated: 2026-06-15
 
 ## Active
 
 - None.
 
 ## Done
+
+### 2026-06-15 - More distributed compact wildlife groups
+
+- Rebalanced wildlife generation toward more numerous smaller groups: deer now use up to 8 compact herds, rabbits up to 10 compact groups, lake fish up to 12 compact shoals, and wolves 3-4 compact packs.
+- Kept only the first few rabbit groups near the starter camp for early hunting while allowing later rabbit groups to distribute map-wide.
+- Removed the deer initial-spawn dependency on the rabbit near-camp maximum distance, so deer avoid the camp but can populate suitable habitat across the map.
+- Added per-herd and per-shoal reproduction caps for deer and lake fish, matching the existing per-rabbit-group cap pattern.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-14 - Wildlife group migration
+
+- Added controller-owned migration state for deer herds, rabbit groups, wolf packs, decorative birds, and lake fish shoals.
+- Wildlife groups now periodically pick new habitat centers and move toward them in gradual retargeting steps instead of staying permanently bound to their initial spawn zone.
+- Land migrations avoid dense settlement pressure and use a short walkable-connection check so herd/pack centers do not jump through unwalkable water or blockers.
+- Wolves now migrate around their current pack roam center rather than being softly pulled back toward the original den cell.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-14 - World inspect performance fix
+
+- World inspect microHUD no longer opens for empty terrain cells; empty clicks hide the microHUD instead of showing map-cell data.
+- Removed the new mass trigger-collider path for non-selectable inspect objects to avoid expanding 2D Physics workload.
+- Non-selectable inspect objects are now resolved from visible `SpriteRenderer.bounds` only at click time; existing selection colliders remain limited to residents, buildings, construction sites, graves, and pre-existing selectable agents.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-14 - World inspect microHUD
+
+- Added a bottom-right world inspect microHUD that updates on left-click while leaving the existing right-side selected-object HUD unchanged.
+- Added a shared `IStrategyWorldInspectable` contract plus static inspectable support for non-selected world props.
+- Clicks show object info for residents, inspectable objects, buildings, construction sites, and graves.
+- Trees, bushes/forest thickets, Stone deposits, forage nodes, house upgrades, loose resource piles, chickens, deer, rabbits, fish, birds, and wolves provide inspect data.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-14 - General carried-resource death drop
+
+- Resident death now drops all currently carried resources instead of only construction Logs/Stone.
+- Logs and Stone still use loose construction resource piles so builders and storage workers can recover them through the existing construction/logistics flow.
+- Game, Fish, Berries, Roots, and Mushrooms now drop as loose carried-resource piles; Granary workers recover Game/Fish, and household foragers recover nearby forage food for their home.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-14 - Construction carried-resource death drop
+
+- Residents who die while carrying Logs or Stone now drop those materials as loose construction resource piles at the death cell instead of losing them during death cleanup.
+- Death-dropped construction piles clear the previous construction reservation binding, so any still-needing construction site can reserve them again.
+- Construction pickup search now falls back to dynamically reserving a nearby free loose pile after existing reserved loose piles, Storage Yards, and Stonecutter Camp Stone are unavailable.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-14 - Stone logistics construction fallback
+
+- `debug.log` showed Stone was mined into Stonecutter Camp local stock while build affordability stayed at Storage Yard `Stone: 0`.
+- Stonecutter Camps now expose reserved Stone as a construction-resource source, so builders can pick up Stone directly from camp stock when a construction site reserved it.
+- Construction affordability/reservation now includes available Stone from Stonecutter Camps in addition to Storage Yard stock and loose construction resource piles.
+- Storage workers now prioritize Stone hauling when Stone is needed by active construction or when yard Stone stock is lower than Logs, preventing perpetual Logs-first starvation.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-13 - Building selection resident links
+
+- Selecting a completed building now also shows a lightweight world overlay for its linked residents without changing the selected-object HUD.
+- Houses link to current residents; worksites link to assigned workers, and Storage Yards link to both storage workers and builders.
+- Linked residents get a small gold ground marker and a thin dynamic line from the selected building anchor to the resident.
+- Selection links update while the building remains selected, so worker assignment/removal and resident cleanup are reflected without reopening the HUD.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-13 - Wolf packs predator MVP
+
+- Added autonomous wolf packs to the wildlife generator with safe land spawning away from the startup camp and dense settlement pressure.
+- Added generated 2.5D wolf sprites and a wolf agent with idle, roaming, stalking, chasing, attack, feeding, avoiding-settlement, resting, and howling states.
+- Added predator reservation/death hooks to rabbits and deer so wolves can hunt them without conflicting with hunter reservations.
+- Wolves can rarely reserve vulnerable adult residents away from settlement safety and trigger normal `wolf_attack` resident death/funeral flow through `StrategyPopulationController`.
+- Updated `Assembly-CSharp.csproj` and Unity `.meta` files for the new wolf runtime scripts.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-13 - Household foraging MVP
+
+- Added generated forage nodes for Berries, Roots, and Mushrooms using seeded terrain placement, starter-area guarantees, procedural node sprites, reservations, depletion, and timed regrowth.
+- Added house-local forage food resources/icons and included them in household food consumption before Granary food.
+- Houses now attach a household foraging state that dispatches non-householder, unemployed adults and older children during daytime to gather forage and carry it back to their own home.
+- Resident foraging has explicit move/gather/carry/deposit states, visible carried baskets, cancellation cleanup for death/funerals/home changes, and debug events for node/resident flow.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
 
 ### 2026-06-13 - Gradual fishing reel-in animation
 

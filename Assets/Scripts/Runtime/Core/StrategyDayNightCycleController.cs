@@ -17,6 +17,15 @@ namespace ProjectUnknown.Strategy
         private int loggedPhaseIndex = -1;
 
         public float DayPhase => Mathf.Repeat(Time.timeSinceLevelLoad / CycleSeconds, 1f);
+        public static bool IsHouseholdOutdoorWorkTime
+        {
+            get
+            {
+                float phase = Mathf.Repeat(Time.timeSinceLevelLoad / CycleSeconds, 1f);
+                return phase >= 0.18f && phase < 0.78f;
+            }
+        }
+
         public static float ShadowOpacityMultiplier { get; private set; } = 1f;
         public static float ShadowLengthMultiplier { get; private set; } = 1f;
 

@@ -9,6 +9,9 @@ namespace ProjectUnknown.Strategy
         Onion,
         Carrot,
         Potato,
+        Berries,
+        Roots,
+        Mushrooms,
         Game,
         Fish,
         Stone

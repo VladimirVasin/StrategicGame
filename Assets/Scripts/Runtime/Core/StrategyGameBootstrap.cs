@@ -211,6 +211,24 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.Info("Bootstrap", "NatureReady", StrategyDebugLogger.F("excluded", false));
             }
 
+            StrategyForageResourceController forage = Object.FindAnyObjectByType<StrategyForageResourceController>();
+            if (forage == null)
+            {
+                GameObject forageObject = new GameObject("Strategy Forage Resources");
+                forage = forageObject.AddComponent<StrategyForageResourceController>();
+            }
+
+            if (population.TryGetCampCell(out Vector2Int forageCampCell))
+            {
+                forage.Configure(map, forageCampCell);
+            }
+            else
+            {
+                forage.Configure(map);
+            }
+
+            StrategyDebugLogger.Info("Bootstrap", "ForageReady");
+
             StrategyFogOfWarController fog = Object.FindAnyObjectByType<StrategyFogOfWarController>();
             if (fog == null)
             {
@@ -263,7 +281,7 @@ namespace ProjectUnknown.Strategy
                 selection = selectionObject.AddComponent<StrategyWorldSelectionController>();
             }
 
-            selection.Configure(mainCamera, buildMenu, upgrades, fog, population, forestry, placement, confirmationDialog);
+            selection.Configure(mainCamera, buildMenu, upgrades, fog, population, forestry, placement, confirmationDialog, map);
             StrategyDebugLogger.Info("Bootstrap", "SelectionReady");
 
             StrategyProfessionHudController professionHud = Object.FindAnyObjectByType<StrategyProfessionHudController>();

@@ -9,7 +9,7 @@ namespace ProjectUnknown.Strategy
     }
 
     [DisallowMultipleComponent]
-    public sealed class StrategyBuildingUpgrade : MonoBehaviour
+    public sealed class StrategyBuildingUpgrade : MonoBehaviour, IStrategyWorldInspectable
     {
         private const float GardenHarvestSeconds = 8f;
         private const float ChickenCoopEggCycleSeconds = 22f;
@@ -19,6 +19,7 @@ namespace ProjectUnknown.Strategy
 
         private float productionTimer;
         private float productionCycleSeconds;
+        private SpriteRenderer spriteRenderer;
         private bool chickenEggStoredThisCycle;
 
         public StrategyBuildingUpgradeType Type { get; private set; }
@@ -51,6 +52,7 @@ namespace ProjectUnknown.Strategy
             Footprint = footprint;
             FootprintBounds = footprintBounds;
             ProducedResource = producedResource;
+            spriteRenderer = GetComponent<SpriteRenderer>();
 
             if (Type == StrategyBuildingUpgradeType.ChickenCoop)
             {
@@ -61,6 +63,24 @@ namespace ProjectUnknown.Strategy
                 productionCycleSeconds = GardenHarvestSeconds;
                 productionTimer = Random.Range(GardenHarvestSeconds * 0.35f, GardenHarvestSeconds);
             }
+        }
+
+        public bool TryGetWorldInspectInfo(out StrategyWorldInspectInfo info)
+        {
+            string body = "Produces: "
+                + GetResourceTitle(ProducedResource)
+                + "\nProgress: "
+                + Mathf.RoundToInt(GetProductionProgress() * 100f)
+                + "%\nOwner: "
+                + (Owner != null ? "House " + Owner.Origin.x + ", " + Owner.Origin.y : "none");
+            info = new StrategyWorldInspectInfo(
+                GetUpgradeTitle(Type),
+                "Household upgrade",
+                body,
+                spriteRenderer != null ? spriteRenderer.sprite : null,
+                Origin,
+                true);
+            return true;
         }
 
         private void Update()
@@ -151,6 +171,34 @@ namespace ProjectUnknown.Strategy
                     StrategyDebugLogger.F("coopOrigin", Origin),
                     StrategyDebugLogger.F("cycleSeconds", productionCycleSeconds));
             }
+        }
+
+        private float GetProductionProgress()
+        {
+            return Type == StrategyBuildingUpgradeType.GardenBeds
+                ? GardenGrowthProgress
+                : Type == StrategyBuildingUpgradeType.ChickenCoop
+                    ? ChickenCoopProductionProgress
+                    : 0f;
+        }
+
+        private static string GetUpgradeTitle(StrategyBuildingUpgradeType type)
+        {
+            return type == StrategyBuildingUpgradeType.GardenBeds ? "Garden Beds" : "Chicken Coop";
+        }
+
+        private static string GetResourceTitle(StrategyResourceType type)
+        {
+            return type switch
+            {
+                StrategyResourceType.Eggs => "Eggs",
+                StrategyResourceType.Turnip => "Turnip",
+                StrategyResourceType.Cabbage => "Cabbage",
+                StrategyResourceType.Onion => "Onion",
+                StrategyResourceType.Carrot => "Carrot",
+                StrategyResourceType.Potato => "Potato",
+                _ => type.ToString()
+            };
         }
     }
 }

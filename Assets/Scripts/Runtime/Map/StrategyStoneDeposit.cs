@@ -10,7 +10,7 @@ namespace ProjectUnknown.Strategy
     }
 
     [DisallowMultipleComponent]
-    public sealed class StrategyStoneDeposit : MonoBehaviour
+    public sealed class StrategyStoneDeposit : MonoBehaviour, IStrategyWorldInspectable
     {
         private const float HitShakeSeconds = 0.18f;
         private const float ShakeDistance = 0.035f;
@@ -54,6 +54,26 @@ namespace ProjectUnknown.Strategy
 
             BlockWalkability();
             controller?.RegisterDeposit(this);
+        }
+
+        public bool TryGetWorldInspectInfo(out StrategyWorldInspectInfo info)
+        {
+            string body = "Stone: "
+                + StoneAmount
+                + "\nFootprint: "
+                + Footprint.x
+                + "x"
+                + Footprint.y
+                + "\nState: "
+                + (IsDepleted ? "depleted" : IsReserved ? "reserved" : "available");
+            info = new StrategyWorldInspectInfo(
+                GetStoneTitle(Kind),
+                "Stone deposit",
+                body,
+                spriteRenderer != null ? spriteRenderer.sprite : null,
+                Cell,
+                true);
+            return true;
         }
 
         public bool TryReserve(object owner)
@@ -341,6 +361,17 @@ namespace ProjectUnknown.Strategy
                 StrategyResidentAgent resident => resident.FullName,
                 null => "none",
                 _ => owner.GetType().Name
+            };
+        }
+
+        private static string GetStoneTitle(StrategyStoneDepositKind kind)
+        {
+            return kind switch
+            {
+                StrategyStoneDepositKind.Boulder => "Boulder",
+                StrategyStoneDepositKind.RockCluster => "Rock Cluster",
+                StrategyStoneDepositKind.Cliff => "Stone Cliff",
+                _ => kind.ToString()
             };
         }
 

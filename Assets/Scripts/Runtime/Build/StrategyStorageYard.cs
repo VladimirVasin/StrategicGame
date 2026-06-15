@@ -117,7 +117,8 @@ namespace ProjectUnknown.Strategy
             }
 
             StrategyConstructionResourceCost loose = StrategyLooseConstructionResourcePile.GetTotalAvailableResources();
-            return new StrategyConstructionResourceCost(logs + loose.Logs, stone + loose.Stone);
+            int productionStone = StrategyStonecutterCamp.GetTotalAvailableConstructionStone();
+            return new StrategyConstructionResourceCost(logs + loose.Logs, stone + loose.Stone + productionStone);
         }
 
         public static bool CanAffordConstruction(StrategyConstructionResourceCost cost)
@@ -160,6 +161,11 @@ namespace ProjectUnknown.Strategy
             for (int i = 0; i < yards.Length && remainingStone > 0; i++)
             {
                 remainingStone -= yards[i].SpendAvailableStone(remainingStone);
+            }
+
+            if (remainingStone > 0)
+            {
+                remainingStone -= StrategyStonecutterCamp.SpendAvailableConstructionStone(remainingStone, nearWorld);
             }
 
             if (remainingLogs > 0 || remainingStone > 0)
@@ -228,6 +234,11 @@ namespace ProjectUnknown.Strategy
                 remainingStone -= reserved;
             }
 
+            if (remainingStone > 0)
+            {
+                remainingStone -= StrategyStonecutterCamp.ReserveConstructionStone(owner, remainingStone, nearWorld);
+            }
+
             if (remainingLogs > 0 || remainingStone > 0)
             {
                 ReleaseConstructionReservations(owner);
@@ -261,6 +272,7 @@ namespace ProjectUnknown.Strategy
             }
 
             StrategyLooseConstructionResourcePile.ReleaseConstructionReservations(owner);
+            StrategyStonecutterCamp.ReleaseConstructionReservations(owner);
         }
 
         public static bool TryFindConstructionPickup(
@@ -297,6 +309,19 @@ namespace ProjectUnknown.Strategy
                     source = yard;
                     return true;
                 }
+            }
+
+            if (kind == StrategyConstructionResourceKind.Stone
+                && StrategyStonecutterCamp.TryFindConstructionPickup(owner, nearWorld, out StrategyStonecutterCamp camp, out pickupCell))
+            {
+                source = camp;
+                return true;
+            }
+
+            if (StrategyLooseConstructionResourcePile.TryReserveNearestAvailableForConstruction(owner, kind, nearWorld, out StrategyLooseConstructionResourcePile availablePile, out pickupCell))
+            {
+                source = availablePile;
+                return true;
             }
 
             return false;
@@ -794,6 +819,27 @@ namespace ProjectUnknown.Strategy
             return true;
         }
 
+        public bool ShouldPrioritizeStonePickup()
+        {
+            if (!HasAvailableStoneLogisticsSource())
+            {
+                return false;
+            }
+
+            if (!HasAvailableLogLogisticsSource())
+            {
+                return true;
+            }
+
+            if (HasWaitingConstructionNeeding(StrategyConstructionResourceKind.Stone)
+                && AvailableConstructionStone <= 0)
+            {
+                return true;
+            }
+
+            return stoneStored < logsStored;
+        }
+
         public bool TryFindDropoffCell(out Vector2Int cell)
         {
             cell = default;
@@ -1132,6 +1178,73 @@ namespace ProjectUnknown.Strategy
             }
 
             return count;
+        }
+
+        private bool HasAvailableLogLogisticsSource()
+        {
+            StrategyConstructionResourceCost loose = StrategyLooseConstructionResourcePile.GetTotalAvailableResources();
+            if (loose.Logs > 0)
+            {
+                return true;
+            }
+
+            StrategyLumberjackCamp[] camps = Object.FindObjectsByType<StrategyLumberjackCamp>();
+            for (int i = 0; i < camps.Length; i++)
+            {
+                StrategyLumberjackCamp camp = camps[i];
+                if (camp != null && camp.AvailableLogs > 0)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool HasAvailableStoneLogisticsSource()
+        {
+            StrategyConstructionResourceCost loose = StrategyLooseConstructionResourcePile.GetTotalAvailableResources();
+            if (loose.Stone > 0)
+            {
+                return true;
+            }
+
+            StrategyStonecutterCamp[] camps = Object.FindObjectsByType<StrategyStonecutterCamp>();
+            for (int i = 0; i < camps.Length; i++)
+            {
+                StrategyStonecutterCamp camp = camps[i];
+                if (camp != null && camp.AvailableStone > 0)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool HasWaitingConstructionNeeding(StrategyConstructionResourceKind kind)
+        {
+            StrategyConstructionSite[] sites = Object.FindObjectsByType<StrategyConstructionSite>();
+            for (int i = 0; i < sites.Length; i++)
+            {
+                StrategyConstructionSite site = sites[i];
+                if (site == null || site.IsCompleted || site.ResourcesComplete)
+                {
+                    continue;
+                }
+
+                if (kind == StrategyConstructionResourceKind.Logs && site.NeededLogs > 0)
+                {
+                    return true;
+                }
+
+                if (kind == StrategyConstructionResourceKind.Stone && site.NeededStone > 0)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private bool TryGetAvailableBuilder(out StrategyResidentAgent builder)

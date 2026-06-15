@@ -49,6 +49,15 @@ namespace ProjectUnknown.Strategy
                 case StrategyResourceType.Potato:
                     PaintPotato(texture);
                     break;
+                case StrategyResourceType.Berries:
+                    PaintBerries(texture);
+                    break;
+                case StrategyResourceType.Roots:
+                    PaintRoots(texture);
+                    break;
+                case StrategyResourceType.Mushrooms:
+                    PaintMushrooms(texture);
+                    break;
                 case StrategyResourceType.Game:
                     PaintGame(texture);
                     break;
@@ -188,6 +197,74 @@ namespace ProjectUnknown.Strategy
             FillEllipse(texture, 17, 14, 2, 2, meatLight);
             SetPixelSafe(texture, 9, 14, outline);
             SetPixelSafe(texture, 18, 9, outline);
+        }
+
+        private static void PaintBerries(Texture2D texture)
+        {
+            Color outline = Rgb(55, 41, 65);
+            Color leaf = Rgb(72, 139, 70);
+            Color leafLight = Rgb(119, 177, 82);
+            Color berryDark = Rgb(106, 38, 92);
+            Color berry = Rgb(180, 52, 89);
+            Color berryLight = Rgb(231, 113, 129);
+
+            DrawLine(texture, 12, 4, 12, 19, Rgb(74, 89, 48));
+            DrawLine(texture, 12, 12, 6, 17, leaf);
+            DrawLine(texture, 12, 11, 18, 17, leafLight);
+            FillEllipse(texture, 8, 10, 4, 4, outline);
+            FillEllipse(texture, 8, 10, 3, 3, berryDark);
+            FillEllipse(texture, 13, 8, 4, 4, outline);
+            FillEllipse(texture, 13, 8, 3, 3, berry);
+            FillEllipse(texture, 16, 13, 4, 4, outline);
+            FillEllipse(texture, 16, 13, 3, 3, berry);
+            FillEllipse(texture, 11, 15, 4, 4, outline);
+            FillEllipse(texture, 11, 15, 3, 3, berryDark);
+            SetPixelSafe(texture, 14, 10, berryLight);
+            SetPixelSafe(texture, 17, 14, berryLight);
+        }
+
+        private static void PaintRoots(Texture2D texture)
+        {
+            Color outline = Rgb(67, 49, 33);
+            Color soil = Rgb(113, 80, 52);
+            Color root = Rgb(171, 113, 66);
+            Color rootLight = Rgb(207, 150, 88);
+            Color leaf = Rgb(80, 151, 68);
+
+            FillEllipse(texture, 12, 8, 8, 3, soil);
+            DrawLine(texture, 10, 10, 6, 18, outline);
+            DrawLine(texture, 10, 10, 7, 18, root);
+            DrawLine(texture, 13, 10, 18, 19, outline);
+            DrawLine(texture, 13, 10, 17, 19, rootLight);
+            DrawLine(texture, 12, 10, 12, 21, outline);
+            DrawLine(texture, 12, 10, 13, 20, root);
+            DrawLine(texture, 12, 11, 8, 5, leaf);
+            DrawLine(texture, 13, 11, 15, 4, leaf);
+            DrawLine(texture, 14, 11, 19, 6, leaf);
+            SetPixelSafe(texture, 9, 15, outline);
+            SetPixelSafe(texture, 15, 16, outline);
+        }
+
+        private static void PaintMushrooms(Texture2D texture)
+        {
+            Color outline = Rgb(72, 48, 40);
+            Color stem = Rgb(226, 207, 170);
+            Color cap = Rgb(186, 72, 58);
+            Color capLight = Rgb(229, 157, 101);
+            Color tanCap = Rgb(176, 139, 87);
+
+            FillRect(texture, 8, 6, 3, 8, outline);
+            FillRect(texture, 9, 6, 1, 8, stem);
+            FillEllipse(texture, 9, 15, 6, 4, outline);
+            FillEllipse(texture, 9, 15, 5, 3, cap);
+            SetPixelSafe(texture, 7, 16, stem);
+            SetPixelSafe(texture, 11, 15, stem);
+            FillRect(texture, 15, 5, 3, 7, outline);
+            FillRect(texture, 16, 5, 1, 7, stem);
+            FillEllipse(texture, 16, 13, 5, 3, outline);
+            FillEllipse(texture, 16, 13, 4, 2, tanCap);
+            FillEllipse(texture, 18, 14, 2, 1, capLight);
+            DrawLine(texture, 5, 4, 20, 4, Rgb(72, 121, 66));
         }
 
         private static void PaintFish(Texture2D texture)

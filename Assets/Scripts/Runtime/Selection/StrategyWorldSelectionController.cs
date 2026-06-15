@@ -15,6 +15,7 @@ namespace ProjectUnknown.Strategy
         private const int StorageWorkerHudSlots = 2;
         private const int StorageBuilderHudSlots = 2;
         private const int MaxWorkerHudSlots = StorageWorkerHudSlots + StorageBuilderHudSlots;
+        private const int SelectionLinkSortingOrder = StrategyWorldSorting.DayNightOverlayOrder - 120;
 
         private Camera strategyCamera;
         private StrategyBuildMenuController buildMenu;
@@ -22,8 +23,17 @@ namespace ProjectUnknown.Strategy
         private StrategyBuildPlacementController placementController;
         private StrategyConfirmationDialogController confirmationDialog;
         private StrategyFogOfWarController fog;
+        private CityMapController map;
+        private StrategyWorldInspectHudController inspectHud;
         private Sprite markerSprite;
         private SpriteRenderer markerRenderer;
+        private Transform selectionLinksRoot;
+        private Sprite linkedResidentMarkerSprite;
+        private Material linkLineMaterial;
+        private readonly List<StrategyResidentAgent> linkedResidents = new();
+        private readonly List<StrategyResidentAgent> linkedResidentsScratch = new();
+        private readonly List<SpriteRenderer> linkedResidentMarkers = new();
+        private readonly List<LineRenderer> linkedResidentLines = new();
         private RectTransform hudPanel;
         private CanvasGroup hudGroup;
         private Image hudPreviewImage;
@@ -114,14 +124,30 @@ namespace ProjectUnknown.Strategy
             StrategyBuildPlacementController placement,
             StrategyConfirmationDialogController confirmation)
         {
+            Configure(camera, menu, upgrades, fogController, populationController, forestryController, placement, confirmation, null);
+        }
+
+        public void Configure(
+            Camera camera,
+            StrategyBuildMenuController menu,
+            StrategyBuildingUpgradeController upgrades,
+            StrategyFogOfWarController fogController,
+            StrategyPopulationController populationController,
+            StrategyForestryController forestryController,
+            StrategyBuildPlacementController placement,
+            StrategyConfirmationDialogController confirmation,
+            CityMapController mapController)
+        {
             strategyCamera = camera;
             buildMenu = menu;
             upgradeController = upgrades;
             placementController = placement;
             confirmationDialog = confirmation;
             fog = fogController;
+            map = mapController != null ? mapController : Object.FindAnyObjectByType<CityMapController>();
             EnsureMarker();
             EnsureHud();
+            EnsureInspectHud();
         }
 
         private void Update()
@@ -239,12 +265,14 @@ namespace ProjectUnknown.Strategy
             if (fog != null && !fog.IsWorldExplored(world))
             {
                 ClearSelection();
+                inspectHud?.Hide();
                 return;
             }
 
             Physics2D.SyncTransforms();
 
             Collider2D[] hits = Physics2D.OverlapPointAll(new Vector2(world.x, world.y));
+            UpdateInspectHud(world, hits);
             SelectBestHit(hits);
         }
 
@@ -310,6 +338,284 @@ namespace ProjectUnknown.Strategy
             ClearSelection();
         }
 
+        private void UpdateInspectHud(Vector3 world, Collider2D[] hits)
+        {
+            EnsureInspectHud();
+            if (inspectHud == null)
+            {
+                return;
+            }
+
+            if (TryBuildSelectionInspectInfo(world, hits, out StrategyWorldInspectInfo selectionInfo))
+            {
+                inspectHud.Show(selectionInfo);
+                return;
+            }
+
+            inspectHud.Hide();
+        }
+
+        private bool TryBuildSelectionInspectInfo(Vector3 world, Collider2D[] hits, out StrategyWorldInspectInfo info)
+        {
+            info = default;
+            if (hits == null)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < hits.Length; i++)
+            {
+                StrategyResidentAgent resident = hits[i].GetComponentInParent<StrategyResidentAgent>();
+                if (resident != null)
+                {
+                    info = BuildResidentInspectInfo(resident);
+                    return true;
+                }
+            }
+
+            if (TryBuildInspectableWorldInfo(world, out info))
+            {
+                return true;
+            }
+
+            for (int i = 0; i < hits.Length; i++)
+            {
+                StrategyPlacedBuilding building = hits[i].GetComponentInParent<StrategyPlacedBuilding>();
+                if (building != null)
+                {
+                    info = BuildBuildingInspectInfo(building);
+                    return true;
+                }
+            }
+
+            for (int i = 0; i < hits.Length; i++)
+            {
+                StrategyConstructionSite site = hits[i].GetComponentInParent<StrategyConstructionSite>();
+                if (site != null)
+                {
+                    info = BuildConstructionInspectInfo(site);
+                    return true;
+                }
+            }
+
+            for (int i = 0; i < hits.Length; i++)
+            {
+                StrategyGraveMarker grave = hits[i].GetComponentInParent<StrategyGraveMarker>();
+                if (grave != null)
+                {
+                    info = BuildGraveInspectInfo(grave);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool TryBuildInspectableWorldInfo(Vector3 world, out StrategyWorldInspectInfo info)
+        {
+            info = default;
+            MonoBehaviour[] behaviours = Object.FindObjectsByType<MonoBehaviour>();
+            IStrategyWorldInspectable best = null;
+            int bestSortingOrder = int.MinValue;
+            float bestArea = float.MaxValue;
+
+            for (int i = 0; i < behaviours.Length; i++)
+            {
+                MonoBehaviour behaviour = behaviours[i];
+                if (behaviour == null
+                    || !behaviour.isActiveAndEnabled
+                    || behaviour is not IStrategyWorldInspectable inspectable
+                    || behaviour is StrategyResidentAgent
+                    || behaviour is StrategyPlacedBuilding
+                    || behaviour is StrategyConstructionSite
+                    || behaviour is StrategyGraveMarker)
+                {
+                    continue;
+                }
+
+                if (!TryGetInspectableSpriteBounds(behaviour, world, out Bounds bounds, out int sortingOrder))
+                {
+                    continue;
+                }
+
+                float area = Mathf.Max(0.0001f, bounds.size.x * bounds.size.y);
+                if (best == null
+                    || sortingOrder > bestSortingOrder
+                    || (sortingOrder == bestSortingOrder && area < bestArea))
+                {
+                    best = inspectable;
+                    bestSortingOrder = sortingOrder;
+                    bestArea = area;
+                }
+            }
+
+            return best != null
+                && best.TryGetWorldInspectInfo(out info)
+                && info.IsValid;
+        }
+
+        private static bool TryGetInspectableSpriteBounds(MonoBehaviour behaviour, Vector3 world, out Bounds bounds, out int sortingOrder)
+        {
+            bounds = default;
+            sortingOrder = int.MinValue;
+            SpriteRenderer[] renderers = behaviour.GetComponentsInChildren<SpriteRenderer>(false);
+            bool hasBounds = false;
+            for (int i = 0; i < renderers.Length; i++)
+            {
+                SpriteRenderer renderer = renderers[i];
+                if (renderer == null
+                    || !renderer.enabled
+                    || renderer.sprite == null
+                    || IsAuxiliaryInspectRenderer(renderer))
+                {
+                    continue;
+                }
+
+                Bounds rendererBounds = renderer.bounds;
+                if (!hasBounds)
+                {
+                    bounds = rendererBounds;
+                    hasBounds = true;
+                }
+                else
+                {
+                    bounds.Encapsulate(rendererBounds);
+                }
+
+                sortingOrder = Mathf.Max(sortingOrder, renderer.sortingOrder);
+            }
+
+            if (!hasBounds)
+            {
+                return false;
+            }
+
+            Vector3 testWorld = new Vector3(world.x, world.y, bounds.center.z);
+            return bounds.Contains(testWorld);
+        }
+
+        private static bool IsAuxiliaryInspectRenderer(SpriteRenderer renderer)
+        {
+            string objectName = renderer.gameObject.name;
+            return objectName.Contains("Shadow")
+                || objectName.Contains("Outline")
+                || objectName.Contains("Line")
+                || objectName.Contains("Damage")
+                || objectName.Contains("Readability");
+        }
+
+        private StrategyWorldInspectInfo BuildResidentInspectInfo(StrategyResidentAgent resident)
+        {
+            bool hasCell = TryGetCellForWorld(resident.transform.position, out Vector2Int cell);
+            string body = "Role: "
+                + GetResidentRoleTitle(resident)
+                + "\nAge: "
+                + resident.DisplayAgeYears
+                + "\nStatus: "
+                + GetResidentStatus(resident)
+                + "\nHome: "
+                + (resident.Home != null ? GetBuildingTitle(resident.Home.Tool) : "Camp");
+            return new StrategyWorldInspectInfo(
+                resident.FullName,
+                "Resident",
+                body,
+                StrategyResidentSpriteFactory.GetPortraitSprite(resident.Gender, resident.VisualVariant, resident.LifeStage),
+                cell,
+                hasCell);
+        }
+
+        private StrategyWorldInspectInfo BuildBuildingInspectInfo(StrategyPlacedBuilding building)
+        {
+            string body = "Origin: "
+                + FormatCell(building.Origin)
+                + "\nFootprint: "
+                + building.Footprint.x
+                + "x"
+                + building.Footprint.y;
+            if (building.Tool == StrategyBuildTool.House)
+            {
+                body += "\nResidents: "
+                    + building.ResidentCount
+                    + "/"
+                    + building.ResidentCapacity
+                    + "\nUpgrades: "
+                    + building.InstalledUpgradeCount;
+            }
+            else
+            {
+                string operation = GetBuildingOperationText(building);
+                if (!string.IsNullOrWhiteSpace(operation))
+                {
+                    body += "\n" + operation;
+                }
+            }
+
+            return new StrategyWorldInspectInfo(
+                GetBuildingTitle(building.Tool),
+                "Building",
+                body,
+                GetBuildingPreviewSprite(building),
+                building.Origin,
+                true);
+        }
+
+        private StrategyWorldInspectInfo BuildConstructionInspectInfo(StrategyConstructionSite site)
+        {
+            string body = "Building: "
+                + GetBuildingTitle(site.Tool)
+                + "\nLogs: "
+                + site.DeliveredLogs
+                + "/"
+                + site.Cost.Logs
+                + "\nStone: "
+                + site.DeliveredStone
+                + "/"
+                + site.Cost.Stone
+                + "\nProgress: "
+                + Mathf.RoundToInt(site.Progress * 100f)
+                + "%";
+            int stage = site.ResourcesComplete
+                ? Mathf.Clamp(1 + Mathf.FloorToInt(site.Progress * (StrategyConstructionSpriteFactory.StageCount - 1)), 1, StrategyConstructionSpriteFactory.StageCount - 1)
+                : 0;
+            Sprite icon = site.Tool == StrategyBuildTool.Bridge
+                ? StrategyConstructionSpriteFactory.GetBridgeConstructionSprite(site.Footprint, stage)
+                : StrategyConstructionSpriteFactory.GetConstructionSprite(site.Tool, site.VisualVariant, stage);
+            return new StrategyWorldInspectInfo("Construction Site", site.Title, body, icon, site.Origin, true);
+        }
+
+        private StrategyWorldInspectInfo BuildGraveInspectInfo(StrategyGraveMarker grave)
+        {
+            bool hasCell = TryGetCellForWorld(grave.transform.position, out Vector2Int cell);
+            string body = grave.DeceasedName
+                + "\n"
+                + grave.GetLifeText().Replace("\n", " / ");
+            return new StrategyWorldInspectInfo("Grave", grave.FamilyRole, body, grave.PreviewSprite, cell, hasCell);
+        }
+
+        private bool TryGetCellForWorld(Vector3 world, out Vector2Int cell)
+        {
+            if (map == null)
+            {
+                map = Object.FindAnyObjectByType<CityMapController>();
+            }
+
+            cell = default;
+            return map != null && map.TryWorldToCell(world, out cell);
+        }
+
+        private void EnsureInspectHud()
+        {
+            if (inspectHud != null)
+            {
+                return;
+            }
+
+            GameObject obj = new GameObject("Strategy World Inspect HUD");
+            obj.transform.SetParent(transform, false);
+            inspectHud = obj.AddComponent<StrategyWorldInspectHudController>();
+            inspectHud.Configure(selectedTransform != null ? HudWidth + 18f : 18f);
+        }
+
         private void Select(Transform target, Bounds bounds)
         {
             bool changedSelection = selectedTransform != target;
@@ -326,6 +632,15 @@ namespace ProjectUnknown.Strategy
 
             RefreshHud();
             UpdateSelectionMarker(bounds);
+            StrategyPlacedBuilding building = target != null ? target.GetComponent<StrategyPlacedBuilding>() : null;
+            if (building != null)
+            {
+                UpdateSelectionLinks(building);
+            }
+            else
+            {
+                ClearSelectionLinks();
+            }
         }
 
         private void UpdateSelectionMarker(Bounds bounds)
@@ -357,6 +672,7 @@ namespace ProjectUnknown.Strategy
                 markerRenderer.gameObject.SetActive(false);
             }
 
+            ClearSelectionLinks();
             RefreshHud();
         }
 
@@ -379,6 +695,7 @@ namespace ProjectUnknown.Strategy
             if (resident != null)
             {
                 UpdateSelectionMarker(resident.SelectionBounds);
+                ClearSelectionLinks();
                 RefreshHud();
                 return;
             }
@@ -387,6 +704,7 @@ namespace ProjectUnknown.Strategy
             if (building != null)
             {
                 UpdateSelectionMarker(building.SelectionBounds);
+                UpdateSelectionLinks(building);
                 RefreshHud();
                 return;
             }
@@ -395,6 +713,7 @@ namespace ProjectUnknown.Strategy
             if (constructionSite != null)
             {
                 UpdateSelectionMarker(constructionSite.SelectionBounds);
+                ClearSelectionLinks();
                 RefreshHud();
                 return;
             }
@@ -403,12 +722,15 @@ namespace ProjectUnknown.Strategy
             if (grave != null)
             {
                 UpdateSelectionMarker(grave.SelectionBounds);
+                ClearSelectionLinks();
                 RefreshHud();
             }
         }
 
         private void UpdateHudAnimation()
         {
+            inspectHud?.SetRightInset(selectedTransform != null ? HudWidth + 18f : 18f);
+
             if (hudPanel == null || hudGroup == null)
             {
                 return;
@@ -656,19 +978,7 @@ namespace ProjectUnknown.Strategy
 
         private void SetBuildingPreviewSprite(StrategyPlacedBuilding building)
         {
-            if (building != null && building.Tool == StrategyBuildTool.Bridge)
-            {
-                SetPreviewSprite(StrategyBuildingSpriteFactory.GetBridgeSprite(building.Footprint));
-                return;
-            }
-
-            if (building != null && StrategyBuildingSpriteFactory.TryGetBuildSprite(building.Tool, building.VisualVariant, out Sprite sprite))
-            {
-                SetPreviewSprite(sprite);
-                return;
-            }
-
-            SetPreviewSprite(null);
+            SetPreviewSprite(GetBuildingPreviewSprite(building));
         }
 
         private void SetPreviewSprite(Sprite sprite)
@@ -2499,6 +2809,122 @@ namespace ProjectUnknown.Strategy
             };
         }
 
+        private static Sprite GetBuildingPreviewSprite(StrategyPlacedBuilding building)
+        {
+            if (building != null && building.Tool == StrategyBuildTool.Bridge)
+            {
+                return StrategyBuildingSpriteFactory.GetBridgeSprite(building.Footprint);
+            }
+
+            if (building != null && StrategyBuildingSpriteFactory.TryGetBuildSprite(building.Tool, building.VisualVariant, out Sprite sprite))
+            {
+                return sprite;
+            }
+
+            return null;
+        }
+
+        private static string GetBuildingOperationText(StrategyPlacedBuilding building)
+        {
+            if (building == null)
+            {
+                return string.Empty;
+            }
+
+            StrategyLumberjackCamp camp = building.GetComponent<StrategyLumberjackCamp>();
+            if (camp != null)
+            {
+                return camp.GetHudStatusText();
+            }
+
+            StrategyStonecutterCamp stoneCamp = building.GetComponent<StrategyStonecutterCamp>();
+            if (stoneCamp != null)
+            {
+                return stoneCamp.GetHudStatusText();
+            }
+
+            StrategyHunterCamp hunterCamp = building.GetComponent<StrategyHunterCamp>();
+            if (hunterCamp != null)
+            {
+                return hunterCamp.GetHudStatusText();
+            }
+
+            StrategyFisherHut fisherHut = building.GetComponent<StrategyFisherHut>();
+            if (fisherHut != null)
+            {
+                return fisherHut.GetHudStatusText();
+            }
+
+            StrategyStorageYard yard = building.GetComponent<StrategyStorageYard>();
+            if (yard != null)
+            {
+                return yard.GetHudStatusText();
+            }
+
+            StrategyGranary granary = building.GetComponent<StrategyGranary>();
+            return granary != null ? granary.GetHudStatusText() : string.Empty;
+        }
+
+        private static string GetResidentRoleTitle(StrategyResidentAgent resident)
+        {
+            if (resident == null)
+            {
+                return "settler";
+            }
+
+            if (!resident.IsAdult)
+            {
+                return "child";
+            }
+
+            if (resident.IsHouseholder)
+            {
+                return "householder";
+            }
+
+            if (resident.BuilderWorkplace != null || resident.ConstructionSite != null)
+            {
+                return "builder";
+            }
+
+            if (resident.Workplace != null)
+            {
+                return "lumberjack";
+            }
+
+            if (resident.StoneWorkplace != null)
+            {
+                return "stonecutter";
+            }
+
+            if (resident.HunterWorkplace != null)
+            {
+                return "hunter";
+            }
+
+            if (resident.FisherWorkplace != null)
+            {
+                return "fisher";
+            }
+
+            if (resident.StorageWorkplace != null)
+            {
+                return "storekeeper";
+            }
+
+            if (resident.GranaryWorkplace != null)
+            {
+                return "granary worker";
+            }
+
+            return "settler";
+        }
+
+        private static string FormatCell(Vector2Int cell)
+        {
+            return cell.x + ", " + cell.y;
+        }
+
         private static string GetUpgradeTitle(StrategyBuildingUpgradeType type)
         {
             return type == StrategyBuildingUpgradeType.GardenBeds
@@ -2516,6 +2942,9 @@ namespace ProjectUnknown.Strategy
                 StrategyResourceType.Onion => "Onion",
                 StrategyResourceType.Carrot => "Carrot",
                 StrategyResourceType.Potato => "Potato",
+                StrategyResourceType.Berries => "Berries",
+                StrategyResourceType.Roots => "Roots",
+                StrategyResourceType.Mushrooms => "Mushrooms",
                 StrategyResourceType.Game => "Game",
                 StrategyResourceType.Fish => "Fish",
                 _ => "none"
@@ -2533,6 +2962,12 @@ namespace ProjectUnknown.Strategy
                 StrategyResidentAgent.ResidentActivity.LeavingSettlement => "leaving settlement",
                 StrategyResidentAgent.ResidentActivity.WorkingGarden => "working garden beds",
                 StrategyResidentAgent.ResidentActivity.MovingToGarden => "going to garden beds",
+                StrategyResidentAgent.ResidentActivity.MovingToForage => "going foraging",
+                StrategyResidentAgent.ResidentActivity.GatheringForage => "gathering food",
+                StrategyResidentAgent.ResidentActivity.MovingToLooseForagePickup => "recovering dropped food",
+                StrategyResidentAgent.ResidentActivity.PickingUpLooseForage => "picking up dropped food",
+                StrategyResidentAgent.ResidentActivity.CarryingForage => "bringing food home",
+                StrategyResidentAgent.ResidentActivity.DepositingForage => "storing household food",
                 StrategyResidentAgent.ResidentActivity.MovingToTree => "going to a tree",
                 StrategyResidentAgent.ResidentActivity.ChoppingTree => "chopping tree",
                 StrategyResidentAgent.ResidentActivity.BuckingTree => "bucking trunk",
@@ -2676,6 +3111,316 @@ namespace ProjectUnknown.Strategy
             return resident != null && resident.LifeStage == StrategyResidentLifeStage.Child
                 ? "child"
                 : "adult";
+        }
+
+        private void UpdateSelectionLinks(StrategyPlacedBuilding building)
+        {
+            linkedResidentsScratch.Clear();
+            CollectLinkedResidents(building, linkedResidentsScratch);
+            bool changed = linkedResidents.Count != linkedResidentsScratch.Count;
+            if (!changed)
+            {
+                for (int i = 0; i < linkedResidents.Count; i++)
+                {
+                    if (linkedResidents[i] != linkedResidentsScratch[i])
+                    {
+                        changed = true;
+                        break;
+                    }
+                }
+            }
+
+            if (changed)
+            {
+                linkedResidents.Clear();
+                for (int i = 0; i < linkedResidentsScratch.Count; i++)
+                {
+                    linkedResidents.Add(linkedResidentsScratch[i]);
+                }
+            }
+
+            if (linkedResidents.Count <= 0 || building == null)
+            {
+                HideSelectionLinks();
+                return;
+            }
+
+            EnsureSelectionLinkVisualCount(linkedResidents.Count);
+            Vector3 buildingAnchor = GetSelectionLinkBuildingAnchor(building);
+            int visibleCount = 0;
+            for (int i = 0; i < linkedResidents.Count; i++)
+            {
+                StrategyResidentAgent resident = linkedResidents[i];
+                if (resident == null)
+                {
+                    continue;
+                }
+
+                Vector3 residentAnchor = GetSelectionLinkResidentAnchor(resident);
+                SpriteRenderer marker = linkedResidentMarkers[visibleCount];
+                LineRenderer line = linkedResidentLines[visibleCount];
+                marker.gameObject.SetActive(true);
+                line.gameObject.SetActive(true);
+                marker.transform.position = new Vector3(residentAnchor.x, residentAnchor.y, -0.055f);
+                marker.transform.localScale = GetLinkedResidentMarkerScale(resident);
+                marker.sortingOrder = SelectionLinkSortingOrder + 2;
+                line.SetPosition(0, new Vector3(buildingAnchor.x, buildingAnchor.y, -0.06f));
+                line.SetPosition(1, new Vector3(residentAnchor.x, residentAnchor.y, -0.06f));
+                line.sortingOrder = SelectionLinkSortingOrder;
+                visibleCount++;
+            }
+
+            DisableSelectionLinkVisualsFrom(visibleCount);
+        }
+
+        private void CollectLinkedResidents(StrategyPlacedBuilding building, List<StrategyResidentAgent> results)
+        {
+            if (building == null || results == null)
+            {
+                return;
+            }
+
+            if (building.Tool == StrategyBuildTool.House)
+            {
+                AddResidents(building.Residents, results);
+                return;
+            }
+
+            StrategyLumberjackCamp lumberjackCamp = building.GetComponent<StrategyLumberjackCamp>();
+            if (lumberjackCamp != null)
+            {
+                AddResidents(lumberjackCamp.Workers, results);
+            }
+
+            StrategyStonecutterCamp stonecutterCamp = building.GetComponent<StrategyStonecutterCamp>();
+            if (stonecutterCamp != null)
+            {
+                AddResidents(stonecutterCamp.Workers, results);
+            }
+
+            StrategyHunterCamp hunterCamp = building.GetComponent<StrategyHunterCamp>();
+            if (hunterCamp != null)
+            {
+                AddResidents(hunterCamp.Workers, results);
+            }
+
+            StrategyFisherHut fisherHut = building.GetComponent<StrategyFisherHut>();
+            if (fisherHut != null)
+            {
+                AddResidents(fisherHut.Workers, results);
+            }
+
+            StrategyStorageYard storageYard = building.GetComponent<StrategyStorageYard>();
+            if (storageYard != null)
+            {
+                AddResidents(storageYard.Workers, results);
+                AddResidents(storageYard.Builders, results);
+            }
+
+            StrategyGranary granary = building.GetComponent<StrategyGranary>();
+            if (granary != null)
+            {
+                AddResidents(granary.Workers, results);
+            }
+        }
+
+        private static void AddResidents(IReadOnlyList<StrategyResidentAgent> source, List<StrategyResidentAgent> results)
+        {
+            if (source == null || results == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < source.Count; i++)
+            {
+                StrategyResidentAgent resident = source[i];
+                if (resident != null && !results.Contains(resident))
+                {
+                    results.Add(resident);
+                }
+            }
+        }
+
+        private Vector3 GetSelectionLinkBuildingAnchor(StrategyPlacedBuilding building)
+        {
+            if (building == null)
+            {
+                return Vector3.zero;
+            }
+
+            if (building.Tool == StrategyBuildTool.House)
+            {
+                return building.HomeAnchor;
+            }
+
+            Bounds bounds = building.SelectionBounds;
+            return new Vector3(bounds.center.x, bounds.min.y + bounds.size.y * 0.18f, -0.06f);
+        }
+
+        private static Vector3 GetSelectionLinkResidentAnchor(StrategyResidentAgent resident)
+        {
+            if (resident == null)
+            {
+                return Vector3.zero;
+            }
+
+            Bounds bounds = resident.SelectionBounds;
+            if (bounds.size.sqrMagnitude > 0.001f)
+            {
+                return new Vector3(bounds.center.x, bounds.min.y + bounds.size.y * 0.10f, -0.06f);
+            }
+
+            Vector3 position = resident.transform.position;
+            return new Vector3(position.x, position.y, -0.06f);
+        }
+
+        private static Vector3 GetLinkedResidentMarkerScale(StrategyResidentAgent resident)
+        {
+            if (resident == null)
+            {
+                return Vector3.one;
+            }
+
+            Bounds bounds = resident.SelectionBounds;
+            float width = Mathf.Clamp(bounds.size.x * 0.92f, 0.26f, 0.58f);
+            float height = resident.LifeStage == StrategyResidentLifeStage.Child ? 0.10f : 0.14f;
+            return new Vector3(width, height, 1f);
+        }
+
+        private void ClearSelectionLinks()
+        {
+            linkedResidents.Clear();
+            linkedResidentsScratch.Clear();
+            HideSelectionLinks();
+        }
+
+        private void HideSelectionLinks()
+        {
+            DisableSelectionLinkVisualsFrom(0);
+        }
+
+        private void DisableSelectionLinkVisualsFrom(int startIndex)
+        {
+            for (int i = Mathf.Max(0, startIndex); i < linkedResidentMarkers.Count; i++)
+            {
+                if (linkedResidentMarkers[i] != null)
+                {
+                    linkedResidentMarkers[i].gameObject.SetActive(false);
+                }
+
+                if (linkedResidentLines[i] != null)
+                {
+                    linkedResidentLines[i].gameObject.SetActive(false);
+                }
+            }
+        }
+
+        private void EnsureSelectionLinkVisualCount(int count)
+        {
+            EnsureSelectionLinksRoot();
+            EnsureLinkedResidentMarkerSprite();
+            EnsureLinkLineMaterial();
+            while (linkedResidentMarkers.Count < count)
+            {
+                int index = linkedResidentMarkers.Count;
+                GameObject lineObject = new GameObject("Selection Link Line " + index);
+                lineObject.transform.SetParent(selectionLinksRoot, false);
+                LineRenderer line = lineObject.AddComponent<LineRenderer>();
+                line.useWorldSpace = true;
+                line.positionCount = 2;
+                line.widthMultiplier = 0.026f;
+                line.numCapVertices = 2;
+                line.numCornerVertices = 2;
+                line.material = linkLineMaterial;
+                line.startColor = new Color(1f, 0.82f, 0.24f, 0.58f);
+                line.endColor = new Color(1f, 0.92f, 0.44f, 0.76f);
+                line.sortingOrder = SelectionLinkSortingOrder;
+                line.gameObject.SetActive(false);
+                linkedResidentLines.Add(line);
+
+                GameObject markerObject = new GameObject("Linked Resident Marker " + index);
+                markerObject.transform.SetParent(selectionLinksRoot, false);
+                SpriteRenderer marker = markerObject.AddComponent<SpriteRenderer>();
+                marker.sprite = linkedResidentMarkerSprite;
+                marker.color = new Color(1f, 0.86f, 0.20f, 0.52f);
+                marker.sortingOrder = SelectionLinkSortingOrder + 2;
+                marker.gameObject.SetActive(false);
+                linkedResidentMarkers.Add(marker);
+            }
+        }
+
+        private void EnsureSelectionLinksRoot()
+        {
+            if (selectionLinksRoot != null)
+            {
+                return;
+            }
+
+            GameObject root = new GameObject("World Selection Links");
+            root.transform.SetParent(transform, false);
+            selectionLinksRoot = root.transform;
+        }
+
+        private void EnsureLinkLineMaterial()
+        {
+            if (linkLineMaterial != null)
+            {
+                return;
+            }
+
+            Shader shader = Shader.Find("Sprites/Default");
+            if (shader != null)
+            {
+                linkLineMaterial = new Material(shader)
+                {
+                    name = "Selection Link Line Material"
+                };
+            }
+        }
+
+        private void EnsureLinkedResidentMarkerSprite()
+        {
+            if (linkedResidentMarkerSprite != null)
+            {
+                return;
+            }
+
+            const int width = 42;
+            const int height = 18;
+            Texture2D texture = new Texture2D(width, height, TextureFormat.RGBA32, false)
+            {
+                name = "Linked Resident Marker",
+                filterMode = FilterMode.Point,
+                wrapMode = TextureWrapMode.Clamp
+            };
+            texture.SetPixels(new Color[width * height]);
+            Vector2 center = new Vector2((width - 1) * 0.5f, (height - 1) * 0.5f);
+            float radiusX = width * 0.43f;
+            float radiusY = height * 0.33f;
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    float dx = (x - center.x) / radiusX;
+                    float dy = (y - center.y) / radiusY;
+                    float distance = (dx * dx) + (dy * dy);
+                    if (distance > 1f)
+                    {
+                        continue;
+                    }
+
+                    float rim = Mathf.Clamp01(Mathf.InverseLerp(0.56f, 1f, distance));
+                    float alpha = Mathf.Lerp(0.18f, 0.72f, rim);
+                    texture.SetPixel(x, y, new Color(1f, 0.78f, 0.16f, alpha));
+                }
+            }
+
+            texture.Apply(false, false);
+            linkedResidentMarkerSprite = Sprite.Create(
+                texture,
+                new Rect(0f, 0f, width, height),
+                new Vector2(0.5f, 0.5f),
+                38f);
         }
 
         private static string DescribeSelection(Transform target)

@@ -324,6 +324,7 @@ namespace ProjectUnknown.Strategy
             AddFrameAnimation(prop, renderer, kind, variant, cell, salt);
             RegisterForestryTree(prop, renderer, kind, cell, variant);
             BlockNatureWalkability(kind, cell);
+            AddStaticInspectable(prop, renderer, kind, cell);
             spawnedProps++;
         }
 
@@ -731,6 +732,39 @@ namespace ProjectUnknown.Strategy
             }
 
             map.SetCellsWalkable(new Vector2Int(cell.X, cell.Y), Vector2Int.one, false);
+        }
+
+        private static void AddStaticInspectable(GameObject prop, SpriteRenderer renderer, StrategyNaturePropKind kind, CityMapCell cell)
+        {
+            if (prop == null
+                || renderer == null
+                || kind == StrategyNaturePropKind.LargeTree
+                || kind == StrategyNaturePropKind.SmallTree
+                || kind == StrategyNaturePropKind.Boulder
+                || kind == StrategyNaturePropKind.RockCluster
+                || kind == StrategyNaturePropKind.Cliff)
+            {
+                return;
+            }
+
+            StrategyStaticWorldInspectable inspectable = prop.GetComponent<StrategyStaticWorldInspectable>();
+            if (inspectable == null)
+            {
+                inspectable = prop.AddComponent<StrategyStaticWorldInspectable>();
+            }
+
+            string title = kind == StrategyNaturePropKind.ForestGroup ? "Forest Thicket" : "Bush";
+            string body = "Nature prop"
+                + "\nBlocks movement: yes"
+                + "\nCell terrain: "
+                + cell.Kind;
+            inspectable.Configure(
+                title,
+                "Nature",
+                body,
+                renderer.sprite,
+                new Vector2Int(cell.X, cell.Y),
+                true);
         }
 
         private static void AttachNatureShadow(SpriteRenderer renderer, StrategyNaturePropKind kind, float propScale)

@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ProjectUnknown.Strategy
 {
     [DisallowMultipleComponent]
-    public sealed class StrategyLooseConstructionResourcePile : MonoBehaviour, IStrategyConstructionResourceSource
+    public sealed class StrategyLooseConstructionResourcePile : MonoBehaviour, IStrategyConstructionResourceSource, IStrategyWorldInspectable
     {
         private static Transform root;
 
@@ -25,6 +25,27 @@ namespace ProjectUnknown.Strategy
         public int AvailableStone => Mathf.Max(0, stone - CountReservations(stoneReservations) - CountPickupReservations(StrategyConstructionResourceKind.Stone));
         public Vector2Int Origin => origin;
         public Bounds FootprintBounds => footprintBounds;
+
+        public bool TryGetWorldInspectInfo(out StrategyWorldInspectInfo info)
+        {
+            string body = "Logs: "
+                + logs
+                + " (available "
+                + AvailableLogs
+                + ")\nStone: "
+                + stone
+                + " (available "
+                + AvailableStone
+                + ")";
+            info = new StrategyWorldInspectInfo(
+                "Loose Building Materials",
+                "Construction resource pile",
+                body,
+                logs > 0 && logsRenderer != null ? logsRenderer.sprite : stoneRenderer != null ? stoneRenderer.sprite : null,
+                origin,
+                true);
+            return true;
+        }
 
         private sealed class PickupReservation
         {
@@ -170,6 +191,56 @@ namespace ProjectUnknown.Strategy
                     pile = candidate;
                     return true;
                 }
+            }
+
+            return false;
+        }
+
+        public static bool TryReserveNearestAvailableForConstruction(
+            object owner,
+            StrategyConstructionResourceKind kind,
+            Vector3 nearWorld,
+            out StrategyLooseConstructionResourcePile pile,
+            out Vector2Int pickupCell)
+        {
+            pile = null;
+            pickupCell = default;
+            if (owner == null || kind == StrategyConstructionResourceKind.None)
+            {
+                return false;
+            }
+
+            StrategyLooseConstructionResourcePile[] piles = GetPilesSortedByDistance(nearWorld);
+            for (int i = 0; i < piles.Length; i++)
+            {
+                StrategyLooseConstructionResourcePile candidate = piles[i];
+                if (candidate == null)
+                {
+                    continue;
+                }
+
+                int available = kind == StrategyConstructionResourceKind.Logs
+                    ? candidate.AvailableLogs
+                    : candidate.AvailableStone;
+                if (available <= 0 || !candidate.TryFindPickupCell(out pickupCell))
+                {
+                    continue;
+                }
+
+                if (candidate.ReserveConstruction(owner, kind, 1) <= 0)
+                {
+                    continue;
+                }
+
+                pile = candidate;
+                StrategyDebugLogger.Info(
+                    "Build",
+                    "LooseConstructionResourceReservedForConstruction",
+                    StrategyDebugLogger.F("origin", candidate.Origin),
+                    StrategyDebugLogger.F("owner", owner),
+                    StrategyDebugLogger.F("resource", kind),
+                    StrategyDebugLogger.F("amount", 1));
+                return true;
             }
 
             return false;

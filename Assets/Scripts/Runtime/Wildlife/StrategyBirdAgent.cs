@@ -14,7 +14,7 @@ namespace ProjectUnknown.Strategy
     }
 
     [DisallowMultipleComponent]
-    public sealed class StrategyBirdAgent : MonoBehaviour
+    public sealed class StrategyBirdAgent : MonoBehaviour, IStrategyWorldInspectable
     {
         private const float FlightSpeed = 4.2f;
         private const float FleeFlightSpeed = 6.2f;
@@ -70,6 +70,7 @@ namespace ProjectUnknown.Strategy
         public StrategyBirdBehaviorState State => state;
         public int BirdId => birdId;
         public Vector2Int HomeCell => homeCell;
+        public int HomeRadius => homeRadius;
 
         public void Configure(
             CityMapController mapController,
@@ -102,6 +103,37 @@ namespace ProjectUnknown.Strategy
             ApplySprite(state == StrategyBirdBehaviorState.Swimming ? StrategyBirdSpritePose.Swim : StrategyBirdSpritePose.Idle, Random.Range(0, StrategyBirdSpriteFactory.IdleFrameCount));
             EnsureShadowRenderer();
             UpdateWorldSorting();
+        }
+
+        public void RetargetHomeCenter(Vector2Int center, int radius)
+        {
+            homeCell = center;
+            homeRadius = Mathf.Max(5, radius);
+        }
+
+        public bool TryGetWorldInspectInfo(out StrategyWorldInspectInfo info)
+        {
+            Vector2Int cell = default;
+            bool hasCell = map != null && map.TryWorldToCell(groundWorld, out cell);
+            Vector2Int currentCell = hasCell ? cell : groundCell;
+            string body = "Species: "
+                + Species
+                + "\nState: "
+                + State
+                + "\nHome: "
+                + HomeCell.x
+                + ", "
+                + HomeCell.y
+                + "\nRadius: "
+                + homeRadius;
+            info = new StrategyWorldInspectInfo(
+                Species.ToString(),
+                "Decorative wildlife",
+                body,
+                spriteRenderer != null ? spriteRenderer.sprite : null,
+                currentCell,
+                hasCell);
+            return true;
         }
 
         private void Update()

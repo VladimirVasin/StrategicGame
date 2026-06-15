@@ -247,6 +247,38 @@ namespace ProjectUnknown.Strategy
                 starvingHouseOrigin);
         }
 
+        public bool TryKillResidentByWolf(StrategyResidentAgent resident, Vector3 attackWorld)
+        {
+            if (resident == null
+                || resident.IsPendingRefugee
+                || !residents.Contains(resident))
+            {
+                return false;
+            }
+
+            string residentName = resident.FullName;
+            int residentId = resident.ResidentId;
+            bool killed = HandleResidentDeath(
+                resident,
+                "wolf_attack",
+                1f,
+                0f,
+                1f,
+                0,
+                Vector2Int.zero);
+            if (killed)
+            {
+                StrategyDebugLogger.Info(
+                    "Population",
+                    "ResidentKilledByWolf",
+                    StrategyDebugLogger.F("resident", residentName),
+                    StrategyDebugLogger.F("residentId", residentId),
+                    StrategyDebugLogger.F("attackWorld", attackWorld));
+            }
+
+            return killed;
+        }
+
         private bool HandleResidentDeath(
             StrategyResidentAgent resident,
             string reason,

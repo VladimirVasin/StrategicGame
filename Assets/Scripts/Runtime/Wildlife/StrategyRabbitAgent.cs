@@ -31,7 +31,7 @@ namespace ProjectUnknown.Strategy
     }
 
     [DisallowMultipleComponent]
-    public sealed class StrategyRabbitAgent : MonoBehaviour
+    public sealed class StrategyRabbitAgent : MonoBehaviour, IStrategyWorldInspectable
     {
         private const float HopSpeed = 1.05f;
         private const float FleeSpeed = 2.7f;
@@ -94,6 +94,7 @@ namespace ProjectUnknown.Strategy
         private float ageSeconds;
         private float visualScale = 1f;
         private object huntReservationOwner;
+        private object predatorReservationOwner;
         private int butcherHits;
         private bool hasTarget;
         private bool hasThreat;
@@ -107,11 +108,13 @@ namespace ProjectUnknown.Strategy
         public bool IsAdult => lifeStage == StrategyRabbitLifeStage.Adult;
         public bool IsAlive => isAlive;
         public bool IsCarcass => isCarcass;
-        public bool CanBeHunted => IsAdult && isAlive && !isCarcass && huntReservationOwner == null;
+        public bool CanBeHunted => IsAdult && isAlive && !isCarcass && huntReservationOwner == null && predatorReservationOwner == null;
+        public bool CanBeWolfPrey => IsAdult && isAlive && !isCarcass && huntReservationOwner == null && predatorReservationOwner == null;
         public bool CanBreed => IsAdult
             && isAlive
             && !isCarcass
             && huntReservationOwner == null
+            && predatorReservationOwner == null
             && sex == StrategyRabbitSex.Female
             && state != StrategyRabbitBehaviorState.Alert
             && state != StrategyRabbitBehaviorState.Fleeing;
@@ -156,10 +159,39 @@ namespace ProjectUnknown.Strategy
             UpdateWorldSorting();
         }
 
+        public bool TryGetWorldInspectInfo(out StrategyWorldInspectInfo info)
+        {
+            bool hasCell = TryGetCurrentCell(out Vector2Int currentCell);
+            string body = "Sex: "
+                + Sex
+                + "\nStage: "
+                + LifeStage
+                + "\nState: "
+                + State
+                + "\nGroup: "
+                + GroupId
+                + "\nHuntable: "
+                + (CanBeHunted ? "yes" : "no");
+            info = new StrategyWorldInspectInfo(
+                IsCarcass ? "Rabbit Carcass" : "Rabbit",
+                "Wildlife",
+                body,
+                spriteRenderer != null ? spriteRenderer.sprite : null,
+                currentCell,
+                hasCell);
+            return true;
+        }
+
         public bool TryGetCurrentCell(out Vector2Int cell)
         {
             cell = default;
             return map != null && map.TryWorldToCell(transform.position, out cell);
+        }
+
+        public void RetargetGroupCenter(Vector2Int center, int radius)
+        {
+            homeCell = center;
+            homeRadius = Mathf.Max(3, radius);
         }
 
         public bool TryReserveForHunt(object owner)
@@ -214,6 +246,107 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("sex", sex),
                 StrategyDebugLogger.F("group", groupId),
                 StrategyDebugLogger.F("world", transform.position));
+        }
+
+        public bool TryReserveForPredator(object owner)
+        {
+            if (owner == null)
+            {
+                return false;
+            }
+
+            if (predatorReservationOwner == owner)
+            {
+                return isAlive && !isCarcass;
+            }
+
+            if (!CanBeWolfPrey)
+            {
+                return false;
+            }
+
+            predatorReservationOwner = owner;
+            hasTarget = false;
+            hasThreat = true;
+            path.Clear();
+            pathIndex = 0;
+            lastThreatWorld = transform.position + Vector3.left;
+            stateTimer = Random.Range(0.35f, 0.8f);
+            SetState(StrategyRabbitBehaviorState.Alert, true, true);
+            StrategyDebugLogger.Info(
+                "Wildlife",
+                "RabbitPredatorReserved",
+                StrategyDebugLogger.F("sex", sex),
+                StrategyDebugLogger.F("group", groupId),
+                StrategyDebugLogger.F("world", transform.position));
+            return true;
+        }
+
+        public void ReleasePredatorReservation(object owner)
+        {
+            if (owner == null || predatorReservationOwner != owner)
+            {
+                return;
+            }
+
+            predatorReservationOwner = null;
+            if (isAlive)
+            {
+                StartFleeing(transform.position + Vector3.left, true);
+            }
+
+            StrategyDebugLogger.Info(
+                "Wildlife",
+                "RabbitPredatorReservationReleased",
+                StrategyDebugLogger.F("sex", sex),
+                StrategyDebugLogger.F("group", groupId),
+                StrategyDebugLogger.F("world", transform.position));
+        }
+
+        public bool KillByPredator(object owner, Vector3 attackWorld)
+        {
+            if (owner == null || predatorReservationOwner != owner || !isAlive || isCarcass)
+            {
+                return false;
+            }
+
+            isAlive = false;
+            isCarcass = false;
+            huntReservationOwner = null;
+            butcherHits = 0;
+            hasTarget = false;
+            hasThreat = false;
+            path.Clear();
+            pathIndex = 0;
+            lastThreatWorld = attackWorld;
+            SetAnimatedScale(1f, 1f);
+            SetState(StrategyRabbitBehaviorState.Hit, true, true);
+            StrategyDebugLogger.Info(
+                "Wildlife",
+                "RabbitKilledByPredator",
+                StrategyDebugLogger.F("sex", sex),
+                StrategyDebugLogger.F("group", groupId),
+                StrategyDebugLogger.F("world", transform.position),
+                StrategyDebugLogger.F("attackWorld", attackWorld));
+            return true;
+        }
+
+        public bool ConsumePredatorKill(object owner)
+        {
+            if (owner == null || predatorReservationOwner != owner || isAlive)
+            {
+                return false;
+            }
+
+            predatorReservationOwner = null;
+            StrategyDebugLogger.Info(
+                "Wildlife",
+                "RabbitConsumedByPredator",
+                StrategyDebugLogger.F("sex", sex),
+                StrategyDebugLogger.F("group", groupId),
+                StrategyDebugLogger.F("world", transform.position));
+            Destroy(gameObject);
+            return true;
         }
 
         public bool ReceiveArrowHit(object owner, Vector3 hitWorld)

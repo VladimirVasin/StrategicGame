@@ -6,34 +6,47 @@ namespace ProjectUnknown.Strategy
     [DisallowMultipleComponent]
     public sealed class StrategyWildlifeController : MonoBehaviour
     {
-        private const int MinDeer = 8;
-        private const int MaxDeer = 12;
-        private const int MaxHerds = 4;
+        private const int MinDeer = 12;
+        private const int MaxDeer = 16;
+        private const int MaxHerds = 8;
+        private const int MaxDeerPerHerd = 3;
         private const int HerdHomeRadius = 10;
         private const int SpawnSearchAttempts = 360;
         private const int CampAvoidRadius = 10;
-        private const int MaxDeerPopulation = 20;
-        private const int MinRabbits = 12;
-        private const int MaxRabbits = 18;
-        private const int MaxRabbitGroups = 5;
+        private const int MaxDeerPopulation = 24;
+        private const int MinRabbits = 16;
+        private const int MaxRabbits = 22;
+        private const int MaxRabbitGroups = 10;
+        private const int NearCampRabbitGroups = 3;
         private const int RabbitHomeRadius = 6;
-        private const int MaxRabbitsPerGroup = 5;
-        private const int MaxRabbitPopulation = 36;
+        private const int MaxRabbitsPerGroup = 3;
+        private const int MaxRabbitPopulation = 30;
         private const int RabbitCampMinDistance = 7;
         private const int RabbitCampMaxDistance = 30;
         private const int RabbitGroupCenterMaxCampDistance = RabbitCampMaxDistance - 4;
-        private const int MinFish = 18;
-        private const int MaxFish = 28;
-        private const int MaxFishShoals = 7;
+        private const int MinFish = 22;
+        private const int MaxFish = 32;
+        private const int MaxFishShoals = 12;
+        private const int MaxFishPerShoal = 3;
         private const int FishHomeRadius = 8;
-        private const int MaxFishPopulation = 60;
-        private const int LakeFishRegionMinCap = 4;
-        private const int LakeFishRegionMaxCap = 12;
+        private const int MaxFishPopulation = 36;
+        private const int LakeFishRegionMinCap = 3;
+        private const int LakeFishRegionMaxCap = 8;
         private const int LakeFishCellsPerCapacity = 10;
         private const int MaxRiverFishPopulation = 8;
         private const int RiverFishShoalIdBase = 10000;
         private const float RiverFishSpawnIntervalMin = 7.5f;
         private const float RiverFishSpawnIntervalMax = 14.0f;
+        private const int MinWolfPacks = 3;
+        private const int MaxWolfPacks = 4;
+        private const int WolfPackMinSize = 2;
+        private const int WolfPackMaxSize = 3;
+        private const int WolfHomeRadius = 14;
+        private const int WolfCampAvoidRadius = 18;
+        private const int WolfHuntRadius = 14;
+        private const int WolfResidentThreatRadius = 12;
+        private const float WolfSettlementPressureLimit = 2.35f;
+        private const float WolfSettlementCacheInterval = 2.5f;
         private const int MinBirds = 20;
         private const int MaxBirds = 32;
         private const int BirdHomeRadius = 14;
@@ -57,18 +70,52 @@ namespace ProjectUnknown.Strategy
         private const float FishMateSearchRadius = 5.5f;
         private const int FishBirthCellSearchRadius = 4;
         private const float FishLakeBirthBlockedLogIntervalSeconds = 20f;
+        private const float MigrationUpdateInterval = 5.0f;
+        private const float MigrationInitialDelay = 38f;
+        private const int DeerMigrationStep = 4;
+        private const int RabbitMigrationStep = 3;
+        private const int WolfMigrationStep = 5;
+        private const int BirdMigrationStep = 6;
+        private const int FishMigrationStep = 3;
+        private const int DeerMigrationTargetMinDistance = 26;
+        private const int RabbitMigrationTargetMinDistance = 18;
+        private const int WolfMigrationTargetMinDistance = 34;
+        private const int BirdMigrationTargetMinDistance = 24;
+        private const int FishMigrationTargetMinDistance = 8;
+        private const float DeerMigrationCooldownMin = 48f;
+        private const float DeerMigrationCooldownMax = 96f;
+        private const float RabbitMigrationCooldownMin = 72f;
+        private const float RabbitMigrationCooldownMax = 132f;
+        private const float WolfMigrationCooldownMin = 58f;
+        private const float WolfMigrationCooldownMax = 118f;
+        private const float BirdMigrationCooldownMin = 36f;
+        private const float BirdMigrationCooldownMax = 84f;
+        private const float FishMigrationCooldownMin = 64f;
+        private const float FishMigrationCooldownMax = 118f;
+        private const float DeerMigrationSettlementLimit = 1.85f;
+        private const float RabbitMigrationSettlementLimit = 1.55f;
+        private const float BirdMigrationSettlementLimit = 2.10f;
+        private const float WolfMigrationSettlementLimit = WolfSettlementPressureLimit * 0.42f;
 
         private readonly List<StrategyDeerAgent> deer = new();
         private readonly Dictionary<StrategyDeerAgent, float> breedCooldowns = new();
+        private readonly Dictionary<int, MigrationState> deerMigrations = new();
         private readonly List<StrategyRabbitAgent> rabbits = new();
         private readonly Dictionary<StrategyRabbitAgent, float> rabbitBreedCooldowns = new();
+        private readonly Dictionary<int, MigrationState> rabbitMigrations = new();
         private readonly List<StrategyFishAgent> fish = new();
         private readonly Dictionary<StrategyFishAgent, float> fishBreedCooldowns = new();
+        private readonly Dictionary<int, MigrationState> fishMigrations = new();
         private readonly Dictionary<int, float> fishLakeBirthBlockedLogTimes = new();
         private readonly List<FishWaterRegion> lakeFishRegions = new();
         private readonly Dictionary<Vector2Int, int> lakeRegionByCell = new();
         private readonly List<Vector2Int> riverRouteCells = new();
         private readonly List<StrategyBirdAgent> birds = new();
+        private readonly Dictionary<int, MigrationState> birdMigrations = new();
+        private readonly List<StrategyWolfPack> wolfPacks = new();
+        private readonly List<StrategyWolfAgent> wolves = new();
+        private readonly Dictionary<int, MigrationState> wolfMigrations = new();
+        private readonly Dictionary<StrategyResidentAgent, StrategyWolfAgent> wolfResidentTargets = new();
         private static readonly Vector2Int[] CardinalDirections =
         {
             new Vector2Int(1, 0),
@@ -84,14 +131,18 @@ namespace ProjectUnknown.Strategy
         private float rabbitBreedingTimer;
         private float fishBreedingTimer;
         private float riverFishSpawnTimer;
+        private float migrationTimer;
+        private float nextSettlementCacheRefreshTime;
         private int nextRiverShoalId = RiverFishShoalIdBase;
         private bool hasCampCell;
+        private StrategyPlacedBuilding[] settlementBuildings;
 
         public static StrategyWildlifeController Active { get; private set; }
         public IReadOnlyList<StrategyDeerAgent> Deer => deer;
         public IReadOnlyList<StrategyRabbitAgent> Rabbits => rabbits;
         public IReadOnlyList<StrategyFishAgent> Fish => fish;
         public IReadOnlyList<StrategyBirdAgent> Birds => birds;
+        public IReadOnlyList<StrategyWolfAgent> Wolves => wolves;
 
         private sealed class FishWaterRegion
         {
@@ -99,6 +150,14 @@ namespace ProjectUnknown.Strategy
             public int Id;
             public int Capacity;
             public Vector2Int Center;
+        }
+
+        private sealed class MigrationState
+        {
+            public Vector2Int Target;
+            public float Cooldown;
+            public bool HasTarget;
+            public int FailedSteps;
         }
 
         private void Awake()
@@ -144,6 +203,7 @@ namespace ProjectUnknown.Strategy
             }
 
             UpdateRiverFishSpawning(Time.deltaTime);
+            UpdateWildlifeMigration(Time.deltaTime);
         }
 
         public void Configure(CityMapController mapController, StrategyPopulationController populationController)
@@ -151,6 +211,7 @@ namespace ProjectUnknown.Strategy
             map = mapController;
             population = populationController;
             hasCampCell = population != null && population.TryGetCampCell(out campCell);
+            migrationTimer = MigrationInitialDelay;
             EnsureWildlifeRoot();
             GenerateWildlife();
         }
@@ -175,7 +236,8 @@ namespace ProjectUnknown.Strategy
             int targetRabbits = MinRabbits + (Hash(map.ActiveSeed, 19, 37, 53, 79) % (MaxRabbits - MinRabbits + 1));
             int targetFish = MinFish + (Hash(map.ActiveSeed, 23, 41, 67, 83) % (MaxFish - MinFish + 1));
             int targetBirds = MinBirds + (Hash(map.ActiveSeed, 29, 47, 71, 101) % (MaxBirds - MinBirds + 1));
-            int targetHerds = Mathf.Clamp(Mathf.CeilToInt(targetDeer / 3.2f), 2, MaxHerds);
+            int targetWolfPacks = MinWolfPacks + (Hash(map.ActiveSeed, 31, 61, 89, 131) % (MaxWolfPacks - MinWolfPacks + 1));
+            int targetHerds = Mathf.Clamp(Mathf.CeilToInt(targetDeer / 2.25f), 4, MaxHerds);
             HashSet<Vector2Int> usedCells = new();
             int remaining = targetDeer;
             int spawnedHerds = 0;
@@ -189,8 +251,8 @@ namespace ProjectUnknown.Strategy
 
                 int herdsLeft = targetHerds - herd;
                 int reserveForLater = Mathf.Max(0, (herdsLeft - 1) * 2);
-                int maxThisHerd = Mathf.Min(4, remaining - reserveForLater);
-                int herdSize = Mathf.Clamp(2 + (Hash(map.ActiveSeed, herd, 71, 89, 107) % 3), 2, Mathf.Max(2, maxThisHerd));
+                int maxThisHerd = Mathf.Min(MaxDeerPerHerd, remaining - reserveForLater);
+                int herdSize = Mathf.Clamp(2 + (Hash(map.ActiveSeed, herd, 71, 89, 107) % 2), 2, Mathf.Max(2, maxThisHerd));
 
                 bool spawnedMale = false;
                 bool spawnedFemale = false;
@@ -213,6 +275,7 @@ namespace ProjectUnknown.Strategy
             }
 
             int spawnedRabbitGroups = GenerateRabbits(targetRabbits, usedCells);
+            int spawnedWolfPacks = GenerateWolves(targetWolfPacks, usedCells);
             int spawnedFishShoals = GenerateFish(targetFish);
             int spawnedBirds = GenerateBirds(targetBirds);
             int lakeFishCapacity = GetTotalLakeFishCapacity();
@@ -224,15 +287,25 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("deerTarget", targetDeer),
                 StrategyDebugLogger.F("deerCap", MaxDeerPopulation),
                 StrategyDebugLogger.F("herds", spawnedHerds),
+                StrategyDebugLogger.F("herdTarget", targetHerds),
+                StrategyDebugLogger.F("herdCap", MaxDeerPerHerd),
                 StrategyDebugLogger.F("rabbits", rabbits.Count),
                 StrategyDebugLogger.F("rabbitTarget", targetRabbits),
                 StrategyDebugLogger.F("rabbitCap", MaxRabbitPopulation),
                 StrategyDebugLogger.F("rabbitGroupCap", MaxRabbitsPerGroup),
                 StrategyDebugLogger.F("rabbitGroups", spawnedRabbitGroups),
+                StrategyDebugLogger.F("nearCampRabbitGroups", hasCampCell ? NearCampRabbitGroups : 0),
                 StrategyDebugLogger.F("rabbitCampMaxDistance", hasCampCell ? RabbitCampMaxDistance : 0),
+                StrategyDebugLogger.F("wolves", wolves.Count),
+                StrategyDebugLogger.F("wolfPacks", spawnedWolfPacks),
+                StrategyDebugLogger.F("wolfPackTarget", targetWolfPacks),
+                StrategyDebugLogger.F("wolfPackSizeMin", WolfPackMinSize),
+                StrategyDebugLogger.F("wolfPackSizeMax", WolfPackMaxSize),
+                StrategyDebugLogger.F("wolfCampAvoidRadius", hasCampCell ? WolfCampAvoidRadius : 0),
                 StrategyDebugLogger.F("fish", fish.Count),
                 StrategyDebugLogger.F("fishTarget", targetFish),
                 StrategyDebugLogger.F("fishCap", MaxFishPopulation),
+                StrategyDebugLogger.F("fishShoalCap", MaxFishPerShoal),
                 StrategyDebugLogger.F("fishShoals", spawnedFishShoals),
                 StrategyDebugLogger.F("lakeFishRegions", lakeFishRegions.Count),
                 StrategyDebugLogger.F("lakeFishCapacity", lakeFishCapacity),
@@ -316,6 +389,705 @@ namespace ProjectUnknown.Strategy
             return count;
         }
 
+        public bool TryReserveWolfPrey(
+            StrategyWolfAgent wolf,
+            Vector2Int center,
+            out StrategyRabbitAgent rabbit,
+            out StrategyDeerAgent deerTarget)
+        {
+            rabbit = null;
+            deerTarget = null;
+            if (wolf == null || map == null || IsWolfUnsafeSettlementCell(center))
+            {
+                return false;
+            }
+
+            RemoveMissingRabbits();
+            RemoveMissingDeer();
+            float radiusSqr = WolfHuntRadius * WolfHuntRadius;
+            float bestRabbitScore = float.MaxValue;
+            StrategyRabbitAgent bestRabbit = null;
+            for (int i = 0; i < rabbits.Count; i++)
+            {
+                StrategyRabbitAgent candidate = rabbits[i];
+                if (candidate == null
+                    || !candidate.CanBeWolfPrey
+                    || !candidate.TryGetCurrentCell(out Vector2Int cell)
+                    || IsWolfUnsafeSettlementCell(cell))
+                {
+                    continue;
+                }
+
+                float sqr = (cell - center).sqrMagnitude;
+                if (sqr > radiusSqr || sqr >= bestRabbitScore)
+                {
+                    continue;
+                }
+
+                bestRabbitScore = sqr;
+                bestRabbit = candidate;
+            }
+
+            if (bestRabbit != null && bestRabbit.TryReserveForPredator(wolf))
+            {
+                rabbit = bestRabbit;
+                return true;
+            }
+
+            if (wolf.PackMemberCount < 2)
+            {
+                return false;
+            }
+
+            float bestDeerScore = float.MaxValue;
+            StrategyDeerAgent bestDeer = null;
+            for (int i = 0; i < deer.Count; i++)
+            {
+                StrategyDeerAgent candidate = deer[i];
+                if (candidate == null
+                    || !candidate.CanBeWolfPrey
+                    || !candidate.TryGetCurrentCell(out Vector2Int cell)
+                    || IsWolfUnsafeSettlementCell(cell))
+                {
+                    continue;
+                }
+
+                float sqr = (cell - center).sqrMagnitude;
+                if (sqr > radiusSqr || sqr >= bestDeerScore)
+                {
+                    continue;
+                }
+
+                bestDeerScore = sqr;
+                bestDeer = candidate;
+            }
+
+            if (bestDeer == null || !bestDeer.TryReserveForPredator(wolf))
+            {
+                return false;
+            }
+
+            deerTarget = bestDeer;
+            return true;
+        }
+
+        public bool TryReserveWolfResidentTarget(
+            StrategyWolfAgent wolf,
+            Vector2Int center,
+            out StrategyResidentAgent resident)
+        {
+            resident = null;
+            if (wolf == null || population == null || map == null || IsWolfUnsafeSettlementCell(center))
+            {
+                return false;
+            }
+
+            RemoveMissingWolfResidentTargets();
+            IReadOnlyList<StrategyResidentAgent> candidates = population.Residents;
+            float radiusSqr = WolfResidentThreatRadius * WolfResidentThreatRadius;
+            float bestScore = float.MaxValue;
+            StrategyResidentAgent best = null;
+            for (int i = 0; i < candidates.Count; i++)
+            {
+                StrategyResidentAgent candidate = candidates[i];
+                if (!CanWolfTargetResident(candidate)
+                    || wolfResidentTargets.ContainsKey(candidate)
+                    || !map.TryWorldToCell(candidate.transform.position, out Vector2Int cell)
+                    || IsWolfUnsafeSettlementCell(cell))
+                {
+                    continue;
+                }
+
+                float sqr = (cell - center).sqrMagnitude;
+                if (sqr > radiusSqr || sqr >= bestScore)
+                {
+                    continue;
+                }
+
+                bestScore = sqr;
+                best = candidate;
+            }
+
+            if (best == null)
+            {
+                return false;
+            }
+
+            wolfResidentTargets[best] = wolf;
+            resident = best;
+            return true;
+        }
+
+        public void ReleaseWolfResidentTarget(StrategyWolfAgent wolf, StrategyResidentAgent resident)
+        {
+            if (wolf == null || resident == null)
+            {
+                return;
+            }
+
+            if (wolfResidentTargets.TryGetValue(resident, out StrategyWolfAgent owner) && owner == wolf)
+            {
+                wolfResidentTargets.Remove(resident);
+            }
+        }
+
+        public bool TryFindWolfRoamCell(
+            StrategyWolfAgent wolf,
+            Vector2Int currentCell,
+            bool preferSafety,
+            out Vector2Int cell)
+        {
+            cell = default;
+            if (wolf == null || map == null)
+            {
+                return false;
+            }
+
+            StrategyWolfPack pack = FindPackForWolf(wolf);
+            Vector2Int center = pack != null ? pack.RoamCenterCell : currentCell;
+            int radiusLimit = pack != null ? pack.HomeRadius : WolfHomeRadius;
+            float bestScore = float.MinValue;
+            bool found = false;
+            for (int radius = preferSafety ? 5 : 2; radius <= radiusLimit + 6; radius++)
+            {
+                for (int y = -radius; y <= radius; y++)
+                {
+                    for (int x = -radius; x <= radius; x++)
+                    {
+                        if (Mathf.Max(Mathf.Abs(x), Mathf.Abs(y)) != radius)
+                        {
+                            continue;
+                        }
+
+                        Vector2Int candidate = center + new Vector2Int(x, y);
+                        if (!IsWolfRoamCandidate(candidate))
+                        {
+                            continue;
+                        }
+
+                        float settlementPressure = GetSettlementPressure(candidate);
+                        if (preferSafety && settlementPressure >= WolfSettlementPressureLimit * 0.55f)
+                        {
+                            continue;
+                        }
+
+                        float score = GetWolfTerrainScore(candidate)
+                            + CountWalkableNeighbors(candidate, 2) * 0.12f
+                            - settlementPressure * 3.5f
+                            - Vector2Int.Distance(candidate, currentCell) * (preferSafety ? -0.08f : 0.04f)
+                            + Hash01(map.ActiveSeed, candidate.x, candidate.y, wolf.PackId + 211) * 0.25f;
+                        if (score <= bestScore)
+                        {
+                            continue;
+                        }
+
+                        bestScore = score;
+                        cell = candidate;
+                        found = true;
+                    }
+                }
+
+                if (found && !preferSafety)
+                {
+                    break;
+                }
+            }
+
+            if (found && pack != null && Random.value < 0.22f)
+            {
+                pack.SetRoamCenter(cell);
+            }
+
+            return found;
+        }
+
+        public bool IsWolfUnsafeSettlementCell(Vector2Int cell)
+        {
+            return GetSettlementPressure(cell) >= WolfSettlementPressureLimit;
+        }
+
+        private void UpdateWildlifeMigration(float elapsedSeconds)
+        {
+            migrationTimer -= elapsedSeconds;
+            if (migrationTimer > 0f)
+            {
+                return;
+            }
+
+            migrationTimer = MigrationUpdateInterval;
+            UpdateDeerMigration(MigrationUpdateInterval);
+            UpdateRabbitMigration(MigrationUpdateInterval);
+            UpdateWolfMigration(MigrationUpdateInterval);
+            UpdateBirdMigration(MigrationUpdateInterval);
+            UpdateFishMigration(MigrationUpdateInterval);
+        }
+
+        private void UpdateDeerMigration(float elapsedSeconds)
+        {
+            RemoveMissingDeer();
+            HashSet<int> processed = new();
+            for (int i = 0; i < deer.Count; i++)
+            {
+                StrategyDeerAgent representative = deer[i];
+                if (representative == null || !representative.IsAlive || !processed.Add(representative.HerdId))
+                {
+                    continue;
+                }
+
+                MigrationState state = GetMigrationState(deerMigrations, representative.HerdId, DeerMigrationCooldownMin, DeerMigrationCooldownMax);
+                if (TryAdvanceMigration(
+                    elapsedSeconds,
+                    state,
+                    representative.HomeCell,
+                    DeerMigrationStep,
+                    DeerMigrationTargetMinDistance,
+                    DeerMigrationCooldownMin,
+                    DeerMigrationCooldownMax,
+                    IsDeerMigrationCandidate,
+                    GetDeerMigrationScore,
+                    "DeerHerd",
+                    representative.HerdId,
+                    true,
+                    out Vector2Int nextCenter))
+                {
+                    ApplyDeerHerdCenter(representative.HerdId, nextCenter);
+                }
+            }
+        }
+
+        private void UpdateRabbitMigration(float elapsedSeconds)
+        {
+            RemoveMissingRabbits();
+            HashSet<int> processed = new();
+            for (int i = 0; i < rabbits.Count; i++)
+            {
+                StrategyRabbitAgent representative = rabbits[i];
+                if (representative == null
+                    || !representative.IsAlive
+                    || representative.IsCarcass
+                    || !processed.Add(representative.GroupId))
+                {
+                    continue;
+                }
+
+                MigrationState state = GetMigrationState(rabbitMigrations, representative.GroupId, RabbitMigrationCooldownMin, RabbitMigrationCooldownMax);
+                if (TryAdvanceMigration(
+                    elapsedSeconds,
+                    state,
+                    representative.HomeCell,
+                    RabbitMigrationStep,
+                    RabbitMigrationTargetMinDistance,
+                    RabbitMigrationCooldownMin,
+                    RabbitMigrationCooldownMax,
+                    IsRabbitMigrationCandidate,
+                    GetRabbitMigrationScore,
+                    "RabbitGroup",
+                    representative.GroupId,
+                    true,
+                    out Vector2Int nextCenter))
+                {
+                    ApplyRabbitGroupCenter(representative.GroupId, nextCenter);
+                }
+            }
+        }
+
+        private void UpdateWolfMigration(float elapsedSeconds)
+        {
+            RemoveMissingWolves();
+            for (int i = 0; i < wolfPacks.Count; i++)
+            {
+                StrategyWolfPack pack = wolfPacks[i];
+                if (pack == null || pack.MemberCount <= 0)
+                {
+                    continue;
+                }
+
+                MigrationState state = GetMigrationState(wolfMigrations, pack.PackId, WolfMigrationCooldownMin, WolfMigrationCooldownMax);
+                if (TryAdvanceMigration(
+                    elapsedSeconds,
+                    state,
+                    pack.RoamCenterCell,
+                    WolfMigrationStep,
+                    WolfMigrationTargetMinDistance,
+                    WolfMigrationCooldownMin,
+                    WolfMigrationCooldownMax,
+                    IsWolfMigrationCandidate,
+                    GetWolfMigrationScore,
+                    "WolfPack",
+                    pack.PackId,
+                    true,
+                    out Vector2Int nextCenter))
+                {
+                    ApplyWolfPackCenter(pack, nextCenter);
+                }
+            }
+        }
+
+        private void UpdateBirdMigration(float elapsedSeconds)
+        {
+            for (int i = birds.Count - 1; i >= 0; i--)
+            {
+                if (birds[i] == null)
+                {
+                    birds.RemoveAt(i);
+                }
+            }
+
+            for (int i = 0; i < birds.Count; i++)
+            {
+                StrategyBirdAgent bird = birds[i];
+                if (bird == null)
+                {
+                    continue;
+                }
+
+                MigrationState state = GetMigrationState(birdMigrations, bird.BirdId, BirdMigrationCooldownMin, BirdMigrationCooldownMax);
+                if (TryAdvanceMigration(
+                    elapsedSeconds,
+                    state,
+                    bird.HomeCell,
+                    BirdMigrationStep,
+                    BirdMigrationTargetMinDistance,
+                    BirdMigrationCooldownMin,
+                    BirdMigrationCooldownMax,
+                    cell => IsBirdMigrationCandidate(bird.Species, cell),
+                    cell => GetBirdMigrationScore(bird.Species, cell),
+                    "BirdHome",
+                    bird.BirdId,
+                    false,
+                    out Vector2Int nextCenter))
+                {
+                    bird.RetargetHomeCenter(nextCenter, BirdHomeRadius);
+                }
+            }
+        }
+
+        private void UpdateFishMigration(float elapsedSeconds)
+        {
+            RemoveMissingFish();
+            HashSet<int> processed = new();
+            for (int i = 0; i < fish.Count; i++)
+            {
+                StrategyFishAgent representative = fish[i];
+                if (representative == null
+                    || !representative.IsLakeFish
+                    || representative.IsCaught
+                    || !processed.Add(representative.ShoalId))
+                {
+                    continue;
+                }
+
+                int regionId = representative.WaterRegionId;
+                MigrationState state = GetMigrationState(fishMigrations, representative.ShoalId, FishMigrationCooldownMin, FishMigrationCooldownMax);
+                if (TryAdvanceMigration(
+                    elapsedSeconds,
+                    state,
+                    representative.HomeCell,
+                    FishMigrationStep,
+                    FishMigrationTargetMinDistance,
+                    FishMigrationCooldownMin,
+                    FishMigrationCooldownMax,
+                    cell => IsLakeFishMigrationCandidate(cell, regionId),
+                    GetFishMigrationScore,
+                    "FishShoal",
+                    representative.ShoalId,
+                    false,
+                    out Vector2Int nextCenter))
+                {
+                    ApplyFishShoalCenter(representative.ShoalId, nextCenter);
+                }
+            }
+        }
+
+        private MigrationState GetMigrationState(Dictionary<int, MigrationState> states, int id, float cooldownMin, float cooldownMax)
+        {
+            if (!states.TryGetValue(id, out MigrationState state) || state == null)
+            {
+                state = new MigrationState
+                {
+                    Cooldown = Random.Range(cooldownMin * 0.35f, cooldownMax * 0.75f)
+                };
+                states[id] = state;
+            }
+
+            return state;
+        }
+
+        private bool TryAdvanceMigration(
+            float elapsedSeconds,
+            MigrationState state,
+            Vector2Int currentCenter,
+            int step,
+            int targetMinDistance,
+            float cooldownMin,
+            float cooldownMax,
+            System.Func<Vector2Int, bool> isCandidate,
+            System.Func<Vector2Int, float> scoreCandidate,
+            string kind,
+            int id,
+            bool requireWalkableConnection,
+            out Vector2Int nextCenter)
+        {
+            nextCenter = currentCenter;
+            if (state == null || isCandidate == null || scoreCandidate == null)
+            {
+                return false;
+            }
+
+            if (!state.HasTarget)
+            {
+                state.Cooldown -= Mathf.Max(0.1f, elapsedSeconds);
+                if (state.Cooldown > 0f)
+                {
+                    return false;
+                }
+
+                if (!TryPickMigrationTarget(currentCenter, targetMinDistance, isCandidate, scoreCandidate, out state.Target))
+                {
+                    state.Cooldown = Random.Range(18f, 34f);
+                    return false;
+                }
+
+                state.HasTarget = true;
+                state.FailedSteps = 0;
+                StrategyDebugLogger.Info(
+                    "Wildlife",
+                    "MigrationStarted",
+                    StrategyDebugLogger.F("kind", kind),
+                    StrategyDebugLogger.F("id", id),
+                    StrategyDebugLogger.F("from", currentCenter),
+                    StrategyDebugLogger.F("target", state.Target));
+            }
+
+            if (Vector2Int.Distance(currentCenter, state.Target) <= Mathf.Max(1, step))
+            {
+                nextCenter = state.Target;
+                state.HasTarget = false;
+                state.Cooldown = Random.Range(cooldownMin, cooldownMax);
+                StrategyDebugLogger.Info(
+                    "Wildlife",
+                    "MigrationCompleted",
+                    StrategyDebugLogger.F("kind", kind),
+                    StrategyDebugLogger.F("id", id),
+                    StrategyDebugLogger.F("center", nextCenter),
+                    StrategyDebugLogger.F("nextCooldown", state.Cooldown));
+                return true;
+            }
+
+            if (TryPickMigrationStep(
+                currentCenter,
+                state.Target,
+                step,
+                isCandidate,
+                scoreCandidate,
+                requireWalkableConnection,
+                out nextCenter))
+            {
+                state.FailedSteps = 0;
+                return nextCenter != currentCenter;
+            }
+
+            state.FailedSteps++;
+            if (state.FailedSteps >= 3)
+            {
+                StrategyDebugLogger.Warn(
+                    "Wildlife",
+                    "MigrationAborted",
+                    StrategyDebugLogger.F("kind", kind),
+                    StrategyDebugLogger.F("id", id),
+                    StrategyDebugLogger.F("center", currentCenter),
+                    StrategyDebugLogger.F("target", state.Target));
+                state.HasTarget = false;
+                state.Cooldown = Random.Range(12f, 28f);
+                state.FailedSteps = 0;
+            }
+
+            return false;
+        }
+
+        private bool TryPickMigrationTarget(
+            Vector2Int currentCenter,
+            int minDistance,
+            System.Func<Vector2Int, bool> isCandidate,
+            System.Func<Vector2Int, float> scoreCandidate,
+            out Vector2Int target)
+        {
+            target = default;
+            float bestScore = float.NegativeInfinity;
+            bool found = false;
+            for (int attempt = 0; attempt < 180; attempt++)
+            {
+                Vector2Int candidate = new Vector2Int(Random.Range(0, map.Width), Random.Range(0, map.Height));
+                float distance = Vector2Int.Distance(candidate, currentCenter);
+                if (distance < minDistance || !isCandidate(candidate))
+                {
+                    continue;
+                }
+
+                float score = scoreCandidate(candidate)
+                    + Mathf.Clamp(distance, 0f, 64f) * 0.05f
+                    + Random.value * 0.35f;
+                if (score > bestScore)
+                {
+                    bestScore = score;
+                    target = candidate;
+                    found = true;
+                }
+            }
+
+            return found;
+        }
+
+        private bool TryPickMigrationStep(
+            Vector2Int currentCenter,
+            Vector2Int target,
+            int maxStep,
+            System.Func<Vector2Int, bool> isCandidate,
+            System.Func<Vector2Int, float> scoreCandidate,
+            bool requireWalkableConnection,
+            out Vector2Int stepCell)
+        {
+            stepCell = currentCenter;
+            float currentDistance = Vector2Int.Distance(currentCenter, target);
+            float bestScore = float.NegativeInfinity;
+            bool found = false;
+            for (int y = -maxStep; y <= maxStep; y++)
+            {
+                for (int x = -maxStep; x <= maxStep; x++)
+                {
+                    if (x == 0 && y == 0)
+                    {
+                        continue;
+                    }
+
+                    Vector2Int candidate = currentCenter + new Vector2Int(x, y);
+                    float stepDistance = Vector2Int.Distance(currentCenter, candidate);
+                    if (stepDistance > maxStep || !isCandidate(candidate))
+                    {
+                        continue;
+                    }
+
+                    if (requireWalkableConnection
+                        && !HasWalkableMigrationConnection(currentCenter, candidate, maxStep * maxStep + 24))
+                    {
+                        continue;
+                    }
+
+                    float targetDistance = Vector2Int.Distance(candidate, target);
+                    float progress = currentDistance - targetDistance;
+                    if (progress < -0.25f)
+                    {
+                        continue;
+                    }
+
+                    float score = progress * 8f
+                        - targetDistance * 0.18f
+                        + scoreCandidate(candidate)
+                        + Random.value * 0.18f;
+                    if (score > bestScore)
+                    {
+                        bestScore = score;
+                        stepCell = candidate;
+                        found = true;
+                    }
+                }
+            }
+
+            return found;
+        }
+
+        private bool HasWalkableMigrationConnection(Vector2Int start, Vector2Int target, int maxVisited)
+        {
+            if (start == target)
+            {
+                return true;
+            }
+
+            if (map == null || !map.IsCellWalkable(start) || !map.IsCellWalkable(target))
+            {
+                return false;
+            }
+
+            Queue<Vector2Int> frontier = new();
+            HashSet<Vector2Int> visited = new();
+            frontier.Enqueue(start);
+            visited.Add(start);
+
+            while (frontier.Count > 0 && visited.Count < maxVisited)
+            {
+                Vector2Int current = frontier.Dequeue();
+                for (int i = 0; i < CardinalDirections.Length; i++)
+                {
+                    Vector2Int next = current + CardinalDirections[i];
+                    if (visited.Contains(next) || !map.IsCellWalkable(next))
+                    {
+                        continue;
+                    }
+
+                    if (next == target)
+                    {
+                        return true;
+                    }
+
+                    visited.Add(next);
+                    frontier.Enqueue(next);
+                }
+            }
+
+            return false;
+        }
+
+        private void ApplyDeerHerdCenter(int herdId, Vector2Int center)
+        {
+            for (int i = 0; i < deer.Count; i++)
+            {
+                StrategyDeerAgent agent = deer[i];
+                if (agent != null && agent.HerdId == herdId)
+                {
+                    agent.RetargetHerdCenter(center, HerdHomeRadius);
+                }
+            }
+        }
+
+        private void ApplyRabbitGroupCenter(int groupId, Vector2Int center)
+        {
+            for (int i = 0; i < rabbits.Count; i++)
+            {
+                StrategyRabbitAgent agent = rabbits[i];
+                if (agent != null && agent.GroupId == groupId)
+                {
+                    agent.RetargetGroupCenter(center, RabbitHomeRadius);
+                }
+            }
+        }
+
+        private void ApplyFishShoalCenter(int shoalId, Vector2Int center)
+        {
+            for (int i = 0; i < fish.Count; i++)
+            {
+                StrategyFishAgent agent = fish[i];
+                if (agent != null && agent.ShoalId == shoalId)
+                {
+                    agent.RetargetShoalCenter(center, FishHomeRadius);
+                }
+            }
+        }
+
+        private void ApplyWolfPackCenter(StrategyWolfPack pack, Vector2Int center)
+        {
+            if (pack == null)
+            {
+                return;
+            }
+
+            pack.SetRoamCenter(center);
+            IReadOnlyList<StrategyWolfAgent> members = pack.Members;
+            for (int i = 0; i < members.Count; i++)
+            {
+                members[i]?.RetargetPackCenter(center, WolfHomeRadius);
+            }
+        }
+
         public bool TryReserveFishForFishing(Vector2Int center, int radius, object owner, out StrategyFishAgent reservedFish)
         {
             reservedFish = null;
@@ -390,7 +1162,7 @@ namespace ProjectUnknown.Strategy
 
         private int GenerateRabbits(int targetRabbits, HashSet<Vector2Int> usedCells)
         {
-            int targetGroups = Mathf.Clamp(Mathf.CeilToInt(targetRabbits / 4.0f), 3, MaxRabbitGroups);
+            int targetGroups = Mathf.Clamp(Mathf.CeilToInt(targetRabbits / 2.35f), 5, MaxRabbitGroups);
             int remaining = targetRabbits;
             int spawnedGroups = 0;
 
@@ -405,7 +1177,7 @@ namespace ProjectUnknown.Strategy
                 int reserveForLater = Mathf.Max(0, (groupsLeft - 1) * 2);
                 int maxThisGroup = Mathf.Min(MaxRabbitsPerGroup, remaining - reserveForLater);
                 int groupSize = Mathf.Clamp(
-                    3 + (Hash(map.ActiveSeed, group, 97, 149, 211) % 3),
+                    2 + (Hash(map.ActiveSeed, group, 97, 149, 211) % 2),
                     2,
                     Mathf.Max(2, maxThisGroup));
 
@@ -432,6 +1204,58 @@ namespace ProjectUnknown.Strategy
             return spawnedGroups;
         }
 
+        private int GenerateWolves(int targetPacks, HashSet<Vector2Int> usedCells)
+        {
+            int spawnedPacks = 0;
+            for (int packIndex = 0; packIndex < targetPacks; packIndex++)
+            {
+                if (!TryFindWolfPackCenter(packIndex, usedCells, out Vector2Int packCenter))
+                {
+                    StrategyDebugLogger.Warn(
+                        "Wildlife",
+                        "WolfPackSpawnSkipped",
+                        StrategyDebugLogger.F("pack", packIndex),
+                        StrategyDebugLogger.F("reason", "no_safe_center"));
+                    continue;
+                }
+
+                StrategyWolfPack pack = new StrategyWolfPack(packIndex, packCenter, WolfHomeRadius);
+                wolfPacks.Add(pack);
+                int packSize = Mathf.Clamp(
+                    WolfPackMinSize + (Hash(map.ActiveSeed, packIndex, 173, 229, 281) % (WolfPackMaxSize - WolfPackMinSize + 1)),
+                    WolfPackMinSize,
+                    WolfPackMaxSize);
+                int spawnedInPack = 0;
+                for (int slot = 0; slot < packSize; slot++)
+                {
+                    if (!TryFindWolfSpawnCell(packCenter, packIndex, slot, usedCells, out Vector2Int spawnCell))
+                    {
+                        continue;
+                    }
+
+                    SpawnWolf(pack, packCenter, spawnCell, slot);
+                    usedCells.Add(spawnCell);
+                    spawnedInPack++;
+                }
+
+                if (spawnedInPack <= 0)
+                {
+                    wolfPacks.Remove(pack);
+                    continue;
+                }
+
+                spawnedPacks++;
+                StrategyDebugLogger.Info(
+                    "Wildlife",
+                    "WolfPackSpawned",
+                    StrategyDebugLogger.F("pack", packIndex),
+                    StrategyDebugLogger.F("wolves", spawnedInPack),
+                    StrategyDebugLogger.F("center", packCenter));
+            }
+
+            return spawnedPacks;
+        }
+
         private int GenerateFish(int targetFish)
         {
             int totalLakeCapacity = GetTotalLakeFishCapacity();
@@ -447,9 +1271,9 @@ namespace ProjectUnknown.Strategy
 
             int targetLakeFish = Mathf.Min(targetFish, totalLakeCapacity);
             int targetShoals = Mathf.Clamp(
-                Mathf.CeilToInt(targetLakeFish / 5.0f),
+                Mathf.CeilToInt(targetLakeFish / 2.5f),
                 1,
-                Mathf.Min(MaxFishShoals, lakeFishRegions.Count * 2));
+                Mathf.Min(MaxFishShoals, Mathf.Max(1, totalLakeCapacity)));
             HashSet<Vector2Int> usedWaterCells = new();
             int remaining = targetLakeFish;
             int spawnedShoals = 0;
@@ -475,9 +1299,9 @@ namespace ProjectUnknown.Strategy
 
                 int shoalsLeft = targetShoals - shoal;
                 int reserveForLater = Mathf.Max(0, (shoalsLeft - 1) * 2);
-                int maxThisShoal = Mathf.Min(6, regionRoom, Mathf.Max(1, remaining - reserveForLater));
+                int maxThisShoal = Mathf.Min(MaxFishPerShoal, regionRoom, Mathf.Max(1, remaining - reserveForLater));
                 int shoalSize = Mathf.Clamp(
-                    4 + (Hash(map.ActiveSeed, shoal, 173, 197, 223) % 3),
+                    2 + (Hash(map.ActiveSeed, shoal, 173, 197, 223) % 2),
                     1,
                     Mathf.Max(1, maxThisShoal));
                 StrategyFishSpecies species = PickFishSpecies(shoal, shoalCenter);
@@ -1053,6 +1877,49 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("world", spawnWorld));
         }
 
+        private void SpawnWolf(
+            StrategyWolfPack pack,
+            Vector2Int packCenter,
+            Vector2Int spawnCell,
+            int slot)
+        {
+            Vector3 spawnWorld = map.GetCellCenterWorld(spawnCell.x, spawnCell.y);
+            Vector2 jitter = GetJitter(spawnCell.x, spawnCell.y, pack.PackId + 1699 + slot) * (map.CellSize * 0.20f);
+            spawnWorld.x += jitter.x;
+            spawnWorld.y += jitter.y;
+
+            int variant = Hash(map.ActiveSeed, spawnCell.x, spawnCell.y, pack.PackId, slot) % 4;
+            GameObject wolfObject = new GameObject($"Wolf Pack {pack.PackId + 1}");
+            wolfObject.transform.SetParent(wildlifeRoot, false);
+
+            SpriteRenderer renderer = wolfObject.AddComponent<SpriteRenderer>();
+            renderer.sprite = StrategyWolfSpriteFactory.GetIdleSprite(variant, Hash(map.ActiveSeed, spawnCell.x, spawnCell.y, pack.PackId, 1667));
+            renderer.color = Color.white;
+
+            StrategyWolfAgent agent = wolfObject.AddComponent<StrategyWolfAgent>();
+            agent.Configure(
+                map,
+                population,
+                this,
+                pack,
+                packCenter,
+                WolfHomeRadius,
+                spawnWorld,
+                renderer,
+                variant);
+            pack.AddMember(agent);
+            wolves.Add(agent);
+
+            StrategyDebugLogger.Info(
+                "Wildlife",
+                "WolfSpawned",
+                StrategyDebugLogger.F("pack", pack.PackId),
+                StrategyDebugLogger.F("variant", variant),
+                StrategyDebugLogger.F("cell", spawnCell),
+                StrategyDebugLogger.F("home", packCenter),
+                StrategyDebugLogger.F("world", spawnWorld));
+        }
+
         private void SpawnFish(
             StrategyFishSpecies species,
             int shoalId,
@@ -1171,6 +2038,13 @@ namespace ProjectUnknown.Strategy
                     continue;
                 }
 
+                int herdCount = CountLivingDeerInHerd(doe.HerdId);
+                if (herdCount >= MaxDeerPerHerd)
+                {
+                    breedCooldowns[doe] = Random.Range(FailedBreedRetryMin, FailedBreedRetryMax);
+                    continue;
+                }
+
                 float cooldown = GetBreedCooldown(doe) - elapsedSeconds;
                 if (cooldown > 0f)
                 {
@@ -1194,8 +2068,27 @@ namespace ProjectUnknown.Strategy
                     "DeerPopulationChanged",
                     StrategyDebugLogger.F("count", deer.Count),
                     StrategyDebugLogger.F("cap", MaxDeerPopulation),
-                    StrategyDebugLogger.F("motherHerd", doe.HerdId));
+                    StrategyDebugLogger.F("motherHerd", doe.HerdId),
+                    StrategyDebugLogger.F("herdCount", herdCount + 1),
+                    StrategyDebugLogger.F("herdCap", MaxDeerPerHerd));
             }
+        }
+
+        private int CountLivingDeerInHerd(int herdId)
+        {
+            int count = 0;
+            for (int i = 0; i < deer.Count; i++)
+            {
+                StrategyDeerAgent agent = deer[i];
+                if (agent != null
+                    && agent.HerdId == herdId
+                    && agent.IsAlive)
+                {
+                    count++;
+                }
+            }
+
+            return count;
         }
 
         private float GetBreedCooldown(StrategyDeerAgent doe)
@@ -1519,6 +2412,13 @@ namespace ProjectUnknown.Strategy
                     continue;
                 }
 
+                int shoalPopulation = CountLivingLakeFishInShoal(adult.ShoalId);
+                if (shoalPopulation >= MaxFishPerShoal)
+                {
+                    fishBreedCooldowns[adult] = Random.Range(FishFailedBreedRetryMin, FishFailedBreedRetryMax);
+                    continue;
+                }
+
                 int regionPopulation = CountFishInLakeRegion(region.Id);
                 if (regionPopulation >= region.Capacity)
                 {
@@ -1565,8 +2465,28 @@ namespace ProjectUnknown.Strategy
                     StrategyDebugLogger.F("lakeRegion", region.Id),
                     StrategyDebugLogger.F("lakeRegionPopulation", CountFishInLakeRegion(region.Id)),
                     StrategyDebugLogger.F("lakeRegionCapacity", region.Capacity),
-                    StrategyDebugLogger.F("shoal", adult.ShoalId));
+                    StrategyDebugLogger.F("shoal", adult.ShoalId),
+                    StrategyDebugLogger.F("shoalPopulation", shoalPopulation + 1),
+                    StrategyDebugLogger.F("shoalCap", MaxFishPerShoal));
             }
+        }
+
+        private int CountLivingLakeFishInShoal(int shoalId)
+        {
+            int count = 0;
+            for (int i = 0; i < fish.Count; i++)
+            {
+                StrategyFishAgent agent = fish[i];
+                if (agent != null
+                    && agent.IsLakeFish
+                    && !agent.IsCaught
+                    && agent.ShoalId == shoalId)
+                {
+                    count++;
+                }
+            }
+
+            return count;
         }
 
         private float GetFishBreedCooldown(StrategyFishAgent adult)
@@ -1724,26 +2644,140 @@ namespace ProjectUnknown.Strategy
             return Random.value < 0.42f ? StrategyRabbitSex.Male : StrategyRabbitSex.Female;
         }
 
+        private bool TryFindWolfPackCenter(int pack, HashSet<Vector2Int> usedCells, out Vector2Int cell)
+        {
+            cell = default;
+            float bestScore = float.MinValue;
+            bool found = false;
+            for (int attempt = 0; attempt < SpawnSearchAttempts; attempt++)
+            {
+                int x = Hash(map.ActiveSeed, pack, attempt, 1051, 1091) % map.Width;
+                int y = Hash(map.ActiveSeed, pack, attempt, 1123, 1151) % map.Height;
+                Vector2Int candidate = new Vector2Int(x, y);
+                if (usedCells.Contains(candidate) || !IsWolfPackCenterCandidate(candidate))
+                {
+                    continue;
+                }
+
+                float campScore = hasCampCell
+                    ? Mathf.Clamp(Vector2Int.Distance(candidate, campCell) - WolfCampAvoidRadius, 0f, 28f) * 0.16f
+                    : 0f;
+                float score = GetWolfTerrainScore(candidate)
+                    + CountWalkableNeighbors(candidate, 3) * 0.24f
+                    + campScore
+                    - GetSettlementPressure(candidate) * 4.2f
+                    - GetUsedCellSpacingPenalty(candidate, usedCells, 14, 0.40f)
+                    + Hash01(map.ActiveSeed, candidate.x, candidate.y, pack + 607) * 0.25f;
+                if (score <= bestScore)
+                {
+                    continue;
+                }
+
+                bestScore = score;
+                cell = candidate;
+                found = true;
+            }
+
+            return found;
+        }
+
+        private bool TryFindWolfSpawnCell(
+            Vector2Int packCenter,
+            int pack,
+            int slot,
+            HashSet<Vector2Int> usedCells,
+            out Vector2Int cell)
+        {
+            cell = default;
+            for (int radius = 0; radius <= 5; radius++)
+            {
+                List<Vector2Int> candidates = new();
+                for (int y = -radius; y <= radius; y++)
+                {
+                    for (int x = -radius; x <= radius; x++)
+                    {
+                        Vector2Int candidate = packCenter + new Vector2Int(x, y);
+                        if (!usedCells.Contains(candidate) && IsWolfRoamCandidate(candidate))
+                        {
+                            candidates.Add(candidate);
+                        }
+                    }
+                }
+
+                while (candidates.Count > 0)
+                {
+                    int index = Hash(map.ActiveSeed, pack, slot, radius, candidates.Count) % candidates.Count;
+                    cell = candidates[index];
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool IsWolfPackCenterCandidate(Vector2Int cell)
+        {
+            return IsWolfRoamCandidate(cell)
+                && GetWolfTerrainScore(cell) > 0f
+                && CountWalkableNeighbors(cell, 3) >= 8;
+        }
+
+        private bool IsWolfRoamCandidate(Vector2Int cell)
+        {
+            if (map == null
+                || !map.IsCellWalkable(cell)
+                || !map.TryGetCell(cell.x, cell.y, out CityMapCell mapCell)
+                || mapCell.Kind == CityMapCellKind.Water
+                || mapCell.Kind == CityMapCellKind.Shore)
+            {
+                return false;
+            }
+
+            if (hasCampCell && Vector2Int.Distance(cell, campCell) < WolfCampAvoidRadius)
+            {
+                return false;
+            }
+
+            return mapCell.Kind == CityMapCellKind.Forest
+                || mapCell.Kind == CityMapCellKind.Meadow
+                || mapCell.Kind == CityMapCellKind.Grass
+                || mapCell.Kind == CityMapCellKind.Dirt;
+        }
+
         private bool TryFindRabbitGroupCenter(int group, HashSet<Vector2Int> usedCells, out Vector2Int cell)
         {
-            if (hasCampCell && TryFindRabbitGroupCenterNearCamp(group, usedCells, out cell))
+            if (hasCampCell
+                && group < NearCampRabbitGroups
+                && TryFindRabbitGroupCenterNearCamp(group, usedCells, out cell))
             {
                 return true;
             }
 
             bool found = TryFindRabbitGroupCenterMapWide(group, usedCells, out cell);
-            if (hasCampCell && !found)
+            if (found)
+            {
+                return true;
+            }
+
+            if (hasCampCell
+                && group >= NearCampRabbitGroups
+                && TryFindRabbitGroupCenterNearCamp(group, usedCells, out cell))
+            {
+                return true;
+            }
+
+            if (hasCampCell)
             {
                 StrategyDebugLogger.Warn(
                     "Wildlife",
-                    "RabbitNearCampSpawnFailed",
+                    "RabbitGroupSpawnFailed",
                     StrategyDebugLogger.F("group", group),
                     StrategyDebugLogger.F("campCell", campCell),
                     StrategyDebugLogger.F("minDistance", RabbitCampMinDistance),
                     StrategyDebugLogger.F("maxDistance", RabbitCampMaxDistance));
             }
 
-            return found;
+            return false;
         }
 
         private bool TryFindRabbitGroupCenterNearCamp(int group, HashSet<Vector2Int> usedCells, out Vector2Int cell)
@@ -1773,6 +2807,7 @@ namespace ProjectUnknown.Strategy
                         float distance = Vector2Int.Distance(candidate, campCell);
                         float score = GetRabbitGroupCenterScore(candidate)
                             + Mathf.Clamp(RabbitGroupCenterMaxCampDistance - distance, 0f, RabbitGroupCenterMaxCampDistance) * 0.08f
+                            - GetUsedCellSpacingPenalty(candidate, usedCells, 7, 0.28f)
                             + Hash01(map.ActiveSeed, group, candidate.x, candidate.y) * 0.15f;
                         if (score > bestScore)
                         {
@@ -1814,8 +2849,12 @@ namespace ProjectUnknown.Strategy
                 if (hasCampCell)
                 {
                     float distance = Vector2Int.Distance(candidate, campCell);
-                    score += Mathf.Clamp(RabbitCampMaxDistance - distance, 0f, RabbitCampMaxDistance) * 0.08f;
+                    score += group < NearCampRabbitGroups
+                        ? Mathf.Clamp(RabbitCampMaxDistance - distance, 0f, RabbitCampMaxDistance) * 0.08f
+                        : Mathf.Clamp(distance - RabbitCampMaxDistance, 0f, 36f) * 0.035f;
                 }
+
+                score -= GetUsedCellSpacingPenalty(candidate, usedCells, 8, 0.24f);
 
                 if (score > bestScore)
                 {
@@ -1990,6 +3029,8 @@ namespace ProjectUnknown.Strategy
                     score += Mathf.Clamp(Vector2Int.Distance(candidate, campCell) - 5f, 0f, 14f) * 0.04f;
                 }
 
+                score -= GetUsedCellSpacingPenalty(candidate, usedWaterCells, 5, 0.35f);
+
                 if (score > bestScore)
                 {
                     bestScore = score;
@@ -2079,7 +3120,9 @@ namespace ProjectUnknown.Strategy
                     continue;
                 }
 
-                float score = GetSpawnTerrainScore(candidate) + CountWalkableNeighbors(candidate, 3) * 0.35f;
+                float score = GetSpawnTerrainScore(candidate)
+                    + CountWalkableNeighbors(candidate, 3) * 0.35f
+                    - GetUsedCellSpacingPenalty(candidate, usedCells, 10, 0.35f);
                 if (hasCampCell)
                 {
                     score += Mathf.Clamp(Vector2Int.Distance(candidate, campCell) - CampAvoidRadius, 0f, 18f) * 0.12f;
@@ -2161,7 +3204,7 @@ namespace ProjectUnknown.Strategy
             if (hasCampCell)
             {
                 float campDistance = Vector2Int.Distance(cell, campCell);
-                if (campDistance < RabbitCampMinDistance || campDistance > RabbitCampMaxDistance)
+                if (campDistance < CampAvoidRadius)
                 {
                     return false;
                 }
@@ -2225,6 +3268,102 @@ namespace ProjectUnknown.Strategy
                 && candidateRegionId == regionId;
         }
 
+        private bool IsDeerMigrationCandidate(Vector2Int cell)
+        {
+            if (map == null
+                || !map.IsCellWalkable(cell)
+                || !map.TryGetCell(cell.x, cell.y, out CityMapCell mapCell)
+                || mapCell.Kind == CityMapCellKind.Water
+                || mapCell.Kind == CityMapCellKind.Shore)
+            {
+                return false;
+            }
+
+            if (hasCampCell && Vector2Int.Distance(cell, campCell) < CampAvoidRadius)
+            {
+                return false;
+            }
+
+            if (GetSettlementPressure(cell) > DeerMigrationSettlementLimit)
+            {
+                return false;
+            }
+
+            return mapCell.Kind == CityMapCellKind.Meadow
+                || mapCell.Kind == CityMapCellKind.Grass
+                || mapCell.Kind == CityMapCellKind.Forest
+                || mapCell.Kind == CityMapCellKind.Dirt;
+        }
+
+        private float GetDeerMigrationScore(Vector2Int cell)
+        {
+            float score = GetSpawnTerrainScore(cell)
+                + CountWalkableNeighbors(cell, 2) * 0.16f
+                - GetSettlementPressure(cell) * 1.25f;
+            if (hasCampCell)
+            {
+                score += Mathf.Clamp(Vector2Int.Distance(cell, campCell) - CampAvoidRadius, 0f, 22f) * 0.035f;
+            }
+
+            return score;
+        }
+
+        private bool IsRabbitMigrationCandidate(Vector2Int cell)
+        {
+            return IsRabbitSpawnCandidate(cell)
+                && GetSettlementPressure(cell) <= RabbitMigrationSettlementLimit;
+        }
+
+        private float GetRabbitMigrationScore(Vector2Int cell)
+        {
+            return GetRabbitSpawnTerrainScore(cell)
+                + CountWalkableNeighbors(cell, 2) * 0.12f
+                - GetSettlementPressure(cell) * 1.1f;
+        }
+
+        private bool IsWolfMigrationCandidate(Vector2Int cell)
+        {
+            return IsWolfRoamCandidate(cell)
+                && GetSettlementPressure(cell) <= WolfMigrationSettlementLimit
+                && CountWalkableNeighbors(cell, 3) >= 6;
+        }
+
+        private float GetWolfMigrationScore(Vector2Int cell)
+        {
+            float score = GetWolfTerrainScore(cell)
+                + CountWalkableNeighbors(cell, 3) * 0.12f
+                - GetSettlementPressure(cell) * 5.0f;
+            if (hasCampCell)
+            {
+                score += Mathf.Clamp(Vector2Int.Distance(cell, campCell) - WolfCampAvoidRadius, 0f, 34f) * 0.08f;
+            }
+
+            return score;
+        }
+
+        private bool IsBirdMigrationCandidate(StrategyBirdSpecies species, Vector2Int cell)
+        {
+            return IsBirdSpawnCandidate(species, cell)
+                && GetSettlementPressure(cell) <= BirdMigrationSettlementLimit;
+        }
+
+        private float GetBirdMigrationScore(StrategyBirdSpecies species, Vector2Int cell)
+        {
+            return GetBirdSpawnTerrainScore(species, cell)
+                - GetSettlementPressure(cell) * 0.55f;
+        }
+
+        private bool IsLakeFishMigrationCandidate(Vector2Int cell, int regionId)
+        {
+            return IsLakeFishSpawnCandidate(cell, regionId)
+                && CountWaterNeighbors(cell, 1, CityMapWaterKind.Lake) >= 1;
+        }
+
+        private float GetFishMigrationScore(Vector2Int cell)
+        {
+            return GetFishSpawnTerrainScore(cell);
+        }
+
         private bool IsWaterCellOfKind(Vector2Int cell, CityMapWaterKind waterKind)
         {
             return map != null
@@ -2280,6 +3419,30 @@ namespace ProjectUnknown.Strategy
             return count;
         }
 
+        private float GetUsedCellSpacingPenalty(
+            Vector2Int candidate,
+            HashSet<Vector2Int> usedCells,
+            int preferredDistance,
+            float weight)
+        {
+            if (usedCells == null || usedCells.Count <= 0 || preferredDistance <= 0 || weight <= 0f)
+            {
+                return 0f;
+            }
+
+            float penalty = 0f;
+            foreach (Vector2Int usedCell in usedCells)
+            {
+                float distance = Vector2Int.Distance(candidate, usedCell);
+                if (distance < preferredDistance)
+                {
+                    penalty += (preferredDistance - distance) * weight;
+                }
+            }
+
+            return penalty;
+        }
+
         private float GetSpawnTerrainScore(Vector2Int cell)
         {
             if (!map.TryGetCell(cell.x, cell.y, out CityMapCell mapCell))
@@ -2301,6 +3464,27 @@ namespace ProjectUnknown.Strategy
                 baseScore += CountForestNeighbors(cell) * 0.28f;
             }
 
+            return baseScore;
+        }
+
+        private float GetWolfTerrainScore(Vector2Int cell)
+        {
+            if (!map.TryGetCell(cell.x, cell.y, out CityMapCell mapCell))
+            {
+                return -10f;
+            }
+
+            float baseScore = mapCell.Kind switch
+            {
+                CityMapCellKind.Forest => 5.4f,
+                CityMapCellKind.Meadow => 3.2f,
+                CityMapCellKind.Grass => 2.8f,
+                CityMapCellKind.Dirt => 1.1f,
+                _ => -10f
+            };
+
+            baseScore += CountForestNeighbors(cell) * 0.34f;
+            baseScore += CountWalkableNeighbors(cell, 2) * 0.06f;
             return baseScore;
         }
 
@@ -2471,6 +3655,134 @@ namespace ProjectUnknown.Strategy
             return new Vector2(jitterX, jitterY);
         }
 
+        private bool CanWolfTargetResident(StrategyResidentAgent resident)
+        {
+            if (resident == null
+                || !resident.IsAdult
+                || resident.IsPendingRefugee
+                || resident.IsFuneralDutyActive
+                || resident.Activity == StrategyResidentAgent.ResidentActivity.StayingInsideHome
+                || resident.Activity == StrategyResidentAgent.ResidentActivity.MourningCorpse
+                || resident.Activity == StrategyResidentAgent.ResidentActivity.BuryingGrave
+                || map == null
+                || !map.TryWorldToCell(resident.transform.position, out Vector2Int cell))
+            {
+                return false;
+            }
+
+            return !IsWolfUnsafeSettlementCell(cell);
+        }
+
+        private StrategyWolfPack FindPackForWolf(StrategyWolfAgent wolf)
+        {
+            if (wolf == null)
+            {
+                return null;
+            }
+
+            RemoveMissingWolves();
+            for (int i = 0; i < wolfPacks.Count; i++)
+            {
+                StrategyWolfPack pack = wolfPacks[i];
+                if (pack == null)
+                {
+                    continue;
+                }
+
+                IReadOnlyList<StrategyWolfAgent> members = pack.Members;
+                for (int memberIndex = 0; memberIndex < members.Count; memberIndex++)
+                {
+                    if (members[memberIndex] == wolf)
+                    {
+                        return pack;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        private float GetSettlementPressure(Vector2Int cell)
+        {
+            float pressure = 0f;
+            if (hasCampCell)
+            {
+                float campDistance = Vector2Int.Distance(cell, campCell);
+                if (campDistance < 5f)
+                {
+                    pressure += 4.5f;
+                }
+                else if (campDistance < 12f)
+                {
+                    pressure += Mathf.Lerp(2.4f, 0.35f, Mathf.InverseLerp(5f, 12f, campDistance));
+                }
+            }
+
+            RefreshSettlementBuildingsIfNeeded();
+            if (settlementBuildings != null)
+            {
+                for (int i = 0; i < settlementBuildings.Length; i++)
+                {
+                    StrategyPlacedBuilding building = settlementBuildings[i];
+                    if (building == null)
+                    {
+                        continue;
+                    }
+
+                    Vector2 buildingCenter = new Vector2(
+                        building.Origin.x + Mathf.Max(1, building.Footprint.x) * 0.5f,
+                        building.Origin.y + Mathf.Max(1, building.Footprint.y) * 0.5f);
+                    float distance = Vector2.Distance(new Vector2(cell.x, cell.y), buildingCenter);
+                    if (distance < 4.5f)
+                    {
+                        pressure += 2.5f;
+                    }
+                    else if (distance < 9f)
+                    {
+                        pressure += Mathf.Lerp(1.1f, 0.15f, Mathf.InverseLerp(4.5f, 9f, distance));
+                    }
+                }
+            }
+
+            if (population != null)
+            {
+                IReadOnlyList<StrategyResidentAgent> residents = population.Residents;
+                for (int i = 0; i < residents.Count; i++)
+                {
+                    StrategyResidentAgent resident = residents[i];
+                    if (resident == null
+                        || resident.IsPendingRefugee
+                        || !map.TryWorldToCell(resident.transform.position, out Vector2Int residentCell))
+                    {
+                        continue;
+                    }
+
+                    float distance = Vector2Int.Distance(cell, residentCell);
+                    if (distance < 2.4f)
+                    {
+                        pressure += 0.45f;
+                    }
+                    else if (distance < 5f)
+                    {
+                        pressure += 0.16f;
+                    }
+                }
+            }
+
+            return pressure;
+        }
+
+        private void RefreshSettlementBuildingsIfNeeded()
+        {
+            if (Time.time < nextSettlementCacheRefreshTime)
+            {
+                return;
+            }
+
+            nextSettlementCacheRefreshTime = Time.time + WolfSettlementCacheInterval;
+            settlementBuildings = Object.FindObjectsByType<StrategyPlacedBuilding>(FindObjectsInactive.Exclude);
+        }
+
         private void EnsureWildlifeRoot()
         {
             if (wildlifeRoot != null)
@@ -2487,15 +3799,24 @@ namespace ProjectUnknown.Strategy
         {
             deer.Clear();
             breedCooldowns.Clear();
+            deerMigrations.Clear();
             rabbits.Clear();
             rabbitBreedCooldowns.Clear();
+            rabbitMigrations.Clear();
             fish.Clear();
             fishBreedCooldowns.Clear();
+            fishMigrations.Clear();
             fishLakeBirthBlockedLogTimes.Clear();
             lakeFishRegions.Clear();
             lakeRegionByCell.Clear();
             riverRouteCells.Clear();
             birds.Clear();
+            birdMigrations.Clear();
+            wolfPacks.Clear();
+            wolves.Clear();
+            wolfMigrations.Clear();
+            wolfResidentTargets.Clear();
+            settlementBuildings = null;
             if (wildlifeRoot == null)
             {
                 return;
@@ -2512,6 +3833,68 @@ namespace ProjectUnknown.Strategy
                 {
                     DestroyImmediate(child.gameObject);
                 }
+            }
+        }
+
+        private void RemoveMissingWolves()
+        {
+            for (int i = wolves.Count - 1; i >= 0; i--)
+            {
+                StrategyWolfAgent wolf = wolves[i];
+                if (wolf != null)
+                {
+                    continue;
+                }
+
+                wolves.RemoveAt(i);
+            }
+
+            for (int i = wolfPacks.Count - 1; i >= 0; i--)
+            {
+                StrategyWolfPack pack = wolfPacks[i];
+                if (pack == null)
+                {
+                    wolfPacks.RemoveAt(i);
+                    continue;
+                }
+
+                pack.RemoveMissingMembers();
+                if (pack.MemberCount <= 0)
+                {
+                    wolfPacks.RemoveAt(i);
+                }
+            }
+
+            RemoveMissingWolfResidentTargets();
+        }
+
+        private void RemoveMissingWolfResidentTargets()
+        {
+            if (wolfResidentTargets.Count <= 0)
+            {
+                return;
+            }
+
+            List<StrategyResidentAgent> missing = null;
+            foreach (KeyValuePair<StrategyResidentAgent, StrategyWolfAgent> pair in wolfResidentTargets)
+            {
+                if (pair.Key != null && pair.Value != null)
+                {
+                    continue;
+                }
+
+                missing ??= new List<StrategyResidentAgent>();
+                missing.Add(pair.Key);
+            }
+
+            if (missing == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < missing.Count; i++)
+            {
+                wolfResidentTargets.Remove(missing[i]);
             }
         }
 

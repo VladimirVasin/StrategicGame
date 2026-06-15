@@ -3,7 +3,7 @@ using UnityEngine;
 namespace ProjectUnknown.Strategy
 {
     [DisallowMultipleComponent]
-    public sealed class StrategyForestryTree : MonoBehaviour
+    public sealed class StrategyForestryTree : MonoBehaviour, IStrategyWorldInspectable
     {
         private const int MatureStage = 2;
         private const float SaplingGrowSecondsMin = 24f;
@@ -85,6 +85,26 @@ namespace ProjectUnknown.Strategy
             EnsureStandingWorldShadow();
             BlockWalkability();
             controller?.RegisterTree(this);
+        }
+
+        public bool TryGetWorldInspectInfo(out StrategyWorldInspectInfo info)
+        {
+            string body = "Stage: "
+                + GetStageTitle()
+                + "\nState: "
+                + GetTreeStateTitle()
+                + "\nLogs: "
+                + (HasLogsReady ? LogsPerTree.ToString() : "not ready")
+                + "\nReserved: "
+                + (IsReserved ? "yes" : "no");
+            info = new StrategyWorldInspectInfo(
+                IsMature ? "Tree" : "Young Tree",
+                "Forest resource",
+                body,
+                spriteRenderer != null ? spriteRenderer.sprite : null,
+                Cell,
+                true);
+            return true;
         }
 
         public bool ReceiveChopHit(Vector3 hitterWorld)
@@ -678,6 +698,31 @@ namespace ProjectUnknown.Strategy
                 StrategyResidentAgent resident => resident.FullName,
                 null => "none",
                 _ => owner.GetType().Name
+            };
+        }
+
+        private string GetStageTitle()
+        {
+            return Stage switch
+            {
+                0 => "sapling",
+                1 => "young",
+                _ => "mature"
+            };
+        }
+
+        private string GetTreeStateTitle()
+        {
+            return treeState switch
+            {
+                ForestryTreeState.Growing => "growing",
+                ForestryTreeState.Standing => "standing",
+                ForestryTreeState.BeingChopped => "being chopped",
+                ForestryTreeState.Falling => "falling",
+                ForestryTreeState.Felled => "felled",
+                ForestryTreeState.BuckingFelled => "being bucked",
+                ForestryTreeState.SplitLogs => "split logs",
+                _ => treeState.ToString()
             };
         }
 

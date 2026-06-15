@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ProjectUnknown.Strategy
 {
     [DisallowMultipleComponent]
-    public sealed class StrategyChickenAgent : MonoBehaviour
+    public sealed class StrategyChickenAgent : MonoBehaviour, IStrategyWorldInspectable
     {
         private const float MoveSpeed = 0.48f;
         private const float TargetReachDistance = 0.035f;
@@ -64,6 +64,24 @@ namespace ProjectUnknown.Strategy
                 false);
             waitTimer = Random.Range(0.2f, 0.85f);
             peckCooldown = Random.Range(0.45f, 1.65f);
+        }
+
+        public bool TryGetWorldInspectInfo(out StrategyWorldInspectInfo info)
+        {
+            Vector2Int cell = default;
+            bool hasCell = map != null && map.TryWorldToCell(transform.position, out cell);
+            string body = "State: "
+                + GetStateTitle()
+                + "\nCoop: "
+                + (coop != null ? coop.Origin.x + ", " + coop.Origin.y : "none");
+            info = new StrategyWorldInspectInfo(
+                "Chicken",
+                "Household animal",
+                body,
+                spriteRenderer != null ? spriteRenderer.sprite : StrategyChickenSpriteFactory.GetSprite(),
+                cell,
+                hasCell);
+            return true;
         }
 
         private void Update()
@@ -345,6 +363,16 @@ namespace ProjectUnknown.Strategy
             appliedFrame = -1;
             walkFrame = 0;
             walkFrameTimer = 0f;
+        }
+
+        private string GetStateTitle()
+        {
+            if (isPecking)
+            {
+                return "pecking";
+            }
+
+            return hasTarget ? "walking" : "idle";
         }
     }
 }
