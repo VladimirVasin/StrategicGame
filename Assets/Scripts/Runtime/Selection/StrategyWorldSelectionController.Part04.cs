@@ -83,43 +83,6 @@ namespace ProjectUnknown.Strategy
             RefreshHud();
         }
 
-        private void ToggleGranaryWorkerSlot(StrategyGranary granary, int index)
-        {
-            if (granary == null)
-            {
-                return;
-            }
-
-            if (index < granary.WorkerCount)
-            {
-                granary.TryGetWorker(index, out StrategyResidentAgent worker);
-                granary.UnassignWorkerAt(index);
-                StrategyDebugLogger.Info(
-                    "Selection",
-                    "WorkerSlotClicked",
-                    StrategyDebugLogger.F("action", "unassign"),
-                    StrategyDebugLogger.F("slot", index),
-                    StrategyDebugLogger.F("worker", worker != null ? worker.FullName : string.Empty),
-                    StrategyDebugLogger.F("granaryOrigin", granary.Origin),
-                    StrategyDebugLogger.F("profession", "granary"));
-            }
-            else
-            {
-                bool assigned = granary.TryAssignNextAvailableWorker(out StrategyResidentAgent worker);
-                StrategyDebugLogger.Info(
-                    "Selection",
-                    "WorkerSlotClicked",
-                    StrategyDebugLogger.F("action", "assign"),
-                    StrategyDebugLogger.F("slot", index),
-                    StrategyDebugLogger.F("success", assigned),
-                    StrategyDebugLogger.F("worker", worker != null ? worker.FullName : string.Empty),
-                    StrategyDebugLogger.F("granaryOrigin", granary.Origin),
-                    StrategyDebugLogger.F("profession", "granary"));
-            }
-
-            RefreshHud();
-        }
-
         private void ToggleStonecutterWorkerSlot(StrategyStonecutterCamp camp, int index)
         {
             if (camp == null)

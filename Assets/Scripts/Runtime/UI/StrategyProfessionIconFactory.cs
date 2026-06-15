@@ -115,13 +115,6 @@ namespace ProjectUnknown.Strategy
                     FillRect(texture, 20, 14, 5, 5, darkMetal);
                     FillRect(texture, 6, 25, 20, 3, amber);
                     break;
-                case StrategyProfessionType.GranaryWorker:
-                    FillRect(texture, 10, 10, 12, 16, shadow);
-                    FillRect(texture, 9, 9, 12, 16, cloth);
-                    FillRect(texture, 12, 7, 6, 4, amber);
-                    DrawLine(texture, 7, 24, 24, 20, amber, 2);
-                    FillRect(texture, 21, 15, 5, 7, leaf);
-                    break;
             }
         }
 

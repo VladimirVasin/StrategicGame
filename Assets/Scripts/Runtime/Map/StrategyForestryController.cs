@@ -61,60 +61,72 @@ namespace ProjectUnknown.Strategy
         public bool TryFindMatureTree(Vector2Int center, int radius, out StrategyForestryTree tree)
         {
             PruneNulls();
-            List<StrategyForestryTree> candidates = new();
-            int radiusSqr = radius * radius;
+            float bestSqr = float.MaxValue;
+            StrategyForestryTree best = null;
 
             for (int i = 0; i < trees.Count; i++)
             {
                 StrategyForestryTree candidate = trees[i];
                 if (candidate == null
                     || !candidate.CanBeChopped
-                    || candidate.IsReserved
-                    || (candidate.Cell - center).sqrMagnitude > radiusSqr)
+                    || candidate.IsReserved)
                 {
                     continue;
                 }
 
-                candidates.Add(candidate);
+                float sqr = (candidate.Cell - center).sqrMagnitude;
+                if (sqr >= bestSqr)
+                {
+                    continue;
+                }
+
+                bestSqr = sqr;
+                best = candidate;
             }
 
-            if (candidates.Count <= 0)
+            if (best == null)
             {
                 tree = null;
                 return false;
             }
 
-            tree = candidates[Random.Range(0, candidates.Count)];
+            tree = best;
             return true;
         }
 
         public bool TryFindProcessableWood(Vector2Int center, int radius, out StrategyForestryTree tree)
         {
             PruneNulls();
-            List<StrategyForestryTree> candidates = new();
-            int radiusSqr = radius * radius;
+            float bestSqr = float.MaxValue;
+            StrategyForestryTree best = null;
 
             for (int i = 0; i < trees.Count; i++)
             {
                 StrategyForestryTree candidate = trees[i];
                 if (candidate == null
                     || candidate.IsReserved
-                    || (!candidate.CanBeBucked && !candidate.HasLogsReady)
-                    || (candidate.Cell - center).sqrMagnitude > radiusSqr)
+                    || (!candidate.CanBeBucked && !candidate.HasLogsReady))
                 {
                     continue;
                 }
 
-                candidates.Add(candidate);
+                float sqr = (candidate.Cell - center).sqrMagnitude;
+                if (sqr >= bestSqr)
+                {
+                    continue;
+                }
+
+                bestSqr = sqr;
+                best = candidate;
             }
 
-            if (candidates.Count <= 0)
+            if (best == null)
             {
                 tree = null;
                 return false;
             }
 
-            tree = candidates[Random.Range(0, candidates.Count)];
+            tree = best;
             return true;
         }
 

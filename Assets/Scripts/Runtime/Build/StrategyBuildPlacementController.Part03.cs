@@ -16,6 +16,7 @@ namespace ProjectUnknown.Strategy
                 {
                     Vector2Int cell = new Vector2Int(origin.x + x, origin.y + y);
                     if (!map.IsCellWalkable(cell)
+                        || !map.IsCellBuildable(cell)
                         || (fog != null && !fog.IsCellExplored(cell))
                         || occupiedCells.Contains(cell))
                     {
@@ -351,6 +352,35 @@ namespace ProjectUnknown.Strategy
             return false;
         }
 
+        private bool HasBuilderWorkAccess(Vector2Int origin, Vector2Int footprint)
+        {
+            for (int radius = 1; radius <= 2; radius++)
+            {
+                for (int y = -radius; y < footprint.y + radius; y++)
+                {
+                    for (int x = -radius; x < footprint.x + radius; x++)
+                    {
+                        bool isEdge = x == -radius
+                            || y == -radius
+                            || x == footprint.x + radius - 1
+                            || y == footprint.y + radius - 1;
+                        if (!isEdge)
+                        {
+                            continue;
+                        }
+
+                        Vector2Int candidate = origin + new Vector2Int(x, y);
+                        if (map.IsCellWalkable(candidate) && !occupiedCells.Contains(candidate))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+
         private static bool HasMineIronAccess(Vector2Int origin, Vector2Int footprint)
         {
             StrategyIronResourceController iron = StrategyIronResourceController.Active;
@@ -388,6 +418,23 @@ namespace ProjectUnknown.Strategy
             }
 
             return true;
+        }
+
+        private static bool CanUseMineralBuildBlock(StrategyBuildTool tool, Vector2Int cell)
+        {
+            if (tool == StrategyBuildTool.Mine)
+            {
+                StrategyIronResourceController iron = StrategyIronResourceController.Active;
+                return iron != null && iron.HasAvailableDepositAtCell(cell);
+            }
+
+            if (tool == StrategyBuildTool.CoalPit)
+            {
+                StrategyCoalResourceController coal = StrategyCoalResourceController.Active;
+                return coal != null && coal.HasAvailableDepositAtCell(cell);
+            }
+
+            return false;
         }
 
         private static bool IsPointerOverUi()

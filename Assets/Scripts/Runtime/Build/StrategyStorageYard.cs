@@ -71,46 +71,7 @@ namespace ProjectUnknown.Strategy
 
         public static bool TryAssignBuildersToSite(StrategyConstructionSite site)
         {
-            if (site == null || site.IsCompleted || site.BuilderCount >= StrategyConstructionSite.MaxBuilders)
-            {
-                return false;
-            }
-
-            int assignedCount = 0;
-            StrategyStorageYard[] yards = GetYardsSortedByDistance(site.FootprintBounds.center);
-            for (int i = 0; i < yards.Length && site.BuilderCount < StrategyConstructionSite.MaxBuilders; i++)
-            {
-                StrategyStorageYard yard = yards[i];
-                if (yard == null)
-                {
-                    continue;
-                }
-
-                while (site.BuilderCount < StrategyConstructionSite.MaxBuilders
-                    && yard.TryGetAvailableBuilder(out StrategyResidentAgent builder))
-                {
-                    if (!site.RegisterBuilder(builder, false))
-                    {
-                        break;
-                    }
-
-                    builder.AssignConstructionSite(site, false);
-                    assignedCount++;
-                }
-            }
-
-            if (assignedCount > 0)
-            {
-                StrategyDebugLogger.Info(
-                    "Construction",
-                    "BuildersDispatched",
-                    StrategyDebugLogger.F("tool", site.Tool),
-                    StrategyDebugLogger.F("origin", site.Origin),
-                    StrategyDebugLogger.F("assigned", assignedCount),
-                    StrategyDebugLogger.F("builderCount", site.BuilderCount));
-            }
-
-            return assignedCount > 0;
+            return TryAssignBuildersAcrossSites(site);
         }
 
         public static StrategyConstructionResourceCost GetTotalConstructionResources()

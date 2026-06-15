@@ -192,8 +192,7 @@ namespace ProjectUnknown.Strategy
                 spawnedCoalDustGround++;
             }
 
-            return !HasCoalDepositNearFootprint(origin, footprint, 0)
-                && !HasIronDepositNearFootprint(origin, footprint, 1);
+            return true;
         }
 
         private bool CanPlaceCoalFootprint(Vector2Int origin, Vector2Int footprint)
@@ -207,6 +206,7 @@ namespace ProjectUnknown.Strategy
                     if (IsInsideExclusion(cellX, cellY)
                         || !map.TryGetCell(cellX, cellY, out CityMapCell cell)
                         || !IsCoalAllowedKind(cell.Kind)
+                        || !map.IsCellBuildable(cellX, cellY)
                         || !map.IsCellWalkable(cellX, cellY))
                     {
                         return false;
@@ -214,7 +214,8 @@ namespace ProjectUnknown.Strategy
                 }
             }
 
-            return true;
+            return !HasCoalDepositNearFootprint(origin, footprint, 0)
+                && !HasIronDepositNearFootprint(origin, footprint, 1);
         }
 
         private void EnsureMinimumCoalDeposits()

@@ -77,74 +77,6 @@ namespace ProjectUnknown.Strategy
             }
         }
 
-        private void RefreshWorkers(StrategyGranary granary)
-        {
-            int workerCount = granary != null ? granary.WorkerCount : 0;
-            bool canAssign = granary != null && granary.CanAssignNextAvailableWorker();
-
-            if (workersEmptyText != null)
-            {
-                workersEmptyText.gameObject.SetActive(workerCount <= 0);
-                workersEmptyText.text = canAssign
-                    ? "assign granary workers"
-                    : "no free residents";
-            }
-
-            for (int i = 0; i < workerRows.Length; i++)
-            {
-                bool slotVisible = i < StrategyGranary.MaxWorkers;
-                if (workerRows[i] != null)
-                {
-                    workerRows[i].gameObject.SetActive(slotVisible);
-                }
-
-                if (!slotVisible)
-                {
-                    continue;
-                }
-
-                StrategyResidentAgent worker = null;
-                bool hasWorker = granary != null && granary.TryGetWorker(i, out worker);
-
-                if (workerPortraitImages[i] != null)
-                {
-                    workerPortraitImages[i].sprite = hasWorker
-                        ? StrategyResidentSpriteFactory.GetPortraitSprite(worker.Gender, worker.VisualVariant, worker.LifeStage)
-                        : null;
-                    workerPortraitImages[i].color = hasWorker ? Color.white : new Color(1f, 1f, 1f, 0f);
-                }
-
-                if (workerNameTexts[i] != null)
-                {
-                    workerNameTexts[i].text = hasWorker
-                        ? worker.FullName
-                        : "Granary Worker: open";
-                    workerNameTexts[i].color = hasWorker ? Color.white : new Color(0.72f, 0.80f, 0.76f);
-                }
-
-                if (workerStatusTexts[i] != null)
-                {
-                    workerStatusTexts[i].text = hasWorker
-                        ? GetResidentStatus(worker)
-                        : "hauls food to the granary";
-                }
-
-                bool buttonEnabled = hasWorker || (i == workerCount && canAssign);
-                if (workerButtons[i] != null)
-                {
-                    workerButtons[i].interactable = buttonEnabled;
-                }
-
-                if (workerActionTexts[i] != null)
-                {
-                    workerActionTexts[i].text = hasWorker
-                        ? "Remove"
-                        : "Assign";
-                    workerActionTexts[i].color = buttonEnabled ? Color.white : new Color(0.55f, 0.61f, 0.59f);
-                }
-            }
-        }
-
         private void RefreshWorkers(StrategyStorageYard yard)
         {
             int workerCount = yard != null ? yard.WorkerCount : 0;
@@ -156,7 +88,7 @@ namespace ProjectUnknown.Strategy
             {
                 workersEmptyText.gameObject.SetActive(workerCount + builderCount <= 0);
                 workersEmptyText.text = canAssignWorker || canAssignBuilder
-                    ? "hire storekeepers and builders"
+                    ? "hire haulers and builders"
                     : "no free residents";
             }
 
@@ -188,7 +120,7 @@ namespace ProjectUnknown.Strategy
                         ? worker.FullName
                         : isBuilderSlot
                             ? "Builder: open"
-                            : "Storekeeper: open";
+                            : "Hauler: open";
                     workerNameTexts[i].color = hasWorker ? Color.white : new Color(0.72f, 0.80f, 0.76f);
                 }
 
@@ -198,7 +130,7 @@ namespace ProjectUnknown.Strategy
                         ? GetResidentStatus(worker)
                         : isBuilderSlot
                             ? "builds structures"
-                            : "hauls resources";
+                            : "hauls resources and food";
                 }
 
                 bool buttonEnabled = hasWorker
@@ -428,15 +360,6 @@ namespace ProjectUnknown.Strategy
             if (fisherHut != null)
             {
                 ToggleFisherWorkerSlot(fisherHut, index);
-                return;
-            }
-
-            StrategyGranary granary = selectedTransform != null
-                ? selectedTransform.GetComponent<StrategyGranary>()
-                : null;
-            if (granary != null)
-            {
-                ToggleGranaryWorkerSlot(granary, index);
                 return;
             }
 

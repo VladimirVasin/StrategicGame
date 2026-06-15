@@ -318,7 +318,7 @@ namespace ProjectUnknown.Strategy
             SetCarriedFishVisible(false);
             SetCarriedForageVisible(false);
         }
-        public bool TryStartFuneralMove(Vector3 targetWorld, ResidentActivity funeralMoveActivity)
+        public bool TryStartFuneralMove(Vector3 targetWorld, ResidentActivity funeralMoveActivity, bool silent = false)
         {
             if (map == null
                 || deathRequested
@@ -361,6 +361,7 @@ namespace ProjectUnknown.Strategy
             }
 
             activity = funeralMoveActivity;
+            silentFuneralDuty = silent;
             hasTarget = path.Count > 0;
             waitTimer = 0f;
             transform.localRotation = Quaternion.identity;
@@ -379,12 +380,12 @@ namespace ProjectUnknown.Strategy
         }
         public void StartFuneralMourning(float seconds)
         {
-            StartTimedFuneralActivity(ResidentActivity.MourningCorpse, seconds);
+            StartTimedFuneralActivity(ResidentActivity.MourningCorpse, seconds, false);
         }
 
-        public void StartFuneralBurial(float seconds)
+        public void StartFuneralBurial(float seconds, bool silent = false)
         {
-            StartTimedFuneralActivity(ResidentActivity.BuryingGrave, seconds);
+            StartTimedFuneralActivity(ResidentActivity.BuryingGrave, seconds, silent);
         }
 
         public void EndFuneralDuty()
@@ -406,6 +407,7 @@ namespace ProjectUnknown.Strategy
             usingWorkSprite = false;
             appliedWalkFrame = -1;
             appliedWorkFrame = -1;
+            silentFuneralDuty = false;
             UseIdleSprite();
             footstepAudio?.ResetStepPhase();
             StrategyDebugLogger.Info(
@@ -414,7 +416,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("resident", FullName));
         }
 
-        private void StartTimedFuneralActivity(ResidentActivity funeralActivity, float seconds)
+        private void StartTimedFuneralActivity(ResidentActivity funeralActivity, float seconds, bool silent)
         {
             if (deathRequested || IsPendingRefugee || IsHomeboundYoungChild)
             {
@@ -422,6 +424,7 @@ namespace ProjectUnknown.Strategy
             }
 
             activity = funeralActivity;
+            silentFuneralDuty = silent;
             funeralTimer = Mathf.Max(0.5f, seconds);
             hasTarget = false;
             path.Clear();

@@ -61,6 +61,7 @@ namespace ProjectUnknown.Strategy
         private Texture2D mapTexture;
         private CityMapCell[,] cells;
         private int[,] blockedWalkCounts;
+        private int[,] blockedBuildCounts;
         private bool[,] bridgeWalkableCells;
         private int activeSeed;
         private Vector2Int riverFlowDirection = Vector2Int.right;
@@ -84,6 +85,7 @@ namespace ProjectUnknown.Strategy
 
             cells = new CityMapCell[width, height];
             blockedWalkCounts = new int[width, height];
+            blockedBuildCounts = new int[width, height];
             bridgeWalkableCells = new bool[width, height];
             BuildCells();
             BuildTexture();
@@ -144,18 +146,6 @@ namespace ProjectUnknown.Strategy
             return x >= 0 && x < width && y >= 0 && y < height;
         }
 
-        public bool IsCellWalkable(Vector2Int cell)
-        {
-            return IsCellWalkable(cell.x, cell.y);
-        }
-
-        public bool IsCellWalkable(int x, int y)
-        {
-            return TryGetCell(x, y, out CityMapCell cell)
-                && (cell.IsBuildable || IsBridgeWalkableCell(x, y))
-                && (blockedWalkCounts == null || blockedWalkCounts[x, y] <= 0);
-        }
-
         public bool TryGetWaterKind(Vector2Int cell, out CityMapWaterKind waterKind)
         {
             return TryGetWaterKind(cell.x, cell.y, out waterKind);
@@ -194,68 +184,6 @@ namespace ProjectUnknown.Strategy
             return TryGetCell(x, y, out CityMapCell cell) && cell.IsLake;
         }
 
-        public void SetCellsWalkable(Vector2Int origin, Vector2Int size, bool isWalkable)
-        {
-            EnsureWalkabilityLayer();
-
-            for (int y = 0; y < size.y; y++)
-            {
-                for (int x = 0; x < size.x; x++)
-                {
-                    int cellX = origin.x + x;
-                    int cellY = origin.y + y;
-                    if (cellX < 0 || cellX >= width || cellY < 0 || cellY >= height)
-                    {
-                        continue;
-                    }
-
-                    if (isWalkable)
-                    {
-                        blockedWalkCounts[cellX, cellY] = Mathf.Max(0, blockedWalkCounts[cellX, cellY] - 1);
-                    }
-                    else
-                    {
-                        blockedWalkCounts[cellX, cellY]++;
-                    }
-                }
-            }
-        }
-
-        public void SetBridgeCellsWalkable(IReadOnlyList<Vector2Int> bridgeCells, bool isWalkable)
-        {
-            if (bridgeCells == null)
-            {
-                return;
-            }
-
-            EnsureBridgeWalkabilityLayer();
-            for (int i = 0; i < bridgeCells.Count; i++)
-            {
-                Vector2Int cell = bridgeCells[i];
-                if (cell.x < 0 || cell.x >= width || cell.y < 0 || cell.y >= height)
-                {
-                    continue;
-                }
-
-                bridgeWalkableCells[cell.x, cell.y] = isWalkable;
-            }
-        }
-
-        public bool IsBridgeWalkableCell(Vector2Int cell)
-        {
-            return IsBridgeWalkableCell(cell.x, cell.y);
-        }
-
-        public bool IsBridgeWalkableCell(int x, int y)
-        {
-            return bridgeWalkableCells != null
-                && x >= 0
-                && x < width
-                && y >= 0
-                && y < height
-                && bridgeWalkableCells[x, y];
-        }
-
         public Vector3 GetCellCenterWorld(int x, int y)
         {
             Vector3 min = WorldBounds.min;
@@ -270,26 +198,6 @@ namespace ProjectUnknown.Strategy
             Vector3 min = WorldBounds.min + new Vector3(origin.x * cellSize, origin.y * cellSize, 0f);
             Vector3 worldSize = new Vector3(size.x * cellSize, size.y * cellSize, 0f);
             return new Bounds(min + worldSize * 0.5f, worldSize);
-        }
-
-        private void EnsureWalkabilityLayer()
-        {
-            if (blockedWalkCounts == null
-                || blockedWalkCounts.GetLength(0) != width
-                || blockedWalkCounts.GetLength(1) != height)
-            {
-                blockedWalkCounts = new int[width, height];
-            }
-        }
-
-        private void EnsureBridgeWalkabilityLayer()
-        {
-            if (bridgeWalkableCells == null
-                || bridgeWalkableCells.GetLength(0) != width
-                || bridgeWalkableCells.GetLength(1) != height)
-            {
-                bridgeWalkableCells = new bool[width, height];
-            }
         }
 
         private void CountTerrain(

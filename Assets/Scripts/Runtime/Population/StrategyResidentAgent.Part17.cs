@@ -13,7 +13,16 @@ namespace ProjectUnknown.Strategy
             if (activity == ResidentActivity.MourningCorpse
                 || activity == ResidentActivity.WaitingAtFuneral)
             {
-                ApplyCryingFrame();
+                if (!silentFuneralDuty)
+                {
+                    ApplyCryingFrame();
+                }
+                else
+                {
+                    UseIdleSprite();
+                    SyncReadabilityRenderers();
+                }
+
                 transform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin((Time.time + bobPhase) * 4.6f) * 2.4f);
                 transform.localScale = new Vector3(1f, 0.93f + pulse, 1f);
                 return;

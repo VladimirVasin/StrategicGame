@@ -23,65 +23,6 @@ namespace ProjectUnknown.Strategy
             return null;
         }
 
-        private static string GetBuildingOperationText(StrategyPlacedBuilding building)
-        {
-            if (building == null)
-            {
-                return string.Empty;
-            }
-
-            StrategyLumberjackCamp camp = building.GetComponent<StrategyLumberjackCamp>();
-            if (camp != null)
-            {
-                return camp.GetHudStatusText();
-            }
-
-            StrategyStonecutterCamp stoneCamp = building.GetComponent<StrategyStonecutterCamp>();
-            if (stoneCamp != null)
-            {
-                return stoneCamp.GetHudStatusText();
-            }
-
-            StrategySawmill sawmill = building.GetComponent<StrategySawmill>();
-            if (sawmill != null)
-            {
-                return sawmill.GetHudStatusText();
-            }
-
-            StrategyMine mine = building.GetComponent<StrategyMine>();
-            if (mine != null)
-            {
-                return mine.GetHudStatusText();
-            }
-
-            StrategyCoalPit coalPit = building.GetComponent<StrategyCoalPit>();
-            if (coalPit != null)
-            {
-                return coalPit.GetHudStatusText();
-            }
-
-            StrategyHunterCamp hunterCamp = building.GetComponent<StrategyHunterCamp>();
-            if (hunterCamp != null)
-            {
-                return hunterCamp.GetHudStatusText();
-            }
-
-            StrategyFisherHut fisherHut = building.GetComponent<StrategyFisherHut>();
-            if (fisherHut != null)
-            {
-                return fisherHut.GetHudStatusText();
-            }
-
-            StrategyStorageYard yard = building.GetComponent<StrategyStorageYard>();
-            if (yard != null)
-            {
-                return yard.GetHudStatusText();
-            }
-
-            StrategyGranary granary = building.GetComponent<StrategyGranary>();
-            return granary != null ? granary.GetHudStatusText() : string.Empty;
-        }
-
         private static string GetResidentRoleTitle(StrategyResidentAgent resident)
         {
             if (resident == null)

@@ -204,6 +204,7 @@ namespace ProjectUnknown.Strategy
         private bool hiddenInsideHome;
         private bool hiddenUnderground;
         private bool returnCarriedResourcesImmediately;
+        private bool silentFuneralDuty;
 
         public StrategyPlacedBuilding Home => home;
         public StrategyLumberjackCamp Workplace => workplace;

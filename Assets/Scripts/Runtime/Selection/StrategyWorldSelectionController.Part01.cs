@@ -29,73 +29,6 @@ namespace ProjectUnknown.Strategy
                 hasCell);
         }
 
-        private StrategyWorldInspectInfo BuildBuildingInspectInfo(StrategyPlacedBuilding building)
-        {
-            string body = "Origin: "
-                + FormatCell(building.Origin)
-                + "\nFootprint: "
-                + building.Footprint.x
-                + "x"
-                + building.Footprint.y;
-            if (building.Tool == StrategyBuildTool.House)
-            {
-                body += "\nResidents: "
-                    + building.ResidentCount
-                    + "/"
-                    + building.ResidentCapacity
-                    + "\nUpgrades: "
-                    + building.InstalledUpgradeCount;
-            }
-            else
-            {
-                string operation = GetBuildingOperationText(building);
-                if (!string.IsNullOrWhiteSpace(operation))
-                {
-                    body += "\n" + operation;
-                }
-            }
-
-            return new StrategyWorldInspectInfo(
-                GetBuildingTitle(building.Tool),
-                "Building",
-                body,
-                GetBuildingPreviewSprite(building),
-                building.Origin,
-                true);
-        }
-
-        private StrategyWorldInspectInfo BuildConstructionInspectInfo(StrategyConstructionSite site)
-        {
-            string body = "Building: "
-                + GetBuildingTitle(site.Tool)
-                + "\nLogs: "
-                + site.DeliveredLogs
-                + "/"
-                + site.Cost.Logs
-                + "\nStone: "
-                + site.DeliveredStone
-                + "/"
-                + site.Cost.Stone;
-            if (site.Cost.Planks > 0 || site.DeliveredPlanks > 0)
-            {
-                body += "\nPlanks: "
-                    + site.DeliveredPlanks
-                    + "/"
-                    + site.Cost.Planks;
-            }
-
-            body += "\nProgress: "
-                + Mathf.RoundToInt(site.Progress * 100f)
-                + "%";
-            int stage = site.ResourcesComplete
-                ? Mathf.Clamp(1 + Mathf.FloorToInt(site.Progress * (StrategyConstructionSpriteFactory.StageCount - 1)), 1, StrategyConstructionSpriteFactory.StageCount - 1)
-                : 0;
-            Sprite icon = site.Tool == StrategyBuildTool.Bridge
-                ? StrategyConstructionSpriteFactory.GetBridgeConstructionSprite(site.Footprint, stage)
-                : StrategyConstructionSpriteFactory.GetConstructionSprite(site.Tool, site.VisualVariant, stage);
-            return new StrategyWorldInspectInfo("Construction Site", site.Title, body, icon, site.Origin, true);
-        }
-
         private bool TryGetCellForWorld(Vector3 world, out Vector2Int cell)
         {
             if (map == null)
@@ -136,15 +69,7 @@ namespace ProjectUnknown.Strategy
 
             RefreshHud();
             UpdateSelectionMarker(bounds);
-            StrategyPlacedBuilding building = target != null ? target.GetComponent<StrategyPlacedBuilding>() : null;
-            if (building != null)
-            {
-                UpdateSelectionLinks(building);
-            }
-            else
-            {
-                ClearSelectionLinks();
-            }
+            UpdateSelectionLinks(target);
         }
 
         private void UpdateSelectionMarker(Bounds bounds)
@@ -217,7 +142,7 @@ namespace ProjectUnknown.Strategy
             if (constructionSite != null)
             {
                 UpdateSelectionMarker(constructionSite.SelectionBounds);
-                ClearSelectionLinks();
+                UpdateSelectionLinks(constructionSite);
                 RefreshHud();
                 return;
             }

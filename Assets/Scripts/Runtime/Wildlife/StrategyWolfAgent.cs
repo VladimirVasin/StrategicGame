@@ -322,7 +322,7 @@ namespace ProjectUnknown.Strategy
             float distance = Vector2.Distance(transform.position, targetWorld);
             if (distance <= AttackReachDistance * 2.7f)
             {
-                state = StrategyWolfBehaviorState.Chasing;
+                SetWolfState(StrategyWolfBehaviorState.Chasing, "target_in_chase_band");
                 path.Clear();
                 pathIndex = 0;
                 return;

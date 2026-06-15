@@ -9,10 +9,55 @@ namespace ProjectUnknown.Strategy
     public sealed partial class StrategyWorldSelectionController
     {
 
+        private void UpdateSelectionLinks(Transform target)
+        {
+            StrategyPlacedBuilding building = target != null ? target.GetComponent<StrategyPlacedBuilding>() : null;
+            if (building != null)
+            {
+                UpdateSelectionLinks(building);
+                return;
+            }
+
+            StrategyConstructionSite site = target != null ? target.GetComponent<StrategyConstructionSite>() : null;
+            if (site != null)
+            {
+                UpdateSelectionLinks(site);
+                return;
+            }
+
+            ClearSelectionLinks();
+        }
+
         private void UpdateSelectionLinks(StrategyPlacedBuilding building)
         {
             linkedResidentsScratch.Clear();
             CollectLinkedResidents(building, linkedResidentsScratch);
+            SyncLinkedResidents();
+            if (building == null)
+            {
+                ClearSelectionLinks();
+                return;
+            }
+
+            RenderSelectionLinks(GetSelectionLinkBuildingAnchor(building));
+        }
+
+        private void UpdateSelectionLinks(StrategyConstructionSite site)
+        {
+            linkedResidentsScratch.Clear();
+            CollectLinkedResidents(site, linkedResidentsScratch);
+            SyncLinkedResidents();
+            if (site == null)
+            {
+                ClearSelectionLinks();
+                return;
+            }
+
+            RenderSelectionLinks(GetSelectionLinkSiteAnchor(site));
+        }
+
+        private void SyncLinkedResidents()
+        {
             bool changed = linkedResidents.Count != linkedResidentsScratch.Count;
             if (!changed)
             {
@@ -34,15 +79,17 @@ namespace ProjectUnknown.Strategy
                     linkedResidents.Add(linkedResidentsScratch[i]);
                 }
             }
+        }
 
-            if (linkedResidents.Count <= 0 || building == null)
+        private void RenderSelectionLinks(Vector3 sourceAnchor)
+        {
+            if (linkedResidents.Count <= 0)
             {
                 HideSelectionLinks();
                 return;
             }
 
             EnsureSelectionLinkVisualCount(linkedResidents.Count);
-            Vector3 buildingAnchor = GetSelectionLinkBuildingAnchor(building);
             int visibleCount = 0;
             for (int i = 0; i < linkedResidents.Count; i++)
             {
@@ -60,7 +107,7 @@ namespace ProjectUnknown.Strategy
                 marker.transform.position = new Vector3(residentAnchor.x, residentAnchor.y, -0.055f);
                 marker.transform.localScale = GetLinkedResidentMarkerScale(resident);
                 marker.sortingOrder = SelectionLinkSortingOrder + 2;
-                line.SetPosition(0, new Vector3(buildingAnchor.x, buildingAnchor.y, -0.06f));
+                line.SetPosition(0, new Vector3(sourceAnchor.x, sourceAnchor.y, -0.06f));
                 line.SetPosition(1, new Vector3(residentAnchor.x, residentAnchor.y, -0.06f));
                 line.sortingOrder = SelectionLinkSortingOrder;
                 visibleCount++;
@@ -138,6 +185,16 @@ namespace ProjectUnknown.Strategy
             }
         }
 
+        private void CollectLinkedResidents(StrategyConstructionSite site, List<StrategyResidentAgent> results)
+        {
+            if (site == null || results == null)
+            {
+                return;
+            }
+
+            AddResidents(site.Builders, results);
+        }
+
         private static void AddResidents(IReadOnlyList<StrategyResidentAgent> source, List<StrategyResidentAgent> results)
         {
             if (source == null || results == null)
@@ -168,6 +225,17 @@ namespace ProjectUnknown.Strategy
             }
 
             Bounds bounds = building.SelectionBounds;
+            return new Vector3(bounds.center.x, bounds.min.y + bounds.size.y * 0.18f, -0.06f);
+        }
+
+        private static Vector3 GetSelectionLinkSiteAnchor(StrategyConstructionSite site)
+        {
+            if (site == null)
+            {
+                return Vector3.zero;
+            }
+
+            Bounds bounds = site.SelectionBounds;
             return new Vector3(bounds.center.x, bounds.min.y + bounds.size.y * 0.18f, -0.06f);
         }
 

@@ -85,6 +85,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("motherId", mother.ResidentId),
                 StrategyDebugLogger.F("houseOrigin", house.Origin),
                 StrategyDebugLogger.F("spawnWorld", spawnWorld));
+            StrategyEventLogHudController.Notify("Born: " + childName, new Color(0.64f, 0.88f, 0.52f));
             return true;
         }
 

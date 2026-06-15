@@ -1,0 +1,170 @@
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace ProjectUnknown.Strategy
+{
+    public sealed partial class StrategyFuneralController
+    {
+        private const int ServiceCarrierNearestPool = 4;
+
+        private void RecallFamilyForFuneral(FuneralProcess funeral, string reason)
+        {
+            if (funeral == null || funeral.Corpse == null || population == null)
+            {
+                return;
+            }
+
+            funeral.Participants.Clear();
+            funeral.Participants.AddRange(population.CollectFuneralParticipants(funeral.Snapshot, MaxFamilyParticipants));
+
+            Vector3 corpseWorld = funeral.Corpse.transform.position;
+            int started = 0;
+            for (int i = 0; i < funeral.Participants.Count; i++)
+            {
+                StrategyResidentAgent participant = funeral.Participants[i];
+                if (participant == null)
+                {
+                    continue;
+                }
+
+                Vector3 target = corpseWorld + GetRingOffset(i, 0.76f);
+                if (participant.TryStartFuneralMove(target, StrategyResidentAgent.ResidentActivity.MovingToFuneral))
+                {
+                    started++;
+                }
+            }
+
+            funeral.Dispatched = true;
+            StrategyDebugLogger.Info(
+                "Funeral",
+                "FamilyRecalledForFuneral",
+                StrategyDebugLogger.F("resident", funeral.Snapshot.FullName),
+                StrategyDebugLogger.F("residentId", funeral.Snapshot.ResidentId),
+                StrategyDebugLogger.F("reason", reason),
+                StrategyDebugLogger.F("participants", funeral.Participants.Count),
+                StrategyDebugLogger.F("started", started));
+        }
+
+        private void PrepareServiceBurial(FuneralProcess funeral, string reason)
+        {
+            funeral.Stage = FuneralStage.Mourning;
+            funeral.Timer = 0f;
+            StrategyDebugLogger.Info(
+                "Funeral",
+                "ServiceBurialPrepared",
+                StrategyDebugLogger.F("resident", funeral.Snapshot.FullName),
+                StrategyDebugLogger.F("residentId", funeral.Snapshot.ResidentId),
+                StrategyDebugLogger.F("reason", reason));
+        }
+
+        private bool IsServiceBurial(FuneralProcess funeral)
+        {
+            return funeral != null && funeral.Participants.Count <= 0;
+        }
+
+        private int GetRequiredCarrierCount(FuneralProcess funeral)
+        {
+            return IsServiceBurial(funeral) ? 1 : RequiredCarrierCount;
+        }
+
+        private bool TryAddServiceCarrier(FuneralProcess funeral)
+        {
+            if (TryFindServiceCarrier(funeral, out StrategyResidentAgent carrier, out int poolCount))
+            {
+                funeral.Carriers.Add(carrier);
+                StrategyDebugLogger.Info(
+                    "Funeral",
+                    "ServiceBurialCarrierSelected",
+                    StrategyDebugLogger.F("resident", funeral.Snapshot.FullName),
+                    StrategyDebugLogger.F("residentId", funeral.Snapshot.ResidentId),
+                    StrategyDebugLogger.F("carrier", carrier.FullName),
+                    StrategyDebugLogger.F("carrierId", carrier.ResidentId),
+                    StrategyDebugLogger.F("poolCount", poolCount));
+                return true;
+            }
+
+            StrategyDebugLogger.Warn(
+                "Funeral",
+                "ServiceBurialCarrierUnavailable",
+                StrategyDebugLogger.F("resident", funeral.Snapshot.FullName),
+                StrategyDebugLogger.F("residentId", funeral.Snapshot.ResidentId));
+            return false;
+        }
+
+        private bool TryFindServiceCarrier(
+            FuneralProcess funeral,
+            out StrategyResidentAgent carrier,
+            out int poolCount)
+        {
+            carrier = null;
+            poolCount = 0;
+            if (funeral == null || population == null)
+            {
+                return false;
+            }
+
+            List<StrategyResidentAgent> nearest = new();
+            List<float> distances = new();
+            Vector3 corpseWorld = funeral.Corpse != null
+                ? funeral.Corpse.transform.position
+                : funeral.Snapshot.DeathWorld;
+            IReadOnlyList<StrategyResidentAgent> residents = population.Residents;
+            for (int i = 0; i < residents.Count; i++)
+            {
+                StrategyResidentAgent candidate = residents[i];
+                if (!IsServiceCarrierCandidate(candidate, funeral.Snapshot.ResidentId))
+                {
+                    continue;
+                }
+
+                InsertNearestServiceCarrier(
+                    nearest,
+                    distances,
+                    candidate,
+                    (candidate.transform.position - corpseWorld).sqrMagnitude);
+            }
+
+            poolCount = nearest.Count;
+            if (nearest.Count <= 0)
+            {
+                return false;
+            }
+
+            carrier = nearest[Random.Range(0, nearest.Count)];
+            return carrier != null;
+        }
+
+        private static bool IsServiceCarrierCandidate(StrategyResidentAgent resident, int deceasedId)
+        {
+            return resident != null
+                && resident.CanWork
+                && !resident.IsFuneralDutyActive
+                && resident.ResidentId != deceasedId;
+        }
+
+        private static void InsertNearestServiceCarrier(
+            List<StrategyResidentAgent> nearest,
+            List<float> distances,
+            StrategyResidentAgent candidate,
+            float distance)
+        {
+            int index = distances.Count;
+            for (int i = 0; i < distances.Count; i++)
+            {
+                if (distance < distances[i])
+                {
+                    index = i;
+                    break;
+                }
+            }
+
+            nearest.Insert(index, candidate);
+            distances.Insert(index, distance);
+            if (nearest.Count > ServiceCarrierNearestPool)
+            {
+                nearest.RemoveAt(nearest.Count - 1);
+                distances.RemoveAt(distances.Count - 1);
+            }
+        }
+    }
+}

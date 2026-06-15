@@ -187,6 +187,7 @@ namespace ProjectUnknown.Strategy
             }
 
             householdMigrationTimer = HouseholdMigrationCheckInterval;
+            TryAdoptOrphanedChildren();
             TryPopulateAvailableHouses();
         }
 
@@ -302,6 +303,12 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
+            if (resident.IsFuneralDutyActive)
+            {
+                StrategyDebugLogger.Info("Population", "ResidentDeathBlockedByFuneral", StrategyDebugLogger.F("resident", resident.FullName), StrategyDebugLogger.F("residentId", resident.ResidentId), StrategyDebugLogger.F("reason", reason));
+                return false;
+            }
+
             int residentId = resident.ResidentId;
             string residentName = resident.FullName;
             int age = resident.DisplayAgeYears;
@@ -324,6 +331,8 @@ namespace ProjectUnknown.Strategy
             funeralController?.NotifyResidentDeath(snapshot);
             Destroy(resident.gameObject);
             householdMigrationTimer = 0f;
+            StrategyEventLogHudController.Notify("Died: " + residentName + ", age " + age, new Color(0.92f, 0.48f, 0.42f));
+            TryAdoptOrphanedChildren();
 
             StrategyDebugLogger.Info(
                 "Population",

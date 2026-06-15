@@ -8,6 +8,55 @@ Last updated: 2026-06-15
 
 ## Done
 
+### 2026-06-15 - Balanced construction builder dispatch
+
+- Replaced per-site builder dispatch that could assign every free builder to the requesting construction site with balanced dispatch across all active construction sites.
+- Builder assignment now favors empty and lower-builder-count sites first, while still allowing extra builders to stack onto sites after active sites have coverage.
+- Added `StrategyStorageYard.Part06.cs` for builder dispatch scoring and kept all touched `.cs` files below the 500-line limit.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-15 - Service burial fallback
+
+- Funeral processes with no living family/household participants now skip mourning and use a service burial flow.
+- Service burials pick one adult carrier randomly from the nearest eligible adult pool, move the corpse to a reachable grave, and suppress crying sprites during waiting/burial duty.
+- Added `StrategyFuneralController.Part02.cs` for service-burial helpers and kept all touched `.cs` files below the 500-line limit.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-15 - Wolf movement diagnostics
+
+- Added throttled wolf diagnostics for state changes, target acquisition/release, path readiness/failures, roam failures, and movement stalls while attempting path/direct movement.
+- Wolf logs now include wolf entity id, pack id, state, current cell/world, target kind/name/cell/world, speed, and path index/count where relevant.
+- Added `StrategyWolfAgent.Part03.cs` for diagnostics so all wolf source files remain below the 500-line limit.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; `.cs` line-count scan found no wolf files over 500 lines; `git diff --check` reported only the existing CRLF normalization warning for `Assembly-CSharp.csproj`.
+
+### 2026-06-15 - Funeral participant death guard
+
+- Added a centralized resident-death guard: residents in active funeral duty cannot die from annual mortality, malnutrition mortality, or wolf attacks until the funeral duty ends.
+- The guard logs `ResidentDeathBlockedByFuneral` and leaves the funeral state untouched, preventing carrier death from freezing an active procession.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; `.cs` line-count scan found no files over 500 lines.
+
+### 2026-06-15 - Mineral build blocking
+
+- Iron and Coal deposit footprints now remain walkable but mark their cells as not buildable through a separate map buildability overlay.
+- Normal buildings, bridge bank endpoints, starter storage placement, and house upgrades reject Iron/Coal build-blocked cells; Mine and Coal Pit placement can still use their matching mineral cells.
+- Mineral generation now treats existing build-blocked mineral cells as occupied for future nature props, preventing multi-cell Iron/Coal deposits from receiving overlapping props.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; `.cs` line-count scan found no files over 500 lines.
+
+### 2026-06-15 - Building microHUD removal
+
+- World inspect microHUD no longer opens for placed buildings, construction sites, or house upgrades; those clicks use the right-side selection HUD only.
+- Kept resident, grave, resource, nature-prop, wildlife, and loose-pile inspect behavior intact.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; `.cs` line-count scan found no files over 500 lines.
+
+### 2026-06-15 - Construction crews, haulers, and population event log
+
+- Construction sites no longer cap active assigned builders at 2; all available hired Storage Yard builders can be dispatched, and selected construction sites now draw linked-resident markers/lines for assigned builders.
+- Hunter, fisher, lumberjack, and stonecutter target lookup now chooses the nearest available map target instead of rejecting everything outside the old work radius; fisher cast validation now keeps fish range checks active during waiting/reeling.
+- Added a compact top event log for births, deaths, and child adoption events.
+- Added orphan adoption: minor children with no living parents can be adopted into an adult household, preferring their current home or close relatives before the nearest eligible house.
+- Replaced the player-facing `Storekeepers`/`Granary Workers` split with one `Haulers` profession; Storage Yard haulers move both storage resources and food to Granaries.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; `.cs` line-count scan found no files over 500 lines.
+
 ### 2026-06-15 - Younger starter-family ages
 
 - Reduced starter parent ages so initial families no longer begin close to the old-age mortality band.

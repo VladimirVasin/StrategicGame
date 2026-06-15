@@ -79,7 +79,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            if (!IsFishingCastStillValid("waiting_for_bite", false))
+            if (!IsFishingCastStillValid("waiting_for_bite", true))
             {
                 ResetFisherWorkToIdle(true);
                 return;
@@ -120,7 +120,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            if (!IsFishingCastStillValid("reeling", false))
+            if (!IsFishingCastStillValid("reeling", true))
             {
                 ResetFisherWorkToIdle(true);
                 return;

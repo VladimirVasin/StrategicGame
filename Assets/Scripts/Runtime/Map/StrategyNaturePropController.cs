@@ -212,7 +212,7 @@ namespace ProjectUnknown.Strategy
 
         private void PlaceNatureForCell(CityMapCell cell)
         {
-            if (!map.IsCellWalkable(cell.X, cell.Y))
+            if (!map.IsCellWalkable(cell.X, cell.Y) || !map.IsCellBuildable(cell.X, cell.Y))
             {
                 return;
             }

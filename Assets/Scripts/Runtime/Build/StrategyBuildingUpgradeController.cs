@@ -233,7 +233,9 @@ namespace ProjectUnknown.Strategy
                 for (int x = 0; x < size.x; x++)
                 {
                     Vector2Int cell = new Vector2Int(origin.x + x, origin.y + y);
-                    if (!map.IsCellWalkable(cell) || occupiedVisualCells.Contains(cell))
+                    if (!map.IsCellWalkable(cell)
+                        || !map.IsCellBuildable(cell)
+                        || occupiedVisualCells.Contains(cell))
                     {
                         return false;
                     }

@@ -12,8 +12,10 @@ namespace ProjectUnknown.Strategy
     public sealed class StrategyCoalDeposit : MonoBehaviour, IStrategyWorldInspectable
     {
         private StrategyCoalResourceController controller;
+        private CityMapController map;
         private SpriteRenderer spriteRenderer;
         private object reservedBy;
+        private bool buildBlocked;
 
         public Vector2Int Cell { get; private set; }
         public Vector2Int Footprint { get; private set; }
@@ -24,17 +26,25 @@ namespace ProjectUnknown.Strategy
 
         public void Configure(
             StrategyCoalResourceController coalController,
+            CityMapController mapController,
             Vector2Int cell,
             Vector2Int footprint,
             StrategyCoalDepositKind kind,
             int coalAmount)
         {
             controller = coalController;
+            map = mapController;
             Cell = cell;
             Footprint = new Vector2Int(Mathf.Max(1, footprint.x), Mathf.Max(1, footprint.y));
             Kind = kind;
             CoalAmount = Mathf.Max(0, coalAmount);
             spriteRenderer = GetComponent<SpriteRenderer>();
+            if (map != null && CoalAmount > 0)
+            {
+                map.SetCellsBuildable(Cell, Footprint, false);
+                buildBlocked = true;
+            }
+
             controller?.RegisterDeposit(this);
         }
 
@@ -47,7 +57,8 @@ namespace ProjectUnknown.Strategy
                 + "x"
                 + Footprint.y
                 + "\nState: underground, not mineable yet"
-                + "\nBlocks movement: no";
+                + "\nBlocks movement: no"
+                + "\nBlocks building: yes, except Coal Pit";
             string state = IsDepleted ? "depleted" : IsReserved ? "reserved for coal pit" : "underground, mineable";
             body = body.Replace("underground, not mineable yet", state);
             info = new StrategyWorldInspectInfo(
@@ -62,6 +73,12 @@ namespace ProjectUnknown.Strategy
 
         private void OnDestroy()
         {
+            if (buildBlocked)
+            {
+                map?.SetCellsBuildable(Cell, Footprint, true);
+                buildBlocked = false;
+            }
+
             controller?.UnregisterDeposit(this);
         }
 

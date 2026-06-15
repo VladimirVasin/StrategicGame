@@ -6,7 +6,6 @@ namespace ProjectUnknown.Strategy
     [DisallowMultipleComponent]
     public sealed partial class StrategyConstructionSite : MonoBehaviour
     {
-        public const int MaxBuilders = 2;
         private const float BuilderRequestInterval = 2f;
 
         private readonly List<StrategyResidentAgent> builders = new();
@@ -156,7 +155,6 @@ namespace ProjectUnknown.Strategy
         {
             if (resident == null
                 || builders.Contains(resident)
-                || builders.Count >= MaxBuilders
                 || !resident.CanAcceptWorkAssignment)
             {
                 return false;
@@ -208,7 +206,7 @@ namespace ProjectUnknown.Strategy
 
         private void Update()
         {
-            if (!hasBegun || completed || builders.Count >= MaxBuilders)
+            if (!hasBegun || completed)
             {
                 return;
             }
@@ -363,8 +361,6 @@ namespace ProjectUnknown.Strategy
                 + "\n"
                 + "Builders: "
                 + builders.Count
-                + "/"
-                + MaxBuilders
                 + "\n"
                 + "Progress: "
                 + Mathf.RoundToInt(Progress * 100f)

@@ -324,6 +324,16 @@ namespace ProjectUnknown.Strategy
             topStatusHud.Configure(population);
             StrategyDebugLogger.Info("Bootstrap", "TopStatusHudReady");
 
+            StrategyEventLogHudController eventLogHud = Object.FindAnyObjectByType<StrategyEventLogHudController>();
+            if (eventLogHud == null)
+            {
+                GameObject eventLogHudObject = new GameObject("Strategy Event Log HUD");
+                eventLogHud = eventLogHudObject.AddComponent<StrategyEventLogHudController>();
+            }
+
+            eventLogHud.Configure();
+            StrategyDebugLogger.Info("Bootstrap", "EventLogHudReady");
+
             StrategyRefugeeDialogController refugeeDialog = Object.FindAnyObjectByType<StrategyRefugeeDialogController>();
             if (refugeeDialog == null)
             {

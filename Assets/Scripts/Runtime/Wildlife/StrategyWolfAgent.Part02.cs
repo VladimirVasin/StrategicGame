@@ -25,6 +25,7 @@ namespace ProjectUnknown.Strategy
             Vector3 previous = transform.position;
             transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
             Vector3 delta = transform.position - previous;
+            TrackWolfMovementAttempt("direct", previous, transform.position, target, speed);
             if (spriteRenderer != null && Mathf.Abs(delta.x) > 0.001f)
             {
                 spriteRenderer.flipX = delta.x < 0f;

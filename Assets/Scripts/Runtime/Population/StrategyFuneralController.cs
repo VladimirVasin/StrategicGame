@@ -174,8 +174,13 @@ namespace ProjectUnknown.Strategy
             }
 
             funeral.Timer -= Time.deltaTime;
-            if (funeral.Participants.Count <= 0
-                || funeral.Timer <= 0f
+            if (funeral.Participants.Count <= 0)
+            {
+                PrepareServiceBurial(funeral, "no_family_participants");
+                return;
+            }
+
+            if (funeral.Timer <= 0f
                 || AreResidentsNear(funeral.Participants, funeral.Corpse.transform.position, ArrivalDistance))
             {
                 funeral.Stage = FuneralStage.Mourning;
@@ -189,46 +194,8 @@ namespace ProjectUnknown.Strategy
                     "Funeral",
                     "MourningStarted",
                     StrategyDebugLogger.F("resident", funeral.Snapshot.FullName),
-                    StrategyDebugLogger.F("participants", funeral.Participants.Count));
+                StrategyDebugLogger.F("participants", funeral.Participants.Count));
             }
-        }
-
-        private void RecallFamilyForFuneral(FuneralProcess funeral, string reason)
-        {
-            if (funeral == null || funeral.Corpse == null || population == null)
-            {
-                return;
-            }
-
-            funeral.Participants.Clear();
-            funeral.Participants.AddRange(population.CollectFuneralParticipants(funeral.Snapshot, MaxFamilyParticipants));
-
-            Vector3 corpseWorld = funeral.Corpse.transform.position;
-            int started = 0;
-            for (int i = 0; i < funeral.Participants.Count; i++)
-            {
-                StrategyResidentAgent participant = funeral.Participants[i];
-                if (participant == null)
-                {
-                    continue;
-                }
-
-                Vector3 target = corpseWorld + GetRingOffset(i, 0.76f);
-                if (participant.TryStartFuneralMove(target, StrategyResidentAgent.ResidentActivity.MovingToFuneral))
-                {
-                    started++;
-                }
-            }
-
-            funeral.Dispatched = true;
-            StrategyDebugLogger.Info(
-                "Funeral",
-                "FamilyRecalledForFuneral",
-                StrategyDebugLogger.F("resident", funeral.Snapshot.FullName),
-                StrategyDebugLogger.F("residentId", funeral.Snapshot.ResidentId),
-                StrategyDebugLogger.F("reason", reason),
-                StrategyDebugLogger.F("participants", funeral.Participants.Count),
-                StrategyDebugLogger.F("started", started));
         }
 
         private void UpdateMourning(FuneralProcess funeral)
@@ -254,7 +221,7 @@ namespace ProjectUnknown.Strategy
             }
 
             HashSet<Vector2Int> reachableCells = BuildReachableCellsFromCarriers(funeral.Carriers);
-            if (!cemetery.TryReserveGraveCell(reachableCells, RequiredCarrierCount, out Vector2Int graveCell, out Vector3 graveWorld))
+            if (!cemetery.TryReserveGraveCell(reachableCells, GetRequiredCarrierCount(funeral), out Vector2Int graveCell, out Vector3 graveWorld))
             {
                 StrategyDebugLogger.Warn(
                     "Funeral",
@@ -289,6 +256,8 @@ namespace ProjectUnknown.Strategy
             List<StrategyResidentAgent> startedCarriers = new();
             funeral.ExpectedBurialAttendees.Clear();
             funeral.PrimaryCarrier = null;
+            bool serviceBurial = IsServiceBurial(funeral);
+            int requiredCarrierCount = GetRequiredCarrierCount(funeral);
             for (int i = 0; i < funeral.Carriers.Count; i++)
             {
                 StrategyResidentAgent carrier = funeral.Carriers[i];
@@ -298,7 +267,7 @@ namespace ProjectUnknown.Strategy
                 }
 
                 Vector3 target = GetGraveStandWorld(funeral.GraveCell, i);
-                if (carrier.TryStartFuneralMove(target, StrategyResidentAgent.ResidentActivity.CarryingCorpseToCemetery))
+                if (carrier.TryStartFuneralMove(target, StrategyResidentAgent.ResidentActivity.CarryingCorpseToCemetery, serviceBurial))
                 {
                     startedCarriers.Add(carrier);
                     funeral.ExpectedBurialAttendees.Add(carrier);
@@ -339,7 +308,7 @@ namespace ProjectUnknown.Strategy
                     continue;
                 }
 
-                Vector3 target = GetGraveStandWorld(funeral.GraveCell, mournerIndex + RequiredCarrierCount);
+                Vector3 target = GetGraveStandWorld(funeral.GraveCell, mournerIndex + requiredCarrierCount);
                 if (participant.TryStartFuneralMove(target, StrategyResidentAgent.ResidentActivity.MovingToBurial))
                 {
                     funeral.ExpectedBurialAttendees.Add(participant);
@@ -365,6 +334,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("resident", funeral.Snapshot.FullName),
                 StrategyDebugLogger.F("carriers", funeral.Carriers.Count),
                 StrategyDebugLogger.F("expectedBurialAttendees", funeral.ExpectedBurialAttendees.Count),
+                StrategyDebugLogger.F("serviceBurial", serviceBurial),
                 StrategyDebugLogger.F("graveCell", funeral.GraveCell));
         }
 

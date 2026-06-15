@@ -5,7 +5,6 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyWolfAgent
     {
-
         private bool TryAcquireTarget()
         {
             if (huntSearchTimer > 0f || wildlife == null || !TryGetCurrentCell(out Vector2Int currentCell))
@@ -18,14 +17,9 @@ namespace ProjectUnknown.Strategy
                 && wildlife.TryReserveWolfResidentTarget(this, currentCell, out StrategyResidentAgent resident))
             {
                 targetResident = resident;
-                state = StrategyWolfBehaviorState.Stalking;
+                SetWolfState(StrategyWolfBehaviorState.Stalking, "resident_target_acquired");
                 targetRefreshTimer = 0f;
-                StrategyDebugLogger.Info(
-                    "Wildlife",
-                    "WolfResidentTargetAcquired",
-                    StrategyDebugLogger.F("pack", PackId),
-                    StrategyDebugLogger.F("resident", resident != null ? resident.FullName : "none"),
-                    StrategyDebugLogger.F("wolfCell", currentCell));
+                LogWolfTargetAcquired("resident", resident != null ? resident.FullName : "none");
                 return true;
             }
 
@@ -33,14 +27,9 @@ namespace ProjectUnknown.Strategy
             {
                 targetRabbit = rabbit;
                 targetDeer = deer;
-                state = StrategyWolfBehaviorState.Stalking;
+                SetWolfState(StrategyWolfBehaviorState.Stalking, "prey_target_acquired");
                 targetRefreshTimer = 0f;
-                StrategyDebugLogger.Info(
-                    "Wildlife",
-                    "WolfPreyTargetAcquired",
-                    StrategyDebugLogger.F("pack", PackId),
-                    StrategyDebugLogger.F("prey", targetRabbit != null ? "rabbit" : "deer"),
-                    StrategyDebugLogger.F("wolfCell", currentCell));
+                LogWolfTargetAcquired(targetRabbit != null ? "rabbit" : "deer", GetTargetDebugName());
                 return true;
             }
 
@@ -56,22 +45,23 @@ namespace ProjectUnknown.Strategy
 
             if (!wildlife.TryFindWolfRoamCell(this, currentCell, preferSafety, out Vector2Int roamCell))
             {
-                return false;
+                return LogWolfRoamFailed("no_roam_cell", currentCell, preferSafety);
             }
 
             if (!TryBuildPathTo(roamCell))
             {
-                return false;
+                return LogWolfPathFailed("roam_path_failed", roamCell);
             }
 
-            state = preferSafety ? StrategyWolfBehaviorState.AvoidingSettlement : StrategyWolfBehaviorState.Roaming;
+            LogWolfPathReady(preferSafety ? "avoid_roam" : "roam", roamCell, roamCell);
+            SetWolfState(preferSafety ? StrategyWolfBehaviorState.AvoidingSettlement : StrategyWolfBehaviorState.Roaming, "roam_path_ready");
             stateTimer = Random.Range(1.0f, 2.2f);
             return true;
         }
 
         private void StartAttack()
         {
-            state = StrategyWolfBehaviorState.Attacking;
+            SetWolfState(StrategyWolfBehaviorState.Attacking, "target_in_attack_range");
             frame = 0;
             appliedFrame = -1;
             frameTimer = 0f;
@@ -82,7 +72,7 @@ namespace ProjectUnknown.Strategy
 
         private void StartFeeding()
         {
-            state = StrategyWolfBehaviorState.Feeding;
+            SetWolfState(StrategyWolfBehaviorState.Feeding, "animal_attack_resolved");
             stateTimer = Random.Range(4.0f, 7.0f);
             feedingWorld = transform.position;
             frame = 0;
@@ -103,7 +93,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            state = StrategyWolfBehaviorState.AvoidingSettlement;
+            SetWolfState(StrategyWolfBehaviorState.AvoidingSettlement, "avoid_no_path");
             path.Clear();
             pathIndex = 0;
         }
@@ -111,7 +101,7 @@ namespace ProjectUnknown.Strategy
         private void StartResting()
         {
             ReleaseTargets();
-            state = StrategyWolfBehaviorState.Resting;
+            SetWolfState(StrategyWolfBehaviorState.Resting, "rest_selected");
             stateTimer = Random.Range(2.8f, 6.5f);
             path.Clear();
             pathIndex = 0;
@@ -120,7 +110,7 @@ namespace ProjectUnknown.Strategy
         private void StartHowling()
         {
             ReleaseTargets();
-            state = StrategyWolfBehaviorState.Howling;
+            SetWolfState(StrategyWolfBehaviorState.Howling, "howl_selected");
             stateTimer = Random.Range(1.4f, 2.6f);
             path.Clear();
             pathIndex = 0;
@@ -129,7 +119,7 @@ namespace ProjectUnknown.Strategy
         private void StartIdle(float seconds)
         {
             ReleaseTargets();
-            state = StrategyWolfBehaviorState.Idle;
+            SetWolfState(StrategyWolfBehaviorState.Idle, "idle_selected");
             stateTimer = seconds;
             path.Clear();
             pathIndex = 0;
@@ -159,12 +149,7 @@ namespace ProjectUnknown.Strategy
                 bool killed = population.TryKillResidentByWolf(targetResident, attackWorld);
                 wildlife?.ReleaseWolfResidentTarget(this, targetResident);
                 targetResident = null;
-                StrategyDebugLogger.Info(
-                    "Wildlife",
-                    killed ? "WolfResidentKilled" : "WolfResidentAttackFailed",
-                    StrategyDebugLogger.F("pack", PackId),
-                    StrategyDebugLogger.F("resident", residentName),
-                    StrategyDebugLogger.F("world", attackWorld));
+                LogWolfResidentAttackResult(killed, residentName, attackWorld);
             }
         }
 
@@ -183,6 +168,7 @@ namespace ProjectUnknown.Strategy
 
         private void ReleaseTargets()
         {
+            LogWolfTargetReleased();
             if (targetRabbit != null)
             {
                 targetRabbit.ReleasePredatorReservation(this);
@@ -244,6 +230,7 @@ namespace ProjectUnknown.Strategy
         {
             if (TryBuildPathTo(targetCell))
             {
+                LogWolfPathReady("target_direct", targetCell, targetCell);
                 return true;
             }
 
@@ -252,11 +239,12 @@ namespace ProjectUnknown.Strategy
                 Vector2Int candidate = targetCell + CardinalDirections[i];
                 if (map.IsCellWalkable(candidate) && TryBuildPathTo(candidate))
                 {
+                    LogWolfPathReady("target_adjacent", targetCell, candidate);
                     return true;
                 }
             }
 
-            return false;
+            return LogWolfPathFailed("target_path_failed", targetCell);
         }
 
         private bool MoveAlongPath(float speed)
@@ -271,6 +259,7 @@ namespace ProjectUnknown.Strategy
             Vector3 previous = transform.position;
             transform.position = Vector3.MoveTowards(transform.position, targetWorld, speed * Time.deltaTime);
             Vector3 delta = transform.position - previous;
+            TrackWolfMovementAttempt("path", previous, transform.position, targetWorld, speed);
             if (spriteRenderer != null && Mathf.Abs(delta.x) > 0.001f)
             {
                 spriteRenderer.flipX = delta.x < 0f;
@@ -295,7 +284,7 @@ namespace ProjectUnknown.Strategy
                 || !TryGetPathStartCell(out Vector2Int startCell)
                 || !map.IsCellWalkable(targetCell))
             {
-                return false;
+                return LogWolfPathFailed("path_prerequisite_failed", targetCell);
             }
 
             if (startCell == targetCell)
@@ -319,7 +308,7 @@ namespace ProjectUnknown.Strategy
                 if (current == targetCell)
                 {
                     BuildWorldPath(startCell, targetCell, cameFrom);
-                    return path.Count > 0;
+                    return path.Count > 0 || LogWolfPathFailed("path_rebuild_empty", targetCell);
                 }
 
                 for (int i = 0; i < CardinalDirections.Length; i++)
@@ -336,7 +325,7 @@ namespace ProjectUnknown.Strategy
                 }
             }
 
-            return false;
+            return LogWolfPathFailed("path_unreachable", targetCell);
         }
 
         private bool TryGetPathStartCell(out Vector2Int startCell)

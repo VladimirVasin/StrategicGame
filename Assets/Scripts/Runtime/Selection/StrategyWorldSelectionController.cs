@@ -373,29 +373,18 @@ namespace ProjectUnknown.Strategy
                 }
             }
 
+            for (int i = 0; i < hits.Length; i++)
+            {
+                if (hits[i].GetComponentInParent<StrategyPlacedBuilding>() != null
+                    || hits[i].GetComponentInParent<StrategyConstructionSite>() != null)
+                {
+                    return false;
+                }
+            }
+
             if (TryBuildInspectableWorldInfo(world, out info))
             {
                 return true;
-            }
-
-            for (int i = 0; i < hits.Length; i++)
-            {
-                StrategyPlacedBuilding building = hits[i].GetComponentInParent<StrategyPlacedBuilding>();
-                if (building != null)
-                {
-                    info = BuildBuildingInspectInfo(building);
-                    return true;
-                }
-            }
-
-            for (int i = 0; i < hits.Length; i++)
-            {
-                StrategyConstructionSite site = hits[i].GetComponentInParent<StrategyConstructionSite>();
-                if (site != null)
-                {
-                    info = BuildConstructionInspectInfo(site);
-                    return true;
-                }
             }
 
             for (int i = 0; i < hits.Length; i++)
@@ -428,6 +417,7 @@ namespace ProjectUnknown.Strategy
                     || behaviour is StrategyResidentAgent
                     || behaviour is StrategyPlacedBuilding
                     || behaviour is StrategyConstructionSite
+                    || behaviour is StrategyBuildingUpgrade
                     || behaviour is StrategyGraveMarker)
                 {
                     continue;

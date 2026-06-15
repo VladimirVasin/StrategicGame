@@ -23,8 +23,7 @@ namespace ProjectUnknown.Strategy
             StrategyProfessionType.Hunter,
             StrategyProfessionType.Fisher,
             StrategyProfessionType.StorageWorker,
-            StrategyProfessionType.Builder,
-            StrategyProfessionType.GranaryWorker
+            StrategyProfessionType.Builder
         };
 
         private readonly ProfessionRow[] rows = new ProfessionRow[DisplayOrder.Length];

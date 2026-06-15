@@ -100,6 +100,7 @@
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyBirdAgent.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyChickenSpriteFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyWindSway.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyStorageYard.Part06.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingSpriteFactory.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyProfessionHudController.Part03.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyIronDeposit.cs" />
@@ -115,6 +116,7 @@
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyNatureSpriteFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildPlacementController.Part02.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentSpriteFactory.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWolfAgent.Part03.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyRabbitAgent.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part04.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWolfAgent.cs" />
@@ -145,6 +147,7 @@
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyMine.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyConstructionSpriteFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentSpriteFactory.Part02.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Population\StrategyPopulationController.Part06.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyIronResourceController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyStorageYard.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyFogOfWarController.cs" />
@@ -175,6 +178,7 @@
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyWoodcutEffectAnimator.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyConstructionSpriteFactory.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyDebugLogger.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyEventLogHudController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyPopulationController.Part02.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyPopulationController.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\Selection\StrategyWorldSelectionController.cs" />
@@ -186,6 +190,7 @@
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyDeerSpriteFactory.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyStoneResourceController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyHunterCamp.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Population\StrategyFuneralController.Part02.cs" />
     <Compile Include="Assets\Scripts\Runtime\Weather\StrategyWeatherKind.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingUpgradeAnimator.cs" />
     <Compile Include="Assets\Scripts\Runtime\Weather\StrategyWeatherVisualController.Part01.cs" />
@@ -208,6 +213,7 @@
     <Compile Include="Assets\Scripts\Runtime\Weather\StrategyWeatherVisualController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyStorageYard.Part04.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyCampfireSpriteFactory.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Map\CityMapController.Buildability.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part17.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyForestryTree.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyDeerSpriteFactory.cs" />

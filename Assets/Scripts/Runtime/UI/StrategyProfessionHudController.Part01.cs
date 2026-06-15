@@ -64,11 +64,6 @@ namespace ProjectUnknown.Strategy
                     snapshot.Capacity = builderYards.Length > 0 ? int.MaxValue : 0;
                     snapshot.IsUnlimited = builderYards.Length > 0;
                     break;
-                case StrategyProfessionType.GranaryWorker:
-                    StrategyGranary[] granaries = FindSorted<StrategyGranary>();
-                    snapshot.Assigned = CountAssigned(granaries, granary => granary.WorkerCount);
-                    snapshot.Capacity = granaries.Length * StrategyGranary.MaxWorkers;
-                    break;
             }
 
             return snapshot;
@@ -85,9 +80,8 @@ namespace ProjectUnknown.Strategy
                 StrategyProfessionType.Sawyer => new ProfessionSnapshot(type, "Sawyers", "saw Logs into Planks", new Color(0.63f, 0.43f, 0.25f)),
                 StrategyProfessionType.Hunter => new ProfessionSnapshot(type, "Hunters", "hunt rabbits", new Color(0.56f, 0.43f, 0.26f)),
                 StrategyProfessionType.Fisher => new ProfessionSnapshot(type, "Fishers", "catch fish near water", new Color(0.32f, 0.54f, 0.63f)),
-                StrategyProfessionType.StorageWorker => new ProfessionSnapshot(type, "Storekeepers", "haul resources and food", new Color(0.58f, 0.49f, 0.37f)),
+                StrategyProfessionType.StorageWorker => new ProfessionSnapshot(type, "Haulers", "haul all resources and food", new Color(0.58f, 0.49f, 0.37f)),
                 StrategyProfessionType.Builder => new ProfessionSnapshot(type, "Builders", "build structures", new Color(0.75f, 0.55f, 0.27f)),
-                StrategyProfessionType.GranaryWorker => new ProfessionSnapshot(type, "Granary Workers", "haul food to the granary", new Color(0.62f, 0.51f, 0.28f)),
                 _ => new ProfessionSnapshot(type, "Profession", string.Empty, Color.white)
             };
         }
@@ -205,16 +199,6 @@ namespace ProjectUnknown.Strategy
                     }
 
                     return false;
-                case StrategyProfessionType.GranaryWorker:
-                    foreach (StrategyGranary granary in FindSorted<StrategyGranary>())
-                    {
-                        if (granary != null && granary.TryAssignNextAvailableWorker(out worker))
-                        {
-                            return true;
-                        }
-                    }
-
-                    return false;
                 default:
                     return false;
             }
@@ -318,17 +302,6 @@ namespace ProjectUnknown.Strategy
                     for (int i = builderYards.Length - 1; i >= 0; i--)
                     {
                         if (TryRemoveBuilder(builderYards[i], out worker))
-                        {
-                            return true;
-                        }
-                    }
-
-                    return false;
-                case StrategyProfessionType.GranaryWorker:
-                    StrategyGranary[] granaries = FindSorted<StrategyGranary>();
-                    for (int i = granaries.Length - 1; i >= 0; i--)
-                    {
-                        if (TryRemoveWorker(granaries[i], granaries[i].WorkerCount, out worker, index => granaries[i].UnassignWorkerAt(index)))
                         {
                             return true;
                         }

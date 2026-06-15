@@ -36,7 +36,7 @@ namespace ProjectUnknown.Strategy
                 deposit = depositObject.AddComponent<StrategyIronDeposit>();
             }
 
-            deposit.Configure(this, cell, footprint, kind, ironAmount);
+            deposit.Configure(this, map, cell, footprint, kind, ironAmount);
         }
 
         public void RegisterDeposit(StrategyIronDeposit deposit)
@@ -148,6 +148,23 @@ namespace ProjectUnknown.Strategy
 
                 deposit = candidate;
                 return true;
+            }
+
+            return false;
+        }
+
+        public bool HasAvailableDepositAtCell(Vector2Int cell)
+        {
+            PruneNulls();
+            for (int i = 0; i < deposits.Count; i++)
+            {
+                StrategyIronDeposit deposit = deposits[i];
+                if (deposit != null
+                    && !deposit.IsDepleted
+                    && Overlaps(cell, Vector2Int.one, deposit.Cell, deposit.Footprint))
+                {
+                    return true;
+                }
             }
 
             return false;

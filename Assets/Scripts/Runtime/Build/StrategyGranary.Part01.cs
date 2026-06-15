@@ -289,10 +289,7 @@ namespace ProjectUnknown.Strategy
         public string GetHudStatusText()
         {
             CountAvailableSources(out int gameSources, out int fishSources);
-            return "Workers: "
-                + workers.Count
-                + "/"
-                + MaxWorkers
+            return "Serviced by Haulers"
                 + "\n"
                 + "Game: "
                 + gameStored

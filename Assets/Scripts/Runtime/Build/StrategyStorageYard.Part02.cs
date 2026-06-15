@@ -211,7 +211,7 @@ namespace ProjectUnknown.Strategy
         public string GetHudStatusText()
         {
             int sourceCount = CountAvailableSources();
-            return "Storekeepers: "
+            return "Haulers: "
                 + workers.Count
                 + "/\u221e"
                 + "\n"
@@ -360,56 +360,7 @@ namespace ProjectUnknown.Strategy
 
         private void TryDispatchBuilder(StrategyResidentAgent builder)
         {
-            if (builder == null || builder.HasConstructionAssignment || !builder.CanAcceptWorkAssignment)
-            {
-                return;
-            }
-
-            StrategyConstructionSite[] sites = Object.FindObjectsByType<StrategyConstructionSite>();
-            System.Array.Sort(
-                sites,
-                (left, right) =>
-                {
-                    if (left == null && right == null)
-                    {
-                        return 0;
-                    }
-
-                    if (left == null)
-                    {
-                        return 1;
-                    }
-
-                    if (right == null)
-                    {
-                        return -1;
-                    }
-
-                    float leftDistance = (left.FootprintBounds.center - FootprintBounds.center).sqrMagnitude;
-                    float rightDistance = (right.FootprintBounds.center - FootprintBounds.center).sqrMagnitude;
-                    return leftDistance.CompareTo(rightDistance);
-                });
-
-            for (int i = 0; i < sites.Length; i++)
-            {
-                StrategyConstructionSite site = sites[i];
-                if (site == null || site.IsCompleted || site.BuilderCount >= StrategyConstructionSite.MaxBuilders)
-                {
-                    continue;
-                }
-
-                if (site.RegisterBuilder(builder, false))
-                {
-                    builder.AssignConstructionSite(site, false);
-                    StrategyDebugLogger.Info(
-                        "Construction",
-                        "BuilderDispatched",
-                        StrategyDebugLogger.F("tool", site.Tool),
-                        StrategyDebugLogger.F("origin", site.Origin),
-                        StrategyDebugLogger.F("builder", builder.FullName));
-                    return;
-                }
-            }
+            TryDispatchSingleBuilderBalanced(builder, FootprintBounds.center);
         }
 
     }

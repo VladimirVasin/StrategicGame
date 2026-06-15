@@ -62,30 +62,36 @@ namespace ProjectUnknown.Strategy
         public bool TryFindStoneDeposit(Vector2Int center, int radius, out StrategyStoneDeposit deposit)
         {
             PruneNulls();
-            List<StrategyStoneDeposit> candidates = new();
-            int radiusSqr = radius * radius;
+            float bestSqr = float.MaxValue;
+            StrategyStoneDeposit best = null;
 
             for (int i = 0; i < deposits.Count; i++)
             {
                 StrategyStoneDeposit candidate = deposits[i];
                 if (candidate == null
                     || candidate.IsDepleted
-                    || candidate.IsReserved
-                    || (candidate.Cell - center).sqrMagnitude > radiusSqr)
+                    || candidate.IsReserved)
                 {
                     continue;
                 }
 
-                candidates.Add(candidate);
+                float sqr = (candidate.Cell - center).sqrMagnitude;
+                if (sqr >= bestSqr)
+                {
+                    continue;
+                }
+
+                bestSqr = sqr;
+                best = candidate;
             }
 
-            if (candidates.Count <= 0)
+            if (best == null)
             {
                 deposit = null;
                 return false;
             }
 
-            deposit = candidates[Random.Range(0, candidates.Count)];
+            deposit = best;
             return true;
         }
 

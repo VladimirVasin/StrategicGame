@@ -10,7 +10,6 @@ namespace ProjectUnknown.Strategy
         Hunter,
         Fisher,
         StorageWorker,
-        Builder,
-        GranaryWorker
+        Builder
     }
 }

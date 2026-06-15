@@ -64,8 +64,8 @@ namespace ProjectUnknown.Strategy
             }
 
             GetWalkBlockFootprint(toolInfo.Tool, origin, toolInfo.Footprint, out Vector2Int finalBlockOrigin, out Vector2Int finalBlockFootprint);
-            return CanPlaceFoundation(origin, toolInfo.Footprint)
-                && CanReserveFinalBlock(finalBlockOrigin, finalBlockFootprint)
+            return CanPlaceFoundation(origin, toolInfo.Footprint, toolInfo.Tool)
+                && CanReserveFinalBlock(finalBlockOrigin, finalBlockFootprint, toolInfo.Tool)
                 && HasBuilderWorkAccess(origin, toolInfo.Footprint)
                 && (toolInfo.Tool != StrategyBuildTool.FisherHut || HasFishingWaterAccess(origin))
                 && HasRequiredDepositAccess(toolInfo.Tool, origin, toolInfo.Footprint, out _);
@@ -200,6 +200,12 @@ namespace ProjectUnknown.Strategy
             if (!map.IsCellWalkable(cell))
             {
                 reason = "bank_not_walkable";
+                return false;
+            }
+
+            if (!map.IsCellBuildable(cell))
+            {
+                reason = "bank_not_buildable";
                 return false;
             }
 
@@ -358,14 +364,14 @@ namespace ProjectUnknown.Strategy
                 return "map_missing";
             }
 
-            string reason = GetFoundationFailureReason(origin, toolInfo.Footprint);
+            string reason = GetFoundationFailureReason(origin, toolInfo.Footprint, toolInfo.Tool);
             if (!string.IsNullOrEmpty(reason))
             {
                 return reason;
             }
 
             GetWalkBlockFootprint(toolInfo.Tool, origin, toolInfo.Footprint, out Vector2Int finalBlockOrigin, out Vector2Int finalBlockFootprint);
-            reason = GetFinalBlockFailureReason(finalBlockOrigin, finalBlockFootprint);
+            reason = GetFinalBlockFailureReason(finalBlockOrigin, finalBlockFootprint, toolInfo.Tool);
             if (!string.IsNullOrEmpty(reason))
             {
                 return reason;
@@ -389,12 +395,12 @@ namespace ProjectUnknown.Strategy
             return hasValidHover ? "unknown" : "invalid_hover";
         }
 
-        private bool CanPlaceFoundation(Vector2Int origin, Vector2Int footprint)
+        private bool CanPlaceFoundation(Vector2Int origin, Vector2Int footprint, StrategyBuildTool tool)
         {
-            return string.IsNullOrEmpty(GetFoundationFailureReason(origin, footprint));
+            return string.IsNullOrEmpty(GetFoundationFailureReason(origin, footprint, tool));
         }
 
-        private string GetFoundationFailureReason(Vector2Int origin, Vector2Int footprint)
+        private string GetFoundationFailureReason(Vector2Int origin, Vector2Int footprint, StrategyBuildTool tool)
         {
             for (int y = 0; y < footprint.y; y++)
             {
@@ -409,6 +415,11 @@ namespace ProjectUnknown.Strategy
                     if (!mapCell.IsBuildable)
                     {
                         return "foundation_terrain_" + mapCell.Kind + "@" + cell.x + "," + cell.y;
+                    }
+
+                    if (!map.IsCellBuildable(cell) && !CanUseMineralBuildBlock(tool, cell))
+                    {
+                        return "foundation_not_buildable@" + cell.x + "," + cell.y;
                     }
 
                     if (fog != null && !fog.IsCellExplored(cell))
@@ -431,12 +442,15 @@ namespace ProjectUnknown.Strategy
             return string.Empty;
         }
 
-        private bool CanReserveFinalBlock(Vector2Int origin, Vector2Int footprint)
+        private bool CanReserveFinalBlock(Vector2Int origin, Vector2Int footprint, StrategyBuildTool tool)
         {
-            return string.IsNullOrEmpty(GetFinalBlockFailureReason(origin, footprint));
+            return string.IsNullOrEmpty(GetFinalBlockFailureReason(origin, footprint, tool));
         }
 
-        private string GetFinalBlockFailureReason(Vector2Int origin, Vector2Int footprint)
+        private string GetFinalBlockFailureReason(
+            Vector2Int origin,
+            Vector2Int footprint,
+            StrategyBuildTool tool)
         {
             for (int y = 0; y < footprint.y; y++)
             {
@@ -451,6 +465,11 @@ namespace ProjectUnknown.Strategy
                     if (!mapCell.IsBuildable)
                     {
                         return "final_block_terrain_" + mapCell.Kind + "@" + cell.x + "," + cell.y;
+                    }
+
+                    if (!map.IsCellBuildable(cell) && !CanUseMineralBuildBlock(tool, cell))
+                    {
+                        return "final_block_not_buildable@" + cell.x + "," + cell.y;
                     }
 
                     if (fog != null && !fog.IsCellExplored(cell))
@@ -468,33 +487,5 @@ namespace ProjectUnknown.Strategy
             return string.Empty;
         }
 
-        private bool HasBuilderWorkAccess(Vector2Int origin, Vector2Int footprint)
-        {
-            for (int radius = 1; radius <= 2; radius++)
-            {
-                for (int y = -radius; y < footprint.y + radius; y++)
-                {
-                    for (int x = -radius; x < footprint.x + radius; x++)
-                    {
-                        bool isEdge = x == -radius
-                            || y == -radius
-                            || x == footprint.x + radius - 1
-                            || y == footprint.y + radius - 1;
-                        if (!isEdge)
-                        {
-                            continue;
-                        }
-
-                        Vector2Int candidate = origin + new Vector2Int(x, y);
-                        if (map.IsCellWalkable(candidate) && !occupiedCells.Contains(candidate))
-                        {
-                            return true;
-                        }
-                    }
-                }
-            }
-
-            return false;
-        }
     }
 }

@@ -326,7 +326,6 @@ namespace ProjectUnknown.Strategy
             }
 
             RemoveMissingRabbits();
-            float radiusSqr = radius * radius;
             float bestSqr = float.MaxValue;
             StrategyRabbitAgent best = null;
             for (int i = 0; i < rabbits.Count; i++)
@@ -338,7 +337,7 @@ namespace ProjectUnknown.Strategy
                 }
 
                 float sqr = (cell - center).sqrMagnitude;
-                if (sqr > radiusSqr || sqr >= bestSqr)
+                if (sqr >= bestSqr)
                 {
                     continue;
                 }

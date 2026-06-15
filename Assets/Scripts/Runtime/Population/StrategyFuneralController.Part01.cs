@@ -32,19 +32,27 @@ namespace ProjectUnknown.Strategy
 
         private void StartBurialPoses(FuneralProcess funeral)
         {
+            bool serviceBurial = IsServiceBurial(funeral);
             for (int i = 0; i < funeral.ExpectedBurialAttendees.Count; i++)
             {
                 StrategyResidentAgent attendee = funeral.ExpectedBurialAttendees[i];
                 if (IsResidentNear(attendee, funeral.GraveWorld, ArrivalDistance))
                 {
-                    attendee.StartFuneralBurial(BurialSeconds + Random.Range(-0.35f, 0.35f));
+                    attendee.StartFuneralBurial(BurialSeconds + Random.Range(-0.35f, 0.35f), serviceBurial);
                 }
             }
         }
 
         private void SelectCarriers(FuneralProcess funeral)
         {
-            for (int i = 0; i < funeral.Participants.Count && funeral.Carriers.Count < RequiredCarrierCount; i++)
+            int requiredCarrierCount = GetRequiredCarrierCount(funeral);
+            if (IsServiceBurial(funeral))
+            {
+                TryAddServiceCarrier(funeral);
+                return;
+            }
+
+            for (int i = 0; i < funeral.Participants.Count && funeral.Carriers.Count < requiredCarrierCount; i++)
             {
                 StrategyResidentAgent participant = funeral.Participants[i];
                 if (participant != null && participant.CanWork && !funeral.Carriers.Contains(participant))
@@ -54,7 +62,7 @@ namespace ProjectUnknown.Strategy
             }
 
             IReadOnlyList<StrategyResidentAgent> residents = population.Residents;
-            for (int i = 0; i < residents.Count && funeral.Carriers.Count < RequiredCarrierCount; i++)
+            for (int i = 0; i < residents.Count && funeral.Carriers.Count < requiredCarrierCount; i++)
             {
                 StrategyResidentAgent resident = residents[i];
                 if (resident != null
