@@ -16,8 +16,8 @@ namespace ProjectUnknown.Strategy
             }
 
             if ((activeFishSource == null && activeLooseFoodSource == null)
-                || granaryWorkplace == null
-                || !granaryWorkplace.TryFindDropoffCell(out Vector2Int dropoffCell)
+                || activeGranaryDeliveryTarget == null
+                || !activeGranaryDeliveryTarget.TryFindDropoffCell(out Vector2Int dropoffCell)
                 || !TryBuildPathTo(dropoffCell))
             {
                 activeFishSource?.ReleaseStoredFishReservation(this);
@@ -27,7 +27,7 @@ namespace ProjectUnknown.Strategy
                     "FishPickupRejected",
                     StrategyDebugLogger.F("resident", FullName),
                     StrategyDebugLogger.F("reason", "no_granary_path"),
-                    StrategyDebugLogger.F("granaryOrigin", granaryWorkplace != null ? granaryWorkplace.Origin : Vector2Int.zero));
+                    StrategyDebugLogger.F("granaryOrigin", activeGranaryDeliveryTarget != null ? activeGranaryDeliveryTarget.Origin : Vector2Int.zero));
                 ResetGranaryWorkToIdle();
                 return;
             }
@@ -80,7 +80,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("amount", carriedFishAmount),
                 StrategyDebugLogger.F("sourceOrigin", sourceOrigin),
                 StrategyDebugLogger.F("dropoffCell", dropoffCell),
-                StrategyDebugLogger.F("granaryOrigin", granaryWorkplace.Origin));
+                StrategyDebugLogger.F("granaryOrigin", activeGranaryDeliveryTarget.Origin));
         }
 
         private void StartDepositingGranaryFish()
@@ -90,9 +90,9 @@ namespace ProjectUnknown.Strategy
             pathIndex = 0;
             activity = ResidentActivity.DepositingGranaryFish;
             lumberWorkTimer = Random.Range(LogisticsDepositSecondsMin, LogisticsDepositSecondsMax);
-            if (granaryWorkplace != null)
+            if (activeGranaryDeliveryTarget != null)
             {
-                FaceWorldPoint(granaryWorkplace.FootprintBounds.center);
+                FaceWorldPoint(activeGranaryDeliveryTarget.FootprintBounds.center);
             }
 
             StrategyDebugLogger.Info(
@@ -100,7 +100,7 @@ namespace ProjectUnknown.Strategy
                 "FishDepositStarted",
                 StrategyDebugLogger.F("resident", FullName),
                 StrategyDebugLogger.F("amount", carriedFishAmount),
-                StrategyDebugLogger.F("granaryOrigin", granaryWorkplace != null ? granaryWorkplace.Origin : Vector2Int.zero));
+                StrategyDebugLogger.F("granaryOrigin", activeGranaryDeliveryTarget != null ? activeGranaryDeliveryTarget.Origin : Vector2Int.zero));
         }
 
         private void UpdateDepositingGranaryFish()
@@ -114,9 +114,9 @@ namespace ProjectUnknown.Strategy
             }
 
             int depositedAmount = carriedFishAmount;
-            if (granaryWorkplace != null)
+            if (activeGranaryDeliveryTarget != null)
             {
-                granaryWorkplace.AddFish(depositedAmount);
+                activeGranaryDeliveryTarget.AddFish(depositedAmount);
             }
 
             carriedFishAmount = 0;
@@ -126,8 +126,8 @@ namespace ProjectUnknown.Strategy
                 "FishDelivered",
                 StrategyDebugLogger.F("resident", FullName),
                 StrategyDebugLogger.F("amount", depositedAmount),
-                StrategyDebugLogger.F("granaryOrigin", granaryWorkplace != null ? granaryWorkplace.Origin : Vector2Int.zero),
-                StrategyDebugLogger.F("granaryStock", granaryWorkplace != null ? granaryWorkplace.FishStored : -1));
+                StrategyDebugLogger.F("granaryOrigin", activeGranaryDeliveryTarget != null ? activeGranaryDeliveryTarget.Origin : Vector2Int.zero),
+                StrategyDebugLogger.F("granaryStock", activeGranaryDeliveryTarget != null ? activeGranaryDeliveryTarget.FishStored : -1));
             CompleteGranaryDelivery();
         }
 
@@ -310,9 +310,13 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            activity = activeConstructionResource == StrategyConstructionResourceKind.Logs
-                ? ResidentActivity.PickingUpConstructionLogs
-                : ResidentActivity.PickingUpConstructionStone;
+            activity = activeConstructionResource switch
+            {
+                StrategyConstructionResourceKind.Logs => ResidentActivity.PickingUpConstructionLogs,
+                StrategyConstructionResourceKind.Stone => ResidentActivity.PickingUpConstructionStone,
+                StrategyConstructionResourceKind.Planks => ResidentActivity.PickingUpConstructionPlanks,
+                _ => ResidentActivity.Idle
+            };
             lumberWorkTimer = Random.Range(ConstructionPickupSecondsMin, ConstructionPickupSecondsMax);
             FaceWorldPoint(activeConstructionSource.FootprintBounds.center);
             StrategyDebugLogger.Info(
@@ -369,11 +373,17 @@ namespace ProjectUnknown.Strategy
                 SetCarriedLogsVisible(true);
                 activity = ResidentActivity.CarryingConstructionLogs;
             }
-            else
+            else if (activeConstructionResource == StrategyConstructionResourceKind.Stone)
             {
                 carriedStoneAmount = amount;
                 SetCarriedStoneVisible(true);
                 activity = ResidentActivity.CarryingConstructionStone;
+            }
+            else if (activeConstructionResource == StrategyConstructionResourceKind.Planks)
+            {
+                carriedPlanksAmount = amount;
+                SetCarriedPlanksVisible(true);
+                activity = ResidentActivity.CarryingConstructionPlanks;
             }
 
             CaptureCarriedConstructionReturnReservation();
@@ -413,7 +423,8 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("siteOrigin", constructionSite.Origin),
                 StrategyDebugLogger.F("resource", activeConstructionResource),
                 StrategyDebugLogger.F("logs", carriedLogAmount),
-                StrategyDebugLogger.F("stone", carriedStoneAmount));
+                StrategyDebugLogger.F("stone", carriedStoneAmount),
+                StrategyDebugLogger.F("planks", carriedPlanksAmount));
         }
 
         private void UpdateDepositingConstructionResource()
@@ -422,6 +433,7 @@ namespace ProjectUnknown.Strategy
             AnimateLumberWork(7.0f, 3.3f);
             SetCarriedLogsVisible(carriedLogAmount > 0);
             SetCarriedStoneVisible(carriedStoneAmount > 0);
+            SetCarriedPlanksVisible(carriedPlanksAmount > 0);
             if (lumberWorkTimer > 0f)
             {
                 return;
@@ -437,56 +449,22 @@ namespace ProjectUnknown.Strategy
                 {
                     constructionSite.AddDeliveredResource(StrategyConstructionResourceKind.Stone, carriedStoneAmount);
                 }
+                else if (activeConstructionResource == StrategyConstructionResourceKind.Planks && carriedPlanksAmount > 0)
+                {
+                    constructionSite.AddDeliveredResource(StrategyConstructionResourceKind.Planks, carriedPlanksAmount);
+                }
             }
 
             carriedLogAmount = 0;
             carriedStoneAmount = 0;
+            carriedPlanksAmount = 0;
             activeConstructionResource = StrategyConstructionResourceKind.None;
             ClearCarriedConstructionReturnReservation();
             SetCarriedLogsVisible(false);
             SetCarriedStoneVisible(false);
+            SetCarriedPlanksVisible(false);
             CompleteConstructionDelivery();
         }
 
-        private void StartBuildingConstruction()
-        {
-            hasTarget = false;
-            path.Clear();
-            pathIndex = 0;
-            if (constructionSite == null || !constructionSite.ResourcesComplete)
-            {
-                ResetConstructionWorkToIdle();
-                return;
-            }
-
-            activity = ResidentActivity.BuildingConstruction;
-            workFrame = 0;
-            workFrameTimer = 0f;
-            appliedWorkFrame = -1;
-            usingWorkSprite = false;
-            FaceWorldPoint(constructionSite.FootprintBounds.center);
-            StrategyDebugLogger.Info(
-                "Construction",
-                "BuilderWorkStarted",
-                StrategyDebugLogger.F("resident", FullName),
-                StrategyDebugLogger.F("siteOrigin", constructionSite.Origin));
-        }
-
-        private void UpdateBuildingConstruction()
-        {
-            if (constructionSite == null || constructionSite.IsCompleted)
-            {
-                ResetConstructionWorkToIdle();
-                return;
-            }
-
-            if (!constructionSite.ResourcesComplete)
-            {
-                ResetConstructionWorkToIdle();
-                return;
-            }
-
-            AnimateConstructionWork();
-        }
     }
 }

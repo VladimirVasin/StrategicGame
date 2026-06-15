@@ -9,16 +9,6 @@ namespace ProjectUnknown.Strategy
     public sealed partial class StrategyWorldSelectionController
     {
 
-        private static bool IsAuxiliaryInspectRenderer(SpriteRenderer renderer)
-        {
-            string objectName = renderer.gameObject.name;
-            return objectName.Contains("Shadow")
-                || objectName.Contains("Outline")
-                || objectName.Contains("Line")
-                || objectName.Contains("Damage")
-                || objectName.Contains("Readability");
-        }
-
         private StrategyWorldInspectInfo BuildResidentInspectInfo(StrategyResidentAgent resident)
         {
             bool hasCell = TryGetCellForWorld(resident.transform.position, out Vector2Int cell);
@@ -85,8 +75,16 @@ namespace ProjectUnknown.Strategy
                 + "\nStone: "
                 + site.DeliveredStone
                 + "/"
-                + site.Cost.Stone
-                + "\nProgress: "
+                + site.Cost.Stone;
+            if (site.Cost.Planks > 0 || site.DeliveredPlanks > 0)
+            {
+                body += "\nPlanks: "
+                    + site.DeliveredPlanks
+                    + "/"
+                    + site.Cost.Planks;
+            }
+
+            body += "\nProgress: "
                 + Mathf.RoundToInt(site.Progress * 100f)
                 + "%";
             int stage = site.ResourcesComplete
@@ -96,15 +94,6 @@ namespace ProjectUnknown.Strategy
                 ? StrategyConstructionSpriteFactory.GetBridgeConstructionSprite(site.Footprint, stage)
                 : StrategyConstructionSpriteFactory.GetConstructionSprite(site.Tool, site.VisualVariant, stage);
             return new StrategyWorldInspectInfo("Construction Site", site.Title, body, icon, site.Origin, true);
-        }
-
-        private StrategyWorldInspectInfo BuildGraveInspectInfo(StrategyGraveMarker grave)
-        {
-            bool hasCell = TryGetCellForWorld(grave.transform.position, out Vector2Int cell);
-            string body = grave.DeceasedName
-                + "\n"
-                + grave.GetLifeText().Replace("\n", " / ");
-            return new StrategyWorldInspectInfo("Grave", grave.FamilyRole, body, grave.PreviewSprite, cell, hasCell);
         }
 
         private bool TryGetCellForWorld(Vector3 world, out Vector2Int cell)
@@ -342,6 +331,7 @@ namespace ProjectUnknown.Strategy
                 bool isHouse = building.Tool == StrategyBuildTool.House;
                 StrategyLumberjackCamp camp = building.GetComponent<StrategyLumberjackCamp>();
                 StrategyStonecutterCamp stoneCamp = building.GetComponent<StrategyStonecutterCamp>();
+                StrategySawmill sawmill = building.GetComponent<StrategySawmill>();
                 StrategyMine mine = building.GetComponent<StrategyMine>();
                 StrategyCoalPit coalPit = building.GetComponent<StrategyCoalPit>();
                 StrategyHunterCamp hunterCamp = building.GetComponent<StrategyHunterCamp>();
@@ -350,6 +340,7 @@ namespace ProjectUnknown.Strategy
                 StrategyGranary granary = building.GetComponent<StrategyGranary>();
                 bool isLumberjackCamp = camp != null;
                 bool isStonecutterCamp = stoneCamp != null;
+                bool isSawmill = sawmill != null;
                 bool isMine = mine != null;
                 bool isCoalPit = coalPit != null;
                 bool isHunterCamp = hunterCamp != null;
@@ -363,7 +354,7 @@ namespace ProjectUnknown.Strategy
                 }
 
                 SetWorkersSectionVisible(false);
-                if (isLumberjackCamp || isStonecutterCamp || isMine || isCoalPit || isHunterCamp || isFisherHut || isStorageYard || isGranary)
+                if (isLumberjackCamp || isStonecutterCamp || isSawmill || isMine || isCoalPit || isHunterCamp || isFisherHut || isStorageYard || isGranary)
                 {
                     LayoutContextSection(128f, 214f);
                 }
@@ -378,6 +369,12 @@ namespace ProjectUnknown.Strategy
                 {
                     hudContextTitleText.text = "Stone and Stock";
                     hudContextBodyText.text = stoneCamp.GetHudStatusText();
+                    SetContextSectionVisible(true);
+                }
+                else if (isSawmill)
+                {
+                    hudContextTitleText.text = "Logs and Planks";
+                    hudContextBodyText.text = sawmill.GetHudStatusText();
                     SetContextSectionVisible(true);
                 }
                 else if (isMine)
@@ -470,11 +467,7 @@ namespace ProjectUnknown.Strategy
                 hudSummaryTitleText.text = "Plan";
                 hudBodyText.text = GetBuildingTitle(constructionSite.Tool)
                     + "\n"
-                    + "Logs: "
-                    + constructionSite.Cost.Logs
-                    + "\n"
-                    + "Stone: "
-                    + constructionSite.Cost.Stone;
+                    + constructionSite.Cost.ToDisplayText();
                 hudStatusTitleText.text = "Construction Progress";
                 hudStatusBodyText.text = constructionSite.GetHudStatusText();
                 hudContextTitleText.text = "Builders";

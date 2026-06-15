@@ -58,7 +58,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - F1 sets x1 simulation speed
     - F2 sets x2 simulation speed
     - F3 sets x3 simulation speed
-    - Build HUD exposes x1/x2/x3 speed buttons under the top-left Logs/Stone resource panel
+    - Build HUD exposes x1/x2/x3 speed buttons under the top-left construction resource panel
     - Updates both `Time.timeScale` and `Time.fixedDeltaTime`
     - Supports pause locks for modal gameplay decisions while preserving the requested x1/x2/x3 speed
   - Strategy audio
@@ -104,10 +104,10 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Forest groups and bushes remain non-interactive but also block their cells
       - Generated Stone deposits appear as standalone boulders, rock clusters, and larger cliffs
       - Stone deposits register with the Stone resource registry and block their occupied cells
-      - Generated Iron indicators appear as rust-stained ground and shallow vein markings
-      - Iron indicators register with the Iron resource registry, keep their cells walkable, and can be reserved/mined by Mines built over them
-      - Generated Coal indicators appear as dark dust ground and coal seam markings
-      - Coal indicators register with the Coal resource registry, keep their cells walkable, and can be reserved/mined by Coal Pits built over them
+      - Generated Iron fields appear as multi-cell rust-stained ground and shallow vein markings
+      - Iron fields register with the Iron resource registry, keep their cells walkable, avoid adjacent Coal fields, and can be reserved/mined by Mines built over them
+      - Generated Coal fields appear as multi-cell dark dust ground and coal seam markings
+      - Coal fields register with the Coal resource registry, keep their cells walkable, avoid adjacent Iron fields, and can be reserved/mined by Coal Pits built over them
       - Starter-area Stone deposits are placed outside the campfire clear radius before vegetation so nearby mining access is reliable
       - Nature props attach a 2D sway adapter driven by the strategy `WindZone`
       - Nature props add lightweight procedural leaf frame overlays
@@ -119,16 +119,16 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Keeps deposit footprints not walkable while deposits exist
       - Stonecutter workers mine deposits with hit-driven pickaxe animation, shake, cracks, chip/dust effects, chunk extraction, and depletion cleanup
     - Iron resources MVP
-      - Tracks generated underground Iron indicators in a runtime registry
+      - Tracks generated underground Iron fields in a runtime registry
       - Supports Iron-stained Ground and Iron Vein deposit kinds
       - Stores per-deposit Iron amount, reservation state, and mine extraction hooks
-      - Keeps Iron indicator cells walkable because the ore is underground
+      - Keeps Iron field cells walkable because the ore is underground
       - Feeds Mine-local stock through hidden underground Miner work; Iron is not yet used in construction costs
     - Coal resources MVP
-      - Tracks generated underground Coal indicators in a runtime registry
+      - Tracks generated underground Coal fields in a runtime registry
       - Supports Coal Dust Ground and Coal Seam deposit kinds
       - Stores per-deposit Coal amount, reservation state, and pit extraction hooks
-      - Keeps Coal indicator cells walkable because the coal is underground
+      - Keeps Coal field cells walkable because the coal is underground
       - Feeds Coal Pit-local stock through visible in-pit Coal Miner work; Coal is not yet used in construction costs
     - Forestry MVP
       - Tracks mature and growing tree entities in a runtime registry
@@ -191,7 +191,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Fish reproduction stops at the hard 36-fish global cap, a 3-fish per-shoal cap, and the stricter per-lake region cap
       - Lake fish cap debug logging is throttled per lake region so capped lakes do not spam `debug.log`
       - River fish do not reproduce
-      - Fisher huts can reserve adult fish in range, hold them near the hook sequence, and yield `Fish` after reeling
+      - Fisher huts can reserve adult fish in range, send fishers to valid land/shore stand cells, hold fish near the hook sequence while cast range remains valid, and yield `Fish` after reeling
     - Fog of war
       - Runtime-generated texture overlay above world sprites and below screen-space UI
       - Tracks persistent explored cells separately from current visible cells
@@ -213,13 +213,13 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Runtime-created Screen Space Overlay canvas
     - Bottom Build button
     - Category dock inspired by `Gruzovichky`
-    - Item tray with build cards, Logs/Stone construction costs, affordability state, and active state
+    - Item tray with build cards, Logs/Stone/Planks construction costs, affordability state, and active state
     - Direct active-tool selection for placement/economy systems
     - Fully closes category/tool UI after a successful placement
     - Exposes selected tool info, footprint, color, and cost
     - Reads construction stock availability through `StrategyStorageYard.GetTotalConstructionResources()`, including Storage Yard stock, loose piles, and Stonecutter Camp Stone fallback
     - Shows x1/x2/x3 simulation speed buttons under the top-left resource panel, reusing `StrategyTimeScaleController`
-    - Current catalog contains `Housing` / `House`, `Production` / `Lumberjack Camp`, `Stonecutter Camp`, `Mine`, `Coal Pit`, `Hunter Camp`, and `Fisher Hut`, `Storage` / `Storage Yard` and `Granary`, and `Infrastructure` / `Bridge`
+    - Current catalog contains `Housing` / `House`, `Production` / `Lumberjack Camp`, `Stonecutter Camp`, `Sawmill`, `Mine`, `Coal Pit`, `Hunter Camp`, and `Fisher Hut`, `Storage` / `Storage Yard` and `Granary`, and `Infrastructure` / `Bridge`
     - Single-item categories directly activate their only build tool on click
   - Build placement
     - Runtime-created placement controller
@@ -241,6 +241,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Completed houses try to populate after construction instead of using their builders as future residents
     - Creates lumberjack camp components when the camp tool is placed
     - Creates stonecutter camp components when the camp tool is placed
+    - Creates sawmill components when the Sawmill tool is placed
     - Creates mine components when the Mine tool is placed
     - Creates coal pit components when the Coal Pit tool is placed
     - Creates hunter camp components when the camp tool is placed
@@ -253,7 +254,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Closes the Build menu after successful placement and suppresses same-click auto-selection of the new object
     - Completed construction releases temporary construction-site blockers before final building blockers are applied
     - Selected construction sites can be cancelled with `Delete` after confirmation
-    - Cancelled construction drops delivered/carried Logs and Stone as loose construction resource piles at the former site
+    - Cancelled construction drops delivered/carried Logs, Stone, and Planks as loose construction resource piles at the former site
     - Loose construction resource piles count toward build affordability and can be picked up by builders or hauled back to Storage Yards
     - Selected completed buildings can be demolished with `Delete` after confirmation
     - Demolished buildings release occupied cells and walkability blockers; demolished Bridges also remove river-span walkability
@@ -274,9 +275,9 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Generates separate coal pit Coal stockpile sprites that visually grow as Coal is mined
     - Generates separate hunter camp `Game` stockpile sprites that visually grow as hunters deposit game
     - Generates separate fisher hut `Fish` stockpile sprites that visually grow as fishers deposit fish
-    - Generates separate storage yard Logs, Stone, Iron, and Coal stockpile sprites that visually grow with stored resources
+    - Generates separate storage yard Logs, Stone, Iron, Coal, and Planks stockpile sprites that visually grow with stored resources
     - Generates separate granary `Game` and `Fish` stockpile sprites that visually grow with stored food
-    - Generates staged construction-site sprites and delivered Logs/Stone construction stockpile sprites
+    - Generates staged construction-site sprites and delivered construction material stockpile sprites
     - Generates staged bridge construction sprites sized to the selected span
     - Reuses a stable default sprite for Build menu icon and ghost preview
     - Chooses a random building visual variant for each successfully placed supported building
@@ -286,7 +287,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Runtime-created building-upgrade controller
     - Current visual/production upgrades: Garden Beds and Chicken Coop
     - Garden Beds are installed for free by default when each House is placed/completed
-    - Chicken Coop costs 4 Logs and 2 Stone from available Storage Yard resources
+    - Chicken Coop costs 3 Logs, 1 Stone, and 2 Planks from available Storage Yard resources
     - Upgrade sprites are generated in code
     - Chicken Coop is installed from the selected house HUD
     - The selected house HUD shows upgrade state/cost and disables unaffordable upgrade buttons
@@ -309,34 +310,45 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Runtime-generated pixel-art resource icons for the selected-house HUD
   - Storage yard logistics MVP
     - Storage Yard is a placed stockpile building with uncapped logistics workers and uncapped hired builders
+    - Storage Yard stock capacity is uncapped
     - A starter Storage Yard appears near the campfire with 16 Logs and 12 Stone
     - Storage workers reserve available Logs from lumberjack camps
     - Storage workers reserve available Stone from stonecutter camps
     - Storage workers reserve available Iron from Mines
     - Storage workers reserve available Coal from Coal Pits
-    - Storage Yards reserve Logs/Stone for accepted construction sites and can include Stonecutter Camp local Stone as a direct construction fallback
+    - Storage Yards reserve Logs/Stone/Planks for accepted construction sites and can include Stonecutter Camp local Stone as a direct construction fallback
     - Loose construction resource piles from cancelled sites count as available construction resources and can be reserved by future sites
     - Storage Yards dispatch hired builders to waiting construction sites
-    - Hired builders can pick up reserved construction Logs/Stone from Storage Yards
-    - Hired builders can also pick up reserved construction Logs/Stone from loose construction resource piles
+    - Hired builders can pick up reserved construction Logs/Stone/Planks from Storage Yards
+    - Hired builders can also pick up reserved construction Logs/Stone/Planks from loose construction resource piles
     - Hired builders can pick up reserved construction Stone directly from Stonecutter Camps when the site reserved camp stock
-    - Storage workers can haul loose construction Logs/Stone back to Storage Yards
+    - Storage workers can haul loose construction Logs/Stone/Planks back to Storage Yards
     - Storage workers prioritize Stone pickup when active construction needs Stone or yard Stone stock falls behind Logs
     - Hired builders claim per-builder construction resource pickups after pathing succeeds, release claims on cancellation, and drop repeatedly unreachable pickup assignments
     - Storage workers walk to source camps, pick up Logs, carry them to the Storage Yard, and deposit them
     - Storage workers walk to stonecutter camps, pick up Stone, carry it to the Storage Yard, and deposit it
     - Storage workers walk to Mines, pick up Iron, carry it to the Storage Yard, and deposit it
     - Storage workers walk to Coal Pits, pick up Coal, carry it to the Storage Yard, and deposit it
+    - Storage workers walk to Sawmills, pick up Planks, carry them to the Storage Yard, and deposit them
+    - Storage workers can also reserve `Game`/`Fish` from Hunter Camps/Fisher Huts or loose food piles and deliver that food to the nearest Granary
     - Lumberjack camp local Logs stock decreases when haulers pick up reserved Logs
     - Stonecutter camp local Stone stock decreases when haulers pick up reserved Stone
     - Mine local Iron stock decreases when haulers pick up reserved Iron
     - Coal Pit local Coal stock decreases when haulers pick up reserved Coal
-    - Storage Yard local Logs, Stone, Iron, and Coal stock update their visible stockpiles
+    - Storage Yard local Logs, Stone, Iron, Coal, and Planks stock update their visible stockpiles
+  - Sawmill production MVP
+    - Sawmill is a placed production building with up to 2 assigned Sawyers
+    - Sawmill local storage is capped at 5 total resources across Logs, Planks, and pending Planks
+    - Sawyers reserve Logs from Storage Yards or Lumberjack Camps, bring them to the Sawmill, and saw them into `Planks`
+    - Sawmill work keeps Sawyers visible inside the building and uses a detailed animated saw/log/plank overlay
+    - Sawmills store local Logs and Planks and expose Planks to Storage Yard workers for hauling
   - Granary food logistics MVP
     - Granary is a placed food-storage building with up to 2 food logistics workers
+    - Granary food storage capacity is uncapped
     - Granary workers reserve available `Game` from Hunter Camps
     - Granary workers reserve available `Fish` from Fisher Huts
     - Granary workers can recover loose dropped `Game` and `Fish` piles
+    - Storage Yard workers can perform the same food hauling tasks into the nearest Granary
     - Granary workers walk to source camps/huts, pick up reserved food, carry it to the Granary, and deposit it
     - Hunter Camp and Fisher Hut local food stock decreases when granary haulers pick up reserved food
     - Granary local `Game` and `Fish` stock update their visible stockpiles
@@ -345,11 +357,12 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Runtime-created population controller
     - Startup camp creates an animated procedural campfire
     - Campfire blocks its own cell while burning, then gradually burns out, disappears, and releases the cell back to walkable
-    - Startup camp spawns 6 initial residents: 3 men and 3 women
-    - Each startup resident receives a random Germanic/Nordic-style full name and age 18-30
+      - Startup camp spawns 3 initial families
+      - Each initial family has a father, a mother, and 1-2 adult children with parent/child links
+      - Startup parents and adult children receive random Germanic/Nordic-style full names and age-appropriate adult ages
     - Residents have runtime IDs, age, life stage, parent links, and child links for kinship-aware family rules
     - Resident family records persist after death so kinship checks can still traverse dead parents/ancestors
-    - `House` assigns one random free man and one random free woman from camp instead of spawning new residents
+      - Completed `House` buildings first try to move in one whole homeless family that fits, then fall back to one random free man and one random free woman from camp instead of spawning new residents
     - Houses support up to 5 residents and attach a household state after residents move in
     - Adult male/female house pairs can have children after a randomized household cooldown when they are not close relatives
     - Full houses do not produce more children until a resident leaves
@@ -364,7 +377,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Short rations create per-resident nutrition debt and days-hungry state that feeds household status
     - Sustained household shortages block new births and resident malnutrition severity drives mortality multipliers
     - Children inherit parent/family links, stay inside their assigned home until age 3, idle/walk around home after that, cannot be workers/builders, and grow into adults at age 16 after scaled game time
-    - Residents roll annual mortality from age 1; risk stays low through youth, accelerates after age 40, reaches high risk around age 50, and remains capped after that
+    - Residents roll annual mortality from age 1; risk stays very low through youth, rises gently from 40 to 50, grows faster after 50, and remains capped after that
     - Resident mortality is multiplied by each resident's nutrition severity when daily ration shortages accumulate
     - Resident death centrally removes them from homes, population counts, worksite roles, construction assignments, active reservations, and selection targets
     - Resident death creates an animated corpse snapshot that remains in the world until burial
@@ -388,16 +401,19 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Residents assigned to a stonecutter camp path to Stone deposits, mine chunks with pickaxes, carry Stone to camp stock, and do not plant/regrow Stone
     - Residents assigned to a Mine path to the mine entrance, become hidden underground while working, mine reserved underground Iron, and add Iron to mine stock
     - Residents assigned to a Coal Pit path to the pit entrance, stay visible inside the pit while working, mine reserved underground Coal, and add Coal to pit stock
+    - Residents assigned to a Sawmill fetch Logs, work visibly inside the Sawmill, saw Logs into `Planks`, and add Planks to Sawmill stock
     - Residents assigned to a hunter camp reserve adult rabbits, move to bow range, shoot arrow projectiles, butcher carcasses, carry `Game`, and deposit it into hunter camp stock
     - Residents assigned to a fisher hut reserve fish, move to shore, cast and reel fishing lines, carry `Fish`, and deposit it into fisher hut stock
     - Residents assigned to a storage yard path to lumberjack camp stock, carry Logs to storage, and deposit them
     - Residents assigned to a storage yard also path to stonecutter camp stock, carry Stone to storage, and deposit it
     - Residents assigned to a storage yard also path to Mine stock, carry Iron to storage, and deposit it
     - Residents assigned to a storage yard also path to Coal Pit stock, carry Coal to storage, and deposit it
+    - Residents assigned to a storage yard also path to Sawmill stock, carry Planks to storage, and deposit them
+    - Residents assigned to a storage yard also haul `Game`/`Fish` from production food stock or loose food piles into the nearest Granary
     - Residents assigned to a granary path to Hunter Camp/Fisher Hut food stock, carry `Game`/`Fish` to the granary, and deposit it
-    - Residents hired as Storage Yard builders fetch reserved Logs/Stone, deliver them to construction sites, then build with hammer animations
-    - Residents removed from a role while carrying Logs, Stone, Iron, Coal, `Game`, or `Fish` first return the carried resource to the appropriate Storage Yard or Granary; hard interruption fallbacks preserve materials instead of deleting carried stock
-    - Resident death drops all carried resources: Logs/Stone as loose construction piles, and Iron, Coal, `Game`, `Fish`, Berries, Roots, and Mushrooms as loose carried-resource piles
+    - Residents hired as Storage Yard builders fetch reserved Logs/Stone/Planks, deliver them to construction sites, then build with hammer animations
+    - Residents removed from a role while carrying Logs, Stone, Iron, Coal, Planks, `Game`, or `Fish` first return the carried resource to the appropriate Storage Yard or Granary; hard interruption fallbacks preserve materials instead of deleting carried stock
+    - Resident death drops all carried resources: construction Logs/Stone/Planks as loose construction piles, and generic Iron, Coal, Planks, `Game`, `Fish`, Berries, Roots, and Mushrooms as loose carried-resource piles
     - Completed houses first try to pull a homeless adult male/female pair, including residents who already have workplaces or construction assignments, then fall back to adult-child migration and partner lookup
     - Runtime-generated resident sprites include 5 male variants, 5 female variants, child sprites, and matching portrait sprites
     - Resident movement uses cached 8-frame procedural walk cycles for adult and child variants
@@ -427,7 +443,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - The house HUD exposes default Garden Beds state and the Chicken Coop upgrade action
     - House upgrade actions are shown as compact state/action rows
     - The house HUD shows a visual food status row, ration meter, home food, Granary stock, current Garden Beds crop, and filtered household resource icons/counts including single food units
-    - The lumberjack, stonecutter, mine, coal pit, hunter, fisher, granary, and storage building HUDs show status/resource context without assignment controls
+    - The lumberjack, stonecutter, sawmill, mine, coal pit, hunter, fisher, granary, and storage building HUDs show status/resource context without assignment controls
     - The construction site HUD shows final building type, cost, delivered resources, assigned builders, and build progress
     - `Delete` opens a confirmation dialog for selected construction-site cancellation or selected-building demolition
     - The resident HUD shows full name, portrait, profile, age/life stage, current activity, and home/camp assignment
@@ -448,8 +464,8 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Top-menu `Professions` button
     - Dynamic profession rows for built worksites
     - Generated profession icons
-    - `-` / `+` assignment controls for lumberjacks, stonecutters, miners, coal miners, hunters, fishers, storage workers, builders, and granary workers
-    - Storage workers and builders use unlimited settlement-level assignment capacity when at least one Storage Yard exists; other production/storage roles still use worksite slot caps
+    - `-` / `+` assignment controls for lumberjacks, stonecutters, sawyers, miners, coal miners, hunters, fishers, storage workers, builders, and granary workers
+    - Storage workers and builders use unlimited settlement-level assignment capacity when at least one Storage Yard exists; storage workers haul both storage resources and food to Granaries, while other production/storage roles still use worksite slot caps
   - Custom modal refugee decision HUD pauses the simulation and asks whether to accept or reject arriving families
   - Custom reusable confirmation dialog for destructive actions such as cancelling construction or demolishing buildings
 
@@ -481,10 +497,11 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Iron resources depend on generated underground indicators, Mines built over Iron, resident underground work states, and storage logistics.
 - Coal resources depend on generated underground indicators, Coal Pits built over Coal, visible in-pit resident work states, and storage logistics.
 - Wildlife depends on generated terrain/water cells, map walkability for land animals, population/resident positions, starter-camp location, hunter/fisher production buildings, and Y-based world sorting; deer and birds do not feed fog visibility or resources yet, while hunted rabbits can yield `Game` and caught fish can yield `Fish`.
-- Storage yard logistics depends on lumberjack camp stock, stonecutter camp stock, Mine stock, Coal Pit stock, resident work states, placed-building records, map walkability, and the world-selection HUD.
+- Sawmill production depends on Storage Yard/Lumberjack Camp Log stock, resident work states, placed-building records, map walkability, and Storage Yard Planks hauling.
+- Storage yard logistics depends on lumberjack camp stock, stonecutter camp stock, Sawmill stock, Mine stock, Coal Pit stock, Hunter Camp/Fisher Hut food stock, Granaries, resident work states, placed-building records, map walkability, and the world-selection HUD.
 - Loose construction resource piles bridge construction cancellation, build affordability, storage logistics, and builder pickup.
 - Loose carried-resource piles bridge resident death cleanup, Granary food logistics, and household foraging recovery.
-- Granary food logistics depends on hunter camp stock, fisher hut stock, resident work states, placed-building records, map walkability, and the world-selection HUD.
+- Granary food logistics depends on hunter camp stock, fisher hut stock, Storage Yard workers, Granary workers, resident work states, placed-building records, map walkability, and the world-selection HUD.
 - Construction depends on Storage Yard resource reservations, Stonecutter Camp Stone fallback reservations, hired Storage Yard builder assignments, construction-site blockers, placed-building finalization, and the world-selection HUD.
 - Population uses placed-building records, construction sites, the generated map walkability layer, and workplace assignments; home/family assignment is independent from work/construction assignment.
 - Resident footsteps depend on population agents and the non-generated grass footstep clip set.

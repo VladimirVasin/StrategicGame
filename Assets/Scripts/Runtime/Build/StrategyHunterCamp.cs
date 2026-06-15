@@ -23,6 +23,7 @@ namespace ProjectUnknown.Strategy
         public int WorkerCount => workers.Count;
         public int GameStored => gameStored;
         public int AvailableGame => Mathf.Max(0, gameStored - reservedGame);
+        public bool HasStorageSpace => HasStorageSpaceFor(1);
         public Vector2Int Origin => building != null ? building.Origin : Vector2Int.zero;
         public Bounds FootprintBounds => building != null ? building.FootprintBounds : new Bounds(transform.position, Vector3.one);
 
@@ -169,7 +170,9 @@ namespace ProjectUnknown.Strategy
                 wildlife = StrategyWildlifeController.Active;
             }
 
-            return wildlife != null && wildlife.TryReserveRabbitForHunt(Origin, WorkRadius, owner, out rabbit);
+            return HasStorageSpace
+                && wildlife != null
+                && wildlife.TryReserveRabbitForHunt(Origin, WorkRadius, owner, out rabbit);
         }
 
         public bool TryFindDropoffCell(out Vector2Int cell)
@@ -303,14 +306,25 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            gameStored += amount;
+            gameStored = StrategyProductionStorage.AddCapped(gameStored, gameStored, amount, out int accepted);
+            if (accepted <= 0)
+            {
+                return;
+            }
+
             UpdateStockVisual();
             StrategyDebugLogger.Info(
                 "HunterCamp",
                 "GameStored",
                 StrategyDebugLogger.F("campOrigin", Origin),
-                StrategyDebugLogger.F("added", amount),
+                StrategyDebugLogger.F("added", accepted),
+                StrategyDebugLogger.F("rejected", amount - accepted),
                 StrategyDebugLogger.F("stock", gameStored));
+        }
+
+        public bool HasStorageSpaceFor(int amount)
+        {
+            return StrategyProductionStorage.CanAccept(gameStored, amount);
         }
 
         public string GetHudStatusText()
@@ -322,7 +336,7 @@ namespace ProjectUnknown.Strategy
                 + MaxWorkers
                 + "\n"
                 + "Game: "
-                + gameStored
+                + StrategyProductionStorage.Format(gameStored)
                 + (reservedGame > 0 ? " (reserved: " + reservedGame + ")" : string.Empty)
                 + "\n"
                 + "Rabbits: "

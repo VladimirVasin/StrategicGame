@@ -254,6 +254,12 @@ namespace ProjectUnknown.Strategy
                     workFrame = (workFrame + 1) % StrategyResidentSpriteFactory.StonecutFrameCount;
                     if (workFrame == StonecutImpactFrame && activeStoneDeposit != null)
                     {
+                        if (stoneWorkplace != null && !stoneWorkplace.HasStorageSpace)
+                        {
+                            ResetStoneWorkToIdle();
+                            return;
+                        }
+
                         activeStoneDeposit.ReceivePickHit(this, transform.position, out int minedAmount);
                         if (minedAmount > 0)
                         {
@@ -429,6 +435,12 @@ namespace ProjectUnknown.Strategy
                     workFrame = (workFrame + 1) % StrategyResidentSpriteFactory.ButcherFrameCount;
                     if (workFrame == ButcherImpactFrame && activeHuntTarget != null)
                     {
+                        if (hunterWorkplace != null && !hunterWorkplace.HasStorageSpace)
+                        {
+                            ResetHunterWorkToIdle(true);
+                            return;
+                        }
+
                         activeHuntTarget.ReceiveButcherHit(this, transform.position, out int gameAmount);
                         if (gameAmount > 0)
                         {

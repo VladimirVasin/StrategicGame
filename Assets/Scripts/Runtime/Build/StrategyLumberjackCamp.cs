@@ -23,6 +23,7 @@ namespace ProjectUnknown.Strategy
         public int WorkerCount => workers.Count;
         public int LogsStored => logsStored;
         public int AvailableLogs => Mathf.Max(0, logsStored - reservedLogs);
+        public bool HasStorageSpace => HasStorageSpaceFor(1);
         public Vector2Int Origin => building != null ? building.Origin : Vector2Int.zero;
         public Bounds FootprintBounds => building != null ? building.FootprintBounds : new Bounds(transform.position, Vector3.one);
 
@@ -164,7 +165,7 @@ namespace ProjectUnknown.Strategy
         public bool TryReserveMatureTree(object owner, out StrategyForestryTree tree)
         {
             tree = null;
-            if (forestry == null)
+            if (forestry == null || !HasStorageSpaceFor(StrategyForestryTree.LogsPerTree))
             {
                 return false;
             }
@@ -182,7 +183,7 @@ namespace ProjectUnknown.Strategy
         public bool TryReserveProcessableWood(object owner, out StrategyForestryTree tree)
         {
             tree = null;
-            if (forestry == null)
+            if (forestry == null || !HasStorageSpaceFor(StrategyForestryTree.LogsPerTree))
             {
                 return false;
             }
@@ -328,14 +329,25 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            logsStored += amount;
+            logsStored = StrategyProductionStorage.AddCapped(logsStored, logsStored, amount, out int accepted);
+            if (accepted <= 0)
+            {
+                return;
+            }
+
             UpdateStockVisual();
             StrategyDebugLogger.Info(
                 "LumberjackCamp",
                 "LogsStored",
                 StrategyDebugLogger.F("campOrigin", Origin),
-                StrategyDebugLogger.F("added", amount),
+                StrategyDebugLogger.F("added", accepted),
+                StrategyDebugLogger.F("rejected", amount - accepted),
                 StrategyDebugLogger.F("stock", logsStored));
+        }
+
+        public bool HasStorageSpaceFor(int amount)
+        {
+            return StrategyProductionStorage.CanAccept(logsStored, amount);
         }
 
         public bool TryFindPlantingCell(out Vector2Int cell)
@@ -360,7 +372,7 @@ namespace ProjectUnknown.Strategy
                 + MaxWorkers
                 + "\n"
                 + "Logs: "
-                + logsStored
+                + StrategyProductionStorage.Format(logsStored)
                 + (reservedLogs > 0 ? " (" + reservedLogs + " reserved)" : string.Empty)
                 + "\n"
                 + "Trees: "

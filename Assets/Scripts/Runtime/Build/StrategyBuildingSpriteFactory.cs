@@ -9,6 +9,7 @@ namespace ProjectUnknown.Strategy
         public const int HouseVariantCount = 5;
         public const int LumberjackCampVariantCount = 3;
         public const int StonecutterCampVariantCount = 3;
+        public const int SawmillVariantCount = 3;
         public const int MineVariantCount = 3;
         public const int CoalPitVariantCount = 3;
         public const int HunterCampVariantCount = 3;
@@ -26,6 +27,7 @@ namespace ProjectUnknown.Strategy
                 StrategyBuildTool.House => HouseVariantCount,
                 StrategyBuildTool.LumberjackCamp => LumberjackCampVariantCount,
                 StrategyBuildTool.StonecutterCamp => StonecutterCampVariantCount,
+                StrategyBuildTool.Sawmill => SawmillVariantCount,
                 StrategyBuildTool.Mine => MineVariantCount,
                 StrategyBuildTool.CoalPit => CoalPitVariantCount,
                 StrategyBuildTool.HunterCamp => HunterCampVariantCount,
@@ -48,6 +50,7 @@ namespace ProjectUnknown.Strategy
             if (tool != StrategyBuildTool.House
                 && tool != StrategyBuildTool.LumberjackCamp
                 && tool != StrategyBuildTool.StonecutterCamp
+                && tool != StrategyBuildTool.Sawmill
                 && tool != StrategyBuildTool.Mine
                 && tool != StrategyBuildTool.CoalPit
                 && tool != StrategyBuildTool.HunterCamp
@@ -68,6 +71,7 @@ namespace ProjectUnknown.Strategy
                 {
                     StrategyBuildTool.LumberjackCamp => CreateLumberjackCampSprite(normalizedVariant),
                     StrategyBuildTool.StonecutterCamp => CreateStonecutterCampSprite(normalizedVariant),
+                    StrategyBuildTool.Sawmill => CreateSawmillSprite(normalizedVariant),
                     StrategyBuildTool.Mine => CreateMineSprite(normalizedVariant),
                     StrategyBuildTool.CoalPit => CreateCoalPitSprite(normalizedVariant),
                     StrategyBuildTool.HunterCamp => CreateHunterCampSprite(normalizedVariant),

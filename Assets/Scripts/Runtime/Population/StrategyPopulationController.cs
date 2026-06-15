@@ -45,18 +45,27 @@ namespace ProjectUnknown.Strategy
     [DisallowMultipleComponent]
     public sealed partial class StrategyPopulationController : MonoBehaviour
     {
-        private const int InitialMaleResidents = 3;
-        private const int InitialFemaleResidents = 3;
+        private const int InitialFamilyCount = 3;
+        private const int InitialAdultChildrenMin = 1;
+        private const int InitialAdultChildrenMax = 2;
+        private const int InitialCampSpawnSlotCount = InitialFamilyCount * (2 + InitialAdultChildrenMax);
+        private const float InitialFatherAgeMin = 34f;
+        private const float InitialFatherAgeMax = 40f;
+        private const float InitialMotherAgeMin = 33f;
+        private const float InitialMotherAgeMax = 38f;
+        private const float InitialAdultChildAgeMin = 16f;
+        private const float InitialAdultChildAgeMax = 18f;
+        private const float InitialParentChildAgeGapMin = 17f;
         private const int CampSpawnRadius = 3;
         private const float HouseholdMigrationCheckInterval = 4f;
         private const int MortalityStartAgeYears = 1;
         private const int MortalityAccelerationAgeYears = 40;
         private const int MortalityHighRiskAgeYears = 50;
-        private const float MortalityChanceAtAgeOne = 0.0004f;
-        private const float MortalityChanceAtAccelerationAge = 0.008f;
-        private const float MortalityChanceAtAgeFifty = 0.30f;
-        private const float MortalityChanceAfterFiftyPerYear = 0.025f;
-        private const float MortalityMaxAnnualChance = 0.80f;
+        private const float MortalityChanceAtAgeOne = 0.0002f;
+        private const float MortalityChanceAtAccelerationAge = 0.002f;
+        private const float MortalityChanceAtAgeFifty = 0.04f;
+        private const float MortalityChanceAfterFiftyPerYear = 0.018f;
+        private const float MortalityMaxAnnualChance = 0.70f;
         private const float MalnutritionMortalityMaxAnnualChance = 0.95f;
 
         private static readonly string[] MaleFirstNames =

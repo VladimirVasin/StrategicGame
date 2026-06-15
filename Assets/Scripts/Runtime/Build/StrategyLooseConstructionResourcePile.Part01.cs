@@ -8,26 +8,24 @@ namespace ProjectUnknown.Strategy
 
         private int TakeReservedConstruction(object owner, StrategyConstructionResourceKind kind, int maxAmount)
         {
-            Dictionary<object, int> reservations = kind == StrategyConstructionResourceKind.Logs ? logReservations : stoneReservations;
+            Dictionary<object, int> reservations = GetReservations(kind);
+            if (reservations == null)
+            {
+                return 0;
+            }
+
             if (!reservations.TryGetValue(owner, out int reserved) || reserved <= 0)
             {
                 return 0;
             }
 
-            int amount = Mathf.Min(maxAmount, reserved, kind == StrategyConstructionResourceKind.Logs ? logs : stone);
+            int amount = Mathf.Min(maxAmount, reserved, GetStored(kind));
             if (amount <= 0)
             {
                 return 0;
             }
 
-            if (kind == StrategyConstructionResourceKind.Logs)
-            {
-                logs -= amount;
-            }
-            else
-            {
-                stone -= amount;
-            }
+            TakeStored(kind, amount);
 
             reserved -= amount;
             if (reserved <= 0)
@@ -44,23 +42,27 @@ namespace ProjectUnknown.Strategy
 
         private int TakeStorageReservation(StrategyConstructionResourceKind kind, int maxAmount)
         {
-            int amount = kind == StrategyConstructionResourceKind.Logs
-                ? Mathf.Min(maxAmount, logs)
-                : Mathf.Min(maxAmount, stone);
+            int amount = Mathf.Min(maxAmount, GetStored(kind));
             if (amount <= 0)
             {
                 return 0;
             }
 
-            if (kind == StrategyConstructionResourceKind.Logs)
+            TakeStored(kind, amount);
+
+            return amount;
+        }
+
+        private int SpendAvailable(StrategyConstructionResourceKind kind, int requested)
+        {
+            int amount = Mathf.Min(Mathf.Max(0, requested), GetAvailable(kind));
+            if (amount <= 0)
             {
-                logs -= amount;
-            }
-            else
-            {
-                stone -= amount;
+                return 0;
             }
 
+            TakeStored(kind, amount);
+            UpdateOrDestroy();
             return amount;
         }
 
@@ -68,6 +70,7 @@ namespace ProjectUnknown.Strategy
         {
             logReservations.Remove(owner);
             stoneReservations.Remove(owner);
+            plankReservations.Remove(owner);
             List<StrategyResidentAgent> builders = new();
             foreach (KeyValuePair<StrategyResidentAgent, PickupReservation> pair in pickupReservations)
             {
@@ -132,6 +135,13 @@ namespace ProjectUnknown.Strategy
                 stoneObject.transform.SetParent(transform, false);
                 stoneRenderer = stoneObject.AddComponent<SpriteRenderer>();
             }
+
+            if (planksRenderer == null)
+            {
+                GameObject planksObject = new GameObject("Loose Planks");
+                planksObject.transform.SetParent(transform, false);
+                planksRenderer = planksObject.AddComponent<SpriteRenderer>();
+            }
         }
 
         private void UpdateVisuals()
@@ -152,6 +162,14 @@ namespace ProjectUnknown.Strategy
             stoneRenderer.transform.localScale = Vector3.one;
             StrategyWorldSorting.Apply(stoneRenderer, stoneWorld, 2);
             AttachPileShadow(stoneRenderer, stone > 0 ? stone : logs);
+
+            Vector3 planksWorld = transform.position + new Vector3(0.02f, 0.18f, 0f);
+            planksRenderer.sprite = StrategyBuildingSpriteFactory.GetStorageYardPlankStockSprite(planks);
+            planksRenderer.gameObject.SetActive(planks > 0 && planksRenderer.sprite != null);
+            planksRenderer.transform.localPosition = transform.InverseTransformPoint(planksWorld);
+            planksRenderer.transform.localScale = Vector3.one * 0.72f;
+            StrategyWorldSorting.Apply(planksRenderer, planksWorld, 3);
+            AttachPileShadow(planksRenderer, planks > 0 ? planks : Mathf.Max(logs, stone));
         }
 
         private static void AttachPileShadow(SpriteRenderer renderer, int amount)
@@ -175,7 +193,7 @@ namespace ProjectUnknown.Strategy
 
         private void UpdateOrDestroy()
         {
-            if (logs <= 0 && stone <= 0)
+            if (logs <= 0 && stone <= 0 && planks <= 0)
             {
                 StrategyDebugLogger.Info(
                     "Build",
@@ -252,6 +270,55 @@ namespace ProjectUnknown.Strategy
             }
 
             return total;
+        }
+
+        private Dictionary<object, int> GetReservations(StrategyConstructionResourceKind kind)
+        {
+            return kind switch
+            {
+                StrategyConstructionResourceKind.Logs => logReservations,
+                StrategyConstructionResourceKind.Stone => stoneReservations,
+                StrategyConstructionResourceKind.Planks => plankReservations,
+                _ => null
+            };
+        }
+
+        private int GetAvailable(StrategyConstructionResourceKind kind)
+        {
+            return kind switch
+            {
+                StrategyConstructionResourceKind.Logs => AvailableLogs,
+                StrategyConstructionResourceKind.Stone => AvailableStone,
+                StrategyConstructionResourceKind.Planks => AvailablePlanks,
+                _ => 0
+            };
+        }
+
+        private int GetStored(StrategyConstructionResourceKind kind)
+        {
+            return kind switch
+            {
+                StrategyConstructionResourceKind.Logs => logs,
+                StrategyConstructionResourceKind.Stone => stone,
+                StrategyConstructionResourceKind.Planks => planks,
+                _ => 0
+            };
+        }
+
+        private void TakeStored(StrategyConstructionResourceKind kind, int amount)
+        {
+            if (kind == StrategyConstructionResourceKind.Logs)
+            {
+                logs -= amount;
+            }
+            else if (kind == StrategyConstructionResourceKind.Stone)
+            {
+                stone -= amount;
+            }
+            else if (kind == StrategyConstructionResourceKind.Planks)
+            {
+                planks -= amount;
+            }
         }
     }
 }

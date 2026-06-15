@@ -25,6 +25,7 @@ namespace ProjectUnknown.Strategy
         public int WorkerCount => workers.Count;
         public int StoneStored => stoneStored;
         public int AvailableStone => Mathf.Max(0, stoneStored - reservedStone - CountReservations(constructionStoneReservations));
+        public bool HasStorageSpace => HasStorageSpaceFor(1);
         public Vector2Int Origin => building != null ? building.Origin : Vector2Int.zero;
         public Bounds FootprintBounds => building != null ? building.FootprintBounds : new Bounds(transform.position, Vector3.one);
 
@@ -280,7 +281,7 @@ namespace ProjectUnknown.Strategy
         public bool TryReserveStoneDeposit(object owner, out StrategyStoneDeposit deposit)
         {
             deposit = null;
-            if (stone == null)
+            if (stone == null || !HasStorageSpace)
             {
                 return false;
             }

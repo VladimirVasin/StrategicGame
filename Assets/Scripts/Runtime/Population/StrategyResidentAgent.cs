@@ -19,6 +19,7 @@ namespace ProjectUnknown.Strategy
     public sealed partial class StrategyResidentAgent : MonoBehaviour
     {
         private const float MoveSpeed = 0.85f;
+        private const float ActiveMoveSpeedMultiplier = 1.15f;
         private const float TargetReachDistance = 0.04f;
         private const int IdleRadius = 4;
         private const float GardenWorkCooldownMin = 7.0f;
@@ -94,101 +95,6 @@ namespace ProjectUnknown.Strategy
             new Vector2Int(0, -1)
         };
 
-        public enum ResidentActivity
-        {
-            Idle,
-            TendingHousehold,
-            StayingInsideHome,
-            MovingHome,
-            ArrivingAsRefugee,
-            LeavingSettlement,
-            MovingToGarden,
-            WorkingGarden,
-            MovingToForage,
-            GatheringForage,
-            MovingToLooseForagePickup,
-            PickingUpLooseForage,
-            CarryingForage,
-            DepositingForage,
-            MovingToTree,
-            ChoppingTree,
-            BuckingTree,
-            MovingToLogs,
-            CarryingLogs,
-            DepositingLogs,
-            MovingToStoragePickup,
-            PickingUpStorageLogs,
-            CarryingLogsToStorage,
-            DepositingStorageLogs,
-            MovingToPlantTree,
-            PlantingTree,
-            MovingToStone,
-            MiningStone,
-            CarryingStone,
-            DepositingStone,
-            MovingToMine,
-            MiningUnderground,
-            MovingToCoalPit,
-            MiningCoalInPit,
-            MovingToStorageStonePickup,
-            PickingUpStorageStone,
-            CarryingStoneToStorage,
-            DepositingStorageStone,
-            MovingToStorageIronPickup,
-            PickingUpStorageIron,
-            CarryingIronToStorage,
-            DepositingStorageIron,
-            MovingToStorageCoalPickup,
-            PickingUpStorageCoal,
-            CarryingCoalToStorage,
-            DepositingStorageCoal,
-            MovingToConstructionStorage,
-            PickingUpConstructionLogs,
-            PickingUpConstructionStone,
-            CarryingConstructionLogs,
-            CarryingConstructionStone,
-            DepositingConstructionResource,
-            MovingToConstructionSite,
-            BuildingConstruction,
-            MovingToHuntingRange,
-            AimingBow,
-            WaitingForHuntHit,
-            MovingToHuntCarcass,
-            ButcheringRabbit,
-            CarryingGame,
-            DepositingGame,
-            MovingToFishingSpot,
-            CastingFishingLine,
-            WaitingForFishBite,
-            ReelingFish,
-            CarryingFish,
-            DepositingFish,
-            MovingToGranaryGamePickup,
-            PickingUpGranaryGame,
-            CarryingGameToGranary,
-            DepositingGranaryGame,
-            MovingToGranaryFishPickup,
-            PickingUpGranaryFish,
-            CarryingFishToGranary,
-            DepositingGranaryFish,
-            MovingToHouseholdFoodPickup,
-            PickingUpHouseholdFood,
-            CarryingHouseholdFoodHome,
-            DepositingHouseholdFood,
-            ReturningLogsToStorage,
-            ReturningStoneToStorage,
-            ReturningIronToStorage,
-            ReturningCoalToStorage,
-            ReturningGameToGranary,
-            ReturningFishToGranary,
-            MovingToFuneral,
-            MourningCorpse,
-            CarryingCorpseToCemetery,
-            MovingToBurial,
-            BuryingGrave,
-            WaitingAtFuneral
-        }
-
         private readonly List<int> childIds = new();
         private CityMapController map;
         private StrategyPopulationController population;
@@ -238,6 +144,7 @@ namespace ProjectUnknown.Strategy
         private StrategyHunterCamp activeGameSource;
         private StrategyFisherHut activeFishSource;
         private StrategyLooseCarriedResourcePile activeLooseFoodSource;
+        private StrategyGranary activeGranaryDeliveryTarget;
         private StrategyGranary activeHouseholdFoodGranary;
         private StrategyRabbitAgent activeHuntTarget;
         private StrategyFishAgent activeFishTarget;
@@ -316,6 +223,7 @@ namespace ProjectUnknown.Strategy
             || fisherWorkplace != null
             || mineWorkplace != null
             || coalPitWorkplace != null
+            || sawmillWorkplace != null
             || storageWorkplace != null
             || builderWorkplace != null
             || granaryWorkplace != null;
@@ -494,6 +402,13 @@ namespace ProjectUnknown.Strategy
                 && activeForageNode == null
                 && activeLooseForageSource == null
                 && carriedForageAmount <= 0;
+        }
+
+        private float GetCurrentMoveSpeed()
+        {
+            return activity == ResidentActivity.Idle || activity == ResidentActivity.TendingHousehold
+                ? MoveSpeed
+                : MoveSpeed * ActiveMoveSpeedMultiplier;
         }
     }
 }

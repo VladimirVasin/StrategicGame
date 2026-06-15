@@ -21,6 +21,13 @@ namespace ProjectUnknown.Strategy
                 stoneObject.transform.SetParent(transform, false);
                 stoneRenderer = stoneObject.AddComponent<SpriteRenderer>();
             }
+
+            if (planksRenderer == null)
+            {
+                GameObject planksObject = new GameObject("Construction Planks");
+                planksObject.transform.SetParent(transform, false);
+                planksRenderer = planksObject.AddComponent<SpriteRenderer>();
+            }
         }
 
         private void EnsureWorldShadow()
@@ -53,7 +60,7 @@ namespace ProjectUnknown.Strategy
             {
                 int stage = ResourcesComplete
                     ? Mathf.Clamp(1 + Mathf.FloorToInt(Progress * (StrategyConstructionSpriteFactory.StageCount - 1)), 1, StrategyConstructionSpriteFactory.StageCount - 1)
-                    : Mathf.Clamp(Mathf.FloorToInt(((deliveredLogs + deliveredStone) / Mathf.Max(1f, cost.Total)) * 2f), 0, 2);
+                    : Mathf.Clamp(Mathf.FloorToInt(((deliveredLogs + deliveredStone + deliveredPlanks) / Mathf.Max(1f, cost.Total)) * 2f), 0, 2);
                 spriteRenderer.sprite = tool == StrategyBuildTool.Bridge
                     ? StrategyConstructionSpriteFactory.GetBridgeConstructionSprite(footprint, stage)
                     : StrategyConstructionSpriteFactory.GetConstructionSprite(tool, visualVariant, stage);
@@ -77,6 +84,16 @@ namespace ProjectUnknown.Strategy
                 stoneRenderer.gameObject.SetActive(deliveredStone > 0 && stoneRenderer.sprite != null);
                 stoneRenderer.transform.localPosition = transform.InverseTransformPoint(stoneWorld);
                 StrategyWorldSorting.Apply(stoneRenderer, stoneWorld, 1);
+            }
+
+            if (planksRenderer != null)
+            {
+                Vector3 planksWorld = new Vector3(footprintBounds.center.x, footprintBounds.min.y + 0.48f, -0.13f);
+                planksRenderer.sprite = StrategyBuildingSpriteFactory.GetStorageYardPlankStockSprite(deliveredPlanks);
+                planksRenderer.gameObject.SetActive(deliveredPlanks > 0 && planksRenderer.sprite != null);
+                planksRenderer.transform.localPosition = transform.InverseTransformPoint(planksWorld);
+                planksRenderer.transform.localScale = Vector3.one * 0.72f;
+                StrategyWorldSorting.Apply(planksRenderer, planksWorld, 2);
             }
         }
 

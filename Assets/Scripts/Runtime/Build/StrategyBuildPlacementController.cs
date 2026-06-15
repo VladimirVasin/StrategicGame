@@ -238,6 +238,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("origin", hoveredOrigin),
                 StrategyDebugLogger.F("costLogs", toolInfo.Cost.Logs),
                 StrategyDebugLogger.F("costStone", toolInfo.Cost.Stone),
+                StrategyDebugLogger.F("costPlanks", toolInfo.Cost.Planks),
                 StrategyDebugLogger.F("available", StrategyStorageYard.GetTotalConstructionResources()));
 
             if (!buildMenu.CanAffordActiveTool())
@@ -250,6 +251,7 @@ namespace ProjectUnknown.Strategy
                     StrategyDebugLogger.F("reason", "not_affordable"),
                     StrategyDebugLogger.F("costLogs", toolInfo.Cost.Logs),
                     StrategyDebugLogger.F("costStone", toolInfo.Cost.Stone),
+                    StrategyDebugLogger.F("costPlanks", toolInfo.Cost.Planks),
                     StrategyDebugLogger.F("available", StrategyStorageYard.GetTotalConstructionResources()));
                 return;
             }
@@ -274,7 +276,8 @@ namespace ProjectUnknown.Strategy
                     StrategyDebugLogger.F("tool", toolInfo.Tool),
                     StrategyDebugLogger.F("origin", hoveredOrigin),
                     StrategyDebugLogger.F("costLogs", toolInfo.Cost.Logs),
-                    StrategyDebugLogger.F("costStone", toolInfo.Cost.Stone));
+                    StrategyDebugLogger.F("costStone", toolInfo.Cost.Stone),
+                    StrategyDebugLogger.F("costPlanks", toolInfo.Cost.Planks));
                 return;
             }
 
@@ -303,6 +306,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("hasStart", hasBridgeStart),
                 StrategyDebugLogger.F("costLogs", toolInfo.Cost.Logs),
                 StrategyDebugLogger.F("costStone", toolInfo.Cost.Stone),
+                StrategyDebugLogger.F("costPlanks", toolInfo.Cost.Planks),
                 StrategyDebugLogger.F("available", StrategyStorageYard.GetTotalConstructionResources()));
 
             if (!buildMenu.CanAffordActiveTool())
@@ -314,6 +318,7 @@ namespace ProjectUnknown.Strategy
                     StrategyDebugLogger.F("reason", "not_affordable"),
                     StrategyDebugLogger.F("costLogs", toolInfo.Cost.Logs),
                     StrategyDebugLogger.F("costStone", toolInfo.Cost.Stone),
+                    StrategyDebugLogger.F("costPlanks", toolInfo.Cost.Planks),
                     StrategyDebugLogger.F("available", StrategyStorageYard.GetTotalConstructionResources()));
                 return;
             }

@@ -71,14 +71,25 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            stoneStored += amount;
+            stoneStored = StrategyProductionStorage.AddCapped(stoneStored, stoneStored, amount, out int accepted);
+            if (accepted <= 0)
+            {
+                return;
+            }
+
             UpdateStockVisual();
             StrategyDebugLogger.Info(
                 "StonecutterCamp",
                 "StoneStored",
                 StrategyDebugLogger.F("campOrigin", Origin),
-                StrategyDebugLogger.F("added", amount),
+                StrategyDebugLogger.F("added", accepted),
+                StrategyDebugLogger.F("rejected", amount - accepted),
                 StrategyDebugLogger.F("stock", stoneStored));
+        }
+
+        public bool HasStorageSpaceFor(int amount)
+        {
+            return StrategyProductionStorage.CanAccept(stoneStored, amount);
         }
 
         public string GetHudStatusText()
@@ -90,7 +101,7 @@ namespace ProjectUnknown.Strategy
                 + MaxWorkers
                 + "\n"
                 + "Stone: "
-                + stoneStored
+                + StrategyProductionStorage.Format(stoneStored)
                 + (reservedStone > 0 ? " (" + reservedStone + " reserved)" : string.Empty)
                 + "\n"
                 + "Deposits: "

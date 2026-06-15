@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace ProjectUnknown.Strategy
@@ -106,8 +107,8 @@ namespace ProjectUnknown.Strategy
             if (score > 0.82f && roll < GetCoalChance(cell.Kind, 0.032f))
             {
                 Vector2Int seamFootprint = Hash01(map.ActiveSeed, cell.X, cell.Y, 3307) > 0.54f
-                    ? new Vector2Int(2, 1)
-                    : Vector2Int.one;
+                    ? new Vector2Int(3, 2)
+                    : new Vector2Int(2, 2);
                 return TryCreateCoalDeposit(
                     cell,
                     seamFootprint,
@@ -122,9 +123,12 @@ namespace ProjectUnknown.Strategy
 
             if (score > 0.62f && roll < GetCoalChance(cell.Kind, 0.068f))
             {
+                Vector2Int dustFootprint = Hash01(map.ActiveSeed, cell.X, cell.Y, 3313) > 0.52f
+                    ? new Vector2Int(2, 2)
+                    : new Vector2Int(2, 1);
                 return TryCreateCoalDeposit(
                     cell,
-                    Vector2Int.one,
+                    dustFootprint,
                     StrategyNaturePropKind.CoalDustGround,
                     StrategyCoalDepositKind.CoalDustGround,
                     3319,
@@ -165,7 +169,7 @@ namespace ProjectUnknown.Strategy
                 -0.145f);
 
             float scale = Mathf.Lerp(minScale, maxScale, Hash01(map.ActiveSeed, cell.X, cell.Y, salt + 17));
-            prop.transform.localScale = Vector3.one * scale;
+            prop.transform.localScale = GetMineralVisualScale(scale, footprint);
 
             SpriteRenderer renderer = prop.AddComponent<SpriteRenderer>();
             renderer.sprite = StrategyNatureSpriteFactory.GetSprite(propKind, variant);
@@ -188,7 +192,8 @@ namespace ProjectUnknown.Strategy
                 spawnedCoalDustGround++;
             }
 
-            return true;
+            return !HasCoalDepositNearFootprint(origin, footprint, 0)
+                && !HasIronDepositNearFootprint(origin, footprint, 1);
         }
 
         private bool CanPlaceCoalFootprint(Vector2Int origin, Vector2Int footprint)
@@ -239,8 +244,8 @@ namespace ProjectUnknown.Strategy
                 if (score > 0.74f && Hash01(map.ActiveSeed, x, y, 3413) > 0.60f)
                 {
                     Vector2Int footprint = Hash01(map.ActiveSeed, x, y, 3419) > 0.62f
-                        ? new Vector2Int(2, 1)
-                        : Vector2Int.one;
+                        ? new Vector2Int(3, 2)
+                        : new Vector2Int(2, 2);
                     if (TryCreateCoalDeposit(
                         cell,
                         footprint,
@@ -256,9 +261,12 @@ namespace ProjectUnknown.Strategy
                     }
                 }
 
+                Vector2Int dustFootprint = Hash01(map.ActiveSeed, x, y, 3431) > 0.52f
+                    ? new Vector2Int(2, 2)
+                    : new Vector2Int(2, 1);
                 TryCreateCoalDeposit(
                     cell,
-                    Vector2Int.one,
+                    dustFootprint,
                     StrategyNaturePropKind.CoalDustGround,
                     StrategyCoalDepositKind.CoalDustGround,
                     3433,
@@ -325,6 +333,67 @@ namespace ProjectUnknown.Strategy
                 || kind == CityMapCellKind.Forest
                 || kind == CityMapCellKind.Dirt
                 || kind == CityMapCellKind.Shore;
+        }
+
+        private static Vector3 GetMineralVisualScale(float baseScale, Vector2Int footprint)
+        {
+            float widthScale = Mathf.Lerp(1f, Mathf.Max(1f, footprint.x), 0.45f);
+            float heightScale = Mathf.Lerp(1f, Mathf.Max(1f, footprint.y), 0.45f);
+            return new Vector3(baseScale * widthScale, baseScale * heightScale, 1f);
+        }
+
+        private bool HasIronDepositNearFootprint(Vector2Int origin, Vector2Int footprint, int buffer)
+        {
+            if (iron == null)
+            {
+                return false;
+            }
+
+            IReadOnlyList<StrategyIronDeposit> deposits = iron.Deposits;
+            for (int i = 0; i < deposits.Count; i++)
+            {
+                StrategyIronDeposit deposit = deposits[i];
+                if (deposit != null && RectanglesOverlap(origin, footprint, deposit.Cell, deposit.Footprint, buffer))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool HasCoalDepositNearFootprint(Vector2Int origin, Vector2Int footprint, int buffer)
+        {
+            if (coal == null)
+            {
+                return false;
+            }
+
+            IReadOnlyList<StrategyCoalDeposit> deposits = coal.Deposits;
+            for (int i = 0; i < deposits.Count; i++)
+            {
+                StrategyCoalDeposit deposit = deposits[i];
+                if (deposit != null && RectanglesOverlap(origin, footprint, deposit.Cell, deposit.Footprint, buffer))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool RectanglesOverlap(
+            Vector2Int aOrigin,
+            Vector2Int aSize,
+            Vector2Int bOrigin,
+            Vector2Int bSize,
+            int buffer)
+        {
+            int safeBuffer = Mathf.Max(0, buffer);
+            return aOrigin.x - safeBuffer < bOrigin.x + bSize.x
+                && aOrigin.x + aSize.x + safeBuffer > bOrigin.x
+                && aOrigin.y - safeBuffer < bOrigin.y + bSize.y
+                && aOrigin.y + aSize.y + safeBuffer > bOrigin.y;
         }
     }
 }

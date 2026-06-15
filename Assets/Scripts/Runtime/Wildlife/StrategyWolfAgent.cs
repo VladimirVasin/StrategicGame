@@ -368,15 +368,16 @@ namespace ProjectUnknown.Strategy
                 TryPathNearTarget(targetCell);
             }
 
-            if (!MoveAlongPath(RunSpeed))
+            bool pathCompleted = MoveAlongPath(RunSpeed);
+            if (pathCompleted || path.Count <= 0 || pathIndex >= path.Count)
             {
-                Vector3 previous = transform.position;
-                transform.position = Vector3.MoveTowards(transform.position, new Vector3(targetWorld.x, targetWorld.y, transform.position.z), RunSpeed * Time.deltaTime);
-                Vector3 delta = transform.position - previous;
-                if (Mathf.Abs(delta.x) > 0.001f)
-                {
-                    spriteRenderer.flipX = delta.x < 0f;
-                }
+                MoveDirectlyToward(targetWorld, RunSpeed);
+            }
+
+            if (Vector2.Distance(transform.position, targetWorld) <= AttackReachDistance)
+            {
+                StartAttack();
+                return;
             }
 
             AnimateRun();

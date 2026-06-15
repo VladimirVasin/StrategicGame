@@ -32,6 +32,10 @@ namespace ProjectUnknown.Strategy
                 {
                     yard.AddResource(StrategyResourceType.Stone, regularAmount);
                 }
+                else if (resource == StrategyConstructionResourceKind.Planks)
+                {
+                    yard.AddResource(StrategyResourceType.Planks, regularAmount);
+                }
             }
 
             ClearCarriedConstructionReturnReservation();
@@ -64,7 +68,7 @@ namespace ProjectUnknown.Strategy
         {
             int amount = resource == StrategyConstructionResourceKind.Logs
                 ? carriedLogAmount
-                : carriedStoneAmount;
+                : resource == StrategyConstructionResourceKind.Stone ? carriedStoneAmount : carriedPlanksAmount;
             if (amount <= 0)
             {
                 return false;
@@ -102,17 +106,23 @@ namespace ProjectUnknown.Strategy
             {
                 int logs = resource == StrategyConstructionResourceKind.Logs ? amount : 0;
                 int stone = resource == StrategyConstructionResourceKind.Stone ? amount : 0;
-                StrategyLooseConstructionResourcePile pile = StrategyLooseConstructionResourcePile.Create(map, cell, transform.position, logs, stone);
+                int planks = resource == StrategyConstructionResourceKind.Planks ? amount : 0;
+                StrategyLooseConstructionResourcePile pile = StrategyLooseConstructionResourcePile.Create(map, cell, transform.position, logs, stone, planks);
                 RestoreReturnedMaterialReservationOnPile(pile, resource, amount);
                 if (resource == StrategyConstructionResourceKind.Logs)
                 {
                     carriedLogAmount = 0;
                     SetCarriedLogsVisible(false);
                 }
-                else
+                else if (resource == StrategyConstructionResourceKind.Stone)
                 {
                     carriedStoneAmount = 0;
                     SetCarriedStoneVisible(false);
+                }
+                else if (resource == StrategyConstructionResourceKind.Planks)
+                {
+                    carriedPlanksAmount = 0;
+                    SetCarriedPlanksVisible(false);
                 }
 
                 ResetAfterImmediateCarriedResourceStore();
@@ -250,6 +260,8 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("logs", carriedLogAmount),
                 StrategyDebugLogger.F("stone", carriedStoneAmount),
                 StrategyDebugLogger.F("iron", carriedIronAmount),
+                StrategyDebugLogger.F("coal", carriedCoalAmount),
+                StrategyDebugLogger.F("planks", carriedPlanksAmount),
                 StrategyDebugLogger.F("game", carriedGameAmount),
                 StrategyDebugLogger.F("fish", carriedFishAmount));
         }
@@ -312,10 +324,12 @@ namespace ProjectUnknown.Strategy
             carriedStoneAmount = 0;
             carriedIronAmount = 0;
             carriedCoalAmount = 0;
+            carriedPlanksAmount = 0;
             SetCarriedLogsVisible(false);
             SetCarriedStoneVisible(false);
             SetCarriedIronVisible(false);
             SetCarriedCoalVisible(false);
+            SetCarriedPlanksVisible(false);
             logisticsWorkCooldown = Random.Range(2.0f, 4.5f);
             waitTimer = Random.Range(0.35f, 0.85f);
         }
@@ -340,6 +354,7 @@ namespace ProjectUnknown.Strategy
             activeGameSource = null;
             activeFishSource = null;
             activeLooseFoodSource = null;
+            activeGranaryDeliveryTarget = null;
             if (storeCarriedFood
                 && (carriedGameAmount > 0 || carriedFishAmount > 0)
                 && TryStartCarriedResourceReturn("granary_work_cancelled"))
@@ -407,7 +422,7 @@ namespace ProjectUnknown.Strategy
             activeConstructionSource = null;
             activeConstructionResource = StrategyConstructionResourceKind.None;
             constructionPickupPathFailures = 0;
-            if ((carriedLogAmount > 0 || carriedStoneAmount > 0)
+            if ((carriedLogAmount > 0 || carriedStoneAmount > 0 || carriedPlanksAmount > 0)
                 && TryStartCarriedResourceReturn("construction_work_cancelled"))
             {
                 return;
@@ -415,8 +430,10 @@ namespace ProjectUnknown.Strategy
 
             carriedLogAmount = 0;
             carriedStoneAmount = 0;
+            carriedPlanksAmount = 0;
             SetCarriedLogsVisible(false);
             SetCarriedStoneVisible(false);
+            SetCarriedPlanksVisible(false);
             activity = ResidentActivity.Idle;
             hasTarget = false;
             path.Clear();

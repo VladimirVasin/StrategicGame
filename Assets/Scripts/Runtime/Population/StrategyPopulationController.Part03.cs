@@ -110,7 +110,7 @@ namespace ProjectUnknown.Strategy
 
         private Vector3 GetFallbackCampSpawnWorld(int spawnSlot)
         {
-            float angle = (Mathf.PI * 2f * spawnSlot / (InitialMaleResidents + InitialFemaleResidents)) + 0.35f;
+            float angle = (Mathf.PI * 2f * spawnSlot / InitialCampSpawnSlotCount) + 0.35f;
             return new Vector3(
                 campWorld.x + Mathf.Cos(angle) * map.CellSize * 1.55f,
                 campWorld.y + Mathf.Sin(angle) * map.CellSize * 1.10f,
@@ -369,6 +369,11 @@ namespace ProjectUnknown.Strategy
             if (resident.CoalPitWorkplace != null)
             {
                 return "coal miner";
+            }
+
+            if (resident.SawmillWorkplace != null)
+            {
+                return "sawyer";
             }
 
             if (resident.HunterWorkplace != null)

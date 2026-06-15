@@ -42,6 +42,12 @@ namespace ProjectUnknown.Strategy
                 return stoneCamp.GetHudStatusText();
             }
 
+            StrategySawmill sawmill = building.GetComponent<StrategySawmill>();
+            if (sawmill != null)
+            {
+                return sawmill.GetHudStatusText();
+            }
+
             StrategyMine mine = building.GetComponent<StrategyMine>();
             if (mine != null)
             {
@@ -118,6 +124,11 @@ namespace ProjectUnknown.Strategy
                 return "coal miner";
             }
 
+            if (resident.SawmillWorkplace != null)
+            {
+                return "sawyer";
+            }
+
             if (resident.HunterWorkplace != null)
             {
                 return "hunter";
@@ -170,6 +181,7 @@ namespace ProjectUnknown.Strategy
                 StrategyResourceType.Fish => "Fish",
                 StrategyResourceType.Iron => "Iron",
                 StrategyResourceType.Coal => "Coal",
+                StrategyResourceType.Planks => "Planks",
                 _ => "none"
             };
         }
@@ -211,6 +223,12 @@ namespace ProjectUnknown.Strategy
                 StrategyResidentAgent.ResidentActivity.MiningUnderground => "working underground",
                 StrategyResidentAgent.ResidentActivity.MovingToCoalPit => "going to coal pit",
                 StrategyResidentAgent.ResidentActivity.MiningCoalInPit => "digging Coal",
+                StrategyResidentAgent.ResidentActivity.MovingToSawmillLogPickup => "going for Logs",
+                StrategyResidentAgent.ResidentActivity.PickingUpSawmillLogs => "picking up Logs",
+                StrategyResidentAgent.ResidentActivity.CarryingLogsToSawmill => "hauling Logs to sawmill",
+                StrategyResidentAgent.ResidentActivity.DepositingSawmillLogs => "feeding Logs into sawmill",
+                StrategyResidentAgent.ResidentActivity.MovingToSawmill => "going to sawmill",
+                StrategyResidentAgent.ResidentActivity.SawingLogs => "sawing Logs",
                 StrategyResidentAgent.ResidentActivity.MovingToStorageStonePickup => "going for Stone",
                 StrategyResidentAgent.ResidentActivity.PickingUpStorageStone => "picking up Stone",
                 StrategyResidentAgent.ResidentActivity.CarryingStoneToStorage => "hauling Stone to storage",
@@ -223,11 +241,17 @@ namespace ProjectUnknown.Strategy
                 StrategyResidentAgent.ResidentActivity.PickingUpStorageCoal => "picking up Coal",
                 StrategyResidentAgent.ResidentActivity.CarryingCoalToStorage => "hauling Coal to storage",
                 StrategyResidentAgent.ResidentActivity.DepositingStorageCoal => "depositing Coal",
+                StrategyResidentAgent.ResidentActivity.MovingToStoragePlanksPickup => "going for Planks",
+                StrategyResidentAgent.ResidentActivity.PickingUpStoragePlanks => "picking up Planks",
+                StrategyResidentAgent.ResidentActivity.CarryingPlanksToStorage => "hauling Planks to storage",
+                StrategyResidentAgent.ResidentActivity.DepositingStoragePlanks => "depositing Planks",
                 StrategyResidentAgent.ResidentActivity.MovingToConstructionStorage => "going for materials",
                 StrategyResidentAgent.ResidentActivity.PickingUpConstructionLogs => "picking up construction Logs",
                 StrategyResidentAgent.ResidentActivity.PickingUpConstructionStone => "picking up construction Stone",
+                StrategyResidentAgent.ResidentActivity.PickingUpConstructionPlanks => "picking up construction Planks",
                 StrategyResidentAgent.ResidentActivity.CarryingConstructionLogs => "carrying Logs to construction",
                 StrategyResidentAgent.ResidentActivity.CarryingConstructionStone => "carrying Stone to construction",
+                StrategyResidentAgent.ResidentActivity.CarryingConstructionPlanks => "carrying Planks to construction",
                 StrategyResidentAgent.ResidentActivity.DepositingConstructionResource => "depositing materials",
                 StrategyResidentAgent.ResidentActivity.MovingToConstructionSite => "going to build",
                 StrategyResidentAgent.ResidentActivity.BuildingConstruction => "building",
@@ -260,6 +284,7 @@ namespace ProjectUnknown.Strategy
                 StrategyResidentAgent.ResidentActivity.ReturningStoneToStorage => "returning Stone to storage",
                 StrategyResidentAgent.ResidentActivity.ReturningIronToStorage => "returning Iron to storage",
                 StrategyResidentAgent.ResidentActivity.ReturningCoalToStorage => "returning Coal to storage",
+                StrategyResidentAgent.ResidentActivity.ReturningPlanksToStorage => "returning Planks to storage",
                 StrategyResidentAgent.ResidentActivity.ReturningGameToGranary => "returning Game to granary",
                 StrategyResidentAgent.ResidentActivity.ReturningFishToGranary => "returning Fish to granary",
                 StrategyResidentAgent.ResidentActivity.MovingToFuneral => "going to funeral",
@@ -299,6 +324,11 @@ namespace ProjectUnknown.Strategy
             if (resident.CoalPitWorkplace != null && resident.Activity == StrategyResidentAgent.ResidentActivity.Idle)
             {
                 return AppendResidentNutritionStatus(resident, "waiting for Coal");
+            }
+
+            if (resident.SawmillWorkplace != null && resident.Activity == StrategyResidentAgent.ResidentActivity.Idle)
+            {
+                return AppendResidentNutritionStatus(resident, "waiting for Logs");
             }
 
             if (resident.GranaryWorkplace != null && resident.Activity == StrategyResidentAgent.ResidentActivity.Idle)

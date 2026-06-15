@@ -32,10 +32,24 @@ namespace ProjectUnknown.Strategy
             return amount;
         }
 
+        private int SpendAvailablePlanks(int requested)
+        {
+            int amount = Mathf.Min(Mathf.Max(0, requested), AvailableConstructionPlanks);
+            if (amount <= 0)
+            {
+                return 0;
+            }
+
+            planksStored -= amount;
+            UpdateStockVisual();
+            return amount;
+        }
+
         private void ReleaseConstructionReservation(object owner)
         {
             constructionLogReservations.Remove(owner);
             constructionStoneReservations.Remove(owner);
+            constructionPlankReservations.Remove(owner);
             ReleaseConstructionPickupReservations(owner);
         }
 
@@ -46,15 +60,29 @@ namespace ProjectUnknown.Strategy
 
         private int GetAvailableReservationAmount(object owner, StrategyConstructionResourceKind kind)
         {
-            Dictionary<object, int> source = kind == StrategyConstructionResourceKind.Logs
-                ? constructionLogReservations
-                : constructionStoneReservations;
+            Dictionary<object, int> source = GetConstructionReservations(kind);
+            if (source == null)
+            {
+                return 0;
+            }
+
             if (!source.TryGetValue(owner, out int amount) || amount <= 0)
             {
                 return 0;
             }
 
             return Mathf.Max(0, amount - CountPickupReservations(owner, kind));
+        }
+
+        private Dictionary<object, int> GetConstructionReservations(StrategyConstructionResourceKind kind)
+        {
+            return kind switch
+            {
+                StrategyConstructionResourceKind.Logs => constructionLogReservations,
+                StrategyConstructionResourceKind.Stone => constructionStoneReservations,
+                StrategyConstructionResourceKind.Planks => constructionPlankReservations,
+                _ => null
+            };
         }
 
         private int CountPickupReservations(object owner, StrategyConstructionResourceKind kind)
@@ -203,6 +231,9 @@ namespace ProjectUnknown.Strategy
                 + "Coal: "
                 + coalStored
                 + "\n"
+                + "Planks: "
+                + planksStored
+                + "\n"
                 + "Sources: "
                 + sourceCount;
         }
@@ -232,6 +263,7 @@ namespace ProjectUnknown.Strategy
 
             count += CountAvailableIronSources();
             count += CountAvailableCoalSources();
+            count += CountAvailablePlankSources();
             return count;
         }
 
@@ -294,6 +326,11 @@ namespace ProjectUnknown.Strategy
                 }
 
                 if (kind == StrategyConstructionResourceKind.Stone && site.NeededStone > 0)
+                {
+                    return true;
+                }
+
+                if (kind == StrategyConstructionResourceKind.Planks && site.NeededPlanks > 0)
                 {
                     return true;
                 }
@@ -375,105 +412,5 @@ namespace ProjectUnknown.Strategy
             }
         }
 
-        private void EnsureStockRenderer()
-        {
-            if (logsStockRenderer != null && stoneStockRenderer != null && ironStockRenderer != null && coalStockRenderer != null)
-            {
-                return;
-            }
-
-            if (logsStockRenderer == null)
-            {
-                GameObject stockObject = new GameObject("Storage Logs Stock");
-                stockObject.transform.SetParent(transform, false);
-                logsStockRenderer = stockObject.AddComponent<SpriteRenderer>();
-                logsStockRenderer.color = Color.white;
-            }
-
-            if (stoneStockRenderer == null)
-            {
-                GameObject stoneObject = new GameObject("Storage Stone Stock");
-                stoneObject.transform.SetParent(transform, false);
-                stoneStockRenderer = stoneObject.AddComponent<SpriteRenderer>();
-                stoneStockRenderer.color = Color.white;
-            }
-
-            EnsureIronStockRenderer();
-            EnsureCoalStockRenderer();
-            UpdateStockPosition();
-        }
-
-        private void UpdateStockVisual()
-        {
-            EnsureStockRenderer();
-            if (logsStockRenderer != null)
-            {
-                logsStockRenderer.sprite = StrategyBuildingSpriteFactory.GetStorageYardStockSprite(logsStored);
-                logsStockRenderer.gameObject.SetActive(logsStored > 0 && logsStockRenderer.sprite != null);
-            }
-
-            if (stoneStockRenderer != null)
-            {
-                stoneStockRenderer.sprite = StrategyBuildingSpriteFactory.GetStorageYardStoneStockSprite(stoneStored);
-                stoneStockRenderer.gameObject.SetActive(stoneStored > 0 && stoneStockRenderer.sprite != null);
-            }
-
-            UpdateIronStockVisual();
-            UpdateCoalStockVisual();
-            UpdateStockPosition();
-        }
-
-        private void UpdateStockPosition()
-        {
-            if (building == null)
-            {
-                return;
-            }
-
-            Bounds bounds = building.FootprintBounds;
-            if (logsStockRenderer != null)
-            {
-                Vector3 logsWorld = new Vector3(bounds.center.x + 0.28f, bounds.min.y + 0.45f, -0.16f);
-                logsStockRenderer.transform.localPosition = transform.InverseTransformPoint(logsWorld);
-                logsStockRenderer.transform.localScale = Vector3.one;
-                StrategyWorldSorting.Apply(logsStockRenderer, logsWorld, 1);
-            }
-
-            if (stoneStockRenderer != null)
-            {
-                Vector3 stoneWorld = new Vector3(bounds.center.x - 0.86f, bounds.min.y + 0.37f, -0.155f);
-                stoneStockRenderer.transform.localPosition = transform.InverseTransformPoint(stoneWorld);
-                stoneStockRenderer.transform.localScale = Vector3.one;
-                StrategyWorldSorting.Apply(stoneStockRenderer, stoneWorld, 1);
-            }
-
-            UpdateIronStockPosition(bounds);
-            UpdateCoalStockPosition(bounds);
-        }
-
-        private void OnDestroy()
-        {
-            for (int i = workers.Count - 1; i >= 0; i--)
-            {
-                StrategyResidentAgent worker = workers[i];
-                if (worker != null)
-                {
-                    worker.ClearStorageWorkplace(this);
-                }
-            }
-
-            workers.Clear();
-
-            for (int i = builders.Count - 1; i >= 0; i--)
-            {
-                StrategyResidentAgent builder = builders[i];
-                if (builder != null)
-                {
-                    builder.ClearBuilderWorkplace(this);
-                }
-            }
-
-            builders.Clear();
-        }
     }
 }

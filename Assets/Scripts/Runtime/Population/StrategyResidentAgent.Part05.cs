@@ -268,6 +268,7 @@ namespace ProjectUnknown.Strategy
                 || fisherWorkplace != null
                 || builderWorkplace != null
                 || granaryWorkplace != null
+                || sawmillWorkplace != null
                 || !CanWork
                 || logisticsWorkCooldown > 0f)
             {
@@ -296,6 +297,16 @@ namespace ProjectUnknown.Strategy
             }
 
             if (TryStartStorageCoalPickup())
+            {
+                return true;
+            }
+
+            if (TryStartStoragePlanksPickup())
+            {
+                return true;
+            }
+
+            if (TryStartGranaryTask())
             {
                 return true;
             }

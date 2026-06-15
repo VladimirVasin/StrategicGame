@@ -19,6 +19,7 @@ namespace ProjectUnknown.Strategy
             StrategyProfessionType.Stonecutter,
             StrategyProfessionType.Miner,
             StrategyProfessionType.CoalMiner,
+            StrategyProfessionType.Sawyer,
             StrategyProfessionType.Hunter,
             StrategyProfessionType.Fisher,
             StrategyProfessionType.StorageWorker,

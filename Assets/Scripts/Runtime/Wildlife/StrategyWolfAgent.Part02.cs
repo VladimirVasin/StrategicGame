@@ -19,6 +19,18 @@ namespace ProjectUnknown.Strategy
             frameTimer -= steps;
         }
 
+        private void MoveDirectlyToward(Vector3 targetWorld, float speed)
+        {
+            Vector3 target = new Vector3(targetWorld.x, targetWorld.y, transform.position.z);
+            Vector3 previous = transform.position;
+            transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
+            Vector3 delta = transform.position - previous;
+            if (spriteRenderer != null && Mathf.Abs(delta.x) > 0.001f)
+            {
+                spriteRenderer.flipX = delta.x < 0f;
+            }
+        }
+
         private void ApplySprite(StrategyWolfSpritePose pose, int spriteFrame)
         {
             if (spriteRenderer == null || appliedFrame == (((int)pose * 128) + spriteFrame))

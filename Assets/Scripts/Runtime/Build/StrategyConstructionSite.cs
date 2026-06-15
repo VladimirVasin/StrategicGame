@@ -18,6 +18,7 @@ namespace ProjectUnknown.Strategy
         private SpriteRenderer spriteRenderer;
         private SpriteRenderer logsRenderer;
         private SpriteRenderer stoneRenderer;
+        private SpriteRenderer planksRenderer;
         private StrategyBuildTool tool;
         private string title;
         private Color color;
@@ -32,6 +33,7 @@ namespace ProjectUnknown.Strategy
         private int visualVariant;
         private int deliveredLogs;
         private int deliveredStone;
+        private int deliveredPlanks;
         private int buildHits;
         private int buildHitsRequired = 18;
         private float builderRequestTimer;
@@ -52,9 +54,11 @@ namespace ProjectUnknown.Strategy
         public int VisualVariant => visualVariant;
         public int DeliveredLogs => deliveredLogs;
         public int DeliveredStone => deliveredStone;
+        public int DeliveredPlanks => deliveredPlanks;
         public int NeededLogs => Mathf.Max(0, cost.Logs - deliveredLogs);
         public int NeededStone => Mathf.Max(0, cost.Stone - deliveredStone);
-        public bool ResourcesComplete => NeededLogs <= 0 && NeededStone <= 0;
+        public int NeededPlanks => Mathf.Max(0, cost.Planks - deliveredPlanks);
+        public bool ResourcesComplete => NeededLogs <= 0 && NeededStone <= 0 && NeededPlanks <= 0;
         public bool IsCompleted => completed;
         public float Progress => buildHitsRequired <= 0 ? 1f : Mathf.Clamp01(buildHits / (float)buildHitsRequired);
         public int BuilderCount => builders.Count;
@@ -139,6 +143,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("origin", origin),
                 StrategyDebugLogger.F("costLogs", cost.Logs),
                 StrategyDebugLogger.F("costStone", cost.Stone),
+                StrategyDebugLogger.F("costPlanks", cost.Planks),
                 StrategyDebugLogger.F("builders", builders.Count));
         }
 
@@ -247,6 +252,13 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
+            if (NeededPlanks > 0
+                && StrategyStorageYard.TryFindConstructionPickup(this, StrategyConstructionResourceKind.Planks, footprintBounds.center, out source, out pickupCell))
+            {
+                kind = StrategyConstructionResourceKind.Planks;
+                return true;
+            }
+
             return false;
         }
 
@@ -290,6 +302,10 @@ namespace ProjectUnknown.Strategy
             {
                 deliveredStone = Mathf.Min(cost.Stone, deliveredStone + amount);
             }
+            else if (kind == StrategyConstructionResourceKind.Planks)
+            {
+                deliveredPlanks = Mathf.Min(cost.Planks, deliveredPlanks + amount);
+            }
 
             UpdateVisuals();
             StrategyDebugLogger.Info(
@@ -301,6 +317,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("amount", amount),
                 StrategyDebugLogger.F("deliveredLogs", deliveredLogs),
                 StrategyDebugLogger.F("deliveredStone", deliveredStone),
+                StrategyDebugLogger.F("deliveredPlanks", deliveredPlanks),
                 StrategyDebugLogger.F("resourcesComplete", ResourcesComplete));
         }
 
@@ -329,14 +346,20 @@ namespace ProjectUnknown.Strategy
 
         public string GetHudStatusText()
         {
-            return "Resources: Logs "
+            string resources = "Resources: Logs "
                 + deliveredLogs
                 + "/"
                 + cost.Logs
                 + ", Stone "
                 + deliveredStone
                 + "/"
-                + cost.Stone
+                + cost.Stone;
+            if (cost.Planks > 0 || deliveredPlanks > 0)
+            {
+                resources += ", Planks " + deliveredPlanks + "/" + cost.Planks;
+            }
+
+            return resources
                 + "\n"
                 + "Builders: "
                 + builders.Count
@@ -462,32 +485,5 @@ namespace ProjectUnknown.Strategy
             return false;
         }
 
-        private void CompleteConstruction()
-        {
-            if (completed)
-            {
-                return;
-            }
-
-            completed = true;
-            StrategyStorageYard.ReleaseConstructionReservations(this);
-            StrategyDebugLogger.Info(
-                "Construction",
-                "Completed",
-                StrategyDebugLogger.F("tool", tool),
-                StrategyDebugLogger.F("origin", origin),
-                StrategyDebugLogger.F("builders", builders.Count));
-
-            for (int i = builders.Count - 1; i >= 0; i--)
-            {
-                StrategyResidentAgent builder = builders[i];
-                if (builder != null)
-                {
-                    builder.NotifyConstructionCompleted(this);
-                }
-            }
-
-            placement?.CompleteConstructionSite(this);
-        }
     }
 }

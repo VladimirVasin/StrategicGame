@@ -94,6 +94,12 @@ namespace ProjectUnknown.Strategy
                 AddResidents(stonecutterCamp.Workers, results);
             }
 
+            StrategySawmill sawmill = building.GetComponent<StrategySawmill>();
+            if (sawmill != null)
+            {
+                AddResidents(sawmill.Workers, results);
+            }
+
             StrategyMine mine = building.GetComponent<StrategyMine>();
             if (mine != null)
             {

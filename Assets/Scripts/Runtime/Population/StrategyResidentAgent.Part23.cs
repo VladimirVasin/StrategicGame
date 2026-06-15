@@ -256,7 +256,7 @@ namespace ProjectUnknown.Strategy
 
         private bool TryStartStorageCarriedReturn(string reason)
         {
-            return TryStartCarriedResourceReturn(reason) || TryStartCoalReturn(reason);
+            return TryStartCarriedResourceReturn(reason) || TryStartCoalReturn(reason) || TryStartPlanksReturn(reason);
         }
 
         private void ReleaseActiveStorageWorkReservations()
@@ -265,8 +265,10 @@ namespace ProjectUnknown.Strategy
             activeStoneSource?.ReleaseStoredStoneReservation(this);
             activeIronSource?.ReleaseStoredIronReservation(this);
             activeCoalSource?.ReleaseStoredCoalReservation(this);
+            activePlanksSource?.ReleaseStoredPlanksReservation(this);
             activeLooseLogSource?.ReleaseStorageReservation(this);
             activeLooseStoneSource?.ReleaseStorageReservation(this);
+            activeLoosePlanksSource?.ReleaseStorageReservation(this);
         }
 
         private void ClearActiveStorageSources()
@@ -275,8 +277,10 @@ namespace ProjectUnknown.Strategy
             activeStoneSource = null;
             activeIronSource = null;
             activeCoalSource = null;
+            activePlanksSource = null;
             activeLooseLogSource = null;
             activeLooseStoneSource = null;
+            activeLoosePlanksSource = null;
         }
 
         private void SetCarriedCoalVisible(bool visible)

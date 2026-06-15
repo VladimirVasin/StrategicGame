@@ -23,6 +23,7 @@ namespace ProjectUnknown.Strategy
         public int WorkerCount => workers.Count;
         public int IronStored => ironStored;
         public int AvailableIron => Mathf.Max(0, ironStored - reservedIron);
+        public bool HasStorageSpace => HasStorageSpaceFor(1);
         public Vector2Int Origin => building != null ? building.Origin : Vector2Int.zero;
         public Bounds FootprintBounds => building != null ? building.FootprintBounds : new Bounds(transform.position, Vector3.one);
 
@@ -164,7 +165,7 @@ namespace ProjectUnknown.Strategy
         public bool TryReserveIronDeposit(object owner, out StrategyIronDeposit deposit)
         {
             deposit = null;
-            if (iron == null || building == null)
+            if (iron == null || building == null || !HasStorageSpace)
             {
                 return false;
             }
@@ -300,14 +301,25 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            ironStored += amount;
+            ironStored = StrategyProductionStorage.AddCapped(ironStored, ironStored, amount, out int accepted);
+            if (accepted <= 0)
+            {
+                return;
+            }
+
             UpdateStockVisual();
             StrategyDebugLogger.Info(
                 "Mine",
                 "IronStored",
                 StrategyDebugLogger.F("mineOrigin", Origin),
-                StrategyDebugLogger.F("added", amount),
+                StrategyDebugLogger.F("added", accepted),
+                StrategyDebugLogger.F("rejected", amount - accepted),
                 StrategyDebugLogger.F("stock", ironStored));
+        }
+
+        public bool HasStorageSpaceFor(int amount)
+        {
+            return StrategyProductionStorage.CanAccept(ironStored, amount);
         }
 
         public string GetHudStatusText()
@@ -320,7 +332,7 @@ namespace ProjectUnknown.Strategy
                 + "/"
                 + MaxWorkers
                 + "\nIron: "
-                + ironStored
+                + StrategyProductionStorage.Format(ironStored)
                 + (reservedIron > 0 ? " (" + reservedIron + " reserved)" : string.Empty)
                 + "\nDeposits: "
                 + deposits;

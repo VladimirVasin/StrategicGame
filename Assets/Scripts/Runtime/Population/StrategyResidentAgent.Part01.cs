@@ -184,6 +184,7 @@ namespace ProjectUnknown.Strategy
             CancelGranaryWork(true);
             CancelHunterWork(true);
             CancelFisherWork(true);
+            CancelSawmillWork(true);
             CancelForageWork(false);
             CancelHouseholdFoodWork(false);
             activeGarden = null;
@@ -198,6 +199,7 @@ namespace ProjectUnknown.Strategy
             carriedLogAmount = 0;
             carriedStoneAmount = 0;
             carriedIronAmount = 0;
+            carriedPlanksAmount = 0;
             carriedGameAmount = 0;
             carriedFishAmount = 0;
             carriedForageAmount = 0;
@@ -205,6 +207,7 @@ namespace ProjectUnknown.Strategy
             SetCarriedLogsVisible(false);
             SetCarriedStoneVisible(false);
             SetCarriedIronVisible(false);
+            SetCarriedPlanksVisible(false);
             SetCarriedGameVisible(false);
             SetCarriedFishVisible(false);
             SetCarriedForageVisible(false);
@@ -223,6 +226,7 @@ namespace ProjectUnknown.Strategy
             int droppedStone = carriedStoneAmount;
             int droppedIron = carriedIronAmount;
             int droppedCoal = carriedCoalAmount;
+            int droppedPlanks = carriedPlanksAmount;
             int droppedGame = carriedGameAmount;
             int droppedFish = carriedFishAmount;
             int droppedForage = carriedForageAmount;
@@ -231,6 +235,7 @@ namespace ProjectUnknown.Strategy
                 && droppedStone <= 0
                 && droppedIron <= 0
                 && droppedCoal <= 0
+                && droppedPlanks <= 0
                 && droppedGame <= 0
                 && droppedFish <= 0
                 && droppedForage <= 0)
@@ -241,14 +246,19 @@ namespace ProjectUnknown.Strategy
 
             if (map != null && map.TryWorldToCell(transform.position, out Vector2Int cell))
             {
-                if (droppedLogs > 0 || droppedStone > 0)
+                bool droppedConstructionPlanks = droppedPlanks > 0
+                    && (carriedConstructionReturnResource == StrategyConstructionResourceKind.Planks
+                        || activeConstructionResource == StrategyConstructionResourceKind.Planks
+                        || IsConstructionActivity(activity));
+                if (droppedLogs > 0 || droppedStone > 0 || droppedConstructionPlanks)
                 {
                     StrategyLooseConstructionResourcePile.Create(
                         map,
                         cell,
                         transform.position,
                         droppedLogs,
-                        droppedStone);
+                        droppedStone,
+                        droppedConstructionPlanks ? droppedPlanks : 0);
                     StrategyDebugLogger.Warn(
                         "Construction",
                         "CarriedConstructionResourcesDroppedOnDeath",
@@ -256,13 +266,19 @@ namespace ProjectUnknown.Strategy
                         StrategyDebugLogger.F("origin", cell),
                         StrategyDebugLogger.F("logs", droppedLogs),
                         StrategyDebugLogger.F("stone", droppedStone),
+                        StrategyDebugLogger.F("planks", droppedConstructionPlanks ? droppedPlanks : 0),
                         StrategyDebugLogger.F("reservation", "cleared"));
+                    if (droppedConstructionPlanks)
+                    {
+                        droppedPlanks = 0;
+                    }
                 }
 
                 DropLooseCarriedResourceOnDeath(cell, StrategyResourceType.Game, droppedGame);
                 DropLooseCarriedResourceOnDeath(cell, StrategyResourceType.Fish, droppedFish);
                 DropLooseCarriedResourceOnDeath(cell, StrategyResourceType.Iron, droppedIron);
                 DropLooseCarriedResourceOnDeath(cell, StrategyResourceType.Coal, droppedCoal);
+                DropLooseCarriedResourceOnDeath(cell, StrategyResourceType.Planks, droppedPlanks);
                 DropLooseCarriedResourceOnDeath(cell, droppedForageResource, droppedForage);
             }
             else
@@ -275,6 +291,7 @@ namespace ProjectUnknown.Strategy
                     StrategyDebugLogger.F("stone", droppedStone),
                     StrategyDebugLogger.F("iron", droppedIron),
                     StrategyDebugLogger.F("coal", droppedCoal),
+                    StrategyDebugLogger.F("planks", droppedPlanks),
                     StrategyDebugLogger.F("game", droppedGame),
                     StrategyDebugLogger.F("fish", droppedFish),
                     StrategyDebugLogger.F("forageResource", droppedForageResource),
@@ -285,6 +302,7 @@ namespace ProjectUnknown.Strategy
             carriedStoneAmount = 0;
             carriedIronAmount = 0;
             carriedCoalAmount = 0;
+            carriedPlanksAmount = 0;
             carriedGameAmount = 0;
             carriedFishAmount = 0;
             carriedForageAmount = 0;
@@ -295,6 +313,7 @@ namespace ProjectUnknown.Strategy
             SetCarriedStoneVisible(false);
             SetCarriedIronVisible(false);
             SetCarriedCoalVisible(false);
+            SetCarriedPlanksVisible(false);
             SetCarriedGameVisible(false);
             SetCarriedFishVisible(false);
             SetCarriedForageVisible(false);
@@ -452,32 +471,5 @@ namespace ProjectUnknown.Strategy
             }
         }
 
-        public bool FollowRefugeePath(IReadOnlyList<Vector3> worldPath, bool leaving)
-        {
-            path.Clear();
-            if (worldPath != null)
-            {
-                for (int i = 0; i < worldPath.Count; i++)
-                {
-                    Vector3 point = worldPath[i];
-                    path.Add(new Vector3(point.x, point.y, -0.08f));
-                }
-            }
-
-            pathIndex = 0;
-            hasTarget = path.Count > 0;
-            activity = leaving ? ResidentActivity.LeavingSettlement : ResidentActivity.ArrivingAsRefugee;
-            waitTimer = 0f;
-            usingWorkSprite = false;
-            appliedWorkFrame = -1;
-            if (!hasTarget)
-            {
-                activity = ResidentActivity.Idle;
-                waitTimer = Random.Range(0.35f, 0.85f);
-                UseIdleSprite();
-            }
-
-            return hasTarget;
-        }
     }
 }

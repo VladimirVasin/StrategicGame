@@ -21,6 +21,7 @@ namespace ProjectUnknown.Strategy
             activeLogSource = null;
             activeStoneSource = null;
             activeIronSource = null;
+            activePlanksSource = null;
             transform.localRotation = Quaternion.identity;
             transform.localScale = Vector3.one;
             UseIdleSprite();
@@ -33,6 +34,7 @@ namespace ProjectUnknown.Strategy
         {
             activeGameSource = null;
             activeFishSource = null;
+            activeGranaryDeliveryTarget = null;
             transform.localRotation = Quaternion.identity;
             transform.localScale = Vector3.one;
             UseIdleSprite();
@@ -81,6 +83,8 @@ namespace ProjectUnknown.Strategy
             return carriedLogAmount > 0
                 || carriedStoneAmount > 0
                 || carriedIronAmount > 0
+                || carriedCoalAmount > 0
+                || carriedPlanksAmount > 0
                 || carriedGameAmount > 0
                 || carriedFishAmount > 0;
         }
@@ -106,6 +110,13 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            if (activeConstructionResource == StrategyConstructionResourceKind.Planks && carriedPlanksAmount > 0)
+            {
+                carriedConstructionReturnSite = constructionSite;
+                carriedConstructionReturnResource = StrategyConstructionResourceKind.Planks;
+                return;
+            }
+
             if (carriedLogAmount > 0)
             {
                 carriedConstructionReturnSite = constructionSite;
@@ -117,6 +128,13 @@ namespace ProjectUnknown.Strategy
             {
                 carriedConstructionReturnSite = constructionSite;
                 carriedConstructionReturnResource = StrategyConstructionResourceKind.Stone;
+                return;
+            }
+
+            if (carriedPlanksAmount > 0)
+            {
+                carriedConstructionReturnSite = constructionSite;
+                carriedConstructionReturnResource = StrategyConstructionResourceKind.Planks;
             }
         }
 
@@ -141,9 +159,13 @@ namespace ProjectUnknown.Strategy
                 return 0;
             }
 
-            int needed = resource == StrategyConstructionResourceKind.Logs
-                ? candidate.NeededLogs
-                : candidate.NeededStone;
+            int needed = resource switch
+            {
+                StrategyConstructionResourceKind.Logs => candidate.NeededLogs,
+                StrategyConstructionResourceKind.Stone => candidate.NeededStone,
+                StrategyConstructionResourceKind.Planks => candidate.NeededPlanks,
+                _ => 0
+            };
             if (needed <= 0)
             {
                 ClearCarriedConstructionReturnReservation();
@@ -168,7 +190,9 @@ namespace ProjectUnknown.Strategy
             path.Clear();
             pathIndex = 0;
             ClearCarriedConstructionReturnReservation();
-            if (IsReturningCarriedResourceActivity(activity))
+            if (IsReturningCarriedResourceActivity(activity)
+                || activity == ResidentActivity.ReturningCoalToStorage
+                || activity == ResidentActivity.ReturningPlanksToStorage)
             {
                 activity = GetRestingActivity();
             }
@@ -229,9 +253,19 @@ namespace ProjectUnknown.Strategy
                 return TryStartMaterialReturn(StrategyConstructionResourceKind.Stone, reason);
             }
 
+            if (carriedPlanksAmount > 0)
+            {
+                return TryStartPlanksReturn(reason);
+            }
+
             if (carriedIronAmount > 0)
             {
                 return TryStartIronReturn(reason);
+            }
+
+            if (carriedCoalAmount > 0)
+            {
+                return TryStartCoalReturn(reason);
             }
 
             if (carriedGameAmount > 0)
@@ -339,152 +373,5 @@ namespace ProjectUnknown.Strategy
             return StoreCarriedFoodImmediately(resource, reason, "no_reachable_granary");
         }
 
-        private void CompleteCarriedResourceReturn()
-        {
-            ResidentActivity completedActivity = activity;
-            int amount = 0;
-            object resource = StrategyConstructionResourceKind.None;
-            Vector2Int storageOrigin = Vector2Int.zero;
-
-            if (completedActivity == ResidentActivity.ReturningLogsToStorage)
-            {
-                amount = carriedLogAmount;
-                resource = StrategyConstructionResourceKind.Logs;
-                if (returnStorageYard == null)
-                {
-                    if (!StoreCarriedMaterialImmediately(
-                        StrategyConstructionResourceKind.Logs,
-                        "resource_return_completed",
-                        "target_missing"))
-                    {
-                        ScheduleCarriedResourceReturnRetry();
-                    }
-
-                    return;
-                }
-                else
-                {
-                    storageOrigin = returnStorageYard.Origin;
-                    StoreReturnedMaterialAtYard(returnStorageYard, StrategyConstructionResourceKind.Logs, amount);
-                }
-
-                carriedLogAmount = 0;
-                SetCarriedLogsVisible(false);
-            }
-            else if (completedActivity == ResidentActivity.ReturningStoneToStorage)
-            {
-                amount = carriedStoneAmount;
-                resource = StrategyConstructionResourceKind.Stone;
-                if (returnStorageYard == null)
-                {
-                    if (!StoreCarriedMaterialImmediately(
-                        StrategyConstructionResourceKind.Stone,
-                        "resource_return_completed",
-                        "target_missing"))
-                    {
-                        ScheduleCarriedResourceReturnRetry();
-                    }
-
-                    return;
-                }
-                else
-                {
-                    storageOrigin = returnStorageYard.Origin;
-                    StoreReturnedMaterialAtYard(returnStorageYard, StrategyConstructionResourceKind.Stone, amount);
-                }
-
-                carriedStoneAmount = 0;
-                SetCarriedStoneVisible(false);
-            }
-            else if (completedActivity == ResidentActivity.ReturningIronToStorage)
-            {
-                if (!CompleteIronResourceReturn(out amount, out resource, out storageOrigin))
-                {
-                    return;
-                }
-            }
-            else if (completedActivity == ResidentActivity.ReturningGameToGranary)
-            {
-                amount = carriedGameAmount;
-                resource = StrategyResourceType.Game;
-                if (returnGranary == null)
-                {
-                    if (!StoreCarriedFoodImmediately(
-                        StrategyResourceType.Game,
-                        "resource_return_completed",
-                        "target_missing"))
-                    {
-                        ScheduleCarriedResourceReturnRetry();
-                    }
-
-                    return;
-                }
-                else
-                {
-                    storageOrigin = returnGranary.Origin;
-                    returnGranary.AddGame(amount);
-                }
-
-                carriedGameAmount = 0;
-                SetCarriedGameVisible(false);
-            }
-            else if (completedActivity == ResidentActivity.ReturningFishToGranary)
-            {
-                amount = carriedFishAmount;
-                resource = StrategyResourceType.Fish;
-                if (returnGranary == null)
-                {
-                    if (!StoreCarriedFoodImmediately(
-                        StrategyResourceType.Fish,
-                        "resource_return_completed",
-                        "target_missing"))
-                    {
-                        ScheduleCarriedResourceReturnRetry();
-                    }
-
-                    return;
-                }
-                else
-                {
-                    storageOrigin = returnGranary.Origin;
-                    returnGranary.AddFish(amount);
-                }
-
-                carriedFishAmount = 0;
-                SetCarriedFishVisible(false);
-                SetFishingLineVisible(false);
-            }
-
-            returnStorageYard = null;
-            returnGranary = null;
-            transform.localRotation = Quaternion.identity;
-            transform.localScale = Vector3.one;
-            UseIdleSprite();
-
-            if (amount <= 0)
-            {
-                ClearEmptyCarriedResourceReturn("completed_without_resource");
-                return;
-            }
-
-            StrategyDebugLogger.Info(
-                "Logistics",
-                "CarriedResourceReturned",
-                StrategyDebugLogger.F("resident", FullName),
-                StrategyDebugLogger.F("resource", resource),
-                StrategyDebugLogger.F("amount", amount),
-                StrategyDebugLogger.F("storageOrigin", storageOrigin));
-
-            activity = GetRestingActivity();
-            hasTarget = false;
-            path.Clear();
-            pathIndex = 0;
-            waitTimer = Random.Range(0.25f, 0.70f);
-
-            if (HasAnyCarriedResource() && TryStartCarriedResourceReturn("remaining_carried_resource"))
-            {
-                return;
-            }
-        }
     }
 }

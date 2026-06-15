@@ -198,7 +198,7 @@ namespace ProjectUnknown.Strategy
 
             string body = "Cancel construction of "
                 + GetBuildingTitle(site.Tool)
-                + "?\nDelivered Logs and Stone will be left on the ground for storage workers or other builders.";
+                + "?\nDelivered materials will be left on the ground for storage workers or other builders.";
             confirmationDialog.Show(
                 "Cancel Construction",
                 body,

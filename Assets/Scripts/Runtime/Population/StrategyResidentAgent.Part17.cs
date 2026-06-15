@@ -94,8 +94,10 @@ namespace ProjectUnknown.Strategy
             return residentActivity == ResidentActivity.MovingToConstructionStorage
                 || residentActivity == ResidentActivity.PickingUpConstructionLogs
                 || residentActivity == ResidentActivity.PickingUpConstructionStone
+                || residentActivity == ResidentActivity.PickingUpConstructionPlanks
                 || residentActivity == ResidentActivity.CarryingConstructionLogs
                 || residentActivity == ResidentActivity.CarryingConstructionStone
+                || residentActivity == ResidentActivity.CarryingConstructionPlanks
                 || residentActivity == ResidentActivity.DepositingConstructionResource
                 || residentActivity == ResidentActivity.MovingToConstructionSite
                 || residentActivity == ResidentActivity.BuildingConstruction;
@@ -467,33 +469,5 @@ namespace ProjectUnknown.Strategy
             }
         }
 
-        private void SyncReadabilityRenderers()
-        {
-            if (spriteRenderer == null)
-            {
-                return;
-            }
-
-            if (outlineRenderer != null)
-            {
-                outlineRenderer.sprite = spriteRenderer.sprite;
-                outlineRenderer.flipX = spriteRenderer.flipX;
-                outlineRenderer.sortingOrder = Mathf.Max(0, spriteRenderer.sortingOrder - 1);
-            }
-
-            if (shadowRenderer != null)
-            {
-                shadowRenderer.sortingOrder = Mathf.Max(0, spriteRenderer.sortingOrder - 2);
-            }
-
-            SyncCarriedLogsRenderer();
-            SyncCarriedStoneRenderer();
-            SyncCarriedIronRenderer();
-            SyncCarriedCoalRenderer();
-            SyncCarriedGameRenderer();
-            SyncCarriedFishRenderer();
-            SyncCarriedForageRenderer();
-            SyncFishingLineRenderer();
-        }
     }
 }

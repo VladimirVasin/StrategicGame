@@ -50,6 +50,10 @@ namespace ProjectUnknown.Strategy
             {
                 blockFootprint = new Vector2Int(footprint.x, footprint.y + 1);
             }
+            else if (tool == StrategyBuildTool.Sawmill)
+            {
+                blockFootprint = new Vector2Int(footprint.x, footprint.y + 1);
+            }
             else if (tool == StrategyBuildTool.Mine)
             {
                 blockFootprint = new Vector2Int(footprint.x, footprint.y + 1);
@@ -143,9 +147,9 @@ namespace ProjectUnknown.Strategy
             }
         }
 
-        private void SpawnLooseConstructionResources(StrategyConstructionSite site, int logs, int stone)
+        private void SpawnLooseConstructionResources(StrategyConstructionSite site, int logs, int stone, int planks)
         {
-            if (site == null || (logs <= 0 && stone <= 0))
+            if (site == null || (logs <= 0 && stone <= 0 && planks <= 0))
             {
                 return;
             }
@@ -154,7 +158,7 @@ namespace ProjectUnknown.Strategy
             Vector3 world = site.HasBridgeSpan
                 ? map.GetCellRectWorld(resourceCell, Vector2Int.one).center
                 : site.FootprintBounds.center;
-            StrategyLooseConstructionResourcePile.Create(map, resourceCell, world, logs, stone);
+            StrategyLooseConstructionResourcePile.Create(map, resourceCell, world, logs, stone, planks);
         }
 
         private static bool TryGetCellBounds(
@@ -284,6 +288,7 @@ namespace ProjectUnknown.Strategy
                 StrategyBuildTool.House => "HM",
                 StrategyBuildTool.LumberjackCamp => "LC",
                 StrategyBuildTool.StonecutterCamp => "SC",
+                StrategyBuildTool.Sawmill => "SW",
                 StrategyBuildTool.Mine => "MN",
                 StrategyBuildTool.CoalPit => "CP",
                 StrategyBuildTool.HunterCamp => "HC",

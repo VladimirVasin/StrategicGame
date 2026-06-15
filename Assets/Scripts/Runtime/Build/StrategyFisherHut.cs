@@ -19,11 +19,19 @@ namespace ProjectUnknown.Strategy
         private object fishReservationOwner;
         private int reservedFish;
         private int fishStored;
+        private static readonly Vector2Int[] CardinalFishingDirections =
+        {
+            new Vector2Int(1, 0),
+            new Vector2Int(-1, 0),
+            new Vector2Int(0, 1),
+            new Vector2Int(0, -1)
+        };
 
         public IReadOnlyList<StrategyResidentAgent> Workers => workers;
         public int WorkerCount => workers.Count;
         public int FishStored => fishStored;
         public int AvailableFish => Mathf.Max(0, fishStored - reservedFish);
+        public bool HasStorageSpace => HasStorageSpaceFor(1);
         public Vector2Int Origin => building != null ? building.Origin : Vector2Int.zero;
         public Bounds FootprintBounds => building != null ? building.FootprintBounds : new Bounds(transform.position, Vector3.one);
 
@@ -170,7 +178,9 @@ namespace ProjectUnknown.Strategy
                 wildlife = StrategyWildlifeController.Active;
             }
 
-            return wildlife != null && wildlife.TryReserveFishForFishing(Origin, WorkRadius, owner, out fish);
+            return HasStorageSpace
+                && wildlife != null
+                && wildlife.TryReserveFishForFishing(Origin, WorkRadius, owner, out fish);
         }
 
         public bool TryFindFishingCell(StrategyFishAgent fish, out Vector2Int cell)
@@ -349,14 +359,25 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            fishStored += amount;
+            fishStored = StrategyProductionStorage.AddCapped(fishStored, fishStored, amount, out int accepted);
+            if (accepted <= 0)
+            {
+                return;
+            }
+
             UpdateStockVisual();
             StrategyDebugLogger.Info(
                 "FisherHut",
                 "FishStored",
                 StrategyDebugLogger.F("hutOrigin", Origin),
-                StrategyDebugLogger.F("added", amount),
+                StrategyDebugLogger.F("added", accepted),
+                StrategyDebugLogger.F("rejected", amount - accepted),
                 StrategyDebugLogger.F("stock", fishStored));
+        }
+
+        public bool HasStorageSpaceFor(int amount)
+        {
+            return StrategyProductionStorage.CanAccept(fishStored, amount);
         }
 
         public string GetHudStatusText()
@@ -368,34 +389,35 @@ namespace ProjectUnknown.Strategy
                 + MaxWorkers
                 + "\n"
                 + "Fish: "
-                + fishStored
+                + StrategyProductionStorage.Format(fishStored)
                 + (reservedFish > 0 ? " (reserved: " + reservedFish + ")" : string.Empty)
                 + "\n"
                 + "Fish nearby: "
                 + availableFish;
         }
 
+        public bool IsValidFishingStandCell(Vector2Int cell)
+        {
+            return IsFishingStandCell(cell);
+        }
+
         private bool IsFishingStandCell(Vector2Int cell)
         {
-            if (map == null || !map.IsCellWalkable(cell))
+            if (map == null
+                || !map.IsCellWalkable(cell)
+                || !map.TryGetCell(cell.x, cell.y, out CityMapCell standCell)
+                || standCell.Kind == CityMapCellKind.Water)
             {
                 return false;
             }
 
-            for (int y = -1; y <= 1; y++)
+            for (int i = 0; i < CardinalFishingDirections.Length; i++)
             {
-                for (int x = -1; x <= 1; x++)
+                Vector2Int neighborCell = cell + CardinalFishingDirections[i];
+                if (map.TryGetCell(neighborCell.x, neighborCell.y, out CityMapCell neighbor)
+                    && neighbor.Kind == CityMapCellKind.Water)
                 {
-                    if (x == 0 && y == 0)
-                    {
-                        continue;
-                    }
-
-                    if (map.TryGetCell(cell.x + x, cell.y + y, out CityMapCell neighbor)
-                        && neighbor.Kind == CityMapCellKind.Water)
-                    {
-                        return true;
-                    }
+                    return true;
                 }
             }
 

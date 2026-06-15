@@ -12,7 +12,7 @@ namespace ProjectUnknown.Strategy
         private const float YoungGrowSecondsMax = 54f;
         private const int RequiredChopHits = 6;
         private const int RequiredBuckHits = 4;
-        private const int LogsPerTree = 3;
+        public const int LogsPerTree = 3;
         private const float ChopShakeSeconds = 0.22f;
         private const float BuckShakeSeconds = 0.16f;
         private const float FallSeconds = 1.25f;

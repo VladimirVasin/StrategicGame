@@ -143,6 +143,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("upgradeOrigin", origin),
                 StrategyDebugLogger.F("costLogs", spendResources ? cost.Logs : 0),
                 StrategyDebugLogger.F("costStone", spendResources ? cost.Stone : 0),
+                StrategyDebugLogger.F("costPlanks", spendResources ? cost.Planks : 0),
                 StrategyDebugLogger.F("reason", installReason));
             return true;
         }
@@ -151,7 +152,7 @@ namespace ProjectUnknown.Strategy
         {
             return type == StrategyBuildingUpgradeType.GardenBeds
                 ? new StrategyConstructionResourceCost(2, 1)
-                : new StrategyConstructionResourceCost(4, 2);
+                : new StrategyConstructionResourceCost(3, 1, 2);
         }
 
         public static bool CanAffordUpgrade(StrategyBuildingUpgradeType type)

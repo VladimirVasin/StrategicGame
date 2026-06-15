@@ -14,6 +14,7 @@ namespace ProjectUnknown.Strategy
         House,
         LumberjackCamp,
         StonecutterCamp,
+        Sawmill,
         Mine,
         CoalPit,
         HunterCamp,

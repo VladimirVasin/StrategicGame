@@ -86,7 +86,8 @@ namespace ProjectUnknown.Strategy
                 || builderWorkplace != null
                 || granaryWorkplace != null
                 || !CanWork
-                || coalWorkCooldown > 0f)
+                || coalWorkCooldown > 0f
+                || !coalPitWorkplace.HasStorageSpace)
             {
                 return false;
             }

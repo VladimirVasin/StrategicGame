@@ -83,6 +83,13 @@ namespace ProjectUnknown.Strategy
                     FillRect(texture, 18, 18, 9, 6, new Color32(28, 32, 35, 255));
                     FillRect(texture, 22, 17, 3, 2, new Color32(104, 118, 124, 255));
                     break;
+                case StrategyProfessionType.Sawyer:
+                    FillRect(texture, 7, 19, 18, 4, wood);
+                    FillRect(texture, 8, 20, 16, 1, brightWood);
+                    DrawLine(texture, 8, 26, 25, 9, shadow, 3);
+                    DrawLine(texture, 8, 26, 25, 9, metal, 2);
+                    DrawLine(texture, 13, 16, 26, 25, darkMetal, 1);
+                    break;
                 case StrategyProfessionType.Hunter:
                     DrawArc(texture, 10, 16, 9, new Color32(126, 82, 43, 255));
                     DrawLine(texture, 12, 7, 12, 25, amber, 1);

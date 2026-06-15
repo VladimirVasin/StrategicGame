@@ -14,6 +14,7 @@ namespace ProjectUnknown.Strategy
             }
 
             activeFishTarget = null;
+            ClearFishingStandTracking();
             fishingLineCast = false;
             activity = ResidentActivity.Idle;
             hasTarget = false;
@@ -278,6 +279,7 @@ namespace ProjectUnknown.Strategy
             carriedStoneAmount = 0;
             carriedIronAmount = 0;
             carriedCoalAmount = 0;
+            carriedPlanksAmount = 0;
             carriedGameAmount = 0;
             carriedFishAmount = 0;
             carriedForageAmount = 0;
@@ -286,6 +288,7 @@ namespace ProjectUnknown.Strategy
             SetCarriedStoneVisible(false);
             SetCarriedIronVisible(false);
             SetCarriedCoalVisible(false);
+            SetCarriedPlanksVisible(false);
             SetCarriedGameVisible(false);
             SetCarriedFishVisible(false);
             SetCarriedForageVisible(false);
@@ -443,6 +446,7 @@ namespace ProjectUnknown.Strategy
                 SetCarriedStoneVisible(false);
                 SetCarriedIronVisible(false);
                 SetCarriedCoalVisible(false);
+                SetCarriedPlanksVisible(false);
                 SetCarriedGameVisible(false);
                 SetCarriedFishVisible(false);
                 SetCarriedForageVisible(false);

@@ -43,8 +43,8 @@ namespace ProjectUnknown.Strategy
             if (score > 0.80f && roll < GetIronChance(cell.Kind, 0.036f))
             {
                 Vector2Int veinFootprint = Hash01(map.ActiveSeed, cell.X, cell.Y, 2707) > 0.58f
-                    ? new Vector2Int(2, 1)
-                    : Vector2Int.one;
+                    ? new Vector2Int(3, 2)
+                    : new Vector2Int(2, 2);
                 return TryCreateIronDeposit(
                     cell,
                     veinFootprint,
@@ -59,9 +59,12 @@ namespace ProjectUnknown.Strategy
 
             if (score > 0.64f && roll < GetIronChance(cell.Kind, 0.075f))
             {
+                Vector2Int stainedFootprint = Hash01(map.ActiveSeed, cell.X, cell.Y, 2713) > 0.52f
+                    ? new Vector2Int(2, 2)
+                    : new Vector2Int(2, 1);
                 return TryCreateIronDeposit(
                     cell,
-                    Vector2Int.one,
+                    stainedFootprint,
                     StrategyNaturePropKind.IronStainedGround,
                     StrategyIronDepositKind.IronStainedGround,
                     2719,
@@ -102,7 +105,7 @@ namespace ProjectUnknown.Strategy
                 -0.14f);
 
             float scale = Mathf.Lerp(minScale, maxScale, Hash01(map.ActiveSeed, cell.X, cell.Y, salt + 17));
-            prop.transform.localScale = Vector3.one * scale;
+            prop.transform.localScale = GetMineralVisualScale(scale, footprint);
 
             SpriteRenderer renderer = prop.AddComponent<SpriteRenderer>();
             renderer.sprite = StrategyNatureSpriteFactory.GetSprite(propKind, variant);
@@ -125,7 +128,8 @@ namespace ProjectUnknown.Strategy
                 spawnedIronStainedGround++;
             }
 
-            return true;
+            return !HasIronDepositNearFootprint(origin, footprint, 0)
+                && !HasCoalDepositNearFootprint(origin, footprint, 1);
         }
 
         private bool CanPlaceIronFootprint(Vector2Int origin, Vector2Int footprint)
@@ -176,8 +180,8 @@ namespace ProjectUnknown.Strategy
                 if (score > 0.72f && Hash01(map.ActiveSeed, x, y, 2813) > 0.58f)
                 {
                     Vector2Int footprint = Hash01(map.ActiveSeed, x, y, 2819) > 0.66f
-                        ? new Vector2Int(2, 1)
-                        : Vector2Int.one;
+                        ? new Vector2Int(3, 2)
+                        : new Vector2Int(2, 2);
                     if (TryCreateIronDeposit(
                         cell,
                         footprint,
@@ -193,9 +197,12 @@ namespace ProjectUnknown.Strategy
                     }
                 }
 
+                Vector2Int stainedFootprint = Hash01(map.ActiveSeed, x, y, 2831) > 0.52f
+                    ? new Vector2Int(2, 2)
+                    : new Vector2Int(2, 1);
                 TryCreateIronDeposit(
                     cell,
-                    Vector2Int.one,
+                    stainedFootprint,
                     StrategyNaturePropKind.IronStainedGround,
                     StrategyIronDepositKind.IronStainedGround,
                     2833,

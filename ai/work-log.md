@@ -8,6 +8,68 @@ Last updated: 2026-06-15
 
 ## Done
 
+### 2026-06-15 - Younger starter-family ages
+
+- Reduced starter parent ages so initial families no longer begin close to the old-age mortality band.
+- Starter fathers now spawn around ages 34-40, starter mothers around ages 33-38, and adult children around ages 16-18 while preserving a minimum 17-year parent-child age gap.
+- Kept the 1-2 adult children per starter family rule unchanged.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; `.cs` line-count scan found no files over 500 lines; `git diff --check` passed.
+
+### 2026-06-15 - Slightly faster active resident movement
+
+- Added a 15% movement-speed multiplier for residents while they are in non-idle activities.
+- Kept `Idle` and `TendingHousehold` movement at the existing base speed so casual wandering around home/camp does not speed up.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; `.cs` line-count scan found no files over 500 lines; `git diff --check` passed.
+
+### 2026-06-15 - Gentler pre-50 mortality curve
+
+- Reduced the base annual mortality curve so residents stay much safer before age 50.
+- The base annual risk is now about 0.02% at age 1, 0.2% at age 40, and 4% at age 50, with faster capped old-age growth after 50.
+- Kept the annual age-tick system and malnutrition mortality multipliers unchanged.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; `.cs` line-count scan found no files over 500 lines; `git diff --check` passed.
+
+### 2026-06-15 - Starter families with adult children
+
+- Changed startup population generation from 6 unrelated adults to 3 family blocks.
+- Each starter family now spawns with a father, a mother, and 1-2 adult children, all sharing a family name and parent/child links.
+- Parent ages are generated older than the adult children so initial kinship is plausible, and the camp fallback spawn ring now accounts for up to 12 starting residents.
+- Split startup-family spawning into `StrategyPopulationController.Part05.cs` to keep source files below the 500-line limit.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; `.cs` line-count scan found no files over 500 lines; `git diff --check` passed.
+
+### 2026-06-15 - Wildlife, mineral-field, and fishing fixes
+
+- Fixed wolf chase behavior so wolves continue moving toward the exact target position after reaching the target's map cell, preventing stalled hunts beside prey.
+- Changed Iron and Coal generation to use multi-cell walkable underground fields instead of single-cell spots, scale their visual surface marks by footprint, and reject adjacent opposite-mineral fields.
+- Tightened Fisher Hut stand-cell selection to land/shore cells with orthogonal adjacent water and added fisher cast validation so fishers abandon a cast if the reserved fish leaves cast range before the hook sequence.
+- Moved fisher cast/reel/deposit methods into `StrategyResidentAgent.Part33.cs` to keep source files below the 500-line limit.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; `.cs` line-count scan found no files over 500 lines; `git diff --check` passed.
+
+### 2026-06-15 - Planks in late construction costs
+
+- Extended construction resource costs, reservations, loose construction piles, builder carry/delivery states, cancellation cleanup, death drops, and storage-worker recovery to support Planks alongside Logs and Stone.
+- Added Plank costs only to later-stage options: Mine costs 5 Logs/5 Stone/3 Planks, Coal Pit costs 4 Logs/4 Stone/2 Planks, and Chicken Coop costs 3 Logs/1 Stone/2 Planks.
+- Left starter buildings and Sawmill construction without Plank requirements so the Plank production chain can be established before Planks are required.
+- Updated construction and upgrade HUD/status text to display only non-zero resource costs, including Planks when needed.
+- Split construction/logistics/resident helper methods into new partial files so runtime `.cs` files remain at or below the 500-line limit.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; `.cs` line-count scan found no files over 500 lines; `git diff --check` passed.
+
+### 2026-06-15 - Production stock caps and shared haulers
+
+- Added a shared `StrategyProductionStorage` local stock cap of 5 resources for production buildings.
+- Lumberjack Camps, Stonecutter Camps, Mines, Coal Pits, Hunter Camps, Fisher Huts, and Sawmills now stop starting new production when their local stock would exceed the cap; Sawmill counts Logs, Planks, and pending Planks against the same cap.
+- Storage Yards and Granaries remain uncapped storage buildings.
+- Storage Yard workers now also service Granaries by hauling reserved `Game`/`Fish` from Hunter Camps/Fisher Huts or loose food piles to the nearest Granary.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; `.cs` line-count scan found no files over 500 lines.
+
+### 2026-06-15 - Sawmill and Planks production chain
+
+- Added player-buildable `Sawmill` under Production with procedural 2.5D art, stock visuals, and an animated sawing work overlay.
+- Added `Planks` as a technical resource with HUD/resource icon, carried/loose visuals, Sawmill-local stock, and Storage Yard stock.
+- Added `Sawyer` as a Profession HUD role; assigned sawyers fetch reserved Logs from Storage Yards or Lumberjack Camps, carry them into the Sawmill, saw them into Planks while visible inside the building, and store Planks at the Sawmill.
+- Storage Yard workers now reserve Planks from Sawmills, haul them to Storage Yards, and return/drop Planks safely during cancellation/death cleanup.
+- Split new Sawmill/resident/selection/storage behavior into partial files to keep `.cs` source files at or below 500 lines.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; `.cs` line-count scan found no files over 500 lines; `git diff --check` passed.
+
 ### 2026-06-15 - Coal Pit mining and Coal logistics
 
 - Added player-buildable `Coal Pit` under Production with procedural 2.5D art, 2x2 footprint, Coal-under-footprint placement validation, and completed-building `StrategyCoalPit` worksite setup.

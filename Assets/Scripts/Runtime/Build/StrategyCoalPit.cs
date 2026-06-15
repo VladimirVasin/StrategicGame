@@ -23,6 +23,7 @@ namespace ProjectUnknown.Strategy
         public int WorkerCount => workers.Count;
         public int CoalStored => coalStored;
         public int AvailableCoal => Mathf.Max(0, coalStored - reservedCoal);
+        public bool HasStorageSpace => HasStorageSpaceFor(1);
         public Vector2Int Origin => building != null ? building.Origin : Vector2Int.zero;
         public Bounds FootprintBounds => building != null ? building.FootprintBounds : new Bounds(transform.position, Vector3.one);
 
@@ -163,7 +164,7 @@ namespace ProjectUnknown.Strategy
         public bool TryMineCoal(int amount, out int minedAmount)
         {
             minedAmount = 0;
-            if (amount <= 0 || !EnsureActiveDeposit())
+            if (amount <= 0 || !HasStorageSpaceFor(amount) || !EnsureActiveDeposit())
             {
                 return false;
             }
@@ -290,14 +291,25 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            coalStored += amount;
+            coalStored = StrategyProductionStorage.AddCapped(coalStored, coalStored, amount, out int accepted);
+            if (accepted <= 0)
+            {
+                return;
+            }
+
             UpdateStockVisual();
             StrategyDebugLogger.Info(
                 "Coal",
                 "CoalStoredAtPit",
                 StrategyDebugLogger.F("pitOrigin", Origin),
-                StrategyDebugLogger.F("added", amount),
+                StrategyDebugLogger.F("added", accepted),
+                StrategyDebugLogger.F("rejected", amount - accepted),
                 StrategyDebugLogger.F("stock", coalStored));
+        }
+
+        public bool HasStorageSpaceFor(int amount)
+        {
+            return StrategyProductionStorage.CanAccept(coalStored, amount);
         }
 
         public string GetHudStatusText()
@@ -315,7 +327,7 @@ namespace ProjectUnknown.Strategy
                 + "/"
                 + MaxWorkers
                 + "\nCoal: "
-                + coalStored
+                + StrategyProductionStorage.Format(coalStored)
                 + (reservedCoal > 0 ? " (" + reservedCoal + " reserved)" : string.Empty)
                 + "\nDeposits: "
                 + deposits;

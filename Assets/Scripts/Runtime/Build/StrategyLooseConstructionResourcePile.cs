@@ -10,19 +10,24 @@ namespace ProjectUnknown.Strategy
 
         private readonly Dictionary<object, int> logReservations = new();
         private readonly Dictionary<object, int> stoneReservations = new();
+        private readonly Dictionary<object, int> plankReservations = new();
         private readonly Dictionary<StrategyResidentAgent, PickupReservation> pickupReservations = new();
         private CityMapController map;
         private SpriteRenderer logsRenderer;
         private SpriteRenderer stoneRenderer;
+        private SpriteRenderer planksRenderer;
         private Vector2Int origin;
         private Bounds footprintBounds;
         private int logs;
         private int stone;
+        private int planks;
 
         public int Logs => logs;
         public int Stone => stone;
+        public int Planks => planks;
         public int AvailableLogs => Mathf.Max(0, logs - CountReservations(logReservations) - CountPickupReservations(StrategyConstructionResourceKind.Logs));
         public int AvailableStone => Mathf.Max(0, stone - CountReservations(stoneReservations) - CountPickupReservations(StrategyConstructionResourceKind.Stone));
+        public int AvailablePlanks => Mathf.Max(0, planks - CountReservations(plankReservations) - CountPickupReservations(StrategyConstructionResourceKind.Planks));
         public Vector2Int Origin => origin;
         public Bounds FootprintBounds => footprintBounds;
 
@@ -36,12 +41,20 @@ namespace ProjectUnknown.Strategy
                 + stone
                 + " (available "
                 + AvailableStone
+                + ")\nPlanks: "
+                + planks
+                + " (available "
+                + AvailablePlanks
                 + ")";
             info = new StrategyWorldInspectInfo(
                 "Loose Building Materials",
                 "Construction resource pile",
                 body,
-                logs > 0 && logsRenderer != null ? logsRenderer.sprite : stoneRenderer != null ? stoneRenderer.sprite : null,
+                logs > 0 && logsRenderer != null
+                    ? logsRenderer.sprite
+                    : stone > 0 && stoneRenderer != null
+                        ? stoneRenderer.sprite
+                        : planksRenderer != null ? planksRenderer.sprite : null,
                 origin,
                 true);
             return true;
@@ -59,9 +72,10 @@ namespace ProjectUnknown.Strategy
             Vector2Int origin,
             Vector3 world,
             int logs,
-            int stone)
+            int stone,
+            int planks = 0)
         {
-            if (logs <= 0 && stone <= 0)
+            if (logs <= 0 && stone <= 0 && planks <= 0)
             {
                 return null;
             }
@@ -70,7 +84,7 @@ namespace ProjectUnknown.Strategy
             GameObject obj = new GameObject("Loose Construction Resources");
             obj.transform.SetParent(root, false);
             StrategyLooseConstructionResourcePile pile = obj.AddComponent<StrategyLooseConstructionResourcePile>();
-            pile.Configure(map, origin, world, logs, stone);
+            pile.Configure(map, origin, world, logs, stone, planks);
             return pile;
         }
 
@@ -78,6 +92,7 @@ namespace ProjectUnknown.Strategy
         {
             int totalLogs = 0;
             int totalStone = 0;
+            int totalPlanks = 0;
             StrategyLooseConstructionResourcePile[] piles = Object.FindObjectsByType<StrategyLooseConstructionResourcePile>();
             for (int i = 0; i < piles.Length; i++)
             {
@@ -89,9 +104,10 @@ namespace ProjectUnknown.Strategy
 
                 totalLogs += pile.AvailableLogs;
                 totalStone += pile.AvailableStone;
+                totalPlanks += pile.AvailablePlanks;
             }
 
-            return new StrategyConstructionResourceCost(totalLogs, totalStone);
+            return new StrategyConstructionResourceCost(totalLogs, totalStone, totalPlanks);
         }
 
         public static bool TryReserveNearestForStorage(
@@ -163,6 +179,26 @@ namespace ProjectUnknown.Strategy
             return requested - remaining;
         }
 
+        public static int SpendAvailableResources(
+            StrategyConstructionResourceKind kind,
+            int requested,
+            Vector3 nearWorld)
+        {
+            if (requested <= 0 || kind == StrategyConstructionResourceKind.None)
+            {
+                return 0;
+            }
+
+            int remaining = requested;
+            StrategyLooseConstructionResourcePile[] piles = GetPilesSortedByDistance(nearWorld);
+            for (int i = 0; i < piles.Length && remaining > 0; i++)
+            {
+                remaining -= piles[i] != null ? piles[i].SpendAvailable(kind, remaining) : 0;
+            }
+
+            return requested - remaining;
+        }
+
         public static bool TryFindConstructionPickup(
             object owner,
             StrategyConstructionResourceKind kind,
@@ -219,9 +255,7 @@ namespace ProjectUnknown.Strategy
                     continue;
                 }
 
-                int available = kind == StrategyConstructionResourceKind.Logs
-                    ? candidate.AvailableLogs
-                    : candidate.AvailableStone;
+                int available = candidate.GetAvailable(kind);
                 if (available <= 0 || !candidate.TryFindPickupCell(out pickupCell))
                 {
                     continue;
@@ -246,12 +280,13 @@ namespace ProjectUnknown.Strategy
             return false;
         }
 
-        public void Configure(CityMapController mapController, Vector2Int pileOrigin, Vector3 world, int initialLogs, int initialStone)
+        public void Configure(CityMapController mapController, Vector2Int pileOrigin, Vector3 world, int initialLogs, int initialStone, int initialPlanks)
         {
             map = mapController;
             origin = pileOrigin;
             logs = Mathf.Max(0, initialLogs);
             stone = Mathf.Max(0, initialStone);
+            planks = Mathf.Max(0, initialPlanks);
             footprintBounds = map != null && map.TryGetCell(origin.x, origin.y, out _)
                 ? map.GetCellRectWorld(origin, Vector2Int.one)
                 : new Bounds(world, Vector3.one);
@@ -263,7 +298,8 @@ namespace ProjectUnknown.Strategy
                 "LooseConstructionResourcesCreated",
                 StrategyDebugLogger.F("origin", origin),
                 StrategyDebugLogger.F("logs", logs),
-                StrategyDebugLogger.F("stone", stone));
+                StrategyDebugLogger.F("stone", stone),
+                StrategyDebugLogger.F("planks", planks));
         }
 
         public bool TryFindPickupCell(out Vector2Int cell)
@@ -307,7 +343,7 @@ namespace ProjectUnknown.Strategy
             }
 
             ReleaseStorageReservation(worker);
-            int available = kind == StrategyConstructionResourceKind.Logs ? AvailableLogs : AvailableStone;
+            int available = GetAvailable(kind);
             if (available < amount)
             {
                 return false;
@@ -417,63 +453,5 @@ namespace ProjectUnknown.Strategy
             return amount > 0;
         }
 
-        public bool TryRestoreConstructionReservation(
-            object owner,
-            StrategyConstructionResourceKind kind,
-            int amount)
-        {
-            if (owner == null || amount <= 0 || kind == StrategyConstructionResourceKind.None)
-            {
-                return false;
-            }
-
-            Dictionary<object, int> reservations = kind == StrategyConstructionResourceKind.Logs ? logReservations : stoneReservations;
-            int available = kind == StrategyConstructionResourceKind.Logs ? AvailableLogs : AvailableStone;
-            int reservedAmount = Mathf.Min(amount, available);
-            if (reservedAmount <= 0)
-            {
-                return false;
-            }
-
-            AddReservation(reservations, owner, reservedAmount);
-            StrategyDebugLogger.Info(
-                "Build",
-                "LooseConstructionResourceReservationRestored",
-                StrategyDebugLogger.F("origin", origin),
-                StrategyDebugLogger.F("owner", owner),
-                StrategyDebugLogger.F("resource", kind),
-                StrategyDebugLogger.F("amount", reservedAmount));
-            return true;
-        }
-
-        private int ReserveConstruction(object owner, StrategyConstructionResourceKind kind, int requested)
-        {
-            Dictionary<object, int> reservations = kind == StrategyConstructionResourceKind.Logs ? logReservations : stoneReservations;
-            int available = kind == StrategyConstructionResourceKind.Logs ? AvailableLogs : AvailableStone;
-            int amount = Mathf.Min(Mathf.Max(0, requested), available);
-            if (amount <= 0)
-            {
-                return 0;
-            }
-
-            AddReservation(reservations, owner, amount);
-            return amount;
-        }
-
-        private bool HasAvailableConstructionReservation(object owner, StrategyConstructionResourceKind kind)
-        {
-            return GetAvailableReservationAmount(owner, kind) > 0;
-        }
-
-        private int GetAvailableReservationAmount(object owner, StrategyConstructionResourceKind kind)
-        {
-            Dictionary<object, int> reservations = kind == StrategyConstructionResourceKind.Logs ? logReservations : stoneReservations;
-            if (!reservations.TryGetValue(owner, out int reserved) || reserved <= 0)
-            {
-                return 0;
-            }
-
-            return Mathf.Max(0, reserved - CountPickupReservations(owner, kind));
-        }
     }
 }

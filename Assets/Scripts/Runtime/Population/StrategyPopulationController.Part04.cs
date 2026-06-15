@@ -47,6 +47,7 @@ namespace ProjectUnknown.Strategy
             UnassignFromStonecutterCamp(resident);
             UnassignFromMine(resident);
             UnassignFromCoalPit(resident);
+            UnassignFromSawmill(resident);
             UnassignFromHunterCamp(resident);
             UnassignFromFisherHut(resident);
             UnassignFromStorageWorkerRole(resident);
@@ -137,6 +138,27 @@ namespace ProjectUnknown.Strategy
             }
 
             resident.ClearCoalPitWorkplace(pit);
+        }
+
+        private static void UnassignFromSawmill(StrategyResidentAgent resident)
+        {
+            StrategySawmill sawmill = resident.SawmillWorkplace;
+            if (sawmill == null)
+            {
+                return;
+            }
+
+            IReadOnlyList<StrategyResidentAgent> workers = sawmill.Workers;
+            for (int i = workers.Count - 1; i >= 0; i--)
+            {
+                if (workers[i] == resident)
+                {
+                    sawmill.UnassignWorkerAt(i);
+                    return;
+                }
+            }
+
+            resident.ClearSawmillWorkplace(sawmill);
         }
 
         private static void UnassignFromHunterCamp(StrategyResidentAgent resident)

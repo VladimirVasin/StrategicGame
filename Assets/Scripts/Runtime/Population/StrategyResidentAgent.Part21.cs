@@ -51,6 +51,18 @@ namespace ProjectUnknown.Strategy
             {
                 StartMiningCoalInPit();
             }
+            else if (activity == ResidentActivity.MovingToSawmillLogPickup)
+            {
+                StartPickingUpSawmillLogs();
+            }
+            else if (activity == ResidentActivity.CarryingLogsToSawmill)
+            {
+                StartDepositingSawmillLogs();
+            }
+            else if (activity == ResidentActivity.MovingToSawmill)
+            {
+                StartSawingLogs();
+            }
             else if (activity == ResidentActivity.MovingToStoragePickup)
             {
                 StartPickingUpStorageLogs();
@@ -83,12 +95,21 @@ namespace ProjectUnknown.Strategy
             {
                 StartDepositingStorageCoal();
             }
+            else if (activity == ResidentActivity.MovingToStoragePlanksPickup)
+            {
+                StartPickingUpStoragePlanks();
+            }
+            else if (activity == ResidentActivity.CarryingPlanksToStorage)
+            {
+                StartDepositingStoragePlanks();
+            }
             else if (activity == ResidentActivity.MovingToConstructionStorage)
             {
                 StartPickingUpConstructionResource();
             }
             else if (activity == ResidentActivity.CarryingConstructionLogs
-                || activity == ResidentActivity.CarryingConstructionStone)
+                || activity == ResidentActivity.CarryingConstructionStone
+                || activity == ResidentActivity.CarryingConstructionPlanks)
             {
                 StartDepositingConstructionResource();
             }
@@ -147,6 +168,10 @@ namespace ProjectUnknown.Strategy
             else if (activity == ResidentActivity.ReturningCoalToStorage)
             {
                 CompleteCoalResourceReturn();
+            }
+            else if (activity == ResidentActivity.ReturningPlanksToStorage)
+            {
+                CompletePlanksResourceReturn();
             }
             else if (activity == ResidentActivity.MovingToPlantTree)
             {

@@ -58,6 +58,11 @@ namespace ProjectUnknown.Strategy
                 coalWorkCooldown -= Time.deltaTime;
             }
 
+            if (sawmillWorkCooldown > 0f)
+            {
+                sawmillWorkCooldown -= Time.deltaTime;
+            }
+
             if (logisticsWorkCooldown > 0f)
             {
                 logisticsWorkCooldown -= Time.deltaTime;
@@ -150,6 +155,24 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            if (activity == ResidentActivity.PickingUpSawmillLogs)
+            {
+                UpdatePickingUpSawmillLogs();
+                return;
+            }
+
+            if (activity == ResidentActivity.DepositingSawmillLogs)
+            {
+                UpdateDepositingSawmillLogs();
+                return;
+            }
+
+            if (activity == ResidentActivity.SawingLogs)
+            {
+                UpdateSawingLogs();
+                return;
+            }
+
             if (activity == ResidentActivity.PickingUpStorageLogs)
             {
                 UpdatePickingUpStorageLogs();
@@ -198,6 +221,18 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            if (activity == ResidentActivity.PickingUpStoragePlanks)
+            {
+                UpdatePickingUpStoragePlanks();
+                return;
+            }
+
+            if (activity == ResidentActivity.DepositingStoragePlanks)
+            {
+                UpdateDepositingStoragePlanks();
+                return;
+            }
+
             if (activity == ResidentActivity.PickingUpGranaryGame)
             {
                 UpdatePickingUpGranaryGame();
@@ -235,7 +270,8 @@ namespace ProjectUnknown.Strategy
             }
 
             if (activity == ResidentActivity.PickingUpConstructionLogs
-                || activity == ResidentActivity.PickingUpConstructionStone)
+                || activity == ResidentActivity.PickingUpConstructionStone
+                || activity == ResidentActivity.PickingUpConstructionPlanks)
             {
                 UpdatePickingUpConstructionResource();
                 return;
@@ -336,6 +372,16 @@ namespace ProjectUnknown.Strategy
                     return;
                 }
 
+                if (activity == ResidentActivity.ReturningPlanksToStorage)
+                {
+                    if (!TryStartPlanksReturn("resource_return_retry", true))
+                    {
+                        SchedulePlanksResourceReturnRetry();
+                    }
+
+                    return;
+                }
+
                 if (TryStartHouseholdFoodPickupTask())
                 {
                     return;
@@ -362,6 +408,11 @@ namespace ProjectUnknown.Strategy
                 }
 
                 if (TryStartCoalPitTask())
+                {
+                    return;
+                }
+
+                if (TryStartSawmillTask())
                 {
                     return;
                 }
@@ -408,7 +459,7 @@ namespace ProjectUnknown.Strategy
             }
 
             Vector3 previous = transform.position;
-            transform.position = Vector3.MoveTowards(transform.position, targetWorld, MoveSpeed * Time.deltaTime);
+            transform.position = Vector3.MoveTowards(transform.position, targetWorld, GetCurrentMoveSpeed() * Time.deltaTime);
             Vector3 delta = transform.position - previous;
             if (spriteRenderer != null && Mathf.Abs(delta.x) > 0.001f)
             {

@@ -258,6 +258,14 @@ namespace ProjectUnknown.Strategy
             }
 
             Vector2Int logsCell = activeTree.Cell;
+            if (!workplace.HasStorageSpaceFor(StrategyForestryTree.LogsPerTree))
+            {
+                activeTree.Release(this);
+                activeTree = null;
+                ResetLumberWorkToIdle();
+                return;
+            }
+
             if (!workplace.TryFindDropoffCell(out Vector2Int dropoffCell)
                 || !TryBuildPathTo(dropoffCell))
             {
@@ -380,6 +388,12 @@ namespace ProjectUnknown.Strategy
         private void UpdateMiningStone()
         {
             if (activeStoneDeposit == null || activeStoneDeposit.IsDepleted || stoneWorkplace == null)
+            {
+                ResetStoneWorkToIdle();
+                return;
+            }
+
+            if (!stoneWorkplace.HasStorageSpace)
             {
                 ResetStoneWorkToIdle();
                 return;

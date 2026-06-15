@@ -15,13 +15,18 @@ namespace ProjectUnknown.Strategy
         private SpriteRenderer stoneStockRenderer;
         private SpriteRenderer ironStockRenderer;
         private SpriteRenderer coalStockRenderer;
+        private SpriteRenderer planksStockRenderer;
         private readonly Dictionary<object, int> constructionLogReservations = new();
         private readonly Dictionary<object, int> constructionStoneReservations = new();
+        private readonly Dictionary<object, int> constructionPlankReservations = new();
         private readonly Dictionary<StrategyResidentAgent, ConstructionPickupReservation> constructionPickupReservations = new();
+        private object logisticsLogsReservationOwner;
+        private int reservedLogisticsLogs;
         private int logsStored;
         private int stoneStored;
         private int ironStored;
         private int coalStored;
+        private int planksStored;
 
         public IReadOnlyList<StrategyResidentAgent> Workers => workers;
         public IReadOnlyList<StrategyResidentAgent> Builders => builders;
@@ -31,8 +36,11 @@ namespace ProjectUnknown.Strategy
         public int StoneStored => stoneStored;
         public int IronStored => ironStored;
         public int CoalStored => coalStored;
-        public int AvailableConstructionLogs => Mathf.Max(0, logsStored - CountReservations(constructionLogReservations));
+        public int PlanksStored => planksStored;
+        public int AvailableConstructionLogs => Mathf.Max(0, logsStored - CountReservations(constructionLogReservations) - reservedLogisticsLogs);
+        public int AvailableLogisticsLogs => Mathf.Max(0, logsStored - CountReservations(constructionLogReservations) - reservedLogisticsLogs);
         public int AvailableConstructionStone => Mathf.Max(0, stoneStored - CountReservations(constructionStoneReservations));
+        public int AvailableConstructionPlanks => Mathf.Max(0, planksStored - CountReservations(constructionPlankReservations));
         public Vector2Int Origin => building != null ? building.Origin : Vector2Int.zero;
         public Bounds FootprintBounds => building != null ? building.FootprintBounds : new Bounds(transform.position, Vector3.one);
 
@@ -109,6 +117,7 @@ namespace ProjectUnknown.Strategy
         {
             int logs = 0;
             int stone = 0;
+            int planks = 0;
             StrategyStorageYard[] yards = Object.FindObjectsByType<StrategyStorageYard>();
             for (int i = 0; i < yards.Length; i++)
             {
@@ -120,11 +129,15 @@ namespace ProjectUnknown.Strategy
 
                 logs += yard.AvailableConstructionLogs;
                 stone += yard.AvailableConstructionStone;
+                planks += yard.AvailableConstructionPlanks;
             }
 
             StrategyConstructionResourceCost loose = StrategyLooseConstructionResourcePile.GetTotalAvailableResources();
             int productionStone = StrategyStonecutterCamp.GetTotalAvailableConstructionStone();
-            return new StrategyConstructionResourceCost(logs + loose.Logs, stone + loose.Stone + productionStone);
+            return new StrategyConstructionResourceCost(
+                logs + loose.Logs,
+                stone + loose.Stone + productionStone,
+                planks + loose.Planks);
         }
 
         public static bool CanAffordConstruction(StrategyConstructionResourceCost cost)
@@ -151,19 +164,29 @@ namespace ProjectUnknown.Strategy
                     StrategyDebugLogger.F("reason", reason),
                     StrategyDebugLogger.F("costLogs", cost.Logs),
                     StrategyDebugLogger.F("costStone", cost.Stone),
+                    StrategyDebugLogger.F("costPlanks", cost.Planks),
                     StrategyDebugLogger.F("availableLogs", available.Logs),
-                    StrategyDebugLogger.F("availableStone", available.Stone));
+                    StrategyDebugLogger.F("availableStone", available.Stone),
+                    StrategyDebugLogger.F("availablePlanks", available.Planks));
                 return false;
             }
 
             StrategyStorageYard[] yards = GetYardsSortedByDistance(nearWorld);
             int remainingLogs = cost.Logs;
+            remainingLogs -= StrategyLooseConstructionResourcePile.SpendAvailableResources(
+                StrategyConstructionResourceKind.Logs,
+                remainingLogs,
+                nearWorld);
             for (int i = 0; i < yards.Length && remainingLogs > 0; i++)
             {
                 remainingLogs -= yards[i].SpendAvailableLogs(remainingLogs);
             }
 
             int remainingStone = cost.Stone;
+            remainingStone -= StrategyLooseConstructionResourcePile.SpendAvailableResources(
+                StrategyConstructionResourceKind.Stone,
+                remainingStone,
+                nearWorld);
             for (int i = 0; i < yards.Length && remainingStone > 0; i++)
             {
                 remainingStone -= yards[i].SpendAvailableStone(remainingStone);
@@ -174,14 +197,25 @@ namespace ProjectUnknown.Strategy
                 remainingStone -= StrategyStonecutterCamp.SpendAvailableConstructionStone(remainingStone, nearWorld);
             }
 
-            if (remainingLogs > 0 || remainingStone > 0)
+            int remainingPlanks = cost.Planks;
+            remainingPlanks -= StrategyLooseConstructionResourcePile.SpendAvailableResources(
+                StrategyConstructionResourceKind.Planks,
+                remainingPlanks,
+                nearWorld);
+            for (int i = 0; i < yards.Length && remainingPlanks > 0; i++)
+            {
+                remainingPlanks -= yards[i].SpendAvailablePlanks(remainingPlanks);
+            }
+
+            if (remainingLogs > 0 || remainingStone > 0 || remainingPlanks > 0)
             {
                 StrategyDebugLogger.Warn(
                     "StorageYard",
                     "ConstructionSpendShort",
                     StrategyDebugLogger.F("reason", reason),
                     StrategyDebugLogger.F("remainingLogs", remainingLogs),
-                    StrategyDebugLogger.F("remainingStone", remainingStone));
+                    StrategyDebugLogger.F("remainingStone", remainingStone),
+                    StrategyDebugLogger.F("remainingPlanks", remainingPlanks));
                 return false;
             }
 
@@ -190,7 +224,8 @@ namespace ProjectUnknown.Strategy
                 "ConstructionResourcesSpent",
                 StrategyDebugLogger.F("reason", reason),
                 StrategyDebugLogger.F("logs", cost.Logs),
-                StrategyDebugLogger.F("stone", cost.Stone));
+                StrategyDebugLogger.F("stone", cost.Stone),
+                StrategyDebugLogger.F("planks", cost.Planks));
             return true;
         }
 
@@ -245,7 +280,19 @@ namespace ProjectUnknown.Strategy
                 remainingStone -= StrategyStonecutterCamp.ReserveConstructionStone(owner, remainingStone, nearWorld);
             }
 
-            if (remainingLogs > 0 || remainingStone > 0)
+            int remainingPlanks = cost.Planks;
+            remainingPlanks -= StrategyLooseConstructionResourcePile.ReserveConstructionResources(
+                owner,
+                StrategyConstructionResourceKind.Planks,
+                remainingPlanks,
+                nearWorld);
+            for (int i = 0; i < yards.Length && remainingPlanks > 0; i++)
+            {
+                int reserved = yards[i].ReserveConstructionPlanks(owner, remainingPlanks);
+                remainingPlanks -= reserved;
+            }
+
+            if (remainingLogs > 0 || remainingStone > 0 || remainingPlanks > 0)
             {
                 ReleaseConstructionReservations(owner);
                 return false;
@@ -256,7 +303,8 @@ namespace ProjectUnknown.Strategy
                 "ConstructionReserved",
                 StrategyDebugLogger.F("owner", owner),
                 StrategyDebugLogger.F("logs", cost.Logs),
-                StrategyDebugLogger.F("stone", cost.Stone));
+                StrategyDebugLogger.F("stone", cost.Stone),
+                StrategyDebugLogger.F("planks", cost.Planks));
             return true;
         }
 
@@ -409,74 +457,5 @@ namespace ProjectUnknown.Strategy
             return true;
         }
 
-        public void ReleaseConstructionPickupReservation(StrategyResidentAgent builder)
-        {
-            if (builder == null || !constructionPickupReservations.Remove(builder))
-            {
-                return;
-            }
-
-            StrategyDebugLogger.Info(
-                "StorageYard",
-                "ConstructionPickupReleased",
-                StrategyDebugLogger.F("yardOrigin", Origin),
-                StrategyDebugLogger.F("builder", builder.FullName));
-        }
-
-        public bool TryTakeReservedConstructionResource(
-            object owner,
-            StrategyResidentAgent builder,
-            StrategyConstructionResourceKind kind,
-            int maxAmount,
-            out int amount)
-        {
-            amount = 0;
-            if (owner == null
-                || builder == null
-                || maxAmount <= 0
-                || !constructionPickupReservations.TryGetValue(builder, out ConstructionPickupReservation pickup)
-                || pickup == null
-                || !ReferenceEquals(pickup.Owner, owner)
-                || pickup.Kind != kind
-                || pickup.Amount <= 0)
-            {
-                return false;
-            }
-
-            int requested = Mathf.Min(maxAmount, pickup.Amount);
-            if (kind == StrategyConstructionResourceKind.Logs)
-            {
-                amount = TakeReservedConstruction(owner, constructionLogReservations, ref logsStored, requested);
-            }
-            else if (kind == StrategyConstructionResourceKind.Stone)
-            {
-                amount = TakeReservedConstruction(owner, constructionStoneReservations, ref stoneStored, requested);
-            }
-
-            if (amount <= 0)
-            {
-                constructionPickupReservations.Remove(builder);
-                return false;
-            }
-
-            pickup.Amount -= amount;
-            if (pickup.Amount <= 0)
-            {
-                constructionPickupReservations.Remove(builder);
-            }
-
-            UpdateStockVisual();
-            StrategyDebugLogger.Info(
-                "StorageYard",
-                "ConstructionResourceTaken",
-                StrategyDebugLogger.F("yardOrigin", Origin),
-                StrategyDebugLogger.F("owner", owner),
-                StrategyDebugLogger.F("builder", builder.FullName),
-                StrategyDebugLogger.F("resource", kind),
-                StrategyDebugLogger.F("amount", amount),
-                StrategyDebugLogger.F("logsStock", logsStored),
-                StrategyDebugLogger.F("stoneStock", stoneStored));
-            return true;
-        }
     }
 }

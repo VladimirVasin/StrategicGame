@@ -290,7 +290,7 @@ namespace ProjectUnknown.Strategy
             path.Clear();
             pathIndex = 0;
 
-            if ((activeGameSource == null && activeLooseFoodSource == null) || granaryWorkplace == null)
+            if ((activeGameSource == null && activeLooseFoodSource == null) || activeGranaryDeliveryTarget == null)
             {
                 ResetGranaryWorkToIdle();
                 return;
@@ -307,7 +307,7 @@ namespace ProjectUnknown.Strategy
                 "GamePickupStarted",
                 StrategyDebugLogger.F("resident", FullName),
                 StrategyDebugLogger.F("sourceOrigin", activeLooseFoodSource != null ? activeLooseFoodSource.Origin : activeGameSource.Origin),
-                StrategyDebugLogger.F("granaryOrigin", granaryWorkplace.Origin));
+                StrategyDebugLogger.F("granaryOrigin", activeGranaryDeliveryTarget.Origin));
         }
 
         private void UpdatePickingUpGranaryGame()
@@ -320,8 +320,8 @@ namespace ProjectUnknown.Strategy
             }
 
             if ((activeGameSource == null && activeLooseFoodSource == null)
-                || granaryWorkplace == null
-                || !granaryWorkplace.TryFindDropoffCell(out Vector2Int dropoffCell)
+                || activeGranaryDeliveryTarget == null
+                || !activeGranaryDeliveryTarget.TryFindDropoffCell(out Vector2Int dropoffCell)
                 || !TryBuildPathTo(dropoffCell))
             {
                 activeGameSource?.ReleaseStoredGameReservation(this);
@@ -331,7 +331,7 @@ namespace ProjectUnknown.Strategy
                     "GamePickupRejected",
                     StrategyDebugLogger.F("resident", FullName),
                     StrategyDebugLogger.F("reason", "no_granary_path"),
-                    StrategyDebugLogger.F("granaryOrigin", granaryWorkplace != null ? granaryWorkplace.Origin : Vector2Int.zero));
+                    StrategyDebugLogger.F("granaryOrigin", activeGranaryDeliveryTarget != null ? activeGranaryDeliveryTarget.Origin : Vector2Int.zero));
                 ResetGranaryWorkToIdle();
                 return;
             }
@@ -384,7 +384,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("amount", carriedGameAmount),
                 StrategyDebugLogger.F("sourceOrigin", sourceOrigin),
                 StrategyDebugLogger.F("dropoffCell", dropoffCell),
-                StrategyDebugLogger.F("granaryOrigin", granaryWorkplace.Origin));
+                StrategyDebugLogger.F("granaryOrigin", activeGranaryDeliveryTarget.Origin));
         }
 
         private void StartDepositingGranaryGame()
@@ -394,9 +394,9 @@ namespace ProjectUnknown.Strategy
             pathIndex = 0;
             activity = ResidentActivity.DepositingGranaryGame;
             lumberWorkTimer = Random.Range(LogisticsDepositSecondsMin, LogisticsDepositSecondsMax);
-            if (granaryWorkplace != null)
+            if (activeGranaryDeliveryTarget != null)
             {
-                FaceWorldPoint(granaryWorkplace.FootprintBounds.center);
+                FaceWorldPoint(activeGranaryDeliveryTarget.FootprintBounds.center);
             }
 
             StrategyDebugLogger.Info(
@@ -404,7 +404,7 @@ namespace ProjectUnknown.Strategy
                 "GameDepositStarted",
                 StrategyDebugLogger.F("resident", FullName),
                 StrategyDebugLogger.F("amount", carriedGameAmount),
-                StrategyDebugLogger.F("granaryOrigin", granaryWorkplace != null ? granaryWorkplace.Origin : Vector2Int.zero));
+                StrategyDebugLogger.F("granaryOrigin", activeGranaryDeliveryTarget != null ? activeGranaryDeliveryTarget.Origin : Vector2Int.zero));
         }
         private void UpdateDepositingGranaryGame()
         {
@@ -417,9 +417,9 @@ namespace ProjectUnknown.Strategy
             }
 
             int depositedAmount = carriedGameAmount;
-            if (granaryWorkplace != null)
+            if (activeGranaryDeliveryTarget != null)
             {
-                granaryWorkplace.AddGame(depositedAmount);
+                activeGranaryDeliveryTarget.AddGame(depositedAmount);
             }
 
             carriedGameAmount = 0;
@@ -429,8 +429,8 @@ namespace ProjectUnknown.Strategy
                 "GameDelivered",
                 StrategyDebugLogger.F("resident", FullName),
                 StrategyDebugLogger.F("amount", depositedAmount),
-                StrategyDebugLogger.F("granaryOrigin", granaryWorkplace != null ? granaryWorkplace.Origin : Vector2Int.zero),
-                StrategyDebugLogger.F("granaryStock", granaryWorkplace != null ? granaryWorkplace.GameStored : -1));
+                StrategyDebugLogger.F("granaryOrigin", activeGranaryDeliveryTarget != null ? activeGranaryDeliveryTarget.Origin : Vector2Int.zero),
+                StrategyDebugLogger.F("granaryStock", activeGranaryDeliveryTarget != null ? activeGranaryDeliveryTarget.GameStored : -1));
             CompleteGranaryDelivery();
         }
 
@@ -440,7 +440,7 @@ namespace ProjectUnknown.Strategy
             path.Clear();
             pathIndex = 0;
 
-            if ((activeFishSource == null && activeLooseFoodSource == null) || granaryWorkplace == null)
+            if ((activeFishSource == null && activeLooseFoodSource == null) || activeGranaryDeliveryTarget == null)
             {
                 ResetGranaryWorkToIdle();
                 return;
@@ -457,7 +457,7 @@ namespace ProjectUnknown.Strategy
                 "FishPickupStarted",
                 StrategyDebugLogger.F("resident", FullName),
                 StrategyDebugLogger.F("sourceOrigin", activeLooseFoodSource != null ? activeLooseFoodSource.Origin : activeFishSource.Origin),
-                StrategyDebugLogger.F("granaryOrigin", granaryWorkplace.Origin));
+                StrategyDebugLogger.F("granaryOrigin", activeGranaryDeliveryTarget.Origin));
         }
     }
 }

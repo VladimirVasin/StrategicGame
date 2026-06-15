@@ -116,7 +116,9 @@ namespace ProjectUnknown.Strategy
         {
             return resource == StrategyResourceType.Stone
                 ? stoneStored
-                : resource == StrategyResourceType.Iron ? ironStored : resource == StrategyResourceType.Coal ? coalStored : 0;
+                : resource == StrategyResourceType.Iron
+                    ? ironStored
+                    : resource == StrategyResourceType.Coal ? coalStored : resource == StrategyResourceType.Planks ? planksStored : 0;
         }
 
         private static int CountAvailableIronSources()

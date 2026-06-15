@@ -477,22 +477,5 @@ namespace ProjectUnknown.Strategy
             rect.anchoredPosition = new Vector2(left, -top);
         }
 
-        private static string GetBuildingTitle(StrategyBuildTool tool)
-        {
-            return tool switch
-            {
-                StrategyBuildTool.House => "House",
-                StrategyBuildTool.LumberjackCamp => "Lumberjack Camp",
-                StrategyBuildTool.StonecutterCamp => "Stonecutter Camp",
-                StrategyBuildTool.Mine => "Mine",
-                StrategyBuildTool.CoalPit => "Coal Pit",
-                StrategyBuildTool.HunterCamp => "Hunter Camp",
-                StrategyBuildTool.FisherHut => "Fisher Hut",
-                StrategyBuildTool.StorageYard => "Storage Yard",
-                StrategyBuildTool.Granary => "Granary",
-                StrategyBuildTool.Bridge => "Bridge",
-                _ => tool.ToString()
-            };
-        }
     }
 }

@@ -16,6 +16,18 @@ namespace ProjectUnknown.Strategy
             return sprite;
         }
 
+        public static Sprite GetCarriedPlanksSprite()
+        {
+            const int cacheKey = 12720;
+            if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
+            {
+                sprite = CreateCarriedPlanksSprite();
+                CachedSprites[cacheKey] = sprite;
+            }
+
+            return sprite;
+        }
+
         private static Sprite CreateCoalDustGroundSprite(int variant)
         {
             Texture2D texture = CreateTexture(54, 34, $"Coal Dust Ground {variant + 1}");
@@ -82,6 +94,29 @@ namespace ProjectUnknown.Strategy
 
             texture.Apply(false, false);
             return Sprite.Create(texture, new Rect(2f, 4f, 30f, 17f), new Vector2(0.5f, 0.30f), StonePixelsPerUnit);
+        }
+
+        private static Sprite CreateCarriedPlanksSprite()
+        {
+            Texture2D texture = CreateTexture(38, 24, "Carried Planks");
+            Color outline = Rgb(76, 48, 29);
+            Color woodDark = Rgb(117, 69, 36);
+            Color wood = Rgb(175, 105, 52);
+            Color light = Rgb(221, 158, 79);
+
+            for (int i = 0; i < 4; i++)
+            {
+                int x = 4 + i * 3;
+                int y = 8 + i;
+                DrawLine(texture, P(x, y), P(x + 24, y + 3), outline);
+                DrawLine(texture, P(x, y + 1), P(x + 24, y + 4), outline);
+                DrawLine(texture, P(x, y - 1), P(x + 24, y + 2), outline);
+                DrawLine(texture, P(x + 1, y + 1), P(x + 23, y + 4), i % 2 == 0 ? wood : woodDark);
+                DrawLine(texture, P(x + 4, y + 1), P(x + 18, y + 3), light);
+            }
+
+            texture.Apply(false, false);
+            return Sprite.Create(texture, new Rect(2f, 5f, 34f, 16f), new Vector2(0.5f, 0.32f), StonePixelsPerUnit);
         }
 
         private static void DrawCoalCracks(Texture2D texture, int variant, Color dustLight, Color shine)

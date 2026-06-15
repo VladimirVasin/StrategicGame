@@ -355,11 +355,7 @@ namespace ProjectUnknown.Strategy
 
         private static string FormatUpgradeCost(StrategyConstructionResourceCost cost)
         {
-            return "Logs "
-                + cost.Logs
-                + " / "
-                + "Stone "
-                + cost.Stone;
+            return cost.ToDisplayText();
         }
 
         private void SetUpgradeActionsVisible(bool visible)

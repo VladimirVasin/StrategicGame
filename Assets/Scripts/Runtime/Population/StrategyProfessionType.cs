@@ -6,6 +6,7 @@ namespace ProjectUnknown.Strategy
         Stonecutter,
         Miner,
         CoalMiner,
+        Sawyer,
         Hunter,
         Fisher,
         StorageWorker,

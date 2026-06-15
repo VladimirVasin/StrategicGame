@@ -8,13 +8,20 @@ namespace ProjectUnknown.Strategy
 
         private bool TryStartGranaryTask()
         {
+            StrategyGranary targetGranary = granaryWorkplace;
+            if (targetGranary == null
+                && storageWorkplace != null
+                && !StrategyGranary.TryFindNearestGranary(storageWorkplace.FootprintBounds.center, out targetGranary))
+            {
+                return false;
+            }
+
             if (activity != ResidentActivity.Idle
-                || granaryWorkplace == null
+                || targetGranary == null
                 || workplace != null
                 || stoneWorkplace != null
                 || hunterWorkplace != null
                 || fisherWorkplace != null
-                || storageWorkplace != null
                 || builderWorkplace != null
                 || !CanWork
                 || logisticsWorkCooldown > 0f)
@@ -23,7 +30,7 @@ namespace ProjectUnknown.Strategy
             }
 
             if (StrategyLooseCarriedResourcePile.TryReserveNearestForGranary(
-                    granaryWorkplace,
+                    targetGranary,
                     this,
                     out StrategyLooseCarriedResourcePile looseFoodSource,
                     out StrategyResourceType looseResource,
@@ -44,6 +51,7 @@ namespace ProjectUnknown.Strategy
                 }
 
                 activeLooseFoodSource = looseFoodSource;
+                activeGranaryDeliveryTarget = targetGranary;
                 activity = looseResource == StrategyResourceType.Game
                     ? ResidentActivity.MovingToGranaryGamePickup
                     : ResidentActivity.MovingToGranaryFishPickup;
@@ -56,11 +64,11 @@ namespace ProjectUnknown.Strategy
                     StrategyDebugLogger.F("sourceOrigin", looseFoodSource.Origin),
                     StrategyDebugLogger.F("resource", looseResource),
                     StrategyDebugLogger.F("pickupCell", loosePickupCell),
-                    StrategyDebugLogger.F("granaryOrigin", granaryWorkplace.Origin));
+                    StrategyDebugLogger.F("granaryOrigin", targetGranary.Origin));
                 return true;
             }
 
-            if (!granaryWorkplace.TryReserveFoodSource(
+            if (!targetGranary.TryReserveFoodSource(
                     this,
                     out StrategyResourceType resource,
                     out StrategyHunterCamp gameSource,
@@ -89,6 +97,7 @@ namespace ProjectUnknown.Strategy
                 }
 
                 activeGameSource = gameSource;
+                activeGranaryDeliveryTarget = targetGranary;
                 activity = ResidentActivity.MovingToGranaryGamePickup;
                 hasTarget = true;
                 waitTimer = Random.Range(0.05f, 0.20f);
@@ -99,7 +108,7 @@ namespace ProjectUnknown.Strategy
                     StrategyDebugLogger.F("sourceOrigin", gameSource.Origin),
                     StrategyDebugLogger.F("resource", StrategyResourceType.Game),
                     StrategyDebugLogger.F("pickupCell", pickupCell),
-                    StrategyDebugLogger.F("granaryOrigin", granaryWorkplace.Origin));
+                    StrategyDebugLogger.F("granaryOrigin", targetGranary.Origin));
                 return true;
             }
 
@@ -122,6 +131,7 @@ namespace ProjectUnknown.Strategy
                 }
 
                 activeFishSource = fishSource;
+                activeGranaryDeliveryTarget = targetGranary;
                 activity = ResidentActivity.MovingToGranaryFishPickup;
                 hasTarget = true;
                 waitTimer = Random.Range(0.05f, 0.20f);
@@ -132,7 +142,7 @@ namespace ProjectUnknown.Strategy
                     StrategyDebugLogger.F("sourceOrigin", fishSource.Origin),
                     StrategyDebugLogger.F("resource", StrategyResourceType.Fish),
                     StrategyDebugLogger.F("pickupCell", pickupCell),
-                    StrategyDebugLogger.F("granaryOrigin", granaryWorkplace.Origin));
+                    StrategyDebugLogger.F("granaryOrigin", targetGranary.Origin));
                 return true;
             }
 
@@ -420,6 +430,7 @@ namespace ProjectUnknown.Strategy
                 || !TryBuildPathTo(fishingCell))
             {
                 activeFishTarget = null;
+                ClearFishingStandTracking();
                 activity = ResidentActivity.Idle;
                 fishingWorkCooldown = Random.Range(2.0f, 4.0f);
                 StrategyDebugLogger.Warn(
@@ -432,6 +443,8 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
+            activeFishingCell = fishingCell;
+            hasActiveFishingCell = true;
             activity = ResidentActivity.MovingToFishingSpot;
             hasTarget = true;
             waitTimer = Random.Range(0.04f, 0.18f);
@@ -445,48 +458,5 @@ namespace ProjectUnknown.Strategy
             return true;
         }
 
-        private bool TryMoveToTree(StrategyForestryTree tree)
-        {
-            if (tree == null || !TryFindTreeWorkCell(tree, out Vector2Int workCell))
-            {
-                StrategyDebugLogger.Warn(
-                    "Population",
-                    "LumberMoveRejected",
-                    StrategyDebugLogger.F("resident", FullName),
-                    StrategyDebugLogger.F("target", "tree"),
-                    StrategyDebugLogger.F("reason", tree == null ? "tree_missing" : "no_work_cell"),
-                    StrategyDebugLogger.F("treeCell", tree != null ? tree.Cell : Vector2Int.zero));
-                return false;
-            }
-
-            activeTree = tree;
-            activity = ResidentActivity.MovingToTree;
-            if (TryBuildPathTo(workCell))
-            {
-                hasTarget = true;
-                waitTimer = Random.Range(0.05f, 0.22f);
-                StrategyDebugLogger.Info(
-                    "Population",
-                    "LumberMoveStarted",
-                    StrategyDebugLogger.F("resident", FullName),
-                    StrategyDebugLogger.F("target", "tree"),
-                    StrategyDebugLogger.F("treeCell", tree.Cell),
-                    StrategyDebugLogger.F("workCell", workCell));
-                return true;
-            }
-
-            activeTree = null;
-            activity = ResidentActivity.Idle;
-            lumberWorkCooldown = Random.Range(2.0f, 4.0f);
-            StrategyDebugLogger.Warn(
-                "Population",
-                "LumberMoveRejected",
-                StrategyDebugLogger.F("resident", FullName),
-                StrategyDebugLogger.F("target", "tree"),
-                StrategyDebugLogger.F("reason", "no_path"),
-                StrategyDebugLogger.F("treeCell", tree.Cell),
-                StrategyDebugLogger.F("workCell", workCell));
-            return false;
-        }
     }
 }

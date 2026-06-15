@@ -10,7 +10,6 @@ namespace ProjectUnknown.Strategy
 {
     internal sealed partial class StrategyBuildMenuControllerDriver
     {
-
         private void CreateBuildButton(Transform parent)
         {
             buildButtonRoot = CreateUiObject("BuildButton", parent).GetComponent<RectTransform>();
@@ -253,7 +252,11 @@ namespace ProjectUnknown.Strategy
             if (treasuryText != null)
             {
                 StrategyConstructionResourceCost available = StrategyStorageYard.GetTotalConstructionResources();
-                treasuryText.text = "Logs " + available.Logs + "  Stone " + available.Stone;
+                treasuryText.text = "Logs "
+                    + available.Logs
+                    + "  Stone "
+                    + available.Stone
+                    + (available.Planks > 0 ? "  Planks " + available.Planks : string.Empty);
             }
 
             RefreshSpeedControls();
@@ -454,6 +457,7 @@ namespace ProjectUnknown.Strategy
                 StrategyBuildTool.House => new Vector2Int(2, 2),
                 StrategyBuildTool.LumberjackCamp => new Vector2Int(2, 2),
                 StrategyBuildTool.StonecutterCamp => new Vector2Int(2, 2),
+                StrategyBuildTool.Sawmill => new Vector2Int(3, 2),
                 StrategyBuildTool.Mine => new Vector2Int(2, 2),
                 StrategyBuildTool.CoalPit => new Vector2Int(2, 2),
                 StrategyBuildTool.HunterCamp => new Vector2Int(2, 2),
@@ -465,36 +469,5 @@ namespace ProjectUnknown.Strategy
             };
         }
 
-        private bool IsPointerOverBuildUi()
-        {
-            return EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
-        }
-
-        private static void EnsureEventSystem()
-        {
-            EventSystem eventSystem = EventSystem.current;
-            if (eventSystem == null)
-            {
-                GameObject eventSystemObject = new GameObject("EventSystem", typeof(EventSystem));
-                eventSystem = eventSystemObject.GetComponent<EventSystem>();
-            }
-
-            StandaloneInputModule standalone = eventSystem.GetComponent<StandaloneInputModule>();
-            if (standalone != null)
-            {
-                UnityEngine.Object.Destroy(standalone);
-            }
-
-            InputSystemUIInputModule inputModule = eventSystem.GetComponent<InputSystemUIInputModule>();
-            if (inputModule == null)
-            {
-                inputModule = eventSystem.gameObject.AddComponent<InputSystemUIInputModule>();
-            }
-
-            if (inputModule.actionsAsset == null)
-            {
-                inputModule.AssignDefaultActions();
-            }
-        }
     }
 }

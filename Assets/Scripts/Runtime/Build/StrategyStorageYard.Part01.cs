@@ -25,6 +25,11 @@ namespace ProjectUnknown.Strategy
                 stoneStored += amount;
                 AddReservation(constructionStoneReservations, owner, amount);
             }
+            else if (kind == StrategyConstructionResourceKind.Planks)
+            {
+                planksStored += amount;
+                AddReservation(constructionPlankReservations, owner, amount);
+            }
 
             UpdateStockVisual();
             StrategyDebugLogger.Info(
@@ -36,6 +41,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("amount", amount),
                 StrategyDebugLogger.F("logsStock", logsStored),
                 StrategyDebugLogger.F("stoneStock", stoneStored),
+                StrategyDebugLogger.F("planksStock", planksStored),
                 StrategyDebugLogger.F("ownerUnclaimed", GetAvailableReservationAmount(owner, kind)));
         }
 
@@ -431,27 +437,6 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("stock", logsStored));
         }
 
-        public void AddResource(StrategyResourceType resource, int amount)
-        {
-            if (amount <= 0)
-            {
-                return;
-            }
-
-            if (resource == StrategyResourceType.Stone)
-            {
-                AddStone(amount);
-            }
-            else if (resource == StrategyResourceType.Iron)
-            {
-                AddIron(amount);
-            }
-            else if (resource == StrategyResourceType.Coal)
-            {
-                AddCoal(amount);
-            }
-        }
-
         public void AddStone(int amount)
         {
             if (amount <= 0)
@@ -491,6 +476,18 @@ namespace ProjectUnknown.Strategy
             }
 
             AddReservation(constructionStoneReservations, owner, amount);
+            return amount;
+        }
+
+        private int ReserveConstructionPlanks(object owner, int requested)
+        {
+            int amount = Mathf.Min(Mathf.Max(0, requested), AvailableConstructionPlanks);
+            if (amount <= 0)
+            {
+                return 0;
+            }
+
+            AddReservation(constructionPlankReservations, owner, amount);
             return amount;
         }
     }

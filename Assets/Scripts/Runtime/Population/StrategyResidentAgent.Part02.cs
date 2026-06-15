@@ -64,6 +64,7 @@ namespace ProjectUnknown.Strategy
             StrategyFisherHut previousFisher = fisherWorkplace;
             StrategyMine previousMine = mineWorkplace;
             StrategyCoalPit previousCoal = coalPitWorkplace;
+            StrategySawmill previousSawmill = sawmillWorkplace;
             StrategyStorageYard previousStorage = storageWorkplace;
             StrategyStorageYard previousBuilder = builderWorkplace;
             StrategyGranary previousGranary = granaryWorkplace;
@@ -75,6 +76,7 @@ namespace ProjectUnknown.Strategy
             previousFisher?.UnassignWorker(this);
             previousMine?.UnassignWorker(this);
             previousCoal?.UnassignWorker(this);
+            previousSawmill?.UnassignWorker(this);
             previousStorage?.UnassignWorker(this);
             previousBuilder?.UnassignBuilder(this);
             previousGranary?.UnassignWorker(this);
@@ -135,6 +137,7 @@ namespace ProjectUnknown.Strategy
             CancelHunterWork(true);
             CancelFisherWork(true);
             CancelMineWork();
+            CancelSawmillWork(true);
             CancelForageWork(true);
             CancelHouseholdFoodWork(true);
             constructionSite = site;
@@ -146,6 +149,7 @@ namespace ProjectUnknown.Strategy
             carriedLogAmount = 0;
             carriedStoneAmount = 0;
             carriedIronAmount = 0;
+            carriedPlanksAmount = 0;
             carriedGameAmount = 0;
             carriedFishAmount = 0;
             carriedForageAmount = 0;
@@ -153,6 +157,7 @@ namespace ProjectUnknown.Strategy
             SetCarriedLogsVisible(false);
             SetCarriedStoneVisible(false);
             SetCarriedIronVisible(false);
+            SetCarriedPlanksVisible(false);
             SetCarriedGameVisible(false);
             SetCarriedFishVisible(false);
             SetCarriedForageVisible(false);
@@ -190,6 +195,7 @@ namespace ProjectUnknown.Strategy
             carriedLogAmount = 0;
             carriedStoneAmount = 0;
             carriedIronAmount = 0;
+            carriedPlanksAmount = 0;
             carriedGameAmount = 0;
             carriedFishAmount = 0;
             carriedForageAmount = 0;
@@ -197,6 +203,7 @@ namespace ProjectUnknown.Strategy
             SetCarriedLogsVisible(false);
             SetCarriedStoneVisible(false);
             SetCarriedIronVisible(false);
+            SetCarriedPlanksVisible(false);
             SetCarriedGameVisible(false);
             SetCarriedFishVisible(false);
             SetCarriedForageVisible(false);
@@ -224,6 +231,7 @@ namespace ProjectUnknown.Strategy
             bool hadCarriedResources = carriedLogAmount > 0
                 || carriedStoneAmount > 0
                 || carriedIronAmount > 0
+                || carriedPlanksAmount > 0
                 || carriedGameAmount > 0
                 || carriedFishAmount > 0;
             CaptureCarriedConstructionReturnReservation();
@@ -256,11 +264,13 @@ namespace ProjectUnknown.Strategy
             carriedLogAmount = 0;
             carriedStoneAmount = 0;
             carriedIronAmount = 0;
+            carriedPlanksAmount = 0;
             carriedGameAmount = 0;
             carriedFishAmount = 0;
             SetCarriedLogsVisible(false);
             SetCarriedStoneVisible(false);
             SetCarriedIronVisible(false);
+            SetCarriedPlanksVisible(false);
             SetCarriedGameVisible(false);
             SetCarriedFishVisible(false);
             transform.localRotation = Quaternion.identity;
@@ -271,10 +281,12 @@ namespace ProjectUnknown.Strategy
         public void ExtractCarriedConstructionResources(
             StrategyConstructionSite site,
             out int logs,
-            out int stone)
+            out int stone,
+            out int planks)
         {
             logs = 0;
             stone = 0;
+            planks = 0;
             if (site != null && constructionSite != site)
             {
                 return;
@@ -282,10 +294,13 @@ namespace ProjectUnknown.Strategy
 
             logs = carriedLogAmount;
             stone = carriedStoneAmount;
+            planks = carriedPlanksAmount;
             carriedLogAmount = 0;
             carriedStoneAmount = 0;
+            carriedPlanksAmount = 0;
             SetCarriedLogsVisible(false);
             SetCarriedStoneVisible(false);
+            SetCarriedPlanksVisible(false);
             ClearCarriedConstructionReturnReservation();
         }
 
@@ -424,70 +439,5 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("campOrigin", camp.Origin));
         }
 
-        public void ClearWorkplace(StrategyLumberjackCamp camp)
-        {
-            if (this == null)
-            {
-                return;
-            }
-
-            if (camp != null && workplace != camp)
-            {
-                return;
-            }
-
-            StrategyLumberjackCamp previousWorkplace = workplace;
-            workplace = null;
-            CancelLumberWork();
-            StrategyDebugLogger.Info(
-                "Population",
-                "ResidentWorkplaceCleared",
-                StrategyDebugLogger.F("resident", FullName),
-                StrategyDebugLogger.F("campOrigin", previousWorkplace != null ? previousWorkplace.Origin : Vector2Int.zero));
-        }
-
-        public void ClearStoneWorkplace(StrategyStonecutterCamp camp)
-        {
-            if (this == null)
-            {
-                return;
-            }
-
-            if (camp != null && stoneWorkplace != camp)
-            {
-                return;
-            }
-
-            StrategyStonecutterCamp previousWorkplace = stoneWorkplace;
-            stoneWorkplace = null;
-            CancelStoneWork();
-            StrategyDebugLogger.Info(
-                "Population",
-                "ResidentStoneWorkplaceCleared",
-                StrategyDebugLogger.F("resident", FullName),
-                StrategyDebugLogger.F("campOrigin", previousWorkplace != null ? previousWorkplace.Origin : Vector2Int.zero));
-        }
-
-        public void ClearHunterWorkplace(StrategyHunterCamp camp)
-        {
-            if (this == null)
-            {
-                return;
-            }
-
-            if (camp != null && hunterWorkplace != camp)
-            {
-                return;
-            }
-
-            StrategyHunterCamp previousWorkplace = hunterWorkplace;
-            CancelHunterWork(true);
-            hunterWorkplace = null;
-            StrategyDebugLogger.Info(
-                "Population",
-                "ResidentHunterWorkplaceCleared",
-                StrategyDebugLogger.F("resident", FullName),
-                StrategyDebugLogger.F("campOrigin", previousWorkplace != null ? previousWorkplace.Origin : Vector2Int.zero));
-        }
     }
 }

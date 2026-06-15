@@ -162,6 +162,12 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            if (!activeMine.HasStorageSpace)
+            {
+                ResetMineWorkToIdle();
+                return;
+            }
+
             mineWorkTimer -= Time.deltaTime;
             if (mineWorkTimer > 0f)
             {

@@ -28,8 +28,9 @@ namespace ProjectUnknown.Strategy
                     {
                         new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.LumberjackCamp, "LC", "Lumberjack Camp", new StrategyConstructionResourceCost(4, 2), HtmlColor("#7D8E4A")),
                         new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.StonecutterCamp, "SC", "Stonecutter Camp", new StrategyConstructionResourceCost(3, 4), HtmlColor("#7B8582")),
-                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.Mine, "MN", "Mine", new StrategyConstructionResourceCost(5, 5), HtmlColor("#765F4C")),
-                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.CoalPit, "CP", "Coal Pit", new StrategyConstructionResourceCost(4, 4), HtmlColor("#464B4D")),
+                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.Sawmill, "SW", "Sawmill", new StrategyConstructionResourceCost(8, 4), HtmlColor("#9A6B3A")),
+                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.Mine, "MN", "Mine", new StrategyConstructionResourceCost(5, 5, 3), HtmlColor("#765F4C")),
+                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.CoalPit, "CP", "Coal Pit", new StrategyConstructionResourceCost(4, 4, 2), HtmlColor("#464B4D")),
                         new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.HunterCamp, "HC", "Hunter Camp", new StrategyConstructionResourceCost(4, 2), HtmlColor("#7B6A45")),
                         new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.FisherHut, "FH", "Fisher Hut", new StrategyConstructionResourceCost(4, 2), HtmlColor("#4F7E8A"))
                     }),

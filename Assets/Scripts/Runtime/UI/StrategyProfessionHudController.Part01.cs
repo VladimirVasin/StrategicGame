@@ -37,6 +37,11 @@ namespace ProjectUnknown.Strategy
                     snapshot.Assigned = CountAssigned(coalPits, pit => pit.WorkerCount);
                     snapshot.Capacity = coalPits.Length * StrategyCoalPit.MaxWorkers;
                     break;
+                case StrategyProfessionType.Sawyer:
+                    StrategySawmill[] sawmills = FindSorted<StrategySawmill>();
+                    snapshot.Assigned = CountAssigned(sawmills, sawmill => sawmill.WorkerCount);
+                    snapshot.Capacity = sawmills.Length * StrategySawmill.MaxWorkers;
+                    break;
                 case StrategyProfessionType.Hunter:
                     StrategyHunterCamp[] hunterCamps = FindSorted<StrategyHunterCamp>();
                     snapshot.Assigned = CountAssigned(hunterCamps, camp => camp.WorkerCount);
@@ -77,9 +82,10 @@ namespace ProjectUnknown.Strategy
                 StrategyProfessionType.Stonecutter => new ProfessionSnapshot(type, "Stonecutters", "mine Stone with pickaxes", new Color(0.47f, 0.53f, 0.55f)),
                 StrategyProfessionType.Miner => new ProfessionSnapshot(type, "Miners", "work underground for Iron", new Color(0.61f, 0.42f, 0.30f)),
                 StrategyProfessionType.CoalMiner => new ProfessionSnapshot(type, "Coal Miners", "dig Coal inside pits", new Color(0.33f, 0.37f, 0.38f)),
+                StrategyProfessionType.Sawyer => new ProfessionSnapshot(type, "Sawyers", "saw Logs into Planks", new Color(0.63f, 0.43f, 0.25f)),
                 StrategyProfessionType.Hunter => new ProfessionSnapshot(type, "Hunters", "hunt rabbits", new Color(0.56f, 0.43f, 0.26f)),
                 StrategyProfessionType.Fisher => new ProfessionSnapshot(type, "Fishers", "catch fish near water", new Color(0.32f, 0.54f, 0.63f)),
-                StrategyProfessionType.StorageWorker => new ProfessionSnapshot(type, "Storekeepers", "haul Logs, Stone, and Iron", new Color(0.58f, 0.49f, 0.37f)),
+                StrategyProfessionType.StorageWorker => new ProfessionSnapshot(type, "Storekeepers", "haul resources and food", new Color(0.58f, 0.49f, 0.37f)),
                 StrategyProfessionType.Builder => new ProfessionSnapshot(type, "Builders", "build structures", new Color(0.75f, 0.55f, 0.27f)),
                 StrategyProfessionType.GranaryWorker => new ProfessionSnapshot(type, "Granary Workers", "haul food to the granary", new Color(0.62f, 0.51f, 0.28f)),
                 _ => new ProfessionSnapshot(type, "Profession", string.Empty, Color.white)
@@ -143,6 +149,16 @@ namespace ProjectUnknown.Strategy
                     foreach (StrategyCoalPit pit in FindSorted<StrategyCoalPit>())
                     {
                         if (pit != null && pit.TryAssignNextAvailableWorker(out worker))
+                        {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                case StrategyProfessionType.Sawyer:
+                    foreach (StrategySawmill sawmill in FindSorted<StrategySawmill>())
+                    {
+                        if (sawmill != null && sawmill.TryAssignNextAvailableWorker(out worker))
                         {
                             return true;
                         }
@@ -253,6 +269,17 @@ namespace ProjectUnknown.Strategy
                     }
 
                     return false;
+                case StrategyProfessionType.Sawyer:
+                    StrategySawmill[] sawmills = FindSorted<StrategySawmill>();
+                    for (int i = sawmills.Length - 1; i >= 0; i--)
+                    {
+                        if (TryRemoveWorker(sawmills[i], sawmills[i].WorkerCount, out worker, index => sawmills[i].UnassignWorkerAt(index)))
+                        {
+                            return true;
+                        }
+                    }
+
+                    return false;
                 case StrategyProfessionType.Hunter:
                     StrategyHunterCamp[] hunterCamps = FindSorted<StrategyHunterCamp>();
                     for (int i = hunterCamps.Length - 1; i >= 0; i--)
@@ -336,6 +363,9 @@ namespace ProjectUnknown.Strategy
                     break;
                 case StrategyCoalPit pit:
                     pit.TryGetWorker(index, out worker);
+                    break;
+                case StrategySawmill sawmill:
+                    sawmill.TryGetWorker(index, out worker);
                     break;
                 case StrategyHunterCamp camp:
                     camp.TryGetWorker(index, out worker);
@@ -445,6 +475,7 @@ namespace ProjectUnknown.Strategy
                 StrategyStonecutterCamp camp => camp.Origin,
                 StrategyMine mine => mine.Origin,
                 StrategyCoalPit pit => pit.Origin,
+                StrategySawmill sawmill => sawmill.Origin,
                 StrategyHunterCamp camp => camp.Origin,
                 StrategyFisherHut hut => hut.Origin,
                 StrategyStorageYard yard => yard.Origin,

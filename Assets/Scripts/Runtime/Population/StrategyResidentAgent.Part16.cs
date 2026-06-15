@@ -49,6 +49,12 @@ namespace ProjectUnknown.Strategy
                     }
                     else if (activity == ResidentActivity.ReelingFish && workFrame == FishingReelFrame && activeFishTarget != null)
                     {
+                        if (fisherWorkplace != null && !fisherWorkplace.HasStorageSpace)
+                        {
+                            ResetFisherWorkToIdle(true);
+                            return;
+                        }
+
                         activeFishTarget.ReceiveReelPull(this, GetFishingReelTargetWorld(), out int fishAmount);
                         if (fishAmount > 0)
                         {
@@ -263,54 +269,6 @@ namespace ProjectUnknown.Strategy
                 carriedStoneAmount = 0;
                 SetCarriedStoneVisible(false);
                 UseIdleSprite();
-            }
-        }
-
-        private void CancelStorageWork(bool storeCarriedLogs)
-        {
-            if (this == null)
-            {
-                return;
-            }
-
-            if (activity == ResidentActivity.MovingToStoragePickup
-                || activity == ResidentActivity.PickingUpStorageLogs
-                || activity == ResidentActivity.CarryingLogsToStorage
-                || activity == ResidentActivity.DepositingStorageLogs
-                || activity == ResidentActivity.MovingToStorageStonePickup
-                || activity == ResidentActivity.PickingUpStorageStone
-                || activity == ResidentActivity.CarryingStoneToStorage
-                || activity == ResidentActivity.DepositingStorageStone
-                || activity == ResidentActivity.MovingToStorageIronPickup
-                || activity == ResidentActivity.PickingUpStorageIron
-                || activity == ResidentActivity.CarryingIronToStorage
-                || activity == ResidentActivity.DepositingStorageIron
-                || activity == ResidentActivity.MovingToStorageCoalPickup
-                || activity == ResidentActivity.PickingUpStorageCoal
-                || activity == ResidentActivity.CarryingCoalToStorage
-                || activity == ResidentActivity.DepositingStorageCoal)
-            {
-                ResetStorageWorkToIdle(storeCarriedLogs);
-            }
-            else if (activeLogSource != null)
-            {
-                activeLogSource.ReleaseStoredLogsReservation(this);
-                activeLogSource = null;
-            }
-            else if (activeStoneSource != null)
-            {
-                activeStoneSource.ReleaseStoredStoneReservation(this);
-                activeStoneSource = null;
-            }
-            else if (activeIronSource != null)
-            {
-                activeIronSource.ReleaseStoredIronReservation(this);
-                activeIronSource = null;
-            }
-            else if (activeCoalSource != null)
-            {
-                activeCoalSource.ReleaseStoredCoalReservation(this);
-                activeCoalSource = null;
             }
         }
 

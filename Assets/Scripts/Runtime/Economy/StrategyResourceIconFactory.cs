@@ -70,6 +70,9 @@ namespace ProjectUnknown.Strategy
                 case StrategyResourceType.Coal:
                     PaintCoal(texture);
                     break;
+                case StrategyResourceType.Planks:
+                    PaintPlanks(texture);
+                    break;
             }
 
             texture.Apply(false, false);
@@ -334,6 +337,27 @@ namespace ProjectUnknown.Strategy
             SetPixelSafe(texture, 16, 12, shine);
             SetPixelSafe(texture, 13, 15, blue);
             SetPixelSafe(texture, 8, 13, coalDark);
+        }
+
+        private static void PaintPlanks(Texture2D texture)
+        {
+            Color outline = Rgb(76, 48, 29);
+            Color woodDark = Rgb(120, 72, 38);
+            Color wood = Rgb(178, 111, 55);
+            Color woodLight = Rgb(221, 160, 82);
+
+            FillRect(texture, 4, 6, 15, 4, outline);
+            FillRect(texture, 5, 7, 13, 2, woodDark);
+            DrawLine(texture, 6, 8, 17, 8, woodLight);
+            FillRect(texture, 6, 11, 15, 4, outline);
+            FillRect(texture, 7, 12, 13, 2, wood);
+            DrawLine(texture, 8, 13, 19, 13, woodLight);
+            FillRect(texture, 3, 16, 15, 4, outline);
+            FillRect(texture, 4, 17, 13, 2, wood);
+            DrawLine(texture, 5, 18, 16, 18, woodLight);
+            SetPixelSafe(texture, 9, 7, outline);
+            SetPixelSafe(texture, 14, 12, outline);
+            SetPixelSafe(texture, 11, 17, outline);
         }
 
         private static void FillRect(Texture2D texture, int x, int y, int width, int height, Color color)
