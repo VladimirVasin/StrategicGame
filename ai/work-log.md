@@ -1,12 +1,41 @@
 # Work Log
 
-Last updated: 2026-06-15
+Last updated: 2026-06-16
 
 ## Active
 
 - None.
 
 ## Done
+
+### 2026-06-16 - Wolf path refresh movement fix
+
+- Fixed wolves visually stalling during stalking by removing the current-cell center from rebuilt path waypoints, so frequent target refreshes no longer pull the wolf back to its own cell center.
+- Stalking wolves now move directly toward the target's exact world position only after the path has brought them into the same map cell as the target.
+- Split resident death-drop helpers into `StrategyResidentAgent.Part34.cs` and moved a forestry shadow helper into the existing forestry partial so all `.cs` files stay within the 500-line limit.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; full `.cs` line-count scan found no files over 500 lines; `git diff --check` passed with only the existing CRLF normalization warning for `Assembly-CSharp.csproj`.
+
+### 2026-06-16 - Death-dropped construction reservation restore
+
+- Fixed a construction stall where a builder could die after picking up a reserved construction resource, causing the construction site to lose that reserved unit while the dropped resource was recovered as generic Storage Yard stock.
+- Death-dropped loose construction resource piles now restore the carried resource reservation for the original construction site when that site still needs the resource.
+- `CarriedConstructionResourcesDroppedOnDeath` now reports `reservation=restored`, `none`, or `unrestored` for diagnostics.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-15 - Single Sawyer and Chicken Coop cost tuning
+
+- Reduced Sawmill staffing to 1 assigned Sawyer and centered the active worker inside the Sawmill.
+- Added a Sawmill input-Logs buffer cap of 4 so the shared 6-resource production cap cannot deadlock the `1 Log -> 2 Planks` work cycle.
+- Removed Logs from Chicken Coop upgrade costs; Chicken Coop now costs 1 Stone and 2 Planks.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-15 - Tree yield and production capacity tuning
+
+- Small generated trees now yield 3 Logs, while large generated/planted mature trees yield 6 Logs, and lumberjacks still carry the full tree yield in one trip.
+- Increased Large Tree visual scale and kept the leaf overlay aligned with the larger sprite scale.
+- Raised the shared production-building local stock cap from 5 to 6 resources so all production worksites can hold a full large-tree Logs batch.
+- Slowed Sawmill Log-to-Planks work by increasing the worker cycle duration and reducing the active saw overlay frame rate.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
 
 ### 2026-06-15 - Balanced construction builder dispatch
 
@@ -96,7 +125,7 @@ Last updated: 2026-06-15
 ### 2026-06-15 - Planks in late construction costs
 
 - Extended construction resource costs, reservations, loose construction piles, builder carry/delivery states, cancellation cleanup, death drops, and storage-worker recovery to support Planks alongside Logs and Stone.
-- Added Plank costs only to later-stage options: Mine costs 5 Logs/5 Stone/3 Planks, Coal Pit costs 4 Logs/4 Stone/2 Planks, and Chicken Coop costs 3 Logs/1 Stone/2 Planks.
+- Added Plank costs only to later-stage options: Mine costs 5 Logs/5 Stone/3 Planks, Coal Pit costs 4 Logs/4 Stone/2 Planks, and Chicken Coop currently costs 1 Stone/2 Planks.
 - Left starter buildings and Sawmill construction without Plank requirements so the Plank production chain can be established before Planks are required.
 - Updated construction and upgrade HUD/status text to display only non-zero resource costs, including Planks when needed.
 - Split construction/logistics/resident helper methods into new partial files so runtime `.cs` files remain at or below the 500-line limit.
@@ -104,7 +133,7 @@ Last updated: 2026-06-15
 
 ### 2026-06-15 - Production stock caps and shared haulers
 
-- Added a shared `StrategyProductionStorage` local stock cap of 5 resources for production buildings.
+- Added a shared `StrategyProductionStorage` local stock cap for production buildings; the current cap is 6 resources.
 - Lumberjack Camps, Stonecutter Camps, Mines, Coal Pits, Hunter Camps, Fisher Huts, and Sawmills now stop starting new production when their local stock would exceed the cap; Sawmill counts Logs, Planks, and pending Planks against the same cap.
 - Storage Yards and Granaries remain uncapped storage buildings.
 - Storage Yard workers now also service Granaries by hauling reserved `Game`/`Fish` from Hunter Camps/Fisher Huts or loose food piles to the nearest Granary.
@@ -224,7 +253,7 @@ Last updated: 2026-06-15
 ### 2026-06-14 - Construction carried-resource death drop
 
 - Residents who die while carrying Logs or Stone now drop those materials as loose construction resource piles at the death cell instead of losing them during death cleanup.
-- Death-dropped construction piles clear the previous construction reservation binding, so any still-needing construction site can reserve them again.
+- Death-dropped construction piles restore the previous construction reservation binding when the original site still needs that resource; otherwise, any still-needing construction site can reserve them again.
 - Construction pickup search now falls back to dynamically reserving a nearby free loose pile after existing reserved loose piles, Storage Yards, and Stonecutter Camp Stone are unavailable.
 - Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
 
@@ -782,7 +811,7 @@ Last updated: 2026-06-15
 
 ### 2026-06-11 - House upgrade resource costs
 
-- Added Logs/Stone costs for house upgrades: Garden Beds cost 2 Logs + 1 Stone, Chicken Coop costs 4 Logs + 2 Stone.
+- Added construction-resource costs for house upgrades; current costs are Garden Beds 2 Logs + 1 Stone and Chicken Coop 1 Stone + 2 Planks.
 - Upgrades now spend available Storage Yard construction resources immediately when installed, while respecting resources already reserved for construction sites.
 - The selected-house HUD now shows each upgrade cost, disables unaffordable upgrade buttons, and reports missing resources separately from missing placement space.
 - Added structured debug events for upgrade install success and immediate Storage Yard resource spending.

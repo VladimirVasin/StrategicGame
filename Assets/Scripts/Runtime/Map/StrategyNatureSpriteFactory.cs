@@ -20,7 +20,8 @@ namespace ProjectUnknown.Strategy
 
     internal static partial class StrategyNatureSpriteFactory
     {
-        private const float TreePixelsPerUnit = 30f;
+        internal const float TreePixelsPerUnit = 30f;
+        internal const float LargeTreePixelsPerUnit = 25.5f;
         private const float BushPixelsPerUnit = 28f;
         private const float StonePixelsPerUnit = 30f;
         private static readonly Dictionary<int, Sprite> CachedSprites = new();
@@ -211,7 +212,7 @@ namespace ProjectUnknown.Strategy
 
             AddLeafDetails(texture, variant, leafLight, leafDark);
             texture.Apply(false, false);
-            return Sprite.Create(texture, new Rect(4f, 4f, 56f, 72f), new Vector2(0.5f, 0.08f), TreePixelsPerUnit);
+            return Sprite.Create(texture, new Rect(4f, 4f, 56f, 72f), new Vector2(0.5f, 0.08f), LargeTreePixelsPerUnit);
         }
 
         private static Sprite CreateSmallTreeSprite(int variant)

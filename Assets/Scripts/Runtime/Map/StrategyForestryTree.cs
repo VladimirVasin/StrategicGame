@@ -12,7 +12,8 @@ namespace ProjectUnknown.Strategy
         private const float YoungGrowSecondsMax = 54f;
         private const int RequiredChopHits = 6;
         private const int RequiredBuckHits = 4;
-        public const int LogsPerTree = 3;
+        public const int SmallTreeLogs = 3;
+        public const int LargeTreeLogs = 6;
         private const float ChopShakeSeconds = 0.22f;
         private const float BuckShakeSeconds = 0.16f;
         private const float FallSeconds = 1.25f;
@@ -38,6 +39,8 @@ namespace ProjectUnknown.Strategy
         private int chopHitCount;
         private int buckHitCount;
         private int fallDirection = 1;
+        private int logYield = LargeTreeLogs;
+        private bool largeTreeVisual = true;
 
         public Vector2Int Cell { get; private set; }
         public int Stage { get; private set; }
@@ -53,6 +56,7 @@ namespace ProjectUnknown.Strategy
         public bool CanBeBucked => IsMature
             && (treeState == ForestryTreeState.Felled || treeState == ForestryTreeState.BuckingFelled);
         public bool HasLogsReady => treeState == ForestryTreeState.SplitLogs;
+        public int LogYield => logYield;
 
         public void Configure(
             StrategyForestryController forestryController,
@@ -62,7 +66,9 @@ namespace ProjectUnknown.Strategy
             int initialStage,
             int visualVariant,
             SpriteRenderer renderer,
-            bool shouldUseGrowthSprites)
+            bool shouldUseGrowthSprites,
+            bool isLargeTreeVisual,
+            int treeLogYield)
         {
             controller = forestryController;
             map = mapController;
@@ -72,6 +78,8 @@ namespace ProjectUnknown.Strategy
             VisualVariant = visualVariant;
             spriteRenderer = renderer != null ? renderer : GetComponent<SpriteRenderer>();
             useGrowthSprites = shouldUseGrowthSprites;
+            largeTreeVisual = isLargeTreeVisual;
+            logYield = Mathf.Max(1, treeLogYield);
             growthTimer = GetNextGrowthSeconds(Stage);
             treeState = IsMature ? ForestryTreeState.Standing : ForestryTreeState.Growing;
             CaptureBaseTransform();
@@ -94,7 +102,7 @@ namespace ProjectUnknown.Strategy
                 + "\nState: "
                 + GetTreeStateTitle()
                 + "\nLogs: "
-                + (HasLogsReady ? LogsPerTree.ToString() : "not ready")
+                + (HasLogsReady ? logYield.ToString() : "not ready")
                 + "\nReserved: "
                 + (IsReserved ? "yes" : "no");
             info = new StrategyWorldInspectInfo(
@@ -172,7 +180,7 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            amount = LogsPerTree;
+            amount = logYield;
             StrategyDebugLogger.Info(
                 "Forestry",
                 "LogsTaken",
@@ -297,17 +305,18 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            bool large = IsMature && largeTreeVisual;
             Vector2 scale = Stage switch
             {
                 0 => new Vector2(0.34f, 0.12f),
                 1 => new Vector2(0.52f, 0.17f),
-                _ => new Vector2(0.78f, 0.24f)
+                _ => large ? new Vector2(0.92f, 0.29f) : new Vector2(0.52f, 0.17f)
             };
             float opacity = Stage switch
             {
                 0 => 0.13f,
                 1 => 0.18f,
-                _ => 0.25f
+                _ => large ? 0.29f : 0.18f
             };
 
             StrategyShadowCaster2D.Attach(
@@ -321,24 +330,6 @@ namespace ProjectUnknown.Strategy
                 true);
         }
 
-        private void EnsureFelledWorldShadow(bool splitLogs)
-        {
-            if (spriteRenderer == null)
-            {
-                return;
-            }
-
-            StrategyShadowCaster2D.Attach(
-                spriteRenderer,
-                StrategyShadowShape.SoftEllipse,
-                new Vector2(0.04f, -0.04f),
-                splitLogs ? new Vector2(0.56f, 0.15f) : new Vector2(0.78f, 0.19f),
-                splitLogs ? 0.16f : 0.18f,
-                -5,
-                0f,
-                false);
-        }
-
         private void EnsureWindSway()
         {
             if (GetComponent<StrategyWindSway>() != null)
@@ -349,7 +340,7 @@ namespace ProjectUnknown.Strategy
 
             StrategyWindSway sway = gameObject.AddComponent<StrategyWindSway>();
             float phase = Mathf.Repeat((Cell.x * 17.31f) + (Cell.y * 29.73f), Mathf.PI * 2f);
-            float bend = Stage <= 0 ? 1.3f : Stage == 1 ? 2.4f : 2.8f;
+            float bend = Stage <= 0 ? 1.3f : Stage == 1 || !largeTreeVisual ? 2.4f : 3.1f;
             sway.Configure(wind, phase, bend, 0.014f, 0.008f);
             windSway = sway;
         }
@@ -445,7 +436,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("cell", Cell),
                 StrategyDebugLogger.F("variant", VisualVariant),
                 StrategyDebugLogger.F("buckHits", buckHitCount),
-                StrategyDebugLogger.F("amount", LogsPerTree));
+                StrategyDebugLogger.F("amount", logYield));
         }
 
         private void UpdateChopShake()

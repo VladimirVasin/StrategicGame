@@ -258,7 +258,7 @@ namespace ProjectUnknown.Strategy
             }
 
             Vector2Int logsCell = activeTree.Cell;
-            if (!workplace.HasStorageSpaceFor(StrategyForestryTree.LogsPerTree))
+            if (!workplace.HasStorageSpaceFor(activeTree.LogYield))
             {
                 activeTree.Release(this);
                 activeTree = null;

@@ -140,6 +140,7 @@
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyBuildMenuController.Catalog.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildPlacementController.Part04.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyStorageYard.Part05.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part34.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingSpriteFactory.Part02.cs" />
     <Compile Include="Assets\Scripts\Runtime\Selection\StrategyWorldInspectHudController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Weather\StrategyWeatherController.cs" />

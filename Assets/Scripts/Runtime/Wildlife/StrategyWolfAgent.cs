@@ -334,7 +334,14 @@ namespace ProjectUnknown.Strategy
                 TryPathNearTarget(targetCell);
             }
 
-            MoveAlongPath(StalkSpeed);
+            bool pathCompleted = MoveAlongPath(StalkSpeed);
+            if ((pathCompleted || path.Count <= 0 || pathIndex >= path.Count)
+                && TryGetCurrentCell(out Vector2Int currentCell)
+                && currentCell == targetCell)
+            {
+                MoveDirectlyToward(targetWorld, StalkSpeed);
+            }
+
             AnimateStalk();
         }
 

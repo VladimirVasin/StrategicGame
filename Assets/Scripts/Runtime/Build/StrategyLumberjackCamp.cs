@@ -165,12 +165,13 @@ namespace ProjectUnknown.Strategy
         public bool TryReserveMatureTree(object owner, out StrategyForestryTree tree)
         {
             tree = null;
-            if (forestry == null || !HasStorageSpaceFor(StrategyForestryTree.LogsPerTree))
+            if (forestry == null)
             {
                 return false;
             }
 
             if (!forestry.TryFindMatureTree(Origin, WorkRadius, out StrategyForestryTree candidate)
+                || !HasStorageSpaceFor(candidate.LogYield)
                 || !candidate.TryReserve(owner))
             {
                 return false;
@@ -183,12 +184,13 @@ namespace ProjectUnknown.Strategy
         public bool TryReserveProcessableWood(object owner, out StrategyForestryTree tree)
         {
             tree = null;
-            if (forestry == null || !HasStorageSpaceFor(StrategyForestryTree.LogsPerTree))
+            if (forestry == null)
             {
                 return false;
             }
 
             if (!forestry.TryFindProcessableWood(Origin, WorkRadius, out StrategyForestryTree candidate)
+                || !HasStorageSpaceFor(candidate.LogYield)
                 || !candidate.TryReserve(owner))
             {
                 return false;

@@ -290,7 +290,6 @@ namespace ProjectUnknown.Strategy
             if (startCell == targetCell)
             {
                 path.Clear();
-                path.Add(new Vector3(transform.position.x, transform.position.y, transform.position.z));
                 pathIndex = 0;
                 return true;
             }
@@ -399,7 +398,7 @@ namespace ProjectUnknown.Strategy
 
             cells.Reverse();
             path.Clear();
-            for (int i = 0; i < cells.Count; i++)
+            for (int i = 1; i < cells.Count; i++)
             {
                 Vector3 world = map.GetCellCenterWorld(cells[i].x, cells[i].y);
                 path.Add(new Vector3(world.x, world.y, transform.position.z));

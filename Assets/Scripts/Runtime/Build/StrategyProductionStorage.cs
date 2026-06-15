@@ -4,7 +4,7 @@ namespace ProjectUnknown.Strategy
 {
     internal static class StrategyProductionStorage
     {
-        public const int LocalCapacity = 5;
+        public const int LocalCapacity = 6;
 
         public static int GetRemaining(int used)
         {

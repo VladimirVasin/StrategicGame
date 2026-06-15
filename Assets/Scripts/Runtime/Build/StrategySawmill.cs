@@ -6,7 +6,8 @@ namespace ProjectUnknown.Strategy
     [DisallowMultipleComponent]
     public sealed partial class StrategySawmill : MonoBehaviour
     {
-        public const int MaxWorkers = 2;
+        public const int MaxWorkers = 1;
+        private const int MaxInputLogs = 4;
         private const int LogsPerWorkCycle = 1;
         private const int PlanksPerLog = 2;
 
@@ -226,7 +227,12 @@ namespace ProjectUnknown.Strategy
         {
             Bounds bounds = FootprintBounds;
             int index = Mathf.Max(0, activeSawyers.IndexOf(worker));
-            float side = activeSawyers.Count > 1 && index == 1 ? 0.34f : -0.34f;
+            float side = 0f;
+            if (activeSawyers.Count > 1)
+            {
+                side = index == 1 ? 0.34f : -0.34f;
+            }
+
             return new Vector3(bounds.center.x + side, bounds.min.y + bounds.size.y * 0.44f, -0.08f);
         }
 
@@ -258,10 +264,16 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            int acceptedInputLogs = Mathf.Min(amount, Mathf.Max(0, MaxInputLogs - logsStored));
+            if (acceptedInputLogs <= 0)
+            {
+                return;
+            }
+
             logsStored = StrategyProductionStorage.AddCapped(
                 logsStored,
                 ReservedStorageUsed,
-                amount,
+                acceptedInputLogs,
                 out int accepted);
             if (accepted <= 0)
             {
@@ -301,7 +313,9 @@ namespace ProjectUnknown.Strategy
 
         public bool CanAcceptInputLogs(int amount)
         {
-            return StrategyProductionStorage.CanAccept(ReservedStorageUsed, amount);
+            return amount > 0
+                && logsStored + amount <= MaxInputLogs
+                && StrategyProductionStorage.CanAccept(ReservedStorageUsed, amount);
         }
 
         public bool CanStartWorkCycle()

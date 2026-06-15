@@ -140,7 +140,7 @@ namespace ProjectUnknown.Strategy
             }
 
             workRenderer ??= CreateChildRenderer("Sawmill Saw Work");
-            workFrameTimer += Time.deltaTime * 10f;
+            workFrameTimer += Time.deltaTime * 6f;
             int steps = Mathf.FloorToInt(workFrameTimer);
             if (steps > 0)
             {

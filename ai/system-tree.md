@@ -137,6 +137,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Plants saplings that grow through sapling, young tree, and mature tree visual stages
       - Supplies nearby mature-tree and planting-cell targets to lumberjack camps
       - Mature trees receive chop hits, show cut marks, spawn chip/leaf effects, fall over, remain as buckable trunks, split into Logs, and are removed when Logs are collected
+      - Small trees yield 3 Logs, while large/generated mature and planted mature trees yield 6 Logs
     - Forage resources MVP
       - Spawns Berries, Roots, and Mushrooms as small non-blocking resource nodes on suitable walkable land cells
       - Guarantees a small starter ring of forage resources around the settlement outside the campfire clear radius
@@ -287,7 +288,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Runtime-created building-upgrade controller
     - Current visual/production upgrades: Garden Beds and Chicken Coop
     - Garden Beds are installed for free by default when each House is placed/completed
-    - Chicken Coop costs 3 Logs, 1 Stone, and 2 Planks from available Storage Yard resources
+    - Chicken Coop costs 1 Stone and 2 Planks from available Storage Yard resources
     - Upgrade sprites are generated in code
     - Chicken Coop is installed from the selected house HUD
     - The selected house HUD shows upgrade state/cost and disables unaffordable upgrade buttons
@@ -337,8 +338,9 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Coal Pit local Coal stock decreases when haulers pick up reserved Coal
     - Storage Yard local Logs, Stone, Iron, Coal, and Planks stock update their visible stockpiles
   - Sawmill production MVP
-    - Sawmill is a placed production building with up to 2 assigned Sawyers
-    - Sawmill local storage is capped at 5 total resources across Logs, Planks, and pending Planks
+    - Sawmill is a placed production building with 1 assigned Sawyer
+    - Sawmill local storage is capped at 6 total resources across Logs, Planks, and pending Planks
+    - Sawmill input Logs are capped at 4 so Planks conversion can always reserve output space
     - Sawyers reserve Logs from Storage Yards or Lumberjack Camps, bring them to the Sawmill, and saw them into `Planks`
     - Sawmill work keeps Sawyers visible inside the building and uses a detailed animated saw/log/plank overlay
     - Sawmills store local Logs and Planks and expose Planks to Haulers for hauling

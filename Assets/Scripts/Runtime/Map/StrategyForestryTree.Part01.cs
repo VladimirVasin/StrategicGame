@@ -41,6 +41,24 @@ namespace ProjectUnknown.Strategy
             }
         }
 
+        private void EnsureFelledWorldShadow(bool splitLogs)
+        {
+            if (spriteRenderer == null)
+            {
+                return;
+            }
+
+            StrategyShadowCaster2D.Attach(
+                spriteRenderer,
+                StrategyShadowShape.SoftEllipse,
+                new Vector2(0.04f, -0.04f),
+                splitLogs ? new Vector2(0.56f, 0.15f) : new Vector2(0.78f, 0.19f),
+                splitLogs ? 0.16f : 0.18f,
+                -5,
+                0f,
+                false);
+        }
+
         private void DisableAmbientMotion()
         {
             if (windSway == null)

@@ -171,7 +171,7 @@ namespace ProjectUnknown.Strategy
                 default:
                     width = 56;
                     height = 72;
-                    pixelsPerUnit = 30f;
+                    pixelsPerUnit = StrategyNatureSpriteFactory.LargeTreePixelsPerUnit;
                     pivot = new Vector2(0.5f, 0.08f);
                     return;
             }

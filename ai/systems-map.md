@@ -318,6 +318,7 @@ Impact hints:
 - Existing mature tree props can be chopped, while planted saplings use growth sprites and wind sway.
 - Current tree cells block walkability; fallen trunks stay blocked until their Logs are collected; residents path to nearby walkable cells when working.
 - Tree chopping and fallen-trunk bucking are hit-driven by resident axe animation frames; final tree hits start falling and final trunk hits create split Logs.
+- Small trees yield 3 Logs, while large generated trees and planted mature trees yield 6 Logs; lumberjacks carry the full yield in one trip.
 - Felled trees remain in the registry until Logs are collected, so planting does not overlap the fresh log.
 - Future wood resources, regrowth balance, and forest ownership should extend this subsystem instead of adding tree logic directly to residents or HUD.
 
@@ -884,7 +885,7 @@ Primary files/assets:
 Impact hints:
 
 - Current upgrades are visual/behavioral/resource-producing: default Garden Beds choose one crop, harvest it into the owning house on a fixed growth tick, and Householder work boosts the growth cycle; Chicken Coop spawns idle chickens and passively adds Eggs.
-- Garden Beds are installed for free automatically on each House; Chicken Coop costs 3 Logs/1 Stone/2 Planks.
+- Garden Beds are installed for free automatically on each House; Chicken Coop costs 1 Stone/2 Planks.
 - Optional upgrade installation spends available Storage Yard stock immediately and respects construction reservations.
 - Garden Beds sprite animation follows growth progress toward the next harvest; other upgrade sprite animation remains visual-only and does not change upgrade footprint or walkability.
 - Placement uses `CityMapController.IsCellWalkable` to avoid houses/water but keeps residents free to walk through the visual upgrade cells for now.
@@ -930,7 +931,7 @@ Impact hints:
 Responsibilities:
 
 - Add `Sawmill` as a placed production building with local Logs and Planks stock.
-- Assign up to 2 residents as Sawyers through the Profession HUD.
+- Assign 1 resident as a Sawyer through the Profession HUD.
 - Reserve input Logs from Storage Yards or Lumberjack Camps.
 - Route Sawyers to pick up Logs, bring them to the Sawmill, and saw them into `Planks`.
 - Keep Sawyers visible inside the building and drive the detailed saw/log/plank work overlay while work is active.
@@ -954,7 +955,7 @@ Primary files/assets:
 Impact hints:
 
 - Sawmill Log reservations are separate from construction Log reservations so construction sites and Sawyers do not double-claim Storage Yard Logs.
-- Sawmill counts Logs, Planks, and pending Planks against the shared production local stock cap of 5.
+- Sawmill counts Logs, Planks, and pending Planks against the shared production local stock cap of 6, with input Logs capped at 4 so output Planks can reserve space.
 - `Planks` flow from Sawmills to Storage Yards and are consumed by selected late construction costs; they are not part of a global economy yet.
 - Sawmill workers are normal exclusive workplace residents and should remain distinct from Storage Yard haulers.
 
@@ -1021,6 +1022,7 @@ Impact hints:
 - Construction resources are reserved against Storage Yard stock, loose construction resource piles, and Stonecutter Camp Stone fallback stock at site creation, then physically removed when builders pick them up.
 - Stonecutter Camp construction reservations are separate from storage-worker haul reservations so builders and haulers do not double-claim camp Stone.
 - Builders also create a per-builder pickup claim after a path to the pickup cell is found; cancelled work releases that claim while the construction-site reservation remains intact.
+- If a builder dies while carrying a construction resource, the dropped loose construction pile restores the original site's reservation when that site still needs the resource.
 - Residents currently support one active workplace: lumberjack camp, stonecutter camp, sawmill, hunter camp, fisher hut, mine, storage logistics, granary food logistics, or storage builder crew.
 - Storage Yard stock is runtime-only and uncapped; it does not yet feed a global economy, save data, or consumption loop.
 - Future resources should extend the logistics stock model; current Logs, Stone, Iron, Coal, and Planks still have explicit carrying visuals/states.

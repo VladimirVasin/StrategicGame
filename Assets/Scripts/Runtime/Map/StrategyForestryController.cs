@@ -42,7 +42,12 @@ namespace ProjectUnknown.Strategy
             trees.Remove(tree);
         }
 
-        public void RegisterGeneratedTree(GameObject treeObject, SpriteRenderer renderer, Vector2Int cell, int variant)
+        public void RegisterGeneratedTree(
+            GameObject treeObject,
+            SpriteRenderer renderer,
+            Vector2Int cell,
+            int variant,
+            bool isLargeTree)
         {
             if (treeObject == null || map == null)
             {
@@ -55,7 +60,8 @@ namespace ProjectUnknown.Strategy
                 tree = treeObject.AddComponent<StrategyForestryTree>();
             }
 
-            tree.Configure(this, map, wind, cell, 2, variant, renderer, false);
+            int logYield = isLargeTree ? StrategyForestryTree.LargeTreeLogs : StrategyForestryTree.SmallTreeLogs;
+            tree.Configure(this, map, wind, cell, 2, variant, renderer, false, isLargeTree, logYield);
         }
 
         public bool TryFindMatureTree(Vector2Int center, int radius, out StrategyForestryTree tree)
@@ -182,7 +188,17 @@ namespace ProjectUnknown.Strategy
             StrategyWorldSorting.Apply(renderer, treeObject.transform.position);
 
             StrategyForestryTree tree = treeObject.AddComponent<StrategyForestryTree>();
-            tree.Configure(this, map, wind, cell, 0, variant, renderer, true);
+            tree.Configure(
+                this,
+                map,
+                wind,
+                cell,
+                0,
+                variant,
+                renderer,
+                true,
+                true,
+                StrategyForestryTree.LargeTreeLogs);
             return true;
         }
 

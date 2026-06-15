@@ -152,7 +152,7 @@ namespace ProjectUnknown.Strategy
         {
             return type == StrategyBuildingUpgradeType.GardenBeds
                 ? new StrategyConstructionResourceCost(2, 1)
-                : new StrategyConstructionResourceCost(3, 1, 2);
+                : new StrategyConstructionResourceCost(0, 1, 2);
         }
 
         public static bool CanAffordUpgrade(StrategyBuildingUpgradeType type)

@@ -261,7 +261,12 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            forestry.RegisterGeneratedTree(prop, renderer, new Vector2Int(cell.X, cell.Y), variant);
+            forestry.RegisterGeneratedTree(
+                prop,
+                renderer,
+                new Vector2Int(cell.X, cell.Y),
+                variant,
+                kind == StrategyNaturePropKind.LargeTree);
         }
 
         private void BlockNatureWalkability(StrategyNaturePropKind kind, CityMapCell cell)

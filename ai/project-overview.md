@@ -63,7 +63,7 @@ Confirmed from `Packages/manifest.json`:
 - The nature layer also places procedural Stone resource deposits as standalone boulders, rock clusters, and larger cliffs, plus mineable underground Iron and Coal fields as walkable multi-cell surface stains/seams that block normal building placement and do not appear adjacent to the opposite mineral.
 - Trees, forest groups, and bushes sway through a 2D adapter driven by the Unity `WindZone` values.
 - Forest terrain cells receive dense visual forest props, while grass/meadow/dirt/shore cells can receive sparse standalone trees or bushes.
-- Standalone generated trees are registered as mature forestry trees; planted saplings grow through 3 visual stages.
+- Standalone generated trees are registered as mature forestry trees; small trees yield 3 Logs, large trees yield 6 Logs, and planted saplings grow through 3 visual stages into large mature trees.
 - Orthographic strategy camera supports map pan/scroll and zoom controls.
 - Runtime time controls support F1/F2/F3 for x1/x2/x3 simulation speed.
 - Runtime weather randomizes Clear, Cloudy, LightRain, HeavyRain, Fog, and Storm states, drives cloud-shadow/rain/mist/wet-ground overlays, boosts wind, intensifies water ripples, and feeds rain/wind ambience.
@@ -85,9 +85,9 @@ Confirmed from `Packages/manifest.json`:
 - `Fisher Hut` uses runtime-generated 2.5D pixel-art sprites, requires nearby water/shore access for placement, supports up to 2 assigned resident workers, and keeps a local visual `Fish` stockpile.
 - `Mine` uses runtime-generated 2.5D pixel-art sprites, requires underground Iron under its footprint for placement, supports up to 2 assigned resident workers, hides miners while they work underground, and keeps a local visual Iron stockpile.
 - `Coal Pit` uses runtime-generated 2.5D pixel-art sprites, requires underground Coal under its footprint for placement, supports up to 2 assigned resident workers, keeps coal miners visible while they work inside the pit, and keeps a local visual Coal stockpile.
-- `Sawmill` uses runtime-generated 2.5D pixel-art sprites, supports up to 2 assigned resident Sawyers, consumes Logs from Storage Yards or Lumberjack Camps, keeps sawyers visible inside the building with an animated sawing overlay, and keeps local visual Logs/Planks stockpiles.
+- `Sawmill` uses runtime-generated 2.5D pixel-art sprites, supports 1 assigned resident Sawyer, consumes Logs from Storage Yards or Lumberjack Camps with a capped input-Logs buffer, keeps the sawyer visible inside the building with an animated sawing overlay, and keeps local visual Logs/Planks stockpiles.
 - `Granary` uses runtime-generated 2.5D pixel-art sprites, keeps uncapped local visual `Game`/`Fish` stockpiles, and is serviced by shared Haulers.
-- Production buildings keep at most 5 local resources and stop starting new production when the next unit/cycle would exceed that cap; Storage Yards and Granaries stay uncapped.
+- Production buildings keep at most 6 local resources and stop starting new production when the next unit/cycle would exceed that cap; Storage Yards and Granaries stay uncapped.
 - A startup camp places an animated procedural campfire and 3 initial families; each family has a father, a mother, and 1-2 adult children with parent/child links.
 - The startup campfire blocks its own cell while burning, then gradually burns out, disappears, and releases the cell back to walkable.
 - The startup camp reserves a 3-cell clear radius where generated trees, bushes, forest groups, and other nature props are skipped.

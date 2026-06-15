@@ -4,8 +4,8 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyResidentAgent
     {
-        private const float SawmillWorkSecondsMin = 4.4f;
-        private const float SawmillWorkSecondsMax = 7.2f;
+        private const float SawmillWorkSecondsMin = 7.8f;
+        private const float SawmillWorkSecondsMax = 11.5f;
 
         private StrategySawmill sawmillWorkplace;
         private StrategySawmill activeSawmill;
