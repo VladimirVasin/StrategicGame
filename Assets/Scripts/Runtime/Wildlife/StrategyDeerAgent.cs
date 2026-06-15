@@ -65,6 +65,7 @@ namespace ProjectUnknown.Strategy
         private SpriteRenderer spriteRenderer;
         private SpriteRenderer outlineRenderer;
         private SpriteRenderer shadowRenderer;
+        private SpriteRenderer swimRippleRenderer;
         private StrategyDeerSex sex;
         private StrategyDeerBehaviorState state;
         private StrategyDeerLifeStage lifeStage = StrategyDeerLifeStage.Adult;
@@ -94,6 +95,7 @@ namespace ProjectUnknown.Strategy
         public StrategyDeerLifeStage LifeStage => lifeStage;
         public bool IsAdult => lifeStage == StrategyDeerLifeStage.Adult;
         public bool IsAlive => isAlive;
+        public bool IsPredatorReserved => predatorReservationOwner != null;
         public bool CanBeWolfPrey => IsAdult && isAlive && predatorReservationOwner == null;
         public bool CanBreed => IsAdult
             && isAlive

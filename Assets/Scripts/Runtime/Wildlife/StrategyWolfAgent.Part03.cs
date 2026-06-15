@@ -138,8 +138,9 @@ namespace ProjectUnknown.Strategy
 
             nextPathLogTime = Time.time + WolfPathLogCooldownSeconds;
             bool hasCurrentCell = TryGetCurrentCell(out Vector2Int currentCell);
-            bool currentWalkable = hasCurrentCell && map != null && map.IsCellWalkable(currentCell);
-            bool targetWalkable = map != null && map.IsCellWalkable(targetCell);
+            bool currentWalkable = hasCurrentCell
+                && StrategyWildlifeRiverCrossing.IsLandOrRiverCell(map, currentCell);
+            bool targetWalkable = StrategyWildlifeRiverCrossing.IsLandOrRiverCell(map, targetCell);
             StrategyDebugLogger.Warn(
                 "Wildlife",
                 "WolfPathFailed",

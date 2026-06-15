@@ -78,7 +78,10 @@ namespace ProjectUnknown.Strategy
             }
 
             Vector3 previous = transform.position;
-            transform.position = Vector3.MoveTowards(transform.position, targetWorld, speed * Time.deltaTime);
+            transform.position = Vector3.MoveTowards(
+                transform.position,
+                targetWorld,
+                StrategyWildlifeRiverCrossing.GetAdjustedSpeed(map, previous, targetWorld, speed) * Time.deltaTime);
             Vector3 delta = transform.position - previous;
             if (Mathf.Abs(delta.x) > 0.001f)
             {
@@ -87,7 +90,11 @@ namespace ProjectUnknown.Strategy
 
             if (delta.sqrMagnitude > MovingThresholdSqr)
             {
-                if (fleeing)
+                if (StrategyWildlifeRiverCrossing.IsSwimmingMove(map, previous, targetWorld))
+                {
+                    AnimateSwim();
+                }
+                else if (fleeing)
                 {
                     AnimateFlee();
                 }
@@ -339,7 +346,7 @@ namespace ProjectUnknown.Strategy
 
         private bool IsDeerWalkCell(Vector2Int cell)
         {
-            return map != null && map.IsCellWalkable(cell);
+            return StrategyWildlifeRiverCrossing.IsLandOrRiverCell(map, cell);
         }
 
         private float GetTerrainPreference(Vector2Int cell)

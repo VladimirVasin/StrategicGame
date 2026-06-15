@@ -108,7 +108,7 @@ namespace ProjectUnknown.Strategy
             Vector2 axis = formationAxis.sqrMagnitude > 0.001f
                 ? formationAxis.normalized
                 : Vector2.right;
-            string familyName = GetRandomFamilyName();
+            string familyName = ReserveFamilyName();
             int fatherId = AllocateResidentId();
             int motherId = AllocateResidentId();
 

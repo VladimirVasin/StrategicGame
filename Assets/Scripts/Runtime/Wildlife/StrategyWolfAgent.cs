@@ -74,8 +74,10 @@ namespace ProjectUnknown.Strategy
         private const float WalkSpeed = 0.92f;
         private const float StalkSpeed = 0.68f;
         private const float RunSpeed = 2.18f;
+        private const float PounceSpeed = 3.15f;
         private const float TargetReachDistance = 0.045f;
         private const float AttackReachDistance = 0.38f;
+        private const float PounceStartDistance = 2.65f;
         private const float MovingThresholdSqr = 0.000001f;
         private const float TargetRefreshInterval = 0.32f;
         private const float HuntSearchIntervalMin = 2.0f;
@@ -103,6 +105,7 @@ namespace ProjectUnknown.Strategy
         private SpriteRenderer spriteRenderer;
         private SpriteRenderer outlineRenderer;
         private SpriteRenderer shadowRenderer;
+        private SpriteRenderer swimRippleRenderer;
         private StrategyRabbitAgent targetRabbit;
         private StrategyDeerAgent targetDeer;
         private StrategyResidentAgent targetResident;
@@ -280,7 +283,7 @@ namespace ProjectUnknown.Strategy
 
         private void UpdateRoaming()
         {
-            AnimateWalk();
+            AnimateWalkOrSwim();
             if (TryAcquireTarget())
             {
                 return;
@@ -320,9 +323,9 @@ namespace ProjectUnknown.Strategy
 
             FaceWorldPoint(targetWorld);
             float distance = Vector2.Distance(transform.position, targetWorld);
-            if (distance <= AttackReachDistance * 2.7f)
+            if (distance <= PounceStartDistance)
             {
-                SetWolfState(StrategyWolfBehaviorState.Chasing, "target_in_chase_band");
+                SetWolfState(StrategyWolfBehaviorState.Chasing, "target_in_pounce_band");
                 path.Clear();
                 pathIndex = 0;
                 return;
@@ -342,7 +345,7 @@ namespace ProjectUnknown.Strategy
                 MoveDirectlyToward(targetWorld, StalkSpeed);
             }
 
-            AnimateStalk();
+            AnimateStalkOrSwim();
         }
 
         private void UpdateChasing()
@@ -375,10 +378,10 @@ namespace ProjectUnknown.Strategy
                 TryPathNearTarget(targetCell);
             }
 
-            bool pathCompleted = MoveAlongPath(RunSpeed);
+            bool pathCompleted = MoveAlongPath(PounceSpeed);
             if (pathCompleted || path.Count <= 0 || pathIndex >= path.Count)
             {
-                MoveDirectlyToward(targetWorld, RunSpeed);
+                MoveDirectlyToward(targetWorld, PounceSpeed);
             }
 
             if (Vector2.Distance(transform.position, targetWorld) <= AttackReachDistance)
@@ -387,7 +390,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            AnimateRun();
+            AnimateRunOrSwim();
         }
 
         private void UpdateAttacking()
@@ -434,7 +437,7 @@ namespace ProjectUnknown.Strategy
 
         private void UpdateAvoidingSettlement()
         {
-            AnimateRun();
+            AnimateRunOrSwim();
             if (path.Count <= 0 || pathIndex >= path.Count)
             {
                 if (!TryStartRoaming(true))

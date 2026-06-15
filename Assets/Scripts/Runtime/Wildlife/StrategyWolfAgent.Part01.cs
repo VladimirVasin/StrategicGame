@@ -237,7 +237,7 @@ namespace ProjectUnknown.Strategy
             for (int i = 0; i < CardinalDirections.Length; i++)
             {
                 Vector2Int candidate = targetCell + CardinalDirections[i];
-                if (map.IsCellWalkable(candidate) && TryBuildPathTo(candidate))
+                if (StrategyWildlifeRiverCrossing.IsLandOrRiverCell(map, candidate) && TryBuildPathTo(candidate))
                 {
                     LogWolfPathReady("target_adjacent", targetCell, candidate);
                     return true;
@@ -257,7 +257,10 @@ namespace ProjectUnknown.Strategy
             Vector3 targetWorld = path[pathIndex];
             targetWorld.z = transform.position.z;
             Vector3 previous = transform.position;
-            transform.position = Vector3.MoveTowards(transform.position, targetWorld, speed * Time.deltaTime);
+            transform.position = Vector3.MoveTowards(
+                transform.position,
+                targetWorld,
+                StrategyWildlifeRiverCrossing.GetAdjustedSpeed(map, previous, targetWorld, speed) * Time.deltaTime);
             Vector3 delta = transform.position - previous;
             TrackWolfMovementAttempt("path", previous, transform.position, targetWorld, speed);
             if (spriteRenderer != null && Mathf.Abs(delta.x) > 0.001f)
@@ -282,7 +285,7 @@ namespace ProjectUnknown.Strategy
         {
             if (map == null
                 || !TryGetPathStartCell(out Vector2Int startCell)
-                || !map.IsCellWalkable(targetCell))
+                || !StrategyWildlifeRiverCrossing.IsLandOrRiverCell(map, targetCell))
             {
                 return LogWolfPathFailed("path_prerequisite_failed", targetCell);
             }
@@ -313,7 +316,7 @@ namespace ProjectUnknown.Strategy
                 for (int i = 0; i < CardinalDirections.Length; i++)
                 {
                     Vector2Int next = current + CardinalDirections[i];
-                    if (visited.Contains(next) || !map.IsCellWalkable(next))
+                    if (visited.Contains(next) || !StrategyWildlifeRiverCrossing.IsLandOrRiverCell(map, next))
                     {
                         continue;
                     }
@@ -335,7 +338,7 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            if (map.IsCellWalkable(currentCell))
+            if (StrategyWildlifeRiverCrossing.IsLandOrRiverCell(map, currentCell))
             {
                 startCell = currentCell;
                 return true;
@@ -355,7 +358,7 @@ namespace ProjectUnknown.Strategy
                         }
 
                         Vector2Int candidate = currentCell + new Vector2Int(x, y);
-                        if (!map.IsCellWalkable(candidate))
+                        if (!StrategyWildlifeRiverCrossing.IsLandOrRiverCell(map, candidate))
                         {
                             continue;
                         }

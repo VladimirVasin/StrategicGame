@@ -14,6 +14,7 @@ namespace ProjectUnknown.Strategy
         private const int SpawnSearchAttempts = 360;
         private const int CampAvoidRadius = 10;
         private const int MaxDeerPopulation = 24;
+        private const int WolfDeerControlThreshold = 20;
         private const int MinRabbits = 16;
         private const int MaxRabbits = 22;
         private const int MaxRabbitGroups = 10;
@@ -21,6 +22,7 @@ namespace ProjectUnknown.Strategy
         private const int RabbitHomeRadius = 6;
         private const int MaxRabbitsPerGroup = 3;
         private const int MaxRabbitPopulation = 30;
+        private const int WolfRabbitControlThreshold = 24;
         private const int RabbitCampMinDistance = 7;
         private const int RabbitCampMaxDistance = 30;
         private const int RabbitGroupCenterMaxCampDistance = RabbitCampMaxDistance - 4;
@@ -388,86 +390,5 @@ namespace ProjectUnknown.Strategy
             return count;
         }
 
-        public bool TryReserveWolfPrey(
-            StrategyWolfAgent wolf,
-            Vector2Int center,
-            out StrategyRabbitAgent rabbit,
-            out StrategyDeerAgent deerTarget)
-        {
-            rabbit = null;
-            deerTarget = null;
-            if (wolf == null || map == null || IsWolfUnsafeSettlementCell(center))
-            {
-                return false;
-            }
-
-            RemoveMissingRabbits();
-            RemoveMissingDeer();
-            float radiusSqr = WolfHuntRadius * WolfHuntRadius;
-            float bestRabbitScore = float.MaxValue;
-            StrategyRabbitAgent bestRabbit = null;
-            for (int i = 0; i < rabbits.Count; i++)
-            {
-                StrategyRabbitAgent candidate = rabbits[i];
-                if (candidate == null
-                    || !candidate.CanBeWolfPrey
-                    || !candidate.TryGetCurrentCell(out Vector2Int cell)
-                    || IsWolfUnsafeSettlementCell(cell))
-                {
-                    continue;
-                }
-
-                float sqr = (cell - center).sqrMagnitude;
-                if (sqr > radiusSqr || sqr >= bestRabbitScore)
-                {
-                    continue;
-                }
-
-                bestRabbitScore = sqr;
-                bestRabbit = candidate;
-            }
-
-            if (bestRabbit != null && bestRabbit.TryReserveForPredator(wolf))
-            {
-                rabbit = bestRabbit;
-                return true;
-            }
-
-            if (wolf.PackMemberCount < 2)
-            {
-                return false;
-            }
-
-            float bestDeerScore = float.MaxValue;
-            StrategyDeerAgent bestDeer = null;
-            for (int i = 0; i < deer.Count; i++)
-            {
-                StrategyDeerAgent candidate = deer[i];
-                if (candidate == null
-                    || !candidate.CanBeWolfPrey
-                    || !candidate.TryGetCurrentCell(out Vector2Int cell)
-                    || IsWolfUnsafeSettlementCell(cell))
-                {
-                    continue;
-                }
-
-                float sqr = (cell - center).sqrMagnitude;
-                if (sqr > radiusSqr || sqr >= bestDeerScore)
-                {
-                    continue;
-                }
-
-                bestDeerScore = sqr;
-                bestDeer = candidate;
-            }
-
-            if (bestDeer == null || !bestDeer.TryReserveForPredator(wolf))
-            {
-                return false;
-            }
-
-            deerTarget = bestDeer;
-            return true;
-        }
     }
 }

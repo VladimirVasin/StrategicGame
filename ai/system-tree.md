@@ -1,6 +1,6 @@
 # System Tree
 
-Last updated: 2026-06-15
+Last updated: 2026-06-16
 
 This is a conceptual map of the current project. Keep concrete file ownership in `ai/systems-map.md`.
 
@@ -47,7 +47,8 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Creates and wires runtime wildlife after starter placement so deer, rabbits, fish, and birds spawn in valid terrain/water/habitat areas
     - Creates runtime time-scale controls for simulation speed hotkeys
     - Creates the refugee-arrival event controller and modal refugee decision HUD
-    - Creates the top status HUD with settlement population counts and a compact event log for births, deaths, and adoptions
+    - Creates the top status HUD with settlement population counts, a clickable population roster HUD, family tree scene entry point, and a compact event log for births, deaths, and adoptions
+    - Creates the auto workforce controller before the Profession HUD so worker automation and priority controls share one runtime state
   - Strategy debug logging
     - Writes structured session logs to `debug.log`
     - Uses the project root path in the Unity Editor and persistent data in player builds
@@ -156,7 +157,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Spawns 22-32 initial lake fish across up to 12 compact shoals on generated lake water regions with hard per-lake population caps
       - Spawns one-way pass-through river fish on a single timer along the generated river current
       - Spawns 20-32 decorative birds on species-appropriate meadow/grass, forest/near-forest, water, and shore cells
-      - Spawns 3-4 compact wolf packs on safe walkable land away from the campfire and dense settlement pressure
+      - Spawns 3-4 compact wolf packs on safe walkable land away from the campfire and dense settlement pressure, preferring alternating river sides when a generated river route exists
       - Avoids the startup campfire area when choosing deer herd and wolf pack spawn cells, and keeps only the first few rabbit groups close enough to the starter camp for early hunting
       - Wildlife agents do not block walkability and do not act as fog reveal sources
       - Two procedural 2.5D deer models exist: antlered male buck and smaller female doe
@@ -171,12 +172,14 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Wolves animate idle, walking, running, stalking, attacking, eating, and howling with frame-based sprites
       - Deer use short local grid paths inside a loose herd/home range
       - Rabbits use short local grid paths inside a loose group/home range
+      - Deer, rabbits, and wolves can path through generated River water cells as slowed swimming crossings, with water-ripple visuals, while Lake water remains blocked for land wildlife
       - Lake fish use short local lake-water paths inside a loose shoal/home range
       - River fish follow the generated river route from current start to end, then despawn
       - Birds fly between nearby habitat cells inside a loose home range and react to noisy residents by taking off
       - Deer herds, rabbit groups, wolf packs, bird homes, and lake fish shoals periodically migrate by retargeting their loose home centers across suitable habitat
-      - Land wildlife migration avoids dense settlement pressure and only advances through short connected walkable steps so groups do not jump through water or blockers
-      - Wolves use walkable-cell paths, roam near their current pack migration center, avoid high settlement pressure, and can hunt rabbits or deer to help control wildlife populations
+      - Land wildlife migration avoids dense settlement pressure and only advances through short connected land-or-river steps so groups do not jump through blockers or lakes
+      - Wolves use walkable-cell paths, roam near their current pack migration center, avoid high settlement pressure, and only hunt rabbits/deer when current population surplus is above high control thresholds
+      - Wolf attacks use normal stalking first, then a faster pounce/chase phase only once close to the selected prey
       - Wolves can reserve vulnerable adult residents away from the settlement and trigger normal `wolf_attack` resident death/funeral flow
       - Deer, rabbits, and fish react to nearby residents or noisy work such as chopping, mining, and construction
       - Adult does can reproduce when an adult buck is nearby in the same herd
@@ -364,6 +367,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Residents have runtime IDs, age, life stage, parent links, and child links for kinship-aware family rules
     - Resident family records persist after death so kinship checks can still traverse dead parents/ancestors
       - Completed `House` buildings first try to move in one whole homeless family that fits, then fall back to one random free man and one random free woman from camp instead of spawning new residents
+      - Newly formed adult male/female household pairs apply the husband's family name to the wife while preserving biological parent/child IDs for kinship and Family Trees
     - Houses support up to 5 residents and attach a household state after residents move in
     - Adult male/female house pairs can have children after a randomized household cooldown when they are not close relatives
     - Full houses do not produce more children until a resident leaves
@@ -394,7 +398,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Accepted refugees join the normal resident registry, keep their family block, and occupy the first available empty House as a whole family
     - Rejected refugee families walk back off-map and are removed
     - Adult children continue aging and can move from a parental home into an empty house, oldest first
-    - Single adult-child households periodically search for an adult opposite-gender partner from another parental home or the free camp pool, with close-relative checks
+    - Single adult-child households periodically search for an adult opposite-gender partner from another parental home or the free camp pool, with close-relative checks, and apply the same husband-family-name rule after partner move-in
     - Residents keep a reference to their home building once assigned
     - Residents store a random visual variant chosen at startup
     - Residents perform simple idle movement near their current camp/home using short walkable grid paths
@@ -415,6 +419,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Residents assigned as Haulers also path to Sawmill stock, carry Planks to storage, and deposit them
     - Residents assigned as Haulers also haul `Game`/`Fish` from production food stock or loose food piles into the nearest Granary
     - Residents hired as Storage Yard builders fetch reserved Logs/Stone/Planks, deliver them to construction sites, then build with hammer animations
+    - Auto workforce assignment scans eligible free adults every few seconds, releases surplus workers from overstaffed auto-managed professions, and assigns workers through existing worksite APIs based on construction, food, logistics, and material priorities
     - Residents removed from a role while carrying Logs, Stone, Iron, Coal, Planks, `Game`, or `Fish` first return the carried resource to the appropriate Storage Yard or Granary; hard interruption fallbacks preserve materials instead of deleting carried stock
     - Resident death drops all carried resources: construction Logs/Stone/Planks as loose construction piles, and generic Iron, Coal, Planks, `Game`, `Fish`, Berries, Roots, and Mushrooms as loose carried-resource piles
     - Completed houses first try to pull a homeless adult male/female pair, including residents who already have workplaces or construction assignments, then fall back to adult-child migration and partner lookup
@@ -461,7 +466,9 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Unity UI package installed
   - UI Toolkit module available through Unity modules
   - Custom runtime Build menu HUD
-  - Custom runtime top status HUD showing total population, adults, and children
+  - Custom runtime top status HUD showing total population, adults, and children; clicking it opens a larger residents roster HUD
+  - Custom runtime residents roster HUD showing settlement stats plus filterable resident rows for name, age, home state, role, current status, and food status
+  - Custom fullscreen Family Trees HUD opened from the residents roster; it pauses simulation, provides permanent horizontal/vertical scrollbars, lays kinship groups out as affinity-ordered left-to-right family columns, and shows compact generation rows connected as parent-child trees with deceased markers, gender symbols, and hover relationship labels
   - Custom compact runtime event log showing births, deaths, and adoptions
   - Custom runtime world inspect microHUD for clicked residents, graves, resources, nature props, and wildlife; buildings and construction sites use the right-side selection HUD only
   - Custom runtime Profession HUD
@@ -470,6 +477,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Generated profession icons
     - `-` / `+` assignment controls for lumberjacks, stonecutters, sawyers, miners, coal miners, hunters, fishers, Haulers, and builders
     - Haulers and builders use unlimited settlement-level assignment capacity when at least one Storage Yard exists; Haulers haul both storage resources and food to Granaries, while other production roles still use worksite slot caps
+    - `Auto Assign` toggle plus compact priority steppers for Construction, Food, Logistics, Wood, Stone, Planks, Iron, and Coal
   - Custom modal refugee decision HUD pauses the simulation and asks whether to accept or reject arriving families
   - Custom reusable confirmation dialog for destructive actions such as cancelling construction or demolishing buildings
 
@@ -511,6 +519,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Resident footsteps depend on population agents and the non-generated grass footstep clip set.
 - World selection uses placed-building/resident/construction-site colliders, inspectable world-object sprite bounds, generated map cell data, fog state, and the strategy camera.
 - Profession HUD depends on population adults and current worksite components; it owns player-facing worker assignment/removal while existing worksite components still own role state and work loops, with Storage Yard Haulers/builders treated as uncapped roles.
+- Auto workforce depends on population availability, Profession HUD priority settings, construction sites, Storage Yard builder/hauler APIs, production worksite stock/capacity, and Granary food ration availability.
 - Strategy camera checks UI pointer state so bottom HUD interaction does not pan/zoom the map.
 - New gameplay systems should be added here and mapped to concrete files/assets in `systems-map.md`.
 

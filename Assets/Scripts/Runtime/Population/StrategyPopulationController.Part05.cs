@@ -12,7 +12,7 @@ namespace ProjectUnknown.Strategy
             int adultChildren = 0;
             for (int familyIndex = 0; familyIndex < InitialFamilyCount; familyIndex++)
             {
-                string familyName = GetRandomFamilyName();
+                string familyName = ReserveFamilyName();
                 int fatherId = AllocateResidentId();
                 int motherId = AllocateResidentId();
                 float fatherAge = Random.Range(InitialFatherAgeMin, InitialFatherAgeMax);

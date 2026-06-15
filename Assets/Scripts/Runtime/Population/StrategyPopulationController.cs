@@ -3,45 +3,6 @@ using UnityEngine;
 
 namespace ProjectUnknown.Strategy
 {
-    internal sealed class StrategyResidentFamilyRecord
-    {
-        private readonly List<int> childIds = new();
-
-        public int ResidentId { get; private set; }
-        public StrategyResidentGender Gender { get; private set; }
-        public int FatherId { get; private set; }
-        public int MotherId { get; private set; }
-        public string FamilyName { get; private set; }
-        public bool IsAlive { get; private set; }
-        public IReadOnlyList<int> ChildIds => childIds;
-
-        public void Configure(StrategyResidentAgent resident, bool isAlive)
-        {
-            if (resident == null)
-            {
-                return;
-            }
-
-            ResidentId = resident.ResidentId;
-            Gender = resident.Gender;
-            FatherId = resident.FatherId;
-            MotherId = resident.MotherId;
-            FamilyName = resident.FamilyName;
-            IsAlive = isAlive;
-            childIds.Clear();
-
-            IReadOnlyList<int> residentChildren = resident.ChildIds;
-            for (int i = 0; i < residentChildren.Count; i++)
-            {
-                int childId = residentChildren[i];
-                if (childId > 0 && !childIds.Contains(childId))
-                {
-                    childIds.Add(childId);
-                }
-            }
-        }
-    }
-
     [DisallowMultipleComponent]
     public sealed partial class StrategyPopulationController : MonoBehaviour
     {
@@ -144,6 +105,7 @@ namespace ProjectUnknown.Strategy
         private readonly List<StrategyPlacedBuilding> houses = new();
         private readonly Dictionary<int, StrategyResidentAgent> residentsById = new();
         private readonly Dictionary<int, StrategyResidentFamilyRecord> familyRecordsById = new();
+        private readonly Dictionary<string, int> familyNameUseCounts = new();
         private CityMapController map;
         private Transform residentRoot;
         private StrategyFuneralController funeralController;
@@ -154,6 +116,7 @@ namespace ProjectUnknown.Strategy
         private bool hasStarterCamp;
 
         public IReadOnlyList<StrategyResidentAgent> Residents => residents;
+        internal IReadOnlyCollection<StrategyResidentFamilyRecord> FamilyRecords => familyRecordsById.Values;
         public int TotalResidentCount => CountResidents(false, false);
         public int AdultResidentCount => CountResidents(true, false);
         public int ChildResidentCount => CountResidents(false, true);
@@ -422,6 +385,7 @@ namespace ProjectUnknown.Strategy
             male.AssignHome(house, maleWorld);
             female.AssignHome(house, femaleWorld);
             ConfigureHousehold(house);
+            ApplyMarriageSurname(male, female, house);
             StrategyDebugLogger.Info(
                 "Population",
                 "HouseResidentsAssigned",

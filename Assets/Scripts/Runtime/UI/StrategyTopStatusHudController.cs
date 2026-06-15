@@ -9,9 +9,16 @@ namespace ProjectUnknown.Strategy
         private const float RefreshInterval = 0.25f;
 
         private StrategyPopulationController population;
+        private StrategyPopulationRosterHudController rosterHud;
         private Text populationText;
         private bool initialized;
         private float refreshTimer;
+
+        public void Configure(StrategyPopulationController populationController, StrategyPopulationRosterHudController rosterController)
+        {
+            rosterHud = rosterController != null ? rosterController : rosterHud;
+            Configure(populationController);
+        }
 
         public void Configure(StrategyPopulationController populationController)
         {
@@ -74,11 +81,15 @@ namespace ProjectUnknown.Strategy
 
             Image background = panel.gameObject.AddComponent<Image>();
             background.color = new Color(0.08f, 0.11f, 0.13f, 0.92f);
-            background.raycastTarget = false;
+            background.raycastTarget = true;
 
             Outline outline = panel.gameObject.AddComponent<Outline>();
             outline.effectColor = new Color(0f, 0f, 0f, 0.38f);
             outline.effectDistance = new Vector2(1.4f, -1.4f);
+
+            Button button = panel.gameObject.AddComponent<Button>();
+            button.targetGraphic = background;
+            button.onClick.AddListener(TogglePopulationRoster);
 
             populationText = CreateText("PopulationText", panel, string.Empty, 15, TextAnchor.MiddleCenter, new Color(0.95f, 0.88f, 0.62f));
             populationText.fontStyle = FontStyle.Bold;
@@ -103,6 +114,23 @@ namespace ProjectUnknown.Strategy
             populationText.text = "Population " + total
                 + "   adults " + adults
                 + " / children " + children;
+        }
+
+        private void TogglePopulationRoster()
+        {
+            if (rosterHud == null)
+            {
+                rosterHud = Object.FindAnyObjectByType<StrategyPopulationRosterHudController>();
+            }
+
+            if (rosterHud == null)
+            {
+                GameObject rosterObject = new GameObject("Strategy Population Roster HUD");
+                rosterHud = rosterObject.AddComponent<StrategyPopulationRosterHudController>();
+            }
+
+            rosterHud.Configure(population);
+            rosterHud.Toggle();
         }
 
         private static GameObject CreateUiObject(string name, Transform parent)

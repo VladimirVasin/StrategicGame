@@ -40,6 +40,7 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
+            ApplyMarriageSurname(resident, partner, house);
             StrategyDebugLogger.Info(
                 "Population",
                 "ResidentMovedAsPartner",
@@ -157,6 +158,51 @@ namespace ProjectUnknown.Strategy
             }
 
             return moved;
+        }
+
+        private void ApplyMarriageSurname(
+            StrategyResidentAgent first,
+            StrategyResidentAgent second,
+            StrategyPlacedBuilding house)
+        {
+            if (first == null
+                || second == null
+                || first.Gender == second.Gender)
+            {
+                return;
+            }
+
+            StrategyResidentAgent husband = first.Gender == StrategyResidentGender.Male
+                ? first
+                : second;
+            StrategyResidentAgent wife = first.Gender == StrategyResidentGender.Female
+                ? first
+                : second;
+            string husbandFamily = husband.FamilyName;
+            if (string.IsNullOrWhiteSpace(husbandFamily) || wife.FamilyName == husbandFamily)
+            {
+                return;
+            }
+
+            string previousName = wife.FullName;
+            string previousFamily = wife.FamilyName;
+            if (!wife.TryChangeFamilyName(husbandFamily))
+            {
+                return;
+            }
+
+            UpsertFamilyRecord(wife, true);
+            StrategyDebugLogger.Info(
+                "Population",
+                "MarriageSurnameChanged",
+                StrategyDebugLogger.F("wife", wife.FullName),
+                StrategyDebugLogger.F("wifeId", wife.ResidentId),
+                StrategyDebugLogger.F("husband", husband.FullName),
+                StrategyDebugLogger.F("husbandId", husband.ResidentId),
+                StrategyDebugLogger.F("previousName", previousName),
+                StrategyDebugLogger.F("previousFamily", previousFamily),
+                StrategyDebugLogger.F("newFamily", husbandFamily),
+                StrategyDebugLogger.F("houseOrigin", house != null ? house.Origin : Vector2Int.zero));
         }
 
         private static bool IsHouseBlockedByFoodShortage(StrategyPlacedBuilding house)

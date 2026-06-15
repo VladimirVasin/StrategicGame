@@ -8,6 +8,97 @@ Last updated: 2026-06-16
 
 ## Done
 
+### 2026-06-16 - Auto workforce surplus rebalance
+
+- Auto workforce now computes desired worker targets for all managed professions, not only free-worker demand.
+- Each auto tick releases surplus Lumberjacks, Stonecutters, Miners, Coal Miners, Sawyers, Hunters, Fishers, Haulers, and Builders through the normal worksite unassign APIs before filling higher-scored current demands.
+- Construction worker targets are capped by the Construction priority value, so default `Construction = 4` no longer auto-grows into 6+ Builders when multiple sites exist.
+- Released workers are only reused immediately when they are truly idle; workers returning carried resources become normal candidates on a later tick after the return flow finishes.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; full `.cs` line-count scan found no files over 500 lines.
+
+### 2026-06-16 - Marriage surname update on household pairing
+
+- Adult male/female household pair formation now applies the husband's family name to the wife when the pair first occupies a House or when a partner moves into a single-resident house.
+- Added a resident-level family-name change helper that preserves the given name, updates the GameObject name, refreshes the persistent family record, and logs `MarriageSurnameChanged`.
+- Biological parent/child IDs are unchanged, so Family Trees keeps birth-family links even after the visible current surname changes.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; full `.cs` line-count scan found no files over 500 lines; `git diff --check` passed with only the existing CRLF normalization warning for `Assembly-CSharp.csproj`.
+
+### 2026-06-16 - Family Trees relationship hover labels
+
+- Added always-visible gender symbols to Family Trees member cards.
+- Hovering a member card now shows relationship labels directly inside other recorded relatives' cards, including parent, child, sibling, co-parent/spouse inferred from shared children, grandparent, grandchild, aunt/uncle, niece/nephew, cousin, and generic kin fallback.
+- Family columns still size dynamically from generation row width and depth, and family-column order now uses a relationship-affinity pass so more closely linked family groups can appear next to each other when cross-family records exist.
+- Added `StrategyFamilyTreeHudController.Part03.cs` for relationship and affinity logic so Family Trees source files remain below the 500-line limit.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-16 - Family Trees column layout
+
+- Family Trees now lays family groups out as left-to-right family columns instead of vertical full-width bands.
+- Each family column uses compact generation rows, keeping parents on the same row and children on lower rows so parent-child links remain meaningful.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-16 - Compact Family Trees cards
+
+- Corrected the Family Trees family section width so ordinary family groups render as compact vertical cards instead of full-width horizontal bands.
+- Family groups now use compact column widths so the bottom scrollbar is used to browse across families.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-16 - Family tree card layout and deceased markers
+
+- Family Trees now has permanent vertical and horizontal scrollbars, leaving clear bottom/right scrollbar space around the viewport.
+- Family sections render as framed cards, preparing the layout for future visual links between related families.
+- Deceased relatives remain visible in the trees with muted monochrome cards, greyed portraits/text, and a generated pixel skull marker.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; full `.cs` line-count scan found no files over 500 lines.
+
+### 2026-06-16 - Family tree surname collision fix
+
+- Family Trees now groups recorded residents by connected kinship components instead of unique family-name strings, so unrelated families with the same surname render as separate trees.
+- Duplicate surname trees receive numbered headers such as `Wintermere family 1` and `Wintermere family 2`.
+- New startup and refugee family blocks now reserve surnames from the least-used name pool, avoiding repeats until all built-in family names have been used.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; touched `.cs` files stayed below 500 lines.
+
+### 2026-06-16 - Family tree scene HUD
+
+- Added a fullscreen modal `StrategyFamilyTreeHudController` opened from the Residents HUD through a `Family Trees` button.
+- Family Trees uses `StrategyTimeScaleController` pause locks while open, supports Escape/Back close, and provides horizontal/vertical scrolling for large family layouts.
+- The tree view groups recorded members by connected kinship components, lays them out by generation, draws parent-child connection lines, and shows portrait/name/status cards for living and deceased family members.
+- Raised the Family Trees canvas above the Profession HUD, made the modal background opaque, added a permanent right-side vertical scrollbar, increased smooth scroll responsiveness, and added center-pivot hover scaling for member cards.
+- Moved `StrategyResidentFamilyRecord` into its own file and extended family records with full name, age, life stage, and visual variant data so deceased relatives can still appear in family trees with portraits.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; full `.cs` line-count scan found no files over 500 lines.
+
+### 2026-06-16 - Population roster HUD
+
+- Added a runtime `StrategyPopulationRosterHudController` opened from the top population bar.
+- The roster shows settlement-wide resident stats plus filterable resident rows with name, age, home/camp state, role, current status, and food status.
+- Added shared `StrategyResidentHudText` formatting so the roster and selection HUD use the same resident role/status labels; logistics residents now display as `Hauler` instead of split storage/granary worker labels.
+- The compact top population HUD remains the count display, but its population panel is now clickable and toggles the larger roster HUD.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; full `.cs` line-count scan found no files over 500 lines.
+
+### 2026-06-16 - Smart auto workforce assignment
+
+- Added `StrategyAutoWorkforceController` with demand scoring for construction, food, logistics, Wood, Stone, Planks, Iron, and Coal priorities.
+- Auto workforce ticks every few seconds, gathers eligible free adults, scores work demands by player priority, shortage, urgency, storage backlog, construction readiness, and resident distance, then assigns the nearest free adults through existing worksite APIs.
+- Profession HUD now includes an `Auto Assign` toggle plus compact priority steppers; manual worker removal creates a short profession override so auto-fill does not immediately undo the player's action.
+- Auto builders are hired through Storage Yards and then dispatched by the existing balanced construction-site builder routing; Haulers remain the single logistics profession for storage resources and Granary food hauling.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; full `.cs` line-count scan found no files over 500 lines; no duplicate `.csproj` compile items were found; `git diff --check` reported only the existing CRLF normalization warning for `Assembly-CSharp.csproj`.
+
+### 2026-06-16 - Land wildlife river swimming
+
+- Added river-crossing support for land wildlife without changing global map walkability: deer, rabbits, and wolves can path through generated River water cells, while Lake water remains water-only.
+- Deer/rabbit/wolf movement now slows while crossing river cells and uses a swimming visual: slower movement animation plus a generated water-ripple child sprite.
+- Wildlife migration connection checks now treat River water as passable so herds, rabbit groups, and wolf packs can migrate across both river sides while still choosing land cells as homes/targets.
+- Added `StrategyWildlifeRiverCrossing.cs` plus small deer/rabbit/wolf swim partials; kept all `.cs` files at or below the 500-line limit.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-16 - Wolf population-control hunting
+
+- Analyzed `debug.log`: wolves were not movement-stalled, but were continuously hunting available rabbits/deer and killed 18 rabbits plus 8 deer in about 150 seconds of logged simulation.
+- Changed wolf prey reservation so wolves only hunt rabbit/deer surplus above high control thresholds, subtracting active predator reservations and hunter-reserved rabbits from the available surplus.
+- Added a short fast pounce phase: wolves stalk at normal stalking speed, then switch to `Chasing` only inside the pounce band and close at higher speed.
+- Wolf pack spawn selection now alternates preferred river sides when a generated river route exists, with a logged fallback if one side has no valid safe candidate.
+- Added `StrategyWildlifeController.Part09.cs` for wolf population-control prey lookup and river-side wolf-pack placement so source files stay below the 500-line limit.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; full `.cs` line-count scan found no files over 500 lines; `git diff --check` only reported the existing CRLF normalization warning for `Assembly-CSharp.csproj`.
+
 ### 2026-06-16 - Unity recovery import guard
 
 - Moved the untracked `Assets/_Recovery` scene recovery folder out of `Assets` into a local ignored backup folder so Unity stops importing the stale recovery scene as a project asset.

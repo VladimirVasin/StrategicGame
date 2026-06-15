@@ -71,7 +71,9 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
-            if (map == null || !map.IsCellWalkable(start) || !map.IsCellWalkable(target))
+            if (map == null
+                || !StrategyWildlifeRiverCrossing.IsLandOrRiverCell(map, start)
+                || !StrategyWildlifeRiverCrossing.IsLandOrRiverCell(map, target))
             {
                 return false;
             }
@@ -87,7 +89,7 @@ namespace ProjectUnknown.Strategy
                 for (int i = 0; i < CardinalDirections.Length; i++)
                 {
                     Vector2Int next = current + CardinalDirections[i];
-                    if (visited.Contains(next) || !map.IsCellWalkable(next))
+                    if (visited.Contains(next) || !StrategyWildlifeRiverCrossing.IsLandOrRiverCell(map, next))
                     {
                         continue;
                     }
@@ -276,7 +278,7 @@ namespace ProjectUnknown.Strategy
             int spawnedPacks = 0;
             for (int packIndex = 0; packIndex < targetPacks; packIndex++)
             {
-                if (!TryFindWolfPackCenter(packIndex, usedCells, out Vector2Int packCenter))
+                if (!TryFindWolfPackCenter(packIndex, usedCells, GetPreferredWolfRiverSide(packIndex), out Vector2Int packCenter))
                 {
                     StrategyDebugLogger.Warn(
                         "Wildlife",

@@ -304,6 +304,16 @@ namespace ProjectUnknown.Strategy
             selection.Configure(mainCamera, buildMenu, upgrades, fog, population, forestry, placement, confirmationDialog, map);
             StrategyDebugLogger.Info("Bootstrap", "SelectionReady");
 
+            StrategyAutoWorkforceController autoWorkforce = Object.FindAnyObjectByType<StrategyAutoWorkforceController>();
+            if (autoWorkforce == null)
+            {
+                GameObject autoWorkforceObject = new GameObject("Strategy Auto Workforce");
+                autoWorkforce = autoWorkforceObject.AddComponent<StrategyAutoWorkforceController>();
+            }
+
+            autoWorkforce.Configure(population);
+            StrategyDebugLogger.Info("Bootstrap", "AutoWorkforceReady");
+
             StrategyProfessionHudController professionHud = Object.FindAnyObjectByType<StrategyProfessionHudController>();
             if (professionHud == null)
             {
@@ -311,8 +321,18 @@ namespace ProjectUnknown.Strategy
                 professionHud = professionHudObject.AddComponent<StrategyProfessionHudController>();
             }
 
-            professionHud.Configure(population);
+            professionHud.Configure(population, autoWorkforce);
             StrategyDebugLogger.Info("Bootstrap", "ProfessionHudReady");
+
+            StrategyPopulationRosterHudController populationRosterHud = Object.FindAnyObjectByType<StrategyPopulationRosterHudController>();
+            if (populationRosterHud == null)
+            {
+                GameObject populationRosterHudObject = new GameObject("Strategy Population Roster HUD");
+                populationRosterHud = populationRosterHudObject.AddComponent<StrategyPopulationRosterHudController>();
+            }
+
+            populationRosterHud.Configure(population);
+            StrategyDebugLogger.Info("Bootstrap", "PopulationRosterHudReady");
 
             StrategyTopStatusHudController topStatusHud = Object.FindAnyObjectByType<StrategyTopStatusHudController>();
             if (topStatusHud == null)
@@ -321,7 +341,7 @@ namespace ProjectUnknown.Strategy
                 topStatusHud = topStatusHudObject.AddComponent<StrategyTopStatusHudController>();
             }
 
-            topStatusHud.Configure(population);
+            topStatusHud.Configure(population, populationRosterHud);
             StrategyDebugLogger.Info("Bootstrap", "TopStatusHudReady");
 
             StrategyEventLogHudController eventLogHud = Object.FindAnyObjectByType<StrategyEventLogHudController>();

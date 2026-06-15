@@ -287,43 +287,6 @@ namespace ProjectUnknown.Strategy
             return Random.value < 0.42f ? StrategyRabbitSex.Male : StrategyRabbitSex.Female;
         }
 
-        private bool TryFindWolfPackCenter(int pack, HashSet<Vector2Int> usedCells, out Vector2Int cell)
-        {
-            cell = default;
-            float bestScore = float.MinValue;
-            bool found = false;
-            for (int attempt = 0; attempt < SpawnSearchAttempts; attempt++)
-            {
-                int x = Hash(map.ActiveSeed, pack, attempt, 1051, 1091) % map.Width;
-                int y = Hash(map.ActiveSeed, pack, attempt, 1123, 1151) % map.Height;
-                Vector2Int candidate = new Vector2Int(x, y);
-                if (usedCells.Contains(candidate) || !IsWolfPackCenterCandidate(candidate))
-                {
-                    continue;
-                }
-
-                float campScore = hasCampCell
-                    ? Mathf.Clamp(Vector2Int.Distance(candidate, campCell) - WolfCampAvoidRadius, 0f, 28f) * 0.16f
-                    : 0f;
-                float score = GetWolfTerrainScore(candidate)
-                    + CountWalkableNeighbors(candidate, 3) * 0.24f
-                    + campScore
-                    - GetSettlementPressure(candidate) * 4.2f
-                    - GetUsedCellSpacingPenalty(candidate, usedCells, 14, 0.40f)
-                    + Hash01(map.ActiveSeed, candidate.x, candidate.y, pack + 607) * 0.25f;
-                if (score <= bestScore)
-                {
-                    continue;
-                }
-
-                bestScore = score;
-                cell = candidate;
-                found = true;
-            }
-
-            return found;
-        }
-
         private bool TryFindWolfSpawnCell(
             Vector2Int packCenter,
             int pack,

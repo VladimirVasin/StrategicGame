@@ -1,6 +1,6 @@
 # Systems Map
 
-Last updated: 2026-06-15
+Last updated: 2026-06-16
 
 Use this file as the first navigation pass before broad searches. Owner cards are starting points, not hard boundaries.
 
@@ -100,9 +100,10 @@ Responsibilities:
 - Create/configure runtime wildlife after starter placement so deer/rabbits use valid land and fish use valid water cells.
 - Create/configure visual day/night cycle after camera setup.
 - Create the runtime time-scale controller for F1/F2/F3 speed controls.
-- Create/configure the top status HUD with population counts and the compact event log with birth/death/adoption messages.
+- Create/configure the top status HUD with population counts, the larger resident roster HUD, the family tree modal scene, and the compact event log with birth/death/adoption messages.
 - Create/configure refugee arrivals and the modal refugee decision HUD.
 - Create/configure the reusable confirmation dialog used by destructive world-selection actions.
+- Create/configure the auto workforce controller before the Profession HUD so automation settings and manual overrides have one shared runtime owner.
 
 Primary files/assets:
 
@@ -123,9 +124,18 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Map/StrategyWindController.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.cs`
 - `Assets/Scripts/Runtime/Population/StrategyRefugeeArrivalController.cs`
+- `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceController.cs`
 - `Assets/Scripts/Runtime/UI/StrategyRefugeeDialogController.cs`
 - `Assets/Scripts/Runtime/UI/StrategyConfirmationDialogController.cs`
 - `Assets/Scripts/Runtime/UI/StrategyTopStatusHudController.cs`
+- `Assets/Scripts/Runtime/UI/StrategyPopulationRosterHudController.cs`
+- `Assets/Scripts/Runtime/UI/StrategyPopulationRosterHudController.Part01.cs`
+- `Assets/Scripts/Runtime/UI/StrategyFamilyTreeHudController.cs`
+- `Assets/Scripts/Runtime/UI/StrategyFamilyTreeHudController.Part01.cs`
+- `Assets/Scripts/Runtime/UI/StrategyFamilyTreeHudController.Part02.cs`
+- `Assets/Scripts/Runtime/UI/StrategyFamilyTreeHudController.Part03.cs`
+- `Assets/Scripts/Runtime/UI/StrategyPopulationRosterRowView.cs`
+- `Assets/Scripts/Runtime/UI/StrategyResidentHudText.cs`
 - `Assets/Scripts/Runtime/UI/StrategyEventLogHudController.cs`
 - `Assets/Scenes/SampleScene.unity`
 
@@ -409,10 +419,10 @@ Responsibilities:
 - Spawn compact lake fish shoals on suitable generated lake regions with strict per-shoal and per-lake population caps.
 - Spawn one-way pass-through river fish along the generated river current through a single timer.
 - Spawn decorative birds on species-appropriate land/water cells without reproduction or resources.
-- Spawn compact wolf packs on safe walkable land away from the startup camp and dense settlement pressure.
+- Spawn compact wolf packs on safe walkable land away from the startup camp and dense settlement pressure, preferring alternating river sides when a generated river route exists.
 - Provide adult-rabbit reservation/count lookup for hunter camps.
 - Provide catchable-fish reservation/count lookup for fisher huts.
-- Provide wolf predator reservation hooks for rabbits/deer and vulnerable far-from-settlement adult residents.
+- Provide wolf predator reservation hooks for rabbit/deer surplus above high population-control thresholds and for vulnerable far-from-settlement adult residents.
 - Generate and cache runtime 2.5D pixel-art deer sprites for male bucks and female does.
 - Generate and cache runtime 2.5D pixel-art rabbit sprites for male and female visuals.
 - Generate and cache runtime pixel-art fish sprites for Minnow, Carp, and Perch visuals.
@@ -426,6 +436,7 @@ Responsibilities:
 - Animate wolves through idle, roaming, stalking, chasing, attacking, feeding, avoiding-settlement, resting, and howling states.
 - Keep deer on local walkable-cell paths inside loose herd/home ranges without blocking map cells.
 - Keep rabbits on local walkable-cell paths inside loose group/home ranges without blocking map cells.
+- Let deer, rabbits, and wolves treat generated River cells as passable swimming crossings with slowed movement and ripple visuals, while still rejecting Lake water for land wildlife.
 - Keep lake fish on local lake-water paths inside loose shoal/home ranges without blocking map cells.
 - Keep river fish on the generated river route until they despawn at the route end.
 - Keep birds on local habitat choices inside loose home ranges without blocking map cells.
@@ -444,16 +455,21 @@ Responsibilities:
 - Keep fish reproduction under the hard 36-fish runtime population cap, the 3-fish per-shoal cap, and the stricter per-lake region cap.
 - Keep river fish non-reproductive and controlled by the active river-fish cap.
 - Let fisher huts reserve adult fish, choose valid land/shore stand cells with adjacent water, abandon casts when fish leave cast range before hooking, and yield local `Fish` after reeling.
-- Let wolves hunt rabbits/deer with direct final-position chase fallback after reaching the target cell, and threaten adult residents only when the target is outside the settlement safety pressure.
+- Let wolves hunt rabbit/deer surplus with normal stalking plus a short fast pounce phase, then direct final-position chase fallback after reaching the target cell, and threaten adult residents only when the target is outside the settlement safety pressure.
 
 Primary files/assets:
 
 - `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.Part09.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeRiverCrossing.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyDeerAgent.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyDeerAgent.Part03.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyDeerSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyRabbitAgent.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyRabbitAgent.Part03.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyRabbitSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWolfAgent.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyWolfAgent.Part04.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWolfSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Build/StrategyHunterCamp.cs`
 - `Assets/Scripts/Runtime/Build/StrategyFisherHut.cs`
@@ -475,10 +491,13 @@ Impact hints:
 - Initial rabbit spawn depends on the starter camp cell; keep the first few groups close enough for early hunter-camp use, but keep later groups map-wide so rabbits do not collapse into one starter-area cluster.
 - Deer pathing depends on `CityMapController.IsCellWalkable` and should stay local/cheap until a shared pathfinding service exists.
 - Rabbit pathing uses the same local walkable-cell approach and should stay cheap until a shared pathfinding service exists.
+- Land wildlife river crossing is intentionally scoped to wildlife path helpers through `StrategyWildlifeRiverCrossing`; do not change global `CityMapController` walkability to make River water walkable for residents, buildings, or construction.
 - Fish pathing uses `CityMapCellKind.Water` plus `CityMapWaterKind` instead of `IsCellWalkable`, because water is intentionally not walkable for land agents and lake/river fish now have separate movement rules.
 - Migration state is owned by `StrategyWildlifeController`; agents only expose small retarget methods for their current home/roam center and should keep per-frame movement local.
 - Reproduction is owned by `StrategyWildlifeController`; deer/rabbit/fish agents own species or sex, life stage, growth, movement, and animation state. Birds are decorative and do not reproduce yet; wolves do not reproduce yet and use pack spawn only.
 - Wolf settlement avoidance is pressure-based and reads camp position, placed buildings, and nearby residents; keep it cheaper than per-frame global scans by using the controller cache.
+- Wolf prey lookup is population-control logic, not continuous hunting: rabbit hunting only starts above the rabbit control threshold after subtracting predator and hunter reservations, and deer hunting only starts above the deer control threshold after subtracting predator reservations.
+- Wolf pack placement uses the generated river route to prefer alternating river sides, but falls back to any valid safe side and logs `WolfPackRiverSideFallback` if one side has no candidate.
 - Wolf movement diagnostics are owned by `StrategyWolfAgent` and log state changes, target acquisition/release, path readiness/failures, roam failures, and movement stalls under the `Wildlife` log category.
 - `FishLakeBirthBlocked` debug logging is throttled per lake region; keep cap checks cheap and avoid per-fish spam when a lake is full.
 - Future deer hunting, leather, broader predator ecology, wolf HUD, or animal saving should extend this subsystem instead of adding animal behavior into population or nature-prop code.
@@ -673,13 +692,27 @@ Responsibilities:
 
 - Runtime-created top status canvas.
 - Show total settlement population, adult count, and child count.
+- Treat the compact population panel as a click target that toggles the larger resident roster HUD.
+- Show a larger residents roster HUD with settlement stats plus filterable rows for name, age, home/camp state, role, current status, and food status.
+- Expose a `Family Trees` button from the residents roster.
+- Show a fullscreen modal Family Trees HUD that pauses simulation, has permanent horizontal/vertical scrollbars, groups recorded members by connected kinship components, lays those groups out as affinity-ordered left-to-right family columns with compact generation rows, and draws parent-child portrait-card trees with distinct deceased cards, gender symbols, and hover relationship labels.
+- Share resident role/status/home/food label formatting through `StrategyResidentHudText`.
 - Show compact birth, death, and adoption messages through a separate event-log canvas.
 - Refresh counts from `StrategyPopulationController` without owning population state.
 
 Primary files/assets:
 
 - `Assets/Scripts/Runtime/UI/StrategyTopStatusHudController.cs`
+- `Assets/Scripts/Runtime/UI/StrategyPopulationRosterHudController.cs`
+- `Assets/Scripts/Runtime/UI/StrategyPopulationRosterHudController.Part01.cs`
+- `Assets/Scripts/Runtime/UI/StrategyFamilyTreeHudController.cs`
+- `Assets/Scripts/Runtime/UI/StrategyFamilyTreeHudController.Part01.cs`
+- `Assets/Scripts/Runtime/UI/StrategyFamilyTreeHudController.Part02.cs`
+- `Assets/Scripts/Runtime/UI/StrategyFamilyTreeHudController.Part03.cs`
+- `Assets/Scripts/Runtime/UI/StrategyPopulationRosterRowView.cs`
+- `Assets/Scripts/Runtime/UI/StrategyResidentHudText.cs`
 - `Assets/Scripts/Runtime/UI/StrategyEventLogHudController.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentFamilyRecord.cs`
 - `Assets/Scripts/Runtime/Population/StrategyPopulationController.cs`
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.cs`
 - `Assembly-CSharp.csproj`
@@ -687,7 +720,9 @@ Primary files/assets:
 Impact hints:
 
 - Population counts exclude pending refugee families until they are accepted into the settlement.
-- Keep this HUD informational; future clickable top-bar controls should coordinate with Build/Profession HUD positioning and raycasts.
+- Family Trees reads recorded family data, including deceased residents preserved by `StrategyResidentFamilyRecord`, and renders deceased relatives as muted monochrome cards with a skull marker.
+- Family Trees relationship labels and column affinity currently derive from recorded parent/child links plus co-parent inference through shared children; explicit marriage/birth-family links should extend this owner instead of overloading family-name grouping.
+- Keep top HUD click targets coordinated with Build/Profession HUD positioning and raycasts.
 
 ### Refugee Decision HUD
 
@@ -717,16 +752,21 @@ Responsibilities:
 - Runtime-created top-menu `Professions` button.
 - Show a large profession panel with dynamic rows only for professions unlocked by currently built worksites.
 - Show generated pixel-art profession icons, role labels, short role descriptions, assigned/capacity counts, and `-`/`+` controls.
+- Show the `Auto Assign` toggle and compact priority steppers for Construction, Food, Logistics, Wood, Stone, Planks, Iron, and Coal.
 - Aggregate assignment capacity/counts across all current lumberjack camps, stonecutter camps, sawmills, hunter camps, fisher huts, mines, coal pits, and storage yards.
 - Treat Storage Yard Haulers and hired builders as unlimited-capacity roles once at least one Storage Yard exists; other worksite roles keep their own slot caps.
 - Assign the next free adult resident to the first available worksite slot for the requested profession.
 - Remove one currently assigned resident from the requested profession through the owning worksite API.
 - Log player assignment/removal attempts and results.
+- Notify auto workforce when the player manually removes a worker so automation briefly avoids refilling that profession.
 
 Primary files/assets:
 
 - `Assets/Scripts/Runtime/UI/StrategyProfessionHudController.cs`
+- `Assets/Scripts/Runtime/UI/StrategyProfessionHudController.Part04.cs`
 - `Assets/Scripts/Runtime/UI/StrategyProfessionIconFactory.cs`
+- `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceController.cs`
+- `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceSettings.cs`
 - `Assets/Scripts/Runtime/Population/StrategyProfessionType.cs`
 - `Assets/Scripts/Runtime/Population/StrategyPopulationController.cs`
 - `Assets/Scripts/Runtime/Build/StrategyLumberjackCamp.cs`
@@ -745,8 +785,48 @@ Impact hints:
 - This HUD owns player-facing worker assignment/removal; selected-building microHUDs should remain informational for worksite status/resource context.
 - Assignment still uses each worksite's existing `TryAssignNextAvailable...` / `Unassign...At` API, so role state, reservations, and work loops remain owned by the worksite/resident systems.
 - Hauler and builder `+` buttons should stay enabled as long as a Storage Yard exists and at least one free adult resident can work.
+- Auto workforce controls are UI-facing only; actual assignment decisions belong to `StrategyAutoWorkforceController`.
 - Dynamic rows are derived from currently existing worksite components, not from the build catalog.
 - New professions should be added here when a new worksite role becomes assignable by the player.
+
+### Auto Workforce
+
+Responsibilities:
+
+- Runtime-created settlement workforce automation.
+- Keep player priority settings for Construction, Food, Logistics, Wood, Stone, Planks, Iron, and Coal.
+- Tick every few seconds instead of every frame.
+- Scan eligible free adults through `StrategyPopulationController.Residents`.
+- Compute desired targets for every auto-managed profession and release surplus workers through normal worksite unassign APIs before filling higher-scored demands.
+- Ignore children, pending refugees, funeral duty, household foraging/food duty, householders, residents with external workplaces, and active construction assignees through resident availability flags.
+- Build work demands from active construction sites, Granary ration reserve, production-worksite stock/capacity, Storage Yard/Granary logistics backlog, and construction material needs.
+- Score demands by priority, urgency, shortage, worksite need, construction readiness, storage backlog, and resident distance.
+- Assign nearest free adults through existing worksite APIs instead of mutating resident/worksite lists directly.
+- Hire builders through Storage Yards so existing balanced construction dispatch remains the owner of construction-site assignment.
+- Treat Haulers as the single automated logistics profession for storage resources and Granary food movement.
+- Register a short manual-removal override per profession so auto-fill does not immediately undo player `-` clicks.
+- Log demand, assignment, skipped assignment, manual override, priority, and tick status events.
+
+Primary files/assets:
+
+- `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceController.cs`
+- `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceController.Part01.cs`
+- `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceController.Part02.cs`
+- `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceController.Part03.cs`
+- `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceDemand.cs`
+- `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceSettings.cs`
+- `Assets/Scripts/Runtime/UI/StrategyProfessionHudController.Part04.cs`
+- `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.cs`
+- `Assembly-CSharp.csproj`
+
+Impact hints:
+
+- Auto workforce can release surplus workers from overstaffed auto-managed professions, then immediately reuse only residents who become idle; workers returning carried resources re-enter the free pool on later ticks.
+- Auto workforce does not force-reassign home duty, funeral duty, or residents still busy returning carried resources.
+- Demand scoring should continue to call public worksite APIs (`AssignWorker`, `AssignBuilder`, Storage Yard builder dispatch) so cancellation, carried-resource return, reservations, and resident state cleanup stay centralized.
+- Food automation should keep using Hunter/Fisher production plus shared Haulers into Granaries; do not reintroduce a separate player-facing Granary Worker profession.
+- Builder automation should hire Storage Yard builders and let `StrategyStorageYard.TryAssignBuildersToSite` balance actual construction-site assignment.
+- Priority UI labels and debug event labels must stay in English.
 
 ### Build Placement
 
@@ -1078,6 +1158,7 @@ Responsibilities:
 - Assign random Germanic/Nordic-style full names and age-appropriate adult ages to startup family members.
 - Track resident runtime IDs, age, life stage, parent links, and child links.
 - Keep lightweight family records for live and dead residents so ancestry-based kinship checks survive parent/ancestor death.
+- Apply the husband's family name to the wife when an adult male/female household pair is formed.
 - Adopt minor children with no living parents into eligible adult households without rewriting biological parent IDs.
 - Track placed house records for household migration checks.
 - Attach household birth state to occupied houses.
@@ -1087,6 +1168,7 @@ Responsibilities:
 - Check close kinship through resident parent/ancestor links for future family/couple rules.
 - Populate completed houses from the homeless adult male/female pool when possible, even if those residents already have workplaces or construction assignments.
 - Fall back to free-house migration and partner lookup when no free pair can immediately occupy a completed house.
+- Refresh persistent family records after marriage surname changes so Family Trees and HUDs see the current name while biological kinship IDs stay intact.
 - Bind assigned residents to their home building.
 - Spawn children for valid adult male/female house pairs after randomized household cooldowns when house capacity allows.
 - Keep children younger than 3 years old inside their assigned home by hiding their world sprite/collider and skipping outdoor idle/funeral movement until they age out.
@@ -1257,6 +1339,7 @@ Impact hints:
 - Resident crying sprites are generated for adult and child funeral mourning/waiting states and should stay in sync with readability outline mirroring.
 - Chickens use the same local path style as before; their animation is visual-only.
 - House construction no longer consumes residents as builders; after completion, the finished house tries to pull one homeless adult male and one homeless adult female from the starter camp/free pool, regardless of workplace or construction role.
+- Male/female household pair creation and partner move-in rename the wife to the husband's family name; this is a current display/name rule, not a separate explicit marriage entity yet.
 - Assigning a home should not cancel active workplace/construction tasks; idle residents can walk home immediately, and busy residents keep the home binding for later idle/home behavior.
 - If no free pair exists, the completed house is available for adult-child migration and partner lookup.
 - House occupation consumes the finite free-resident pool from the starter camp while it exists; later household births and adult-child migration are the first internal population growth path.

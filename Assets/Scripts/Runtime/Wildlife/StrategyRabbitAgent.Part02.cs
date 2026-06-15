@@ -112,7 +112,7 @@ namespace ProjectUnknown.Strategy
 
         private bool IsRabbitWalkCell(Vector2Int cell)
         {
-            return map != null && map.IsCellWalkable(cell);
+            return StrategyWildlifeRiverCrossing.IsLandOrRiverCell(map, cell);
         }
 
         private float GetTerrainPreference(Vector2Int cell)
@@ -375,6 +375,7 @@ namespace ProjectUnknown.Strategy
         {
             StrategyWorldSorting.Apply(spriteRenderer, transform.position);
             SyncReadabilityRenderers();
+            UpdateSwimmingVisual();
         }
 
         private static Sprite CreateReadabilityShadowSprite()

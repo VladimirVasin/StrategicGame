@@ -23,7 +23,10 @@ namespace ProjectUnknown.Strategy
         {
             Vector3 target = new Vector3(targetWorld.x, targetWorld.y, transform.position.z);
             Vector3 previous = transform.position;
-            transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
+            transform.position = Vector3.MoveTowards(
+                transform.position,
+                target,
+                StrategyWildlifeRiverCrossing.GetAdjustedSpeed(map, previous, target, speed) * Time.deltaTime);
             Vector3 delta = transform.position - previous;
             TrackWolfMovementAttempt("direct", previous, transform.position, target, speed);
             if (spriteRenderer != null && Mathf.Abs(delta.x) > 0.001f)
@@ -122,6 +125,7 @@ namespace ProjectUnknown.Strategy
         {
             StrategyWorldSorting.Apply(spriteRenderer, transform.position);
             SyncReadabilityRenderers();
+            UpdateSwimmingVisual();
         }
 
         private static Sprite CreateReadabilityShadowSprite()

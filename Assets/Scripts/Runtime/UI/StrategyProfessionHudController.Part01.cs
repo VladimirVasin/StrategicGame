@@ -92,6 +92,7 @@ namespace ProjectUnknown.Strategy
                 ? TryAssign(type, out StrategyResidentAgent worker)
                 : TryRemove(type, out worker);
 
+            RegisterManualProfessionChange(type, assign, success);
             actionStatusText.text = GetActionMessage(type, assign, success, worker);
             StrategyDebugLogger.Info(
                 "ProfessionHud",

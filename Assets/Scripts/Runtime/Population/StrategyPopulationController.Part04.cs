@@ -330,17 +330,47 @@ namespace ProjectUnknown.Strategy
             return (int)(hash % (uint)count);
         }
 
-        private static string GenerateResidentName(StrategyResidentGender gender, string familyName = null)
+        private string GenerateResidentName(StrategyResidentGender gender, string familyName = null)
         {
             string[] firstNames = gender == StrategyResidentGender.Male ? MaleFirstNames : FemaleFirstNames;
             return firstNames[Random.Range(0, firstNames.Length)]
                 + " "
-                + (string.IsNullOrWhiteSpace(familyName) ? GetRandomFamilyName() : familyName);
+                + (string.IsNullOrWhiteSpace(familyName) ? ReserveFamilyName() : familyName);
         }
 
         private static string GetRandomFamilyName()
         {
             return FamilyNames[Random.Range(0, FamilyNames.Length)];
+        }
+
+        private string ReserveFamilyName()
+        {
+            int lowestUseCount = int.MaxValue;
+            List<string> candidates = new();
+            for (int i = 0; i < FamilyNames.Length; i++)
+            {
+                string familyName = FamilyNames[i];
+                familyNameUseCounts.TryGetValue(familyName, out int useCount);
+                if (useCount < lowestUseCount)
+                {
+                    lowestUseCount = useCount;
+                    candidates.Clear();
+                }
+
+                if (useCount == lowestUseCount)
+                {
+                    candidates.Add(familyName);
+                }
+            }
+
+            if (candidates.Count <= 0)
+            {
+                return GetRandomFamilyName();
+            }
+
+            string selected = candidates[Random.Range(0, candidates.Count)];
+            familyNameUseCounts[selected] = lowestUseCount + 1;
+            return selected;
         }
 
         private void EnsureResidentRoot()

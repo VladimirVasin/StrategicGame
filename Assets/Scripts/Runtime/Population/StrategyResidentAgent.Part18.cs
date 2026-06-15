@@ -230,6 +230,37 @@ namespace ProjectUnknown.Strategy
                 : "Settler " + (visualVariant + 1);
         }
 
+        public bool TryChangeFamilyName(string familyName)
+        {
+            string normalizedFamilyName = string.IsNullOrWhiteSpace(familyName)
+                ? string.Empty
+                : familyName.Trim();
+            if (string.IsNullOrWhiteSpace(normalizedFamilyName) || FamilyName == normalizedFamilyName)
+            {
+                return false;
+            }
+
+            string givenName = ExtractGivenName(FullName);
+            FamilyName = normalizedFamilyName;
+            FullName = string.IsNullOrWhiteSpace(givenName)
+                ? normalizedFamilyName
+                : givenName + " " + normalizedFamilyName;
+            gameObject.name = FullName;
+            return true;
+        }
+
+        private static string ExtractGivenName(string fullName)
+        {
+            if (string.IsNullOrWhiteSpace(fullName))
+            {
+                return string.Empty;
+            }
+
+            string trimmed = fullName.Trim();
+            int splitIndex = trimmed.LastIndexOf(' ');
+            return splitIndex > 0 ? trimmed.Substring(0, splitIndex) : trimmed;
+        }
+
         private static string ExtractFamilyName(string fullName)
         {
             if (string.IsNullOrWhiteSpace(fullName))

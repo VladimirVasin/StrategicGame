@@ -41,11 +41,14 @@ namespace ProjectUnknown.Strategy
         private bool isDirty = true;
         private float panelT;
 
-        public void Configure(StrategyPopulationController populationController)
+        public void Configure(
+            StrategyPopulationController populationController,
+            StrategyAutoWorkforceController autoController = null)
         {
             population = populationController != null
                 ? populationController
                 : population ?? UnityEngine.Object.FindAnyObjectByType<StrategyPopulationController>();
+            SetAutoWorkforce(autoController);
 
             if (!initialized)
             {
@@ -186,7 +189,7 @@ namespace ProjectUnknown.Strategy
             panelRoot.anchorMax = new Vector2(0.5f, 1f);
             panelRoot.pivot = new Vector2(0.5f, 1f);
             panelRoot.anchoredPosition = new Vector2(0f, -76f);
-            panelRoot.sizeDelta = new Vector2(620f, 540f);
+            panelRoot.sizeDelta = new Vector2(620f, 620f);
 
             Image background = panelRoot.gameObject.AddComponent<Image>();
             background.color = new Color(0.06f, 0.09f, 0.09f, 0.96f);
@@ -237,9 +240,11 @@ namespace ProjectUnknown.Strategy
             lineImage.color = new Color(1f, 1f, 1f, 0.22f);
             lineImage.raycastTarget = false;
 
+            CreateAutoControls(panelRoot);
+
             RectTransform viewport = CreateUiObject("ListViewport", panelRoot).GetComponent<RectTransform>();
             viewportRoot = viewport;
-            SetOffsets(viewport, 18f, 96f, 38f, 70f);
+            SetOffsets(viewport, 18f, 190f, 38f, 70f);
             Image viewportImage = viewport.gameObject.AddComponent<Image>();
             viewportImage.color = new Color(1f, 1f, 1f, 0.01f);
             Mask mask = viewport.gameObject.AddComponent<Mask>();
@@ -434,6 +439,8 @@ namespace ProjectUnknown.Strategy
                     ? "Available: " + visibleRows
                     : "No workplaces";
             }
+
+            RefreshAutoControls(freeWorkers);
         }
 
         private void ApplySnapshot(ProfessionRow row, ProfessionSnapshot snapshot)

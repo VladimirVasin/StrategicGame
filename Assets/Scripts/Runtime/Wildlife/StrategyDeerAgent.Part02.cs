@@ -83,6 +83,7 @@ namespace ProjectUnknown.Strategy
         {
             StrategyWorldSorting.Apply(spriteRenderer, transform.position);
             SyncReadabilityRenderers();
+            UpdateSwimmingVisual();
         }
 
         private static Sprite CreateReadabilityShadowSprite()

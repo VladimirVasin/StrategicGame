@@ -75,6 +75,7 @@ namespace ProjectUnknown.Strategy
         private SpriteRenderer spriteRenderer;
         private SpriteRenderer outlineRenderer;
         private SpriteRenderer shadowRenderer;
+        private SpriteRenderer swimRippleRenderer;
         private StrategyRabbitSex sex;
         private StrategyRabbitBehaviorState state;
         private StrategyRabbitLifeStage lifeStage = StrategyRabbitLifeStage.Adult;
@@ -108,6 +109,8 @@ namespace ProjectUnknown.Strategy
         public bool IsAdult => lifeStage == StrategyRabbitLifeStage.Adult;
         public bool IsAlive => isAlive;
         public bool IsCarcass => isCarcass;
+        public bool IsHuntReserved => huntReservationOwner != null;
+        public bool IsPredatorReserved => predatorReservationOwner != null;
         public bool CanBeHunted => IsAdult && isAlive && !isCarcass && huntReservationOwner == null && predatorReservationOwner == null;
         public bool CanBeWolfPrey => IsAdult && isAlive && !isCarcass && huntReservationOwner == null && predatorReservationOwner == null;
         public bool CanBreed => IsAdult
