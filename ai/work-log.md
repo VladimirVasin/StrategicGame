@@ -8,6 +8,40 @@ Last updated: 2026-06-15
 
 ## Done
 
+### 2026-06-15 - C# 500-line rule recorded
+
+- Added the ongoing 500-line hard limit for `.cs` source files to `AGENTS.md`, `ai/README.md`, and `ai/prompt-templates.md`.
+- Updated stable AI memory to describe `.PartNN.cs` partial files as the current same-owner structure for files that would otherwise exceed the limit.
+- Verification: runtime `.cs` line-count scan found no files over 500 lines.
+
+### 2026-06-15 - Runtime class line-limit partial refactor
+
+- Split oversized runtime C# classes into same-owner `.PartNN.cs` partial files so every runtime script file stays at or below 500 lines.
+- Kept behavior unchanged; this is a physical file-size refactor, not a semantic service extraction.
+- Updated `Assembly-CSharp.csproj` and added Unity `.meta` files for the generated partial scripts.
+- Verification: runtime `.cs` line-count scan found no files over 500 lines, and `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-15 - Householder Granary food pickup
+
+- Householders can now fetch one reserved `Fish` or `Game` unit from the nearest reachable Granary when their home's ration value is below the household reserve target.
+- Houses can store local `Fish` and `Game`; household ration consumption and selected-house HUD now include those resources alongside crops, Eggs, and forage.
+- Granaries now reserve household pickup food separately so daily ration fallback consumption does not eat a unit already claimed by a householder.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-15 - Food resource ration values
+
+- Added resource-specific ration values so one food unit no longer equals one daily ration: light crops/forage contribute less, Fish contributes more, and `Game` is the strongest current food.
+- Household daily ration resolution now consumes house-local food and Granary food by ration value while still tracking consumed physical units for HUD/debug context.
+- Selected house and Granary HUD text now surfaces stock units alongside total ration value.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-15 - Daily household ration and resident hunger state
+
+- Reworked household food from periodic household starvation into one evening daily ration resolved from the day/night cycle after a one-day settling grace.
+- Resident food needs now scale by life stage; short rations create per-resident nutrition debt and hungry/starving status for house and resident HUDs.
+- Houses consume local Eggs/crops/forage first, then Granary `Game`/`Fish`; sustained shortages block births and resident malnutrition severity drives mortality multipliers.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
 ### 2026-06-15 - More distributed compact wildlife groups
 
 - Rebalanced wildlife generation toward more numerous smaller groups: deer now use up to 8 compact herds, rabbits up to 10 compact groups, lake fish up to 12 compact shoals, and wolves 3-4 compact packs.

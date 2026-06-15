@@ -30,6 +30,7 @@ Global rules for all templates:
 - Scan only the relevant code/assets.
 - State a short plan before making code/assets changes.
 - Avoid unrelated refactors.
+- Keep every `.cs` source file at or below 500 lines; split files before finishing if a C# change would exceed that limit.
 - Update `ai/work-log.md` after implementation.
 - Update `ai/system-tree.md` when system hierarchy, subsystem responsibilities, feature leaves, or cross-system links change.
 - Update `ai/tutorial-scenario.md` when tutorial/onboarding behavior changes.

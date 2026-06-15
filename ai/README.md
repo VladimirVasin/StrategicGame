@@ -100,6 +100,7 @@ Rule:
 - Keep notes short.
 - Do not paste code into memory files.
 - Do not document speculative designs as implemented facts.
+- Keep every `.cs` source file at or below 500 lines. Split files before finishing if a C# change would exceed that limit.
 
 ### Encoding Safety
 
@@ -112,6 +113,7 @@ Rule:
 ### After implementation
 
 - Update `work-log.md` first.
+- After C# edits, verify that affected `.cs` files, or the relevant script tree after broad changes, do not exceed the 500-line limit.
 - Update `system-tree.md` when system hierarchy, subsystem responsibilities, feature leaves, or cross-system dependencies changed.
 - Update `tutorial-scenario.md` when changes alter Tutorial/onboarding flow, prerequisites, unlock order, HUD entry points, required buildings/resources, automation/manual-control balance, or goal text.
 - Update design maps only when corresponding cognition/influence systems actually exist and change.

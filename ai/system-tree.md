@@ -11,6 +11,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Package-managed dependencies in `Packages/manifest.json`
   - Project settings in `ProjectSettings/`
   - Generated/local Unity state in `Library/`, `Temp/`, `Logs/`, and `UserSettings/`
+  - C# source files are kept at or below 500 lines, with oversized runtime classes split into same-owner `.PartNN.cs` partial files when needed
 
 - Rendering foundation
   - Universal Render Pipeline `17.4.0`
@@ -278,7 +279,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - House resources MVP
     - Runtime house-local resource store
     - Current house-local resources: Eggs, Turnip, Cabbage, Onion, Carrot, Potato, Berries, Roots, Mushrooms
-    - Households consume house-local Eggs/crops/forage as food before drawing `Game`/`Fish` from Granaries
+    - Households consume house-local Eggs/crops/forage/`Fish`/`Game` as food before drawing fallback `Game`/`Fish` from Granaries
     - Shared resource identity/icon layer also includes Stone, `Game`, and `Fish` for production/storage-style HUDs and future economy work
     - Loose carried-resource piles preserve dropped `Game`, `Fish`, Berries, Roots, and Mushrooms after resident death
     - Resource amounts live on placed house objects, not in a global economy yet
@@ -326,13 +327,16 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Houses automatically assign their oldest adult female resident as `Householder`
     - Assigning a Householder clears external workplace/building roles and moves her into `TendingHousehold` home duty
     - The Householder role counts as home work and can block normal worker assignment
-    - Houses attach household food state that consumes food based on resident count and tracks starvation
+    - Houses attach household food state that resolves one evening ration per day using age-based resident needs
+    - Food resources contribute different ration values, so physical food units and supplied ration value are tracked separately
+    - Householders can fetch reserved `Fish`/`Game` from Granaries into their own house when household ration reserves are low
     - Houses attach household foraging state that sends non-householder, unemployed adults and older children to gather nearby forage during daytime
-    - Household food has an initial/no-supply grace path so starvation activates only after the settlement food chain exists
-    - Starving households block new births and use a gentler mortality multiplier curve than the early x16 debug version
+    - Household food uses a one-day settling grace and consumes house-local food before Granary stock
+    - Short rations create per-resident nutrition debt and days-hungry state that feeds household status
+    - Sustained household shortages block new births and resident malnutrition severity drives mortality multipliers
     - Children inherit parent/family links, stay inside their assigned home until age 3, idle/walk around home after that, cannot be workers/builders, and grow into adults at age 16 after scaled game time
     - Residents roll annual mortality from age 1; risk stays low through youth, accelerates after age 40, reaches high risk around age 50, and remains capped after that
-    - Resident mortality is multiplied by the starvation level of the resident's home when household food consumption is not met
+    - Resident mortality is multiplied by each resident's nutrition severity when daily ration shortages accumulate
     - Resident death centrally removes them from homes, population counts, worksite roles, construction assignments, active reservations, and selection targets
     - Resident death creates an animated corpse snapshot that remains in the world until burial
     - Funeral flow immediately recalls close family/household participants, runs crying/mourning, drags the corpse by rope behind a carrier to a spontaneous reachable cemetery, waits for reachable attendees near the grave, and completes burial
@@ -349,7 +353,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Residents store a random visual variant chosen at startup
     - Residents perform simple idle movement near their current camp/home using short walkable grid paths
     - Resident pathing can recover a blocked start cell by moving the resident to a nearby walkable cell and logging the recovery
-    - Householders periodically work at their house's default Garden Beds from `TendingHousehold` home duty
+    - Householders periodically work at their house's default Garden Beds or fetch food from Granaries from `TendingHousehold` home duty
     - Non-householder residents without external work forage Berries, Roots, and Mushrooms for their own house; children younger than 7 do not forage
     - Residents assigned to a lumberjack camp path to trees, chop mature trees, buck fallen trunks into Logs, carry Logs to camp stock, and plant new saplings nearby
     - Residents assigned to a stonecutter camp path to Stone deposits, mine chunks with pickaxes, carry Stone to camp stock, and do not plant/regrow Stone
@@ -389,7 +393,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - The house HUD shows assigned residents up to house capacity with portraits, names, age/life stage, current statuses, and the Householder marker
     - The house HUD exposes default Garden Beds state and the Chicken Coop upgrade action
     - House upgrade actions are shown as compact state/action rows
-    - The house HUD shows a visual food status row, last-meal meter, home food, Granary stock, current Garden Beds crop, and filtered household resource icons/counts
+    - The house HUD shows a visual food status row, ration meter, home food, Granary stock, current Garden Beds crop, and filtered household resource icons/counts including single food units
     - The lumberjack, stonecutter, hunter, fisher, granary, and storage building HUDs show status/resource context without assignment controls
     - The construction site HUD shows final building type, cost, delivered resources, assigned builders, and build progress
     - `Delete` opens a confirmation dialog for selected construction-site cancellation or selected-building demolition

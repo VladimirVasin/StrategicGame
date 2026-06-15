@@ -125,6 +125,9 @@ the agent must:
 
 ## C# Project File Rules
 
+- No `.cs` source file should exceed 500 lines. Treat this as a hard ongoing limit for runtime, editor, and test code.
+- Before finishing C# edits, check the affected `.cs` files, or the relevant script tree after broad changes, for files over 500 lines.
+- If a file would exceed 500 lines, split it before finishing. Prefer meaningful type/service extraction when it reduces coupling; otherwise use same-owner `partial` files such as `.PartNN.cs`.
 - When adding, moving, or deleting `.cs` files, update the relevant `.csproj` files used by local `dotnet build` if they exist in the workspace.
 - For runtime scripts, keep `Assembly-CSharp.csproj` in sync with exactly one `<Compile Include="...">` entry for each compiled `.cs` file when that file is present.
 - For editor or test scripts, update `Assembly-CSharp-Editor.csproj` when the file is compiled there.

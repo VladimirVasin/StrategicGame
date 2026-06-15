@@ -1,6 +1,8 @@
 * text=auto
 
+.gitattributes text eol=lf
 *.cs text eol=lf
+*.csproj text eol=lf
 *.asmdef text eol=lf
 *.shader text eol=lf
 *.hlsl text eol=lf

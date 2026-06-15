@@ -4,6 +4,8 @@ Last updated: 2026-06-15
 
 Use this file as the first navigation pass before broad searches. Owner cards are starting points, not hard boundaries.
 
+Navigation note: `.cs` source files must not exceed 500 lines. Oversized runtime classes can be physically split into same-owner `.PartNN.cs` partial files; treat those parts as one owner with the base file, and keep `Assembly-CSharp.csproj` in sync when adding, removing, or renumbering them.
+
 ## System Owner Map
 
 ### Project Foundation
@@ -813,7 +815,7 @@ Impact hints:
 - Current resource sources are Garden Beds harvest ticks, Chicken Coop passive egg production, and household foraging of Berries/Roots/Mushrooms.
 - Household foraging is home labor, not a profession HUD assignment; householders are excluded and children younger than 7 do not forage.
 - Eggs and crops are edible house-local food consumed by the owning household before Granary food.
-- `Game` and `Fish` are currently local production-building/Granary stock resources with shared HUD icons, not house-local resources.
+- `Game` and `Fish` are local production-building/Granary stock resources with shared HUD icons, and Householders can now move them into house-local food storage.
 - Future trade, taxes, storage caps, spoilage, and needs should decide whether house stores remain local or feed into a settlement-level resource service.
 
 ### Storage Yard Logistics
@@ -900,7 +902,7 @@ Primary files/assets:
 Impact hints:
 
 - Granary workers reserve food before walking so multiple haulers do not target the same local stock.
-- `Game` and `Fish` remain runtime-local food stock, but completed houses now periodically consume them from Granaries through household food state only after house-local Eggs/crops are insufficient.
+- `Game` and `Fish` remain runtime-local food stock, but completed houses can receive them from Householder Granary pickups and still use Granary fallback during the evening daily ration after house-local ration value is insufficient.
 - Residents currently support one active workplace: lumberjack camp, stonecutter camp, hunter camp, fisher hut, storage logistics, granary food logistics, or storage builder crew.
 - Future spoilage, food needs, cooking, market logistics, or settlement-level food services should extend this subsystem rather than folding food into construction Storage Yards.
 
@@ -926,12 +928,13 @@ Responsibilities:
 - Bind assigned residents to their home building.
 - Spawn children for valid adult male/female house pairs after randomized household cooldowns when house capacity allows.
 - Keep children younger than 3 years old inside their assigned home by hiding their world sprite/collider and skipping outdoor idle/funeral movement until they age out.
-- Consume household food from house-local Eggs/crops first, then Granary stock, based on resident count.
-- Increase household starvation when food is insufficient and reduce it gradually when meals are covered.
+- Resolve one household ration per evening from house-local Eggs/crops/forage/`Fish`/`Game` first, then Granary fallback stock, using resident age-based ration needs and per-resource ration values.
+- Send Householders to fetch reserved `Fish`/`Game` from reachable Granaries into their own house when local ration value is low.
+- Track per-resident nutrition debt, days hungry, hungry/starving status, and recovery when daily ration needs are met.
 - Grow children into adults after scaled game time.
 - Continue resident aging after adulthood.
 - Roll annual resident mortality from age 1 using an accelerating age-risk curve.
-- Multiply annual resident mortality by household starvation level for residents living in starving houses.
+- Multiply annual resident mortality by each resident's malnutrition severity when daily ration shortages accumulate.
 - Remove dead residents from homes, work assignments, construction assignments, active reservations, live population counts, and selected-HUD targets.
 - Create resident death snapshots and animated corpses when residents die.
 - Gather close family/household funeral participants for mourning, procession, and burial.
@@ -945,7 +948,7 @@ Responsibilities:
 - Keep pending refugees outside the normal resident registry until accepted.
 - Accept refugee families into the normal resident registry or destroy rejected temporary families after they leave the map.
 - Drive simple idle movement around the current camp/home through short walkable grid paths.
-- Periodically send Householders from `TendingHousehold` home duty to work at their home's default Garden Beds upgrade.
+- Periodically send Householders from `TendingHousehold` home duty to work at their home's default Garden Beds upgrade or fetch `Fish`/`Game` from Granaries.
 - Periodically send non-householder, unemployed adults and older children to nearby forage nodes during daytime, then carry Berries/Roots/Mushrooms back to their own house.
 - Boost the Garden Beds growth cycle when garden work completes.
 - Assign residents to lumberjack camps as workplace targets.
@@ -1045,8 +1048,9 @@ Impact hints:
 - Pending refugee families are rendered as resident agents but are not counted as residents, workers, or fog sources until accepted.
 - Accepted refugee families join the normal registry as a preserved family block, stay near camp while homeless, and get priority to fill the first empty House as a whole household before normal single-adult migration or random pair assignment.
 - `StrategyHouseholdState` lives on occupied houses and owns the randomized birth timer.
-- `StrategyHouseholdState` blocks births while the same house is starving.
-- `StrategyHouseholdFoodState` lives on occupied houses, has an initial/no-supply grace path, consumes house-local Eggs/crops before `Game`/`Fish` from Granaries after the food chain activates, and exposes the starvation multiplier used by resident mortality.
+- `StrategyHouseholdState` blocks births while the same house has sustained ration shortages or birth-blocked residents.
+- `StrategyHouseholdFoodState` lives on occupied houses, resolves one evening ration per day after a one-day settling grace, consumes house-local Eggs/crops/forage/`Fish`/`Game` before Granary fallback stock, applies short rations to resident nutrition debt, and exposes aggregate food status for HUDs.
+- Householder home duty can reserve one `Fish`/`Game` unit from a Granary, path to pickup, carry it home, and store it in the house before evening ration consumption.
 - `StrategyHouseholdForagingState` lives on house buildings and dispatches only unassigned non-householder residents; it should remain separate from the Profession HUD/worksite assignment model.
 - `StrategyPlacedBuilding` owns the current Householder reference for houses, preferring the oldest adult female resident and refreshing on home changes, death/unregister, and resident adulthood.
 - `StrategyResidentAgent.HasWorkplace` includes the Householder role, so profession assignment should treat householders as occupied home workers.

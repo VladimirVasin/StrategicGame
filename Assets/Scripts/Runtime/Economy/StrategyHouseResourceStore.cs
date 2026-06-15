@@ -16,7 +16,24 @@ namespace ProjectUnknown.Strategy
             StrategyResourceType.Potato,
             StrategyResourceType.Berries,
             StrategyResourceType.Roots,
-            StrategyResourceType.Mushrooms
+            StrategyResourceType.Mushrooms,
+            StrategyResourceType.Fish,
+            StrategyResourceType.Game
+        };
+
+        private static readonly StrategyResourceType[] ConsumptionOrder =
+        {
+            StrategyResourceType.Onion,
+            StrategyResourceType.Berries,
+            StrategyResourceType.Cabbage,
+            StrategyResourceType.Carrot,
+            StrategyResourceType.Mushrooms,
+            StrategyResourceType.Turnip,
+            StrategyResourceType.Roots,
+            StrategyResourceType.Eggs,
+            StrategyResourceType.Potato,
+            StrategyResourceType.Fish,
+            StrategyResourceType.Game
         };
 
         private readonly Dictionary<StrategyResourceType, int> amounts = new();
@@ -59,6 +76,18 @@ namespace ProjectUnknown.Strategy
             return total;
         }
 
+        public float GetTotalRationValue()
+        {
+            float total = 0f;
+            for (int i = 0; i < DisplayOrder.Length; i++)
+            {
+                StrategyResourceType type = DisplayOrder[i];
+                total += GetAmount(type) * StrategyFoodNutrition.GetRationValue(type);
+            }
+
+            return total;
+        }
+
         public int ConsumeFood(int requested)
         {
             int remaining = Mathf.Max(0, requested);
@@ -90,6 +119,57 @@ namespace ProjectUnknown.Strategy
             }
 
             return requested - remaining;
+        }
+
+        public int ConsumeRations(float requestedRations, out float suppliedRations)
+        {
+            suppliedRations = 0f;
+            float remaining = Mathf.Max(0f, requestedRations);
+            if (remaining <= 0.01f)
+            {
+                return 0;
+            }
+
+            int consumedUnits = 0;
+            for (int i = 0; i < ConsumptionOrder.Length && remaining > 0.01f; i++)
+            {
+                StrategyResourceType type = ConsumptionOrder[i];
+                float rationValue = StrategyFoodNutrition.GetRationValue(type);
+                if (rationValue <= 0f)
+                {
+                    continue;
+                }
+
+                int available = GetAmount(type);
+                if (available <= 0)
+                {
+                    continue;
+                }
+
+                int requestedUnits = Mathf.CeilToInt(remaining / rationValue);
+                int taken = Mathf.Min(available, requestedUnits);
+                if (taken <= 0)
+                {
+                    continue;
+                }
+
+                consumedUnits += taken;
+                float supplied = taken * rationValue;
+                suppliedRations += supplied;
+                remaining = Mathf.Max(0f, remaining - supplied);
+
+                int nextAmount = available - taken;
+                if (nextAmount > 0)
+                {
+                    amounts[type] = nextAmount;
+                }
+                else
+                {
+                    amounts.Remove(type);
+                }
+            }
+
+            return consumedUnits;
         }
 
         public int GetAmount(StrategyResourceType type)

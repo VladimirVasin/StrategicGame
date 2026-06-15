@@ -1,0 +1,158 @@
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.UI;
+using UnityEngine.UI;
+
+namespace ProjectUnknown.Strategy
+{
+    internal sealed partial class StrategyBuildMenuControllerDriver
+    {
+
+        private static void ConfigureButtonColors(Button button)
+        {
+            ColorBlock colors = button.colors;
+            colors.normalColor = Color.white;
+            colors.highlightedColor = new Color(1.08f, 1.08f, 1.08f, 1f);
+            colors.pressedColor = new Color(0.88f, 0.88f, 0.88f, 1f);
+            colors.selectedColor = Color.white;
+            colors.disabledColor = new Color(0.75f, 0.75f, 0.75f, 1f);
+            button.colors = colors;
+        }
+
+        internal static Text CreateText(string name, Transform parent, string value, int size, TextAnchor anchor, Color color)
+        {
+            RectTransform rect = CreateUiObject(name, parent).GetComponent<RectTransform>();
+            Text text = rect.gameObject.AddComponent<Text>();
+            text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            text.text = value;
+            text.fontSize = size;
+            text.alignment = anchor;
+            text.color = color;
+            text.raycastTarget = false;
+            return text;
+        }
+
+        internal static GameObject CreateUiObject(string name, Transform parent)
+        {
+            GameObject go = new GameObject(name, typeof(RectTransform));
+            go.transform.SetParent(parent, false);
+            return go;
+        }
+
+        internal static void Stretch(RectTransform rect, float left, float top, float right, float bottom)
+        {
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = new Vector2(left, bottom);
+            rect.offsetMax = new Vector2(-right, -top);
+        }
+
+        private static void AddHoverRelay(GameObject target, Action<bool> onHoverChanged)
+        {
+            HoverRelay relay = target.AddComponent<HoverRelay>();
+            relay.OnHoverChanged = onHoverChanged;
+        }
+
+        private static bool WasPressed(UnityEngine.InputSystem.Controls.KeyControl key)
+        {
+            return key != null && key.wasPressedThisFrame;
+        }
+
+        private static int GetPressedNumber(Keyboard keyboard)
+        {
+            if (WasPressed(keyboard.digit1Key) || WasPressed(keyboard.numpad1Key)) return 1;
+            if (WasPressed(keyboard.digit2Key) || WasPressed(keyboard.numpad2Key)) return 2;
+            if (WasPressed(keyboard.digit3Key) || WasPressed(keyboard.numpad3Key)) return 3;
+            if (WasPressed(keyboard.digit4Key) || WasPressed(keyboard.numpad4Key)) return 4;
+            if (WasPressed(keyboard.digit5Key) || WasPressed(keyboard.numpad5Key)) return 5;
+            if (WasPressed(keyboard.digit6Key) || WasPressed(keyboard.numpad6Key)) return 6;
+            if (WasPressed(keyboard.digit7Key) || WasPressed(keyboard.numpad7Key)) return 7;
+            if (WasPressed(keyboard.digit8Key) || WasPressed(keyboard.numpad8Key)) return 8;
+            if (WasPressed(keyboard.digit9Key) || WasPressed(keyboard.numpad9Key)) return 9;
+            return 0;
+        }
+
+        private static float Smooth01(float t)
+        {
+            t = Mathf.Clamp01(t);
+            return t * t * (3f - 2f * t);
+        }
+
+        internal sealed class BuildCategoryData
+        {
+            public BuildCategoryData(string label, Color accentColor, BuildItemData[] items)
+            {
+                Label = label;
+                AccentColor = accentColor;
+                Items = items;
+            }
+
+            public string Label { get; }
+            public Color AccentColor { get; }
+            public BuildItemData[] Items { get; }
+        }
+
+        internal sealed class BuildItemData
+        {
+            public BuildItemData(StrategyBuildTool tool, string abbrev, string title, StrategyConstructionResourceCost cost, Color color)
+            {
+                Tool = tool;
+                Abbrev = abbrev;
+                Title = title;
+                Cost = cost;
+                Color = color;
+            }
+
+            public StrategyBuildTool Tool { get; }
+            public string Abbrev { get; }
+            public string Title { get; }
+            public StrategyConstructionResourceCost Cost { get; }
+            public Color Color { get; }
+        }
+
+        private sealed class CategoryUi
+        {
+            public BuildCategoryData Data;
+            public int Index;
+            public RectTransform Root;
+            public Image Background;
+            public Text Label;
+            public Button Button;
+            public BuildItemUi[] Items;
+            public bool IsHovered;
+            public float HoverT;
+        }
+
+        private sealed class BuildItemUi
+        {
+            public BuildItemData Data;
+            public RectTransform Root;
+            public Image Background;
+            public Image IconBackground;
+            public Text Title;
+            public Image BadgeBackground;
+            public Text BadgeText;
+            public Button Button;
+            public bool IsHovered;
+            public float HoverT;
+        }
+
+        private sealed class HoverRelay : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+        {
+            public Action<bool> OnHoverChanged;
+
+            public void OnPointerEnter(PointerEventData eventData)
+            {
+                OnHoverChanged?.Invoke(true);
+            }
+
+            public void OnPointerExit(PointerEventData eventData)
+            {
+                OnHoverChanged?.Invoke(false);
+            }
+        }
+    }
+}

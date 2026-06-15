@@ -15,6 +15,7 @@ Last updated: 2026-06-15
   Main Unity content folder.
 - `Assets/Scripts/Runtime/`
   Runtime C# scripts for the MVP strategy foundation, camera, map, visual day/night/weather, simulation, and UI.
+  Runtime `.cs` files must stay at or below 500 lines; oversized classes are split into same-owner `.PartNN.cs` partial files or extracted when a real service/type boundary exists.
 - `Assets/Resources/Audio/`
   Runtime-loadable non-generated ambience, footstep, and in-game music audio.
 - `Assets/Scenes/SampleScene.unity`
@@ -89,10 +90,11 @@ Confirmed from `Packages/manifest.json`:
 - The initial camera view starts focused near the startup campfire with a medium-close zoom.
 - Building a house construction site first tries to reserve one random free adult man and one random free adult woman from the camp as future residents instead of creating new residents; free for housing means no current home/pair and is independent from workplace or construction assignment. If no free future-home pair exists, general adult builders can still build a free house.
 - Houses can hold up to 5 residents; adult male/female house pairs can have children after a randomized cooldown when they are not close relatives and the house is not full.
-- Houses consume stored Granary food based on resident count; missed meals raise household starvation.
+- Houses resolve one evening daily ration after a settling grace: house-local Eggs/crops/forage plus house-stored `Fish`/`Game` are eaten before Granary fallback stock, each food resource contributes its own ration value, and each resident has age-based ration needs plus nutrition debt.
+- Householders can fetch reserved `Fish`/`Game` from the nearest reachable Granary into their own house when local ration value is low.
 - Empty houses can accept the oldest adult child still living with parents, and single adult-child households can pull in an adult opposite-gender partner from another parental home or the free camp pool after kinship checks.
 - Residents roll annual mortality from age 1, with low youth risk, accelerating risk after age 40, high risk around age 50, and persistent family records so dead ancestors still block close-relative pairings.
-- Residents living in starving houses receive a multiplicative annual mortality chance increase.
+- Residents with severe malnutrition receive a multiplicative annual mortality chance increase.
 - Resident death now creates an animated corpse; close family/household members gather, cry/mourn, drag the dead by rope to a spontaneous cemetery, wait for reachable attendees at the grave, and burial leaves a clickable grave sprite that blocks its cell.
 - The first refugee family spawns after 3 completed houses; later refugee families periodically spawn from a map edge that can route to the reachable camp-side arrival area, walk to the startup campfire, pause the game with a decision dialog, and either join the settlement or leave the map based on player choice.
 - The top status HUD shows total population with separate adult and child counts.
@@ -119,7 +121,7 @@ Confirmed from `Packages/manifest.json`:
 - Chicken Coop produces Eggs through a cycle-driven timer synchronized with its nest/egg sprite animation.
 - Standalone trees, forest groups, bushes, and fallen trunks block their occupied map cells; forestry trees release their cell back to walkable after Logs are collected.
 - Generated Stone deposits block their occupied map cells and are mined by assigned stonecutter residents.
-- No global economy simulation, save system, or full UI shell is implemented yet; hunter-camp `Game` and fisher-hut `Fish` can be hauled to Granaries, but food is still runtime-local and not consumed by residents yet.
+- No global economy simulation, save system, or full UI shell is implemented yet; hunter-camp `Game` and fisher-hut `Fish` can be hauled to Granaries, moved into houses by Householders, and consumed by household daily rations, but food remains runtime-local.
 
 ## Source Of Truth
 

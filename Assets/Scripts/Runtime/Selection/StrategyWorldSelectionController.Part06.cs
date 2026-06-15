@@ -1,0 +1,496 @@
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
+using UnityEngine.UI;
+
+namespace ProjectUnknown.Strategy
+{
+    public sealed partial class StrategyWorldSelectionController
+    {
+
+        private static Sprite GetBuildingPreviewSprite(StrategyPlacedBuilding building)
+        {
+            if (building != null && building.Tool == StrategyBuildTool.Bridge)
+            {
+                return StrategyBuildingSpriteFactory.GetBridgeSprite(building.Footprint);
+            }
+
+            if (building != null && StrategyBuildingSpriteFactory.TryGetBuildSprite(building.Tool, building.VisualVariant, out Sprite sprite))
+            {
+                return sprite;
+            }
+
+            return null;
+        }
+
+        private static string GetBuildingOperationText(StrategyPlacedBuilding building)
+        {
+            if (building == null)
+            {
+                return string.Empty;
+            }
+
+            StrategyLumberjackCamp camp = building.GetComponent<StrategyLumberjackCamp>();
+            if (camp != null)
+            {
+                return camp.GetHudStatusText();
+            }
+
+            StrategyStonecutterCamp stoneCamp = building.GetComponent<StrategyStonecutterCamp>();
+            if (stoneCamp != null)
+            {
+                return stoneCamp.GetHudStatusText();
+            }
+
+            StrategyHunterCamp hunterCamp = building.GetComponent<StrategyHunterCamp>();
+            if (hunterCamp != null)
+            {
+                return hunterCamp.GetHudStatusText();
+            }
+
+            StrategyFisherHut fisherHut = building.GetComponent<StrategyFisherHut>();
+            if (fisherHut != null)
+            {
+                return fisherHut.GetHudStatusText();
+            }
+
+            StrategyStorageYard yard = building.GetComponent<StrategyStorageYard>();
+            if (yard != null)
+            {
+                return yard.GetHudStatusText();
+            }
+
+            StrategyGranary granary = building.GetComponent<StrategyGranary>();
+            return granary != null ? granary.GetHudStatusText() : string.Empty;
+        }
+
+        private static string GetResidentRoleTitle(StrategyResidentAgent resident)
+        {
+            if (resident == null)
+            {
+                return "settler";
+            }
+
+            if (!resident.IsAdult)
+            {
+                return "child";
+            }
+
+            if (resident.IsHouseholder)
+            {
+                return "householder";
+            }
+
+            if (resident.BuilderWorkplace != null || resident.ConstructionSite != null)
+            {
+                return "builder";
+            }
+
+            if (resident.Workplace != null)
+            {
+                return "lumberjack";
+            }
+
+            if (resident.StoneWorkplace != null)
+            {
+                return "stonecutter";
+            }
+
+            if (resident.HunterWorkplace != null)
+            {
+                return "hunter";
+            }
+
+            if (resident.FisherWorkplace != null)
+            {
+                return "fisher";
+            }
+
+            if (resident.StorageWorkplace != null)
+            {
+                return "storekeeper";
+            }
+
+            if (resident.GranaryWorkplace != null)
+            {
+                return "granary worker";
+            }
+
+            return "settler";
+        }
+
+        private static string FormatCell(Vector2Int cell)
+        {
+            return cell.x + ", " + cell.y;
+        }
+
+        private static string GetUpgradeTitle(StrategyBuildingUpgradeType type)
+        {
+            return type == StrategyBuildingUpgradeType.GardenBeds
+                ? "Garden Beds"
+                : "Chicken Coop";
+        }
+
+        private static string GetResourceTitle(StrategyResourceType type)
+        {
+            return type switch
+            {
+                StrategyResourceType.Eggs => "Eggs",
+                StrategyResourceType.Turnip => "Turnip",
+                StrategyResourceType.Cabbage => "Cabbage",
+                StrategyResourceType.Onion => "Onion",
+                StrategyResourceType.Carrot => "Carrot",
+                StrategyResourceType.Potato => "Potato",
+                StrategyResourceType.Berries => "Berries",
+                StrategyResourceType.Roots => "Roots",
+                StrategyResourceType.Mushrooms => "Mushrooms",
+                StrategyResourceType.Game => "Game",
+                StrategyResourceType.Fish => "Fish",
+                _ => "none"
+            };
+        }
+
+        private static string GetResidentStatus(StrategyResidentAgent resident)
+        {
+            string status = resident.Activity switch
+            {
+                StrategyResidentAgent.ResidentActivity.TendingHousehold => "tending household",
+                StrategyResidentAgent.ResidentActivity.StayingInsideHome => "inside home",
+                StrategyResidentAgent.ResidentActivity.MovingHome => "going home",
+                StrategyResidentAgent.ResidentActivity.ArrivingAsRefugee => "going to campfire",
+                StrategyResidentAgent.ResidentActivity.LeavingSettlement => "leaving settlement",
+                StrategyResidentAgent.ResidentActivity.WorkingGarden => "working garden beds",
+                StrategyResidentAgent.ResidentActivity.MovingToGarden => "going to garden beds",
+                StrategyResidentAgent.ResidentActivity.MovingToForage => "going foraging",
+                StrategyResidentAgent.ResidentActivity.GatheringForage => "gathering food",
+                StrategyResidentAgent.ResidentActivity.MovingToLooseForagePickup => "recovering dropped food",
+                StrategyResidentAgent.ResidentActivity.PickingUpLooseForage => "picking up dropped food",
+                StrategyResidentAgent.ResidentActivity.CarryingForage => "bringing food home",
+                StrategyResidentAgent.ResidentActivity.DepositingForage => "storing household food",
+                StrategyResidentAgent.ResidentActivity.MovingToTree => "going to a tree",
+                StrategyResidentAgent.ResidentActivity.ChoppingTree => "chopping tree",
+                StrategyResidentAgent.ResidentActivity.BuckingTree => "bucking trunk",
+                StrategyResidentAgent.ResidentActivity.MovingToLogs => "going to Logs",
+                StrategyResidentAgent.ResidentActivity.CarryingLogs => "carrying Logs",
+                StrategyResidentAgent.ResidentActivity.DepositingLogs => "depositing Logs",
+                StrategyResidentAgent.ResidentActivity.MovingToStoragePickup => "going for Logs",
+                StrategyResidentAgent.ResidentActivity.PickingUpStorageLogs => "picking up Logs",
+                StrategyResidentAgent.ResidentActivity.CarryingLogsToStorage => "hauling Logs to storage",
+                StrategyResidentAgent.ResidentActivity.DepositingStorageLogs => "depositing Logs",
+                StrategyResidentAgent.ResidentActivity.MovingToPlantTree => "looking for a planting spot",
+                StrategyResidentAgent.ResidentActivity.PlantingTree => "planting a tree",
+                StrategyResidentAgent.ResidentActivity.MovingToStone => "going to deposit",
+                StrategyResidentAgent.ResidentActivity.MiningStone => "mining Stone",
+                StrategyResidentAgent.ResidentActivity.CarryingStone => "carrying Stone",
+                StrategyResidentAgent.ResidentActivity.DepositingStone => "depositing Stone",
+                StrategyResidentAgent.ResidentActivity.MovingToStorageStonePickup => "going for Stone",
+                StrategyResidentAgent.ResidentActivity.PickingUpStorageStone => "picking up Stone",
+                StrategyResidentAgent.ResidentActivity.CarryingStoneToStorage => "hauling Stone to storage",
+                StrategyResidentAgent.ResidentActivity.DepositingStorageStone => "depositing Stone",
+                StrategyResidentAgent.ResidentActivity.MovingToConstructionStorage => "going for materials",
+                StrategyResidentAgent.ResidentActivity.PickingUpConstructionLogs => "picking up construction Logs",
+                StrategyResidentAgent.ResidentActivity.PickingUpConstructionStone => "picking up construction Stone",
+                StrategyResidentAgent.ResidentActivity.CarryingConstructionLogs => "carrying Logs to construction",
+                StrategyResidentAgent.ResidentActivity.CarryingConstructionStone => "carrying Stone to construction",
+                StrategyResidentAgent.ResidentActivity.DepositingConstructionResource => "depositing materials",
+                StrategyResidentAgent.ResidentActivity.MovingToConstructionSite => "going to build",
+                StrategyResidentAgent.ResidentActivity.BuildingConstruction => "building",
+                StrategyResidentAgent.ResidentActivity.MovingToHuntingRange => "going hunting",
+                StrategyResidentAgent.ResidentActivity.AimingBow => "aiming bow",
+                StrategyResidentAgent.ResidentActivity.WaitingForHuntHit => "watching the arrow",
+                StrategyResidentAgent.ResidentActivity.MovingToHuntCarcass => "going to game",
+                StrategyResidentAgent.ResidentActivity.ButcheringRabbit => "butchering game",
+                StrategyResidentAgent.ResidentActivity.CarryingGame => "carrying Game",
+                StrategyResidentAgent.ResidentActivity.DepositingGame => "depositing Game",
+                StrategyResidentAgent.ResidentActivity.MovingToFishingSpot => "going to shore",
+                StrategyResidentAgent.ResidentActivity.CastingFishingLine => "casting line",
+                StrategyResidentAgent.ResidentActivity.WaitingForFishBite => "waiting for a bite",
+                StrategyResidentAgent.ResidentActivity.ReelingFish => "reeling fish",
+                StrategyResidentAgent.ResidentActivity.CarryingFish => "carrying Fish",
+                StrategyResidentAgent.ResidentActivity.DepositingFish => "depositing Fish",
+                StrategyResidentAgent.ResidentActivity.MovingToGranaryGamePickup => "going for Game",
+                StrategyResidentAgent.ResidentActivity.PickingUpGranaryGame => "picking up Game",
+                StrategyResidentAgent.ResidentActivity.CarryingGameToGranary => "hauling Game to granary",
+                StrategyResidentAgent.ResidentActivity.DepositingGranaryGame => "depositing Game in granary",
+                StrategyResidentAgent.ResidentActivity.MovingToGranaryFishPickup => "going for Fish",
+                StrategyResidentAgent.ResidentActivity.PickingUpGranaryFish => "picking up Fish",
+                StrategyResidentAgent.ResidentActivity.CarryingFishToGranary => "hauling Fish to granary",
+                StrategyResidentAgent.ResidentActivity.DepositingGranaryFish => "depositing Fish in granary",
+                StrategyResidentAgent.ResidentActivity.MovingToHouseholdFoodPickup => "going to granary",
+                StrategyResidentAgent.ResidentActivity.PickingUpHouseholdFood => "picking up household food",
+                StrategyResidentAgent.ResidentActivity.CarryingHouseholdFoodHome => "bringing food home",
+                StrategyResidentAgent.ResidentActivity.DepositingHouseholdFood => "storing household food",
+                StrategyResidentAgent.ResidentActivity.ReturningLogsToStorage => "returning Logs to storage",
+                StrategyResidentAgent.ResidentActivity.ReturningStoneToStorage => "returning Stone to storage",
+                StrategyResidentAgent.ResidentActivity.ReturningGameToGranary => "returning Game to granary",
+                StrategyResidentAgent.ResidentActivity.ReturningFishToGranary => "returning Fish to granary",
+                StrategyResidentAgent.ResidentActivity.MovingToFuneral => "going to funeral",
+                StrategyResidentAgent.ResidentActivity.MourningCorpse => "mourning",
+                StrategyResidentAgent.ResidentActivity.CarryingCorpseToCemetery => "carrying the dead",
+                StrategyResidentAgent.ResidentActivity.MovingToBurial => "going to burial",
+                StrategyResidentAgent.ResidentActivity.BuryingGrave => "burying the dead",
+                StrategyResidentAgent.ResidentActivity.WaitingAtFuneral => "attending funeral",
+                _ => "idle"
+            };
+
+            if (resident.IsPendingRefugee && resident.Activity == StrategyResidentAgent.ResidentActivity.Idle)
+            {
+                return AppendResidentNutritionStatus(resident, "refugee");
+            }
+
+            if (resident.BuilderWorkplace != null && resident.Activity == StrategyResidentAgent.ResidentActivity.Idle)
+            {
+                return AppendResidentNutritionStatus(resident, "waiting for construction");
+            }
+
+            if (resident.HunterWorkplace != null && resident.Activity == StrategyResidentAgent.ResidentActivity.Idle)
+            {
+                return AppendResidentNutritionStatus(resident, "waiting for prey");
+            }
+
+            if (resident.FisherWorkplace != null && resident.Activity == StrategyResidentAgent.ResidentActivity.Idle)
+            {
+                return AppendResidentNutritionStatus(resident, "waiting for a bite");
+            }
+
+            if (resident.GranaryWorkplace != null && resident.Activity == StrategyResidentAgent.ResidentActivity.Idle)
+            {
+                return AppendResidentNutritionStatus(resident, "waiting for food");
+            }
+
+            if (resident.IsHouseholder && resident.Activity == StrategyResidentAgent.ResidentActivity.Idle)
+            {
+                return AppendResidentNutritionStatus(resident, "tending household");
+            }
+
+            if (resident.Home == null && resident.Activity == StrategyResidentAgent.ResidentActivity.Idle)
+            {
+                return AppendResidentNutritionStatus(resident, "at the campfire");
+            }
+
+            if (!resident.IsAdult && resident.Activity == StrategyResidentAgent.ResidentActivity.Idle)
+            {
+                return AppendResidentNutritionStatus(resident, "playing near home");
+            }
+
+            return AppendResidentNutritionStatus(resident, status);
+        }
+
+        private static string AppendResidentNutritionStatus(StrategyResidentAgent resident, string status)
+        {
+            if (resident == null || !resident.IsHungry)
+            {
+                return status;
+            }
+
+            return status
+                + " | "
+                + resident.NutritionStatusText
+                + " "
+                + resident.DaysHungry
+                + "d";
+        }
+
+        private static string GetConstructionBuildersText(StrategyConstructionSite site)
+        {
+            if (site == null || site.BuilderCount <= 0)
+            {
+                return "no builders assigned";
+            }
+
+            string text = string.Empty;
+            for (int i = 0; i < site.BuilderCount; i++)
+            {
+                if (!site.TryGetBuilder(i, out StrategyResidentAgent builder) || builder == null)
+                {
+                    continue;
+                }
+
+                if (!string.IsNullOrEmpty(text))
+                {
+                    text += "\n";
+                }
+
+                text += builder.FullName + " - " + GetResidentStatus(builder);
+            }
+
+            return string.IsNullOrEmpty(text) ? "no builders assigned" : text;
+        }
+
+        private static string GetResidentGenderTitle(StrategyResidentGender gender)
+        {
+            return gender == StrategyResidentGender.Male
+                ? "male"
+                : "female";
+        }
+
+        private static string GetResidentLifeStageTitle(StrategyResidentAgent resident)
+        {
+            return resident != null && resident.LifeStage == StrategyResidentLifeStage.Child
+                ? "child"
+                : "adult";
+        }
+
+        private void UpdateSelectionLinks(StrategyPlacedBuilding building)
+        {
+            linkedResidentsScratch.Clear();
+            CollectLinkedResidents(building, linkedResidentsScratch);
+            bool changed = linkedResidents.Count != linkedResidentsScratch.Count;
+            if (!changed)
+            {
+                for (int i = 0; i < linkedResidents.Count; i++)
+                {
+                    if (linkedResidents[i] != linkedResidentsScratch[i])
+                    {
+                        changed = true;
+                        break;
+                    }
+                }
+            }
+
+            if (changed)
+            {
+                linkedResidents.Clear();
+                for (int i = 0; i < linkedResidentsScratch.Count; i++)
+                {
+                    linkedResidents.Add(linkedResidentsScratch[i]);
+                }
+            }
+
+            if (linkedResidents.Count <= 0 || building == null)
+            {
+                HideSelectionLinks();
+                return;
+            }
+
+            EnsureSelectionLinkVisualCount(linkedResidents.Count);
+            Vector3 buildingAnchor = GetSelectionLinkBuildingAnchor(building);
+            int visibleCount = 0;
+            for (int i = 0; i < linkedResidents.Count; i++)
+            {
+                StrategyResidentAgent resident = linkedResidents[i];
+                if (resident == null)
+                {
+                    continue;
+                }
+
+                Vector3 residentAnchor = GetSelectionLinkResidentAnchor(resident);
+                SpriteRenderer marker = linkedResidentMarkers[visibleCount];
+                LineRenderer line = linkedResidentLines[visibleCount];
+                marker.gameObject.SetActive(true);
+                line.gameObject.SetActive(true);
+                marker.transform.position = new Vector3(residentAnchor.x, residentAnchor.y, -0.055f);
+                marker.transform.localScale = GetLinkedResidentMarkerScale(resident);
+                marker.sortingOrder = SelectionLinkSortingOrder + 2;
+                line.SetPosition(0, new Vector3(buildingAnchor.x, buildingAnchor.y, -0.06f));
+                line.SetPosition(1, new Vector3(residentAnchor.x, residentAnchor.y, -0.06f));
+                line.sortingOrder = SelectionLinkSortingOrder;
+                visibleCount++;
+            }
+
+            DisableSelectionLinkVisualsFrom(visibleCount);
+        }
+
+        private void CollectLinkedResidents(StrategyPlacedBuilding building, List<StrategyResidentAgent> results)
+        {
+            if (building == null || results == null)
+            {
+                return;
+            }
+
+            if (building.Tool == StrategyBuildTool.House)
+            {
+                AddResidents(building.Residents, results);
+                return;
+            }
+
+            StrategyLumberjackCamp lumberjackCamp = building.GetComponent<StrategyLumberjackCamp>();
+            if (lumberjackCamp != null)
+            {
+                AddResidents(lumberjackCamp.Workers, results);
+            }
+
+            StrategyStonecutterCamp stonecutterCamp = building.GetComponent<StrategyStonecutterCamp>();
+            if (stonecutterCamp != null)
+            {
+                AddResidents(stonecutterCamp.Workers, results);
+            }
+
+            StrategyHunterCamp hunterCamp = building.GetComponent<StrategyHunterCamp>();
+            if (hunterCamp != null)
+            {
+                AddResidents(hunterCamp.Workers, results);
+            }
+
+            StrategyFisherHut fisherHut = building.GetComponent<StrategyFisherHut>();
+            if (fisherHut != null)
+            {
+                AddResidents(fisherHut.Workers, results);
+            }
+
+            StrategyStorageYard storageYard = building.GetComponent<StrategyStorageYard>();
+            if (storageYard != null)
+            {
+                AddResidents(storageYard.Workers, results);
+                AddResidents(storageYard.Builders, results);
+            }
+
+            StrategyGranary granary = building.GetComponent<StrategyGranary>();
+            if (granary != null)
+            {
+                AddResidents(granary.Workers, results);
+            }
+        }
+
+        private static void AddResidents(IReadOnlyList<StrategyResidentAgent> source, List<StrategyResidentAgent> results)
+        {
+            if (source == null || results == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < source.Count; i++)
+            {
+                StrategyResidentAgent resident = source[i];
+                if (resident != null && !results.Contains(resident))
+                {
+                    results.Add(resident);
+                }
+            }
+        }
+
+        private Vector3 GetSelectionLinkBuildingAnchor(StrategyPlacedBuilding building)
+        {
+            if (building == null)
+            {
+                return Vector3.zero;
+            }
+
+            if (building.Tool == StrategyBuildTool.House)
+            {
+                return building.HomeAnchor;
+            }
+
+            Bounds bounds = building.SelectionBounds;
+            return new Vector3(bounds.center.x, bounds.min.y + bounds.size.y * 0.18f, -0.06f);
+        }
+
+        private static Vector3 GetSelectionLinkResidentAnchor(StrategyResidentAgent resident)
+        {
+            if (resident == null)
+            {
+                return Vector3.zero;
+            }
+
+            Bounds bounds = resident.SelectionBounds;
+            if (bounds.size.sqrMagnitude > 0.001f)
+            {
+                return new Vector3(bounds.center.x, bounds.min.y + bounds.size.y * 0.10f, -0.06f);
+            }
+
+            Vector3 position = resident.transform.position;
+            return new Vector3(position.x, position.y, -0.06f);
+        }
+    }
+}

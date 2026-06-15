@@ -53,9 +53,10 @@ namespace ProjectUnknown.Strategy
                     "Population",
                     "HouseholdBirthBlockedFoodShortage",
                     StrategyDebugLogger.F("houseOrigin", house.Origin),
-                    StrategyDebugLogger.F("starvation", food.StarvationLevel),
-                    StrategyDebugLogger.F("requiredFood", food.LastRequiredFood),
-                    StrategyDebugLogger.F("lastConsumedFood", food.LastConsumedFood));
+                    StrategyDebugLogger.F("nutritionSeverity", food.NutritionSeverityLevel),
+                    StrategyDebugLogger.F("requiredRations", food.LastRequiredRations),
+                    StrategyDebugLogger.F("suppliedRations", food.LastSuppliedRations),
+                    StrategyDebugLogger.F("lastConsumedFoodUnits", food.LastConsumedFood));
                 return;
             }
 
