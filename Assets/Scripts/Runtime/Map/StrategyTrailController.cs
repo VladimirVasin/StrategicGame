@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ProjectUnknown.Strategy
 {
     [DisallowMultipleComponent]
-    public sealed class StrategyTrailController : MonoBehaviour
+    public sealed partial class StrategyTrailController : MonoBehaviour
     {
         private const float FootfallWear = 1f;
         private const float MaxWear = 100f;
@@ -12,10 +12,10 @@ namespace ProjectUnknown.Strategy
         private const float ClearThreshold = 34f;
         private const float WornThreshold = 68f;
         private const float TrailSpeedMultiplier = 1.15f;
-        private const float TrailPathCostMultiplier = 0.80f;
+        private const float TrailPathCostMultiplier = 0.68f;
         private const float DecayTickSeconds = 1.0f;
-        private const float DecayGraceSeconds = 160f;
-        private const float DecayWearPerSecond = 0.08f;
+        private const float DecayGraceSeconds = 90f;
+        private const float DecayWearPerSecond = 0.16f;
         private const int North = 1;
         private const int East = 2;
         private const int South = 4;
@@ -82,6 +82,7 @@ namespace ProjectUnknown.Strategy
             float elapsed = decayTimer;
             decayTimer = 0f;
             DecayOldTrails(elapsed);
+            LogTrailStatsIfDue(elapsed);
         }
 
         public void RecordFootfall(Vector2Int cell)
@@ -91,8 +92,16 @@ namespace ProjectUnknown.Strategy
 
         public void RecordFootfall(Vector2Int cell, float weight)
         {
-            if (weight <= 0f || !CanWearCell(cell))
+            if (weight <= 0f)
             {
+                RecordRejectedFootfall(cell, weight, "non_positive_weight");
+                return;
+            }
+
+            string rejectReason = GetWearRejectReason(cell);
+            if (rejectReason != null)
+            {
+                RecordRejectedFootfall(cell, weight, rejectReason);
                 return;
             }
 
@@ -105,12 +114,14 @@ namespace ProjectUnknown.Strategy
             activeWearCells.Add(GetKey(cell));
 
             byte newLevel = GetLevelForWear(newWear);
+            RecordAcceptedFootfall();
             if (newLevel == oldLevel)
             {
                 return;
             }
 
             levels[cell.x, cell.y] = newLevel;
+            RecordTrailLevelChange(cell, oldLevel, newLevel, oldWear, newWear, "footfall");
             RefreshCellAndNeighbors(cell);
         }
 
@@ -132,9 +143,11 @@ namespace ProjectUnknown.Strategy
                 float currentWear = wear[x, y];
                 if (currentWear <= 0f || !CanWearCell(cell))
                 {
+                    byte invalidatedLevel = levels[x, y];
                     wear[x, y] = 0f;
                     levels[x, y] = 0;
                     decayClearCells.Add(key);
+                    RecordInvalidatedTrailCell(cell, invalidatedLevel, currentWear);
                     RefreshCellAndNeighbors(cell);
                     continue;
                 }
@@ -159,6 +172,7 @@ namespace ProjectUnknown.Strategy
                 }
 
                 levels[x, y] = newLevel;
+                RecordTrailLevelChange(cell, oldLevel, newLevel, currentWear, newWear, "decay");
                 RefreshCellAndNeighbors(cell);
             }
 
@@ -222,12 +236,7 @@ namespace ProjectUnknown.Strategy
 
         private bool CanWearCell(Vector2Int cell)
         {
-            return map != null
-                && map.TryGetCell(cell.x, cell.y, out CityMapCell mapCell)
-                && mapCell.Kind != CityMapCellKind.Water
-                && !map.IsBridgeWalkableCell(cell)
-                && map.IsCellWalkable(cell)
-                && map.IsCellBuildable(cell);
+            return GetWearRejectReason(cell) == null;
         }
 
         private void RefreshCellAndNeighbors(Vector2Int cell)
@@ -319,31 +328,6 @@ namespace ProjectUnknown.Strategy
             return map != null
                 && map.IsCellWalkable(cell + new Vector2Int(x, 0))
                 && map.IsCellWalkable(cell + new Vector2Int(0, y));
-        }
-
-        private byte GetVisibleTrailLevel(Vector2Int cell)
-        {
-            byte level = GetTrailLevel(cell);
-            if (level <= 0)
-            {
-                return 0;
-            }
-
-            return level >= 2 || CountRawTrailNeighbors(cell) >= 2 ? level : (byte)0;
-        }
-
-        private int CountRawTrailNeighbors(Vector2Int cell)
-        {
-            int count = 0;
-            for (int i = 0; i < NeighborCells.Length; i++)
-            {
-                if (GetTrailLevel(cell + NeighborCells[i]) > 0)
-                {
-                    count++;
-                }
-            }
-
-            return count;
         }
 
         private SpriteRenderer EnsureRenderer(int key, Vector2Int cell)

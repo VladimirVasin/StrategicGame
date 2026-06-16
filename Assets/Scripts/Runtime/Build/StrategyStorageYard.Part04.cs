@@ -24,7 +24,7 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            reservedLogisticsLogs = Mathf.Min(4, available);
+            reservedLogisticsLogs = Mathf.Min(StrategyProductionStorage.HaulerCarryLimit, available);
             logisticsLogsReservationOwner = owner;
             amount = reservedLogisticsLogs;
             return true;

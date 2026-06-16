@@ -14,6 +14,7 @@ namespace ProjectUnknown.Strategy
         private readonly List<StrategyResidentAgent> candidates = new();
         private readonly Dictionary<StrategyProfessionType, float> manualLocks = new();
         private readonly Dictionary<StrategyProfessionType, int> desiredProfessionTargets = new();
+        private readonly Dictionary<StrategyProfessionType, int> coverageProfessionFloors = new();
         private StrategyPopulationController population;
         private float tickTimer;
         private string lastStatus = "Auto workforce ready";
@@ -115,6 +116,8 @@ namespace ProjectUnknown.Strategy
             demands.Sort((left, right) => right.Score.CompareTo(left.Score));
 
             int assigned = AssignDemandsWithRebalance(ref released, out int demandReleased);
+            int fallbackAssigned = AssignIdleAdultsToBestAvailableRoles();
+            assigned += fallbackAssigned;
 
             lastStatus = assigned > 0
                 ? "Assigned " + assigned + " worker" + (assigned == 1 ? string.Empty : "s")
@@ -122,7 +125,7 @@ namespace ProjectUnknown.Strategy
                     ? "Released " + demandReleased + " worker" + (demandReleased == 1 ? string.Empty : "s") + " for demand"
                     : surplusReleased > 0
                     ? "Released " + surplusReleased + " surplus worker" + (surplusReleased == 1 ? string.Empty : "s")
-                    : candidates.Count > 0 ? "No urgent workforce demand" : "No free adults";
+                    : candidates.Count > 0 ? "No enabled workforce slot" : "No free adults";
 
             StrategyDebugLogger.Info(
                 "AutoWorkforce",
@@ -132,6 +135,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("freeAdults", candidates.Count),
                 StrategyDebugLogger.F("released", released),
                 StrategyDebugLogger.F("demandReleased", demandReleased),
+                StrategyDebugLogger.F("fallbackAssigned", fallbackAssigned),
                 StrategyDebugLogger.F("assigned", assigned),
                 StrategyDebugLogger.F("status", lastStatus));
         }

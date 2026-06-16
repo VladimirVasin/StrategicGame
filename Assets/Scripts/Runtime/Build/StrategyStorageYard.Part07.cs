@@ -5,7 +5,7 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyStorageYard
     {
-        private const int ProductionInputDeliveryStackLimit = 4;
+        private const int ProductionInputDeliveryStackLimit = StrategyProductionStorage.HaulerCarryLimit;
 
         public bool TryReserveProductionInputDelivery(
             object owner,

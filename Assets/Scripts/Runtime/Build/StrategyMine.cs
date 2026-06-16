@@ -247,7 +247,7 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            reservedIron = Mathf.Min(4, available);
+            reservedIron = Mathf.Min(StrategyProductionStorage.HaulerCarryLimit, available);
             ironReservationOwner = owner;
             amount = reservedIron;
             StrategyDebugLogger.Info(

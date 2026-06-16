@@ -42,20 +42,7 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
-            if (!wildlife.TryFindWolfRoamCell(this, currentCell, preferSafety, out Vector2Int roamCell))
-            {
-                return LogWolfRoamFailed("no_roam_cell", currentCell, preferSafety);
-            }
-
-            if (!TryBuildPathTo(roamCell))
-            {
-                return LogWolfPathFailed("roam_path_failed", roamCell);
-            }
-
-            LogWolfPathReady(preferSafety ? "avoid_roam" : "roam", roamCell, roamCell);
-            SetWolfState(preferSafety ? StrategyWolfBehaviorState.AvoidingSettlement : StrategyWolfBehaviorState.Roaming, "roam_path_ready");
-            stateTimer = Random.Range(1.0f, 2.2f);
-            return true;
+            return TryStartReachableRoaming(currentCell, preferSafety);
         }
 
         private void StartAttack()

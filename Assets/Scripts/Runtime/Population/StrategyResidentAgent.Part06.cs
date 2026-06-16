@@ -169,7 +169,8 @@ namespace ProjectUnknown.Strategy
                         this,
                         out IStrategyConstructionResourceSource source,
                         out StrategyConstructionResourceKind kind,
-                        out Vector2Int pickupCell))
+                        out Vector2Int pickupCell,
+                        out int pickupAmount))
                 {
                     waitTimer = Random.Range(0.45f, 1.1f);
                     return false;
@@ -212,7 +213,9 @@ namespace ProjectUnknown.Strategy
                     return false;
                 }
 
-                if (source == null || !source.TryReserveConstructionPickup(constructionSite, this, kind, 1))
+                if (source == null
+                    || pickupAmount <= 0
+                    || !source.TryReserveConstructionPickup(constructionSite, this, kind, pickupAmount))
                 {
                     hasTarget = false;
                     path.Clear();
@@ -225,6 +228,7 @@ namespace ProjectUnknown.Strategy
                         StrategyDebugLogger.F("siteOrigin", constructionSite.Origin),
                         StrategyDebugLogger.F("sourceOrigin", source != null ? source.Origin : Vector2Int.zero),
                         StrategyDebugLogger.F("resource", kind),
+                        StrategyDebugLogger.F("amount", pickupAmount),
                         StrategyDebugLogger.F("pickupCell", pickupCell),
                         StrategyDebugLogger.F("reason", "reserve_failed"));
                     return false;
@@ -243,6 +247,7 @@ namespace ProjectUnknown.Strategy
                     StrategyDebugLogger.F("siteOrigin", constructionSite.Origin),
                     StrategyDebugLogger.F("sourceOrigin", source != null ? source.Origin : Vector2Int.zero),
                     StrategyDebugLogger.F("resource", kind),
+                    StrategyDebugLogger.F("amount", pickupAmount),
                     StrategyDebugLogger.F("pickupCell", pickupCell));
                 return true;
             }

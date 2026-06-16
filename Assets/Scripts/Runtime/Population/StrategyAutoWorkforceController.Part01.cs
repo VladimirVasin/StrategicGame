@@ -15,10 +15,12 @@ namespace ProjectUnknown.Strategy
         {
             demands.Clear();
             desiredProfessionTargets.Clear();
+            coverageProfessionFloors.Clear();
             AddConstructionDemands();
             AddLogisticsDemands();
             AddFoodDemands();
             AddMaterialDemands();
+            AddCoverageFloorDemands();
         }
 
         private void AddConstructionDemands()

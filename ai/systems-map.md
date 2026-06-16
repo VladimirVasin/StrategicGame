@@ -123,6 +123,8 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Map/StrategyFogOfWarController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyWaterAnimationController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.cs`
+- `Assets/Scripts/Runtime/Map/StrategyTrailController.Diagnostics.cs`
+- `Assets/Scripts/Runtime/Map/StrategyTrailController.Visibility.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Map/StrategyStoneResourceController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyForageResourceController.cs`
@@ -267,6 +269,8 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Map/StrategyFogOfWarController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyWaterAnimationController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.cs`
+- `Assets/Scripts/Runtime/Map/StrategyTrailController.Diagnostics.cs`
+- `Assets/Scripts/Runtime/Map/StrategyTrailController.Visibility.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTerrainTexturePainter.cs`
 - `Assets/Scripts/Runtime/Map/CityMapController.Buildability.cs`
@@ -306,7 +310,7 @@ Impact hints:
 - Future movement/pathfinding should use `IsCellWalkable` rather than terrain kind alone.
 - Rendering is currently a generated point-filtered texture on a `SpriteRenderer`, not a Tilemap.
 - Water and shore animation is a separate transparent `SpriteRenderer` overlay above the static map and below world props; it reads active weather intensity for rain ripple hits.
-- Trail visuals use one `SpriteRenderer` per visible trail cell under a `Trail Visuals` root, sorted above terrain/water overlays and below world props, with 8-direction masks and narrow line/brush sprites.
+- Trail visuals use one `SpriteRenderer` per visible trail cell under a `Trail Visuals` root, sorted above terrain/water overlays and below world props, with 8-direction masks and narrow line/brush sprites; faint trail cells require directional/strong-neighbor support before rendering so early traffic noise stays hidden.
 - Trail wear is runtime-only and should be refreshed when walkability/buildability changes so blocked cells do not keep visible trails.
 - Resident pathfinding should continue to treat trails as a cost preference, not as required connectivity.
 
@@ -477,6 +481,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeRiverCrossing.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyDeerAgent.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyDeerAgent.Part03.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyDeerAgent.Part04.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyDeerSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyRabbitAgent.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyRabbitAgent.Part03.cs`
@@ -485,6 +490,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Wildlife/StrategyWolfAgent.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWolfAgent.Part04.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWolfAgent.Part05.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyWolfAgent.Part07.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWolfSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Build/StrategyHunterCamp.cs`
 - `Assets/Scripts/Runtime/Build/StrategyFisherHut.cs`
@@ -814,6 +820,8 @@ Responsibilities:
 - Tick every few seconds instead of every frame.
 - Scan eligible free adults through `StrategyPopulationController.Residents`.
 - Compute desired targets for every auto-managed profession from the player priority values, release surplus workers through normal worksite unassign APIs, and let higher-scored shortages pull limited donors from lower-priority auto-managed roles when there are no free adults.
+- Maintain a coverage floor of 1 worker for available auto-managed professions whose player counter is above 0; a counter at 0 is the explicit opt-out that allows that role/category to fall to 0.
+- Let emergency food/resource shortages pull a limited donor from an at-target profession only when the shortage score strongly exceeds that profession's hold score, while never taking the last worker protected by a coverage floor.
 - Ignore children, pending refugees, funeral duty, household foraging/food duty, householders, residents with external workplaces, and active construction assignees through resident availability flags.
 - Build work demands from active construction sites, Granary ration reserve, production-worksite stock/capacity, Storage Yard/Granary logistics backlog, and construction material needs.
 - Score demands by priority, urgency, shortage, worksite need, construction readiness, storage backlog, and resident distance.
@@ -830,6 +838,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceController.Part02.cs`
 - `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceController.Part03.cs`
 - `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceController.Part04.cs`
+- `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceController.Part05.cs`
 - `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceDemand.cs`
 - `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceSettings.cs`
 - `Assets/Scripts/Runtime/UI/StrategyProfessionHudController.Part04.cs`
@@ -838,7 +847,8 @@ Primary files/assets:
 
 Impact hints:
 
-- Auto workforce can release surplus workers from overstaffed auto-managed professions and can also release limited lower-priority donors for higher-scored shortages; only residents who become idle are reused immediately, while workers returning carried resources re-enter the free pool on later ticks.
+- Auto workforce can release surplus workers from overstaffed auto-managed professions, release limited lower-priority donors for higher-scored shortages, and use a stricter emergency margin to pull at-target donors for severe food/resource shortages; coverage floors protect the last worker in nonzero-counter professions, and only residents who become idle are reused immediately while workers returning carried resources re-enter the free pool on later ticks.
+- Free adult fallback assignment runs after demand assignment so idle adults are placed into the best enabled available role when any nonzero managed profession can accept them.
 - Auto workforce does not force-reassign home duty, funeral duty, or residents still busy returning carried resources.
 - Demand scoring should continue to call public worksite APIs (`AssignWorker`, `AssignBuilder`, Storage Yard builder dispatch) so cancellation, carried-resource return, reservations, and resident state cleanup stay centralized.
 - Food automation should keep using Hunter/Fisher production plus shared Haulers into Granaries; do not reintroduce a separate player-facing Granary Worker profession.
@@ -884,7 +894,7 @@ Responsibilities:
 - Coal Pit places a `StrategyCoalPit` worksite component, blocks its technical 2x2 footprint plus one visual row above, requires an available underground Coal deposit under its footprint, and hosts a local visual Coal stockpile.
 - Granary places a `StrategyGranary` food-storage component, blocks its technical 3x2 footprint plus one visual row above, and hosts local visual `Game`/`Fish` stockpiles.
 - Accepted construction sites request active builders from the uncapped hired Storage Yard builder pool through balanced dispatch across all active sites, and can wait if none are free yet.
-- Bridge creates no worksite component, stores its selected span cells/endpoints on the placed-building record, and uses bank endpoint cells as construction work/dropoff cells so builders do not stand in water.
+- Bridge creates no worksite component, stores its selected span cells/endpoints on the placed-building record, and exposes bank endpoint cells as construction work/dropoff candidates so builders choose a reachable shore and do not stand in water.
 - Completed house sites ask population to populate the finished house separately from the construction crew.
 - Completed construction releases temporary construction-site map blockers before applying final building blockers.
 - Confirmed construction cancellation releases temporary map state and drops delivered/carried Logs/Stone/Planks as loose construction resource piles.
@@ -1276,6 +1286,8 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part36.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part37.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part38.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part39.cs`
 - `Assets/Scripts/Runtime/Build/StrategyLumberjackCamp.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStonecutterCamp.cs`
 - `Assets/Scripts/Runtime/Build/StrategyMine.cs`
@@ -1344,7 +1356,7 @@ Impact hints:
 - Resident movement records activity-weighted trail footfall per entered visible resident cell, and formed trails apply a 15% speed bonus.
 - Resident pathfinding can recover a blocked start cell by snapping to a nearby walkable cell and logging `PathStartRecovered`.
 - Resident footstep audio is attached by `StrategyResidentAgent` and plays grass clips on selected walk frames; keep it low-volume/spatial when adding more residents or faster simulation speeds.
-- Lumberjack work keeps the same camp worksite component but chooses the nearest available tree/processable wood on the map; it includes tree chopping, trunk bucking, Logs delivery, and sapling planting.
+- Lumberjack work keeps the same camp worksite component but chooses the nearest available tree/processable wood on the map; it tests nearby work cells for real path reachability before starting tree/log/plant movement, and includes tree chopping, trunk bucking, Logs delivery, and sapling planting.
 - Resident woodcut sprites are generated for every male/female visual variant and should stay in sync with readability outline mirroring.
 - Stonecutter work keeps the same camp worksite component but chooses the nearest available finite Stone deposit on the map and does not plant/regrow Stone.
 - Resident stonecut sprites are generated for every male/female visual variant and should stay in sync with readability outline mirroring.
@@ -1369,7 +1381,7 @@ Impact hints:
 - If no free pair exists, the completed house is available for adult-child migration and partner lookup.
 - House occupation consumes the finite free-resident pool from the starter camp while it exists; later household births and adult-child migration are the first internal population growth path.
 - Resident death must continue to go through the centralized population cleanup path; direct `Destroy` on accepted residents risks stale worksite, construction, home, HUD, or kinship state.
-- Resident helper methods for carried-resource return, construction work, workplace clearing, readability sync, refugee path following, tree movement, fishing cast/reel flow, production-input delivery, trail movement, and ranged hunt stand selection are split across `StrategyResidentAgent.Part27.cs` through `StrategyResidentAgent.Part37.cs` to keep source files below the 500-line limit.
+- Resident helper methods for carried-resource return, construction work, workplace clearing, readability sync, refugee path following, tree movement, fishing cast/reel flow, production-input delivery, trail movement, ranged hunt stand selection, reachable forestry work-cell selection, and reachable construction dropoff selection are split across `StrategyResidentAgent.Part27.cs` through `StrategyResidentAgent.Part39.cs` to keep source files below the 500-line limit.
 - Future jobs/families/economy should extend resident state rather than replacing the home/free-camp assignment model.
 
 ### World Selection

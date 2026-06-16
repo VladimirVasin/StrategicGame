@@ -183,46 +183,60 @@ namespace ProjectUnknown.Strategy
             return TryFindDropoffCell(out cell);
         }
 
-        public bool TryFindDropoffCell(out Vector2Int cell)
+        public bool TryCollectEntranceCells(List<Vector2Int> candidates)
         {
-            cell = default;
+            if (candidates == null)
+            {
+                return false;
+            }
+
+            candidates.Clear();
             if (map == null || building == null)
             {
                 return false;
             }
 
+            Vector2Int blockOrigin = building.Origin;
+            Vector2Int blockFootprint = new Vector2Int(building.Footprint.x, building.Footprint.y + 1);
             for (int radius = 1; radius <= 3; radius++)
             {
-                List<Vector2Int> candidates = new();
-                for (int y = -radius; y < building.Footprint.y + radius; y++)
+                for (int y = -radius; y < blockFootprint.y + radius; y++)
                 {
-                    for (int x = -radius; x < building.Footprint.x + radius; x++)
+                    for (int x = -radius; x < blockFootprint.x + radius; x++)
                     {
                         bool isEdge = x == -radius
                             || y == -radius
-                            || x == building.Footprint.x + radius - 1
-                            || y == building.Footprint.y + radius - 1;
+                            || x == blockFootprint.x + radius - 1
+                            || y == blockFootprint.y + radius - 1;
                         if (!isEdge)
                         {
                             continue;
                         }
 
-                        Vector2Int candidate = building.Origin + new Vector2Int(x, y);
-                        if (map.IsCellWalkable(candidate))
+                        Vector2Int candidate = blockOrigin + new Vector2Int(x, y);
+                        if (map.IsCellWalkable(candidate) && !candidates.Contains(candidate))
                         {
                             candidates.Add(candidate);
                         }
                     }
                 }
 
-                if (candidates.Count > 0)
-                {
-                    cell = candidates[Random.Range(0, candidates.Count)];
-                    return true;
-                }
             }
 
-            return false;
+            return candidates.Count > 0;
+        }
+
+        public bool TryFindDropoffCell(out Vector2Int cell)
+        {
+            cell = default;
+            List<Vector2Int> candidates = new();
+            if (!TryCollectEntranceCells(candidates))
+            {
+                return false;
+            }
+
+            cell = candidates[Random.Range(0, candidates.Count)];
+            return true;
         }
 
         public Vector3 GetInteriorWorkWorld()
@@ -251,7 +265,7 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            reservedCoal = Mathf.Min(4, available);
+            reservedCoal = Mathf.Min(StrategyProductionStorage.HaulerCarryLimit, available);
             coalReservationOwner = owner;
             amount = reservedCoal;
             return true;

@@ -1,0 +1,63 @@
+using UnityEngine;
+
+namespace ProjectUnknown.Strategy
+{
+    public sealed partial class StrategyDeerAgent
+    {
+        private const float ThreatReactionRefreshSeconds = 1.15f;
+        private const float ThreatReactionRefreshDistanceSqr = 1.0f;
+
+        private float nextThreatReactionRefreshTime;
+        private Vector3 lastReactionThreatWorld;
+
+        private void StartAlert(Vector3 threatWorld, bool noisyThreat)
+        {
+            if (ShouldSkipThreatReaction(StrategyDeerBehaviorState.Alert, threatWorld))
+            {
+                lastThreatWorld = threatWorld;
+                return;
+            }
+
+            hasTarget = false;
+            path.Clear();
+            pathIndex = 0;
+            lastThreatWorld = threatWorld;
+            MarkThreatReaction(threatWorld);
+            stateTimer = noisyThreat ? Random.Range(1.5f, 3.2f) : Random.Range(0.9f, 2.2f);
+            SetState(StrategyDeerBehaviorState.Alert, true, noisyThreat);
+        }
+
+        private void StartFleeing(Vector3 threatWorld, bool noisyThreat)
+        {
+            if (ShouldSkipThreatReaction(StrategyDeerBehaviorState.Fleeing, threatWorld))
+            {
+                lastThreatWorld = threatWorld;
+                return;
+            }
+
+            lastThreatWorld = threatWorld;
+            MarkThreatReaction(threatWorld);
+            stateTimer = noisyThreat ? Random.Range(2.1f, 3.8f) : Random.Range(1.5f, 2.8f);
+            bool foundTarget = TryPickFleeTarget(threatWorld);
+            if (!foundTarget && state == StrategyDeerBehaviorState.Fleeing)
+            {
+                return;
+            }
+
+            SetState(StrategyDeerBehaviorState.Fleeing, true, noisyThreat);
+        }
+
+        private bool ShouldSkipThreatReaction(StrategyDeerBehaviorState reactionState, Vector3 threatWorld)
+        {
+            return state == reactionState
+                && Time.time < nextThreatReactionRefreshTime
+                && (threatWorld - lastReactionThreatWorld).sqrMagnitude <= ThreatReactionRefreshDistanceSqr;
+        }
+
+        private void MarkThreatReaction(Vector3 threatWorld)
+        {
+            lastReactionThreatWorld = threatWorld;
+            nextThreatReactionRefreshTime = Time.time + ThreatReactionRefreshSeconds;
+        }
+    }
+}

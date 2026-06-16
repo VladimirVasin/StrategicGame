@@ -225,33 +225,38 @@ namespace ProjectUnknown.Strategy
             StrategyResidentAgent worker,
             out IStrategyConstructionResourceSource source,
             out StrategyConstructionResourceKind kind,
-            out Vector2Int pickupCell)
+            out Vector2Int pickupCell,
+            out int pickupAmount)
         {
             source = null;
             kind = StrategyConstructionResourceKind.None;
             pickupCell = default;
+            pickupAmount = 0;
 
             if (completed || worker == null || !hasBegun || ResourcesComplete)
             {
                 return false;
             }
 
-            if (NeededLogs > 0
-                && StrategyStorageYard.TryFindConstructionPickup(this, StrategyConstructionResourceKind.Logs, footprintBounds.center, out source, out pickupCell))
+            int logsPickupAmount = Mathf.Min(StrategyProductionStorage.BuilderCarryLimit, NeededLogs);
+            if (logsPickupAmount > 0
+                && StrategyStorageYard.TryFindConstructionPickup(this, StrategyConstructionResourceKind.Logs, footprintBounds.center, logsPickupAmount, out source, out pickupCell, out pickupAmount))
             {
                 kind = StrategyConstructionResourceKind.Logs;
                 return true;
             }
 
-            if (NeededStone > 0
-                && StrategyStorageYard.TryFindConstructionPickup(this, StrategyConstructionResourceKind.Stone, footprintBounds.center, out source, out pickupCell))
+            int stonePickupAmount = Mathf.Min(StrategyProductionStorage.BuilderCarryLimit, NeededStone);
+            if (stonePickupAmount > 0
+                && StrategyStorageYard.TryFindConstructionPickup(this, StrategyConstructionResourceKind.Stone, footprintBounds.center, stonePickupAmount, out source, out pickupCell, out pickupAmount))
             {
                 kind = StrategyConstructionResourceKind.Stone;
                 return true;
             }
 
-            if (NeededPlanks > 0
-                && StrategyStorageYard.TryFindConstructionPickup(this, StrategyConstructionResourceKind.Planks, footprintBounds.center, out source, out pickupCell))
+            int planksPickupAmount = Mathf.Min(StrategyProductionStorage.BuilderCarryLimit, NeededPlanks);
+            if (planksPickupAmount > 0
+                && StrategyStorageYard.TryFindConstructionPickup(this, StrategyConstructionResourceKind.Planks, footprintBounds.center, planksPickupAmount, out source, out pickupCell, out pickupAmount))
             {
                 kind = StrategyConstructionResourceKind.Planks;
                 return true;

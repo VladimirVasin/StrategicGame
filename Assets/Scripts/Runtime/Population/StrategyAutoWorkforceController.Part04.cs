@@ -7,9 +7,12 @@ namespace ProjectUnknown.Strategy
     {
         private const int MaxDemandRebalanceReleasesPerTick = 3;
         private const float RebalanceScoreMargin = 20f;
+        private const float EmergencyDemandRebalanceMargin = 140f;
         private const float DemandRebalanceLockSeconds = 18f;
 
         private readonly Dictionary<StrategyProfessionType, float> demandRebalanceLocks = new();
+        private float nextDonorFailureLogTime;
+        private string lastDonorFailureKey = string.Empty;
 
         private int AssignDemandsWithRebalance(ref int released, out int demandReleased)
         {
@@ -112,12 +115,7 @@ namespace ProjectUnknown.Strategy
 
             if (!found)
             {
-                StrategyDebugLogger.Info(
-                    "AutoWorkforce",
-                    "AutoWorkforceRebalanceSkipped",
-                    StrategyDebugLogger.F("targetProfession", demand.Profession),
-                    StrategyDebugLogger.F("targetScore", demand.Score),
-                    StrategyDebugLogger.F("reason", "no_lower_priority_donor"));
+                LogDemandDonorSearchFailed(demand);
                 return false;
             }
 
@@ -129,18 +127,34 @@ namespace ProjectUnknown.Strategy
             StrategyAutoWorkforceDemand demand,
             out float holdScore)
         {
+            return GetDemandDonorBlockReason(profession, demand, out holdScore) == null;
+        }
+
+        private string GetDemandDonorBlockReason(
+            StrategyProfessionType profession,
+            StrategyAutoWorkforceDemand demand,
+            out float holdScore)
+        {
             holdScore = float.MaxValue;
-            if (profession == demand.Profession
-                || IsProfessionManualLocked(profession)
-                || IsDemandRebalanceLocked(profession))
+            if (profession == demand.Profession)
             {
-                return false;
+                return "target_profession";
+            }
+
+            if (IsProfessionManualLocked(profession))
+            {
+                return "manual_locked";
+            }
+
+            if (IsDemandRebalanceLocked(profession))
+            {
+                return "rebalance_locked";
             }
 
             int current = CountAssignedProfession(profession);
             if (current <= 0)
             {
-                return false;
+                return "no_workers";
             }
 
             int target = desiredProfessionTargets.TryGetValue(profession, out int value) ? value : 0;
@@ -151,12 +165,111 @@ namespace ProjectUnknown.Strategy
                 holdScore = demandHoldScore;
             }
 
-            if (current <= target)
+            int coverageFloor = GetCoverageFloorTarget(profession);
+            if (coverageFloor > 0 && current <= coverageFloor)
             {
-                return false;
+                return "coverage_floor";
             }
 
-            return demand.Score >= holdScore + RebalanceScoreMargin;
+            if (IsCoverageDemand(demand))
+            {
+                return null;
+            }
+
+            if (current <= target && !CanUseEmergencyDemandDonor(demand, holdScore))
+            {
+                return "at_or_below_target";
+            }
+
+            return demand.Score >= holdScore + RebalanceScoreMargin ? null : "score_too_low";
+        }
+
+        private bool CanUseEmergencyDemandDonor(StrategyAutoWorkforceDemand demand, float holdScore)
+        {
+            return IsEmergencyDemand(demand)
+                && demand.Score >= holdScore + EmergencyDemandRebalanceMargin;
+        }
+
+        private static bool IsEmergencyDemand(StrategyAutoWorkforceDemand demand)
+        {
+            return demand != null
+                && (demand.Reason == "low_food"
+                    || demand.Reason != null && demand.Reason.EndsWith("_shortage", System.StringComparison.Ordinal));
+        }
+
+        private static bool IsCoverageDemand(StrategyAutoWorkforceDemand demand)
+        {
+            return demand != null && demand.Reason == "coverage_floor";
+        }
+
+        private void LogDemandDonorSearchFailed(StrategyAutoWorkforceDemand demand)
+        {
+            string key = demand.Profession + ":" + demand.Reason;
+            if (lastDonorFailureKey == key && Time.realtimeSinceStartup < nextDonorFailureLogTime)
+            {
+                return;
+            }
+
+            lastDonorFailureKey = key;
+            nextDonorFailureLogTime = Time.realtimeSinceStartup + 3f;
+            int sameProfession = 0;
+            int manualLocked = 0;
+            int rebalanceLocked = 0;
+            int noWorkers = 0;
+            int coverageFloorBlocked = 0;
+            int atOrBelowTarget = 0;
+            int scoreTooLow = 0;
+            float bestScoreGap = float.NegativeInfinity;
+            for (int i = 0; i < AutoManagedProfessions.Length; i++)
+            {
+                string reason = GetDemandDonorBlockReason(AutoManagedProfessions[i], demand, out float holdScore);
+                if (holdScore < float.MaxValue)
+                {
+                    bestScoreGap = Mathf.Max(bestScoreGap, demand.Score - holdScore);
+                }
+
+                switch (reason)
+                {
+                    case "target_profession":
+                        sameProfession++;
+                        break;
+                    case "manual_locked":
+                        manualLocked++;
+                        break;
+                    case "rebalance_locked":
+                        rebalanceLocked++;
+                        break;
+                    case "no_workers":
+                        noWorkers++;
+                        break;
+                    case "coverage_floor":
+                        coverageFloorBlocked++;
+                        break;
+                    case "at_or_below_target":
+                        atOrBelowTarget++;
+                        break;
+                    case "score_too_low":
+                        scoreTooLow++;
+                        break;
+                }
+            }
+
+            StrategyDebugLogger.Info(
+                "AutoWorkforce",
+                "AutoWorkforceRebalanceSkipped",
+                StrategyDebugLogger.F("targetProfession", demand.Profession),
+                StrategyDebugLogger.F("targetScore", demand.Score),
+                StrategyDebugLogger.F("targetReason", demand.Reason),
+                StrategyDebugLogger.F("reason", "no_donor"),
+                StrategyDebugLogger.F("emergencyDemand", IsEmergencyDemand(demand)),
+                StrategyDebugLogger.F("sameProfession", sameProfession),
+                StrategyDebugLogger.F("manualLocked", manualLocked),
+                StrategyDebugLogger.F("rebalanceLocked", rebalanceLocked),
+                StrategyDebugLogger.F("noWorkers", noWorkers),
+                StrategyDebugLogger.F("coverageFloorBlocked", coverageFloorBlocked),
+                StrategyDebugLogger.F("atOrBelowTarget", atOrBelowTarget),
+                StrategyDebugLogger.F("scoreTooLow", scoreTooLow),
+                StrategyDebugLogger.F("bestScoreGap", bestScoreGap));
         }
 
         private void RegisterDemandRebalanceLock(StrategyProfessionType source, StrategyProfessionType target)

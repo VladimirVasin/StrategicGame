@@ -134,70 +134,12 @@ namespace ProjectUnknown.Strategy
 
         private bool TryFindPlantingWorkCell(Vector2Int targetCell, out Vector2Int cell)
         {
-            List<Vector2Int> candidates = new();
-            for (int radius = 1; radius <= 2; radius++)
-            {
-                candidates.Clear();
-                for (int y = -radius; y <= radius; y++)
-                {
-                    for (int x = -radius; x <= radius; x++)
-                    {
-                        if (Mathf.Abs(x) != radius && Mathf.Abs(y) != radius)
-                        {
-                            continue;
-                        }
-
-                        Vector2Int candidate = targetCell + new Vector2Int(x, y);
-                        if (map.IsCellWalkable(candidate))
-                        {
-                            candidates.Add(candidate);
-                        }
-                    }
-                }
-
-                if (candidates.Count > 0)
-                {
-                    cell = candidates[Random.Range(0, candidates.Count)];
-                    return true;
-                }
-            }
-
-            cell = default;
-            return false;
+            return TryFindReachableRingWorkCell(targetCell, out cell);
         }
 
         private bool TryFindTreeWorkCell(StrategyForestryTree tree, out Vector2Int cell)
         {
-            List<Vector2Int> candidates = new();
-            for (int radius = 1; radius <= 2; radius++)
-            {
-                candidates.Clear();
-                for (int y = -radius; y <= radius; y++)
-                {
-                    for (int x = -radius; x <= radius; x++)
-                    {
-                        if (Mathf.Abs(x) != radius && Mathf.Abs(y) != radius)
-                        {
-                            continue;
-                        }
-
-                        Vector2Int candidate = tree.Cell + new Vector2Int(x, y);
-                        if (map.IsCellWalkable(candidate))
-                        {
-                            candidates.Add(candidate);
-                        }
-                    }
-                }
-
-                if (candidates.Count > 0)
-                {
-                    cell = candidates[Random.Range(0, candidates.Count)];
-                    return true;
-                }
-            }
-
-            cell = default;
-            return false;
+            return TryFindReachableRingWorkCell(tree.Cell, out cell);
         }
 
         private bool TryFindStoneWorkCell(StrategyStoneDeposit deposit, out Vector2Int cell)

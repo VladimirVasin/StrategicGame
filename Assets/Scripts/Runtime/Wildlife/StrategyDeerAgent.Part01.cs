@@ -6,29 +6,6 @@ namespace ProjectUnknown.Strategy
     public sealed partial class StrategyDeerAgent
     {
 
-        private void StartAlert(Vector3 threatWorld, bool noisyThreat)
-        {
-            hasTarget = false;
-            path.Clear();
-            pathIndex = 0;
-            lastThreatWorld = threatWorld;
-            stateTimer = noisyThreat ? Random.Range(1.5f, 3.2f) : Random.Range(0.9f, 2.2f);
-            SetState(StrategyDeerBehaviorState.Alert, true, noisyThreat);
-        }
-
-        private void StartFleeing(Vector3 threatWorld, bool noisyThreat)
-        {
-            lastThreatWorld = threatWorld;
-            stateTimer = noisyThreat ? Random.Range(2.1f, 3.8f) : Random.Range(1.5f, 2.8f);
-            bool foundTarget = TryPickFleeTarget(threatWorld);
-            if (!foundTarget && state == StrategyDeerBehaviorState.Fleeing)
-            {
-                return;
-            }
-
-            SetState(StrategyDeerBehaviorState.Fleeing, true, noisyThreat);
-        }
-
         private void SetState(StrategyDeerBehaviorState nextState, bool logImportant, bool noisyThreat)
         {
             if (state == nextState)

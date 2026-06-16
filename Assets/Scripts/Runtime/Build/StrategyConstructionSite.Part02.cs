@@ -24,6 +24,24 @@ namespace ProjectUnknown.Strategy
             return candidates.Count > 0;
         }
 
+        public bool TryCollectDropoffCells(List<Vector2Int> candidates)
+        {
+            if (candidates == null)
+            {
+                return false;
+            }
+
+            candidates.Clear();
+            AddBridgeBuildWorkCandidates(candidates);
+            if (candidates.Count > 0)
+            {
+                return true;
+            }
+
+            AddBuildWorkRingCandidates(blockOrigin, blockFootprint, 4, candidates);
+            return candidates.Count > 0;
+        }
+
         private void CompleteConstruction()
         {
             if (completed)

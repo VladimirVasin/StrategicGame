@@ -131,7 +131,10 @@ namespace ProjectUnknown.Strategy
             for (int i = 0; i < piles.Length; i++)
             {
                 StrategyLooseConstructionResourcePile candidate = piles[i];
-                if (candidate == null || !candidate.TryReserveForStorage(worker, kind, 1))
+                int amount = candidate != null
+                    ? Mathf.Min(StrategyProductionStorage.HaulerCarryLimit, candidate.GetAvailable(kind))
+                    : 0;
+                if (candidate == null || amount <= 0 || !candidate.TryReserveForStorage(worker, kind, amount))
                 {
                     continue;
                 }
@@ -208,12 +211,15 @@ namespace ProjectUnknown.Strategy
             object owner,
             StrategyConstructionResourceKind kind,
             Vector3 nearWorld,
+            int maxAmount,
             out StrategyLooseConstructionResourcePile pile,
-            out Vector2Int pickupCell)
+            out Vector2Int pickupCell,
+            out int amount)
         {
             pile = null;
             pickupCell = default;
-            if (owner == null || kind == StrategyConstructionResourceKind.None)
+            amount = 0;
+            if (owner == null || kind == StrategyConstructionResourceKind.None || maxAmount <= 0)
             {
                 return false;
             }
@@ -227,9 +233,16 @@ namespace ProjectUnknown.Strategy
                     continue;
                 }
 
+                int candidateAmount = Mathf.Min(maxAmount, candidate.GetAvailableReservationAmount(owner, kind));
+                if (candidateAmount <= 0)
+                {
+                    continue;
+                }
+
                 if (candidate.TryFindPickupCell(out pickupCell))
                 {
                     pile = candidate;
+                    amount = candidateAmount;
                     return true;
                 }
             }
@@ -241,12 +254,15 @@ namespace ProjectUnknown.Strategy
             object owner,
             StrategyConstructionResourceKind kind,
             Vector3 nearWorld,
+            int maxAmount,
             out StrategyLooseConstructionResourcePile pile,
-            out Vector2Int pickupCell)
+            out Vector2Int pickupCell,
+            out int amount)
         {
             pile = null;
             pickupCell = default;
-            if (owner == null || kind == StrategyConstructionResourceKind.None)
+            amount = 0;
+            if (owner == null || kind == StrategyConstructionResourceKind.None || maxAmount <= 0)
             {
                 return false;
             }
@@ -266,19 +282,21 @@ namespace ProjectUnknown.Strategy
                     continue;
                 }
 
-                if (candidate.ReserveConstruction(owner, kind, 1) <= 0)
+                int reserveAmount = Mathf.Min(maxAmount, available);
+                if (reserveAmount <= 0 || candidate.ReserveConstruction(owner, kind, reserveAmount) <= 0)
                 {
                     continue;
                 }
 
                 pile = candidate;
+                amount = reserveAmount;
                 StrategyDebugLogger.Info(
                     "Build",
                     "LooseConstructionResourceReservedForConstruction",
                     StrategyDebugLogger.F("origin", candidate.Origin),
                     StrategyDebugLogger.F("owner", owner),
                     StrategyDebugLogger.F("resource", kind),
-                    StrategyDebugLogger.F("amount", 1));
+                    StrategyDebugLogger.F("amount", amount));
                 return true;
             }
 

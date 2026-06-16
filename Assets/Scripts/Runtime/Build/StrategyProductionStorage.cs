@@ -5,6 +5,8 @@ namespace ProjectUnknown.Strategy
     internal static class StrategyProductionStorage
     {
         public const int LocalCapacity = 6;
+        public const int HaulerCarryLimit = 2;
+        public const int BuilderCarryLimit = 2;
 
         public static int GetRemaining(int used)
         {

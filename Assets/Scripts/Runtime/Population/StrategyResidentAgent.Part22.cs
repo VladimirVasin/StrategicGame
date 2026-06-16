@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace ProjectUnknown.Strategy
@@ -14,6 +15,7 @@ namespace ProjectUnknown.Strategy
         private int carriedCoalAmount;
         private float coalWorkCooldown;
         private float coalWorkTimer;
+        private readonly List<Vector2Int> coalPitEntranceCandidates = new();
 
         public StrategyCoalPit CoalPitWorkplace => coalPitWorkplace;
 
@@ -92,15 +94,21 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            if (!coalPitWorkplace.TryFindEntranceCell(out Vector2Int entranceCell)
-                || !TryBuildPathTo(entranceCell))
+            if (!TryBuildPathToCoalPitEntrance(coalPitWorkplace, out Vector2Int entranceCell, out int checkedEntranceCells))
             {
+                Vector2Int startCell = Vector2Int.zero;
+                bool hasStartCell = map != null && map.TryWorldToCell(transform.position, out startCell);
                 coalWorkCooldown = Random.Range(2.0f, 4.0f);
                 StrategyDebugLogger.Warn(
                     "Coal",
                     "CoalPitEntryRejected",
                     StrategyDebugLogger.F("resident", FullName),
                     StrategyDebugLogger.F("pitOrigin", coalPitWorkplace.Origin),
+                    StrategyDebugLogger.F("startCell", hasStartCell ? startCell : Vector2Int.zero),
+                    StrategyDebugLogger.F("startWalkable", hasStartCell && map != null && map.IsCellWalkable(startCell)),
+                    StrategyDebugLogger.F("entranceCell", entranceCell),
+                    StrategyDebugLogger.F("entranceWalkable", map != null && map.IsCellWalkable(entranceCell)),
+                    StrategyDebugLogger.F("checkedCells", checkedEntranceCells),
                     StrategyDebugLogger.F("reason", "no_entrance_path"));
                 return false;
             }
@@ -116,6 +124,54 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("pitOrigin", activeCoalPit.Origin),
                 StrategyDebugLogger.F("entranceCell", entranceCell));
             return true;
+        }
+
+        private bool TryBuildPathToCoalPitEntrance(
+            StrategyCoalPit pit,
+            out Vector2Int entranceCell,
+            out int checkedCells)
+        {
+            entranceCell = default;
+            checkedCells = 0;
+            coalPitEntranceCandidates.Clear();
+            if (pit == null || !pit.TryCollectEntranceCells(coalPitEntranceCandidates))
+            {
+                return false;
+            }
+
+            SortCoalPitEntranceCandidatesByDistance();
+            entranceCell = coalPitEntranceCandidates[0];
+            for (int i = 0; i < coalPitEntranceCandidates.Count; i++)
+            {
+                Vector2Int candidate = coalPitEntranceCandidates[i];
+                checkedCells++;
+                if (TryBuildPathTo(candidate))
+                {
+                    entranceCell = candidate;
+                    return true;
+                }
+
+                path.Clear();
+                pathIndex = 0;
+            }
+
+            return false;
+        }
+
+        private void SortCoalPitEntranceCandidatesByDistance()
+        {
+            if (map == null || coalPitEntranceCandidates.Count <= 1)
+            {
+                return;
+            }
+
+            Vector3 residentWorld = transform.position;
+            coalPitEntranceCandidates.Sort((left, right) =>
+            {
+                float leftDistance = (map.GetCellCenterWorld(left.x, left.y) - residentWorld).sqrMagnitude;
+                float rightDistance = (map.GetCellCenterWorld(right.x, right.y) - residentWorld).sqrMagnitude;
+                return leftDistance.CompareTo(rightDistance);
+            });
         }
 
         private void StartMiningCoalInPit()

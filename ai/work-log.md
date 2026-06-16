@@ -8,6 +8,64 @@ Last updated: 2026-06-16
 
 ## Done
 
+### 2026-06-16 - Auto workforce coverage floors
+
+- Auto workforce now adds a coverage floor for every available auto-managed profession whose player counter is above 0, so the system tries to keep at least 1 worker in that profession when a matching workplace/storage role exists.
+- Player counters at 0 explicitly disable that profession/category from coverage, normal demand creation, fallback assignment, and donor protection, allowing the role to fall to 0 workers.
+- Demand rebalance no longer donates the last worker from a coverage-protected profession; coverage floor demands can pull from roles that are above their own floor.
+- After normal demand assignment, remaining free adults are assigned through a fallback pass to the best enabled available role instead of staying free when any nonzero managed role can accept them.
+- Added `AutoWorkforceFallbackAssigned` logging and expanded donor-skip diagnostics with `coverageFloorBlocked`.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected `.cs` files remain below 500 lines.
+
+### 2026-06-16 - Bridge construction dropoff reachability
+
+- Fixed bridge construction resource delivery repeatedly rejecting builders with `no_dropoff_path` when the construction site chose the unreachable opposite bank as its dropoff cell.
+- `StrategyConstructionSite` now exposes all construction dropoff candidates, including both bridge bank endpoints, while keeping normal construction fallback rings.
+- Builder delivery now path-tests candidate dropoff cells from the specific resident position and uses the nearest reachable one before taking the reserved resource.
+- `BuilderPickupRejected` logs now include the attempted dropoff cell and checked dropoff candidate count for future bridge/path diagnostics.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected `.cs` files remain below 500 lines.
+
+### 2026-06-16 - Trail visibility and decay pass
+
+- Tightened faint trail visibility: level-1 trail cells now need directional line support or a nearby stronger trail before rendering, which reduces early square/grid artifacts.
+- Increased stale trail cleanup speed by shortening the no-footfall grace window and doubling decay wear per second.
+- Strengthened resident pathfinding preference for already visible trails while keeping trails as a cost preference, not required connectivity.
+- Trail wear now accepts any walkable non-water land cell instead of rejecting walkable-but-not-buildable cells, so valid walking routes over non-buildable terrain can still form paths.
+- Split trail visibility helpers into `StrategyTrailController.Visibility.cs` to keep the main controller below the 500-line limit.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; full `.cs` line-count scan found no files over 500 lines.
+
+### 2026-06-16 - Wildlife and workforce retry-loop fixes
+
+- Added deer threat-reaction throttling so repeated nearby threats do not reset `Alert`/`Fleeing` every threat check and flood `debug.log`.
+- Added temporary blocked-roam memory for wolves; unreachable roam targets are skipped for a cooldown and wolves try several alternative reachable candidates before logging failure.
+- Changed forestry tree/log/plant work-cell selection to test actual resident path reachability before starting movement, preventing repeated no-path retries against the same unreachable cell.
+- Let emergency food/resource shortages pull limited auto-workforce donors from at-target professions only when the shortage score strongly exceeds that profession's hold score, and expanded `AutoWorkforceRebalanceSkipped` diagnostics with blocker counts.
+- Updated `Assembly-CSharp.csproj` and system ownership memory for new partial files.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected `.cs` line counts are below 500.
+
+### 2026-06-16 - Trail diagnostics logging
+
+- Added trail-specific diagnostics without per-footstep log spam: `TrailStats` aggregates accepted/rejected footfalls, visible/raw trail cell counts, hidden faint cells, level changes, invalidations, and clear events.
+- Added sampled `TrailFootfallRejectedSample` logs plus reason buckets for rejected trail wear attempts such as water, bridge, non-walkable, and non-buildable cells.
+- Added `TrailLevelChanged` and `TrailCellInvalidated` events so future `debug.log` analysis can identify where trail wear actually forms, decays, or gets removed by map state changes.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-16 - Coal Pit reachable entrance selection
+
+- Fixed Coal Miners repeatedly failing to start work when a Coal Pit returned a walkable but unreachable entrance cell.
+- `StrategyCoalPit` now exposes all walkable entrance candidates around the full Coal Pit visual blocker footprint.
+- Coal Miner task startup now sorts entrance candidates by resident distance and uses the first candidate with a real path before moving the worker into the interior work animation point.
+- `CoalPitEntryRejected` diagnostics now include start cell, entrance cell, walkability, and checked candidate count.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-16 - Hauler and builder carry stack limits
+
+- Added shared carry-stack limits for Haulers and builders: both roles now carry at most 2 units of one resource type per trip.
+- Production output reservations for Logs, Stone, Iron, Coal, Planks, `Game`, and `Fish` now use the shared Hauler carry limit instead of larger hardcoded batches.
+- Storage Yard production-input deliveries and loose construction-resource hauling now reserve at most 2 units per trip.
+- Construction sites now return an exact builder pickup amount capped by remaining site need and source availability, so builders can carry up to 2 units without creating mismatched pickup reservations.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; full `.cs` line-count scan found no files over 500 lines.
+
 ### 2026-06-16 - Trail visual noise and decay optimization
 
 - Trail formation now requires more repeated traffic before visible wear appears, reducing noisy early-path squares around busy buildings.

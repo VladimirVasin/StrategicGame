@@ -95,7 +95,9 @@ namespace ProjectUnknown.Strategy
                         }
 
                         Vector2Int candidate = center + new Vector2Int(x, y);
-                        if (candidate == currentCell || !IsWolfRoamCandidate(candidate))
+                        if (candidate == currentCell
+                            || wolf.IsWolfRoamTargetBlocked(candidate)
+                            || !IsWolfRoamCandidate(candidate))
                         {
                             continue;
                         }

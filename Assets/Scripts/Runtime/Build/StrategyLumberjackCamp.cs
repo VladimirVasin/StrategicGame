@@ -267,7 +267,7 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            reservedLogs = Mathf.Min(3, available);
+            reservedLogs = Mathf.Min(StrategyProductionStorage.HaulerCarryLimit, available);
             logsReservationOwner = owner;
             amount = reservedLogs;
             StrategyDebugLogger.Info(

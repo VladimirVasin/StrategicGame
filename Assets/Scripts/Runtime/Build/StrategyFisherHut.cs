@@ -295,7 +295,7 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            reservedFish = Mathf.Min(2, available);
+            reservedFish = Mathf.Min(StrategyProductionStorage.HaulerCarryLimit, available);
             fishReservationOwner = owner;
             amount = reservedFish;
             StrategyDebugLogger.Info(

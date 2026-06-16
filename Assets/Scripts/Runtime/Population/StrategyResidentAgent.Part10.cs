@@ -337,23 +337,29 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            Vector2Int dropoffCell = default;
+            int checkedDropoffCells = 0;
             if (constructionSite == null
                 || activeConstructionSource == null
                 || activeConstructionResource == StrategyConstructionResourceKind.None
-                || !constructionSite.TryFindDropoffCell(out Vector2Int dropoffCell)
-                || !TryBuildPathTo(dropoffCell))
+                || !TryBuildPathToConstructionDropoffCell(
+                    constructionSite,
+                    out dropoffCell,
+                    out checkedDropoffCells))
             {
                 StrategyDebugLogger.Warn(
                     "Construction",
                     "BuilderPickupRejected",
                     StrategyDebugLogger.F("resident", FullName),
                     StrategyDebugLogger.F("siteOrigin", constructionSite != null ? constructionSite.Origin : Vector2Int.zero),
+                    StrategyDebugLogger.F("dropoffCell", dropoffCell),
+                    StrategyDebugLogger.F("checkedDropoffCells", checkedDropoffCells),
                     StrategyDebugLogger.F("reason", "no_dropoff_path"));
                 ResetConstructionWorkToIdle();
                 return;
             }
 
-            if (!activeConstructionSource.TryTakeReservedConstructionResource(constructionSite, this, activeConstructionResource, 1, out int amount))
+            if (!activeConstructionSource.TryTakeReservedConstructionResource(constructionSite, this, activeConstructionResource, StrategyProductionStorage.BuilderCarryLimit, out int amount))
             {
                 StrategyDebugLogger.Warn(
                     "Construction",

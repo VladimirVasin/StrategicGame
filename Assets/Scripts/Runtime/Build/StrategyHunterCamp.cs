@@ -242,7 +242,7 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            reservedGame = Mathf.Min(2, available);
+            reservedGame = Mathf.Min(StrategyProductionStorage.HaulerCarryLimit, available);
             gameReservationOwner = owner;
             amount = reservedGame;
             StrategyDebugLogger.Info(

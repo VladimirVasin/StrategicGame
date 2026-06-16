@@ -331,7 +331,7 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            reservedPlanks = Mathf.Min(4, available);
+            reservedPlanks = Mathf.Min(StrategyProductionStorage.HaulerCarryLimit, available);
             planksReservationOwner = owner;
             amount = reservedPlanks;
             return true;

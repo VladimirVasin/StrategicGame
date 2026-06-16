@@ -283,17 +283,20 @@ namespace ProjectUnknown.Strategy
             object owner,
             StrategyConstructionResourceKind kind,
             Vector3 nearWorld,
+            int maxAmount,
             out IStrategyConstructionResourceSource source,
-            out Vector2Int pickupCell)
+            out Vector2Int pickupCell,
+            out int amount)
         {
             source = null;
             pickupCell = default;
-            if (owner == null || kind == StrategyConstructionResourceKind.None)
+            amount = 0;
+            if (owner == null || kind == StrategyConstructionResourceKind.None || maxAmount <= 0)
             {
                 return false;
             }
 
-            if (StrategyLooseConstructionResourcePile.TryFindConstructionPickup(owner, kind, nearWorld, out StrategyLooseConstructionResourcePile pile, out pickupCell))
+            if (StrategyLooseConstructionResourcePile.TryFindConstructionPickup(owner, kind, nearWorld, maxAmount, out StrategyLooseConstructionResourcePile pile, out pickupCell, out amount))
             {
                 source = pile;
                 return true;
@@ -303,7 +306,8 @@ namespace ProjectUnknown.Strategy
             for (int i = 0; i < yards.Length; i++)
             {
                 StrategyStorageYard yard = yards[i];
-                if (yard == null || !yard.HasAvailableConstructionReservation(owner, kind))
+                int available = yard != null ? yard.GetAvailableReservationAmount(owner, kind) : 0;
+                if (available <= 0)
                 {
                     continue;
                 }
@@ -311,11 +315,12 @@ namespace ProjectUnknown.Strategy
                 if (yard.TryFindDropoffCell(out pickupCell))
                 {
                     source = yard;
+                    amount = Mathf.Min(maxAmount, available);
                     return true;
                 }
             }
 
-            if (StrategyLooseConstructionResourcePile.TryReserveNearestAvailableForConstruction(owner, kind, nearWorld, out StrategyLooseConstructionResourcePile availablePile, out pickupCell))
+            if (StrategyLooseConstructionResourcePile.TryReserveNearestAvailableForConstruction(owner, kind, nearWorld, maxAmount, out StrategyLooseConstructionResourcePile availablePile, out pickupCell, out amount))
             {
                 source = availablePile;
                 return true;

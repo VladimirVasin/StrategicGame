@@ -363,7 +363,7 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            reservedStone = Mathf.Min(4, available);
+            reservedStone = Mathf.Min(StrategyProductionStorage.HaulerCarryLimit, available);
             stoneReservationOwner = owner;
             amount = reservedStone;
             StrategyDebugLogger.Info(
