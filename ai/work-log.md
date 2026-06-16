@@ -1,12 +1,19 @@
 # Work Log
 
-Last updated: 2026-06-16
+Last updated: 2026-06-17
 
 ## Active
 
 - None.
 
 ## Done
+
+### 2026-06-17 - Auto workforce zero-role recovery
+
+- Diagnosed a regression where a completed House promoted the last active Builder to Householder, clearing the Builder workplace and leaving `Builder = 0` while construction sites still demanded builders.
+- Added zero-role rescue logic to auto workforce donor selection: when a category priority is above 0, a profession has a nonzero desired/coverage target, and that profession has 0 workers, its demand can pull a worker through normal coverage-floor, target, and rebalance-lock donor blocks.
+- Zero-role rescue prefers donors with more than 1 worker, and only takes the last worker from another role when the target demand score is meaningfully higher, reducing role-flip churn when the settlement has fewer available adults than enabled professions.
+- `AutoWorkforceRebalanceSkipped` diagnostics now include `zeroCoverageRescue` so future logs show whether the emergency zero-role recovery path was active.
 
 ### 2026-06-16 - Auto workforce coverage floors
 

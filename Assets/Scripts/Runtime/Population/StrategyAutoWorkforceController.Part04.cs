@@ -8,6 +8,7 @@ namespace ProjectUnknown.Strategy
         private const int MaxDemandRebalanceReleasesPerTick = 3;
         private const float RebalanceScoreMargin = 20f;
         private const float EmergencyDemandRebalanceMargin = 140f;
+        private const float ZeroCoverageRescueStealMargin = 10f;
         private const float DemandRebalanceLockSeconds = 18f;
 
         private readonly Dictionary<StrategyProfessionType, float> demandRebalanceLocks = new();
@@ -136,6 +137,7 @@ namespace ProjectUnknown.Strategy
             out float holdScore)
         {
             holdScore = float.MaxValue;
+            bool zeroCoverageRescue = IsZeroCoverageRescueDemand(demand);
             if (profession == demand.Profession)
             {
                 return "target_profession";
@@ -146,7 +148,7 @@ namespace ProjectUnknown.Strategy
                 return "manual_locked";
             }
 
-            if (IsDemandRebalanceLocked(profession))
+            if (IsDemandRebalanceLocked(profession) && !zeroCoverageRescue)
             {
                 return "rebalance_locked";
             }
@@ -165,8 +167,10 @@ namespace ProjectUnknown.Strategy
                 holdScore = demandHoldScore;
             }
 
+            bool canUseZeroRescueDonor = zeroCoverageRescue
+                && CanUseZeroCoverageRescueDonor(profession, demand, current, holdScore);
             int coverageFloor = GetCoverageFloorTarget(profession);
-            if (coverageFloor > 0 && current <= coverageFloor)
+            if (coverageFloor > 0 && current <= coverageFloor && !canUseZeroRescueDonor)
             {
                 return "coverage_floor";
             }
@@ -176,12 +180,34 @@ namespace ProjectUnknown.Strategy
                 return null;
             }
 
-            if (current <= target && !CanUseEmergencyDemandDonor(demand, holdScore))
+            if (current <= target && !canUseZeroRescueDonor && !CanUseEmergencyDemandDonor(demand, holdScore))
             {
                 return "at_or_below_target";
             }
 
-            return demand.Score >= holdScore + RebalanceScoreMargin ? null : "score_too_low";
+            return canUseZeroRescueDonor || demand.Score >= holdScore + RebalanceScoreMargin ? null : "score_too_low";
+        }
+
+        private bool IsZeroCoverageRescueDemand(StrategyAutoWorkforceDemand demand)
+        {
+            return demand != null
+                && settings.GetPriority(demand.Category) > 0
+                && CountAssignedProfession(demand.Profession) <= 0
+                && GetDesiredOrCoverageTarget(demand.Profession) > 0;
+        }
+
+        private static bool CanUseZeroCoverageRescueDonor(
+            StrategyProfessionType profession,
+            StrategyAutoWorkforceDemand demand,
+            int current,
+            float holdScore)
+        {
+            if (demand == null || profession == demand.Profession || current <= 0)
+            {
+                return false;
+            }
+
+            return current > 1 || demand.Score >= holdScore + ZeroCoverageRescueStealMargin;
         }
 
         private bool CanUseEmergencyDemandDonor(StrategyAutoWorkforceDemand demand, float holdScore)
@@ -261,6 +287,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("targetScore", demand.Score),
                 StrategyDebugLogger.F("targetReason", demand.Reason),
                 StrategyDebugLogger.F("reason", "no_donor"),
+                StrategyDebugLogger.F("zeroCoverageRescue", IsZeroCoverageRescueDemand(demand)),
                 StrategyDebugLogger.F("emergencyDemand", IsEmergencyDemand(demand)),
                 StrategyDebugLogger.F("sameProfession", sameProfession),
                 StrategyDebugLogger.F("manualLocked", manualLocked),
