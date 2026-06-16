@@ -311,6 +311,7 @@ namespace ProjectUnknown.Strategy
             }
 
             UpdateVisuals();
+            PlayDeliveredResourceEffect(kind, amount);
             StrategyDebugLogger.Info(
                 "Construction",
                 "ResourceDelivered",
@@ -333,6 +334,7 @@ namespace ProjectUnknown.Strategy
 
             buildHits++;
             UpdateVisuals();
+            PlayBuildHitEffect(hitWorld);
             StrategyDebugLogger.Info(
                 "Construction",
                 "BuildHit",

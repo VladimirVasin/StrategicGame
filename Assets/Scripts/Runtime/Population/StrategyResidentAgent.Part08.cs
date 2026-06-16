@@ -345,6 +345,7 @@ namespace ProjectUnknown.Strategy
             if (workplace != null)
             {
                 workplace.AddLogs(depositedAmount);
+                PlayWorksiteResourceDepositEffect(StrategyResourceType.Logs, workplace.FootprintBounds, depositedAmount);
             }
 
             carriedLogAmount = 0;
@@ -481,6 +482,7 @@ namespace ProjectUnknown.Strategy
             if (stoneWorkplace != null)
             {
                 stoneWorkplace.AddStone(depositedAmount);
+                PlayWorksiteResourceDepositEffect(StrategyResourceType.Stone, stoneWorkplace.FootprintBounds, depositedAmount);
             }
 
             carriedStoneAmount = 0;

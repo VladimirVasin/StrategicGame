@@ -429,6 +429,7 @@ namespace ProjectUnknown.Strategy
 
             logsStored += amount;
             UpdateStockVisual();
+            PlayResourceStoredEffect(StrategyResourceType.Logs, amount);
             StrategyDebugLogger.Info(
                 "StorageYard",
                 "LogsStored",
@@ -446,6 +447,7 @@ namespace ProjectUnknown.Strategy
 
             stoneStored += amount;
             UpdateStockVisual();
+            PlayResourceStoredEffect(StrategyResourceType.Stone, amount);
             StrategyDebugLogger.Info(
                 "StorageYard",
                 "ResourceStored",

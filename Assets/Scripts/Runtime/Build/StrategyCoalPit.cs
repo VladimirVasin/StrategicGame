@@ -312,6 +312,7 @@ namespace ProjectUnknown.Strategy
             }
 
             UpdateStockVisual();
+            PlayCoalStoredEffect(accepted);
             StrategyDebugLogger.Info(
                 "Coal",
                 "CoalStoredAtPit",
@@ -324,6 +325,26 @@ namespace ProjectUnknown.Strategy
         public bool HasStorageSpaceFor(int amount)
         {
             return StrategyProductionStorage.CanAccept(coalStored, amount);
+        }
+
+        public void PlayMiningWorkEffect(int seed)
+        {
+            Vector3 world = GetInteriorWorkWorld() + new Vector3(0.16f, 0.04f, -0.02f);
+            StrategyWorldEffectAnimator.Spawn(
+                StrategyWorldEffectKind.CoalChips,
+                world,
+                StrategyWorldSorting.ForPosition(world, 4),
+                seed,
+                0.82f);
+            if (Mathf.Abs(seed) % 2 == 0)
+            {
+                StrategyWorldEffectAnimator.Spawn(
+                    StrategyWorldEffectKind.Dust,
+                    world + new Vector3(-0.06f, 0.01f, -0.01f),
+                    StrategyWorldSorting.ForPosition(world, 3),
+                    seed + 17,
+                    0.66f);
+            }
         }
 
         public string GetHudStatusText()
@@ -407,10 +428,31 @@ namespace ProjectUnknown.Strategy
             }
 
             Bounds bounds = building.FootprintBounds;
-            Vector3 world = new Vector3(bounds.max.x - 0.26f, bounds.min.y + 0.30f, -0.13f);
+            Vector3 world = GetCoalStockWorld(bounds);
             stockRenderer.transform.localPosition = transform.InverseTransformPoint(world);
             stockRenderer.transform.localScale = Vector3.one;
             StrategyWorldSorting.Apply(stockRenderer, world, 1);
+        }
+
+        private void PlayCoalStoredEffect(int amount)
+        {
+            if (amount <= 0 || building == null)
+            {
+                return;
+            }
+
+            Vector3 world = GetCoalStockWorld(building.FootprintBounds) + new Vector3(0f, 0.08f, -0.02f);
+            StrategyWorldEffectAnimator.SpawnResourcePlaced(
+                StrategyResourceType.Coal,
+                world,
+                StrategyWorldSorting.ForPosition(world, 4),
+                amount,
+                coalStored + amount * 29);
+        }
+
+        private static Vector3 GetCoalStockWorld(Bounds bounds)
+        {
+            return new Vector3(bounds.max.x - 0.26f, bounds.min.y + 0.30f, -0.13f);
         }
 
         private void OnDestroy()

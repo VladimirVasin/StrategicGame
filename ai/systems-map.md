@@ -37,8 +37,11 @@ Responsibilities:
 - 2D renderer configuration.
 - Default volume/rendering profiles.
 - Shared Y-based sorting constants/helper for 2.5D world sprites.
+- Shared short-lived world-space visual effects for resource drops, construction hits, sawdust, dust, sparks, chips, and splashes.
 - Runtime world tint overlay for the visual day/night cycle.
 - Runtime weather overlay sorting bands for wet ground, cloud shadows, mist, and rain.
+- Runtime URP post-processing for soft color grading, bloom, and vignette driven by day/night and weather state.
+- Runtime cinematic visuals for 2D global/local lights, emissive masks, wet puddle glints, lightning flashes, and foreground depth accents.
 
 Primary files/assets:
 
@@ -47,6 +50,13 @@ Primary files/assets:
 - `Assets/Settings/UniversalRP.asset`
 - `Assets/Settings/Renderer2D.asset`
 - `Assets/Scripts/Runtime/Core/StrategyWorldSorting.cs`
+- `Assets/Scripts/Runtime/Core/StrategyWorldEffectAnimator.cs`
+- `Assets/Scripts/Runtime/Core/StrategyPostProcessController.cs`
+- `Assets/Scripts/Runtime/Core/StrategyCinematicVisualController.cs`
+- `Assets/Scripts/Runtime/Core/StrategyCinematicVisualController.Part01.cs`
+- `Assets/Scripts/Runtime/Core/StrategyCinematicLightEmitter.cs`
+- `Assets/Scripts/Runtime/Core/StrategyCinematicVisualMath.cs`
+- `Assets/Scripts/Runtime/Core/StrategyCinematicVisualSprites.cs`
 - `Assets/Scripts/Runtime/Core/StrategyDayNightCycleController.cs`
 - `Assets/Scripts/Runtime/Core/StrategyShadowCaster2D.cs`
 - `Assets/Scripts/Runtime/Core/StrategyShadowSpriteFactory.cs`
@@ -56,7 +66,10 @@ Impact hints:
 
 - Rendering settings affect scene appearance globally.
 - World sprites should use `StrategyWorldSorting` instead of fixed type-based `sortingOrder` values so farther objects do not render in front of nearer ones.
+- Short-lived world effects should use `StrategyWorldEffectAnimator` and `StrategyRuntimeObjectCreationGuard` instead of spawning one-off ad hoc particle objects.
 - The day/night and weather overlays sort around world sprites while staying below placement preview/fog/UI; keep that ordering when adding more world overlays.
+- Post-process tuning should stay subtle and pixel-readable; avoid blur, heavy chromatic aberration, or aggressive grain for normal strategy view.
+- Cinematic visual effects should stay bounded to reusable emitters/controllers rather than adding per-building one-off light scripts; real `Light2D` point lights should stay LOD-capped and lazily created because many simultaneous 2D lights can cause visible frame spikes.
 - `StrategyShadowCaster2D` is the shared runtime shadow path for world sprites; tune shape/scale/offset per object type and let day/night control opacity/length globally.
 - Verify scenes visually in Unity after meaningful changes.
 
@@ -100,6 +113,8 @@ Responsibilities:
 - Place the starter Storage Yard near the campfire with initial Logs and Stone after placement is configured.
 - Create/configure runtime wildlife after starter placement so deer/rabbits use valid land and fish use valid water cells.
 - Create/configure visual day/night cycle after camera setup.
+- Create/configure runtime post-processing after weather/day-night setup.
+- Create/configure runtime cinematic visuals after post-processing setup.
 - Create the runtime time-scale controller for F1/F2/F3 speed controls.
 - Create/configure the top status HUD with population counts, the larger resident roster HUD, the family tree modal scene, and the compact event log with birth/death/adoption messages.
 - Create/configure refugee arrivals and the modal refugee decision HUD.
@@ -114,6 +129,10 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Core/StrategyRuntimeObjectCreationGuard.cs`
 - `Assets/Scripts/Runtime/Core/StrategyTimeScaleController.cs`
 - `Assets/Scripts/Runtime/Core/StrategyDayNightCycleController.cs`
+- `Assets/Scripts/Runtime/Core/StrategyPostProcessController.cs`
+- `Assets/Scripts/Runtime/Core/StrategyCinematicVisualController.cs`
+- `Assets/Scripts/Runtime/Core/StrategyCinematicVisualController.Part01.cs`
+- `Assets/Scripts/Runtime/Core/StrategyCinematicLightEmitter.cs`
 - `Assets/Scripts/Runtime/Weather/StrategyWeatherKind.cs`
 - `Assets/Scripts/Runtime/Weather/StrategyWeatherController.cs`
 - `Assets/Scripts/Runtime/Weather/StrategyWeatherVisualController.cs`
@@ -141,6 +160,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/UI/StrategyFamilyTreeHudController.Part01.cs`
 - `Assets/Scripts/Runtime/UI/StrategyFamilyTreeHudController.Part02.cs`
 - `Assets/Scripts/Runtime/UI/StrategyFamilyTreeHudController.Part03.cs`
+- `Assets/Scripts/Runtime/UI/StrategyFamilyTreeHudController.Part04.cs`
 - `Assets/Scripts/Runtime/UI/StrategyPopulationRosterRowView.cs`
 - `Assets/Scripts/Runtime/UI/StrategyResidentHudText.cs`
 - `Assets/Scripts/Runtime/UI/StrategyEventLogHudController.cs`
@@ -733,6 +753,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/UI/StrategyFamilyTreeHudController.Part01.cs`
 - `Assets/Scripts/Runtime/UI/StrategyFamilyTreeHudController.Part02.cs`
 - `Assets/Scripts/Runtime/UI/StrategyFamilyTreeHudController.Part03.cs`
+- `Assets/Scripts/Runtime/UI/StrategyFamilyTreeHudController.Part04.cs`
 - `Assets/Scripts/Runtime/UI/StrategyPopulationRosterRowView.cs`
 - `Assets/Scripts/Runtime/UI/StrategyResidentHudText.cs`
 - `Assets/Scripts/Runtime/UI/StrategyEventLogHudController.cs`
@@ -895,7 +916,7 @@ Responsibilities:
 - Mine places a `StrategyMine` worksite component, blocks its technical 2x2 footprint plus one visual row above, requires an available underground Iron deposit under its footprint, and hosts a local visual Iron stockpile.
 - Coal Pit places a `StrategyCoalPit` worksite component, blocks its technical 2x2 footprint plus one visual row above, requires an available underground Coal deposit under its footprint, and hosts a local visual Coal stockpile.
 - Granary places a `StrategyGranary` food-storage component, blocks its technical 3x2 footprint plus one visual row above, and hosts local visual `Game`/`Fish` stockpiles.
-- Accepted construction sites request active builders from the uncapped hired Storage Yard builder pool through balanced dispatch across all active sites, and can wait if none are free yet.
+- Accepted construction sites request active builders from the uncapped hired Storage Yard builder pool through balanced dispatch across all active sites, show material-drop and hammer-hit effects, and can wait if none are free yet.
 - Bridge creates no worksite component, stores its selected span cells/endpoints on the placed-building record, and exposes bank endpoint cells as construction work/dropoff candidates so builders choose a reachable shore and do not stand in water.
 - Completed house sites ask population to populate the finished house separately from the construction crew.
 - Completed construction releases temporary construction-site map blockers before applying final building blockers.
@@ -911,6 +932,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Build/StrategyBuildPlacementController.Part04.cs`
 - `Assets/Scripts/Runtime/Build/StrategyConstructionSite.cs`
 - `Assets/Scripts/Runtime/Build/StrategyConstructionSite.Part02.cs`
+- `Assets/Scripts/Runtime/Build/StrategyConstructionSite.Part03.cs`
 - `Assets/Scripts/Runtime/Build/StrategyConstructionSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Build/StrategyLooseConstructionResourcePile.cs`
 - `Assets/Scripts/Runtime/Build/StrategyLooseConstructionResourcePile.Part02.cs`
@@ -1043,13 +1065,14 @@ Responsibilities:
 - Assign 1 resident as a Sawyer through the Profession HUD.
 - Request input Logs through the shared production logistics contract.
 - Route Haulers to pick up Logs from Storage Yard stock, deliver them into the Sawmill, and route Sawyers to saw delivered Logs into `Planks`.
-- Keep Sawyers visible inside the building and drive the detailed saw/log/plank work overlay while work is active.
+- Keep Sawyers visible inside the building and drive the detailed saw/log/plank work overlay plus sawdust effects while work is active.
 - Expose Sawmill-local Planks to Haulers for hauling.
 
 Primary files/assets:
 
 - `Assets/Scripts/Runtime/Build/StrategySawmill.cs`
 - `Assets/Scripts/Runtime/Build/StrategySawmill.Part02.cs`
+- `Assets/Scripts/Runtime/Build/StrategySawmill.Part03.cs`
 - `Assets/Scripts/Runtime/Build/IStrategyProductionLogisticsNode.cs`
 - `Assets/Scripts/Runtime/Build/StrategyProductionStorage.cs`
 - `Assets/Scripts/Runtime/Build/StrategyBuildingSpriteFactory.cs`
@@ -1106,6 +1129,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Build/StrategyStorageYard.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStorageYard.Part07.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStorageYard.Part05.cs`
+- `Assets/Scripts/Runtime/Build/StrategyStorageYard.Part08.cs`
 - `Assets/Scripts/Runtime/Build/StrategyLooseConstructionResourcePile.cs`
 - `Assets/Scripts/Runtime/Build/StrategyLooseConstructionResourcePile.Part02.cs`
 - `Assets/Scripts/Runtime/Build/IStrategyConstructionResourceSource.cs`
@@ -1140,7 +1164,7 @@ Impact hints:
 - Residents currently support one active workplace: lumberjack camp, stonecutter camp, sawmill, hunter camp, fisher hut, mine, storage logistics, granary food logistics, or storage builder crew.
 - Storage Yard stock is runtime-only and uncapped; it does not yet feed a global economy, save data, or consumption loop.
 - Future resources should extend the logistics stock model; current Logs, Stone, Iron, Coal, and Planks still have explicit carrying visuals/states.
-- Storage Yard construction pickup and stock-visual helpers are split into `StrategyStorageYard.Part05.cs` to keep source files below the 500-line limit.
+- Storage Yard construction pickup and stock-visual helpers are split into `StrategyStorageYard.Part05.cs`; stock drop effects are in `StrategyStorageYard.Part08.cs` to keep source files below the 500-line limit.
 
 ### Granary Food Logistics
 
@@ -1154,13 +1178,14 @@ Responsibilities:
 - Route Haulers to source camps/huts, pick up reserved food, carry it to the granary, and deposit it.
 - Provide settlement-level food availability and consumption APIs for households.
 - Update Hunter Camp/Fisher Hut stock visuals as food is picked up.
-- Update Granary `Game`/`Fish` stock visuals as food is deposited.
+- Update Granary `Game`/`Fish` stock visuals and food drop effects as food is deposited.
 - Update Granary `Game`/`Fish` stock visuals as households consume food.
 - Show food stock and available source counts in the selection HUD.
 
 Primary files/assets:
 
 - `Assets/Scripts/Runtime/Build/StrategyGranary.cs`
+- `Assets/Scripts/Runtime/Build/StrategyGranary.Part02.cs`
 - `Assets/Scripts/Runtime/Build/StrategyHunterCamp.cs`
 - `Assets/Scripts/Runtime/Build/StrategyFisherHut.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.cs`
@@ -1290,6 +1315,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part37.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part38.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part39.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part40.cs`
 - `Assets/Scripts/Runtime/Build/StrategyLumberjackCamp.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStonecutterCamp.cs`
 - `Assets/Scripts/Runtime/Build/StrategyMine.cs`
@@ -1383,7 +1409,7 @@ Impact hints:
 - If no free pair exists, the completed house is available for adult-child migration and partner lookup.
 - House occupation consumes the finite free-resident pool from the starter camp while it exists; later household births and adult-child migration are the first internal population growth path.
 - Resident death must continue to go through the centralized population cleanup path; direct `Destroy` on accepted residents risks stale worksite, construction, home, HUD, or kinship state.
-- Resident helper methods for carried-resource return, construction work, workplace clearing, readability sync, refugee path following, tree movement, fishing cast/reel flow, production-input delivery, trail movement, ranged hunt stand selection, reachable forestry work-cell selection, and reachable construction dropoff selection are split across `StrategyResidentAgent.Part27.cs` through `StrategyResidentAgent.Part39.cs` to keep source files below the 500-line limit.
+- Resident helper methods for carried-resource return, construction work, workplace clearing, readability sync, refugee path following, tree movement, fishing cast/reel flow, production-input delivery, trail movement, ranged hunt stand selection, reachable forestry work-cell selection, reachable construction dropoff selection, and worker-triggered visual effects are split across `StrategyResidentAgent.Part27.cs` through `StrategyResidentAgent.Part40.cs` to keep source files below the 500-line limit.
 - Future jobs/families/economy should extend resident state rather than replacing the home/free-camp assignment model.
 
 ### World Selection

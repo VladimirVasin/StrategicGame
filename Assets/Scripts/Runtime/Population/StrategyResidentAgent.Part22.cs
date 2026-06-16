@@ -192,6 +192,7 @@ namespace ProjectUnknown.Strategy
             transform.localScale = Vector3.one;
             SetWorldPresenceVisible(true);
             FaceWorldPoint(activeCoalPit.FootprintBounds.center + Vector3.right * 0.25f);
+            ResetCoalPitWorkEffectTimer(true);
             StrategyDebugLogger.Info(
                 "Coal",
                 "CoalPitWorkStarted",
@@ -209,6 +210,7 @@ namespace ProjectUnknown.Strategy
 
             transform.position = activeCoalPit.GetInteriorWorkWorld();
             AnimateLumberWork(10.6f, 4.1f);
+            UpdateCoalPitWorkEffects();
             coalWorkTimer -= Time.deltaTime;
             if (coalWorkTimer > 0f)
             {

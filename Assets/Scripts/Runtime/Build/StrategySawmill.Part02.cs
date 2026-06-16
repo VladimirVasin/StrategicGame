@@ -76,6 +76,7 @@ namespace ProjectUnknown.Strategy
 
             logsStored += accepted;
             UpdateStockVisual();
+            PlayInputDeliveredEffect(accepted);
             StrategyDebugLogger.Info(
                 "Logistics",
                 "ProductionInputDelivered",

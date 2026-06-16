@@ -20,7 +20,10 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - URP global settings
   - Runtime day/night overlay tints the world above sprites and below preview/fog/UI
   - Runtime weather overlays add wet ground, cloud shadows, mist, and rain in dedicated sorting bands around day/night and fog-of-war
+  - Runtime URP post-process volume adds soft day/night/weather color grading, bloom, and vignette
+  - Runtime cinematic visual layer adds 2D global/local light, emissive pixel masks, wet puddle glints, lightning flashes, and subtle foreground depth props
   - Runtime procedural 2D shadow caster supplies soft ground/cast shadows below world sprites
+  - Runtime short-lived world effect layer supplies reusable dust, sawdust, chip, spark, splash, and resource pop/fade effects
 
 - Scene foundation
   - Default `SampleScene`
@@ -36,6 +39,8 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Wires camera bounds to the generated map
     - Creates and configures the visual day/night cycle after camera setup
     - Creates and configures runtime weather state and visual weather overlays after camera/day-night setup
+    - Creates and configures runtime post-processing after weather setup so color grading follows day/night and weather intensities
+    - Creates and configures runtime cinematic visuals after post-processing so lights and atmosphere follow day/night/weather state
     - Creates and configures runtime ambience audio after camera setup
     - Focuses the initial camera view on the startup campfire after population startup
     - Creates runtime water/shore animation overlay after map generation
@@ -288,6 +293,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Generates separate storage yard Logs, Stone, Iron, Coal, and Planks stockpile sprites that visually grow with stored resources
     - Generates separate granary `Game` and `Fish` stockpile sprites that visually grow with stored food
     - Generates staged construction-site sprites and delivered construction material stockpile sprites
+    - Construction resource delivery, storage/granary delivery, and production stock completion can spawn short reusable world effects without owning separate particle systems
     - Generates staged bridge construction sprites sized to the selected span
     - Reuses a stable default sprite for Build menu icon and ghost preview
     - Chooses a random building visual variant for each successfully placed supported building
@@ -353,7 +359,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Sawmill input Logs are capped at 4 so Planks conversion can always reserve output space
     - Haulers deliver Logs from Storage Yard stock into the Sawmill input buffer
     - Sawyers wait for delivered input Logs, then saw them into `Planks`
-    - Sawmill work keeps Sawyers visible inside the building and uses a detailed animated saw/log/plank overlay
+    - Sawmill work keeps Sawyers visible inside the building and uses a detailed animated saw/log/plank overlay with short sawdust effects
     - Sawmills store local Logs and Planks and expose Planks to Haulers for hauling
   - Granary food logistics MVP
     - Granary is a placed food-storage building serviced by shared Haulers rather than a separate player-facing Granary Worker profession
@@ -415,8 +421,8 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Non-householder residents without external work forage Berries, Roots, and Mushrooms for their own house; children younger than 7 do not forage
     - Residents assigned to a lumberjack camp path to the nearest available tree or processable wood on the map, chop mature trees, buck fallen trunks into Logs, carry Logs to camp stock, and plant new saplings nearby
     - Residents assigned to a stonecutter camp path to the nearest available Stone deposit on the map, mine chunks with pickaxes, carry Stone to camp stock, and do not plant/regrow Stone
-    - Residents assigned to a Mine path to the mine entrance, become hidden underground while working, mine reserved underground Iron, and add Iron to mine stock
-    - Residents assigned to a Coal Pit path to the pit entrance, stay visible inside the pit while working, mine reserved underground Coal, and add Coal to pit stock
+    - Residents assigned to a Mine path to the mine entrance, become hidden underground while working, trigger entrance dust/spark effects, mine reserved underground Iron, and add Iron to mine stock
+    - Residents assigned to a Coal Pit path to the pit entrance, stay visible inside the pit while working, trigger coal dust/chip effects, mine reserved underground Coal, and add Coal to pit stock
     - Residents assigned to a Sawmill wait for Hauler-delivered Logs, work visibly inside the Sawmill, saw Logs into `Planks`, and add Planks to Sawmill stock
     - Residents assigned to a hunter camp reserve the nearest available adult rabbit on the map, move to roughly 2-3 tile bow range, shoot arrow projectiles with a 20% miss chance, butcher carcasses on hit, carry `Game`, and deposit it into hunter camp stock
     - Residents assigned to a fisher hut reserve the nearest available fish on the map, move to shore, cast/reel while range remains valid, carry `Fish`, and deposit it into fisher hut stock
@@ -476,7 +482,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Custom runtime Build menu HUD
   - Custom runtime top status HUD showing total population, adults, and children; clicking it opens a larger residents roster HUD
   - Custom runtime residents roster HUD showing settlement stats plus filterable resident rows for name, age, home state, role, current status, and food status
-  - Custom fullscreen Family Trees HUD opened from the residents roster; it pauses simulation, provides permanent horizontal/vertical scrollbars, lays kinship groups out as affinity-ordered left-to-right family columns, and shows compact generation rows connected as parent-child trees with deceased markers, gender symbols, and hover relationship labels
+- Custom fullscreen Family Trees HUD opened from the residents roster; it pauses simulation, provides permanent horizontal/vertical scrollbars, lays kinship groups out as affinity-ordered left-to-right family columns, and shows compact generation rows connected by local parent-pair branches with deceased markers, gender symbols, and hover relationship labels
   - Custom compact runtime event log showing births, deaths, and adoptions
   - Custom runtime world inspect microHUD for clicked residents, graves, resources, nature props, and wildlife; buildings and construction sites use the right-side selection HUD only
   - Custom runtime Profession HUD

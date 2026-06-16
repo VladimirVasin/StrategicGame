@@ -132,6 +132,7 @@ namespace ProjectUnknown.Strategy
             SetCarriedIronVisible(false);
             SetWorldPresenceVisible(false);
             hiddenUnderground = true;
+            ResetMineWorkEffectTimer(true);
             footstepAudio?.ResetStepPhase();
             StrategyDebugLogger.Info(
                 "Mining",
@@ -150,6 +151,7 @@ namespace ProjectUnknown.Strategy
 
             transform.position = GetMineInteriorWorld();
             footstepAudio?.ResetStepPhase();
+            UpdateMineUndergroundEffects();
             if (!hiddenUnderground)
             {
                 SetWorldPresenceVisible(false);

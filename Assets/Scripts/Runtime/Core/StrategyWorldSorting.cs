@@ -10,8 +10,11 @@ namespace ProjectUnknown.Strategy
         public const int WeatherGroundOverlayOrder = 3;
         public const int WeatherCloudShadowOrder = 26500;
         public const int DayNightOverlayOrder = 27000;
+        public const int CinematicDepthOverlayOrder = 27350;
         public const int WeatherMistOverlayOrder = 27400;
         public const int WeatherRainOverlayOrder = 27600;
+        public const int CinematicForegroundOverlayOrder = 27720;
+        public const int CinematicScreenFlashOrder = 27800;
         public const int PreviewOrder = 28000;
         public const int FogOrder = 30000;
 

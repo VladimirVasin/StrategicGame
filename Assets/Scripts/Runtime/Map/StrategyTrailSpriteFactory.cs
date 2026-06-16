@@ -57,7 +57,7 @@ namespace ProjectUnknown.Strategy
 
             PaintShape(texture, mask, edgeWidth, edge);
             PaintShape(texture, mask, width, body);
-            PaintDetail(texture, mask, width, highlight, variant);
+            PaintDetail(texture, mask, width, highlight, variant, level);
         }
 
         private static void PaintShape(Texture2D texture, int mask, int width, Color color)
@@ -113,9 +113,9 @@ namespace ProjectUnknown.Strategy
             }
         }
 
-        private static void PaintDetail(Texture2D texture, int mask, int width, Color color, int variant)
+        private static void PaintDetail(Texture2D texture, int mask, int width, Color color, int variant, int level)
         {
-            int detailCount = 5 + variant;
+            int detailCount = level == 1 ? 1 + variant / 2 : 5 + variant;
             for (int i = 0; i < detailCount; i++)
             {
                 int x = 2 + PositiveModulo(Hash(variant, mask, i, 31), Pixels - 4);
@@ -193,17 +193,17 @@ namespace ProjectUnknown.Strategy
 
         private static Color GetEdgeColor(int level)
         {
-            return level == 1 ? Rgba(58, 70, 42, 66) : level == 2 ? Rgba(72, 54, 34, 104) : Rgba(55, 42, 29, 138);
+            return level == 1 ? Rgba(58, 70, 42, 42) : level == 2 ? Rgba(72, 54, 34, 132) : Rgba(55, 42, 29, 166);
         }
 
         private static Color GetBodyColor(int level)
         {
-            return level == 1 ? Rgba(119, 102, 60, 96) : level == 2 ? Rgba(136, 93, 52, 142) : Rgba(121, 78, 43, 186);
+            return level == 1 ? Rgba(119, 102, 60, 68) : level == 2 ? Rgba(136, 93, 52, 170) : Rgba(121, 78, 43, 215);
         }
 
         private static Color GetHighlightColor(int level)
         {
-            return level == 1 ? Rgba(164, 142, 83, 68) : level == 2 ? Rgba(182, 132, 70, 92) : Rgba(190, 142, 82, 112);
+            return level == 1 ? Rgba(164, 142, 83, 38) : level == 2 ? Rgba(182, 132, 70, 98) : Rgba(190, 142, 82, 124);
         }
 
         private static Color Rgba(byte r, byte g, byte b, byte a)

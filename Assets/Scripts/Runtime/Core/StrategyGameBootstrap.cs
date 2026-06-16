@@ -168,6 +168,26 @@ namespace ProjectUnknown.Strategy
             weatherVisuals.Configure(map, mainCamera, weather, wind);
             StrategyDebugLogger.Info("Bootstrap", "WeatherReady");
 
+            StrategyPostProcessController postProcess = Object.FindAnyObjectByType<StrategyPostProcessController>();
+            if (postProcess == null)
+            {
+                GameObject postProcessObject = new GameObject("Strategy Post Process");
+                postProcess = postProcessObject.AddComponent<StrategyPostProcessController>();
+            }
+
+            postProcess.Configure(mainCamera, dayNight, weather);
+            StrategyDebugLogger.Info("Bootstrap", "PostProcessReady");
+
+            StrategyCinematicVisualController cinematicVisuals = Object.FindAnyObjectByType<StrategyCinematicVisualController>();
+            if (cinematicVisuals == null)
+            {
+                GameObject cinematicVisualsObject = new GameObject("Strategy Cinematic Visuals");
+                cinematicVisuals = cinematicVisualsObject.AddComponent<StrategyCinematicVisualController>();
+            }
+
+            cinematicVisuals.Configure(map, mainCamera, dayNight, weather, wind);
+            StrategyDebugLogger.Info("Bootstrap", "CinematicVisualsReady");
+
             StrategyAmbientAudioController ambientAudio = Object.FindAnyObjectByType<StrategyAmbientAudioController>();
             if (ambientAudio == null)
             {

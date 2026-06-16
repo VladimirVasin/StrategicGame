@@ -141,6 +141,7 @@ namespace ProjectUnknown.Strategy
 
             ClearFishingStandTracking();
             SetFishingLineVisible(false);
+            PlayFishCaughtEffect(activeFishTarget != null ? activeFishTarget.transform.position : transform.position);
             if (fisherWorkplace == null
                 || !fisherWorkplace.TryFindDropoffCell(out Vector2Int dropoffCell)
                 || !TryBuildPathTo(dropoffCell))
@@ -212,6 +213,7 @@ namespace ProjectUnknown.Strategy
             if (fisherWorkplace != null)
             {
                 fisherWorkplace.AddFish(depositedAmount);
+                PlayWorksiteResourceDepositEffect(StrategyResourceType.Fish, fisherWorkplace.FootprintBounds, depositedAmount);
             }
 
             carriedFishAmount = 0;

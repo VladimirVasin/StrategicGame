@@ -273,6 +273,7 @@ namespace ProjectUnknown.Strategy
             if (hunterWorkplace != null)
             {
                 hunterWorkplace.AddGame(depositedAmount);
+                PlayWorksiteResourceDepositEffect(StrategyResourceType.Game, hunterWorkplace.FootprintBounds, depositedAmount);
             }
 
             carriedGameAmount = 0;

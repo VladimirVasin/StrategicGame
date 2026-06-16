@@ -308,6 +308,7 @@ namespace ProjectUnknown.Strategy
             }
 
             UpdateStockVisual();
+            PlayIronStoredEffect(accepted);
             StrategyDebugLogger.Info(
                 "Mine",
                 "IronStored",
@@ -320,6 +321,32 @@ namespace ProjectUnknown.Strategy
         public bool HasStorageSpaceFor(int amount)
         {
             return StrategyProductionStorage.CanAccept(ironStored, amount);
+        }
+
+        public void PlayUndergroundWorkEffect(int seed)
+        {
+            Vector3 world = GetEntranceEffectWorld();
+            StrategyWorldEffectAnimator.Spawn(
+                StrategyWorldEffectKind.Dust,
+                world,
+                StrategyWorldSorting.ForPosition(world, 4),
+                seed,
+                0.74f);
+            if (Mathf.Abs(seed) % 3 == 0)
+            {
+                StrategyWorldEffectAnimator.Spawn(
+                    StrategyWorldEffectKind.IronSparks,
+                    world + new Vector3(0.05f, 0.08f, -0.01f),
+                    StrategyWorldSorting.ForPosition(world, 5),
+                    seed + 31,
+                    0.58f);
+            }
+        }
+
+        public Vector3 GetEntranceEffectWorld()
+        {
+            Bounds bounds = FootprintBounds;
+            return new Vector3(bounds.center.x - 0.22f, bounds.min.y + 0.40f, -0.12f);
         }
 
         public string GetHudStatusText()
@@ -373,10 +400,31 @@ namespace ProjectUnknown.Strategy
             }
 
             Bounds bounds = building.FootprintBounds;
-            Vector3 world = new Vector3(bounds.max.x - 0.26f, bounds.min.y + 0.32f, -0.13f);
+            Vector3 world = GetIronStockWorld(bounds);
             stockRenderer.transform.localPosition = transform.InverseTransformPoint(world);
             stockRenderer.transform.localScale = Vector3.one;
             StrategyWorldSorting.Apply(stockRenderer, world, 1);
+        }
+
+        private void PlayIronStoredEffect(int amount)
+        {
+            if (amount <= 0 || building == null)
+            {
+                return;
+            }
+
+            Vector3 world = GetIronStockWorld(building.FootprintBounds) + new Vector3(0f, 0.08f, -0.02f);
+            StrategyWorldEffectAnimator.SpawnResourcePlaced(
+                StrategyResourceType.Iron,
+                world,
+                StrategyWorldSorting.ForPosition(world, 4),
+                amount,
+                ironStored + amount * 37);
+        }
+
+        private static Vector3 GetIronStockWorld(Bounds bounds)
+        {
+            return new Vector3(bounds.max.x - 0.26f, bounds.min.y + 0.32f, -0.13f);
         }
 
         private void OnDestroy()

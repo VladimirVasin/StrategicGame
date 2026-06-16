@@ -8,6 +8,61 @@ Last updated: 2026-06-17
 
 ## Done
 
+### 2026-06-17 - Trail spider-web visibility cleanup
+
+- Tightened faint trail visibility so level-1 trail cells only render when they bridge opposing strong cardinal trail segments or sit inside an already strong junction.
+- Disabled diagonal trail connections for faint trail cells; diagonal sprites now require both connected cells to be at least clear level, reducing pale criss-cross web artifacts.
+- Retuned trail sprite colors so clear/worn trails read as denser earth while faint trail detail is less visually noisy.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected `.cs` files remain below 500 lines.
+
+### 2026-06-17 - Family Tree parent-pair layout fix
+
+- Fixed Family Trees layout so same-generation co-parents are grouped into compact card blocks and child blocks are positioned under their actual known parents instead of being spread under a generation-wide row.
+- Replaced the old per-parent long horizontal connector lines with grouped parent-pair connectors, so unrelated couples in the same family column no longer visually look like four shared parents.
+- Added `StrategyFamilyTreeHudController.Part04.cs` for Family Tree layout and connection helpers and wired it into `Assembly-CSharp.csproj`.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; full `.cs` line-count scan found no files over 500 lines.
+
+### 2026-06-17 - Cinematic visual performance LOD
+
+- Reduced cinematic visual frame spikes by adding camera-distance LOD for cinematic emitters, capping active local `Light2D` point lights to 6, and lazily creating point-light components only when an emitter is selected by the LOD budget.
+- Replaced per-frame emitter light/flicker work with staggered low-frequency visual updates while keeping cheap emissive sprite masks visible for nearby non-lighted emitters.
+- Reduced periodic scene scans and moved puddle/foreground updates to short intervals instead of updating every rendered frame.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; full `.cs` line-count scan found no files over 500 lines.
+
+### 2026-06-17 - Cinematic white sprite readability fix
+
+- Fixed a runtime exception in `StrategyCinematicVisualSprites.GetWhiteSprite` by avoiding a second `Texture2D.Apply(..., makeNoLongerReadable: true)` on the same procedural texture.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; full `.cs` line-count scan found no files over 500 lines.
+
+### 2026-06-17 - Cinematic global light reuse fix
+
+- Fixed URP 2D duplicate Global Light warnings by making `StrategyCinematicVisualController` reuse an existing blend-style-0 Global Light before creating its own.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; full `.cs` line-count scan found no files over 500 lines.
+
+### 2026-06-17 - Cinematic pixel-art visual layer
+
+- Added `StrategyCinematicVisualController` as a runtime visual director for 2D global light, building/campfire light emitters, wet puddle glints, lightning flashes, and subtle foreground depth props.
+- Added `StrategyCinematicLightEmitter` for reusable local 2D lights plus emissive pixel masks on Houses, Mines, Coal Pits, Storage Yards, Granaries, worksites, and the startup campfire.
+- Added procedural cinematic sprites for glows, window masks, lamp cores, interior silhouettes, puddles, and foreground branches.
+- Hooked cinematic visuals into `StrategyGameBootstrap` after post-processing/weather setup and added new runtime files to `Assembly-CSharp.csproj`.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; full `.cs` line-count scan found no files over 500 lines.
+
+### 2026-06-17 - Runtime post-process atmosphere
+
+- Added `StrategyPostProcessController`, a runtime-created URP global Volume that enables post-processing on the strategy camera without scene YAML wiring.
+- The post-process pass blends subtle color grading, bloom, and vignette from day/night phase plus weather rain/cloud/fog/storm/wetness intensities.
+- Hooked the controller into `StrategyGameBootstrap` after day/night and weather setup and added the script to `Assembly-CSharp.csproj`.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-17 - Shared production and construction visual effects
+
+- Added `StrategyWorldEffectAnimator` as a reusable short-lived world VFX layer for dust, sawdust, stone/coal chips, iron sparks, water splashes, and resource pop/fade effects.
+- Construction sites now show resource placement effects when builders deliver Logs/Stone/Planks and hammer-hit effects when construction progress is actually applied.
+- Storage Yards, Granaries, Sawmills, Mines, Coal Pits, and local production deposits now show resource drop/pop effects when stock is actually added.
+- Sawmill work emits periodic sawdust, Coal Pit work emits visible coal dust/chips around the in-pit worker, and hidden Mine work emits intermittent entrance dust/sparks.
+- Added small fishing catch splash and hunting arrow hit/miss dust touches on top of the existing line/arrow systems.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected `.cs` files remain below 500 lines.
+
 ### 2026-06-17 - Hidden near-settlement wildlife placement
 
 - Reworked wildlife spawn candidate rules so deer, rabbits, lake fish, river fish entry points, birds, and wolf packs only spawn in currently hidden cells within a broad ring around completed buildings or active construction sites.

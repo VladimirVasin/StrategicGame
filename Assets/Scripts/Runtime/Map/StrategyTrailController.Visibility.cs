@@ -17,29 +17,22 @@ namespace ProjectUnknown.Strategy
 
         private bool HasVisibleFaintSupport(Vector2Int cell)
         {
-            if (CountStrongTrailNeighbors(cell) > 0 && CountRawTrailNeighbors(cell) >= 2)
-            {
-                return true;
-            }
-
-            return HasOpposingRawNeighbors(cell) || CountCardinalRawTrailNeighbors(cell) >= 3;
+            return HasOpposingStrongCardinalNeighbors(cell) || CountCardinalStrongTrailNeighbors(cell) >= 3;
         }
 
-        private bool HasOpposingRawNeighbors(Vector2Int cell)
+        private bool HasOpposingStrongCardinalNeighbors(Vector2Int cell)
         {
-            return HasRawTrailNeighbor(cell, Vector2Int.up) && HasRawTrailNeighbor(cell, Vector2Int.down)
-                || HasRawTrailNeighbor(cell, Vector2Int.left) && HasRawTrailNeighbor(cell, Vector2Int.right)
-                || HasRawTrailNeighbor(cell, new Vector2Int(1, 1)) && HasRawTrailNeighbor(cell, new Vector2Int(-1, -1))
-                || HasRawTrailNeighbor(cell, new Vector2Int(1, -1)) && HasRawTrailNeighbor(cell, new Vector2Int(-1, 1));
+            return HasStrongTrailNeighbor(cell, Vector2Int.up) && HasStrongTrailNeighbor(cell, Vector2Int.down)
+                || HasStrongTrailNeighbor(cell, Vector2Int.left) && HasStrongTrailNeighbor(cell, Vector2Int.right);
         }
 
-        private int CountCardinalRawTrailNeighbors(Vector2Int cell)
+        private int CountCardinalStrongTrailNeighbors(Vector2Int cell)
         {
             int count = 0;
-            count += HasRawTrailNeighbor(cell, Vector2Int.up) ? 1 : 0;
-            count += HasRawTrailNeighbor(cell, Vector2Int.right) ? 1 : 0;
-            count += HasRawTrailNeighbor(cell, Vector2Int.down) ? 1 : 0;
-            count += HasRawTrailNeighbor(cell, Vector2Int.left) ? 1 : 0;
+            count += HasStrongTrailNeighbor(cell, Vector2Int.up) ? 1 : 0;
+            count += HasStrongTrailNeighbor(cell, Vector2Int.right) ? 1 : 0;
+            count += HasStrongTrailNeighbor(cell, Vector2Int.down) ? 1 : 0;
+            count += HasStrongTrailNeighbor(cell, Vector2Int.left) ? 1 : 0;
             return count;
         }
 
@@ -63,6 +56,11 @@ namespace ProjectUnknown.Strategy
             }
 
             return count;
+        }
+
+        private bool HasStrongTrailNeighbor(Vector2Int cell, Vector2Int offset)
+        {
+            return GetTrailLevel(cell + offset) >= 2;
         }
 
         private bool HasRawTrailNeighbor(Vector2Int cell, Vector2Int offset)

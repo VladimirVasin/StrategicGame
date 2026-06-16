@@ -121,6 +121,7 @@ namespace ProjectUnknown.Strategy
 
             gameStored += amount;
             UpdateStockVisual();
+            PlayFoodStoredEffect(StrategyResourceType.Game, amount);
             StrategyDebugLogger.Info(
                 "Granary",
                 "FoodStored",
@@ -139,6 +140,7 @@ namespace ProjectUnknown.Strategy
 
             fishStored += amount;
             UpdateStockVisual();
+            PlayFoodStoredEffect(StrategyResourceType.Fish, amount);
             StrategyDebugLogger.Info(
                 "Granary",
                 "FoodStored",

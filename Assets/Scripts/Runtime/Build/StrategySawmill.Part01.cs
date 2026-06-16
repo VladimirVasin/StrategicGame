@@ -72,6 +72,7 @@ namespace ProjectUnknown.Strategy
             {
                 workFrame = (workFrame + steps) % StrategyBuildingSpriteFactory.SawmillWorkFrameCount;
                 workFrameTimer -= steps;
+                TrySpawnSawdustEffect();
             }
 
             Bounds bounds = FootprintBounds;

@@ -320,7 +320,13 @@ namespace ProjectUnknown.Strategy
 
         private bool HasDiagonalConnection(Vector2Int cell, int x, int y)
         {
-            if (GetVisibleTrailLevel(cell + new Vector2Int(x, y)) <= 0)
+            if (GetVisibleTrailLevel(cell) < 2)
+            {
+                return false;
+            }
+
+            Vector2Int diagonalCell = cell + new Vector2Int(x, y);
+            if (GetVisibleTrailLevel(diagonalCell) < 2)
             {
                 return false;
             }

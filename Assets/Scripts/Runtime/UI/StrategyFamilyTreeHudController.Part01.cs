@@ -17,9 +17,7 @@ namespace ProjectUnknown.Strategy
         {
             PrepareGenerations(records);
             int maxGeneration = BuildRows(records, out int maxRowCount);
-            float sectionWidth = Mathf.Max(
-                FamilyColumnWidth,
-                48f + maxRowCount * CardWidth + Mathf.Max(0, maxRowCount - 1) * CardSpacing);
+            float sectionWidth = CalculateFamilySectionWidth(maxRowCount);
             sectionHeight = 76f
                 + (maxGeneration + 1) * CardHeight
                 + maxGeneration * GenerationGap
@@ -128,53 +126,16 @@ namespace ProjectUnknown.Strategy
         {
             cardTopLeftById.Clear();
             cardCenterById.Clear();
-            foreach (KeyValuePair<int, List<StrategyResidentFamilyRecord>> pair in rowsByGeneration)
+            int maxGeneration = GetMaxLayoutGeneration();
+            for (int generation = 0; generation <= maxGeneration; generation++)
             {
-                List<StrategyResidentFamilyRecord> row = pair.Value;
-                float rowWidth = row.Count * CardWidth + Mathf.Max(0, row.Count - 1) * CardSpacing;
-                float startX = Mathf.Max(24f, (sectionWidth - rowWidth) * 0.5f);
-                float y = 76f + pair.Key * (CardHeight + GenerationGap);
-                for (int i = 0; i < row.Count; i++)
-                {
-                    float x = startX + i * (CardWidth + CardSpacing);
-                    cardTopLeftById[row[i].ResidentId] = new Vector2(x, y);
-                    cardCenterById[row[i].ResidentId] = new Vector2(x + CardWidth * 0.5f, y + CardHeight * 0.5f);
-                }
+                PositionGenerationCards(generation, sectionWidth);
             }
         }
 
         private void DrawConnections(RectTransform section)
         {
-            for (int i = 0; i < familyRecords.Count; i++)
-            {
-                StrategyResidentFamilyRecord child = familyRecords[i];
-                DrawParentConnection(section, child.FatherId, child.ResidentId);
-                DrawParentConnection(section, child.MotherId, child.ResidentId);
-            }
-        }
-
-        private void DrawParentConnection(RectTransform section, int parentId, int childId)
-        {
-            if (!familyIds.Contains(parentId)
-                || !cardCenterById.TryGetValue(parentId, out Vector2 parentCenter)
-                || !cardCenterById.TryGetValue(childId, out Vector2 childCenter)
-                || !cardTopLeftById.TryGetValue(parentId, out Vector2 parentTop)
-                || !cardTopLeftById.TryGetValue(childId, out Vector2 childTop))
-            {
-                return;
-            }
-
-            float parentBottom = parentTop.y + CardHeight;
-            float childTopY = childTop.y;
-            if (childTopY <= parentBottom)
-            {
-                return;
-            }
-
-            float midY = Mathf.Lerp(parentBottom, childTopY, 0.55f);
-            AddLine(section, parentCenter.x - 1f, parentBottom, 2f, midY - parentBottom);
-            AddLine(section, Mathf.Min(parentCenter.x, childCenter.x), midY, Mathf.Abs(childCenter.x - parentCenter.x), 2f);
-            AddLine(section, childCenter.x - 1f, midY, 2f, childTopY - midY);
+            DrawGroupedFamilyConnections(section);
         }
 
         private void DrawCards(RectTransform section, List<StrategyResidentFamilyRecord> records)

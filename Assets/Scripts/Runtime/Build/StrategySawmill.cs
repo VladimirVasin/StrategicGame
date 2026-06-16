@@ -265,6 +265,7 @@ namespace ProjectUnknown.Strategy
             }
 
             UpdateStockVisual();
+            PlayInputDeliveredEffect(accepted);
         }
 
         public void AddPlanks(int amount)
@@ -286,6 +287,7 @@ namespace ProjectUnknown.Strategy
             }
 
             UpdateStockVisual();
+            PlayPlanksProducedEffect(accepted);
             StrategyDebugLogger.Info(
                 "Sawmill",
                 "PlanksStoredAtSawmill",

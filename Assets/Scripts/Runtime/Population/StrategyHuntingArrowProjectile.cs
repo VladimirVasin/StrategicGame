@@ -102,6 +102,12 @@ namespace ProjectUnknown.Strategy
 
             if (willHit)
             {
+                StrategyWorldEffectAnimator.Spawn(
+                    StrategyWorldEffectKind.Dust,
+                    transform.position,
+                    StrategyWorldSorting.ForPosition(transform.position, 4),
+                    Mathf.RoundToInt(Time.time * 17f),
+                    0.62f);
                 target.ReceiveArrowHit(owner, transform.position);
                 Destroy(gameObject);
                 return;
@@ -130,6 +136,13 @@ namespace ProjectUnknown.Strategy
                 spriteRenderer.color = new Color(0.88f, 0.84f, 0.70f, 0.92f);
                 StrategyWorldSorting.Apply(spriteRenderer, transform.position, 1);
             }
+
+            StrategyWorldEffectAnimator.Spawn(
+                StrategyWorldEffectKind.Dust,
+                transform.position,
+                StrategyWorldSorting.ForPosition(transform.position, 3),
+                Mathf.RoundToInt(Time.time * 19f),
+                0.56f);
         }
 
         private static Vector3 GetMissWorld(Vector3 fromWorld, StrategyRabbitAgent rabbit)

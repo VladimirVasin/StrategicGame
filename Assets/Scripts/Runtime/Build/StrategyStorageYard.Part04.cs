@@ -132,6 +132,7 @@ namespace ProjectUnknown.Strategy
 
             planksStored += amount;
             UpdateStockVisual();
+            PlayResourceStoredEffect(StrategyResourceType.Planks, amount);
             StrategyDebugLogger.Info(
                 "StorageYard",
                 "ResourceStored",

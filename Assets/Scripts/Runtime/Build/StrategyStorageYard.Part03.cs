@@ -85,6 +85,7 @@ namespace ProjectUnknown.Strategy
 
             ironStored += amount;
             UpdateStockVisual();
+            PlayResourceStoredEffect(StrategyResourceType.Iron, amount);
             StrategyDebugLogger.Info(
                 "StorageYard",
                 "ResourceStored",
@@ -103,6 +104,7 @@ namespace ProjectUnknown.Strategy
 
             coalStored += amount;
             UpdateStockVisual();
+            PlayResourceStoredEffect(StrategyResourceType.Coal, amount);
             StrategyDebugLogger.Info(
                 "StorageYard",
                 "ResourceStored",
