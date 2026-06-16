@@ -13,16 +13,6 @@ namespace ProjectUnknown.Strategy
             }
 
             huntSearchTimer = Random.Range(HuntSearchIntervalMin, HuntSearchIntervalMax);
-            if (Random.value < HumanTargetChance
-                && wildlife.TryReserveWolfResidentTarget(this, currentCell, out StrategyResidentAgent resident))
-            {
-                targetResident = resident;
-                SetWolfState(StrategyWolfBehaviorState.Stalking, "resident_target_acquired");
-                targetRefreshTimer = 0f;
-                LogWolfTargetAcquired("resident", resident != null ? resident.FullName : "none");
-                return true;
-            }
-
             if (wildlife.TryReserveWolfPrey(this, currentCell, out StrategyRabbitAgent rabbit, out StrategyDeerAgent deer))
             {
                 targetRabbit = rabbit;
@@ -237,7 +227,7 @@ namespace ProjectUnknown.Strategy
             for (int i = 0; i < CardinalDirections.Length; i++)
             {
                 Vector2Int candidate = targetCell + CardinalDirections[i];
-                if (StrategyWildlifeRiverCrossing.IsLandOrRiverCell(map, candidate) && TryBuildPathTo(candidate))
+                if (IsWolfTravelCell(candidate) && TryBuildPathTo(candidate))
                 {
                     LogWolfPathReady("target_adjacent", targetCell, candidate);
                     return true;
@@ -285,7 +275,7 @@ namespace ProjectUnknown.Strategy
         {
             if (map == null
                 || !TryGetPathStartCell(out Vector2Int startCell)
-                || !StrategyWildlifeRiverCrossing.IsLandOrRiverCell(map, targetCell))
+                || !IsWolfTravelCell(targetCell))
             {
                 return LogWolfPathFailed("path_prerequisite_failed", targetCell);
             }
@@ -297,6 +287,7 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
+            bool allowStructureBuffer = wildlife != null && wildlife.IsLandWildlifeStructureBufferCell(startCell);
             Queue<Vector2Int> open = new();
             Dictionary<Vector2Int, Vector2Int> cameFrom = new();
             HashSet<Vector2Int> visited = new();
@@ -316,7 +307,7 @@ namespace ProjectUnknown.Strategy
                 for (int i = 0; i < CardinalDirections.Length; i++)
                 {
                     Vector2Int next = current + CardinalDirections[i];
-                    if (visited.Contains(next) || !StrategyWildlifeRiverCrossing.IsLandOrRiverCell(map, next))
+                    if (visited.Contains(next) || !IsWolfTravelCell(next, allowStructureBuffer))
                     {
                         continue;
                     }
@@ -338,7 +329,7 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            if (StrategyWildlifeRiverCrossing.IsLandOrRiverCell(map, currentCell))
+            if (IsWolfTravelCell(currentCell, true))
             {
                 startCell = currentCell;
                 return true;
@@ -358,7 +349,7 @@ namespace ProjectUnknown.Strategy
                         }
 
                         Vector2Int candidate = currentCell + new Vector2Int(x, y);
-                        if (!StrategyWildlifeRiverCrossing.IsLandOrRiverCell(map, candidate))
+                        if (!IsWolfTravelCell(candidate, true))
                         {
                             continue;
                         }

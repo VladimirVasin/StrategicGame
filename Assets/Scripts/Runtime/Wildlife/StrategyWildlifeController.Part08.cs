@@ -28,6 +28,7 @@ namespace ProjectUnknown.Strategy
             wolfMigrations.Clear();
             wolfResidentTargets.Clear();
             settlementBuildings = null;
+            settlementConstructionSites = null;
             if (wildlifeRoot == null)
             {
                 return;

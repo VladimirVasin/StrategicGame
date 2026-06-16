@@ -138,6 +138,7 @@ namespace ProjectUnknown.Strategy
         private int nextRiverShoalId = RiverFishShoalIdBase;
         private bool hasCampCell;
         private StrategyPlacedBuilding[] settlementBuildings;
+        private StrategyConstructionSite[] settlementConstructionSites;
 
         public static StrategyWildlifeController Active { get; private set; }
         public IReadOnlyList<StrategyDeerAgent> Deer => deer;

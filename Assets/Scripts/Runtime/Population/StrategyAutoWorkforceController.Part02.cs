@@ -62,7 +62,7 @@ namespace ProjectUnknown.Strategy
         private void AddCappedCampDemands<T>(
             StrategyProfessionType profession,
             StrategyAutoWorkforceCategory category,
-            int shortage,
+            int desiredWorkers,
             string reason,
             Func<T, int> getWorkers,
             Func<T, int> getCapacity,
@@ -71,7 +71,7 @@ namespace ProjectUnknown.Strategy
             float extraUrgency = 0f)
             where T : Component
         {
-            if (shortage <= 0)
+            if (desiredWorkers <= 0)
             {
                 return;
             }
@@ -84,7 +84,7 @@ namespace ProjectUnknown.Strategy
 
             T[] sites = UnityEngine.Object.FindObjectsByType<T>();
             Array.Sort(sites, (left, right) => getWorkers(left).CompareTo(getWorkers(right)));
-            int desired = Mathf.Clamp(Mathf.CeilToInt(shortage / 4f), 1, Mathf.Max(1, priority));
+            int desired = Mathf.Min(desiredWorkers, priority);
             int capacity = 0;
             for (int i = 0; i < sites.Length; i++)
             {
@@ -120,7 +120,7 @@ namespace ProjectUnknown.Strategy
                     site,
                     getWorld(site),
                     needed,
-                    extraUrgency + shortage * 6f - getWorkers(site) * 10f,
+                    extraUrgency - getWorkers(site) * 10f,
                     reason);
             }
         }

@@ -29,7 +29,6 @@ namespace ProjectUnknown.Strategy
             StrategyConstructionSite[] sites = Object.FindObjectsByType<StrategyConstructionSite>();
             int activeSites = 0;
             int readySites = 0;
-            int desiredBuilders = 0;
             Vector3 focus = transform.position;
             float bestScore = float.MinValue;
             for (int i = 0; i < sites.Length; i++)
@@ -46,13 +45,6 @@ namespace ProjectUnknown.Strategy
                     readySites++;
                 }
 
-                int siteTarget = priority >= 5 ? 4 : priority >= 3 ? 3 : 1;
-                if (!site.ResourcesComplete)
-                {
-                    siteTarget = Mathf.Max(1, siteTarget - 1);
-                }
-
-                desiredBuilders += siteTarget;
                 float siteScore = (site.ResourcesComplete ? 60f : 30f)
                     + site.Cost.Total
                     + site.Progress * 20f
@@ -69,7 +61,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            desiredBuilders = Mathf.Clamp(desiredBuilders, 0, priority);
+            int desiredBuilders = priority;
             SetDesiredProfessionTarget(StrategyProfessionType.Builder, desiredBuilders);
             int currentBuilders = CountAssignedProfession(StrategyProfessionType.Builder);
             int needed = Mathf.Max(0, desiredBuilders - currentBuilders);
@@ -98,16 +90,16 @@ namespace ProjectUnknown.Strategy
 
             int backlog = CountLogisticsBacklog(out Vector3 focus);
             int activeConstructionNeeds = CountConstructionMaterialNeeds();
-            if (backlog <= 0 && activeConstructionNeeds <= 0)
+            if (!TryFindStorageTarget(focus, out StrategyStorageYard yard))
             {
                 return;
             }
 
-            int desired = Mathf.Clamp(Mathf.CeilToInt(backlog / 4f) + Mathf.Min(2, activeConstructionNeeds), 1, priority);
+            int desired = priority;
             SetDesiredProfessionTarget(StrategyProfessionType.StorageWorker, desired);
             int current = CountAssignedProfession(StrategyProfessionType.StorageWorker);
             int needed = Mathf.Max(0, desired - current);
-            if (needed <= 0 || !TryFindStorageTarget(focus, out StrategyStorageYard yard))
+            if (needed <= 0)
             {
                 return;
             }
@@ -133,20 +125,19 @@ namespace ProjectUnknown.Strategy
             float dailyNeed = GetDailyRationNeed();
             float storedRations = StrategyGranary.GetTotalSettlementFoodRations();
             float reserveDays = dailyNeed <= 0.01f ? FoodReserveTargetDays : storedRations / dailyNeed;
-            if (reserveDays >= FoodReserveTargetDays)
+            bool hasHunterCamp = Object.FindObjectsByType<StrategyHunterCamp>().Length > 0;
+            bool hasFisherHut = Object.FindObjectsByType<StrategyFisherHut>().Length > 0;
+            if (!hasHunterCamp && !hasFisherHut)
             {
                 return;
             }
 
-            int desiredFoodWorkers = reserveDays <= FoodEmergencyDays ? 4 : reserveDays <= 2.5f ? 3 : 2;
-            desiredFoodWorkers = Mathf.Min(desiredFoodWorkers, priority);
-            bool hasHunterCamp = Object.FindObjectsByType<StrategyHunterCamp>().Length > 0;
-            bool hasFisherHut = Object.FindObjectsByType<StrategyFisherHut>().Length > 0;
+            int desiredFoodWorkers = priority;
             int hunterWorkers = hasFisherHut ? Mathf.CeilToInt(desiredFoodWorkers * 0.5f) : desiredFoodWorkers;
             int fisherWorkers = hasHunterCamp ? desiredFoodWorkers - hunterWorkers : desiredFoodWorkers;
-            float urgency = (FoodReserveTargetDays - reserveDays) * 25f;
-            AddHunterDemands(hunterWorkers * 4, urgency);
-            AddFisherDemands(fisherWorkers * 4, urgency);
+            float urgency = Mathf.Max(0f, FoodReserveTargetDays - reserveDays) * 25f;
+            AddHunterDemands(hunterWorkers, urgency);
+            AddFisherDemands(fisherWorkers, urgency);
         }
 
         private void AddMaterialDemands()
@@ -171,12 +162,13 @@ namespace ProjectUnknown.Strategy
             AddCappedCampDemands<StrategyLumberjackCamp>(
                 StrategyProfessionType.Lumberjack,
                 StrategyAutoWorkforceCategory.Wood,
-                shortage,
+                priority,
                 "logs_shortage",
                 camp => camp.WorkerCount,
                 camp => StrategyLumberjackCamp.MaxWorkers,
                 camp => camp.HasStorageSpace,
-                camp => camp.FootprintBounds.center);
+                camp => camp.FootprintBounds.center,
+                shortage * 6f);
         }
 
         private void AddStoneDemands()
@@ -192,12 +184,13 @@ namespace ProjectUnknown.Strategy
             AddCappedCampDemands<StrategyStonecutterCamp>(
                 StrategyProfessionType.Stonecutter,
                 StrategyAutoWorkforceCategory.Stone,
-                shortage,
+                priority,
                 "stone_shortage",
                 camp => camp.WorkerCount,
                 camp => StrategyStonecutterCamp.MaxWorkers,
                 camp => camp.HasStorageSpace,
-                camp => camp.FootprintBounds.center);
+                camp => camp.FootprintBounds.center,
+                shortage * 6f);
         }
 
         private void AddPlankDemands()
@@ -210,7 +203,7 @@ namespace ProjectUnknown.Strategy
 
             int target = 4 + CountNeededConstruction(StrategyConstructionResourceKind.Planks);
             int shortage = Mathf.Max(0, target - CountTotalPlanks());
-            if (shortage <= 0 || CountTotalLogs() <= 0)
+            if (CountTotalLogs() <= 0)
             {
                 return;
             }
@@ -218,12 +211,13 @@ namespace ProjectUnknown.Strategy
             AddCappedCampDemands<StrategySawmill>(
                 StrategyProfessionType.Sawyer,
                 StrategyAutoWorkforceCategory.Planks,
-                shortage,
+                priority,
                 "planks_shortage",
                 sawmill => sawmill.WorkerCount,
                 sawmill => StrategySawmill.MaxWorkers,
                 sawmill => sawmill.CanStartWorkCycle() || sawmill.CanAcceptInputLogs(1),
-                sawmill => sawmill.FootprintBounds.center);
+                sawmill => sawmill.FootprintBounds.center,
+                shortage * 6f);
         }
 
         private void AddIronDemands()
@@ -238,12 +232,13 @@ namespace ProjectUnknown.Strategy
             AddCappedCampDemands<StrategyMine>(
                 StrategyProfessionType.Miner,
                 StrategyAutoWorkforceCategory.Iron,
-                shortage,
+                priority,
                 "iron_low_stock",
                 mine => mine.WorkerCount,
                 mine => StrategyMine.MaxWorkers,
                 mine => mine.HasStorageSpace,
-                mine => mine.FootprintBounds.center);
+                mine => mine.FootprintBounds.center,
+                shortage * 6f);
         }
 
         private void AddCoalDemands()
@@ -258,12 +253,13 @@ namespace ProjectUnknown.Strategy
             AddCappedCampDemands<StrategyCoalPit>(
                 StrategyProfessionType.CoalMiner,
                 StrategyAutoWorkforceCategory.Coal,
-                shortage,
+                priority,
                 "coal_low_stock",
                 pit => pit.WorkerCount,
                 pit => StrategyCoalPit.MaxWorkers,
                 pit => pit.HasStorageSpace,
-                pit => pit.FootprintBounds.center);
+                pit => pit.FootprintBounds.center,
+                shortage * 6f);
         }
     }
 }

@@ -195,7 +195,7 @@ namespace ProjectUnknown.Strategy
         private bool TryBuildPathTo(Vector2Int targetCell)
         {
             if (!map.TryWorldToCell(transform.position, out Vector2Int startCell)
-                || !IsDeerWalkCell(startCell)
+                || !IsDeerWalkCell(startCell, true)
                 || !IsDeerWalkCell(targetCell))
             {
                 return false;
@@ -209,6 +209,7 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
+            bool allowStructureBuffer = wildlife != null && wildlife.IsLandWildlifeStructureBufferCell(startCell);
             Queue<Vector2Int> open = new();
             Dictionary<Vector2Int, Vector2Int> cameFrom = new();
             HashSet<Vector2Int> visited = new();
@@ -228,7 +229,7 @@ namespace ProjectUnknown.Strategy
                 for (int i = 0; i < CardinalDirections.Length; i++)
                 {
                     Vector2Int next = current + CardinalDirections[i];
-                    if (visited.Contains(next) || !IsDeerWalkCell(next))
+                    if (visited.Contains(next) || !IsDeerWalkCell(next, allowStructureBuffer))
                     {
                         continue;
                     }
@@ -344,9 +345,11 @@ namespace ProjectUnknown.Strategy
                 && GetTerrainPreference(cell) > -2f;
         }
 
-        private bool IsDeerWalkCell(Vector2Int cell)
+        private bool IsDeerWalkCell(Vector2Int cell, bool allowStructureBuffer = false)
         {
-            return StrategyWildlifeRiverCrossing.IsLandOrRiverCell(map, cell);
+            return wildlife != null
+                ? wildlife.IsLandWildlifeTravelCell(cell, allowStructureBuffer)
+                : StrategyWildlifeRiverCrossing.IsLandOrRiverCell(map, cell);
         }
 
         private float GetTerrainPreference(Vector2Int cell)

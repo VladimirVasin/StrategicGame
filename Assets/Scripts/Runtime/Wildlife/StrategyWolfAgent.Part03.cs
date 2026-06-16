@@ -141,6 +141,7 @@ namespace ProjectUnknown.Strategy
             bool currentWalkable = hasCurrentCell
                 && StrategyWildlifeRiverCrossing.IsLandOrRiverCell(map, currentCell);
             bool targetWalkable = StrategyWildlifeRiverCrossing.IsLandOrRiverCell(map, targetCell);
+            bool targetTravelSafe = IsWolfTravelCell(targetCell);
             StrategyDebugLogger.Warn(
                 "Wildlife",
                 "WolfPathFailed",
@@ -152,6 +153,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("currentWalkable", currentWalkable),
                 StrategyDebugLogger.F("targetCell", targetCell),
                 StrategyDebugLogger.F("targetWalkable", targetWalkable),
+                StrategyDebugLogger.F("targetTravelSafe", targetTravelSafe),
                 StrategyDebugLogger.F("target", GetTargetDebugKind()),
                 StrategyDebugLogger.F("pathIndex", pathIndex),
                 StrategyDebugLogger.F("pathCount", path.Count));

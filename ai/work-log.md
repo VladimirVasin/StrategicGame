@@ -8,6 +8,21 @@ Last updated: 2026-06-16
 
 ## Done
 
+### 2026-06-16 - Wildlife structure avoidance
+
+- Land wildlife now treats placed buildings, active construction sites, and the campfire as structure buffers: deer/rabbit/wolf spawn, birth, migration, relaxed targets, flee targets, wolf roam, and wolf prey lookup avoid cells within 4 cells of those structures.
+- Deer, rabbits, and wolves now use the same wildlife travel predicate for local BFS, so routes avoid passing through settlement buffers while still allowing River crossings and allowing an animal already inside a buffer to escape.
+- Wolf target acquisition now only reserves rabbit/deer surplus prey and no longer falls back to ordinary resident targeting when animal surplus is unavailable.
+- Added throttled `WolfPreySearchSkipped` diagnostics plus `targetTravelSafe` in wolf path-failure logs, and split new wildlife/wolf helpers into small partial files to preserve the 500-line C# limit.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; full `.cs` line-count scan found no files over 500 lines; `git diff --check` reported no whitespace errors and only the existing CRLF normalization warning for `Assembly-CSharp.csproj`.
+
+### 2026-06-16 - Auto workforce target-count assignment fix
+
+- Auto workforce priority numbers now act as desired worker targets for available compatible worksites instead of only creating assignments during stock shortages.
+- Food, Wood, Stone, Planks, Iron, Coal, Logistics, and Construction demands now fill available vacancies up to the configured target when buildings can currently accept work.
+- Shortages still affect demand score/urgency, but zero shortage no longer prevents unemployed residents from filling below-target professions.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
 ### 2026-06-16 - Auto workforce surplus rebalance
 
 - Auto workforce now computes desired worker targets for all managed professions, not only free-worker demand.

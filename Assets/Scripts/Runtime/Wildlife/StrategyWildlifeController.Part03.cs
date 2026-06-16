@@ -383,6 +383,7 @@ namespace ProjectUnknown.Strategy
             agent.Configure(
                 map,
                 population,
+                this,
                 sex,
                 herdCenter,
                 HerdHomeRadius,
@@ -437,6 +438,7 @@ namespace ProjectUnknown.Strategy
             agent.Configure(
                 map,
                 population,
+                this,
                 sex,
                 groupCenter,
                 RabbitHomeRadius,

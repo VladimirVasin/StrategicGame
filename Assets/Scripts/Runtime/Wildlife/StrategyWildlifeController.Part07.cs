@@ -473,6 +473,7 @@ namespace ProjectUnknown.Strategy
 
             nextSettlementCacheRefreshTime = Time.time + WolfSettlementCacheInterval;
             settlementBuildings = Object.FindObjectsByType<StrategyPlacedBuilding>(FindObjectsInactive.Exclude);
+            settlementConstructionSites = Object.FindObjectsByType<StrategyConstructionSite>(FindObjectsInactive.Exclude);
         }
 
         private void EnsureWildlifeRoot()

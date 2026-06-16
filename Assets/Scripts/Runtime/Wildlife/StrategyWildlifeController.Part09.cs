@@ -21,8 +21,8 @@ namespace ProjectUnknown.Strategy
             RemoveMissingRabbits();
             RemoveMissingDeer();
             float radiusSqr = WolfHuntRadius * WolfHuntRadius;
-            int rabbitSurplus = CountLivingRabbitsForWolfControl()
-                - WolfRabbitControlThreshold
+            int rabbitCount = CountLivingRabbitsForWolfControl();
+            int rabbitSurplus = rabbitCount - WolfRabbitControlThreshold
                 - CountHunterReservedRabbits()
                 - CountPredatorReservedRabbits();
             if (rabbitSurplus > 0 && TryFindWolfRabbitPrey(wolf, center, radiusSqr, out rabbit))
@@ -30,15 +30,22 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
+            int deerCount = CountLivingDeerForWolfControl();
+            int deerSurplus = deerCount - WolfDeerControlThreshold
+                - CountPredatorReservedDeer();
             if (wolf.PackMemberCount < 2)
             {
+                LogWolfPreySearchSkipped(center, rabbitCount, rabbitSurplus, deerCount, deerSurplus);
                 return false;
             }
 
-            int deerSurplus = CountLivingDeerForWolfControl()
-                - WolfDeerControlThreshold
-                - CountPredatorReservedDeer();
-            return deerSurplus > 0 && TryFindWolfDeerPrey(wolf, center, radiusSqr, out deerTarget);
+            bool found = deerSurplus > 0 && TryFindWolfDeerPrey(wolf, center, radiusSqr, out deerTarget);
+            if (!found)
+            {
+                LogWolfPreySearchSkipped(center, rabbitCount, rabbitSurplus, deerCount, deerSurplus);
+            }
+
+            return found;
         }
 
         private bool TryFindWolfRabbitPrey(
@@ -55,7 +62,7 @@ namespace ProjectUnknown.Strategy
                 if (candidate == null
                     || !candidate.CanBeWolfPrey
                     || !candidate.TryGetCurrentCell(out Vector2Int cell)
-                    || IsWolfUnsafeSettlementCell(cell))
+                    || !IsLandWildlifeTravelCell(cell))
                 {
                     continue;
                 }
@@ -87,7 +94,7 @@ namespace ProjectUnknown.Strategy
                 if (candidate == null
                     || !candidate.CanBeWolfPrey
                     || !candidate.TryGetCurrentCell(out Vector2Int cell)
-                    || IsWolfUnsafeSettlementCell(cell))
+                    || !IsLandWildlifeTravelCell(cell))
                 {
                     continue;
                 }

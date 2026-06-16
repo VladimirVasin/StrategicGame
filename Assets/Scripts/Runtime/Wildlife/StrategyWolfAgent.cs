@@ -82,7 +82,6 @@ namespace ProjectUnknown.Strategy
         private const float TargetRefreshInterval = 0.32f;
         private const float HuntSearchIntervalMin = 2.0f;
         private const float HuntSearchIntervalMax = 4.8f;
-        private const float HumanTargetChance = 0.18f;
         private const float MaxChaseDistance = 14.0f;
         private const float ReadabilityOutlineScale = 1.12f;
         private const float ReadabilityEffectScale = 0.78f;

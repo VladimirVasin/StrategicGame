@@ -62,6 +62,7 @@ namespace ProjectUnknown.Strategy
         private readonly List<Vector3> path = new();
         private CityMapController map;
         private StrategyPopulationController population;
+        private StrategyWildlifeController wildlife;
         private SpriteRenderer spriteRenderer;
         private SpriteRenderer outlineRenderer;
         private SpriteRenderer shadowRenderer;
@@ -110,6 +111,7 @@ namespace ProjectUnknown.Strategy
         public void Configure(
             CityMapController mapController,
             StrategyPopulationController populationController,
+            StrategyWildlifeController wildlifeController,
             StrategyDeerSex deerSex,
             Vector2Int herdCenterCell,
             int herdHomeRadius,
@@ -121,6 +123,7 @@ namespace ProjectUnknown.Strategy
         {
             map = mapController;
             population = populationController;
+            wildlife = wildlifeController;
             sex = deerSex;
             lifeStage = deerLifeStage;
             homeCell = herdCenterCell;

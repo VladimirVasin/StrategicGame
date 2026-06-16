@@ -461,6 +461,7 @@ Primary files/assets:
 
 - `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.Part09.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.Part10.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeRiverCrossing.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyDeerAgent.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyDeerAgent.Part03.cs`
@@ -470,6 +471,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Wildlife/StrategyRabbitSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWolfAgent.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWolfAgent.Part04.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyWolfAgent.Part05.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWolfSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Build/StrategyHunterCamp.cs`
 - `Assets/Scripts/Runtime/Build/StrategyFisherHut.cs`
@@ -489,14 +491,15 @@ Impact hints:
 - Wildlife is runtime-only and not saved yet.
 - Deer and birds do not reveal fog, block walkability, or provide resources yet; rabbits can yield `Game` through the hunter-camp work loop, fish can yield `Fish` through the fisher-hut work loop, and wolves are predators rather than player-harvestable resources.
 - Initial rabbit spawn depends on the starter camp cell; keep the first few groups close enough for early hunter-camp use, but keep later groups map-wide so rabbits do not collapse into one starter-area cluster.
-- Deer pathing depends on `CityMapController.IsCellWalkable` and should stay local/cheap until a shared pathfinding service exists.
-- Rabbit pathing uses the same local walkable-cell approach and should stay cheap until a shared pathfinding service exists.
+- Deer pathing depends on the wildlife land-travel predicate, which wraps `CityMapController.IsCellWalkable`, River crossing allowance, and the 4-cell structure buffer.
+- Rabbit pathing uses the same local wildlife land-travel approach and should stay cheap until a shared pathfinding service exists.
 - Land wildlife river crossing is intentionally scoped to wildlife path helpers through `StrategyWildlifeRiverCrossing`; do not change global `CityMapController` walkability to make River water walkable for residents, buildings, or construction.
 - Fish pathing uses `CityMapCellKind.Water` plus `CityMapWaterKind` instead of `IsCellWalkable`, because water is intentionally not walkable for land agents and lake/river fish now have separate movement rules.
 - Migration state is owned by `StrategyWildlifeController`; agents only expose small retarget methods for their current home/roam center and should keep per-frame movement local.
 - Reproduction is owned by `StrategyWildlifeController`; deer/rabbit/fish agents own species or sex, life stage, growth, movement, and animation state. Birds are decorative and do not reproduce yet; wolves do not reproduce yet and use pack spawn only.
-- Wolf settlement avoidance is pressure-based and reads camp position, placed buildings, and nearby residents; keep it cheaper than per-frame global scans by using the controller cache.
+- Wolf settlement avoidance is pressure-based and reads camp position, placed buildings, active construction sites, and nearby residents; land wildlife pathing also uses the cached structure buffer, so keep it cheaper than per-frame global scans.
 - Wolf prey lookup is population-control logic, not continuous hunting: rabbit hunting only starts above the rabbit control threshold after subtracting predator and hunter reservations, and deer hunting only starts above the deer control threshold after subtracting predator reservations.
+- Wolves no longer use ordinary resident target acquisition when no surplus prey is available.
 - Wolf pack placement uses the generated river route to prefer alternating river sides, but falls back to any valid safe side and logs `WolfPackRiverSideFallback` if one side has no candidate.
 - Wolf movement diagnostics are owned by `StrategyWolfAgent` and log state changes, target acquisition/release, path readiness/failures, roam failures, and movement stalls under the `Wildlife` log category.
 - `FishLakeBirthBlocked` debug logging is throttled per lake region; keep cap checks cheap and avoid per-fish spam when a lake is full.
@@ -797,7 +800,7 @@ Responsibilities:
 - Keep player priority settings for Construction, Food, Logistics, Wood, Stone, Planks, Iron, and Coal.
 - Tick every few seconds instead of every frame.
 - Scan eligible free adults through `StrategyPopulationController.Residents`.
-- Compute desired targets for every auto-managed profession and release surplus workers through normal worksite unassign APIs before filling higher-scored demands.
+- Compute desired targets for every auto-managed profession from the player priority values, release surplus workers through normal worksite unassign APIs, and fill below-target vacancies before relying on shortage urgency for demand ordering.
 - Ignore children, pending refugees, funeral duty, household foraging/food duty, householders, residents with external workplaces, and active construction assignees through resident availability flags.
 - Build work demands from active construction sites, Granary ration reserve, production-worksite stock/capacity, Storage Yard/Granary logistics backlog, and construction material needs.
 - Score demands by priority, urgency, shortage, worksite need, construction readiness, storage backlog, and resident distance.

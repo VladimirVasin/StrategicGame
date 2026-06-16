@@ -72,14 +72,15 @@ namespace ProjectUnknown.Strategy
             }
 
             if (map == null
-                || !StrategyWildlifeRiverCrossing.IsLandOrRiverCell(map, start)
-                || !StrategyWildlifeRiverCrossing.IsLandOrRiverCell(map, target))
+                || !IsLandWildlifeTravelCell(start, true)
+                || !IsLandWildlifeTravelCell(target))
             {
                 return false;
             }
 
             Queue<Vector2Int> frontier = new();
             HashSet<Vector2Int> visited = new();
+            bool allowStructureBuffer = IsLandWildlifeStructureBufferCell(start);
             frontier.Enqueue(start);
             visited.Add(start);
 
@@ -89,7 +90,7 @@ namespace ProjectUnknown.Strategy
                 for (int i = 0; i < CardinalDirections.Length; i++)
                 {
                     Vector2Int next = current + CardinalDirections[i];
-                    if (visited.Contains(next) || !StrategyWildlifeRiverCrossing.IsLandOrRiverCell(map, next))
+                    if (visited.Contains(next) || !IsLandWildlifeTravelCell(next, allowStructureBuffer))
                     {
                         continue;
                     }

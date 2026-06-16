@@ -331,7 +331,7 @@ namespace ProjectUnknown.Strategy
         private bool IsWolfRoamCandidate(Vector2Int cell)
         {
             if (map == null
-                || !map.IsCellWalkable(cell)
+                || !IsLandWildlifeTravelCell(cell)
                 || !map.TryGetCell(cell.x, cell.y, out CityMapCell mapCell)
                 || mapCell.Kind == CityMapCellKind.Water
                 || mapCell.Kind == CityMapCellKind.Shore)

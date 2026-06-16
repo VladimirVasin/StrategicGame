@@ -173,6 +173,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Deer use short local grid paths inside a loose herd/home range
       - Rabbits use short local grid paths inside a loose group/home range
       - Deer, rabbits, and wolves can path through generated River water cells as slowed swimming crossings, with water-ripple visuals, while Lake water remains blocked for land wildlife
+      - Land wildlife targets and paths avoid placed buildings, active construction sites, and the campfire within a 4-cell structure buffer
       - Lake fish use short local lake-water paths inside a loose shoal/home range
       - River fish follow the generated river route from current start to end, then despawn
       - Birds fly between nearby habitat cells inside a loose home range and react to noisy residents by taking off
@@ -180,7 +181,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Land wildlife migration avoids dense settlement pressure and only advances through short connected land-or-river steps so groups do not jump through blockers or lakes
       - Wolves use walkable-cell paths, roam near their current pack migration center, avoid high settlement pressure, and only hunt rabbits/deer when current population surplus is above high control thresholds
       - Wolf attacks use normal stalking first, then a faster pounce/chase phase only once close to the selected prey
-      - Wolves can reserve vulnerable adult residents away from the settlement and trigger normal `wolf_attack` resident death/funeral flow
+      - Wolves no longer use ordinary resident targeting; they idle/roam when no surplus rabbit/deer prey is available
       - Deer, rabbits, and fish react to nearby residents or noisy work such as chopping, mining, and construction
       - Adult does can reproduce when an adult buck is nearby in the same herd
       - Newborn deer appear as small fawns, use scaled deer sprites, and grow into adults after scaled simulation time
@@ -419,7 +420,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Residents assigned as Haulers also path to Sawmill stock, carry Planks to storage, and deposit them
     - Residents assigned as Haulers also haul `Game`/`Fish` from production food stock or loose food piles into the nearest Granary
     - Residents hired as Storage Yard builders fetch reserved Logs/Stone/Planks, deliver them to construction sites, then build with hammer animations
-    - Auto workforce assignment scans eligible free adults every few seconds, releases surplus workers from overstaffed auto-managed professions, and assigns workers through existing worksite APIs based on construction, food, logistics, and material priorities
+    - Auto workforce assignment scans eligible free adults every few seconds, treats player values as desired profession target counts, releases surplus workers from overstaffed auto-managed professions, and assigns workers through existing worksite APIs while shortages/backlog/readiness affect scoring
     - Residents removed from a role while carrying Logs, Stone, Iron, Coal, Planks, `Game`, or `Fish` first return the carried resource to the appropriate Storage Yard or Granary; hard interruption fallbacks preserve materials instead of deleting carried stock
     - Resident death drops all carried resources: construction Logs/Stone/Planks as loose construction piles, and generic Iron, Coal, Planks, `Game`, `Fish`, Berries, Roots, and Mushrooms as loose carried-resource piles
     - Completed houses first try to pull a homeless adult male/female pair, including residents who already have workplaces or construction assignments, then fall back to adult-child migration and partner lookup

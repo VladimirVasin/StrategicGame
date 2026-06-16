@@ -110,9 +110,11 @@ namespace ProjectUnknown.Strategy
                 && GetTerrainPreference(cell) > -2f;
         }
 
-        private bool IsRabbitWalkCell(Vector2Int cell)
+        private bool IsRabbitWalkCell(Vector2Int cell, bool allowStructureBuffer = false)
         {
-            return StrategyWildlifeRiverCrossing.IsLandOrRiverCell(map, cell);
+            return wildlife != null
+                ? wildlife.IsLandWildlifeTravelCell(cell, allowStructureBuffer)
+                : StrategyWildlifeRiverCrossing.IsLandOrRiverCell(map, cell);
         }
 
         private float GetTerrainPreference(Vector2Int cell)

@@ -372,7 +372,7 @@ namespace ProjectUnknown.Strategy
         private bool IsHerdSpawnCandidate(Vector2Int cell)
         {
             if (map == null
-                || !map.IsCellWalkable(cell)
+                || !IsLandWildlifeTravelCell(cell)
                 || !map.TryGetCell(cell.x, cell.y, out CityMapCell mapCell)
                 || mapCell.Kind == CityMapCellKind.Water)
             {
@@ -397,7 +397,7 @@ namespace ProjectUnknown.Strategy
         private bool IsRabbitSpawnCandidate(Vector2Int cell)
         {
             if (map == null
-                || !map.IsCellWalkable(cell)
+                || !IsLandWildlifeTravelCell(cell)
                 || !map.TryGetCell(cell.x, cell.y, out CityMapCell mapCell)
                 || mapCell.Kind == CityMapCellKind.Water
                 || mapCell.Kind == CityMapCellKind.Shore)
@@ -449,7 +449,7 @@ namespace ProjectUnknown.Strategy
         private bool IsDeerMigrationCandidate(Vector2Int cell)
         {
             if (map == null
-                || !map.IsCellWalkable(cell)
+                || !IsLandWildlifeTravelCell(cell)
                 || !map.TryGetCell(cell.x, cell.y, out CityMapCell mapCell)
                 || mapCell.Kind == CityMapCellKind.Water
                 || mapCell.Kind == CityMapCellKind.Shore)
