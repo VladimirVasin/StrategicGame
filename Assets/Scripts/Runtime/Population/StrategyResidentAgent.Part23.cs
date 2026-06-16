@@ -265,7 +265,9 @@ namespace ProjectUnknown.Strategy
             activeStoneSource?.ReleaseStoredStoneReservation(this);
             activeIronSource?.ReleaseStoredIronReservation(this);
             activeCoalSource?.ReleaseStoredCoalReservation(this);
-            activePlanksSource?.ReleaseStoredPlanksReservation(this);
+            activePlanksSource?.ReleaseOutputPickupReservation(StrategyResourceType.Planks, this);
+            activeProductionInputTarget?.ReleaseInputDeliveryReservation(activeProductionInputResource, this);
+            storageWorkplace?.ReleaseProductionInputReservation(this, activeProductionInputResource);
             activeLooseLogSource?.ReleaseStorageReservation(this);
             activeLooseStoneSource?.ReleaseStorageReservation(this);
             activeLoosePlanksSource?.ReleaseStorageReservation(this);
@@ -278,6 +280,7 @@ namespace ProjectUnknown.Strategy
             activeIronSource = null;
             activeCoalSource = null;
             activePlanksSource = null;
+            ClearProductionInputDelivery();
             activeLooseLogSource = null;
             activeLooseStoneSource = null;
             activeLoosePlanksSource = null;

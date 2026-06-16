@@ -51,6 +51,7 @@ namespace ProjectUnknown.Strategy
                 StrategyResourceType.Mushrooms => "Mushrooms",
                 StrategyResourceType.Game => "Game",
                 StrategyResourceType.Fish => "Fish",
+                StrategyResourceType.Logs => "Logs",
                 StrategyResourceType.Iron => "Iron",
                 StrategyResourceType.Coal => "Coal",
                 StrategyResourceType.Planks => "Planks",

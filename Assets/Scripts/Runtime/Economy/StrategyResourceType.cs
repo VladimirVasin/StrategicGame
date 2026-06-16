@@ -17,7 +17,8 @@ namespace ProjectUnknown.Strategy
         Stone,
         Iron,
         Coal,
-        Planks
+        Planks,
+        Logs
     }
 
     public static class StrategyFoodNutrition

@@ -77,6 +77,7 @@ namespace ProjectUnknown.Strategy
             AddBacklog(CountAvailableIron(out Vector3 ironWorld), ironWorld, ref backlog, ref weighted);
             AddBacklog(CountAvailableCoal(out Vector3 coalWorld), coalWorld, ref backlog, ref weighted);
             AddBacklog(CountAvailablePlanks(out Vector3 planksWorld), planksWorld, ref backlog, ref weighted);
+            AddBacklog(StrategyStorageYard.CountProductionInputBacklog(out Vector3 inputWorld), inputWorld, ref backlog, ref weighted);
             AddBacklog(CountAvailableFood(out Vector3 foodWorld), foodWorld, ref backlog, ref weighted);
             focus = backlog > 0 ? weighted / backlog : transform.position;
             return backlog;

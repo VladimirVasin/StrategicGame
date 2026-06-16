@@ -1,0 +1,225 @@
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace ProjectUnknown.Strategy
+{
+    public sealed partial class StrategyAutoWorkforceController
+    {
+        private const int MaxDemandRebalanceReleasesPerTick = 3;
+        private const float RebalanceScoreMargin = 20f;
+        private const float DemandRebalanceLockSeconds = 18f;
+
+        private readonly Dictionary<StrategyProfessionType, float> demandRebalanceLocks = new();
+
+        private int AssignDemandsWithRebalance(ref int released, out int demandReleased)
+        {
+            demandReleased = 0;
+            int assigned = AssignAvailableDemands();
+            for (int i = 0; i < MaxDemandRebalanceReleasesPerTick && HasUnfilledDemand(); i++)
+            {
+                if (candidates.Count <= 0)
+                {
+                    StrategyAutoWorkforceDemand demand = GetTopUnfilledDemand();
+                    if (!TryReleaseDemandDonor(demand, out StrategyProfessionType source, out StrategyResidentAgent worker))
+                    {
+                        break;
+                    }
+
+                    released++;
+                    demandReleased++;
+                    RegisterDemandRebalanceLock(source, demand.Profession);
+                    TryAddReleasedCandidate(worker);
+                    StrategyDebugLogger.Info(
+                        "AutoWorkforce",
+                        "AutoWorkforceReleasedForDemand",
+                        StrategyDebugLogger.F("sourceProfession", source),
+                        StrategyDebugLogger.F("targetProfession", demand.Profession),
+                        StrategyDebugLogger.F("resident", worker != null ? worker.FullName : string.Empty),
+                        StrategyDebugLogger.F("targetScore", demand.Score),
+                        StrategyDebugLogger.F("lockSeconds", DemandRebalanceLockSeconds));
+                }
+
+                int assignedNow = AssignAvailableDemands();
+                assigned += assignedNow;
+                if (assignedNow <= 0 && candidates.Count <= 0)
+                {
+                    break;
+                }
+            }
+
+            return assigned;
+        }
+
+        private int AssignAvailableDemands()
+        {
+            int assigned = 0;
+            for (int i = 0; i < demands.Count && candidates.Count > 0; i++)
+            {
+                assigned += AssignDemand(demands[i]);
+            }
+
+            return assigned;
+        }
+
+        private bool HasUnfilledDemand()
+        {
+            return GetTopUnfilledDemand() != null;
+        }
+
+        private StrategyAutoWorkforceDemand GetTopUnfilledDemand()
+        {
+            for (int i = 0; i < demands.Count; i++)
+            {
+                StrategyAutoWorkforceDemand demand = demands[i];
+                if (demand != null && demand.Needed > 0)
+                {
+                    return demand;
+                }
+            }
+
+            return null;
+        }
+
+        private bool TryReleaseDemandDonor(
+            StrategyAutoWorkforceDemand demand,
+            out StrategyProfessionType source,
+            out StrategyResidentAgent worker)
+        {
+            source = default;
+            worker = null;
+            if (demand == null)
+            {
+                return false;
+            }
+
+            bool found = false;
+            float bestHoldScore = float.MaxValue;
+            for (int i = 0; i < AutoManagedProfessions.Length; i++)
+            {
+                StrategyProfessionType profession = AutoManagedProfessions[i];
+                if (!CanDonateWorker(profession, demand, out float holdScore))
+                {
+                    continue;
+                }
+
+                if (holdScore < bestHoldScore)
+                {
+                    found = true;
+                    bestHoldScore = holdScore;
+                    source = profession;
+                }
+            }
+
+            if (!found)
+            {
+                StrategyDebugLogger.Info(
+                    "AutoWorkforce",
+                    "AutoWorkforceRebalanceSkipped",
+                    StrategyDebugLogger.F("targetProfession", demand.Profession),
+                    StrategyDebugLogger.F("targetScore", demand.Score),
+                    StrategyDebugLogger.F("reason", "no_lower_priority_donor"));
+                return false;
+            }
+
+            return TryReleaseProfessionWorker(source, out worker);
+        }
+
+        private bool CanDonateWorker(
+            StrategyProfessionType profession,
+            StrategyAutoWorkforceDemand demand,
+            out float holdScore)
+        {
+            holdScore = float.MaxValue;
+            if (profession == demand.Profession
+                || IsProfessionManualLocked(profession)
+                || IsDemandRebalanceLocked(profession))
+            {
+                return false;
+            }
+
+            int current = CountAssignedProfession(profession);
+            if (current <= 0)
+            {
+                return false;
+            }
+
+            int target = desiredProfessionTargets.TryGetValue(profession, out int value) ? value : 0;
+            holdScore = GetProfessionHoldScore(profession, current, target);
+            float demandHoldScore = GetDemandScoreForProfession(profession);
+            if (demandHoldScore > holdScore)
+            {
+                holdScore = demandHoldScore;
+            }
+
+            if (current <= target)
+            {
+                return false;
+            }
+
+            return demand.Score >= holdScore + RebalanceScoreMargin;
+        }
+
+        private void RegisterDemandRebalanceLock(StrategyProfessionType source, StrategyProfessionType target)
+        {
+            float until = Time.realtimeSinceStartup + DemandRebalanceLockSeconds;
+            demandRebalanceLocks[source] = until;
+            demandRebalanceLocks[target] = until;
+        }
+
+        private bool IsDemandRebalanceLocked(StrategyProfessionType profession)
+        {
+            if (!demandRebalanceLocks.TryGetValue(profession, out float until))
+            {
+                return false;
+            }
+
+            if (until > Time.realtimeSinceStartup)
+            {
+                return true;
+            }
+
+            demandRebalanceLocks.Remove(profession);
+            return false;
+        }
+
+        private float GetDemandScoreForProfession(StrategyProfessionType profession)
+        {
+            float score = 0f;
+            for (int i = 0; i < demands.Count; i++)
+            {
+                StrategyAutoWorkforceDemand demand = demands[i];
+                if (demand != null && demand.Profession == profession && demand.Score > score)
+                {
+                    score = demand.Score;
+                }
+            }
+
+            return score;
+        }
+
+        private float GetProfessionHoldScore(StrategyProfessionType profession, int current, int target)
+        {
+            StrategyAutoWorkforceCategory category = GetProfessionCategory(profession);
+            float priorityScore = settings.GetPriority(category) * BasePriorityScore;
+            float staffedScore = Mathf.Max(0, target - current) * 25f;
+            return priorityScore + staffedScore;
+        }
+
+        private static StrategyAutoWorkforceCategory GetProfessionCategory(StrategyProfessionType profession)
+        {
+            return profession switch
+            {
+                StrategyProfessionType.Builder => StrategyAutoWorkforceCategory.Construction,
+                StrategyProfessionType.Hunter => StrategyAutoWorkforceCategory.Food,
+                StrategyProfessionType.Fisher => StrategyAutoWorkforceCategory.Food,
+                StrategyProfessionType.StorageWorker => StrategyAutoWorkforceCategory.Logistics,
+                StrategyProfessionType.Lumberjack => StrategyAutoWorkforceCategory.Wood,
+                StrategyProfessionType.Stonecutter => StrategyAutoWorkforceCategory.Stone,
+                StrategyProfessionType.Sawyer => StrategyAutoWorkforceCategory.Planks,
+                StrategyProfessionType.Miner => StrategyAutoWorkforceCategory.Iron,
+                StrategyProfessionType.CoalMiner => StrategyAutoWorkforceCategory.Coal,
+                _ => StrategyAutoWorkforceCategory.Construction
+            };
+        }
+    }
+}

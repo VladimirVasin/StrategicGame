@@ -110,6 +110,7 @@ namespace ProjectUnknown.Strategy
         private StrategyConstructionSite constructionSite;
         private StrategyConstructionSite carriedConstructionReturnSite;
         private IStrategyConstructionResourceSource activeConstructionSource;
+        private IStrategyProductionLogisticsNode activeProductionInputTarget;
         private StrategyStorageYard returnStorageYard;
         private StrategyGranary returnGranary;
         private Vector2Int idleOrigin;
@@ -150,6 +151,7 @@ namespace ProjectUnknown.Strategy
         private StrategyFishAgent activeFishTarget;
         private StrategyConstructionResourceKind activeConstructionResource;
         private StrategyConstructionResourceKind carriedConstructionReturnResource = StrategyConstructionResourceKind.None;
+        private StrategyResourceType activeProductionInputResource = StrategyResourceType.None;
         private StrategyResidentLifeStage lifeStage = StrategyResidentLifeStage.Adult;
         private Vector2Int plantingCell;
         private int residentId;

@@ -222,7 +222,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Direct active-tool selection for placement/economy systems
     - Fully closes category/tool UI after a successful placement
     - Exposes selected tool info, footprint, color, and cost
-    - Reads construction stock availability through `StrategyStorageYard.GetTotalConstructionResources()`, including Storage Yard stock, loose piles, and Stonecutter Camp Stone fallback
+    - Reads construction stock availability through `StrategyStorageYard.GetTotalConstructionResources()`, including Storage Yard stock and loose piles
     - Shows x1/x2/x3 simulation speed buttons under the top-left resource panel, reusing `StrategyTimeScaleController`
     - Current catalog contains `Housing` / `House`, `Production` / `Lumberjack Camp`, `Stonecutter Camp`, `Sawmill`, `Mine`, `Coal Pit`, `Hunter Camp`, and `Fisher Hut`, `Storage` / `Storage Yard` and `Granary`, and `Infrastructure` / `Bridge`
     - Single-item categories directly activate their only build tool on click
@@ -239,7 +239,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Construction sites mark only their technical foundation as not walkable while reserving the future final blocker for placement collision
     - Completed buildings mark their full final walk-blocker cells as not walkable
     - House uses an expanded 2.5D visual/navigation blocker around and above the technical footprint
-    - Reserves construction resources from Storage Yards before the site is accepted, with loose piles and Stonecutter Camp Stone fallback included in the same availability path
+    - Reserves construction resources from Storage Yards before the site is accepted, with loose piles included in the same availability path
     - Mine and Coal Pit construction require at least one matching available underground deposit under the tool footprint
     - Construction sites are accepted without an immediately free builder if resources can be reserved
     - Construction sites periodically request hired builders from Storage Yards through balanced dispatch across active construction sites instead of using a per-site builder cap
@@ -321,7 +321,8 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Haulers reserve available Stone from stonecutter camps
     - Haulers reserve available Iron from Mines
     - Haulers reserve available Coal from Coal Pits
-    - Storage Yards reserve Logs/Stone/Planks for accepted construction sites and can include Stonecutter Camp local Stone as a direct construction fallback
+    - Storage Yards reserve Logs/Stone/Planks for accepted construction sites; production stock must be hauled into Storage Yards before construction can reserve it
+    - Storage Yards reserve non-food production inputs from local stock and route Haulers to deliver them into production buildings through the shared production logistics contract
     - Loose construction resource piles from cancelled sites count as available construction resources and can be reserved by future sites
     - Storage Yards dispatch available hired builders across active construction sites, favoring empty and lower-builder-count sites before stacking extras
     - Hired builders can pick up reserved construction Logs/Stone/Planks from Storage Yards
@@ -345,7 +346,8 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Sawmill is a placed production building with 1 assigned Sawyer
     - Sawmill local storage is capped at 6 total resources across Logs, Planks, and pending Planks
     - Sawmill input Logs are capped at 4 so Planks conversion can always reserve output space
-    - Sawyers reserve Logs from Storage Yards or Lumberjack Camps, bring them to the Sawmill, and saw them into `Planks`
+    - Haulers deliver Logs from Storage Yard stock into the Sawmill input buffer
+    - Sawyers wait for delivered input Logs, then saw them into `Planks`
     - Sawmill work keeps Sawyers visible inside the building and uses a detailed animated saw/log/plank overlay
     - Sawmills store local Logs and Planks and expose Planks to Haulers for hauling
   - Granary food logistics MVP
@@ -410,17 +412,17 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Residents assigned to a stonecutter camp path to the nearest available Stone deposit on the map, mine chunks with pickaxes, carry Stone to camp stock, and do not plant/regrow Stone
     - Residents assigned to a Mine path to the mine entrance, become hidden underground while working, mine reserved underground Iron, and add Iron to mine stock
     - Residents assigned to a Coal Pit path to the pit entrance, stay visible inside the pit while working, mine reserved underground Coal, and add Coal to pit stock
-    - Residents assigned to a Sawmill fetch Logs, work visibly inside the Sawmill, saw Logs into `Planks`, and add Planks to Sawmill stock
+    - Residents assigned to a Sawmill wait for Hauler-delivered Logs, work visibly inside the Sawmill, saw Logs into `Planks`, and add Planks to Sawmill stock
     - Residents assigned to a hunter camp reserve the nearest available adult rabbit on the map, move to bow range, shoot arrow projectiles, butcher carcasses, carry `Game`, and deposit it into hunter camp stock
     - Residents assigned to a fisher hut reserve the nearest available fish on the map, move to shore, cast/reel while range remains valid, carry `Fish`, and deposit it into fisher hut stock
     - Residents assigned as Haulers path to lumberjack camp stock, carry Logs to storage, and deposit them
     - Residents assigned as Haulers also path to stonecutter camp stock, carry Stone to storage, and deposit it
     - Residents assigned as Haulers also path to Mine stock, carry Iron to storage, and deposit it
     - Residents assigned as Haulers also path to Coal Pit stock, carry Coal to storage, and deposit it
-    - Residents assigned as Haulers also path to Sawmill stock, carry Planks to storage, and deposit them
+    - Residents assigned as Haulers also deliver Storage Yard Logs into Sawmills, path to Sawmill stock, carry Planks to storage, and deposit them
     - Residents assigned as Haulers also haul `Game`/`Fish` from production food stock or loose food piles into the nearest Granary
     - Residents hired as Storage Yard builders fetch reserved Logs/Stone/Planks, deliver them to construction sites, then build with hammer animations
-    - Auto workforce assignment scans eligible free adults every few seconds, treats player values as desired profession target counts, releases surplus workers from overstaffed auto-managed professions, and assigns workers through existing worksite APIs while shortages/backlog/readiness affect scoring
+    - Auto workforce assignment scans eligible free adults every few seconds, treats player values as desired profession target counts, releases surplus workers from overstaffed auto-managed professions, can pull limited donors from lower-priority roles for higher-scored shortages, and assigns workers through existing worksite APIs while shortages/backlog/readiness affect scoring
     - Residents removed from a role while carrying Logs, Stone, Iron, Coal, Planks, `Game`, or `Fish` first return the carried resource to the appropriate Storage Yard or Granary; hard interruption fallbacks preserve materials instead of deleting carried stock
     - Resident death drops all carried resources: construction Logs/Stone/Planks as loose construction piles, and generic Iron, Coal, Planks, `Game`, `Fish`, Berries, Roots, and Mushrooms as loose carried-resource piles
     - Completed houses first try to pull a homeless adult male/female pair, including residents who already have workplaces or construction assignments, then fall back to adult-child migration and partner lookup
@@ -510,12 +512,12 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Iron resources depend on generated underground indicators, Mines built over Iron, resident underground work states, and storage logistics.
 - Coal resources depend on generated underground indicators, Coal Pits built over Coal, visible in-pit resident work states, and storage logistics.
 - Wildlife depends on generated terrain/water cells, map walkability for land animals, population/resident positions, starter-camp location, hunter/fisher production buildings, and Y-based world sorting; deer and birds do not feed fog visibility or resources yet, while hunted rabbits can yield `Game` and caught fish can yield `Fish`.
-- Sawmill production depends on Storage Yard/Lumberjack Camp Log stock, resident work states, placed-building records, map walkability, and Storage Yard Planks hauling.
+- Sawmill production depends on Storage Yard Log stock, production-input Hauler delivery, resident work states, placed-building records, map walkability, and Storage Yard Planks hauling.
 - Storage yard logistics depends on lumberjack camp stock, stonecutter camp stock, Sawmill stock, Mine stock, Coal Pit stock, Hunter Camp/Fisher Hut food stock, Granaries, resident work states, placed-building records, map walkability, and the world-selection HUD.
 - Loose construction resource piles bridge construction cancellation, build affordability, storage logistics, and builder pickup.
 - Loose carried-resource piles bridge resident death cleanup, Granary food logistics, and household foraging recovery.
 - Granary food logistics depends on hunter camp stock, fisher hut stock, Storage Yard Haulers, resident work states, placed-building records, map walkability, and the world-selection HUD.
-- Construction depends on Storage Yard resource reservations, Stonecutter Camp Stone fallback reservations, hired Storage Yard builder assignments, construction-site blockers, placed-building finalization, and the world-selection HUD.
+- Construction depends on Storage Yard resource reservations, loose construction pile reservations, hired Storage Yard builder assignments, construction-site blockers, placed-building finalization, and the world-selection HUD.
 - Population uses placed-building records, construction sites, the generated map walkability layer, and workplace assignments; home/family assignment is independent from work/construction assignment.
 - Resident footsteps depend on population agents and the non-generated grass footstep clip set.
 - World selection uses placed-building/resident/construction-site colliders, inspectable world-object sprite bounds, generated map cell data, fog state, and the strategy camera.

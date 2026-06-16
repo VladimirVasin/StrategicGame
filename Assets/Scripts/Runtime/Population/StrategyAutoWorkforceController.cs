@@ -110,19 +110,18 @@ namespace ProjectUnknown.Strategy
             CleanupManualLocks();
             CollectFreeCandidates();
             CollectDemands();
-            int released = RebalanceOverstaffedProfessions();
+            int surplusReleased = RebalanceOverstaffedProfessions();
+            int released = surplusReleased;
             demands.Sort((left, right) => right.Score.CompareTo(left.Score));
 
-            int assigned = 0;
-            for (int i = 0; i < demands.Count && candidates.Count > 0; i++)
-            {
-                assigned += AssignDemand(demands[i]);
-            }
+            int assigned = AssignDemandsWithRebalance(ref released, out int demandReleased);
 
             lastStatus = assigned > 0
                 ? "Assigned " + assigned + " worker" + (assigned == 1 ? string.Empty : "s")
-                : released > 0
-                    ? "Released " + released + " surplus worker" + (released == 1 ? string.Empty : "s")
+                : demandReleased > 0
+                    ? "Released " + demandReleased + " worker" + (demandReleased == 1 ? string.Empty : "s") + " for demand"
+                    : surplusReleased > 0
+                    ? "Released " + surplusReleased + " surplus worker" + (surplusReleased == 1 ? string.Empty : "s")
                     : candidates.Count > 0 ? "No urgent workforce demand" : "No free adults";
 
             StrategyDebugLogger.Info(
@@ -132,6 +131,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("demands", demands.Count),
                 StrategyDebugLogger.F("freeAdults", candidates.Count),
                 StrategyDebugLogger.F("released", released),
+                StrategyDebugLogger.F("demandReleased", demandReleased),
                 StrategyDebugLogger.F("assigned", assigned),
                 StrategyDebugLogger.F("status", lastStatus));
         }

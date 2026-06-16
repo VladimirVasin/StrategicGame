@@ -43,8 +43,14 @@ namespace ProjectUnknown.Strategy
             }
             else if (activePlanksSource != null)
             {
-                activePlanksSource.ReleaseStoredPlanksReservation(this);
+                activePlanksSource.ReleaseOutputPickupReservation(StrategyResourceType.Planks, this);
                 activePlanksSource = null;
+            }
+            else if (activeProductionInputTarget != null)
+            {
+                activeProductionInputTarget.ReleaseInputDeliveryReservation(activeProductionInputResource, this);
+                storageWorkplace?.ReleaseProductionInputReservation(this, activeProductionInputResource);
+                ClearProductionInputDelivery();
             }
             else if (activeLoosePlanksSource != null)
             {
@@ -74,7 +80,11 @@ namespace ProjectUnknown.Strategy
                 || residentActivity == ResidentActivity.MovingToStoragePlanksPickup
                 || residentActivity == ResidentActivity.PickingUpStoragePlanks
                 || residentActivity == ResidentActivity.CarryingPlanksToStorage
-                || residentActivity == ResidentActivity.DepositingStoragePlanks;
+                || residentActivity == ResidentActivity.DepositingStoragePlanks
+                || residentActivity == ResidentActivity.MovingToProductionInputPickup
+                || residentActivity == ResidentActivity.PickingUpProductionInput
+                || residentActivity == ResidentActivity.CarryingProductionInput
+                || residentActivity == ResidentActivity.DepositingProductionInput;
         }
 
         private static bool IsGranaryWorkActivity(ResidentActivity residentActivity)

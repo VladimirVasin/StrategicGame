@@ -8,6 +8,43 @@ Last updated: 2026-06-16
 
 ## Done
 
+### 2026-06-16 - Production input logistics through Storage Yard
+
+- Added `IStrategyProductionLogisticsNode` so production buildings can expose non-food input requests and output pickup requests without making production workers move resources between buildings.
+- Sawmill now requests input `Logs` through Storage Yard Haulers; Sawyers only work when Logs are already buffered at the Sawmill and no longer fetch Logs from Storage Yards or Lumberjack Camps.
+- Storage Yard now reserves production-input deliveries from local stock, tracks those reservations separately from construction/logistics reservations, and counts production-input backlog for auto workforce logistics demand.
+- Construction no longer reserves or picks up Stone directly from Stonecutter Camps; Stone must be hauled into Storage Yards before it can satisfy construction reservations.
+- `Logs` is now a technical `StrategyResourceType` with a runtime resource icon/title for shared logistics/debug fallback paths.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; full `.cs` line-count scan found no files over 500 lines; `git diff --check` reported no whitespace errors and only the existing CRLF normalization warning for `Assembly-CSharp.csproj`.
+
+### 2026-06-16 - House Stone cost and Sawyer autoassign stability
+
+- House construction cost is now explicitly `2 Logs / 3 Stone`, bypassing the shared Stone multiplier so the player-facing House Stone cost lands exactly on 3.
+- Analyzed `debug.log`: `Sawyer` workers were assigned for `planks_shortage`, then repeatedly cleared by `AutoWorkforceReleasedForDemand sourceProfession=Sawyer` before any `PlanksStoredAtSawmill` event occurred.
+- Demand-driven auto workforce rebalancing now refuses to use a profession as a donor while its assigned count is at or below its desired target, so target-filled production roles like `Sawyer` can finish their work cycle instead of being stolen by Construction/Logistics/Wood/Stone demands.
+- Rebalance locks now use real time rather than scaled time, so x2/x3 simulation speed no longer shortens the lock window in real seconds.
+
+### 2026-06-16 - Residents HUD sorting and auto workforce rebalance lock
+
+- Residents roster column headers are now clickable on every filter tab; each click sorts the visible rows by that column and toggles ascending/descending order with a compact header indicator.
+- Moved roster sort/header behavior into `StrategyPopulationRosterHudController.Part02.cs` so the main roster controller stays below the 500-line limit.
+- Analyzed `debug.log`: Lumberjacks were repeatedly assigned for `logs_shortage`, then immediately released by the next tick's Construction/Logistics demands, causing a Wood/Builder/Hauler role oscillation.
+- Demand-driven auto workforce rebalancing now temporarily locks both the donor and target professions after a forced transfer, preventing the next few ticks from stealing the same workers back and forth.
+
+### 2026-06-16 - Stone construction cost tuning
+
+- Build catalog construction costs now apply a shared 1.2x multiplier to Stone requirements.
+- Integer rounding keeps tiny Stone costs stable when a 10-20% increase would otherwise be impossible without a much larger jump; Stone costs of 3+ now rise through the shared helper.
+- No Stone processing/resource chain was added.
+
+### 2026-06-16 - Auto workforce shortage rebalance
+
+- Analyzed `debug.log`: auto workforce repeatedly detected `Lumberjack` demand from `logs_shortage`, but every tick ended with `freeAdults=0`, `released=0`, `assigned=0`, so no worker could move into wood production.
+- Auto workforce now has a limited demand-rebalance pass: when no free adult is available, a higher-scored demand can release an auto-managed worker from a lower-priority held role through the normal worksite unassign API and immediately reuse the worker if they become idle.
+- Resource shortages now receive a shared priority bonus for Food, Wood, Stone, Planks, Iron, and Coal, so real shortages outrank ordinary logistics backlog instead of only boosting Logs.
+- Added `AutoWorkforceReleasedForDemand`, `AutoWorkforceRebalanceSkipped`, and `demandReleased` diagnostics to make future `debug.log` analysis explicit.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; full `.cs` line-count scan found no files over 500 lines.
+
 ### 2026-06-16 - Wildlife structure avoidance
 
 - Land wildlife now treats placed buildings, active construction sites, and the campfire as structure buffers: deer/rabbit/wolf spawn, birth, migration, relaxed targets, flee targets, wolf roam, and wolf prey lookup avoid cells within 4 cells of those structures.

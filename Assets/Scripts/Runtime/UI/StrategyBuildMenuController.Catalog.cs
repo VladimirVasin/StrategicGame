@@ -5,9 +5,17 @@ namespace ProjectUnknown.Strategy
 {
     internal static class StrategyBuildMenuCatalog
     {
+        private const float StoneCostMultiplier = 1.2f;
+
         private static Color HtmlColor(string html)
         {
             return ColorUtility.TryParseHtmlString(html, out Color color) ? color : Color.white;
+        }
+
+        private static StrategyConstructionResourceCost Cost(int logs, int stone, int planks = 0)
+        {
+            int adjustedStone = stone <= 0 ? 0 : Mathf.Max(1, Mathf.RoundToInt(stone * StoneCostMultiplier));
+            return new StrategyConstructionResourceCost(logs, adjustedStone, planks);
         }
 
         internal static StrategyBuildMenuControllerDriver.BuildCategoryData[] CreateCatalog()
@@ -19,35 +27,35 @@ namespace ProjectUnknown.Strategy
                     HtmlColor("#A97845"),
                     new[]
                     {
-                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.House, "HM", "House", new StrategyConstructionResourceCost(2, 1), HtmlColor("#C39B69"))
+                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.House, "HM", "House", new StrategyConstructionResourceCost(2, 3), HtmlColor("#C39B69"))
                     }),
                 new StrategyBuildMenuControllerDriver.BuildCategoryData(
                     "Production",
                     HtmlColor("#4F7A47"),
                     new[]
                     {
-                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.LumberjackCamp, "LC", "Lumberjack Camp", new StrategyConstructionResourceCost(4, 2), HtmlColor("#7D8E4A")),
-                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.StonecutterCamp, "SC", "Stonecutter Camp", new StrategyConstructionResourceCost(3, 4), HtmlColor("#7B8582")),
-                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.Sawmill, "SW", "Sawmill", new StrategyConstructionResourceCost(8, 4), HtmlColor("#9A6B3A")),
-                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.Mine, "MN", "Mine", new StrategyConstructionResourceCost(5, 5, 3), HtmlColor("#765F4C")),
-                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.CoalPit, "CP", "Coal Pit", new StrategyConstructionResourceCost(4, 4, 2), HtmlColor("#464B4D")),
-                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.HunterCamp, "HC", "Hunter Camp", new StrategyConstructionResourceCost(4, 2), HtmlColor("#7B6A45")),
-                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.FisherHut, "FH", "Fisher Hut", new StrategyConstructionResourceCost(4, 2), HtmlColor("#4F7E8A"))
+                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.LumberjackCamp, "LC", "Lumberjack Camp", Cost(4, 2), HtmlColor("#7D8E4A")),
+                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.StonecutterCamp, "SC", "Stonecutter Camp", Cost(3, 4), HtmlColor("#7B8582")),
+                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.Sawmill, "SW", "Sawmill", Cost(8, 4), HtmlColor("#9A6B3A")),
+                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.Mine, "MN", "Mine", Cost(5, 5, 3), HtmlColor("#765F4C")),
+                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.CoalPit, "CP", "Coal Pit", Cost(4, 4, 2), HtmlColor("#464B4D")),
+                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.HunterCamp, "HC", "Hunter Camp", Cost(4, 2), HtmlColor("#7B6A45")),
+                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.FisherHut, "FH", "Fisher Hut", Cost(4, 2), HtmlColor("#4F7E8A"))
                     }),
                 new StrategyBuildMenuControllerDriver.BuildCategoryData(
                     "Storage",
                     HtmlColor("#78624B"),
                     new[]
                     {
-                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.StorageYard, "ST", "Storage Yard", new StrategyConstructionResourceCost(6, 4), HtmlColor("#9B8061")),
-                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.Granary, "GR", "Granary", new StrategyConstructionResourceCost(5, 3), HtmlColor("#A8874D"))
+                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.StorageYard, "ST", "Storage Yard", Cost(6, 4), HtmlColor("#9B8061")),
+                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.Granary, "GR", "Granary", Cost(5, 3), HtmlColor("#A8874D"))
                     }),
                 new StrategyBuildMenuControllerDriver.BuildCategoryData(
                     "Infrastructure",
                     HtmlColor("#4E6E70"),
                     new[]
                     {
-                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.Bridge, "BR", "Bridge", new StrategyConstructionResourceCost(6, 2), HtmlColor("#8B7150"))
+                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.Bridge, "BR", "Bridge", Cost(6, 2), HtmlColor("#8B7150"))
                     })
             };
         }

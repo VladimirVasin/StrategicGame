@@ -55,7 +55,7 @@ namespace ProjectUnknown.Strategy
             }
         }
 
-        public bool TryReservePlanksSource(object owner, out StrategySawmill source)
+        public bool TryReservePlanksSource(object owner, out IStrategyProductionLogisticsNode source)
         {
             source = null;
             if (owner == null)
@@ -63,26 +63,29 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            StrategySawmill[] sawmills = Object.FindObjectsByType<StrategySawmill>();
-            StrategySawmill best = null;
+            IStrategyProductionLogisticsNode[] nodes = GetProductionNodesSortedByDistance(FootprintBounds.center);
+            IStrategyProductionLogisticsNode best = null;
             float bestDistance = float.MaxValue;
-            for (int i = 0; i < sawmills.Length; i++)
+            for (int i = 0; i < nodes.Length; i++)
             {
-                StrategySawmill sawmill = sawmills[i];
-                if (sawmill == null || sawmill.AvailablePlanks <= 0)
+                IStrategyProductionLogisticsNode node = nodes[i];
+                if (node == null
+                    || !node.TryGetOutputPickupRequest(out StrategyResourceType resource, out int available)
+                    || resource != StrategyResourceType.Planks
+                    || available <= 0)
                 {
                     continue;
                 }
 
-                float distance = (sawmill.FootprintBounds.center - FootprintBounds.center).sqrMagnitude;
+                float distance = (node.FootprintBounds.center - FootprintBounds.center).sqrMagnitude;
                 if (distance < bestDistance)
                 {
                     bestDistance = distance;
-                    best = sawmill;
+                    best = node;
                 }
             }
 
-            if (best == null || !best.TryReserveStoredPlanks(owner, out _))
+            if (best == null || !best.TryReserveOutputPickup(StrategyResourceType.Planks, owner, out _))
             {
                 return false;
             }
@@ -98,7 +101,11 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            if (resource == StrategyResourceType.Stone)
+            if (resource == StrategyResourceType.Logs)
+            {
+                AddLogs(amount);
+            }
+            else if (resource == StrategyResourceType.Stone)
             {
                 AddStone(amount);
             }
@@ -137,11 +144,14 @@ namespace ProjectUnknown.Strategy
         private static int CountAvailablePlankSources()
         {
             int count = 0;
-            StrategySawmill[] sawmills = Object.FindObjectsByType<StrategySawmill>();
-            for (int i = 0; i < sawmills.Length; i++)
+            IStrategyProductionLogisticsNode[] nodes = GetProductionNodesSortedByDistance(Vector3.zero);
+            for (int i = 0; i < nodes.Length; i++)
             {
-                StrategySawmill sawmill = sawmills[i];
-                if (sawmill != null && sawmill.AvailablePlanks > 0)
+                IStrategyProductionLogisticsNode node = nodes[i];
+                if (node != null
+                    && node.TryGetOutputPickupRequest(out StrategyResourceType resource, out int available)
+                    && resource == StrategyResourceType.Planks
+                    && available > 0)
                 {
                     count++;
                 }

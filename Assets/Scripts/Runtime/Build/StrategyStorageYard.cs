@@ -19,6 +19,7 @@ namespace ProjectUnknown.Strategy
         private readonly Dictionary<object, int> constructionLogReservations = new();
         private readonly Dictionary<object, int> constructionStoneReservations = new();
         private readonly Dictionary<object, int> constructionPlankReservations = new();
+        private readonly Dictionary<StrategyResourceType, Dictionary<object, int>> productionInputReservations = new();
         private readonly Dictionary<StrategyResidentAgent, ConstructionPickupReservation> constructionPickupReservations = new();
         private object logisticsLogsReservationOwner;
         private int reservedLogisticsLogs;
@@ -37,10 +38,10 @@ namespace ProjectUnknown.Strategy
         public int IronStored => ironStored;
         public int CoalStored => coalStored;
         public int PlanksStored => planksStored;
-        public int AvailableConstructionLogs => Mathf.Max(0, logsStored - CountReservations(constructionLogReservations) - reservedLogisticsLogs);
-        public int AvailableLogisticsLogs => Mathf.Max(0, logsStored - CountReservations(constructionLogReservations) - reservedLogisticsLogs);
-        public int AvailableConstructionStone => Mathf.Max(0, stoneStored - CountReservations(constructionStoneReservations));
-        public int AvailableConstructionPlanks => Mathf.Max(0, planksStored - CountReservations(constructionPlankReservations));
+        public int AvailableConstructionLogs => Mathf.Max(0, logsStored - CountReservations(constructionLogReservations) - reservedLogisticsLogs - CountProductionInputReservations(StrategyResourceType.Logs));
+        public int AvailableLogisticsLogs => Mathf.Max(0, logsStored - CountReservations(constructionLogReservations) - reservedLogisticsLogs - CountProductionInputReservations(StrategyResourceType.Logs));
+        public int AvailableConstructionStone => Mathf.Max(0, stoneStored - CountReservations(constructionStoneReservations) - CountProductionInputReservations(StrategyResourceType.Stone));
+        public int AvailableConstructionPlanks => Mathf.Max(0, planksStored - CountReservations(constructionPlankReservations) - CountProductionInputReservations(StrategyResourceType.Planks));
         public Vector2Int Origin => building != null ? building.Origin : Vector2Int.zero;
         public Bounds FootprintBounds => building != null ? building.FootprintBounds : new Bounds(transform.position, Vector3.one);
 
@@ -94,10 +95,9 @@ namespace ProjectUnknown.Strategy
             }
 
             StrategyConstructionResourceCost loose = StrategyLooseConstructionResourcePile.GetTotalAvailableResources();
-            int productionStone = StrategyStonecutterCamp.GetTotalAvailableConstructionStone();
             return new StrategyConstructionResourceCost(
                 logs + loose.Logs,
-                stone + loose.Stone + productionStone,
+                stone + loose.Stone,
                 planks + loose.Planks);
         }
 
@@ -151,11 +151,6 @@ namespace ProjectUnknown.Strategy
             for (int i = 0; i < yards.Length && remainingStone > 0; i++)
             {
                 remainingStone -= yards[i].SpendAvailableStone(remainingStone);
-            }
-
-            if (remainingStone > 0)
-            {
-                remainingStone -= StrategyStonecutterCamp.SpendAvailableConstructionStone(remainingStone, nearWorld);
             }
 
             int remainingPlanks = cost.Planks;
@@ -236,11 +231,6 @@ namespace ProjectUnknown.Strategy
                 remainingStone -= reserved;
             }
 
-            if (remainingStone > 0)
-            {
-                remainingStone -= StrategyStonecutterCamp.ReserveConstructionStone(owner, remainingStone, nearWorld);
-            }
-
             int remainingPlanks = cost.Planks;
             remainingPlanks -= StrategyLooseConstructionResourcePile.ReserveConstructionResources(
                 owner,
@@ -287,7 +277,6 @@ namespace ProjectUnknown.Strategy
             }
 
             StrategyLooseConstructionResourcePile.ReleaseConstructionReservations(owner);
-            StrategyStonecutterCamp.ReleaseConstructionReservations(owner);
         }
 
         public static bool TryFindConstructionPickup(
@@ -324,13 +313,6 @@ namespace ProjectUnknown.Strategy
                     source = yard;
                     return true;
                 }
-            }
-
-            if (kind == StrategyConstructionResourceKind.Stone
-                && StrategyStonecutterCamp.TryFindConstructionPickup(owner, nearWorld, out StrategyStonecutterCamp camp, out pickupCell))
-            {
-                source = camp;
-                return true;
             }
 
             if (StrategyLooseConstructionResourcePile.TryReserveNearestAvailableForConstruction(owner, kind, nearWorld, out StrategyLooseConstructionResourcePile availablePile, out pickupCell))

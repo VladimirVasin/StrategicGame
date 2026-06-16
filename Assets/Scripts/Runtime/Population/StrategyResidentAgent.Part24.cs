@@ -9,8 +9,6 @@ namespace ProjectUnknown.Strategy
 
         private StrategySawmill sawmillWorkplace;
         private StrategySawmill activeSawmill;
-        private StrategyStorageYard activeSawmillLogYardSource;
-        private StrategyLumberjackCamp activeSawmillLogCampSource;
         private int sawmillPlanksPending;
         private float sawmillWorkCooldown;
         private float sawmillWorkTimer;
@@ -101,23 +99,8 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
-            if (!sawmillWorkplace.TryReserveInputLogs(
-                    this,
-                    out activeSawmillLogYardSource,
-                    out activeSawmillLogCampSource,
-                    out Vector2Int pickupCell)
-                || !TryBuildPathTo(pickupCell))
-            {
-                ReleaseSawmillLogReservation();
-                sawmillWorkCooldown = Random.Range(2.0f, 4.8f);
-                return false;
-            }
-
-            activeSawmill = sawmillWorkplace;
-            activity = ResidentActivity.MovingToSawmillLogPickup;
-            hasTarget = true;
-            waitTimer = Random.Range(0.05f, 0.20f);
-            return true;
+            sawmillWorkCooldown = Random.Range(2.0f, 4.8f);
+            return false;
         }
 
         private bool TryMoveToSawmillWork()
@@ -134,99 +117,6 @@ namespace ProjectUnknown.Strategy
             hasTarget = true;
             waitTimer = Random.Range(0.05f, 0.20f);
             return true;
-        }
-
-        private void StartPickingUpSawmillLogs()
-        {
-            hasTarget = false;
-            path.Clear();
-            pathIndex = 0;
-            if (activeSawmill == null || (activeSawmillLogYardSource == null && activeSawmillLogCampSource == null))
-            {
-                ResetSawmillWorkToIdle(true);
-                return;
-            }
-
-            activity = ResidentActivity.PickingUpSawmillLogs;
-            lumberWorkTimer = Random.Range(LogisticsPickupSecondsMin, LogisticsPickupSecondsMax);
-            FaceWorldPoint(activeSawmillLogYardSource != null
-                ? activeSawmillLogYardSource.FootprintBounds.center
-                : activeSawmillLogCampSource.FootprintBounds.center);
-        }
-
-        private void UpdatePickingUpSawmillLogs()
-        {
-            lumberWorkTimer -= Time.deltaTime;
-            AnimateLumberWork(6.9f, 3.1f);
-            if (lumberWorkTimer > 0f)
-            {
-                return;
-            }
-
-            bool taken = activeSawmillLogYardSource != null
-                ? activeSawmillLogYardSource.TryTakeReservedLogs(this, out carriedLogAmount)
-                : activeSawmillLogCampSource != null && activeSawmillLogCampSource.TryTakeReservedLogs(this, out carriedLogAmount);
-            if (!taken
-                || activeSawmill == null
-                || !activeSawmill.TryFindDropoffCell(out Vector2Int dropoffCell)
-                || !TryBuildPathTo(dropoffCell))
-            {
-                ReleaseSawmillLogReservation();
-                ResetSawmillWorkToIdle(true);
-                return;
-            }
-
-            activeSawmillLogYardSource = null;
-            activeSawmillLogCampSource = null;
-            activity = ResidentActivity.CarryingLogsToSawmill;
-            hasTarget = true;
-            waitTimer = Random.Range(0.02f, 0.10f);
-            SetCarriedLogsVisible(true);
-        }
-
-        private void StartDepositingSawmillLogs()
-        {
-            hasTarget = false;
-            path.Clear();
-            pathIndex = 0;
-            activity = ResidentActivity.DepositingSawmillLogs;
-            lumberWorkTimer = Random.Range(LogisticsDepositSecondsMin, LogisticsDepositSecondsMax);
-            if (activeSawmill != null)
-            {
-                FaceWorldPoint(activeSawmill.FootprintBounds.center);
-            }
-        }
-
-        private void UpdateDepositingSawmillLogs()
-        {
-            lumberWorkTimer -= Time.deltaTime;
-            AnimateLumberWork(7.0f, 3.0f);
-            SetCarriedLogsVisible(true);
-            if (lumberWorkTimer > 0f)
-            {
-                return;
-            }
-
-            if (activeSawmill == null || !activeSawmill.CanAcceptInputLogs(carriedLogAmount))
-            {
-                ResetSawmillWorkToIdle(true);
-                return;
-            }
-
-            activeSawmill.AddLogs(carriedLogAmount);
-            carriedLogAmount = 0;
-            SetCarriedLogsVisible(false);
-            if (activeSawmill != null
-                && activeSawmill.TryFindEntranceCell(out Vector2Int entranceCell)
-                && TryBuildPathTo(entranceCell))
-            {
-                activity = ResidentActivity.MovingToSawmill;
-                hasTarget = true;
-                waitTimer = Random.Range(0.02f, 0.10f);
-                return;
-            }
-
-            ResetSawmillWorkToIdle(false);
         }
 
         private void StartSawingLogs()
@@ -280,7 +170,6 @@ namespace ProjectUnknown.Strategy
 
         private void ResetSawmillWorkToIdle(bool storeCarriedLogs)
         {
-            ReleaseSawmillLogReservation();
             if (sawmillPlanksPending > 0)
             {
                 activeSawmill?.ReleasePendingPlanks(sawmillPlanksPending);
@@ -314,11 +203,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            bool active = activity == ResidentActivity.MovingToSawmillLogPickup
-                || activity == ResidentActivity.PickingUpSawmillLogs
-                || activity == ResidentActivity.CarryingLogsToSawmill
-                || activity == ResidentActivity.DepositingSawmillLogs
-                || activity == ResidentActivity.MovingToSawmill
+            bool active = activity == ResidentActivity.MovingToSawmill
                 || activity == ResidentActivity.SawingLogs;
             if (active)
             {
@@ -326,16 +211,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            ReleaseSawmillLogReservation();
             activeSawmill = null;
-        }
-
-        private void ReleaseSawmillLogReservation()
-        {
-            activeSawmillLogYardSource?.ReleaseStoredLogsReservation(this);
-            activeSawmillLogCampSource?.ReleaseStoredLogsReservation(this);
-            activeSawmillLogYardSource = null;
-            activeSawmillLogCampSource = null;
         }
     }
 }

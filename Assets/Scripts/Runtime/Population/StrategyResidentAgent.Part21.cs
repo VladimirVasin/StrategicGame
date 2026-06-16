@@ -51,13 +51,13 @@ namespace ProjectUnknown.Strategy
             {
                 StartMiningCoalInPit();
             }
-            else if (activity == ResidentActivity.MovingToSawmillLogPickup)
+            else if (activity == ResidentActivity.MovingToProductionInputPickup)
             {
-                StartPickingUpSawmillLogs();
+                StartPickingUpProductionInput();
             }
-            else if (activity == ResidentActivity.CarryingLogsToSawmill)
+            else if (activity == ResidentActivity.CarryingProductionInput)
             {
-                StartDepositingSawmillLogs();
+                StartDepositingProductionInput();
             }
             else if (activity == ResidentActivity.MovingToSawmill)
             {

@@ -4,7 +4,7 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyResidentAgent
     {
-        private StrategySawmill activePlanksSource;
+        private IStrategyProductionLogisticsNode activePlanksSource;
         private StrategyLooseConstructionResourcePile activeLoosePlanksSource;
         private SpriteRenderer carriedPlanksRenderer;
         private int carriedPlanksAmount;
@@ -16,11 +16,11 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            if (storageWorkplace.TryReservePlanksSource(this, out StrategySawmill source))
+            if (storageWorkplace.TryReservePlanksSource(this, out IStrategyProductionLogisticsNode source))
             {
                 if (!source.TryFindDropoffCell(out Vector2Int pickupCell) || !TryBuildPathTo(pickupCell))
                 {
-                    source.ReleaseStoredPlanksReservation(this);
+                    source.ReleaseOutputPickupReservation(StrategyResourceType.Planks, this);
                     logisticsWorkCooldown = Random.Range(2.0f, 4.0f);
                     StrategyDebugLogger.Warn(
                         "Logistics",
@@ -100,7 +100,7 @@ namespace ProjectUnknown.Strategy
                 || !TryBuildPathTo(dropoffCell)
                 || !TryTakeReservedStoragePlanks())
             {
-                activePlanksSource?.ReleaseStoredPlanksReservation(this);
+                activePlanksSource?.ReleaseOutputPickupReservation(StrategyResourceType.Planks, this);
                 activeLoosePlanksSource?.ReleaseStorageReservation(this);
                 ResetStorageWorkToIdle();
                 return;
@@ -125,7 +125,7 @@ namespace ProjectUnknown.Strategy
             }
 
             return activePlanksSource != null
-                && activePlanksSource.TryTakeReservedPlanks(this, out carriedPlanksAmount);
+                && activePlanksSource.TryTakeReservedOutput(StrategyResourceType.Planks, this, out carriedPlanksAmount);
         }
 
         private void StartDepositingStoragePlanks()

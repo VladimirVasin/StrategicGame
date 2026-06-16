@@ -19,7 +19,9 @@ namespace ProjectUnknown.Strategy
         private SpriteRenderer logStockRenderer;
         private SpriteRenderer plankStockRenderer;
         private SpriteRenderer workRenderer;
+        private object inputLogsReservationOwner;
         private object planksReservationOwner;
+        private int reservedInputLogs;
         private int reservedPlanks;
         private int logsStored;
         private int planksStored;
@@ -33,7 +35,7 @@ namespace ProjectUnknown.Strategy
         public int PlanksStored => planksStored;
         public int AvailablePlanks => Mathf.Max(0, planksStored - reservedPlanks);
         public int StorageUsed => logsStored + planksStored;
-        public int ReservedStorageUsed => logsStored + planksStored + pendingPlanks;
+        public int ReservedStorageUsed => logsStored + planksStored + pendingPlanks + reservedInputLogs;
         public bool HasInputLogs => logsStored >= LogsPerWorkCycle;
         public Vector2Int Origin => building != null ? building.Origin : Vector2Int.zero;
         public Bounds FootprintBounds => building != null ? building.FootprintBounds : new Bounds(transform.position, Vector3.one);
@@ -162,24 +164,6 @@ namespace ProjectUnknown.Strategy
         {
             worker = index >= 0 && index < workers.Count ? workers[index] : null;
             return worker != null;
-        }
-
-        public bool TryReserveInputLogs(
-            object owner,
-            out StrategyStorageYard yardSource,
-            out StrategyLumberjackCamp campSource,
-            out Vector2Int pickupCell)
-        {
-            yardSource = null;
-            campSource = null;
-            pickupCell = default;
-            if (!CanAcceptInputLogs(3))
-            {
-                return false;
-            }
-
-            return TryReserveNearestStorageLogs(owner, out yardSource, out pickupCell)
-                || TryReserveNearestCampLogs(owner, out campSource, out pickupCell);
         }
 
         public bool TryFindEntranceCell(out Vector2Int cell)
@@ -313,9 +297,7 @@ namespace ProjectUnknown.Strategy
 
         public bool CanAcceptInputLogs(int amount)
         {
-            return amount > 0
-                && logsStored + amount <= MaxInputLogs
-                && StrategyProductionStorage.CanAccept(ReservedStorageUsed, amount);
+            return amount > 0 && GetAvailableInputLogCapacity() >= amount;
         }
 
         public bool CanStartWorkCycle()
@@ -421,7 +403,9 @@ namespace ProjectUnknown.Strategy
 
             workers.Clear();
             activeSawyers.Clear();
+            inputLogsReservationOwner = null;
             planksReservationOwner = null;
+            reservedInputLogs = 0;
             reservedPlanks = 0;
             pendingPlanks = 0;
         }

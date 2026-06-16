@@ -22,6 +22,7 @@ namespace ProjectUnknown.Strategy
             activeStoneSource = null;
             activeIronSource = null;
             activePlanksSource = null;
+            ClearProductionInputDelivery();
             transform.localRotation = Quaternion.identity;
             transform.localScale = Vector3.one;
             UseIdleSprite();

@@ -332,29 +332,6 @@ namespace ProjectUnknown.Strategy
                 && !resident.IsFuneralDutyActive;
         }
 
-        private static int CompareResidents(StrategyResidentAgent left, StrategyResidentAgent right)
-        {
-            if (left == right)
-            {
-                return 0;
-            }
-
-            if (left == null)
-            {
-                return 1;
-            }
-
-            if (right == null)
-            {
-                return -1;
-            }
-
-            int homeCompare = string.Compare(StrategyResidentHudText.GetHomeTitle(left), StrategyResidentHudText.GetHomeTitle(right), System.StringComparison.Ordinal);
-            return homeCompare != 0
-                ? homeCompare
-                : string.Compare(left.FullName, right.FullName, System.StringComparison.Ordinal);
-        }
-
         private void SetFilter(ResidentFilter filter)
         {
             activeFilter = filter;
@@ -416,12 +393,9 @@ namespace ProjectUnknown.Strategy
             return row;
         }
 
-        private static Text AddHeaderText(Transform parent, string value, float x, float width)
+        private Text AddHeaderText(Transform parent, string value, float x, float width)
         {
-            Text text = CreateText("Header_" + value, parent, value, 11, TextAnchor.MiddleLeft, new Color(0.88f, 0.72f, 0.42f));
-            text.fontStyle = FontStyle.Bold;
-            SetTopLeft(text.rectTransform, x, 0f, width, 28f);
-            return text;
+            return CreateSortableHeaderText(parent, value, x, width);
         }
 
         private static Text AddRowText(Transform parent, float x, float y, float width, float height, int fontSize)

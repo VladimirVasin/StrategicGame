@@ -64,6 +64,9 @@ namespace ProjectUnknown.Strategy
                 case StrategyResourceType.Fish:
                     PaintFish(texture);
                     break;
+                case StrategyResourceType.Logs:
+                    PaintLogs(texture);
+                    break;
                 case StrategyResourceType.Iron:
                     PaintIron(texture);
                     break;
@@ -317,6 +320,26 @@ namespace ProjectUnknown.Strategy
             SetPixelSafe(texture, 16, 11, shine);
             SetPixelSafe(texture, 13, 15, rustLight);
             SetPixelSafe(texture, 8, 13, rust);
+        }
+
+        private static void PaintLogs(Texture2D texture)
+        {
+            Color outline = Rgb(77, 49, 29);
+            Color bark = Rgb(116, 73, 38);
+            Color cut = Rgb(202, 151, 82);
+            Color ring = Rgb(134, 84, 43);
+
+            FillRect(texture, 4, 8, 15, 5, outline);
+            FillRect(texture, 5, 9, 13, 3, bark);
+            FillEllipse(texture, 18, 10, 3, 3, outline);
+            FillEllipse(texture, 18, 10, 2, 2, cut);
+            DrawLine(texture, 7, 10, 15, 10, Rgb(156, 95, 47));
+            FillRect(texture, 6, 14, 14, 5, outline);
+            FillRect(texture, 7, 15, 12, 3, bark);
+            FillEllipse(texture, 20, 16, 3, 3, outline);
+            FillEllipse(texture, 20, 16, 2, 2, cut);
+            SetPixelSafe(texture, 18, 10, ring);
+            SetPixelSafe(texture, 20, 16, ring);
         }
 
         private static void PaintCoal(Texture2D texture)

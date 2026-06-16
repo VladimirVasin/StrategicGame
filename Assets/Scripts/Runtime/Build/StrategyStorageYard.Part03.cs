@@ -114,11 +114,13 @@ namespace ProjectUnknown.Strategy
 
         public int GetAmount(StrategyResourceType resource)
         {
-            return resource == StrategyResourceType.Stone
-                ? stoneStored
-                : resource == StrategyResourceType.Iron
-                    ? ironStored
-                    : resource == StrategyResourceType.Coal ? coalStored : resource == StrategyResourceType.Planks ? planksStored : 0;
+            return resource == StrategyResourceType.Logs
+                ? logsStored
+                : resource == StrategyResourceType.Stone
+                    ? stoneStored
+                    : resource == StrategyResourceType.Iron
+                        ? ironStored
+                        : resource == StrategyResourceType.Coal ? coalStored : resource == StrategyResourceType.Planks ? planksStored : 0;
         }
 
         private static int CountAvailableIronSources()

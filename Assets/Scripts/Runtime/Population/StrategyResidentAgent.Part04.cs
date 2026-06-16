@@ -155,15 +155,15 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            if (activity == ResidentActivity.PickingUpSawmillLogs)
+            if (activity == ResidentActivity.PickingUpProductionInput)
             {
-                UpdatePickingUpSawmillLogs();
+                UpdatePickingUpProductionInput();
                 return;
             }
 
-            if (activity == ResidentActivity.DepositingSawmillLogs)
+            if (activity == ResidentActivity.DepositingProductionInput)
             {
-                UpdateDepositingSawmillLogs();
+                UpdateDepositingProductionInput();
                 return;
             }
 

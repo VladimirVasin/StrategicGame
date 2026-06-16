@@ -533,7 +533,7 @@ Impact hints:
 
 - Stone deposits are runtime-only and are not saved yet.
 - Nature generation guarantees at least 5 Stone deposits within `StrategyStonecutterCamp.WorkRadius` of the startup campfire when the campfire cell is known.
-- Stone production currently flows from deposits to `StrategyStonecutterCamp` local stock, then either to `StrategyStorageYard` via Haulers or directly to construction builders when a site has reserved camp Stone.
+- Stone production currently flows from deposits to `StrategyStonecutterCamp` local stock, then to `StrategyStorageYard` via Haulers before construction can reserve it.
 - Stone deposit walkability is footprint-based and should be respected by placement and resident pathing through `CityMapController.IsCellWalkable`.
 - Future quarries or richer Stone production should extend this registry instead of scanning visual sprites directly.
 
@@ -680,7 +680,7 @@ Primary files/assets:
 
 Impact hints:
 
-- The public `StrategyBuildMenuController` component is a thin wrapper; `StrategyBuildMenuControllerDriver` owns selected active build tool data and reads `StrategyStorageYard.GetTotalConstructionResources()` for affordability, including Storage Yard stock, loose piles, and Stonecutter Camp Stone.
+- The public `StrategyBuildMenuController` component is a thin wrapper; `StrategyBuildMenuControllerDriver` owns selected active build tool data and reads `StrategyStorageYard.GetTotalConstructionResources()` for affordability, including Storage Yard stock and loose piles.
 - Placement reads `StrategyBuildMenuController.ActiveTool` / active tool info.
 - Current catalog has user-requested buildings only: `House`, `Lumberjack Camp`, `Stonecutter Camp`, `Sawmill`, `Hunter Camp`, `Fisher Hut`, `Mine`, `Coal Pit`, `Storage Yard`, `Granary`, and `Bridge`; do not add more without a user request.
 - Current `Housing` category directly activates `House` because it has one item.
@@ -800,7 +800,7 @@ Responsibilities:
 - Keep player priority settings for Construction, Food, Logistics, Wood, Stone, Planks, Iron, and Coal.
 - Tick every few seconds instead of every frame.
 - Scan eligible free adults through `StrategyPopulationController.Residents`.
-- Compute desired targets for every auto-managed profession from the player priority values, release surplus workers through normal worksite unassign APIs, and fill below-target vacancies before relying on shortage urgency for demand ordering.
+- Compute desired targets for every auto-managed profession from the player priority values, release surplus workers through normal worksite unassign APIs, and let higher-scored shortages pull limited donors from lower-priority auto-managed roles when there are no free adults.
 - Ignore children, pending refugees, funeral duty, household foraging/food duty, householders, residents with external workplaces, and active construction assignees through resident availability flags.
 - Build work demands from active construction sites, Granary ration reserve, production-worksite stock/capacity, Storage Yard/Granary logistics backlog, and construction material needs.
 - Score demands by priority, urgency, shortage, worksite need, construction readiness, storage backlog, and resident distance.
@@ -816,6 +816,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceController.Part01.cs`
 - `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceController.Part02.cs`
 - `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceController.Part03.cs`
+- `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceController.Part04.cs`
 - `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceDemand.cs`
 - `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceSettings.cs`
 - `Assets/Scripts/Runtime/UI/StrategyProfessionHudController.Part04.cs`
@@ -824,7 +825,7 @@ Primary files/assets:
 
 Impact hints:
 
-- Auto workforce can release surplus workers from overstaffed auto-managed professions, then immediately reuse only residents who become idle; workers returning carried resources re-enter the free pool on later ticks.
+- Auto workforce can release surplus workers from overstaffed auto-managed professions and can also release limited lower-priority donors for higher-scored shortages; only residents who become idle are reused immediately, while workers returning carried resources re-enter the free pool on later ticks.
 - Auto workforce does not force-reassign home duty, funeral duty, or residents still busy returning carried resources.
 - Demand scoring should continue to call public worksite APIs (`AssignWorker`, `AssignBuilder`, Storage Yard builder dispatch) so cancellation, carried-resource return, reservations, and resident state cleanup stay centralized.
 - Food automation should keep using Hunter/Fisher production plus shared Haulers into Granaries; do not reintroduce a separate player-facing Granary Worker profession.
@@ -852,7 +853,7 @@ Responsibilities:
 - Choose random coal pit visual variants for placed pits while keeping menu/preview art stable.
 - Choose random granary visual variants for placed granaries while keeping menu/preview art stable.
 - Add ambient smoke/window-light overlays to placed houses.
-- Reserve construction Logs/Stone/Planks from Storage Yards before accepting a construction site, with Stonecutter Camp stock as a Stone fallback source.
+- Reserve construction Logs/Stone/Planks from Storage Yards before accepting a construction site, with loose construction piles as fallback sources.
 - Mark occupied cells when construction sites are accepted.
 - Support Bridge as a special two-click placement tool: select one valid river bank, highlight opposite-bank candidates across contiguous River water, then create a construction site from the selected span.
 - Create runtime placed-building records with selected visual variant data after construction completes.
@@ -1015,14 +1016,16 @@ Responsibilities:
 
 - Add `Sawmill` as a placed production building with local Logs and Planks stock.
 - Assign 1 resident as a Sawyer through the Profession HUD.
-- Reserve input Logs from Storage Yards or Lumberjack Camps.
-- Route Sawyers to pick up Logs, bring them to the Sawmill, and saw them into `Planks`.
+- Request input Logs through the shared production logistics contract.
+- Route Haulers to pick up Logs from Storage Yard stock, deliver them into the Sawmill, and route Sawyers to saw delivered Logs into `Planks`.
 - Keep Sawyers visible inside the building and drive the detailed saw/log/plank work overlay while work is active.
 - Expose Sawmill-local Planks to Haulers for hauling.
 
 Primary files/assets:
 
 - `Assets/Scripts/Runtime/Build/StrategySawmill.cs`
+- `Assets/Scripts/Runtime/Build/StrategySawmill.Part02.cs`
+- `Assets/Scripts/Runtime/Build/IStrategyProductionLogisticsNode.cs`
 - `Assets/Scripts/Runtime/Build/StrategyProductionStorage.cs`
 - `Assets/Scripts/Runtime/Build/StrategyBuildingSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStorageYard.cs`
@@ -1037,10 +1040,10 @@ Primary files/assets:
 
 Impact hints:
 
-- Sawmill Log reservations are separate from construction Log reservations so construction sites and Sawyers do not double-claim Storage Yard Logs.
+- Sawmill input Log reservations are separate from construction Log reservations so construction sites and production-input Haulers do not double-claim Storage Yard Logs.
 - Sawmill counts Logs, Planks, and pending Planks against the shared production local stock cap of 6, with input Logs capped at 4 so output Planks can reserve space.
 - `Planks` flow from Sawmills to Storage Yards and are consumed by selected late construction costs; they are not part of a global economy yet.
-- Sawmill workers are normal exclusive workplace residents and should remain distinct from Storage Yard haulers.
+- Sawmill workers are normal exclusive workplace residents and should remain distinct from Storage Yard haulers; Sawyers do not move resources between buildings.
 
 ### Storage Yard Logistics
 
@@ -1061,13 +1064,13 @@ Responsibilities:
 - Reserve Logs/Stone/Planks for accepted construction sites.
 - Include loose construction resource piles in construction affordability and reservations.
 - Provide reserved construction resource pickup cells for builders.
-- Provide a shared construction resource source path so builders can pick up from Storage Yards, loose construction resource piles, or Stonecutter Camp Stone reservations.
+- Provide a shared construction resource source path so builders can pick up from Storage Yards or loose construction resource piles.
 - Dispatch hired builders across waiting construction sites, favoring empty and lower-builder-count sites before stacking extras.
 - Route Haulers to source camps, pick up Logs, carry them to storage, and deposit them.
 - Route Haulers to stonecutter camps, pick up Stone, carry it to storage, and deposit it.
 - Route Haulers to Mines, pick up Iron, carry it to storage, and deposit it.
 - Route Haulers to Coal Pits, pick up Coal, carry it to storage, and deposit it.
-- Route Haulers to Sawmills, pick up Planks, carry them to storage, and deposit them.
+- Route Haulers to production nodes, deliver non-food inputs from Storage Yard stock, then pick up outputs such as Sawmill Planks, carry them to storage, and deposit them.
 - Route Haulers to food sources, pick up `Game`/`Fish`, carry it to the nearest Granary, and deposit it.
 - Route Haulers to loose construction resource piles, pick up Logs/Stone/Planks, carry them to storage, and deposit them.
 - Update lumberjack/stonecutter camp, Mine, Coal Pit, Sawmill, and storage yard stock visuals as resources move, and show Stone/Iron/Coal/Planks as separate storage piles.
@@ -1076,10 +1079,12 @@ Responsibilities:
 Primary files/assets:
 
 - `Assets/Scripts/Runtime/Build/StrategyStorageYard.cs`
+- `Assets/Scripts/Runtime/Build/StrategyStorageYard.Part07.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStorageYard.Part05.cs`
 - `Assets/Scripts/Runtime/Build/StrategyLooseConstructionResourcePile.cs`
 - `Assets/Scripts/Runtime/Build/StrategyLooseConstructionResourcePile.Part02.cs`
 - `Assets/Scripts/Runtime/Build/IStrategyConstructionResourceSource.cs`
+- `Assets/Scripts/Runtime/Build/IStrategyProductionLogisticsNode.cs`
 - `Assets/Scripts/Runtime/Build/StrategyLumberjackCamp.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStonecutterCamp.cs`
 - `Assets/Scripts/Runtime/Build/StrategySawmill.cs`
@@ -1088,6 +1093,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Build/StrategySawmill.cs`
 - `Assets/Scripts/Runtime/Build/StrategyConstructionSite.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part35.cs`
 - `Assets/Scripts/Runtime/Build/StrategyBuildPlacementController.cs`
 - `Assets/Scripts/Runtime/Build/StrategyBuildingSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Economy/StrategyResourceType.cs`
@@ -1102,8 +1108,8 @@ Impact hints:
 - Haulers reserve worksite Logs/Stone/Iron/Coal/Planks before walking to prevent multiple haulers from targeting the same stock.
 - Haulers run Granary food hauling after normal storage-resource hauling checks, using the shared food reservation cleanup paths.
 - Hauler and builder staffing has no per-yard slot limit; construction sites no longer cap their active visible builder crew at 2.
-- Construction resources are reserved against Storage Yard stock, loose construction resource piles, and Stonecutter Camp Stone fallback stock at site creation, then physically removed when builders pick them up.
-- Stonecutter Camp construction reservations are separate from storage-worker haul reservations so builders and haulers do not double-claim camp Stone.
+- Construction resources are reserved against Storage Yard stock and loose construction resource piles at site creation, then physically removed when builders pick them up.
+- Stonecutter Camp haul reservations are separate from Storage Yard construction reservations so production stock must be moved into storage before construction can claim it.
 - Builders also create a per-builder pickup claim after a path to the pickup cell is found; cancelled work releases that claim while the construction-site reservation remains intact.
 - If a builder dies while carrying a construction resource, the dropped loose construction pile restores the original site's reservation when that site still needs the resource.
 - Residents currently support one active workplace: lumberjack camp, stonecutter camp, sawmill, hunter camp, fisher hut, mine, storage logistics, granary food logistics, or storage builder crew.
@@ -1328,13 +1334,13 @@ Impact hints:
 - Resident stonecut sprites are generated for every male/female visual variant and should stay in sync with readability outline mirroring.
 - Mine work follows the local worksite assignment model but keeps miners hidden underground during the timed work loop, reserves walkable underground Iron indicators, and stores produced Iron locally at the Mine.
 - Coal Pit work follows the local worksite assignment model but keeps coal miners visible inside the pit during the timed work loop, reserves walkable underground Coal indicators, and stores produced Coal locally at the Coal Pit.
-- Sawmill work follows the local worksite assignment model but reserves Logs from Storage Yards or Lumberjack Camps, keeps Sawyers visible inside the Sawmill during the timed work loop, and stores produced Planks locally at the Sawmill.
+- Sawmill work follows the local worksite assignment model, waits for Hauler-delivered Logs from Storage Yard stock, keeps Sawyers visible inside the Sawmill during the timed work loop, and stores produced Planks locally at the Sawmill.
 - Hunter work keeps the same camp worksite component but reserves the nearest available adult rabbit through `StrategyWildlifeController` and stores produced `Game` locally at the hunter camp for now.
 - Resident bow and butchering sprites are generated for every male/female visual variant and should stay in sync with readability outline mirroring.
 - Fisher work keeps the same hut worksite component but reserves the nearest available fish through `StrategyWildlifeController`, requires a valid land/shore stand cell around the target, abandons casts when the fish leaves cast range during cast/wait/reel phases, and stores produced `Fish` locally at the fisher hut for now.
 - Resident fishing sprites are generated for every male/female visual variant and should stay in sync with readability outline mirroring.
 - Granary food logistics is serviced by shared Haulers, moving food from production buildings into food storage after normal storage-resource hauling checks.
-- Storage Yard Haulers now move Logs, Stone, Iron, Coal, and Planks from production worksites into Storage Yard stock; Coal and Planks use their own carried sprite and return/drop cleanup paths.
+- Storage Yard Haulers move Logs, Stone, Iron, Coal, and Planks outputs from production worksites into Storage Yard stock, and deliver non-food production inputs from Storage Yard stock into production nodes; Coal and Planks use their own carried sprite and return/drop cleanup paths.
 - Construction assignment is a temporary exclusive task for hired Storage Yard builders; there is no hired-builder pool cap or construction-site builder cap, balanced dispatch spreads free builders across active sites first, and workplace assignment skips residents already attached to a construction site. Construction assignment does not block home/family assignment.
 - Builder construction pickup path failures include start/pickup walkability details in `debug.log`; repeated pickup path failures drop that builder's current site assignment so another builder can retry.
 - Worker and builder assignment must check `StrategyResidentAgent.CanWork`; children under age 3 remain inside assigned homes, and older children idle/walk but cannot work.
@@ -1347,7 +1353,7 @@ Impact hints:
 - If no free pair exists, the completed house is available for adult-child migration and partner lookup.
 - House occupation consumes the finite free-resident pool from the starter camp while it exists; later household births and adult-child migration are the first internal population growth path.
 - Resident death must continue to go through the centralized population cleanup path; direct `Destroy` on accepted residents risks stale worksite, construction, home, HUD, or kinship state.
-- Resident helper methods for carried-resource return, construction work, workplace clearing, readability sync, refugee path following, tree movement, and fishing cast/reel flow are split across `StrategyResidentAgent.Part27.cs` through `StrategyResidentAgent.Part33.cs` to keep source files below the 500-line limit.
+- Resident helper methods for carried-resource return, construction work, workplace clearing, readability sync, refugee path following, tree movement, fishing cast/reel flow, and production-input delivery are split across `StrategyResidentAgent.Part27.cs` through `StrategyResidentAgent.Part35.cs` to keep source files below the 500-line limit.
 - Future jobs/families/economy should extend resident state rather than replacing the home/free-camp assignment model.
 
 ### World Selection

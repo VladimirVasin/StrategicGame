@@ -281,6 +281,11 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
+            if (TryStartProductionInputDelivery())
+            {
+                return true;
+            }
+
             if (TryStartStorageLogPickup())
             {
                 return true;
