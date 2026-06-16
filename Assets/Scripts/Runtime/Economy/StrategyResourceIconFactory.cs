@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-
 namespace ProjectUnknown.Strategy
 {
     internal static class StrategyResourceIconFactory

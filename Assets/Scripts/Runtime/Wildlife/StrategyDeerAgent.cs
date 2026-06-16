@@ -351,7 +351,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            if (threatDistance <= alertDistance && state != StrategyDeerBehaviorState.Fleeing)
+            if (threatDistance <= alertDistance && state != StrategyDeerBehaviorState.Fleeing && !StrategyWildlifeRiverCrossing.IsRiverCell(map, transform.position))
             {
                 StartAlert(threatWorld, noisyThreat);
             }
@@ -361,7 +361,7 @@ namespace ProjectUnknown.Strategy
         {
             waitTimer -= Time.deltaTime;
             AnimateIdle();
-            if (waitTimer > 0f)
+            if (waitTimer > 0f && !StrategyWildlifeRiverCrossing.IsRiverCell(map, transform.position))
             {
                 return;
             }

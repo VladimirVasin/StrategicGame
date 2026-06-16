@@ -221,7 +221,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("resident", FullName));
         }
 
-        public void ClearConstructionSite(StrategyConstructionSite site)
+        public void ClearConstructionSite(StrategyConstructionSite site, bool allowCarriedResourceReturn = true)
         {
             if (site != null && constructionSite != site)
             {
@@ -256,7 +256,9 @@ namespace ProjectUnknown.Strategy
             activeConstructionResource = StrategyConstructionResourceKind.None;
             constructionPickupPathFailures = 0;
             constructionFutureHome = false;
-            if (hadCarriedResources && TryStartCarriedResourceReturn("construction_assignment_cleared"))
+            if (hadCarriedResources
+                && allowCarriedResourceReturn
+                && TryStartCarriedResourceReturn("construction_assignment_cleared"))
             {
                 return;
             }

@@ -33,12 +33,14 @@ namespace ProjectUnknown.Strategy
         {
             EnsureWalkabilityLayer();
             ApplyCellCounter(origin, size, isWalkable, blockedWalkCounts);
+            StrategyTrailController.Active?.RefreshArea(origin, size);
         }
 
         public void SetCellsBuildable(Vector2Int origin, Vector2Int size, bool isBuildable)
         {
             EnsureBuildabilityLayer();
             ApplyCellCounter(origin, size, isBuildable, blockedBuildCounts);
+            StrategyTrailController.Active?.RefreshArea(origin, size);
         }
 
         public void SetBridgeCellsWalkable(IReadOnlyList<Vector2Int> bridgeCells, bool isWalkable)
@@ -58,6 +60,7 @@ namespace ProjectUnknown.Strategy
                 }
 
                 bridgeWalkableCells[cell.x, cell.y] = isWalkable;
+                StrategyTrailController.Active?.RefreshArea(cell, Vector2Int.one);
             }
         }
 

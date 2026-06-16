@@ -15,6 +15,12 @@ namespace ProjectUnknown.Strategy
                 && (allowStructureBuffer || !IsLandWildlifeStructureBufferCell(cell));
         }
 
+        public bool IsLandWildlifeTargetCell(Vector2Int cell, bool allowStructureBuffer = false)
+        {
+            return StrategyWildlifeRiverCrossing.IsLandCell(map, cell)
+                && (allowStructureBuffer || !IsLandWildlifeStructureBufferCell(cell));
+        }
+
         public bool IsLandWildlifeStructureBufferCell(Vector2Int cell)
         {
             if (hasCampCell && ChebyshevDistance(cell, campCell) < WildlifeStructureAvoidanceRadius)

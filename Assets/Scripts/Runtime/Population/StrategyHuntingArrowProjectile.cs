@@ -6,6 +6,11 @@ namespace ProjectUnknown.Strategy
     public sealed class StrategyHuntingArrowProjectile : MonoBehaviour
     {
         private const float Speed = 8.2f;
+        private const float MissOvershootMin = 0.32f;
+        private const float MissOvershootMax = 0.88f;
+        private const float MissLateralOffset = 0.42f;
+        private const float StuckSecondsMin = 2.4f;
+        private const float StuckSecondsMax = 4.0f;
         private static Sprite arrowSprite;
 
         private StrategyRabbitAgent target;
@@ -15,8 +20,16 @@ namespace ProjectUnknown.Strategy
         private Vector3 targetWorld;
         private float duration;
         private float elapsed;
+        private float stuckTimer;
+        private bool willHit;
+        private bool stuckInGround;
 
         public static void Launch(Vector3 fromWorld, StrategyRabbitAgent rabbit, object owner)
+        {
+            Launch(fromWorld, rabbit, owner, true);
+        }
+
+        public static void Launch(Vector3 fromWorld, StrategyRabbitAgent rabbit, object owner, bool willHit)
         {
             if (rabbit == null || owner == null)
             {
@@ -25,15 +38,16 @@ namespace ProjectUnknown.Strategy
 
             GameObject arrowObject = new GameObject("Hunting Arrow");
             StrategyHuntingArrowProjectile projectile = arrowObject.AddComponent<StrategyHuntingArrowProjectile>();
-            projectile.Configure(fromWorld, rabbit, owner);
+            projectile.Configure(fromWorld, rabbit, owner, willHit);
         }
 
-        private void Configure(Vector3 fromWorld, StrategyRabbitAgent rabbit, object projectileOwner)
+        private void Configure(Vector3 fromWorld, StrategyRabbitAgent rabbit, object projectileOwner, bool shouldHit)
         {
             target = rabbit;
             owner = projectileOwner;
+            willHit = shouldHit;
             startWorld = new Vector3(fromWorld.x, fromWorld.y, -0.11f);
-            targetWorld = GetTargetWorld();
+            targetWorld = willHit ? GetTargetWorld() : GetMissWorld(fromWorld, rabbit);
             float distance = Vector2.Distance(startWorld, targetWorld);
             duration = Mathf.Clamp(distance / Speed, 0.18f, 0.55f);
             elapsed = 0f;
@@ -48,14 +62,29 @@ namespace ProjectUnknown.Strategy
 
         private void Update()
         {
-            if (target == null)
+            if (stuckInGround)
+            {
+                stuckTimer -= Time.deltaTime;
+                if (stuckTimer <= 0f)
+                {
+                    Destroy(gameObject);
+                }
+
+                return;
+            }
+
+            if (willHit && target == null)
             {
                 Destroy(gameObject);
                 return;
             }
 
             elapsed += Time.deltaTime;
-            targetWorld = GetTargetWorld();
+            if (willHit)
+            {
+                targetWorld = GetTargetWorld();
+            }
+
             float t = duration <= 0f ? 1f : Mathf.Clamp01(elapsed / duration);
             Vector3 next = Vector3.Lerp(startWorld, targetWorld, Smooth01(t));
             next.z = -0.11f;
@@ -71,8 +100,57 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            target.ReceiveArrowHit(owner, transform.position);
-            Destroy(gameObject);
+            if (willHit)
+            {
+                target.ReceiveArrowHit(owner, transform.position);
+                Destroy(gameObject);
+                return;
+            }
+
+            bool startled = target != null && target.ReactToHuntMiss(owner, startWorld);
+            StrategyDebugLogger.Info(
+                "Hunting",
+                "ArrowMissed",
+                StrategyDebugLogger.F("owner", owner),
+                StrategyDebugLogger.F("groundWorld", targetWorld),
+                StrategyDebugLogger.F("rabbitStartled", startled));
+            StickInGround();
+        }
+
+        private void StickInGround()
+        {
+            target = null;
+            owner = null;
+            stuckInGround = true;
+            stuckTimer = Random.Range(StuckSecondsMin, StuckSecondsMax);
+            transform.position = new Vector3(targetWorld.x, targetWorld.y, -0.109f);
+            transform.rotation *= Quaternion.Euler(0f, 0f, Random.Range(-7f, 7f));
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.color = new Color(0.88f, 0.84f, 0.70f, 0.92f);
+                StrategyWorldSorting.Apply(spriteRenderer, transform.position, 1);
+            }
+        }
+
+        private static Vector3 GetMissWorld(Vector3 fromWorld, StrategyRabbitAgent rabbit)
+        {
+            Vector3 rabbitWorld = rabbit.transform.position;
+            Vector2 direction = rabbitWorld - fromWorld;
+            if (direction.sqrMagnitude < 0.001f)
+            {
+                direction = Random.insideUnitCircle.normalized;
+                if (direction.sqrMagnitude < 0.001f)
+                {
+                    direction = Vector2.right;
+                }
+            }
+
+            direction.Normalize();
+            Vector2 side = new Vector2(-direction.y, direction.x);
+            float overshoot = Random.Range(MissOvershootMin, MissOvershootMax);
+            float lateral = Random.Range(-MissLateralOffset, MissLateralOffset);
+            Vector2 miss = (Vector2)rabbitWorld + direction * overshoot + side * lateral;
+            return new Vector3(miss.x, miss.y, -0.11f);
         }
 
         private Vector3 GetTargetWorld()

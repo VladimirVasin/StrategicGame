@@ -379,12 +379,7 @@ namespace ProjectUnknown.Strategy
                     {
                         bowShotReleased = true;
                         huntingWorkTimer = 0.28f;
-                        StrategyHuntingArrowProjectile.Launch(GetBowWorldPosition(), activeHuntTarget, this);
-                        StrategyDebugLogger.Info(
-                            "Hunting",
-                            "ArrowReleased",
-                            StrategyDebugLogger.F("resident", FullName),
-                            StrategyDebugLogger.F("rabbitWorld", activeHuntTarget.transform.position));
+                        ReleaseHuntingArrow();
                     }
                 }
 

@@ -17,6 +17,14 @@ namespace ProjectUnknown.Strategy
             return map.IsCellWalkable(cell) || IsRiverCell(map, cell);
         }
 
+        public static bool IsLandCell(CityMapController map, Vector2Int cell)
+        {
+            return map != null
+                && map.TryGetCell(cell.x, cell.y, out CityMapCell mapCell)
+                && mapCell.Kind != CityMapCellKind.Water
+                && map.IsCellWalkable(cell);
+        }
+
         public static float GetAdjustedSpeed(CityMapController map, Vector3 fromWorld, Vector3 toWorld, float baseSpeed)
         {
             return IsSwimmingMove(map, fromWorld, toWorld) ? baseSpeed * SwimSpeedMultiplier : baseSpeed;

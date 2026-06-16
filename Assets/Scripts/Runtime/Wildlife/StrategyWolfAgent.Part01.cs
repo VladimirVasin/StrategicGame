@@ -33,6 +33,15 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
+            bool urgentEscape = preferSafety && IsWolfUrgentEscapeCell(currentCell);
+            if (urgentEscape && TryBuildNearbyEscapePath(out Vector2Int escapeCell))
+            {
+                LogWolfPathReady("nearby_escape", escapeCell, escapeCell);
+                SetWolfState(StrategyWolfBehaviorState.AvoidingSettlement, "nearby_escape_path_ready");
+                stateTimer = Random.Range(1.0f, 2.2f);
+                return true;
+            }
+
             if (!wildlife.TryFindWolfRoamCell(this, currentCell, preferSafety, out Vector2Int roamCell))
             {
                 return LogWolfRoamFailed("no_roam_cell", currentCell, preferSafety);
@@ -84,6 +93,8 @@ namespace ProjectUnknown.Strategy
             }
 
             SetWolfState(StrategyWolfBehaviorState.AvoidingSettlement, "avoid_no_path");
+            ScheduleWolfEscapeRetry();
+            stateTimer = Random.Range(0.9f, 1.8f);
             path.Clear();
             pathIndex = 0;
         }
@@ -208,7 +219,8 @@ namespace ProjectUnknown.Strategy
 
         private bool ShouldAvoidSettlementNow()
         {
-            return state != StrategyWolfBehaviorState.AvoidingSettlement
+            return Time.time >= NextWolfEscapeAttemptTime
+                && state != StrategyWolfBehaviorState.AvoidingSettlement
                 && state != StrategyWolfBehaviorState.Attacking
                 && state != StrategyWolfBehaviorState.Feeding
                 && TryGetCurrentCell(out Vector2Int currentCell)
@@ -227,7 +239,7 @@ namespace ProjectUnknown.Strategy
             for (int i = 0; i < CardinalDirections.Length; i++)
             {
                 Vector2Int candidate = targetCell + CardinalDirections[i];
-                if (IsWolfTravelCell(candidate) && TryBuildPathTo(candidate))
+                if (IsWolfTargetCell(candidate) && TryBuildPathTo(candidate))
                 {
                     LogWolfPathReady("target_adjacent", targetCell, candidate);
                     return true;
@@ -275,7 +287,7 @@ namespace ProjectUnknown.Strategy
         {
             if (map == null
                 || !TryGetPathStartCell(out Vector2Int startCell)
-                || !IsWolfTravelCell(targetCell))
+                || !IsWolfTargetCell(targetCell))
             {
                 return LogWolfPathFailed("path_prerequisite_failed", targetCell);
             }

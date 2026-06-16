@@ -98,23 +98,23 @@ namespace ProjectUnknown.Strategy
 
         private bool IsRelaxedRabbitTarget(Vector2Int cell)
         {
-            return IsRabbitWalkCell(cell)
+            return IsRabbitWalkCell(cell, landOnly: true)
                 && Vector2Int.Distance(cell, homeCell) <= homeRadius
                 && GetTerrainPreference(cell) >= 0f;
         }
 
         private bool IsFleeTarget(Vector2Int cell)
         {
-            return IsRabbitWalkCell(cell)
+            return IsRabbitWalkCell(cell, landOnly: true)
                 && Vector2Int.Distance(cell, homeCell) <= homeRadius + 10
                 && GetTerrainPreference(cell) > -2f;
         }
 
-        private bool IsRabbitWalkCell(Vector2Int cell, bool allowStructureBuffer = false)
+        private bool IsRabbitWalkCell(Vector2Int cell, bool allowStructureBuffer = false, bool landOnly = false)
         {
-            return wildlife != null
-                ? wildlife.IsLandWildlifeTravelCell(cell, allowStructureBuffer)
-                : StrategyWildlifeRiverCrossing.IsLandOrRiverCell(map, cell);
+            return landOnly
+                ? wildlife != null ? wildlife.IsLandWildlifeTargetCell(cell, allowStructureBuffer) : StrategyWildlifeRiverCrossing.IsLandCell(map, cell)
+                : wildlife != null ? wildlife.IsLandWildlifeTravelCell(cell, allowStructureBuffer) : StrategyWildlifeRiverCrossing.IsLandOrRiverCell(map, cell);
         }
 
         private float GetTerrainPreference(Vector2Int cell)

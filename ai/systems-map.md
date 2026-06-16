@@ -92,6 +92,7 @@ Responsibilities:
 - Configure runtime ambience audio after camera setup.
 - Focus the initial camera view on the startup campfire after population creates it.
 - Configure water/shore animation after map generation.
+- Create/configure runtime trail wear and trail visuals after map generation.
 - Create/configure the Stone resource registry before nature generation.
 - Configure nature props after the starter camp exists so generated props can avoid the campfire clear radius.
 - Create/configure forage resource nodes after nature generation so they use current walkability.
@@ -104,11 +105,13 @@ Responsibilities:
 - Create/configure refugee arrivals and the modal refugee decision HUD.
 - Create/configure the reusable confirmation dialog used by destructive world-selection actions.
 - Create/configure the auto workforce controller before the Profession HUD so automation settings and manual overrides have one shared runtime owner.
+- Guard runtime loose-resource pile factories against scene-object creation during Play Mode shutdown.
 
 Primary files/assets:
 
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.cs`
 - `Assets/Scripts/Runtime/Core/StrategyDebugLogger.cs`
+- `Assets/Scripts/Runtime/Core/StrategyRuntimeObjectCreationGuard.cs`
 - `Assets/Scripts/Runtime/Core/StrategyTimeScaleController.cs`
 - `Assets/Scripts/Runtime/Core/StrategyDayNightCycleController.cs`
 - `Assets/Scripts/Runtime/Weather/StrategyWeatherKind.cs`
@@ -119,6 +122,8 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Audio/StrategyResidentFootstepAudio.cs`
 - `Assets/Scripts/Runtime/Map/StrategyFogOfWarController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyWaterAnimationController.cs`
+- `Assets/Scripts/Runtime/Map/StrategyTrailController.cs`
+- `Assets/Scripts/Runtime/Map/StrategyTrailSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Map/StrategyStoneResourceController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyForageResourceController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyWindController.cs`
@@ -243,6 +248,8 @@ Responsibilities:
 - Expose `RiverFlowDirection` for systems that need to move or animate along the generated river current.
 - Paint procedural pixel-art terrain textures for generated map cells.
 - Render animated water waves, sparkles, shoreline foam, and weather-driven rain ripple hits as a transparent overlay.
+- Track weighted resident footfall wear on walkable/buildable land cells, decay stale wear, and render formed trails as connected procedural sprites.
+- Expose formed trails as a 15% resident movement-speed bonus and a reduced resident pathfinding cost.
 - Feed generated cell kinds and active seed into the visual nature-props layer.
 - Feed generated land cells and active seed into Stone deposit generation.
 - Feed generated walkable land cells and active seed into underground Iron field generation.
@@ -259,6 +266,8 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Map/CityMapController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyFogOfWarController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyWaterAnimationController.cs`
+- `Assets/Scripts/Runtime/Map/StrategyTrailController.cs`
+- `Assets/Scripts/Runtime/Map/StrategyTrailSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTerrainTexturePainter.cs`
 - `Assets/Scripts/Runtime/Map/CityMapController.Buildability.cs`
 - `Assets/Scripts/Runtime/Map/StrategyNaturePropController.cs`
@@ -297,6 +306,9 @@ Impact hints:
 - Future movement/pathfinding should use `IsCellWalkable` rather than terrain kind alone.
 - Rendering is currently a generated point-filtered texture on a `SpriteRenderer`, not a Tilemap.
 - Water and shore animation is a separate transparent `SpriteRenderer` overlay above the static map and below world props; it reads active weather intensity for rain ripple hits.
+- Trail visuals use one `SpriteRenderer` per visible trail cell under a `Trail Visuals` root, sorted above terrain/water overlays and below world props, with 8-direction masks and narrow line/brush sprites.
+- Trail wear is runtime-only and should be refreshed when walkability/buildability changes so blocked cells do not keep visible trails.
+- Resident pathfinding should continue to treat trails as a cost preference, not as required connectivity.
 
 ### Forestry MVP
 
@@ -436,7 +448,7 @@ Responsibilities:
 - Animate wolves through idle, roaming, stalking, chasing, attacking, feeding, avoiding-settlement, resting, and howling states.
 - Keep deer on local walkable-cell paths inside loose herd/home ranges without blocking map cells.
 - Keep rabbits on local walkable-cell paths inside loose group/home ranges without blocking map cells.
-- Let deer, rabbits, and wolves treat generated River cells as passable swimming crossings with slowed movement and ripple visuals, while still rejecting Lake water for land wildlife.
+- Let deer, rabbits, and wolves treat generated River cells as passable transit-only swimming crossings with slowed movement and ripple visuals; final land-wildlife targets and hunt/prey reservations must stay on land cells, while Lake water remains rejected for land wildlife.
 - Keep lake fish on local lake-water paths inside loose shoal/home ranges without blocking map cells.
 - Keep river fish on the generated river route until they despawn at the route end.
 - Keep birds on local habitat choices inside loose home ranges without blocking map cells.
@@ -449,7 +461,7 @@ Responsibilities:
 - Let adult female rabbits reproduce when an adult male is nearby in the same group.
 - Spawn kits that grow into adults after scaled simulation time.
 - Keep rabbit reproduction under the hard 30-rabbit runtime population cap and the 3-rabbit per-group cap.
-- Let hunter camps reserve adult rabbits, stop their normal behavior during the shot sequence, and yield `Game` after butchering.
+- Let hunter camps reserve adult rabbits, stop their normal behavior during the shot sequence, yield `Game` after butchering on hit, and release/flee rabbits on missed arrows.
 - Let adult lake fish reproduce when another adult of the same species is nearby in the same shoal.
 - Spawn fry that grow into adults after scaled simulation time.
 - Keep fish reproduction under the hard 36-fish runtime population cap, the 3-fish per-shoal cap, and the stricter per-lake region cap.
@@ -468,6 +480,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Wildlife/StrategyDeerSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyRabbitAgent.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyRabbitAgent.Part03.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyRabbitAgent.Part04.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyRabbitSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWolfAgent.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWolfAgent.Part04.cs`
@@ -491,9 +504,9 @@ Impact hints:
 - Wildlife is runtime-only and not saved yet.
 - Deer and birds do not reveal fog, block walkability, or provide resources yet; rabbits can yield `Game` through the hunter-camp work loop, fish can yield `Fish` through the fisher-hut work loop, and wolves are predators rather than player-harvestable resources.
 - Initial rabbit spawn depends on the starter camp cell; keep the first few groups close enough for early hunter-camp use, but keep later groups map-wide so rabbits do not collapse into one starter-area cluster.
-- Deer pathing depends on the wildlife land-travel predicate, which wraps `CityMapController.IsCellWalkable`, River crossing allowance, and the 4-cell structure buffer.
-- Rabbit pathing uses the same local wildlife land-travel approach and should stay cheap until a shared pathfinding service exists.
-- Land wildlife river crossing is intentionally scoped to wildlife path helpers through `StrategyWildlifeRiverCrossing`; do not change global `CityMapController` walkability to make River water walkable for residents, buildings, or construction.
+- Deer pathing depends on the wildlife land-travel predicate plus a separate land-target predicate, which wraps `CityMapController.IsCellWalkable`, River transit allowance, and the 4-cell structure buffer.
+- Rabbit pathing uses the same local wildlife land-travel and land-target approach and should stay cheap until a shared pathfinding service exists.
+- Land wildlife river crossing is intentionally scoped to wildlife path helpers through `StrategyWildlifeRiverCrossing`; River cells are transit-only for deer/rabbit/wolf paths and should not become final wildlife targets. Do not change global `CityMapController` walkability to make River water walkable for residents, buildings, or construction.
 - Fish pathing uses `CityMapCellKind.Water` plus `CityMapWaterKind` instead of `IsCellWalkable`, because water is intentionally not walkable for land agents and lake/river fish now have separate movement rules.
 - Migration state is owned by `StrategyWildlifeController`; agents only expose small retarget methods for their current home/roam center and should keep per-frame movement local.
 - Reproduction is owned by `StrategyWildlifeController`; deer/rabbit/fish agents own species or sex, life stage, growth, movement, and animation state. Birds are decorative and do not reproduce yet; wolves do not reproduce yet and use pack spawn only.
@@ -1051,7 +1064,7 @@ Responsibilities:
 
 - Add `Storage Yard` as a placed storage building with local Logs, Stone, Iron, Coal, and Planks stock.
 - Keep Storage Yard stock uncapped.
-- Spawn a starter Storage Yard near the campfire with 16 Logs and 12 Stone.
+- Spawn a starter Storage Yard near the campfire with 20 Logs and 20 Stone.
 - Assign uncapped residents as Haulers, constrained by available adult residents and exclusive workplace state.
 - Hire uncapped additional residents as dedicated construction builders, constrained by available adult residents and exclusive workplace/construction state.
 - Find lumberjack camps with available stored Logs and reserve stock for haulers.
@@ -1215,7 +1228,7 @@ Responsibilities:
 - Assign residents to Coal Pits as workplace targets.
 - Route assigned coal miners to Coal Pit entrances, keep them visible inside the pit during work, reserve underground Coal deposits, mine Coal, and add it to Coal Pit stock.
 - Assign residents to hunter camps as workplace targets.
-- Route assigned hunters to the nearest available reserved adult rabbits, bow aiming, arrow shots, carcass approach, butchering, `Game` carrying, and camp stock deposit.
+- Route assigned hunters to the nearest available reserved adult rabbits, roughly 2-3 tile bow stand cells, bow aiming, arrow shots with a 20% miss chance, carcass approach on hit, butchering, `Game` carrying, and camp stock deposit.
 - Assign residents to fisher huts as workplace targets.
 - Route assigned fishers to the nearest available fish with validated land/shore cells, line casting with cast-range revalidation, hooked-fish reeling, `Fish` carrying, and hut stock deposit.
 - Assign residents to storage yards as Haulers.
@@ -1261,6 +1274,8 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyHouseholdForagingState.cs`
 - `Assets/Scripts/Runtime/Population/StrategyKinshipUtility.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part36.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part37.cs`
 - `Assets/Scripts/Runtime/Build/StrategyLumberjackCamp.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStonecutterCamp.cs`
 - `Assets/Scripts/Runtime/Build/StrategyMine.cs`
@@ -1325,7 +1340,8 @@ Impact hints:
 - Householder assignment clears external worksite/builder roles through their owning worksite APIs and uses `TendingHousehold` instead of `Idle` for home duty.
 - `StrategyKinshipUtility` treats close parent/ancestor graph distance as a block for future couple/family rules, including ancestors whose resident GameObjects were destroyed after death.
 - Resident readability helpers are visual-only child `SpriteRenderer`s and should stay synced when changing resident animation frames.
-- Residents use short local grid paths for idle movement and frame-based sprite walk cycles while moving; no global pathfinding/job routing exists yet.
+- Residents use trail-aware 8-direction A* grid paths with no diagonal corner cutting and post-path smoothing for idle, home, workplace, construction, logistics, and funeral travel while keeping frame-based sprite walk cycles.
+- Resident movement records activity-weighted trail footfall per entered visible resident cell, and formed trails apply a 15% speed bonus.
 - Resident pathfinding can recover a blocked start cell by snapping to a nearby walkable cell and logging `PathStartRecovered`.
 - Resident footstep audio is attached by `StrategyResidentAgent` and plays grass clips on selected walk frames; keep it low-volume/spatial when adding more residents or faster simulation speeds.
 - Lumberjack work keeps the same camp worksite component but chooses the nearest available tree/processable wood on the map; it includes tree chopping, trunk bucking, Logs delivery, and sapling planting.
@@ -1335,7 +1351,7 @@ Impact hints:
 - Mine work follows the local worksite assignment model but keeps miners hidden underground during the timed work loop, reserves walkable underground Iron indicators, and stores produced Iron locally at the Mine.
 - Coal Pit work follows the local worksite assignment model but keeps coal miners visible inside the pit during the timed work loop, reserves walkable underground Coal indicators, and stores produced Coal locally at the Coal Pit.
 - Sawmill work follows the local worksite assignment model, waits for Hauler-delivered Logs from Storage Yard stock, keeps Sawyers visible inside the Sawmill during the timed work loop, and stores produced Planks locally at the Sawmill.
-- Hunter work keeps the same camp worksite component but reserves the nearest available adult rabbit through `StrategyWildlifeController` and stores produced `Game` locally at the hunter camp for now.
+- Hunter work keeps the same camp worksite component but reserves the nearest available adult rabbit through `StrategyWildlifeController`, chooses a reachable roughly 2-3 tile bow stand cell, uses a 20% arrow miss chance, and stores produced `Game` locally at the hunter camp on hits.
 - Resident bow and butchering sprites are generated for every male/female visual variant and should stay in sync with readability outline mirroring.
 - Fisher work keeps the same hut worksite component but reserves the nearest available fish through `StrategyWildlifeController`, requires a valid land/shore stand cell around the target, abandons casts when the fish leaves cast range during cast/wait/reel phases, and stores produced `Fish` locally at the fisher hut for now.
 - Resident fishing sprites are generated for every male/female visual variant and should stay in sync with readability outline mirroring.
@@ -1353,7 +1369,7 @@ Impact hints:
 - If no free pair exists, the completed house is available for adult-child migration and partner lookup.
 - House occupation consumes the finite free-resident pool from the starter camp while it exists; later household births and adult-child migration are the first internal population growth path.
 - Resident death must continue to go through the centralized population cleanup path; direct `Destroy` on accepted residents risks stale worksite, construction, home, HUD, or kinship state.
-- Resident helper methods for carried-resource return, construction work, workplace clearing, readability sync, refugee path following, tree movement, fishing cast/reel flow, and production-input delivery are split across `StrategyResidentAgent.Part27.cs` through `StrategyResidentAgent.Part35.cs` to keep source files below the 500-line limit.
+- Resident helper methods for carried-resource return, construction work, workplace clearing, readability sync, refugee path following, tree movement, fishing cast/reel flow, production-input delivery, trail movement, and ranged hunt stand selection are split across `StrategyResidentAgent.Part27.cs` through `StrategyResidentAgent.Part37.cs` to keep source files below the 500-line limit.
 - Future jobs/families/economy should extend resident state rather than replacing the home/free-camp assignment model.
 
 ### World Selection

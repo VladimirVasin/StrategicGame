@@ -18,6 +18,12 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            if (!CanShootCurrentHuntTarget("aim_start"))
+            {
+                ResetHunterWorkToIdle(true);
+                return;
+            }
+
             activity = ResidentActivity.AimingBow;
             workFrame = 0;
             workFrameTimer = 0f;
@@ -52,6 +58,12 @@ namespace ProjectUnknown.Strategy
             {
                 activity = ResidentActivity.WaitingForHuntHit;
                 huntingWorkTimer = 1.2f;
+                return;
+            }
+
+            if (!CanShootCurrentHuntTarget("aiming"))
+            {
+                ResetHunterWorkToIdle(true);
                 return;
             }
 

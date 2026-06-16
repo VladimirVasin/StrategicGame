@@ -10,5 +10,12 @@ namespace ProjectUnknown.Strategy
                 ? wildlife.IsLandWildlifeTravelCell(cell, allowStructureBuffer)
                 : StrategyWildlifeRiverCrossing.IsLandOrRiverCell(map, cell);
         }
+
+        private bool IsWolfTargetCell(Vector2Int cell, bool allowStructureBuffer = false)
+        {
+            return wildlife != null
+                ? wildlife.IsLandWildlifeTargetCell(cell, allowStructureBuffer)
+                : StrategyWildlifeRiverCrossing.IsLandCell(map, cell);
+        }
     }
 }

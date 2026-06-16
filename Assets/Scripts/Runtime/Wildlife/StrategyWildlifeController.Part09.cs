@@ -62,7 +62,7 @@ namespace ProjectUnknown.Strategy
                 if (candidate == null
                     || !candidate.CanBeWolfPrey
                     || !candidate.TryGetCurrentCell(out Vector2Int cell)
-                    || !IsLandWildlifeTravelCell(cell))
+                    || !IsLandWildlifeTargetCell(cell))
                 {
                     continue;
                 }
@@ -94,7 +94,7 @@ namespace ProjectUnknown.Strategy
                 if (candidate == null
                     || !candidate.CanBeWolfPrey
                     || !candidate.TryGetCurrentCell(out Vector2Int cell)
-                    || !IsLandWildlifeTravelCell(cell))
+                    || !IsLandWildlifeTargetCell(cell))
                 {
                     continue;
                 }

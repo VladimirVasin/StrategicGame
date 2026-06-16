@@ -112,53 +112,7 @@ namespace ProjectUnknown.Strategy
 
         private bool TryBuildPathTo(Vector2Int targetCell)
         {
-            if (map == null
-                || !TryGetPathStartCell(out Vector2Int startCell)
-                || !map.IsCellWalkable(targetCell))
-            {
-                return false;
-            }
-
-            if (startCell == targetCell)
-            {
-                path.Clear();
-                path.Add(new Vector3(transform.position.x, transform.position.y, -0.08f));
-                pathIndex = 0;
-                return true;
-            }
-
-            Queue<Vector2Int> open = new();
-            Dictionary<Vector2Int, Vector2Int> cameFrom = new();
-            HashSet<Vector2Int> visited = new();
-
-            open.Enqueue(startCell);
-            visited.Add(startCell);
-
-            int visitLimit = Mathf.Max(256, map.Width * map.Height);
-            while (open.Count > 0 && visited.Count < visitLimit)
-            {
-                Vector2Int current = open.Dequeue();
-                if (current == targetCell)
-                {
-                    BuildWorldPath(startCell, targetCell, cameFrom);
-                    return path.Count > 0;
-                }
-
-                for (int i = 0; i < CardinalDirections.Length; i++)
-                {
-                    Vector2Int next = current + CardinalDirections[i];
-                    if (visited.Contains(next) || !map.IsCellWalkable(next))
-                    {
-                        continue;
-                    }
-
-                    visited.Add(next);
-                    cameFrom[next] = current;
-                    open.Enqueue(next);
-                }
-            }
-
-            return false;
+            return TryBuildTrailAwarePathTo(targetCell);
         }
 
         private bool TryGetPathStartCell(out Vector2Int startCell)

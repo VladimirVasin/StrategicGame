@@ -32,7 +32,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            if (threatDistance <= alertDistance && state != StrategyRabbitBehaviorState.Fleeing)
+            if (threatDistance <= alertDistance && state != StrategyRabbitBehaviorState.Fleeing && !StrategyWildlifeRiverCrossing.IsRiverCell(map, transform.position))
             {
                 StartAlert(threatWorld, noisyThreat);
             }
@@ -42,7 +42,7 @@ namespace ProjectUnknown.Strategy
         {
             waitTimer -= Time.deltaTime;
             AnimateIdle();
-            if (waitTimer > 0f)
+            if (waitTimer > 0f && !StrategyWildlifeRiverCrossing.IsRiverCell(map, transform.position))
             {
                 return;
             }
@@ -441,7 +441,7 @@ namespace ProjectUnknown.Strategy
         {
             if (!map.TryWorldToCell(transform.position, out Vector2Int startCell)
                 || !IsRabbitWalkCell(startCell, true)
-                || !IsRabbitWalkCell(targetCell))
+                || !IsRabbitWalkCell(targetCell, landOnly: true))
             {
                 return false;
             }

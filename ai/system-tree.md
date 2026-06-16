@@ -94,6 +94,10 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Multiple deterministic variants per terrain kind
     - Neighbor-aware side and corner overlays for terrain transitions
     - Runtime water/shore overlay animates waves, sparkles, shoreline foam, and weather-driven rain ripple hits over the static map texture
+    - Runtime trail layer records weighted resident footfall wear on walkable/buildable land cells
+    - Trail wear decays after cells go unused long enough, letting stale trails fade back out of view
+    - Trail cells render connected procedural sprites using 8-direction connection masks, wear levels, and deterministic variants
+    - Formed trails give residents a 15% movement-speed bonus and reduce resident pathfinding cost without becoming required routes
     - Runtime nature-props layer
       - Generated after map terrain cells are built
       - Uses active map seed for deterministic prop placement within a map session
@@ -172,7 +176,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Wolves animate idle, walking, running, stalking, attacking, eating, and howling with frame-based sprites
       - Deer use short local grid paths inside a loose herd/home range
       - Rabbits use short local grid paths inside a loose group/home range
-      - Deer, rabbits, and wolves can path through generated River water cells as slowed swimming crossings, with water-ripple visuals, while Lake water remains blocked for land wildlife
+      - Deer, rabbits, and wolves can path through generated River water cells as slowed transit-only swimming crossings, with water-ripple visuals, while final wildlife targets remain land cells and Lake water remains blocked for land wildlife
       - Land wildlife targets and paths avoid placed buildings, active construction sites, and the campfire within a 4-cell structure buffer
       - Lake fish use short local lake-water paths inside a loose shoal/home range
       - River fish follow the generated river route from current start to end, then despawn
@@ -189,8 +193,8 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Adult female rabbits can reproduce when an adult male is nearby in the same group
       - Newborn rabbits appear as small kits, use scaled rabbit sprites, and grow into adults after scaled simulation time
       - Rabbit reproduction stops at a hard 30-rabbit population cap and a 3-rabbit per-group cap
-      - Hunter camps can reserve adult rabbits in range, stopping their relaxed/flee behavior for the shot sequence
-      - Hunted rabbits can be hit by arrow projectiles, become carcasses, and yield `Game` after butchering
+      - Hunter camps can reserve adult rabbits, send hunters to roughly 2-3 tile bow stand cells, and stop the rabbit relaxed/flee behavior for the shot sequence
+      - Hunted rabbits can be hit by arrow projectiles, become carcasses, and yield `Game` after butchering; missed arrows stick in the ground and make the rabbit flee
       - Adult lake fish can reproduce when another adult of the same species is nearby in the same shoal and the lake-region cap has room
       - Newborn fish appear as small fry, use scaled fish sprites, and grow into adults after scaled simulation time
       - Fish reproduction stops at the hard 36-fish global cap, a 3-fish per-shoal cap, and the stricter per-lake region cap
@@ -316,7 +320,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Storage yard logistics MVP
     - Storage Yard is a placed stockpile building with uncapped Haulers and uncapped hired builders
     - Storage Yard stock capacity is uncapped
-    - A starter Storage Yard appears near the campfire with 16 Logs and 12 Stone
+    - A starter Storage Yard appears near the campfire with 20 Logs and 20 Stone
     - Haulers reserve available Logs from lumberjack camps
     - Haulers reserve available Stone from stonecutter camps
     - Haulers reserve available Iron from Mines
@@ -413,7 +417,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Residents assigned to a Mine path to the mine entrance, become hidden underground while working, mine reserved underground Iron, and add Iron to mine stock
     - Residents assigned to a Coal Pit path to the pit entrance, stay visible inside the pit while working, mine reserved underground Coal, and add Coal to pit stock
     - Residents assigned to a Sawmill wait for Hauler-delivered Logs, work visibly inside the Sawmill, saw Logs into `Planks`, and add Planks to Sawmill stock
-    - Residents assigned to a hunter camp reserve the nearest available adult rabbit on the map, move to bow range, shoot arrow projectiles, butcher carcasses, carry `Game`, and deposit it into hunter camp stock
+    - Residents assigned to a hunter camp reserve the nearest available adult rabbit on the map, move to roughly 2-3 tile bow range, shoot arrow projectiles with a 20% miss chance, butcher carcasses on hit, carry `Game`, and deposit it into hunter camp stock
     - Residents assigned to a fisher hut reserve the nearest available fish on the map, move to shore, cast/reel while range remains valid, carry `Fish`, and deposit it into fisher hut stock
     - Residents assigned as Haulers path to lumberjack camp stock, carry Logs to storage, and deposit them
     - Residents assigned as Haulers also path to stonecutter camp stock, carry Stone to storage, and deposit it
@@ -518,8 +522,9 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Loose carried-resource piles bridge resident death cleanup, Granary food logistics, and household foraging recovery.
 - Granary food logistics depends on hunter camp stock, fisher hut stock, Storage Yard Haulers, resident work states, placed-building records, map walkability, and the world-selection HUD.
 - Construction depends on Storage Yard resource reservations, loose construction pile reservations, hired Storage Yard builder assignments, construction-site blockers, placed-building finalization, and the world-selection HUD.
-- Population uses placed-building records, construction sites, the generated map walkability layer, and workplace assignments; home/family assignment is independent from work/construction assignment.
+- Population uses placed-building records, construction sites, the generated map walkability/trail layers, and workplace assignments; home/family assignment is independent from work/construction assignment.
 - Resident footsteps depend on population agents and the non-generated grass footstep clip set.
+- Resident movement records activity-weighted footfall into the trail layer and reads formed trails for 8-direction A* path-cost preference plus a 15% movement-speed bonus.
 - World selection uses placed-building/resident/construction-site colliders, inspectable world-object sprite bounds, generated map cell data, fog state, and the strategy camera.
 - Profession HUD depends on population adults and current worksite components; it owns player-facing worker assignment/removal while existing worksite components still own role state and work loops, with Storage Yard Haulers/builders treated as uncapped roles.
 - Auto workforce depends on population availability, Profession HUD priority settings, construction sites, Storage Yard builder/hauler APIs, production worksite stock/capacity, and Granary food ration availability.
@@ -532,7 +537,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Zoning
 - Durable building/economy state beyond runtime construction and placement records
 - Predators, non-hunting wildlife mortality, broader wildlife resources, and save/load
-- Full pathfinding beyond local resident idle grid paths
+- Durable road/path saving, explicit player-built roads, and non-resident trail preference
 - Core gameplay loop beyond map/camera
 - Player/controller system
 - Game state/save system

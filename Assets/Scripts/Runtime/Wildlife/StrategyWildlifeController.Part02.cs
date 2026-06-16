@@ -73,7 +73,7 @@ namespace ProjectUnknown.Strategy
 
             if (map == null
                 || !IsLandWildlifeTravelCell(start, true)
-                || !IsLandWildlifeTravelCell(target))
+                || !IsLandWildlifeTargetCell(target))
             {
                 return false;
             }

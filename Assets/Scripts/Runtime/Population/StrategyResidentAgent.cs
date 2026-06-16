@@ -80,7 +80,10 @@ namespace ProjectUnknown.Strategy
         private const int ButcherImpactFrame = 5;
         private const int FishingHookFrame = 5;
         private const int FishingReelFrame = 10;
+        private const float HuntingMinimumShotRange = 2.0f;
+        private const float HuntingPreferredShotRange = 2.8f;
         private const float HuntingShotRange = 4.3f;
+        private const float HuntingMissChance = 0.20f;
         private const float FuneralWaitingAutoReleaseSeconds = 90f;
         private const float MovingThresholdSqr = 0.000001f;
         private const float ReadabilityOutlineScale = 1.16f;
@@ -129,6 +132,7 @@ namespace ProjectUnknown.Strategy
         private SpriteRenderer fishingBobberRenderer;
         private StrategyResidentFootstepAudio footstepAudio;
         private readonly List<Vector3> path = new();
+        private readonly List<Vector2Int> constructionWorkCellCandidates = new();
         private ResidentActivity activity;
         private StrategyBuildingUpgrade activeGarden;
         private StrategyForageNode activeForageNode;

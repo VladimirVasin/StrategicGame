@@ -124,7 +124,7 @@ namespace ProjectUnknown.Strategy
                 StrategyResidentAgent builder = builders[i];
                 if (builder != null)
                 {
-                    builder.ClearConstructionSite(this);
+                    builder.ClearConstructionSite(this, false);
                 }
             }
 

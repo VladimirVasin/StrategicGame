@@ -8,6 +8,75 @@ Last updated: 2026-06-16
 
 ## Done
 
+### 2026-06-16 - Trail visual noise and decay optimization
+
+- Trail formation now requires more repeated traffic before visible wear appears, reducing noisy early-path squares around busy buildings.
+- Faint level-1 trails render only when connected to enough neighboring worn cells, so isolated one-off footsteps no longer create visible trail speckles.
+- Resident pathfinding now prefers established visible trails slightly more strongly, helping repeated routes converge instead of spreading into a loose grid.
+- Trail decay now scans only cells that have accumulated wear instead of iterating the full map every tick.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-16 - Wolf river escape and avoidance throttling
+
+- Fixed wolves stuck in River/settlement-buffer edge cases by giving urgent avoidance a nearby reachable escape-path search before falling back to distant pack roam targets.
+- Wolves now throttle repeated River/settlement escape retries after failed avoidance paths, preventing per-frame `Idle`/`AvoidingSettlement` state flipping and expensive repeated path searches.
+- Avoiding wolves now wait briefly before retrying an empty-path avoidance state, reducing `WolfStateChanged`/pathfinding thrash around cities and water.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-16 - Construction build work-cell path fallback
+
+- Fixed construction sites that could receive all reserved resources but never build because builders repeatedly targeted the first walkable-but-unreachable work cells.
+- `StrategyConstructionSite` now exposes the full set of bridge, close-perimeter, and fallback ring build work cells instead of returning one early side candidate.
+- Builders now test path reachability across the collected build work cells and start construction from the first reachable candidate; failed diagnostics include the number of checked cells.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; full `.cs` line-count scan found no files over 500 lines; `git diff --check` reported no whitespace errors and only the existing CRLF normalization warning for `Assembly-CSharp.csproj`.
+
+### 2026-06-16 - Land wildlife river-crossing target rules
+
+- Deer, rabbits, and wolves now treat generated River cells as transit-only swimming cells: local paths may pass through River cells, but final route targets must be land cells.
+- Rabbit/deer relaxed and flee target selection now rejects River cells, while path starts may still recover from a current River cell so animals already in water can continue to land.
+- Rabbit/deer idle and wolf idle now immediately retarget out of River cells instead of waiting normal idle timers there.
+- Hunter rabbit reservations and wolf rabbit/deer prey reservations now skip animals currently in River cells, preventing work/predator state changes from stopping a crossing in water.
+- Rabbit/deer soft alert reactions no longer clear an active crossing while the animal is in a River cell; close flee reactions can still retarget to a land cell.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; full `.cs` line-count scan found no files over 500 lines; `git diff --check` reported no whitespace errors and only the existing CRLF normalization warning for `Assembly-CSharp.csproj`.
+
+### 2026-06-16 - Ranged hunter shots and misses
+
+- Hunter-camp workers now choose a reachable bow stand cell at roughly 2-3 tiles from the reserved rabbit instead of walking into melee range.
+- Bow aiming and release revalidate shot range; valid hunter arrows have a 20% miss chance.
+- Missed arrows land near the rabbit, stick in the ground briefly, release the rabbit reservation, and make the rabbit flee away from the shot.
+- Added targeted debug events for rejected hunt stand paths, invalid bow range, arrow releases, arrow misses, and rabbit miss-flee reactions.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; full `.cs` line-count scan found no files over 500 lines; `git diff --check` reported no whitespace errors and only the existing CRLF normalization warning for `Assembly-CSharp.csproj`.
+
+### 2026-06-16 - Trail decay, smoothing, and diagonal pathing
+
+- Trail wear now decays after a stale grace period, so old unused trail cells gradually disappear back into normal grass visuals.
+- Resident footfall uses activity weights: productive/work/logistics movement forms trails normally, while idle/home wandering contributes very little and funeral waiting contributes none.
+- Resident trail-aware A* now supports diagonal movement with corner-cutting prevention and smooths reconstructed paths through walkable line-of-sight checks, reducing grid-stair and checkerboard path artifacts.
+- Trail visuals now use 8-direction connection masks and narrower line/brush sprites, including diagonal links, instead of only broad cardinal segments.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; full `.cs` line-count scan found no files over 500 lines; `git diff --check` reported no whitespace errors and only the existing CRLF normalization warning for `Assembly-CSharp.csproj`.
+
+### 2026-06-16 - Shutdown loose-resource spawn guard
+
+- Fixed a Unity scene-close cleanup warning where construction/resource cleanup could create a new `Loose Construction Resources` GameObject while the scene was being destroyed.
+- Added `StrategyRuntimeObjectCreationGuard` so loose construction and loose carried resource pile factories skip scene-object creation during runtime shutdown or outside Play Mode.
+- Construction-site `OnDestroy` now clears builder links without starting carried-resource return logic; normal gameplay cancellation and death drops still use the explicit resource-drop paths.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; full `.cs` line-count scan found no files over 500 lines; `git diff --check` reported no whitespace errors and only the existing CRLF normalization warning for `Assembly-CSharp.csproj`.
+
+### 2026-06-16 - Starter construction resource buffer
+
+- Increased the starter Storage Yard stock from 16 Logs / 12 Stone to 20 Logs / 20 Stone.
+- The new baseline covers 3 Houses, a Lumberjack Camp, and a Stonecutter Camp with a small early-game buffer after recent Stone cost increases.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; full `.cs` line-count scan found no files over 500 lines; `git diff --check` reported no whitespace errors and only the existing CRLF normalization warning for `Assembly-CSharp.csproj`.
+
+### 2026-06-16 - Resident trail formation and path preference
+
+- Added `StrategyTrailController` as a runtime map layer that records resident footfall wear on walkable/buildable land cells.
+- Added connected procedural trail sprites with 16 cardinal connection masks, wear levels, and deterministic visual variants.
+- Resident movement now records one footfall per entered cell, gives formed trails a 15% movement-speed bonus, and avoids recording hidden/pending-refugee movement.
+- Resident grid pathing now uses trail-aware A* costs instead of plain BFS, so existing trails are preferred without making them mandatory.
+- Trail visuals refresh when map walkability/buildability or bridge walkability changes, preventing trails from staying visible under blockers.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; full `.cs` line-count scan found no files over 500 lines; `git diff --check` reported no whitespace errors and only the existing CRLF normalization warning for `Assembly-CSharp.csproj`.
+
 ### 2026-06-16 - Production input logistics through Storage Yard
 
 - Added `IStrategyProductionLogisticsNode` so production buildings can expose non-food input requests and output pickup requests without making production workers move resources between buildings.

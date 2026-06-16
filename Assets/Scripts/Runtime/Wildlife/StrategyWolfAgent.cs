@@ -254,7 +254,7 @@ namespace ProjectUnknown.Strategy
         private void UpdateIdle()
         {
             AnimateIdle();
-            if (TryAcquireTarget())
+            if (TryStartRiverEscape() || TryAcquireTarget())
             {
                 return;
             }
@@ -439,8 +439,15 @@ namespace ProjectUnknown.Strategy
             AnimateRunOrSwim();
             if (path.Count <= 0 || pathIndex >= path.Count)
             {
+                stateTimer -= Time.deltaTime;
+                if (stateTimer > 0f)
+                {
+                    return;
+                }
+
                 if (!TryStartRoaming(true))
                 {
+                    ScheduleWolfEscapeRetry();
                     StartIdle(Random.Range(0.5f, 1.4f));
                 }
 

@@ -247,13 +247,7 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
-            if (!constructionSite.TryFindBuildWorkCell(out Vector2Int workCell))
-            {
-                waitTimer = Random.Range(0.45f, 1.1f);
-                return false;
-            }
-
-            if (!TryBuildPathTo(workCell))
+            if (!TryBuildPathToConstructionWorkCell(constructionSite, out Vector2Int workCell, out int checkedWorkCells))
             {
                 waitTimer = Random.Range(0.45f, 1.1f);
                 StrategyDebugLogger.Warn(
@@ -262,6 +256,7 @@ namespace ProjectUnknown.Strategy
                     StrategyDebugLogger.F("resident", FullName),
                     StrategyDebugLogger.F("siteOrigin", constructionSite.Origin),
                     StrategyDebugLogger.F("workCell", workCell),
+                    StrategyDebugLogger.F("checkedCells", checkedWorkCells),
                     StrategyDebugLogger.F("reason", "no_path"));
                 return false;
             }
@@ -276,6 +271,34 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("siteOrigin", constructionSite.Origin),
                 StrategyDebugLogger.F("workCell", workCell));
             return true;
+        }
+
+        private bool TryBuildPathToConstructionWorkCell(
+            StrategyConstructionSite site,
+            out Vector2Int workCell,
+            out int checkedCells)
+        {
+            workCell = default;
+            checkedCells = 0;
+            if (site == null || !site.TryCollectBuildWorkCells(constructionWorkCellCandidates))
+            {
+                return false;
+            }
+
+            int count = constructionWorkCellCandidates.Count;
+            int startIndex = count > 1 ? Random.Range(0, count) : 0;
+            for (int offset = 0; offset < count; offset++)
+            {
+                Vector2Int candidate = constructionWorkCellCandidates[(startIndex + offset) % count];
+                checkedCells++;
+                workCell = candidate;
+                if (TryBuildPathTo(candidate))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private bool TryStartHunterTask()
@@ -308,86 +331,7 @@ namespace ProjectUnknown.Strategy
 
         private bool TryMoveToHuntingTarget(StrategyRabbitAgent rabbit)
         {
-            if (rabbit == null || !rabbit.IsAlive || rabbit.IsCarcass)
-            {
-                return false;
-            }
-
-            activeHuntTarget = rabbit;
-            float directDistance = Vector2.Distance(transform.position, rabbit.transform.position);
-            if (directDistance <= HuntingShotRange && map != null && map.TryWorldToCell(transform.position, out Vector2Int currentCell) && map.IsCellWalkable(currentCell))
-            {
-                StartAimingBow();
-                return true;
-            }
-
-            if (!rabbit.TryGetCurrentCell(out Vector2Int targetCell))
-            {
-                activeHuntTarget = null;
-                return false;
-            }
-
-            for (int radius = 1; radius <= 5; radius++)
-            {
-                List<Vector2Int> candidates = new();
-                for (int y = -radius; y <= radius; y++)
-                {
-                    for (int x = -radius; x <= radius; x++)
-                    {
-                        if (Mathf.Abs(x) != radius && Mathf.Abs(y) != radius)
-                        {
-                            continue;
-                        }
-
-                        Vector2Int candidate = targetCell + new Vector2Int(x, y);
-                        if (!map.IsCellWalkable(candidate))
-                        {
-                            continue;
-                        }
-
-                        Vector3 candidateWorld = map.GetCellCenterWorld(candidate.x, candidate.y);
-                        float shotDistance = Vector2.Distance(candidateWorld, rabbit.transform.position);
-                        if (shotDistance <= HuntingShotRange)
-                        {
-                            candidates.Add(candidate);
-                        }
-                    }
-                }
-
-                while (candidates.Count > 0)
-                {
-                    int index = Random.Range(0, candidates.Count);
-                    Vector2Int candidate = candidates[index];
-                    candidates.RemoveAt(index);
-                    if (!TryBuildPathTo(candidate))
-                    {
-                        continue;
-                    }
-
-                    activity = ResidentActivity.MovingToHuntingRange;
-                    hasTarget = true;
-                    waitTimer = Random.Range(0.04f, 0.18f);
-                    StrategyDebugLogger.Info(
-                        "Hunting",
-                        "HuntMoveStarted",
-                        StrategyDebugLogger.F("resident", FullName),
-                        StrategyDebugLogger.F("rabbitCell", targetCell),
-                        StrategyDebugLogger.F("workCell", candidate),
-                        StrategyDebugLogger.F("campOrigin", hunterWorkplace != null ? hunterWorkplace.Origin : Vector2Int.zero));
-                    return true;
-                }
-            }
-
-            activeHuntTarget = null;
-            activity = ResidentActivity.Idle;
-            huntingWorkCooldown = Random.Range(2.0f, 4.0f);
-            StrategyDebugLogger.Warn(
-                "Hunting",
-                "HuntMoveRejected",
-                StrategyDebugLogger.F("resident", FullName),
-                StrategyDebugLogger.F("rabbitCell", targetCell),
-                StrategyDebugLogger.F("reason", "no_shot_path"));
-            return false;
+            return TryMoveToRangedHuntingTarget(rabbit);
         }
 
         private bool TryStartFisherTask()

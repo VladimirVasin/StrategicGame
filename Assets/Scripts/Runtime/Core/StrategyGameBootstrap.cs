@@ -7,8 +7,8 @@ namespace ProjectUnknown.Strategy
         private const float InitialCameraSize = 18f;
         private const float InitialCampCameraSize = 11f;
         private const int CampNatureClearRadius = 3;
-        private const int InitialStorageLogs = 16;
-        private const int InitialStorageStone = 12;
+        private const int InitialStorageLogs = 20;
+        private const int InitialStorageStone = 20;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void BootstrapScene()
@@ -42,6 +42,16 @@ namespace ProjectUnknown.Strategy
 
             water.Configure(map);
             StrategyDebugLogger.Info("Bootstrap", "WaterReady");
+
+            StrategyTrailController trails = Object.FindAnyObjectByType<StrategyTrailController>();
+            if (trails == null)
+            {
+                GameObject trailsObject = new GameObject("Strategy Trails");
+                trails = trailsObject.AddComponent<StrategyTrailController>();
+            }
+
+            trails.Configure(map);
+            StrategyDebugLogger.Info("Bootstrap", "TrailsReady");
 
             StrategyWindController wind = Object.FindAnyObjectByType<StrategyWindController>();
             if (wind == null)

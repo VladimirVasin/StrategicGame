@@ -334,7 +334,7 @@ namespace ProjectUnknown.Strategy
             for (int i = 0; i < rabbits.Count; i++)
             {
                 StrategyRabbitAgent candidate = rabbits[i];
-                if (candidate == null || !candidate.CanBeHunted || !candidate.TryGetCurrentCell(out Vector2Int cell))
+                if (candidate == null || !candidate.CanBeHunted || !candidate.TryGetCurrentCell(out Vector2Int cell) || !StrategyWildlifeRiverCrossing.IsLandCell(map, cell))
                 {
                     continue;
                 }
@@ -377,7 +377,7 @@ namespace ProjectUnknown.Strategy
             for (int i = 0; i < rabbits.Count; i++)
             {
                 StrategyRabbitAgent rabbit = rabbits[i];
-                if (rabbit == null || !rabbit.CanBeHunted || !rabbit.TryGetCurrentCell(out Vector2Int cell))
+                if (rabbit == null || !rabbit.CanBeHunted || !rabbit.TryGetCurrentCell(out Vector2Int cell) || !StrategyWildlifeRiverCrossing.IsLandCell(map, cell))
                 {
                     continue;
                 }

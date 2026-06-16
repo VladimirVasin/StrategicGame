@@ -52,6 +52,11 @@ namespace ProjectUnknown.Strategy
                 return null;
             }
 
+            if (!StrategyRuntimeObjectCreationGuard.CanCreateSceneObjects)
+            {
+                return null;
+            }
+
             EnsureRoot();
             GameObject obj = new GameObject("Loose " + resource);
             obj.transform.SetParent(root, false);

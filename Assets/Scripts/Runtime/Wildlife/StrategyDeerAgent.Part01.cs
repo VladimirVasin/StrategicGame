@@ -196,7 +196,7 @@ namespace ProjectUnknown.Strategy
         {
             if (!map.TryWorldToCell(transform.position, out Vector2Int startCell)
                 || !IsDeerWalkCell(startCell, true)
-                || !IsDeerWalkCell(targetCell))
+                || !IsDeerWalkCell(targetCell, landOnly: true))
             {
                 return false;
             }
@@ -333,23 +333,23 @@ namespace ProjectUnknown.Strategy
 
         private bool IsRelaxedDeerTarget(Vector2Int cell)
         {
-            return IsDeerWalkCell(cell)
+            return IsDeerWalkCell(cell, landOnly: true)
                 && Vector2Int.Distance(cell, homeCell) <= homeRadius
                 && GetTerrainPreference(cell) >= 0f;
         }
 
         private bool IsFleeTarget(Vector2Int cell)
         {
-            return IsDeerWalkCell(cell)
+            return IsDeerWalkCell(cell, landOnly: true)
                 && Vector2Int.Distance(cell, homeCell) <= homeRadius + 14
                 && GetTerrainPreference(cell) > -2f;
         }
 
-        private bool IsDeerWalkCell(Vector2Int cell, bool allowStructureBuffer = false)
+        private bool IsDeerWalkCell(Vector2Int cell, bool allowStructureBuffer = false, bool landOnly = false)
         {
-            return wildlife != null
-                ? wildlife.IsLandWildlifeTravelCell(cell, allowStructureBuffer)
-                : StrategyWildlifeRiverCrossing.IsLandOrRiverCell(map, cell);
+            return landOnly
+                ? wildlife != null ? wildlife.IsLandWildlifeTargetCell(cell, allowStructureBuffer) : StrategyWildlifeRiverCrossing.IsLandCell(map, cell)
+                : wildlife != null ? wildlife.IsLandWildlifeTravelCell(cell, allowStructureBuffer) : StrategyWildlifeRiverCrossing.IsLandOrRiverCell(map, cell);
         }
 
         private float GetTerrainPreference(Vector2Int cell)
