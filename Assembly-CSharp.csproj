@@ -88,6 +88,7 @@
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingSpriteFactory.Part04.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentSpriteFactory.Part03.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyCoalResourceController.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWildlifeController.Part11.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyAutoWorkforceController.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part27.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyForestryTree.Part01.cs" />

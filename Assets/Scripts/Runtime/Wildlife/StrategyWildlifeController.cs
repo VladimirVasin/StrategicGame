@@ -127,6 +127,7 @@ namespace ProjectUnknown.Strategy
         };
         private CityMapController map;
         private StrategyPopulationController population;
+        private StrategyFogOfWarController fog;
         private Transform wildlifeRoot;
         private Vector2Int campCell;
         private float breedingTimer;
@@ -209,10 +210,14 @@ namespace ProjectUnknown.Strategy
             UpdateWildlifeMigration(Time.deltaTime);
         }
 
-        public void Configure(CityMapController mapController, StrategyPopulationController populationController)
+        public void Configure(
+            CityMapController mapController,
+            StrategyPopulationController populationController,
+            StrategyFogOfWarController fogController)
         {
             map = mapController;
             population = populationController;
+            fog = fogController;
             hasCampCell = population != null && population.TryGetCampCell(out campCell);
             migrationTimer = MigrationInitialDelay;
             EnsureWildlifeRoot();
@@ -317,10 +322,18 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("birds", spawnedBirds),
                 StrategyDebugLogger.F("birdTarget", targetBirds),
                 StrategyDebugLogger.F("seed", map.ActiveSeed),
-                StrategyDebugLogger.F("hasCampAvoidance", hasCampCell));
+                StrategyDebugLogger.F("hasCampAvoidance", hasCampCell),
+                StrategyDebugLogger.F("spawnPlacement", "hidden_near_settlement"),
+                StrategyDebugLogger.F("hasFog", fog != null),
+                StrategyDebugLogger.F("playerFogEnabled", fog != null && fog.IsPlayerFogEnabled));
         }
 
-        public bool TryReserveRabbitForHunt(Vector2Int center, int radius, object owner, out StrategyRabbitAgent rabbit)
+        public bool TryReserveRabbitForHunt(
+            Vector2Int center,
+            int radius,
+            object owner,
+            out StrategyRabbitAgent rabbit,
+            System.Predicate<StrategyRabbitAgent> candidateFilter = null)
         {
             rabbit = null;
             if (owner == null || map == null)
@@ -334,7 +347,11 @@ namespace ProjectUnknown.Strategy
             for (int i = 0; i < rabbits.Count; i++)
             {
                 StrategyRabbitAgent candidate = rabbits[i];
-                if (candidate == null || !candidate.CanBeHunted || !candidate.TryGetCurrentCell(out Vector2Int cell) || !StrategyWildlifeRiverCrossing.IsLandCell(map, cell))
+                if (candidate == null
+                    || !candidate.CanBeHunted
+                    || !candidate.TryGetCurrentCell(out Vector2Int cell)
+                    || !StrategyWildlifeRiverCrossing.IsLandCell(map, cell)
+                    || (candidateFilter != null && !candidateFilter(candidate)))
                 {
                     continue;
                 }

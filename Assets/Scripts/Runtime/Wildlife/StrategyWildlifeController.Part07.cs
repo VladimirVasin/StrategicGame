@@ -16,6 +16,7 @@ namespace ProjectUnknown.Strategy
         private bool IsWolfMigrationCandidate(Vector2Int cell)
         {
             return IsWolfRoamCandidate(cell)
+                && IsHiddenNearSettlementSpawnCell(cell, WildlifeSettlementSpawnKind.Wolf)
                 && GetSettlementPressure(cell) <= WolfMigrationSettlementLimit
                 && CountWalkableNeighbors(cell, 3) >= 6;
         }
@@ -71,7 +72,8 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            return species switch
+            return IsHiddenNearSettlementSpawnCell(cell, WildlifeSettlementSpawnKind.Bird)
+                && (species switch
             {
                 StrategyBirdSpecies.Duck => mapCell.Kind == CityMapCellKind.Water
                     || (mapCell.Kind == CityMapCellKind.Shore && map.IsCellWalkable(cell)),
@@ -85,7 +87,7 @@ namespace ProjectUnknown.Strategy
                         || mapCell.Kind == CityMapCellKind.Grass
                         || mapCell.Kind == CityMapCellKind.Dirt
                         || mapCell.Kind == CityMapCellKind.Shore)
-            };
+            });
         }
 
         private int CountWalkableNeighbors(Vector2Int center, int radius)

@@ -154,7 +154,8 @@ namespace ProjectUnknown.Strategy
             for (int offset = 0; offset < lakeFishRegions.Count; offset++)
             {
                 FishWaterRegion region = lakeFishRegions[(start + offset) % lakeFishRegions.Count];
-                if (CountFishInLakeRegion(region.Id) < region.Capacity)
+                if (CountFishInLakeRegion(region.Id) < region.Capacity
+                    && HasHiddenNearSettlementLakeFishCell(region))
                 {
                     return region;
                 }
@@ -247,7 +248,11 @@ namespace ProjectUnknown.Strategy
 
         private bool TrySpawnRiverFish(int activeRiverFish)
         {
-            Vector2Int spawnCell = riverRouteCells[0];
+            if (!TryFindRiverFishSpawnCell(out Vector2Int spawnCell, out int routeStartIndex))
+            {
+                return false;
+            }
+
             for (int i = 0; i < fish.Count; i++)
             {
                 StrategyFishAgent agent = fish[i];
@@ -264,7 +269,7 @@ namespace ProjectUnknown.Strategy
 
             int shoalId = nextRiverShoalId++;
             StrategyFishSpecies species = PickFishSpecies(shoalId, spawnCell);
-            List<Vector3> route = BuildRiverFishWorldRoute(shoalId);
+            List<Vector3> route = BuildRiverFishWorldRoute(shoalId, routeStartIndex);
             if (route.Count < 2)
             {
                 return false;
@@ -291,18 +296,38 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("activeRiverFish", activeRiverFish + 1),
                 StrategyDebugLogger.F("riverFishCap", MaxRiverFishPopulation),
                 StrategyDebugLogger.F("routeCells", riverRouteCells.Count),
+                StrategyDebugLogger.F("routeStartIndex", routeStartIndex),
                 StrategyDebugLogger.F("spawnCell", spawnCell),
                 StrategyDebugLogger.F("endCell", riverRouteCells[riverRouteCells.Count - 1]),
                 StrategyDebugLogger.F("flow", map.RiverFlowDirection));
             return true;
         }
 
-        private List<Vector3> BuildRiverFishWorldRoute(int routeSeed)
+        private bool TryFindRiverFishSpawnCell(out Vector2Int spawnCell, out int routeStartIndex)
         {
-            List<Vector3> route = new(riverRouteCells.Count);
+            spawnCell = default;
+            routeStartIndex = -1;
+            for (int i = 0; i < riverRouteCells.Count - 1; i++)
+            {
+                Vector2Int candidate = riverRouteCells[i];
+                if (IsFishSpawnCandidate(candidate, CityMapWaterKind.River))
+                {
+                    spawnCell = candidate;
+                    routeStartIndex = i;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private List<Vector3> BuildRiverFishWorldRoute(int routeSeed, int startIndex)
+        {
+            startIndex = Mathf.Clamp(startIndex, 0, Mathf.Max(0, riverRouteCells.Count - 1));
+            List<Vector3> route = new(riverRouteCells.Count - startIndex);
             Vector2Int flow = map != null ? map.RiverFlowDirection : Vector2Int.right;
             bool horizontal = Mathf.Abs(flow.x) >= Mathf.Abs(flow.y);
-            for (int i = 0; i < riverRouteCells.Count; i++)
+            for (int i = startIndex; i < riverRouteCells.Count; i++)
             {
                 Vector2Int cell = riverRouteCells[i];
                 Vector3 world = map.GetCellCenterWorld(cell.x, cell.y);

@@ -8,14 +8,21 @@ namespace ProjectUnknown.Strategy
     {
         public const int MaxWorkers = 2;
         public const int WorkRadius = 11;
+        private const float RejectedRabbitTargetCooldownSeconds = 18f;
+        private const float RejectedRabbitTargetLogCooldownSeconds = 4f;
 
         private readonly List<StrategyResidentAgent> workers = new();
+        private readonly Dictionary<StrategyRabbitAgent, float> rejectedRabbitTargetUntil = new();
+        private readonly Dictionary<Vector2Int, float> rejectedRabbitCellUntil = new();
+        private readonly List<StrategyRabbitAgent> rejectedRabbitTargetCleanup = new();
+        private readonly List<Vector2Int> rejectedRabbitCellCleanup = new();
         private StrategyPlacedBuilding building;
         private CityMapController map;
         private StrategyPopulationController population;
         private StrategyWildlifeController wildlife;
         private SpriteRenderer stockRenderer;
         private object gameReservationOwner;
+        private float nextRejectedRabbitTargetLogTime;
         private int reservedGame;
         private int gameStored;
 
@@ -170,9 +177,34 @@ namespace ProjectUnknown.Strategy
                 wildlife = StrategyWildlifeController.Active;
             }
 
+            PruneRejectedRabbitTargets();
             return HasStorageSpace
                 && wildlife != null
-                && wildlife.TryReserveRabbitForHunt(Origin, WorkRadius, owner, out rabbit);
+                && wildlife.TryReserveRabbitForHunt(Origin, WorkRadius, owner, out rabbit, IsRabbitTargetAllowed);
+        }
+
+        public void RegisterRejectedRabbitTarget(StrategyRabbitAgent rabbit, Vector2Int cell, string reason)
+        {
+            float until = Time.time + RejectedRabbitTargetCooldownSeconds;
+            if (rabbit != null)
+            {
+                rejectedRabbitTargetUntil[rabbit] = until;
+            }
+
+            rejectedRabbitCellUntil[cell] = until;
+            if (Time.time < nextRejectedRabbitTargetLogTime)
+            {
+                return;
+            }
+
+            nextRejectedRabbitTargetLogTime = Time.time + RejectedRabbitTargetLogCooldownSeconds;
+            StrategyDebugLogger.Info(
+                "HunterCamp",
+                "RabbitTargetTemporarilyRejected",
+                StrategyDebugLogger.F("campOrigin", Origin),
+                StrategyDebugLogger.F("rabbitCell", cell),
+                StrategyDebugLogger.F("reason", reason),
+                StrategyDebugLogger.F("cooldownSeconds", RejectedRabbitTargetCooldownSeconds));
         }
 
         public bool TryFindDropoffCell(out Vector2Int cell)
@@ -382,6 +414,57 @@ namespace ProjectUnknown.Strategy
             stockRenderer.transform.localPosition = transform.InverseTransformPoint(world);
             stockRenderer.transform.localScale = Vector3.one;
             StrategyWorldSorting.Apply(stockRenderer, world, 1);
+        }
+
+        private bool IsRabbitTargetAllowed(StrategyRabbitAgent rabbit)
+        {
+            if (rabbit == null)
+            {
+                return false;
+            }
+
+            float now = Time.time;
+            if (rejectedRabbitTargetUntil.TryGetValue(rabbit, out float rejectedUntil)
+                && rejectedUntil > now)
+            {
+                return false;
+            }
+
+            return !rabbit.TryGetCurrentCell(out Vector2Int cell)
+                || !rejectedRabbitCellUntil.TryGetValue(cell, out rejectedUntil)
+                || rejectedUntil <= now;
+        }
+
+        private void PruneRejectedRabbitTargets()
+        {
+            float now = Time.time;
+            rejectedRabbitTargetCleanup.Clear();
+            foreach (KeyValuePair<StrategyRabbitAgent, float> pair in rejectedRabbitTargetUntil)
+            {
+                if (pair.Key == null || pair.Value <= now)
+                {
+                    rejectedRabbitTargetCleanup.Add(pair.Key);
+                }
+            }
+
+            for (int i = 0; i < rejectedRabbitTargetCleanup.Count; i++)
+            {
+                rejectedRabbitTargetUntil.Remove(rejectedRabbitTargetCleanup[i]);
+            }
+
+            rejectedRabbitCellCleanup.Clear();
+            foreach (KeyValuePair<Vector2Int, float> pair in rejectedRabbitCellUntil)
+            {
+                if (pair.Value <= now)
+                {
+                    rejectedRabbitCellCleanup.Add(pair.Key);
+                }
+            }
+
+            for (int i = 0; i < rejectedRabbitCellCleanup.Count; i++)
+            {
+                rejectedRabbitCellUntil.Remove(rejectedRabbitCellCleanup[i]);
+            }
         }
 
         private void OnDestroy()

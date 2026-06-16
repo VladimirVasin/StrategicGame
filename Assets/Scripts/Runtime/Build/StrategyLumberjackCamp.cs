@@ -358,6 +358,11 @@ namespace ProjectUnknown.Strategy
             return forestry != null && forestry.TryFindPlantingCell(Origin, WorkRadius, out cell);
         }
 
+        public void RegisterRejectedPlantingCell(Vector2Int cell, string reason)
+        {
+            forestry?.RegisterRejectedPlantingCell(cell, reason);
+        }
+
         public bool TryPlantTree(Vector2Int cell)
         {
             return forestry != null && forestry.TryPlantTree(cell);

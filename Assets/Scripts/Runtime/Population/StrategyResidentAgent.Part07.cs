@@ -54,6 +54,7 @@ namespace ProjectUnknown.Strategy
         {
             if (!TryFindPlantingWorkCell(cell, out Vector2Int workCell))
             {
+                workplace?.RegisterRejectedPlantingCell(cell, "no_work_cell");
                 lumberWorkCooldown = Random.Range(2.0f, 4.0f);
                 StrategyDebugLogger.Warn(
                     "Population",
@@ -80,6 +81,7 @@ namespace ProjectUnknown.Strategy
             }
 
             activity = ResidentActivity.Idle;
+            workplace?.RegisterRejectedPlantingCell(cell, "no_path");
             lumberWorkCooldown = Random.Range(2.0f, 4.0f);
             StrategyDebugLogger.Warn(
                 "Population",

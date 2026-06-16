@@ -303,7 +303,9 @@ namespace ProjectUnknown.Strategy
                     for (int x = -radius; x <= radius; x++)
                     {
                         Vector2Int candidate = packCenter + new Vector2Int(x, y);
-                        if (!usedCells.Contains(candidate) && IsWolfRoamCandidate(candidate))
+                        if (!usedCells.Contains(candidate)
+                            && IsWolfRoamCandidate(candidate)
+                            && IsHiddenNearSettlementSpawnCell(candidate, WildlifeSettlementSpawnKind.Wolf))
                         {
                             candidates.Add(candidate);
                         }
@@ -324,6 +326,7 @@ namespace ProjectUnknown.Strategy
         private bool IsWolfPackCenterCandidate(Vector2Int cell)
         {
             return IsWolfRoamCandidate(cell)
+                && IsHiddenNearSettlementSpawnCell(cell, WildlifeSettlementSpawnKind.Wolf)
                 && GetWolfTerrainScore(cell) > 0f
                 && CountWalkableNeighbors(cell, 3) >= 8;
         }

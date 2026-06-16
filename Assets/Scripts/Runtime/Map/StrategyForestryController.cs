@@ -6,10 +6,16 @@ namespace ProjectUnknown.Strategy
     [DisallowMultipleComponent]
     public sealed class StrategyForestryController : MonoBehaviour
     {
+        private const float RejectedPlantingCellCooldownSeconds = 18f;
+        private const float RejectedPlantingCellLogCooldownSeconds = 4f;
+
         private readonly List<StrategyForestryTree> trees = new();
+        private readonly Dictionary<Vector2Int, float> rejectedPlantingCellUntil = new();
+        private readonly List<Vector2Int> rejectedPlantingCellCleanup = new();
         private CityMapController map;
         private StrategyWindController wind;
         private Transform plantedRoot;
+        private float nextRejectedPlantingCellLogTime;
 
         public static StrategyForestryController Active { get; private set; }
         public IReadOnlyList<StrategyForestryTree> Trees => trees;
@@ -138,6 +144,7 @@ namespace ProjectUnknown.Strategy
 
         public bool TryFindPlantingCell(Vector2Int center, int radius, out Vector2Int cell)
         {
+            PruneRejectedPlantingCells();
             List<Vector2Int> candidates = new();
             int radiusSqr = radius * radius;
 
@@ -147,7 +154,8 @@ namespace ProjectUnknown.Strategy
                 {
                     Vector2Int candidate = center + new Vector2Int(x, y);
                     if ((candidate - center).sqrMagnitude > radiusSqr
-                        || !IsPlantingCell(candidate))
+                        || !IsPlantingCell(candidate)
+                        || IsPlantingCellTemporarilyRejected(candidate))
                     {
                         continue;
                     }
@@ -164,6 +172,23 @@ namespace ProjectUnknown.Strategy
 
             cell = candidates[Random.Range(0, candidates.Count)];
             return true;
+        }
+
+        public void RegisterRejectedPlantingCell(Vector2Int cell, string reason)
+        {
+            rejectedPlantingCellUntil[cell] = Time.time + RejectedPlantingCellCooldownSeconds;
+            if (Time.time < nextRejectedPlantingCellLogTime)
+            {
+                return;
+            }
+
+            nextRejectedPlantingCellLogTime = Time.time + RejectedPlantingCellLogCooldownSeconds;
+            StrategyDebugLogger.Info(
+                "Forestry",
+                "PlantingCellTemporarilyRejected",
+                StrategyDebugLogger.F("cell", cell),
+                StrategyDebugLogger.F("reason", reason),
+                StrategyDebugLogger.F("cooldownSeconds", RejectedPlantingCellCooldownSeconds));
         }
 
         public bool TryPlantTree(Vector2Int cell)
@@ -279,6 +304,39 @@ namespace ProjectUnknown.Strategy
             }
 
             return false;
+        }
+
+        private bool IsPlantingCellTemporarilyRejected(Vector2Int cell)
+        {
+            if (!rejectedPlantingCellUntil.TryGetValue(cell, out float rejectedUntil))
+            {
+                return false;
+            }
+
+            if (rejectedUntil > Time.time)
+            {
+                return true;
+            }
+
+            rejectedPlantingCellUntil.Remove(cell);
+            return false;
+        }
+
+        private void PruneRejectedPlantingCells()
+        {
+            rejectedPlantingCellCleanup.Clear();
+            foreach (KeyValuePair<Vector2Int, float> pair in rejectedPlantingCellUntil)
+            {
+                if (pair.Value <= Time.time)
+                {
+                    rejectedPlantingCellCleanup.Add(pair.Key);
+                }
+            }
+
+            for (int i = 0; i < rejectedPlantingCellCleanup.Count; i++)
+            {
+                rejectedPlantingCellUntil.Remove(rejectedPlantingCellCleanup[i]);
+            }
         }
 
         private void EnsurePlantedRoot()

@@ -1,6 +1,6 @@
 # Systems Map
 
-Last updated: 2026-06-16
+Last updated: 2026-06-17
 
 Use this file as the first navigation pass before broad searches. Owner cards are starting points, not hard boundaries.
 
@@ -430,12 +430,13 @@ Impact hints:
 
 Responsibilities:
 
-- Spawn more numerous compact ambient deer herds on suitable walkable land away from the starter camp.
-- Spawn compact ambient rabbit groups on suitable walkable land, keeping the first few groups in a near-camp ring and distributing later groups map-wide.
-- Spawn compact lake fish shoals on suitable generated lake regions with strict per-shoal and per-lake population caps.
-- Spawn one-way pass-through river fish along the generated river current through a single timer.
-- Spawn decorative birds on species-appropriate land/water cells without reproduction or resources.
-- Spawn compact wolf packs on safe walkable land away from the startup camp and dense settlement pressure, preferring alternating river sides when a generated river route exists.
+- Spawn compact ambient deer herds only on currently hidden suitable land cells near completed buildings or active construction sites.
+- Spawn compact ambient rabbit groups only on currently hidden suitable land cells near completed buildings or active construction sites.
+- Spawn compact lake fish shoals only in currently hidden lake cells near settlement anchors, with strict per-shoal and per-lake population caps.
+- Spawn one-way pass-through river fish from currently hidden near-settlement river-route cells through a single timer.
+- Spawn decorative birds only on currently hidden species-appropriate land/water cells near settlement anchors, without reproduction or resources.
+- Spawn compact wolf packs only on currently hidden safe land cells in a wider near-settlement ring, preferring alternating river sides when a generated river route exists.
+- Use completed buildings and active construction sites as wildlife spawn anchors, with the startup camp as a fallback only when no building/construction anchor exists.
 - Provide adult-rabbit reservation/count lookup for hunter camps.
 - Provide catchable-fish reservation/count lookup for fisher huts.
 - Provide wolf predator reservation hooks for rabbit/deer surplus above high population-control thresholds and for vulnerable far-from-settlement adult residents.
@@ -478,6 +479,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.Part09.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.Part10.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.Part11.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeRiverCrossing.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyDeerAgent.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyDeerAgent.Part03.cs`
@@ -509,13 +511,13 @@ Impact hints:
 
 - Wildlife is runtime-only and not saved yet.
 - Deer and birds do not reveal fog, block walkability, or provide resources yet; rabbits can yield `Game` through the hunter-camp work loop, fish can yield `Fish` through the fisher-hut work loop, and wolves are predators rather than player-harvestable resources.
-- Initial rabbit spawn depends on the starter camp cell; keep the first few groups close enough for early hunter-camp use, but keep later groups map-wide so rabbits do not collapse into one starter-area cluster.
+- Initial rabbit spawn, deer herds, fish shoals, birds, and wolf packs depend on hidden near-settlement candidate cells instead of map-wide placement; if no hidden candidate exists for a species, that species should skip spawning rather than appearing far from buildings or inside visible fog.
 - Deer pathing depends on the wildlife land-travel predicate plus a separate land-target predicate, which wraps `CityMapController.IsCellWalkable`, River transit allowance, and the 4-cell structure buffer.
 - Rabbit pathing uses the same local wildlife land-travel and land-target approach and should stay cheap until a shared pathfinding service exists.
 - Land wildlife river crossing is intentionally scoped to wildlife path helpers through `StrategyWildlifeRiverCrossing`; River cells are transit-only for deer/rabbit/wolf paths and should not become final wildlife targets. Do not change global `CityMapController` walkability to make River water walkable for residents, buildings, or construction.
 - Fish pathing uses `CityMapCellKind.Water` plus `CityMapWaterKind` instead of `IsCellWalkable`, because water is intentionally not walkable for land agents and lake/river fish now have separate movement rules.
-- Migration state is owned by `StrategyWildlifeController`; agents only expose small retarget methods for their current home/roam center and should keep per-frame movement local.
-- Reproduction is owned by `StrategyWildlifeController`; deer/rabbit/fish agents own species or sex, life stage, growth, movement, and animation state. Birds are decorative and do not reproduce yet; wolves do not reproduce yet and use pack spawn only.
+- Migration state is owned by `StrategyWildlifeController`; agents only expose small retarget methods for their current home/roam center, and migration targets must stay in currently hidden near-settlement candidate cells.
+- Reproduction is owned by `StrategyWildlifeController`; deer/rabbit/fish birth cells must be currently hidden and near settlement anchors, while agents own species or sex, life stage, growth, movement, and animation state. Birds are decorative and do not reproduce yet; wolves do not reproduce yet and use pack spawn only.
 - Wolf settlement avoidance is pressure-based and reads camp position, placed buildings, active construction sites, and nearby residents; land wildlife pathing also uses the cached structure buffer, so keep it cheaper than per-frame global scans.
 - Wolf prey lookup is population-control logic, not continuous hunting: rabbit hunting only starts above the rabbit control threshold after subtracting predator and hunter reservations, and deer hunting only starts above the deer control threshold after subtracting predator reservations.
 - Wolves no longer use ordinary resident target acquisition when no surplus prey is available.

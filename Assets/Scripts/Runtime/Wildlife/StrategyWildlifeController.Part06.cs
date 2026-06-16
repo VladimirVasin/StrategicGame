@@ -388,10 +388,11 @@ namespace ProjectUnknown.Strategy
                 }
             }
 
-            return mapCell.Kind == CityMapCellKind.Meadow
+            return IsHiddenNearSettlementSpawnCell(cell, WildlifeSettlementSpawnKind.Deer)
+                && (mapCell.Kind == CityMapCellKind.Meadow
                 || mapCell.Kind == CityMapCellKind.Grass
                 || mapCell.Kind == CityMapCellKind.Forest
-                || mapCell.Kind == CityMapCellKind.Dirt;
+                || mapCell.Kind == CityMapCellKind.Dirt);
         }
 
         private bool IsRabbitSpawnCandidate(Vector2Int cell)
@@ -410,10 +411,11 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            return mapCell.Kind == CityMapCellKind.Meadow
+            return IsHiddenNearSettlementSpawnCell(cell, WildlifeSettlementSpawnKind.Rabbit)
+                && (mapCell.Kind == CityMapCellKind.Meadow
                 || mapCell.Kind == CityMapCellKind.Grass
                 || mapCell.Kind == CityMapCellKind.Forest
-                || mapCell.Kind == CityMapCellKind.Dirt;
+                || mapCell.Kind == CityMapCellKind.Dirt);
         }
 
         private bool IsFishSpawnCandidate(Vector2Int cell)
@@ -436,7 +438,7 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            return true;
+            return IsHiddenNearSettlementSpawnCell(cell, WildlifeSettlementSpawnKind.Fish);
         }
 
         private bool IsLakeFishSpawnCandidate(Vector2Int cell, int regionId)
@@ -467,10 +469,11 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            return mapCell.Kind == CityMapCellKind.Meadow
+            return IsHiddenNearSettlementSpawnCell(cell, WildlifeSettlementSpawnKind.Deer)
+                && (mapCell.Kind == CityMapCellKind.Meadow
                 || mapCell.Kind == CityMapCellKind.Grass
                 || mapCell.Kind == CityMapCellKind.Forest
-                || mapCell.Kind == CityMapCellKind.Dirt;
+                || mapCell.Kind == CityMapCellKind.Dirt);
         }
 
         private float GetDeerMigrationScore(Vector2Int cell)

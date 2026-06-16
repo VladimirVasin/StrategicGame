@@ -19,10 +19,16 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
-            if (!rabbit.TryGetCurrentCell(out Vector2Int targetCell)
-                || !TryFindHuntingStandCell(rabbit, targetCell, out HuntingStandCandidate stand))
+            if (!rabbit.TryGetCurrentCell(out Vector2Int targetCell))
             {
-                RejectHuntMove(targetCell, "no_valid_ranged_stand");
+                RejectHuntMove(Vector2Int.zero, "target_cell_missing", 0);
+                return false;
+            }
+
+            if (!TryFindHuntingStandCell(rabbit, targetCell, out HuntingStandCandidate stand, out int checkedCandidates))
+            {
+                hunterWorkplace?.RegisterRejectedRabbitTarget(rabbit, targetCell, "no_valid_ranged_stand");
+                RejectHuntMove(targetCell, "no_valid_ranged_stand", checkedCandidates);
                 return false;
             }
 
@@ -43,9 +49,11 @@ namespace ProjectUnknown.Strategy
         private bool TryFindHuntingStandCell(
             StrategyRabbitAgent rabbit,
             Vector2Int targetCell,
-            out HuntingStandCandidate stand)
+            out HuntingStandCandidate stand,
+            out int checkedCandidates)
         {
             stand = default;
+            checkedCandidates = 0;
             List<HuntingStandCandidate> candidates = new();
             int maxRadius = Mathf.CeilToInt(HuntingShotRange) + 1;
             for (int radius = Mathf.FloorToInt(HuntingMinimumShotRange); radius <= maxRadius; radius++)
@@ -53,11 +61,12 @@ namespace ProjectUnknown.Strategy
                 GatherHuntingStandCandidates(rabbit, targetCell, radius, candidates);
             }
 
-            while (candidates.Count > 0)
+            while (candidates.Count > 0 && checkedCandidates < MaxHuntingStandPathChecks)
             {
                 int bestIndex = GetBestHuntingStandIndex(candidates);
                 stand = candidates[bestIndex];
                 candidates.RemoveAt(bestIndex);
+                checkedCandidates++;
                 if (TryBuildPathTo(stand.Cell))
                 {
                     return true;
@@ -174,16 +183,24 @@ namespace ProjectUnknown.Strategy
             return bestIndex;
         }
 
-        private void RejectHuntMove(Vector2Int targetCell, string reason)
+        private void RejectHuntMove(Vector2Int targetCell, string reason, int checkedCandidates)
         {
             activeHuntTarget = null;
             activity = ResidentActivity.Idle;
             huntingWorkCooldown = Random.Range(2.0f, 4.0f);
+            if (Time.time < nextHuntMoveRejectedLogTime)
+            {
+                return;
+            }
+
+            nextHuntMoveRejectedLogTime = Time.time + HuntMoveRejectedLogCooldownSeconds;
             StrategyDebugLogger.Warn(
                 "Hunting",
                 "HuntMoveRejected",
                 StrategyDebugLogger.F("resident", FullName),
                 StrategyDebugLogger.F("rabbitCell", targetCell),
+                StrategyDebugLogger.F("checkedStandCandidates", checkedCandidates),
+                StrategyDebugLogger.F("maxStandPathChecks", MaxHuntingStandPathChecks),
                 StrategyDebugLogger.F("reason", reason));
         }
 

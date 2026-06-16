@@ -292,7 +292,7 @@ namespace ProjectUnknown.Strategy
                 wildlife = wildlifeObject.AddComponent<StrategyWildlifeController>();
             }
 
-            wildlife.Configure(map, population);
+            wildlife.Configure(map, population, fog);
             StrategyDebugLogger.Info("Bootstrap", "WildlifeReady");
 
             StrategyConfirmationDialogController confirmationDialog = Object.FindAnyObjectByType<StrategyConfirmationDialogController>();

@@ -1,6 +1,6 @@
 # System Tree
 
-Last updated: 2026-06-16
+Last updated: 2026-06-17
 
 This is a conceptual map of the current project. Keep concrete file ownership in `ai/systems-map.md`.
 
@@ -156,13 +156,13 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Shared procedural shadows keep day/night opacity and length tuning while wind-driven props sway
     - Wildlife MVP
       - Runtime-created wildlife controller
-      - Spawns 12-16 deer across up to 8 compact herds on suitable walkable meadow, grass, dirt, and forest-edge cells
-      - Spawns 16-22 rabbits across up to 10 compact groups, keeping the first few groups in a near-camp ring for early hunting and distributing later groups map-wide
-      - Spawns 22-32 initial lake fish across up to 12 compact shoals on generated lake water regions with hard per-lake population caps
-      - Spawns one-way pass-through river fish on a single timer along the generated river current
-      - Spawns 20-32 decorative birds on species-appropriate meadow/grass, forest/near-forest, water, and shore cells
-      - Spawns 3-4 compact wolf packs on safe walkable land away from the campfire and dense settlement pressure, preferring alternating river sides when a generated river route exists
-      - Avoids the startup campfire area when choosing deer herd and wolf pack spawn cells, and keeps only the first few rabbit groups close enough to the starter camp for early hunting
+      - Spawns 12-16 deer across up to 8 compact herds only on currently hidden suitable land cells within a broad ring around completed buildings or active construction sites
+      - Spawns 16-22 rabbits across up to 10 compact groups only on currently hidden suitable land cells within the same near-settlement ring
+      - Spawns 22-32 initial lake fish across up to 12 compact shoals only in currently hidden lake cells near settlement anchors, with hard per-lake population caps
+      - Spawns one-way pass-through river fish on a single timer from currently hidden near-settlement river-route cells
+      - Spawns 20-32 decorative birds only on currently hidden species-appropriate land/water cells near settlement anchors
+      - Spawns 3-4 compact wolf packs only on currently hidden safe land cells in a wider near-settlement ring, preferring alternating river sides when a generated river route exists
+      - Uses completed buildings and active construction sites as wildlife spawn anchors, falling back to the startup camp only if no building anchor exists
       - Wildlife agents do not block walkability and do not act as fog reveal sources
       - Two procedural 2.5D deer models exist: antlered male buck and smaller female doe
       - Two procedural 2.5D rabbit models exist: male buck and female doe variants, with smaller kits using scaled visuals
@@ -181,7 +181,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Lake fish use short local lake-water paths inside a loose shoal/home range
       - River fish follow the generated river route from current start to end, then despawn
       - Birds fly between nearby habitat cells inside a loose home range and react to noisy residents by taking off
-      - Deer herds, rabbit groups, wolf packs, bird homes, and lake fish shoals periodically migrate by retargeting their loose home centers across suitable habitat
+      - Deer herds, rabbit groups, wolf packs, bird homes, and lake fish shoals periodically migrate by retargeting their loose home centers across currently hidden near-settlement suitable habitat
       - Land wildlife migration avoids dense settlement pressure and only advances through short connected land-or-river steps so groups do not jump through blockers or lakes
       - Wolves use walkable-cell paths, roam near their current pack migration center, avoid high settlement pressure, and only hunt rabbits/deer when current population surplus is above high control thresholds
       - Wolf attacks use normal stalking first, then a faster pounce/chase phase only once close to the selected prey
@@ -193,6 +193,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Adult female rabbits can reproduce when an adult male is nearby in the same group
       - Newborn rabbits appear as small kits, use scaled rabbit sprites, and grow into adults after scaled simulation time
       - Rabbit reproduction stops at a hard 30-rabbit population cap and a 3-rabbit per-group cap
+      - Deer/rabbit/lake-fish reproduction requires a currently hidden valid birth cell near settlement anchors, so animals do not appear inside the player's visible area or far from the settlement
       - Hunter camps can reserve adult rabbits, send hunters to roughly 2-3 tile bow stand cells, and stop the rabbit relaxed/flee behavior for the shot sequence
       - Hunted rabbits can be hit by arrow projectiles, become carcasses, and yield `Game` after butchering; missed arrows stick in the ground and make the rabbit flee
       - Adult lake fish can reproduce when another adult of the same species is nearby in the same shoal and the lake-region cap has room

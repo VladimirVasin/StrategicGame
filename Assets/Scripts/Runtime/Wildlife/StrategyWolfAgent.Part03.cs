@@ -5,6 +5,7 @@ namespace ProjectUnknown.Strategy
     public sealed partial class StrategyWolfAgent
     {
         private const float WolfPathLogCooldownSeconds = 2.75f;
+        private const float WolfStateLogCooldownSeconds = 1.25f;
         private const float WolfStallLogCooldownSeconds = 3.5f;
         private const float WolfStallSeconds = 1.35f;
         private const float WolfStallProgressSqr = 0.000004f;
@@ -12,6 +13,7 @@ namespace ProjectUnknown.Strategy
         private float movementStallTimer;
         private float nextMovementStallLogTime;
         private float nextPathLogTime;
+        private float nextStateLogTime;
         private string lastMovementMode = string.Empty;
 
         private void SetWolfState(StrategyWolfBehaviorState nextState, string reason)
@@ -24,6 +26,11 @@ namespace ProjectUnknown.Strategy
             }
 
             ResetWolfMovementDiagnostics();
+            if (!ShouldLogWolfStateChanged(nextState))
+            {
+                return;
+            }
+
             StrategyDebugLogger.Info(
                 "Wildlife",
                 "WolfStateChanged",
@@ -38,6 +45,24 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("targetName", GetTargetDebugName()),
                 StrategyDebugLogger.F("pathIndex", pathIndex),
                 StrategyDebugLogger.F("pathCount", path.Count));
+        }
+
+        private bool ShouldLogWolfStateChanged(StrategyWolfBehaviorState nextState)
+        {
+            if (nextState == StrategyWolfBehaviorState.Attacking
+                || nextState == StrategyWolfBehaviorState.Feeding)
+            {
+                nextStateLogTime = Time.time + WolfStateLogCooldownSeconds;
+                return true;
+            }
+
+            if (Time.time < nextStateLogTime)
+            {
+                return false;
+            }
+
+            nextStateLogTime = Time.time + WolfStateLogCooldownSeconds;
+            return true;
         }
 
         private void TrackWolfMovementAttempt(string mode, Vector3 previous, Vector3 current, Vector3 target, float speed)

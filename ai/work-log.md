@@ -8,6 +8,23 @@ Last updated: 2026-06-17
 
 ## Done
 
+### 2026-06-17 - Hidden near-settlement wildlife placement
+
+- Reworked wildlife spawn candidate rules so deer, rabbits, lake fish, river fish entry points, birds, and wolf packs only spawn in currently hidden cells within a broad ring around completed buildings or active construction sites.
+- Added `StrategyWildlifeController.Part11.cs` for shared hidden-near-settlement candidate checks, with startup camp fallback only when no building/construction anchor exists.
+- Applied the same hidden near-settlement rule to deer/rabbit/lake-fish birth cells and wildlife migration targets, preventing reproduction or home retargets from appearing far from buildings or inside the player's visible area.
+- Passed Fog of War into `StrategyWildlifeController` and kept the F9 fog-disable path from freezing wildlife simulation by treating disabled fog as geometry-only placement.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected `.cs` files remain below 500 lines.
+
+### 2026-06-17 - Hunting and planting retry-loop throttles
+
+- Added Hunter Camp cooldown memory for rabbit targets/cells that fail ranged stand-cell validation, so hunters stop repeatedly reserving the same temporarily unshootable rabbit.
+- `StrategyWildlifeController.TryReserveRabbitForHunt` now accepts an optional candidate filter used by Hunter Camps to skip recently rejected targets while preserving nearest-target selection.
+- Resident hunting stand search now caps expensive path checks per attempt and logs checked candidate counts with throttled `HuntMoveRejected` warnings.
+- Added temporary Forestry planting-cell rejection when lumberjacks cannot find a work cell/path, reducing repeated planting retries on impossible cells.
+- Throttled frequent non-critical wolf state-change logging while still logging attack/feeding transitions immediately.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected `.cs` files remain below 500 lines.
+
 ### 2026-06-17 - Auto workforce zero-role recovery
 
 - Diagnosed a regression where a completed House promoted the last active Builder to Householder, clearing the Builder workplace and leaving `Builder = 0` while construction sites still demanded builders.

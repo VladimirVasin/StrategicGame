@@ -84,6 +84,8 @@ namespace ProjectUnknown.Strategy
         private const float HuntingPreferredShotRange = 2.8f;
         private const float HuntingShotRange = 4.3f;
         private const float HuntingMissChance = 0.20f;
+        private const int MaxHuntingStandPathChecks = 18;
+        private const float HuntMoveRejectedLogCooldownSeconds = 4f;
         private const float FuneralWaitingAutoReleaseSeconds = 90f;
         private const float MovingThresholdSqr = 0.000001f;
         private const float ReadabilityOutlineScale = 1.16f;
@@ -174,6 +176,7 @@ namespace ProjectUnknown.Strategy
         private float huntingWorkCooldown;
         private float fishingWorkCooldown;
         private float householdFoodWorkCooldown;
+        private float nextHuntMoveRejectedLogTime;
         private float huntingWorkTimer;
         private float fishingWorkTimer;
         private float fishingBiteTimer;
