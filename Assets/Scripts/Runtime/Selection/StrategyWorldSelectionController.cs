@@ -368,8 +368,7 @@ namespace ProjectUnknown.Strategy
                 StrategyResidentAgent resident = hits[i].GetComponentInParent<StrategyResidentAgent>();
                 if (resident != null)
                 {
-                    info = BuildResidentInspectInfo(resident);
-                    return true;
+                    return false;
                 }
             }
 

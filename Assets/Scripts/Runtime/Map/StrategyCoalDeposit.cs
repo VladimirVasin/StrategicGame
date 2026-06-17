@@ -50,24 +50,9 @@ namespace ProjectUnknown.Strategy
 
         public bool TryGetWorldInspectInfo(out StrategyWorldInspectInfo info)
         {
-            string body = "Coal: "
-                + CoalAmount
-                + "\nFootprint: "
-                + Footprint.x
-                + "x"
-                + Footprint.y
-                + "\nState: underground, not mineable yet"
-                + "\nBlocks movement: no"
-                + "\nBlocks building: yes, except Coal Pit";
-            string state = IsDepleted ? "depleted" : IsReserved ? "reserved for coal pit" : "underground, mineable";
-            body = body.Replace("underground, not mineable yet", state);
-            info = new StrategyWorldInspectInfo(
-                GetCoalTitle(Kind),
-                "Coal deposit",
-                body,
-                spriteRenderer != null ? spriteRenderer.sprite : null,
-                Cell,
-                true);
+            info = StrategyWorldInspectInfoFactory.CreateCoalDeposit(
+                this,
+                spriteRenderer != null ? spriteRenderer.sprite : null);
             return true;
         }
 

@@ -8,27 +8,6 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyWorldSelectionController
     {
-
-        private StrategyWorldInspectInfo BuildResidentInspectInfo(StrategyResidentAgent resident)
-        {
-            bool hasCell = TryGetCellForWorld(resident.transform.position, out Vector2Int cell);
-            string body = "Role: "
-                + GetResidentRoleTitle(resident)
-                + "\nAge: "
-                + resident.DisplayAgeYears
-                + "\nStatus: "
-                + GetResidentStatus(resident)
-                + "\nHome: "
-                + (resident.Home != null ? GetBuildingTitle(resident.Home.Tool) : "Camp");
-            return new StrategyWorldInspectInfo(
-                resident.FullName,
-                "Resident",
-                body,
-                StrategyResidentSpriteFactory.GetPortraitSprite(resident.Gender, resident.VisualVariant, resident.LifeStage),
-                cell,
-                hasCell);
-        }
-
         private bool TryGetCellForWorld(Vector3 world, out Vector2Int cell)
         {
             if (map == null)
@@ -192,6 +171,8 @@ namespace ProjectUnknown.Strategy
                 SetProfileSectionVisible(false);
                 SetStatusSectionVisible(false);
                 SetContextSectionVisible(false);
+                SetResidentHudVisible(false);
+                SetStorageYardHudVisible(false);
                 SetResidentsSectionVisible(false);
                 SetWorkersSectionVisible(false);
                 SetResourcesVisible(false);
@@ -201,48 +182,15 @@ namespace ProjectUnknown.Strategy
 
             LayoutStatusSection(272f, 76f);
             LayoutContextSection(366f, 118f);
+            SetStorageYardHudVisible(false);
             StrategyResidentAgent resident = selectedTransform.GetComponent<StrategyResidentAgent>();
             if (resident != null)
             {
-                hudTitleText.text = resident.FullName;
-                hudSubtitleText.text = string.Empty;
-                hudSummaryTitleText.text = "Profile";
-                hudBodyText.text = "Gender: "
-                    + GetResidentGenderTitle(resident.Gender)
-                    + "\n"
-                    + "Role: "
-                    + GetResidentRoleTitle(resident)
-                    + "\n"
-                    + "Age: "
-                    + resident.DisplayAgeYears
-                    + " years"
-                    + "\n"
-                    + "Stage: "
-                    + GetResidentLifeStageTitle(resident);
-                hudStatusTitleText.text = "Status";
-                hudStatusBodyText.text = GetResidentStatus(resident);
-                hudContextTitleText.text = "House";
-                hudContextBodyText.text = resident.Home != null
-                    ? GetBuildingTitle(resident.Home.Tool)
-                        + "\n"
-                        + "assigned to this home"
-                    : "Camp"
-                    + "\n"
-                    + "waiting for a home";
-                SetPreviewSprite(StrategyResidentSpriteFactory.GetPortraitSprite(
-                    resident.Gender,
-                    resident.VisualVariant,
-                    resident.LifeStage));
-                SetProfileSectionVisible(true);
-                SetStatusSectionVisible(true);
-                SetContextSectionVisible(true);
-                SetResidentsSectionVisible(false);
-                SetWorkersSectionVisible(false);
-                SetResourcesVisible(false);
-                SetUpgradeActionsVisible(false);
+                RefreshResidentHud(resident);
                 return;
             }
 
+            SetResidentHudVisible(false);
             StrategyPlacedBuilding building = selectedTransform.GetComponent<StrategyPlacedBuilding>();
             if (building != null)
             {
@@ -279,7 +227,7 @@ namespace ProjectUnknown.Strategy
                 }
 
                 SetWorkersSectionVisible(false);
-                if (isLumberjackCamp || isStonecutterCamp || isSawmill || isMine || isCoalPit || isHunterCamp || isFisherHut || isStorageYard || isGranary)
+                if (isLumberjackCamp || isStonecutterCamp || isSawmill || isMine || isCoalPit || isHunterCamp || isFisherHut || isGranary)
                 {
                     LayoutContextSection(128f, 214f);
                 }
@@ -328,9 +276,7 @@ namespace ProjectUnknown.Strategy
                 }
                 else if (isStorageYard)
                 {
-                    hudContextTitleText.text = "Storage Yard";
-                    hudContextBodyText.text = yard.GetHudStatusText();
-                    SetContextSectionVisible(true);
+                    RefreshStorageYardHud(yard);
                 }
                 else if (isGranary)
                 {

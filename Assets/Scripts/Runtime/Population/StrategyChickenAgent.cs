@@ -70,14 +70,9 @@ namespace ProjectUnknown.Strategy
         {
             Vector2Int cell = default;
             bool hasCell = map != null && map.TryWorldToCell(transform.position, out cell);
-            string body = "State: "
-                + GetStateTitle()
-                + "\nCoop: "
-                + (coop != null ? coop.Origin.x + ", " + coop.Origin.y : "none");
-            info = new StrategyWorldInspectInfo(
-                "Chicken",
-                "Household animal",
-                body,
+            info = StrategyWorldInspectInfoFactory.CreateChicken(
+                GetStateTitle(),
+                coop != null ? coop.Origin.x + ", " + coop.Origin.y : "none",
                 spriteRenderer != null ? spriteRenderer.sprite : StrategyChickenSpriteFactory.GetSprite(),
                 cell,
                 hasCell);

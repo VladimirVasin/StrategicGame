@@ -166,6 +166,9 @@ namespace ProjectUnknown.Strategy
             hudContextBodyText.lineSpacing = 1.1f;
             SetTopStretch(hudContextBodyText.rectTransform, 24f, 404f, 24f, 70f);
 
+            CreateResidentHud();
+            CreateStorageYardHud();
+
             resourcesRoot = CreateUiObject("HouseResources", hudPanel).GetComponent<RectTransform>();
             SetTopStretch(resourcesRoot, 24f, 382f, 24f, 196f);
             Image resourcesBackground = resourcesRoot.gameObject.AddComponent<Image>();

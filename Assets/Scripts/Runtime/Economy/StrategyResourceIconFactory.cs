@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 namespace ProjectUnknown.Strategy
 {
-    internal static class StrategyResourceIconFactory
+    internal static partial class StrategyResourceIconFactory
     {
         private const float PixelsPerUnit = 24f;
         private static readonly Dictionary<StrategyResourceType, Sprite> CachedSprites = new();
@@ -27,7 +27,6 @@ namespace ProjectUnknown.Strategy
                 wrapMode = TextureWrapMode.Clamp
             };
             texture.SetPixels(new Color[24 * 24]);
-
             switch (type)
             {
                 case StrategyResourceType.Eggs:
@@ -66,6 +65,7 @@ namespace ProjectUnknown.Strategy
                 case StrategyResourceType.Logs:
                     PaintLogs(texture);
                     break;
+                case StrategyResourceType.Stone: PaintStone(texture); break;
                 case StrategyResourceType.Iron:
                     PaintIron(texture);
                     break;

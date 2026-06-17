@@ -58,21 +58,9 @@ namespace ProjectUnknown.Strategy
 
         public bool TryGetWorldInspectInfo(out StrategyWorldInspectInfo info)
         {
-            string body = "Stone: "
-                + StoneAmount
-                + "\nFootprint: "
-                + Footprint.x
-                + "x"
-                + Footprint.y
-                + "\nState: "
-                + (IsDepleted ? "depleted" : IsReserved ? "reserved" : "available");
-            info = new StrategyWorldInspectInfo(
-                GetStoneTitle(Kind),
-                "Stone deposit",
-                body,
-                spriteRenderer != null ? spriteRenderer.sprite : null,
-                Cell,
-                true);
+            info = StrategyWorldInspectInfoFactory.CreateStoneDeposit(
+                this,
+                spriteRenderer != null ? spriteRenderer.sprite : null);
             return true;
         }
 

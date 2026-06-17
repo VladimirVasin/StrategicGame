@@ -50,23 +50,9 @@ namespace ProjectUnknown.Strategy
 
         public bool TryGetWorldInspectInfo(out StrategyWorldInspectInfo info)
         {
-            string body = "Iron ore: "
-                + IronAmount
-                + "\nFootprint: "
-                + Footprint.x
-                + "x"
-                + Footprint.y
-                + "\nState: "
-                + (IsDepleted ? "depleted" : IsReserved ? "reserved for mining" : "underground, mineable")
-                + "\nBlocks movement: no"
-                + "\nBlocks building: yes, except Mine";
-            info = new StrategyWorldInspectInfo(
-                GetIronTitle(Kind),
-                "Iron deposit",
-                body,
-                spriteRenderer != null ? spriteRenderer.sprite : null,
-                Cell,
-                true);
+            info = StrategyWorldInspectInfoFactory.CreateIronDeposit(
+                this,
+                spriteRenderer != null ? spriteRenderer.sprite : null);
             return true;
         }
 

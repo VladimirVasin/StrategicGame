@@ -168,20 +168,8 @@ namespace ProjectUnknown.Strategy
         public bool TryGetWorldInspectInfo(out StrategyWorldInspectInfo info)
         {
             bool hasCell = TryGetCurrentCell(out Vector2Int currentCell);
-            string body = "Sex: "
-                + Sex
-                + "\nStage: "
-                + LifeStage
-                + "\nState: "
-                + State
-                + "\nGroup: "
-                + GroupId
-                + "\nHuntable: "
-                + (CanBeHunted ? "yes" : "no");
-            info = new StrategyWorldInspectInfo(
-                IsCarcass ? "Rabbit Carcass" : "Rabbit",
-                "Wildlife",
-                body,
+            info = StrategyWorldInspectInfoFactory.CreateRabbit(
+                this,
                 spriteRenderer != null ? spriteRenderer.sprite : null,
                 currentCell,
                 hasCell);

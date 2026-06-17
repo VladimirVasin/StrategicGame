@@ -150,20 +150,8 @@ namespace ProjectUnknown.Strategy
         public bool TryGetWorldInspectInfo(out StrategyWorldInspectInfo info)
         {
             bool hasCell = TryGetCurrentCell(out Vector2Int currentCell);
-            string body = "Sex: "
-                + Sex
-                + "\nStage: "
-                + LifeStage
-                + "\nState: "
-                + State
-                + "\nHerd: "
-                + HerdId
-                + "\nWolf prey: "
-                + (CanBeWolfPrey ? "yes" : "no");
-            info = new StrategyWorldInspectInfo(
-                Sex == StrategyDeerSex.Male ? "Stag" : "Doe",
-                "Wildlife",
-                body,
+            info = StrategyWorldInspectInfoFactory.CreateDeer(
+                this,
                 spriteRenderer != null ? spriteRenderer.sprite : null,
                 currentCell,
                 hasCell);

@@ -179,20 +179,8 @@ namespace ProjectUnknown.Strategy
         public bool TryGetWorldInspectInfo(out StrategyWorldInspectInfo info)
         {
             bool hasCell = TryGetCurrentCell(out Vector2Int currentCell);
-            string body = "Pack: "
-                + PackId
-                + "\nPack size: "
-                + PackMemberCount
-                + "\nState: "
-                + State
-                + "\nHome: "
-                + homeCell.x
-                + ", "
-                + homeCell.y;
-            info = new StrategyWorldInspectInfo(
-                "Wolf",
-                "Predator wildlife",
-                body,
+            info = StrategyWorldInspectInfoFactory.CreateWolf(
+                this,
                 spriteRenderer != null ? spriteRenderer.sprite : null,
                 currentCell,
                 hasCell);

@@ -116,20 +116,8 @@ namespace ProjectUnknown.Strategy
             Vector2Int cell = default;
             bool hasCell = map != null && map.TryWorldToCell(groundWorld, out cell);
             Vector2Int currentCell = hasCell ? cell : groundCell;
-            string body = "Species: "
-                + Species
-                + "\nState: "
-                + State
-                + "\nHome: "
-                + HomeCell.x
-                + ", "
-                + HomeCell.y
-                + "\nRadius: "
-                + homeRadius;
-            info = new StrategyWorldInspectInfo(
-                Species.ToString(),
-                "Decorative wildlife",
-                body,
+            info = StrategyWorldInspectInfoFactory.CreateBird(
+                this,
                 spriteRenderer != null ? spriteRenderer.sprite : null,
                 currentCell,
                 hasCell);

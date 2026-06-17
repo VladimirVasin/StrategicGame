@@ -238,6 +238,11 @@ namespace ProjectUnknown.Strategy
                 + sourceCount;
         }
 
+        public int GetAvailableSourceCount()
+        {
+            return CountAvailableSources();
+        }
+
         private int CountAvailableSources()
         {
             int count = 0;

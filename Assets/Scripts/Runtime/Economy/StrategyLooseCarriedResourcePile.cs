@@ -24,19 +24,12 @@ namespace ProjectUnknown.Strategy
 
         public bool TryGetWorldInspectInfo(out StrategyWorldInspectInfo info)
         {
-            string body = "Resource: "
-                + GetResourceTitle(resource)
-                + "\nAmount: "
-                + amount
-                + "\nState: "
-                + (IsReserved ? "reserved" : "available");
-            info = new StrategyWorldInspectInfo(
-                "Dropped " + GetResourceTitle(resource),
-                "Loose resource",
-                body,
+            info = StrategyWorldInspectInfoFactory.CreateLooseResource(
+                resource,
+                amount,
+                IsReserved,
                 spriteRenderer != null ? spriteRenderer.sprite : StrategyResourceIconFactory.GetSprite(resource),
-                origin,
-                true);
+                origin);
             return true;
         }
 

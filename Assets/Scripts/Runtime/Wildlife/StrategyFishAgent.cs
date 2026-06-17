@@ -185,20 +185,8 @@ namespace ProjectUnknown.Strategy
         public bool TryGetWorldInspectInfo(out StrategyWorldInspectInfo info)
         {
             bool hasCell = TryGetCurrentCell(out Vector2Int currentCell);
-            string body = "Species: "
-                + Species
-                + "\nHabitat: "
-                + HabitatKind
-                + "\nStage: "
-                + LifeStage
-                + "\nState: "
-                + State
-                + "\nFishable: "
-                + (CanBeFished ? "yes" : "no");
-            info = new StrategyWorldInspectInfo(
-                "Fish",
-                HabitatKind == StrategyFishHabitatKind.River ? "River wildlife" : "Lake wildlife",
-                body,
+            info = StrategyWorldInspectInfoFactory.CreateFish(
+                this,
                 spriteRenderer != null ? spriteRenderer.sprite : null,
                 currentCell,
                 hasCell);

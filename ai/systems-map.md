@@ -1429,12 +1429,15 @@ Responsibilities:
 - Show a simple marker under the selected world object.
 - Show dynamic linked-resident markers/lines when a completed building or construction site is selected while keeping the HUD focused on the clicked object.
 - Show a compact full-height right-side selection HUD for the selected object.
-- Show a separate bottom-right world inspect microHUD for clicked residents, graves, resources, nature props, and wildlife; placed buildings, construction sites, and house upgrades use the right-side selection HUD only.
+- Show a separate bottom-right world inspect microHUD for clicked graves, resources, nature props, and wildlife; residents, placed buildings, construction sites, and house upgrades use the right-side selection HUD only.
 - Resolve inspect information through `IStrategyWorldInspectable` and visible sprite bounds for non-building world objects; empty terrain cells do not open the microHUD.
+- Render typed inspect chip/row dashboards for wildlife, mineral deposits, trees, forage, loose carried resources, and loose construction materials while keeping legacy body text as a fallback.
 - Show selected-object preview sprites and status/context blocks.
+- Show selected residents with a dedicated compact dashboard: identity subtitle, portrait, role/home/food chips, and icon-led task, home, food, and family rows.
 - Expose house-specific visual upgrade actions in the selected-house HUD.
 - Show selected-house resident portraits/names/age/life stage/statuses up to house capacity, including the Householder marker, compact upgrade action rows, resource icons/counts, and Garden Beds crop.
 - Show selected worksite status/resource context without worker assignment controls.
+- Show selected Storage Yards with a dedicated icon-led logistics dashboard for Haulers, builders, available sources, resource stock, and readiness status.
 - Show selected lumberjack/stonecutter/sawmill/hunter/fisher/mine/coal pit/granary/storage stock and nearby source/target counts.
 - Show selected-construction-site cost, delivered resources, builder count, and progress/status context.
 - Show selected-resident full name, portrait, profile, age/life stage, current activity, and home/camp assignment.
@@ -1444,8 +1447,11 @@ Responsibilities:
 Primary files/assets:
 
 - `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.cs`
+- `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.Part09.cs`
+- `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.Part10.cs`
 - `Assets/Scripts/Runtime/Selection/IStrategyWorldInspectable.cs`
 - `Assets/Scripts/Runtime/Selection/StrategyWorldInspectInfo.cs`
+- `Assets/Scripts/Runtime/Selection/StrategyWorldInspectInfoFactory.cs`
 - `Assets/Scripts/Runtime/Selection/StrategyWorldInspectHudController.cs`
 - `Assets/Scripts/Runtime/Selection/StrategyStaticWorldInspectable.cs`
 - `Assets/Scripts/Runtime/UI/StrategyConfirmationDialogController.cs`
@@ -1478,7 +1484,7 @@ Impact hints:
 - Selection ignores the same frame that completed placement so the new building is not auto-selected by the placement click.
 - Selection consults fog exploration state before checking 2D world colliders.
 - Selection HUD is runtime-created in the world selection controller and slides in from the right.
-- World inspect microHUD is runtime-created by the selection controller, uses non-blocking Screen Space Overlay UI, shifts left while the right-side selected-object HUD is open, and intentionally excludes placed buildings, construction sites, and house upgrades.
+- World inspect microHUD is runtime-created by the selection controller, uses non-blocking Screen Space Overlay UI, shifts left while the right-side selected-object HUD is open, and intentionally excludes residents, placed buildings, construction sites, and house upgrades.
 - Non-selectable world objects should implement `IStrategyWorldInspectable`; do not add mass click-only physics colliders for inspect objects unless they are also truly selectable.
 - Building selection links are visual-only world overlays: Houses use `StrategyPlacedBuilding.Residents`; worksites use their assigned worker lists; Storage Yards include both Haulers and builders; selected construction sites link to their assigned builders.
 - House resident rows use the assigned resident references stored on `StrategyPlacedBuilding` and grow to the current house capacity.

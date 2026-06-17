@@ -33,30 +33,19 @@ namespace ProjectUnknown.Strategy
 
         public bool TryGetWorldInspectInfo(out StrategyWorldInspectInfo info)
         {
-            string body = "Logs: "
-                + logs
-                + " (available "
-                + AvailableLogs
-                + ")\nStone: "
-                + stone
-                + " (available "
-                + AvailableStone
-                + ")\nPlanks: "
-                + planks
-                + " (available "
-                + AvailablePlanks
-                + ")";
-            info = new StrategyWorldInspectInfo(
-                "Loose Building Materials",
-                "Construction resource pile",
-                body,
+            info = StrategyWorldInspectInfoFactory.CreateLooseConstructionPile(
+                logs,
+                stone,
+                planks,
+                AvailableLogs,
+                AvailableStone,
+                AvailablePlanks,
                 logs > 0 && logsRenderer != null
                     ? logsRenderer.sprite
                     : stone > 0 && stoneRenderer != null
                         ? stoneRenderer.sprite
                         : planksRenderer != null ? planksRenderer.sprite : null,
-                origin,
-                true);
+                origin);
             return true;
         }
 

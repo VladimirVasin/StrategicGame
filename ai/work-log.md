@@ -8,6 +8,39 @@ Last updated: 2026-06-17
 
 ## Done
 
+### 2026-06-17 - Structured world inspect microHUD
+
+- Extended `StrategyWorldInspectInfo` with optional inspect kind, accent color, chips, and rows while keeping the old body text fallback constructor.
+- Reworked `StrategyWorldInspectHudController` to render compact typed microHUD dashboards with chips and icon-led rows, falling back to legacy body text for non-migrated inspectables.
+- Added `StrategyWorldInspectInfoFactory` and migrated rabbits, deer, fish, birds, wolves, chickens, Stone/Iron/Coal deposits, trees, forage nodes, loose carried resources, and loose construction resource piles to structured inspect payloads.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; full `Assets/Scripts` line-count scan found no C# files over 500 lines; `git diff --check` passed.
+
+### 2026-06-17 - Stone resource icon/title fix
+
+- Fixed the Storage Yard HUD showing stored Stone as `none` with an empty icon by adding the missing `StrategyResourceType.Stone` title case and a dedicated Stone resource icon painter.
+- Split the Stone painter into `StrategyResourceIconFactory.Part01.cs` so the main resource icon factory stays at the 500-line limit.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-17 - Storage Yard selection HUD dashboard
+
+- Replaced the selected Storage Yard right-side HUD text context block with a dedicated logistics dashboard: Hauler, builder, and source chips; an icon-led stock grid for Logs, Stone, Planks, Iron, and Coal; and a readiness status panel.
+- Added `StrategyWorldSelectionController.Part10.cs` for Storage Yard HUD creation/refresh helpers and exposed `StrategyStorageYard.GetAvailableSourceCount()` so the HUD reads source count without parsing text.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; full `Assets/Scripts` line-count scan found no C# files over 500 lines; `git diff --check` passed.
+
+### 2026-06-17 - Resident selection HUD dashboard
+
+- Replaced the selected-resident right-side HUD debug-style `Profile`/`Status`/`House` blocks with a compact resident dashboard: identity subtitle, portrait, role/home/food chips, and icon-led current task, home, food, and family rows.
+- Added a resident-specific HUD root in `StrategyWorldSelectionController.Part09.cs`, reusing profession icons, food resource icons, house/camp visuals, and resident portraits where appropriate.
+- Kept residents out of the bottom-right world inspect microHUD path; residents now use only the full right-side selection HUD.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; full `Assets/Scripts` line-count scan found no C# files over 500 lines; `git diff --check` passed.
+
+### 2026-06-17 - Resident microHUD removal
+
+- Removed the bottom-right world inspect microHUD path for clicked residents; selecting a resident now uses only the full right-side selection HUD.
+- Resident clicks now suppress underlying inspect microHUD hits so a resource/animal under the cursor does not open a microHUD while a resident is selected.
+- Updated AI memory for the world-selection HUD behavior.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; full `Assets/Scripts` line-count scan found no C# files over 500 lines.
+
 ### 2026-06-17 - Mine work interruption fix
 
 - Fixed a mining interruption path where funeral duty could take a resident after `MineEntryStarted` without cancelling Mine, Coal Pit, or Sawmill active work state.

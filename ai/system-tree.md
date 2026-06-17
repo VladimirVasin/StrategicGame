@@ -457,8 +457,8 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Selected objects show a simple runtime selection marker
     - Selected completed buildings and selected construction sites show linked-resident markers and lines without changing the selected-object HUD
     - Selection opens a compact full-height right-side HUD panel with selected-object preview art
-    - Left-click also updates a separate bottom-right world inspect microHUD for non-building inspect targets without replacing the selected-object HUD
-    - World inspect priority is selected resident, non-building inspectable world object, then grave
+    - Left-click also updates a separate bottom-right world inspect microHUD for non-building, non-resident inspect targets without replacing the selected-object HUD
+    - World inspect priority is non-building inspectable world object, then grave; selected residents use the full right-side HUD only
     - Empty terrain cells do not open inspect microHUD; empty clicks hide it
     - Non-selectable inspect objects resolve from visible sprite bounds at click time instead of adding mass 2D physics colliders
     - Trees, bushes/forest thickets, Stone deposits, Iron/Coal indicators, forage nodes, loose resource piles, chickens, deer, rabbits, fish, birds, and wolves expose lightweight inspect data
@@ -466,10 +466,11 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - The house HUD exposes default Garden Beds state and the Chicken Coop upgrade action
     - House upgrade actions are shown as compact state/action rows
     - The house HUD shows a visual food status row, ration meter, home food, Granary stock, current Garden Beds crop, and filtered household resource icons/counts including single food units
-    - The lumberjack, stonecutter, sawmill, mine, coal pit, hunter, fisher, granary, and storage building HUDs show status/resource context without assignment controls
+    - The lumberjack, stonecutter, sawmill, mine, coal pit, hunter, fisher, and granary HUDs show status/resource context without assignment controls
+    - The Storage Yard HUD shows icon-led Hauler/Builder/source chips, a resource stock grid, and logistics readiness status without assignment controls
     - The construction site HUD shows final building type, cost, delivered resources, assigned builders, and build progress
     - `Delete` opens a confirmation dialog for selected construction-site cancellation or selected-building demolition
-    - The resident HUD shows full name, portrait, profile, age/life stage, current activity, and home/camp assignment
+    - The resident HUD shows full name, portrait, age/life stage, gender, compact role/home/food chips, and icon-led task, home, food, and family rows
 
 - Input foundation
   - Unity Input System package
@@ -485,7 +486,8 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Custom runtime residents roster HUD showing settlement stats plus filterable resident rows for name, age, home state, role, current status, and food status
 - Custom fullscreen Family Trees HUD opened from the residents roster; it pauses simulation, provides permanent horizontal/vertical scrollbars, lays connected same-surname family cards out as affinity-ordered left-to-right columns, and shows compact generation rows connected by local parent-pair branches plus cross-family relationship lines, deceased markers, gender symbols, and hover relationship labels
   - Custom compact runtime event log showing births, deaths, and adoptions
-  - Custom runtime world inspect microHUD for clicked residents, graves, resources, nature props, and wildlife; buildings and construction sites use the right-side selection HUD only
+  - Custom runtime world inspect microHUD for clicked graves, resources, nature props, and wildlife; residents, buildings, and construction sites use the right-side selection HUD only
+    - MicroHUD supports typed chip/row dashboards for wildlife, deposits, trees, forage, and loose resource piles, with old body text kept as fallback
   - Custom runtime Profession HUD
     - Top-menu `Professions` button
     - Dynamic profession rows for built worksites

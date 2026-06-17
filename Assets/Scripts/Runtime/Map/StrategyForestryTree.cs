@@ -97,21 +97,9 @@ namespace ProjectUnknown.Strategy
 
         public bool TryGetWorldInspectInfo(out StrategyWorldInspectInfo info)
         {
-            string body = "Stage: "
-                + GetStageTitle()
-                + "\nState: "
-                + GetTreeStateTitle()
-                + "\nLogs: "
-                + (HasLogsReady ? logYield.ToString() : "not ready")
-                + "\nReserved: "
-                + (IsReserved ? "yes" : "no");
-            info = new StrategyWorldInspectInfo(
-                IsMature ? "Tree" : "Young Tree",
-                "Forest resource",
-                body,
-                spriteRenderer != null ? spriteRenderer.sprite : null,
-                Cell,
-                true);
+            info = StrategyWorldInspectInfoFactory.CreateTree(
+                this,
+                spriteRenderer != null ? spriteRenderer.sprite : null);
             return true;
         }
 

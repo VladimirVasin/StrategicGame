@@ -49,20 +49,14 @@ namespace ProjectUnknown.Strategy
 
         public bool TryGetWorldInspectInfo(out StrategyWorldInspectInfo info)
         {
-            string body = "Resource: "
-                + GetResourceTitle(resourceType)
-                + "\nYield: "
-                + yieldAmount
-                + "\nState: "
-                + (depleted ? "regrowing" : reservedBy != null ? "reserved" : "ready")
-                + "\nHome use: household food";
-            info = new StrategyWorldInspectInfo(
+            info = StrategyWorldInspectInfoFactory.CreateForage(
                 GetResourceTitle(resourceType),
-                "Forage node",
-                body,
+                resourceType,
+                yieldAmount,
+                depleted,
+                reservedBy != null,
                 spriteRenderer != null ? spriteRenderer.sprite : null,
-                cell,
-                true);
+                cell);
             return true;
         }
 
