@@ -82,13 +82,13 @@ namespace ProjectUnknown.Strategy
             AddDemand(profession, category, target, world, needed, CoverageFloorUrgency, "coverage_floor");
         }
 
-        private int AssignIdleAdultsToBestAvailableRoles()
+        private int AssignIdleAdultsToBestAvailableRoles(bool allowOverTarget)
         {
             int assigned = 0;
             while (candidates.Count > 0)
             {
                 if (!TryCreateBestFallbackDemand(false, out StrategyAutoWorkforceDemand demand)
-                    && !TryCreateBestFallbackDemand(true, out demand))
+                    && (!allowOverTarget || !TryCreateBestFallbackDemand(true, out demand)))
                 {
                     break;
                 }

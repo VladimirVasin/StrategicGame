@@ -8,6 +8,73 @@ Last updated: 2026-06-17
 
 ## Done
 
+### 2026-06-17 - Mine work interruption fix
+
+- Fixed a mining interruption path where funeral duty could take a resident after `MineEntryStarted` without cancelling Mine, Coal Pit, or Sawmill active work state.
+- Auto workforce donor release now skips workers who are already in non-idle active work/movement states during normal surplus and demand rebalance, while still allowing explicit priority-0 profession shutdowns to unassign workers.
+- Added `MineWorkReset` and `MineWorkCancelled` diagnostics so future logs show why a Miner returns to idle before `MinerWentUnderground` or `IronMinedUnderground`.
+- Split auto workforce release/rebalance helpers into `StrategyAutoWorkforceController.Part06.cs` so touched source files remain below 500 lines.
+- Trimmed extra blank lines from `StrategyPopulationController.Part01.cs` to restore the project-wide 500-line source limit without behavior changes.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; full `Assets/Scripts` line-count scan found no C# files over 500 lines.
+
+### 2026-06-17 - Coal Pit resident mining sprite animation
+
+- Added dedicated `CoalMine` resident work sprites with a 12-frame pickaxe cycle and coal impact pixels.
+- Coal Pit workers now occupy separate visible in-pit slots when two miners work at once, and their resident sprites sort above the Coal Pit building sprite during active mining.
+- Coal Pit mining dust/chip effects now spawn from the worker-specific slot instead of the center of the pit.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected `.cs` files remain below 500 lines.
+
+### 2026-06-17 - Coal Pit production speed tuning
+
+- Slowed Coal Pit mining cycles by 2x: each Coal Miner now produces 1 Coal every 8.4-13.6 seconds instead of every 4.2-6.8 seconds.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected `.cs` files remain below 500 lines.
+
+### 2026-06-17 - Stone deposit yield tuning
+
+- Reduced mined Stone chunk yield and adjusted work time: small deposits now yield 1 Stone after 3 hits, Rock Clusters yield 2 Stone after 6 hits, and Cliffs yield 4 Stone after 8 hits.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected `.cs` files remain below 500 lines.
+
+### 2026-06-17 - Refugee family size and population pressure tuning
+
+- Changed refugee families to contain 1-3 members with 1-2 adult parents and any remaining slots filled by children.
+- Refugee arrivals now stop at 50 accepted residents and incoming family size is capped by remaining room below 50.
+- Arrival timer intensity now fades from full speed at 40 residents to stopped at 50 residents.
+- Homeless-family housing can now preserve one-parent-plus-child family blocks instead of only recognizing complete two-parent families.
+- Refugee dialog role labels now derive from life stage and gender instead of fixed list position.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected `.cs` files remain below 500 lines.
+
+### 2026-06-17 - Family Trees cross-family grouping fix
+
+- Changed Family Trees grouping so a family card is now a connected same-surname component instead of a whole connected kinship component.
+- Different surnames remain separate family cards even when linked by parents, children, or co-parents.
+- Added cross-family relationship lines between individual cards for parent-child and co-parent links that cross family-card boundaries.
+- Added `StrategyFamilyTreeHudController.Part05.cs` for content-space card position registration and cross-family link rendering.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected `.cs` files remain below 500 lines.
+
+### 2026-06-17 - Performance spike cleanup for auto workforce and water overlay
+
+- Fixed an auto workforce churn loop where each tick could release surplus Builders/Haulers and then immediately assign the same free adults back into over-target fallback roles in the same frame.
+- Fallback assignment can still fill under-target enabled roles, but over-target fallback is skipped on ticks that just released surplus or demand-rebalance workers.
+- Fixed the remaining cross-tick auto workforce ping-pong where one tick released over-target workers and the next tick assigned the same free adults back over target.
+- Surplus releases now only happen when there is unfilled workforce demand that cannot be covered by already-free adults; categories set to priority `0` still release their workers.
+- Staggered cinematic emitter scene scans and raised their scan interval from 3s to 7s so expensive `FindObjectsByType` passes are less likely to coincide with workforce ticks.
+- Reduced the runtime water overlay cost by lowering the animated overlay texture density to 4 pixels per cell and slowing decorative water frame updates from 0.14s to 0.22s while keeping depth tint, foam, wet shore edges, and river flow streaks.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected `.cs` files remain below 500 lines.
+
+### 2026-06-17 - Profession HUD refresh lifecycle fix
+
+- Fixed a `StrategyProfessionHudController.RefreshUi` `NullReferenceException` caused by refresh calls reaching profession rows before all row UI objects were valid.
+- `RefreshUi` now defers when the content root is not built yet and ensures missing profession rows are recreated before snapshots are applied.
+- Moved row-recovery helpers into `StrategyProfessionHudController.Part05.cs` to keep the main HUD file safely below the 500-line limit.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected `.cs` files remain below 500 lines.
+
+### 2026-06-17 - Water visual depth and shoreline foam pass
+
+- Upgraded `StrategyWaterAnimationController` to paint a subtle animated depth tint over water cells, with shallow teal edges near shore and darker deep-water centers.
+- Added broken shoreline foam on the water side plus wet shore-edge pixels that respond to rain and storm intensity.
+- Made river flow streaks and flecks more readable along `RiverFlowDirection`, with storm weather producing stronger current highlights.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected `.cs` files remain below 500 lines.
+
 ### 2026-06-17 - Trail spider-web visibility cleanup
 
 - Tightened faint trail visibility so level-1 trail cells only render when they bridge opposing strong cardinal trail segments or sit inside an already strong junction.

@@ -8,6 +8,9 @@ namespace ProjectUnknown.Strategy
         private void ClearContent()
         {
             relationshipLabelsById.Clear();
+            contentCardTopLeftById.Clear();
+            contentCardCenterById.Clear();
+            familyGroupByResidentId.Clear();
             hoveredResidentId = 0;
             if (contentRoot == null)
             {

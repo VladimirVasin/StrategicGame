@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ProjectUnknown.Strategy
 {
     [DisallowMultipleComponent]
-    public sealed class StrategyCoalPit : MonoBehaviour
+    public sealed partial class StrategyCoalPit : MonoBehaviour
     {
         public const int MaxWorkers = 2;
 

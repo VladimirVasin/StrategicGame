@@ -5,7 +5,6 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyPopulationController
     {
-
         public bool TrySpawnChildForHouse(
             StrategyPlacedBuilding house,
             StrategyResidentAgent father,
@@ -46,10 +45,8 @@ namespace ProjectUnknown.Strategy
 
             GameObject residentObject = new GameObject(childName);
             residentObject.transform.SetParent(residentRoot, false);
-
             SpriteRenderer renderer = residentObject.AddComponent<SpriteRenderer>();
             renderer.sprite = StrategyResidentSpriteFactory.GetSprite(gender, visualVariant, StrategyResidentLifeStage.Child);
-
             child = residentObject.AddComponent<StrategyResidentAgent>();
             child.Configure(
                 map,
@@ -93,6 +90,7 @@ namespace ProjectUnknown.Strategy
             Vector3 spawnWorld,
             Vector2 formationAxis,
             Vector2Int temporaryIdleOrigin,
+            int parentCount,
             int childCount,
             out List<StrategyResidentAgent> family)
         {
@@ -104,54 +102,48 @@ namespace ProjectUnknown.Strategy
 
             EnsureResidentRoot();
 
-            int normalizedChildCount = Mathf.Clamp(childCount, 1, 3);
+            int normalizedParentCount = Mathf.Clamp(parentCount, 1, 2);
+            int normalizedChildCount = Mathf.Clamp(childCount, 0, 3 - normalizedParentCount);
             Vector2 axis = formationAxis.sqrMagnitude > 0.001f
                 ? formationAxis.normalized
                 : Vector2.right;
             string familyName = ReserveFamilyName();
-            int fatherId = AllocateResidentId();
-            int motherId = AllocateResidentId();
+            StrategyResidentAgent father = null;
+            StrategyResidentAgent mother = null;
 
-            StrategyResidentAgent father = CreateRefugeeResident(
-                StrategyResidentGender.Male,
-                fatherId,
-                0,
-                0,
-                familyName,
-                Random.Range(24f, 42f),
-                StrategyResidentLifeStage.Adult,
-                spawnWorld + GetRefugeeFormationOffset(axis, 0) * map.CellSize,
-                temporaryIdleOrigin);
-
-            StrategyResidentAgent mother = CreateRefugeeResident(
-                StrategyResidentGender.Female,
-                motherId,
-                0,
-                0,
-                familyName,
-                Random.Range(22f, 39f),
-                StrategyResidentLifeStage.Adult,
-                spawnWorld + GetRefugeeFormationOffset(axis, 1) * map.CellSize,
-                temporaryIdleOrigin);
-
-            if (father == null || mother == null)
+            for (int i = 0; i < normalizedParentCount; i++)
             {
-                if (father != null)
+                StrategyResidentGender gender = normalizedParentCount == 2
+                    ? i == 0 ? StrategyResidentGender.Male : StrategyResidentGender.Female
+                    : Random.value < 0.5f ? StrategyResidentGender.Male : StrategyResidentGender.Female;
+                int parentId = AllocateResidentId();
+                StrategyResidentAgent parent = CreateRefugeeResident(
+                    gender,
+                    parentId,
+                    0,
+                    0,
+                    familyName,
+                    GetRefugeeParentAge(gender),
+                    StrategyResidentLifeStage.Adult,
+                    spawnWorld + GetRefugeeFormationOffset(axis, i) * map.CellSize,
+                    temporaryIdleOrigin);
+
+                if (parent == null)
                 {
-                    Destroy(father.gameObject);
+                    DestroyTemporaryResidents(family);
+                    return false;
                 }
 
-                if (mother != null)
+                family.Add(parent);
+                if (gender == StrategyResidentGender.Male)
                 {
-                    Destroy(mother.gameObject);
+                    father = parent;
                 }
-
-                DestroyTemporaryResidents(family);
-                return false;
+                else
+                {
+                    mother = parent;
+                }
             }
-
-            family.Add(father);
-            family.Add(mother);
 
             for (int i = 0; i < normalizedChildCount; i++)
             {
@@ -162,12 +154,12 @@ namespace ProjectUnknown.Strategy
                 StrategyResidentAgent child = CreateRefugeeResident(
                     gender,
                     childId,
-                    fatherId,
-                    motherId,
+                    father != null ? father.ResidentId : 0,
+                    mother != null ? mother.ResidentId : 0,
                     familyName,
                     Random.Range(2f, 15f),
                     StrategyResidentLifeStage.Child,
-                    spawnWorld + GetRefugeeFormationOffset(axis, i + 2) * map.CellSize,
+                    spawnWorld + GetRefugeeFormationOffset(axis, i + normalizedParentCount) * map.CellSize,
                     temporaryIdleOrigin);
 
                 if (child == null)
@@ -175,8 +167,8 @@ namespace ProjectUnknown.Strategy
                     continue;
                 }
 
-                father.AddChildId(childId);
-                mother.AddChildId(childId);
+                father?.AddChildId(childId);
+                mother?.AddChildId(childId);
                 family.Add(child);
             }
 
@@ -185,9 +177,17 @@ namespace ProjectUnknown.Strategy
                 "FamilyCreated",
                 StrategyDebugLogger.F("family", familyName),
                 StrategyDebugLogger.F("members", family.Count),
-                StrategyDebugLogger.F("children", family.Count - 2),
+                StrategyDebugLogger.F("parents", normalizedParentCount),
+                StrategyDebugLogger.F("children", normalizedChildCount),
                 StrategyDebugLogger.F("spawnWorld", spawnWorld));
-            return family.Count >= 3;
+            return family.Count >= 1;
+        }
+
+        private static float GetRefugeeParentAge(StrategyResidentGender gender)
+        {
+            return gender == StrategyResidentGender.Male
+                ? Random.Range(24f, 42f)
+                : Random.Range(22f, 39f);
         }
 
         public void AcceptRefugeeFamily(IReadOnlyList<StrategyResidentAgent> family)
@@ -381,47 +381,58 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            HashSet<int> checkedCouples = new();
+            HashSet<int> checkedFamilies = new();
             for (int i = 0; i < residents.Count; i++)
             {
                 StrategyResidentAgent child = residents[i];
                 if (child == null
                     || child.IsPendingRefugee
                     || child.Home != null
-                    || child.FatherId <= 0
-                    || child.MotherId <= 0)
+                    || (child.FatherId <= 0 && child.MotherId <= 0))
                 {
                     continue;
                 }
 
-                int coupleKey = child.FatherId * 397 ^ child.MotherId;
-                if (checkedCouples.Contains(coupleKey))
+                int familyKey = child.FatherId * 397 ^ child.MotherId;
+                if (checkedFamilies.Contains(familyKey))
                 {
                     continue;
                 }
 
-                checkedCouples.Add(coupleKey);
-                if (!TryGetResidentById(child.FatherId, out StrategyResidentAgent father)
-                    || !TryGetResidentById(child.MotherId, out StrategyResidentAgent mother)
-                    || !CanMoveResidentToHouse(father, destinationHouse)
-                    || !CanMoveResidentToHouse(mother, destinationHouse)
-                    || father.Gender != StrategyResidentGender.Male
-                    || mother.Gender != StrategyResidentGender.Female)
+                checkedFamilies.Add(familyKey);
+                int fatherId = child.FatherId;
+                int motherId = child.MotherId;
+                List<StrategyResidentAgent> candidateFamily = new();
+                if (fatherId > 0
+                    && TryGetResidentById(fatherId, out StrategyResidentAgent father)
+                    && father.Gender == StrategyResidentGender.Male
+                    && CanMoveResidentToHouse(father, destinationHouse))
+                {
+                    candidateFamily.Add(father);
+                }
+
+                if (motherId > 0
+                    && TryGetResidentById(motherId, out StrategyResidentAgent mother)
+                    && mother.Gender == StrategyResidentGender.Female
+                    && CanMoveResidentToHouse(mother, destinationHouse))
+                {
+                    candidateFamily.Add(mother);
+                }
+
+                if (candidateFamily.Count <= 0)
                 {
                     continue;
                 }
 
-                List<StrategyResidentAgent> candidateFamily = new() { father, mother };
                 for (int memberIndex = 0; memberIndex < residents.Count; memberIndex++)
                 {
                     StrategyResidentAgent candidate = residents[memberIndex];
                     if (candidate == null
-                        || candidate == father
-                        || candidate == mother
                         || candidate.IsPendingRefugee
                         || candidate.Home != null
-                        || candidate.FatherId != father.ResidentId
-                        || candidate.MotherId != mother.ResidentId)
+                        || candidate.FatherId != fatherId
+                        || candidate.MotherId != motherId
+                        || candidateFamily.Contains(candidate))
                     {
                         continue;
                     }
@@ -429,7 +440,7 @@ namespace ProjectUnknown.Strategy
                     candidateFamily.Add(candidate);
                 }
 
-                if (candidateFamily.Count >= 3 && candidateFamily.Count <= destinationHouse.ResidentCapacity)
+                if (candidateFamily.Count >= 2 && candidateFamily.Count <= destinationHouse.ResidentCapacity)
                 {
                     family = candidateFamily;
                     return true;

@@ -5,8 +5,8 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyResidentAgent
     {
-        private const float CoalPitWorkSecondsMin = 4.2f;
-        private const float CoalPitWorkSecondsMax = 6.8f;
+        private const float CoalPitWorkSecondsMin = 8.4f;
+        private const float CoalPitWorkSecondsMax = 13.6f;
 
         private StrategyCoalPit coalPitWorkplace;
         private StrategyCoalPit activeCoalPit;
@@ -187,9 +187,13 @@ namespace ProjectUnknown.Strategy
 
             activity = ResidentActivity.MiningCoalInPit;
             coalWorkTimer = Random.Range(CoalPitWorkSecondsMin, CoalPitWorkSecondsMax);
-            transform.position = activeCoalPit.GetInteriorWorkWorld();
+            transform.position = activeCoalPit.GetInteriorWorkWorld(this);
             transform.localRotation = Quaternion.identity;
             transform.localScale = Vector3.one;
+            usingWorkSprite = false;
+            appliedWorkFrame = -1;
+            workFrame = Mathf.Abs(ResidentId) % StrategyResidentSpriteFactory.CoalMineFrameCount;
+            workFrameTimer = Random.Range(0f, 0.7f);
             SetWorldPresenceVisible(true);
             FaceWorldPoint(activeCoalPit.FootprintBounds.center + Vector3.right * 0.25f);
             ResetCoalPitWorkEffectTimer(true);
@@ -208,8 +212,9 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            transform.position = activeCoalPit.GetInteriorWorkWorld();
-            AnimateLumberWork(10.6f, 4.1f);
+            transform.position = activeCoalPit.GetInteriorWorkWorld(this);
+            FaceWorldPoint(activeCoalPit.FootprintBounds.center);
+            AnimateCoalPitMiningWork();
             UpdateCoalPitWorkEffects();
             coalWorkTimer -= Time.deltaTime;
             if (coalWorkTimer > 0f)
@@ -232,6 +237,42 @@ namespace ProjectUnknown.Strategy
             }
 
             ResetCoalPitWorkToIdle();
+        }
+
+        private void AnimateCoalPitMiningWork()
+        {
+            if (spriteRenderer == null)
+            {
+                return;
+            }
+
+            transform.localRotation = Quaternion.identity;
+            transform.localScale = Vector3.one;
+            usingWalkSprite = false;
+            if (!usingWorkSprite)
+            {
+                usingWorkSprite = true;
+                workFrame = Mathf.Abs(ResidentId) % StrategyResidentSpriteFactory.CoalMineFrameCount;
+                workFrameTimer = 0f;
+                appliedWorkFrame = -1;
+            }
+
+            workFrameTimer += Time.deltaTime * CoalMineAnimationFrameRate;
+            int frameSteps = Mathf.FloorToInt(workFrameTimer);
+            if (frameSteps > 0)
+            {
+                workFrame = (workFrame + frameSteps) % StrategyResidentSpriteFactory.CoalMineFrameCount;
+                workFrameTimer -= frameSteps;
+            }
+
+            Sprite coalMineSprite = StrategyResidentSpriteFactory.GetCoalMineSprite(gender, VisualVariant, workFrame);
+            if (appliedWorkFrame != workFrame || spriteRenderer.sprite != coalMineSprite)
+            {
+                spriteRenderer.sprite = coalMineSprite;
+                appliedWorkFrame = workFrame;
+                usingWorkSprite = true;
+                SyncReadabilityRenderers();
+            }
         }
 
         private void ResetCoalPitWorkToIdle()

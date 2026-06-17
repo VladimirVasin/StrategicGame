@@ -180,6 +180,8 @@ namespace ProjectUnknown.Strategy
             ClearConstructionSite(null);
             CancelLumberWork();
             CancelStoneWork();
+            CancelMineWork();
+            CancelCoalPitWork();
             CancelStorageWork(true);
             CancelGranaryWork(true);
             CancelHunterWork(true);
@@ -235,6 +237,9 @@ namespace ProjectUnknown.Strategy
             ClearConstructionSite(null);
             CancelLumberWork();
             CancelStoneWork();
+            CancelMineWork();
+            CancelCoalPitWork();
+            CancelSawmillWork(true);
             CancelStorageWork(true);
             CancelGranaryWork(true);
             CancelHunterWork(true);

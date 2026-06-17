@@ -161,6 +161,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/UI/StrategyFamilyTreeHudController.Part02.cs`
 - `Assets/Scripts/Runtime/UI/StrategyFamilyTreeHudController.Part03.cs`
 - `Assets/Scripts/Runtime/UI/StrategyFamilyTreeHudController.Part04.cs`
+- `Assets/Scripts/Runtime/UI/StrategyFamilyTreeHudController.Part05.cs`
 - `Assets/Scripts/Runtime/UI/StrategyPopulationRosterRowView.cs`
 - `Assets/Scripts/Runtime/UI/StrategyResidentHudText.cs`
 - `Assets/Scripts/Runtime/UI/StrategyEventLogHudController.cs`
@@ -739,7 +740,7 @@ Responsibilities:
 - Treat the compact population panel as a click target that toggles the larger resident roster HUD.
 - Show a larger residents roster HUD with settlement stats plus filterable rows for name, age, home/camp state, role, current status, and food status.
 - Expose a `Family Trees` button from the residents roster.
-- Show a fullscreen modal Family Trees HUD that pauses simulation, has permanent horizontal/vertical scrollbars, groups recorded members by connected kinship components, lays those groups out as affinity-ordered left-to-right family columns with compact generation rows, and draws parent-child portrait-card trees with distinct deceased cards, gender symbols, and hover relationship labels.
+- Show a fullscreen modal Family Trees HUD that pauses simulation, has permanent horizontal/vertical scrollbars, groups recorded members into connected same-surname family cards, lays those cards out as affinity-ordered left-to-right columns with compact generation rows, and draws parent-child portrait-card trees plus cross-family relationship lines with distinct deceased cards, gender symbols, and hover relationship labels.
 - Share resident role/status/home/food label formatting through `StrategyResidentHudText`.
 - Show compact birth, death, and adoption messages through a separate event-log canvas.
 - Refresh counts from `StrategyPopulationController` without owning population state.
@@ -754,6 +755,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/UI/StrategyFamilyTreeHudController.Part02.cs`
 - `Assets/Scripts/Runtime/UI/StrategyFamilyTreeHudController.Part03.cs`
 - `Assets/Scripts/Runtime/UI/StrategyFamilyTreeHudController.Part04.cs`
+- `Assets/Scripts/Runtime/UI/StrategyFamilyTreeHudController.Part05.cs`
 - `Assets/Scripts/Runtime/UI/StrategyPopulationRosterRowView.cs`
 - `Assets/Scripts/Runtime/UI/StrategyResidentHudText.cs`
 - `Assets/Scripts/Runtime/UI/StrategyEventLogHudController.cs`
@@ -766,7 +768,7 @@ Impact hints:
 
 - Population counts exclude pending refugee families until they are accepted into the settlement.
 - Family Trees reads recorded family data, including deceased residents preserved by `StrategyResidentFamilyRecord`, and renders deceased relatives as muted monochrome cards with a skull marker.
-- Family Trees relationship labels and column affinity currently derive from recorded parent/child links plus co-parent inference through shared children; explicit marriage/birth-family links should extend this owner instead of overloading family-name grouping.
+- Family Trees relationship labels, cross-family lines, and column affinity currently derive from recorded parent/child links plus co-parent inference through shared children; explicit marriage/birth-family links should extend this owner instead of overloading family-name grouping.
 - Keep top HUD click targets coordinated with Build/Profession HUD positioning and raycasts.
 
 ### Refugee Decision HUD
@@ -809,6 +811,7 @@ Primary files/assets:
 
 - `Assets/Scripts/Runtime/UI/StrategyProfessionHudController.cs`
 - `Assets/Scripts/Runtime/UI/StrategyProfessionHudController.Part04.cs`
+- `Assets/Scripts/Runtime/UI/StrategyProfessionHudController.Part05.cs`
 - `Assets/Scripts/Runtime/UI/StrategyProfessionIconFactory.cs`
 - `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceController.cs`
 - `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceSettings.cs`
@@ -853,6 +856,7 @@ Responsibilities:
 - Treat Haulers as the single automated logistics profession for storage resources and Granary food movement.
 - Register a short manual-removal override per profession so auto-fill does not immediately undo player `-` clicks.
 - Log demand, assignment, skipped assignment, manual override, priority, and tick status events.
+- Rebalance only idle worksite workers during normal surplus/demand donor releases; explicit priority-0 profession shutdowns can still cancel active work.
 
 Primary files/assets:
 
@@ -862,9 +866,11 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceController.Part03.cs`
 - `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceController.Part04.cs`
 - `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceController.Part05.cs`
+- `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceController.Part06.cs`
 - `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceDemand.cs`
 - `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceSettings.cs`
 - `Assets/Scripts/Runtime/UI/StrategyProfessionHudController.Part04.cs`
+- `Assets/Scripts/Runtime/UI/StrategyProfessionHudController.Part05.cs`
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.cs`
 - `Assembly-CSharp.csproj`
 
@@ -1081,6 +1087,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.cs`
 - `Assets/Scripts/Runtime/Population/StrategyProfessionType.cs`
 - `Assets/Scripts/Runtime/UI/StrategyProfessionHudController.cs`
+- `Assets/Scripts/Runtime/UI/StrategyProfessionHudController.Part05.cs`
 - `Assets/Scripts/Runtime/UI/StrategyBuildMenuController.Catalog.cs`
 - `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.cs`
 - `Assets/Scripts/Runtime/Economy/StrategyResourceType.cs`
@@ -1248,8 +1255,8 @@ Responsibilities:
 - Temporarily interrupt resident tasks for funeral activities without permanently removing workplace roles.
 - Move the oldest adult child still living with parents into empty houses.
 - Move an eligible adult opposite-gender partner into single-resident adult-child houses while blocking close relatives.
-- Create temporary refugee families with one adult man, one adult woman, and 1-3 children.
-- Gate the first refugee family on 3 completed registered houses; schedule later families with the repeat interval.
+- Create temporary refugee families with 1-3 members, 1-2 adult parents, and optional children.
+- Gate the first refugee family on 3 completed registered houses; schedule later families with the repeat interval, fading arrival intensity after 40 accepted residents and stopping arrivals at 50 accepted residents.
 - Keep pending refugees outside the normal resident registry until accepted.
 - Accept refugee families into the normal resident registry or destroy rejected temporary families after they leave the map.
 - Drive simple idle movement around the current camp/home through short walkable grid paths.

@@ -216,13 +216,7 @@ namespace ProjectUnknown.Strategy
                     builder.Append('\n');
                 }
 
-                string role = i == 0
-                    ? "male"
-                    : i == 1
-                        ? "female"
-                        : resident.Gender == StrategyResidentGender.Male
-                            ? "son"
-                            : "daughter";
+                string role = GetFamilyRole(resident);
                 builder.Append(resident.FullName);
                 builder.Append("  -  ");
                 builder.Append(role);
@@ -233,6 +227,21 @@ namespace ProjectUnknown.Strategy
             }
 
             return builder.ToString();
+        }
+
+        private static string GetFamilyRole(StrategyResidentAgent resident)
+        {
+            if (resident == null)
+            {
+                return "family member";
+            }
+
+            if (!resident.IsAdult)
+            {
+                return resident.Gender == StrategyResidentGender.Male ? "son" : "daughter";
+            }
+
+            return resident.Gender == StrategyResidentGender.Male ? "father" : "mother";
         }
 
         private static string GetAgeSuffix(int age)

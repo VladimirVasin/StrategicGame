@@ -10,7 +10,7 @@ namespace ProjectUnknown.Strategy
         private const int PuddleCount = 36;
         private const int ForegroundCount = 4;
         private const int MaxActivePointLights = 6;
-        private const float ScanInterval = 3.0f;
+        private const float ScanInterval = 7.0f;
         private const float LodInterval = 0.35f;
         private const float PuddleUpdateInterval = 0.18f;
         private const float ForegroundUpdateInterval = 0.14f;
@@ -49,8 +49,8 @@ namespace ProjectUnknown.Strategy
             weather = weatherController;
             wind = windController;
             configured = map != null && strategyCamera != null;
-            scanTimer = 0f;
-            lodTimer = 0f;
+            scanTimer = Random.Range(ScanInterval * 0.45f, ScanInterval);
+            lodTimer = Random.Range(0f, LodInterval);
             puddleTimer = 0f;
             foregroundTimer = 0f;
             lightningTimer = Random.Range(6f, 14f);

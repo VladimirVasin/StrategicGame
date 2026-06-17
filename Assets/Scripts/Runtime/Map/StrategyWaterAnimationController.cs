@@ -5,9 +5,9 @@ namespace ProjectUnknown.Strategy
     [DisallowMultipleComponent]
     public sealed class StrategyWaterAnimationController : MonoBehaviour
     {
-        private const int PixelsPerCell = 8;
+        private const int PixelsPerCell = 4;
         private const int FrameCount = 8;
-        private const float FrameDuration = 0.14f;
+        private const float FrameDuration = 0.22f;
 
         private CityMapController map;
         private SpriteRenderer overlayRenderer;
@@ -147,13 +147,80 @@ namespace ProjectUnknown.Strategy
 
         private void PaintWaterCell(int cellX, int cellY, CityMapCell cell)
         {
+            PaintWaterDepthTint(cellX, cellY, cell);
             if (cell.IsRiver)
             {
                 PaintRiverWaterCell(cellX, cellY);
+            }
+            else
+            {
+                PaintLakeWaterCell(cellX, cellY);
+            }
+
+            PaintWaterEdgeFoam(cellX, cellY, cell);
+        }
+
+        private void PaintWaterDepthTint(int cellX, int cellY, CityMapCell cell)
+        {
+            int waterNeighbors = CountWaterNeighbors(cellX, cellY);
+            int shoreNeighbors = CountShoreNeighbors(cellX, cellY);
+            bool shallow = waterNeighbors <= 4 || shoreNeighbors > 0;
+            Color shallowColor = cell.IsRiver
+                ? new Color(0.24f, 0.62f, 0.68f, 0.055f + rainRippleIntensity * 0.020f)
+                : new Color(0.23f, 0.58f, 0.66f, 0.065f + rainRippleIntensity * 0.018f);
+            Color deepColor = cell.IsRiver
+                ? new Color(0.06f, 0.22f, 0.34f, 0.105f + stormRippleIntensity * 0.045f)
+                : new Color(0.05f, 0.18f, 0.32f, 0.120f + stormRippleIntensity * 0.038f);
+            Color baseColor = shallow ? shallowColor : deepColor;
+            for (int py = 0; py < PixelsPerCell; py++)
+            {
+                for (int px = 0; px < PixelsPerCell; px++)
+                {
+                    float noise = Hash01(map.ActiveSeed, cellX, cellY, px, py, 317);
+                    float edgeLift = shallow ? 0.020f * noise : -0.018f * noise;
+                    Color color = baseColor;
+                    color.a = Mathf.Clamp01(color.a + edgeLift);
+                    SetOverlayPixel(cellX, cellY, px, py, color);
+                }
+            }
+        }
+
+        private void PaintWaterEdgeFoam(int cellX, int cellY, CityMapCell cell)
+        {
+            bool shoreLeft = IsShoreLike(cellX - 1, cellY);
+            bool shoreRight = IsShoreLike(cellX + 1, cellY);
+            bool shoreDown = IsShoreLike(cellX, cellY - 1);
+            bool shoreUp = IsShoreLike(cellX, cellY + 1);
+            if (!shoreLeft && !shoreRight && !shoreDown && !shoreUp)
+            {
                 return;
             }
 
-            PaintLakeWaterCell(cellX, cellY);
+            float weatherBoost = rainRippleIntensity * 0.06f + stormRippleIntensity * 0.10f;
+            for (int py = 0; py < PixelsPerCell; py++)
+            {
+                for (int px = 0; px < PixelsPerCell; px++)
+                {
+                    int edgeDistance = GetNearestFoamEdgeDistance(px, py, shoreLeft, shoreRight, shoreDown, shoreUp);
+                    if (edgeDistance > 2)
+                    {
+                        continue;
+                    }
+
+                    float noise = Hash01(map.ActiveSeed, cellX, cellY, px, py, 409);
+                    int brokenLine = PositiveModulo(px * 3 + py * 5 + frameIndex + cellX * 7 - cellY * 2, 7);
+                    if (brokenLine > 1 || noise < 0.26f + edgeDistance * 0.14f)
+                    {
+                        continue;
+                    }
+
+                    float alpha = (edgeDistance == 0 ? 0.30f : 0.18f) + weatherBoost + noise * 0.10f;
+                    Color foam = cell.IsRiver
+                        ? new Color(0.86f, 0.96f, 0.95f, alpha)
+                        : new Color(0.82f, 0.94f, 0.88f, alpha * 0.85f);
+                    SetOverlayPixel(cellX, cellY, px, py, foam);
+                }
+            }
         }
 
         private void PaintLakeWaterCell(int cellX, int cellY)
@@ -164,10 +231,10 @@ namespace ProjectUnknown.Strategy
                 {
                     float noise = Hash01(map.ActiveSeed, cellX, cellY, px, py, 101);
                     int wave = PositiveModulo(py + cellX * 2 + cellY + frameIndex, 6);
-                    if (wave == 0 && noise > 0.28f)
+                    if (wave == 0 && noise > 0.24f)
                     {
-                        float alpha = 0.20f + noise * 0.22f + rainRippleIntensity * 0.08f;
-                        SetOverlayPixel(cellX, cellY, px, py, new Color(0.63f, 0.86f, 0.95f, alpha));
+                        float alpha = 0.21f + noise * 0.24f + rainRippleIntensity * 0.08f;
+                        SetOverlayPixel(cellX, cellY, px, py, new Color(0.64f, 0.88f, 0.96f, alpha));
                         continue;
                     }
 
@@ -208,17 +275,17 @@ namespace ProjectUnknown.Strategy
                     int along = horizontal ? worldPx : worldPy;
                     int across = horizontal ? worldPy : worldPx;
                     int wave = PositiveModulo(along * flowSign - frameIndex + across / 3, 7);
-                    if (wave == 0 && noise > 0.22f)
+                    if (wave <= (stormRippleIntensity > 0.35f ? 1 : 0) && noise > 0.18f)
                     {
-                        float alpha = 0.22f + noise * 0.24f + rainRippleIntensity * 0.06f;
-                        SetOverlayPixel(cellX, cellY, px, py, new Color(0.62f, 0.88f, 0.98f, alpha));
+                        float alpha = 0.24f + noise * 0.27f + rainRippleIntensity * 0.06f + stormRippleIntensity * 0.06f;
+                        SetOverlayPixel(cellX, cellY, px, py, new Color(0.64f, 0.90f, 1f, alpha));
                         continue;
                     }
 
-                    int currentFleck = PositiveModulo(along * flowSign - frameIndex * 2 + across * 5 + cellX - cellY, 29);
-                    if (currentFleck == 0 && noise > 0.58f)
+                    int currentFleck = PositiveModulo(along * flowSign - frameIndex * 2 + across * 5 + cellX - cellY, 23);
+                    if (currentFleck == 0 && noise > 0.50f)
                     {
-                        SetOverlayPixel(cellX, cellY, px, py, new Color(0.80f, 0.97f, 1f, 0.28f));
+                        SetOverlayPixel(cellX, cellY, px, py, new Color(0.80f, 0.97f, 1f, 0.34f));
                     }
 
                     if (rainRippleIntensity > 0.08f)
@@ -249,20 +316,21 @@ namespace ProjectUnknown.Strategy
             {
                 for (int px = 0; px < PixelsPerCell; px++)
                 {
-                    bool nearWater = (waterLeft && px <= 1)
-                        || (waterRight && px >= PixelsPerCell - 2)
-                        || (waterDown && py <= 1)
-                        || (waterUp && py >= PixelsPerCell - 2);
-                    if (!nearWater)
+                    int edgeDistance = GetNearestFoamEdgeDistance(px, py, waterLeft, waterRight, waterDown, waterUp);
+                    if (edgeDistance > 2)
                     {
                         continue;
                     }
 
-                    int ripple = PositiveModulo(px + py * 2 + frameIndex + cellX * 3 + cellY, 5);
-                    if (ripple <= 1)
+                    float noise = Hash01(map.ActiveSeed, cellX, cellY, px, py, 211);
+                    float wetAlpha = 0.10f + rainRippleIntensity * 0.10f + stormRippleIntensity * 0.08f + noise * 0.04f;
+                    SetOverlayPixel(cellX, cellY, px, py, new Color(0.24f, 0.28f, 0.18f, wetAlpha));
+
+                    int ripple = PositiveModulo(px + py * 2 + frameIndex + cellX * 3 + cellY, 6);
+                    if (ripple <= 1 && noise > 0.34f + edgeDistance * 0.10f)
                     {
-                        float noise = Hash01(map.ActiveSeed, cellX, cellY, px, py, 211);
-                        SetOverlayPixel(cellX, cellY, px, py, new Color(0.86f, 0.94f, 0.86f, 0.18f + noise * 0.14f + rainRippleIntensity * 0.05f));
+                        float foamAlpha = 0.15f + noise * 0.12f + rainRippleIntensity * 0.05f;
+                        SetOverlayPixel(cellX, cellY, px, py, new Color(0.84f, 0.92f, 0.82f, foamAlpha));
                     }
                 }
             }
@@ -271,6 +339,70 @@ namespace ProjectUnknown.Strategy
         private bool IsWater(int x, int y)
         {
             return map.TryGetCell(x, y, out CityMapCell cell) && cell.Kind == CityMapCellKind.Water;
+        }
+
+        private bool IsShoreLike(int x, int y)
+        {
+            return map.TryGetCell(x, y, out CityMapCell cell) && cell.Kind != CityMapCellKind.Water;
+        }
+
+        private int CountWaterNeighbors(int cellX, int cellY)
+        {
+            int count = 0;
+            for (int y = -1; y <= 1; y++)
+            {
+                for (int x = -1; x <= 1; x++)
+                {
+                    if ((x != 0 || y != 0) && IsWater(cellX + x, cellY + y))
+                    {
+                        count++;
+                    }
+                }
+            }
+
+            return count;
+        }
+
+        private int CountShoreNeighbors(int cellX, int cellY)
+        {
+            int count = 0;
+            count += IsShoreLike(cellX - 1, cellY) ? 1 : 0;
+            count += IsShoreLike(cellX + 1, cellY) ? 1 : 0;
+            count += IsShoreLike(cellX, cellY - 1) ? 1 : 0;
+            count += IsShoreLike(cellX, cellY + 1) ? 1 : 0;
+            return count;
+        }
+
+        private static int GetNearestFoamEdgeDistance(
+            int px,
+            int py,
+            bool shoreLeft,
+            bool shoreRight,
+            bool shoreDown,
+            bool shoreUp)
+        {
+            int distance = PixelsPerCell;
+            if (shoreLeft)
+            {
+                distance = Mathf.Min(distance, px);
+            }
+
+            if (shoreRight)
+            {
+                distance = Mathf.Min(distance, PixelsPerCell - 1 - px);
+            }
+
+            if (shoreDown)
+            {
+                distance = Mathf.Min(distance, py);
+            }
+
+            if (shoreUp)
+            {
+                distance = Mathf.Min(distance, PixelsPerCell - 1 - py);
+            }
+
+            return distance;
         }
 
         private void SetOverlayPixel(int cellX, int cellY, int px, int py, Color color)

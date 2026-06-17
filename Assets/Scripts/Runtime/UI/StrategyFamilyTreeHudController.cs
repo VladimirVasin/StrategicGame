@@ -35,6 +35,9 @@ namespace ProjectUnknown.Strategy
         private readonly Dictionary<int, int> generationsById = new();
         private readonly Dictionary<int, Vector2> cardTopLeftById = new();
         private readonly Dictionary<int, Vector2> cardCenterById = new();
+        private readonly Dictionary<int, Vector2> contentCardTopLeftById = new();
+        private readonly Dictionary<int, Vector2> contentCardCenterById = new();
+        private readonly Dictionary<int, int> familyGroupByResidentId = new();
         private readonly Dictionary<int, List<StrategyResidentFamilyRecord>> rowsByGeneration = new();
         private readonly Dictionary<int, Text> relationshipLabelsById = new();
         private readonly HashSet<int> familyIds = new();
@@ -228,6 +231,7 @@ namespace ProjectUnknown.Strategy
                 float sectionWidth = BuildFamilySection(
                     GetFamilyHeader(familyGroups[i]),
                     familyRecords,
+                    i,
                     x,
                     0f,
                     out float sectionHeight);
@@ -236,6 +240,7 @@ namespace ProjectUnknown.Strategy
                 contentHeight = Mathf.Max(contentHeight, sectionHeight);
             }
 
+            DrawCrossFamilyConnections();
             contentRoot.sizeDelta = new Vector2(contentWidth, contentHeight + 24f);
             summaryText.text = familyGroups.Count + " families / " + allRecords.Count + " recorded members";
         }
@@ -280,14 +285,15 @@ namespace ProjectUnknown.Strategy
                 }
 
                 FamilyTreeGroup group = new();
-                AddConnectedFamilyRecords(record.ResidentId, visitedIds, group.Records);
+                string familyName = GetFamilyName(record);
+                AddConnectedFamilyRecords(record.ResidentId, familyName, visitedIds, group.Records);
                 if (group.Records.Count <= 0)
                 {
                     continue;
                 }
 
                 group.Records.Sort(CompareFamilyMembers);
-                group.FamilyName = GetPrimaryFamilyName(group.Records);
+                group.FamilyName = familyName;
                 group.SortAge = group.Records[0].DisplayAgeYears;
                 group.SortResidentId = group.Records[0].ResidentId;
                 familyGroups.Add(group);
@@ -296,6 +302,7 @@ namespace ProjectUnknown.Strategy
 
         private void AddConnectedFamilyRecords(
             int startId,
+            string familyName,
             HashSet<int> visitedIds,
             List<StrategyResidentFamilyRecord> records)
         {
@@ -312,19 +319,26 @@ namespace ProjectUnknown.Strategy
                 }
 
                 records.Add(record);
-                EnqueueFamilyRecord(record.FatherId, visitedIds, queue);
-                EnqueueFamilyRecord(record.MotherId, visitedIds, queue);
+                EnqueueFamilyRecord(record.FatherId, familyName, visitedIds, queue);
+                EnqueueFamilyRecord(record.MotherId, familyName, visitedIds, queue);
                 IReadOnlyList<int> childIds = record.ChildIds;
                 for (int i = 0; i < childIds.Count; i++)
                 {
-                    EnqueueFamilyRecord(childIds[i], visitedIds, queue);
+                    EnqueueFamilyRecord(childIds[i], familyName, visitedIds, queue);
                 }
             }
         }
 
-        private void EnqueueFamilyRecord(int residentId, HashSet<int> visitedIds, Queue<int> queue)
+        private void EnqueueFamilyRecord(
+            int residentId,
+            string familyName,
+            HashSet<int> visitedIds,
+            Queue<int> queue)
         {
-            if (residentId <= 0 || visitedIds.Contains(residentId) || !recordsById.ContainsKey(residentId))
+            if (residentId <= 0
+                || visitedIds.Contains(residentId)
+                || !recordsById.TryGetValue(residentId, out StrategyResidentFamilyRecord record)
+                || !HasSameFamilyName(record, familyName))
             {
                 return;
             }
@@ -421,6 +435,11 @@ namespace ProjectUnknown.Strategy
             return record != null && !string.IsNullOrWhiteSpace(record.FamilyName)
                 ? record.FamilyName
                 : "Unknown";
+        }
+
+        private static bool HasSameFamilyName(StrategyResidentFamilyRecord record, string familyName)
+        {
+            return string.Equals(GetFamilyName(record), familyName, System.StringComparison.Ordinal);
         }
 
         private static int CompareFamilyMembers(StrategyResidentFamilyRecord left, StrategyResidentFamilyRecord right)

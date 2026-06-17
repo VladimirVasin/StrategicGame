@@ -111,18 +111,23 @@ namespace ProjectUnknown.Strategy
             CleanupManualLocks();
             CollectFreeCandidates();
             CollectDemands();
-            int surplusReleased = RebalanceOverstaffedProfessions();
-            int released = surplusReleased;
+            int disabledReleased = ReleaseDisabledProfessionWorkers();
+            int demandShortfall = Mathf.Max(0, CountUnfilledDemand() - candidates.Count);
+            int surplusReleased = demandShortfall > 0 ? RebalanceOverstaffedProfessions(demandShortfall) : 0;
+            int released = disabledReleased + surplusReleased;
             demands.Sort((left, right) => right.Score.CompareTo(left.Score));
 
             int assigned = AssignDemandsWithRebalance(ref released, out int demandReleased);
-            int fallbackAssigned = AssignIdleAdultsToBestAvailableRoles();
+            bool allowOverTargetFallback = surplusReleased <= 0 && demandReleased <= 0;
+            int fallbackAssigned = AssignIdleAdultsToBestAvailableRoles(allowOverTargetFallback);
             assigned += fallbackAssigned;
 
             lastStatus = assigned > 0
                 ? "Assigned " + assigned + " worker" + (assigned == 1 ? string.Empty : "s")
                 : demandReleased > 0
                     ? "Released " + demandReleased + " worker" + (demandReleased == 1 ? string.Empty : "s") + " for demand"
+                    : disabledReleased > 0
+                    ? "Released " + disabledReleased + " disabled worker" + (disabledReleased == 1 ? string.Empty : "s")
                     : surplusReleased > 0
                     ? "Released " + surplusReleased + " surplus worker" + (surplusReleased == 1 ? string.Empty : "s")
                     : candidates.Count > 0 ? "No enabled workforce slot" : "No free adults";

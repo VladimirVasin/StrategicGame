@@ -120,7 +120,7 @@ namespace ProjectUnknown.Strategy
             pathIndex = 0;
             if (activeMine == null || !EnsureActiveIronDeposit())
             {
-                ResetMineWorkToIdle();
+                ResetMineWorkToIdle(activeMine == null ? "missing_active_mine" : "deposit_unavailable_at_entry");
                 return;
             }
 
@@ -145,7 +145,7 @@ namespace ProjectUnknown.Strategy
         {
             if (activeMine == null || mineWorkplace == null || mineWorkplace != activeMine)
             {
-                ResetMineWorkToIdle();
+                ResetMineWorkToIdle("workplace_changed");
                 return;
             }
 
@@ -160,13 +160,13 @@ namespace ProjectUnknown.Strategy
 
             if (!EnsureActiveIronDeposit())
             {
-                ResetMineWorkToIdle();
+                ResetMineWorkToIdle("deposit_unavailable");
                 return;
             }
 
             if (!activeMine.HasStorageSpace)
             {
-                ResetMineWorkToIdle();
+                ResetMineWorkToIdle("storage_full");
                 return;
             }
 
@@ -239,8 +239,12 @@ namespace ProjectUnknown.Strategy
             SetWorldPresenceVisible(true);
         }
 
-        private void ResetMineWorkToIdle()
+        private void ResetMineWorkToIdle(string reason = "reset")
         {
+            StrategyMine previousMine = activeMine;
+            StrategyIronDeposit previousDeposit = activeIronDeposit;
+            ResidentActivity previousActivity = activity;
+            bool wasHidden = hiddenUnderground;
             if (activeIronDeposit != null)
             {
                 activeIronDeposit.Release(this);
@@ -262,6 +266,16 @@ namespace ProjectUnknown.Strategy
             UseIdleSprite();
             mineWorkCooldown = Random.Range(2.0f, 4.5f);
             waitTimer = Random.Range(0.35f, 0.85f);
+            StrategyDebugLogger.Info(
+                "Mining",
+                "MineWorkReset",
+                StrategyDebugLogger.F("resident", FullName),
+                StrategyDebugLogger.F("reason", reason),
+                StrategyDebugLogger.F("activity", previousActivity),
+                StrategyDebugLogger.F("mineOrigin", previousMine != null ? previousMine.Origin : Vector2Int.zero),
+                StrategyDebugLogger.F("hadDeposit", previousDeposit != null),
+                StrategyDebugLogger.F("hiddenUnderground", wasHidden),
+                StrategyDebugLogger.F("storageSpace", previousMine != null && previousMine.HasStorageSpace));
         }
 
         private void CancelMineWork()
@@ -271,6 +285,10 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            StrategyMine previousMine = activeMine;
+            StrategyIronDeposit previousDeposit = activeIronDeposit;
+            ResidentActivity previousActivity = activity;
+            bool wasHidden = hiddenUnderground;
             if (activeIronDeposit != null)
             {
                 activeIronDeposit.Release(this);
@@ -293,6 +311,21 @@ namespace ProjectUnknown.Strategy
                 transform.localRotation = Quaternion.identity;
                 transform.localScale = Vector3.one;
                 UseIdleSprite();
+            }
+
+            if (previousMine != null
+                || previousDeposit != null
+                || previousActivity == ResidentActivity.MovingToMine
+                || previousActivity == ResidentActivity.MiningUnderground)
+            {
+                StrategyDebugLogger.Info(
+                    "Mining",
+                    "MineWorkCancelled",
+                    StrategyDebugLogger.F("resident", FullName),
+                    StrategyDebugLogger.F("activity", previousActivity),
+                    StrategyDebugLogger.F("mineOrigin", previousMine != null ? previousMine.Origin : Vector2Int.zero),
+                    StrategyDebugLogger.F("hadDeposit", previousDeposit != null),
+                    StrategyDebugLogger.F("hiddenUnderground", wasHidden));
             }
         }
 

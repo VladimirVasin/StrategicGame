@@ -332,8 +332,8 @@ namespace ProjectUnknown.Strategy
         {
             return Kind switch
             {
-                StrategyStoneDepositKind.Cliff => 7,
-                StrategyStoneDepositKind.RockCluster => 5,
+                StrategyStoneDepositKind.Cliff => 8,
+                StrategyStoneDepositKind.RockCluster => 6,
                 _ => 3
             };
         }
@@ -342,9 +342,9 @@ namespace ProjectUnknown.Strategy
         {
             return Kind switch
             {
-                StrategyStoneDepositKind.Cliff => 5,
-                StrategyStoneDepositKind.RockCluster => 3,
-                _ => 2
+                StrategyStoneDepositKind.Cliff => 4,
+                StrategyStoneDepositKind.RockCluster => 2,
+                _ => 1
             };
         }
 

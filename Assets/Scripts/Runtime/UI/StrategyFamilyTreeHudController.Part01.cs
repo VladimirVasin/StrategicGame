@@ -11,6 +11,7 @@ namespace ProjectUnknown.Strategy
         private float BuildFamilySection(
             string familyTitle,
             List<StrategyResidentFamilyRecord> records,
+            int familyGroupIndex,
             float left,
             float top,
             out float sectionHeight)
@@ -40,6 +41,7 @@ namespace ProjectUnknown.Strategy
             SetTopLeft(count.rectTransform, 24f, 41f, sectionWidth - 48f, 20f);
 
             PositionCards(sectionWidth);
+            RegisterContentCardPositions(records, familyGroupIndex, left, top);
             DrawConnections(section);
             DrawCards(section, records);
             return sectionWidth;

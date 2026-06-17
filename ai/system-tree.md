@@ -98,7 +98,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Procedural 16px pixel-art terrain tile painter
     - Multiple deterministic variants per terrain kind
     - Neighbor-aware side and corner overlays for terrain transitions
-    - Runtime water/shore overlay animates waves, sparkles, shoreline foam, and weather-driven rain ripple hits over the static map texture
+    - Runtime water/shore overlay animates shallow/deep tint, river-flow streaks, lake sparkles, broken shoreline foam, wet shore edges, and weather-driven rain ripple hits over the static map texture
     - Runtime trail layer records weighted resident footfall wear on walkable/buildable land cells
     - Trail wear decays after cells go unused long enough, letting stale trails fade back out of view
     - Trail cells render connected procedural sprites using 8-direction connection masks, wear levels, and deterministic variants
@@ -408,7 +408,8 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Completed burials create runtime-generated clickable grave sprites with epitaph HUD data and mark grave cells as not walkable
     - Funeral activities temporarily interrupt active resident tasks without permanently removing workplace roles
     - The first refugee family arrives after 3 completed houses; later families periodically arrive from a map edge, route only to the reachable camp-side arrival area, walk to the startup campfire, and ask for settlement acceptance through a modal paused decision
-    - Refugee families contain one adult man, one adult woman, and 1-3 children with normal names, ages, visual variants, and parent/child kinship links
+    - Refugee arrival intensity fades after 40 accepted residents and stops at 50 accepted residents; incoming family size is capped by remaining room below 50
+    - Refugee families contain 1-3 members with 1-2 adult parents and optional children, using normal names, ages, visual variants, and parent/child kinship links when children are present
     - Accepted refugees join the normal resident registry, keep their family block, and occupy the first available empty House as a whole family
     - Rejected refugee families walk back off-map and are removed
     - Adult children continue aging and can move from a parental home into an empty house, oldest first
@@ -482,7 +483,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Custom runtime Build menu HUD
   - Custom runtime top status HUD showing total population, adults, and children; clicking it opens a larger residents roster HUD
   - Custom runtime residents roster HUD showing settlement stats plus filterable resident rows for name, age, home state, role, current status, and food status
-- Custom fullscreen Family Trees HUD opened from the residents roster; it pauses simulation, provides permanent horizontal/vertical scrollbars, lays kinship groups out as affinity-ordered left-to-right family columns, and shows compact generation rows connected by local parent-pair branches with deceased markers, gender symbols, and hover relationship labels
+- Custom fullscreen Family Trees HUD opened from the residents roster; it pauses simulation, provides permanent horizontal/vertical scrollbars, lays connected same-surname family cards out as affinity-ordered left-to-right columns, and shows compact generation rows connected by local parent-pair branches plus cross-family relationship lines, deceased markers, gender symbols, and hover relationship labels
   - Custom compact runtime event log showing births, deaths, and adoptions
   - Custom runtime world inspect microHUD for clicked residents, graves, resources, nature props, and wildlife; buildings and construction sites use the right-side selection HUD only
   - Custom runtime Profession HUD

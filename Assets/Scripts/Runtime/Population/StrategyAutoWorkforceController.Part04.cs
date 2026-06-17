@@ -70,6 +70,21 @@ namespace ProjectUnknown.Strategy
             return GetTopUnfilledDemand() != null;
         }
 
+        private int CountUnfilledDemand()
+        {
+            int total = 0;
+            for (int i = 0; i < demands.Count; i++)
+            {
+                StrategyAutoWorkforceDemand demand = demands[i];
+                if (demand != null && demand.Needed > 0)
+                {
+                    total += demand.Needed;
+                }
+            }
+
+            return total;
+        }
+
         private StrategyAutoWorkforceDemand GetTopUnfilledDemand()
         {
             for (int i = 0; i < demands.Count; i++)
@@ -159,6 +174,11 @@ namespace ProjectUnknown.Strategy
                 return "no_workers";
             }
 
+            if (CountReleasableProfessionWorkers(profession) <= 0)
+            {
+                return "busy_workers";
+            }
+
             int target = desiredProfessionTargets.TryGetValue(profession, out int value) ? value : 0;
             holdScore = GetProfessionHoldScore(profession, current, target);
             float demandHoldScore = GetDemandScoreForProfession(profession);
@@ -242,6 +262,7 @@ namespace ProjectUnknown.Strategy
             int manualLocked = 0;
             int rebalanceLocked = 0;
             int noWorkers = 0;
+            int busyWorkers = 0;
             int coverageFloorBlocked = 0;
             int atOrBelowTarget = 0;
             int scoreTooLow = 0;
@@ -268,6 +289,9 @@ namespace ProjectUnknown.Strategy
                     case "no_workers":
                         noWorkers++;
                         break;
+                    case "busy_workers":
+                        busyWorkers++;
+                        break;
                     case "coverage_floor":
                         coverageFloorBlocked++;
                         break;
@@ -293,6 +317,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("manualLocked", manualLocked),
                 StrategyDebugLogger.F("rebalanceLocked", rebalanceLocked),
                 StrategyDebugLogger.F("noWorkers", noWorkers),
+                StrategyDebugLogger.F("busyWorkers", busyWorkers),
                 StrategyDebugLogger.F("coverageFloorBlocked", coverageFloorBlocked),
                 StrategyDebugLogger.F("atOrBelowTarget", atOrBelowTarget),
                 StrategyDebugLogger.F("scoreTooLow", scoreTooLow),

@@ -57,6 +57,7 @@ namespace ProjectUnknown.Strategy
         private const float WalkAnimationFrameRate = 12f;
         private const float WoodcutAnimationFrameRate = 11.5f;
         private const float StonecutAnimationFrameRate = 10.5f;
+        private const float CoalMineAnimationFrameRate = 9.5f;
         private const float ConstructionAnimationFrameRate = 12.5f;
         private const float BowAnimationFrameRate = 12.0f;
         private const float ButcherAnimationFrameRate = 10.5f;

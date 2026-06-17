@@ -9,6 +9,8 @@ namespace ProjectUnknown.Strategy
         private const int FirstArrivalHouseRequirement = 3;
         private const float RepeatArrivalMinSeconds = 420f;
         private const float RepeatArrivalMaxSeconds = 720f;
+        private const int PopulationSlowdownStart = 40;
+        private const int PopulationHardCap = 50;
         private const int MaxRouteAttempts = 96;
         private const int MaxCampGatherRadius = 5;
 
@@ -72,7 +74,7 @@ namespace ProjectUnknown.Strategy
                     return;
                 }
 
-                arrivalTimer -= Time.deltaTime;
+                arrivalTimer -= Time.deltaTime * GetArrivalIntensity();
                 if (arrivalTimer <= 0f)
                 {
                     TryStartArrival(false);
@@ -105,7 +107,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            arrivalTimer -= Time.deltaTime;
+            arrivalTimer -= Time.deltaTime * GetArrivalIntensity();
             if (arrivalTimer > 0f)
             {
                 return;
@@ -116,6 +118,19 @@ namespace ProjectUnknown.Strategy
 
         private void TryStartArrival(bool firstArrival)
         {
+            int populationCount = population.TotalResidentCount;
+            int availableSlots = PopulationHardCap - populationCount;
+            if (availableSlots <= 0)
+            {
+                arrivalTimer = 60f;
+                StrategyDebugLogger.Info(
+                    "Refugees",
+                    "ArrivalSuppressedByPopulation",
+                    StrategyDebugLogger.F("population", populationCount),
+                    StrategyDebugLogger.F("cap", PopulationHardCap));
+                return;
+            }
+
             if (!population.TryGetCampCell(out Vector2Int campCell)
                 || !population.TryGetCampWorld(out _))
             {
@@ -124,8 +139,9 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            int childCount = Random.Range(1, 4);
-            int memberCount = 2 + childCount;
+            int memberCount = Random.Range(1, Mathf.Min(3, availableSlots) + 1);
+            int parentCount = GetRefugeeParentCount(memberCount);
+            int childCount = memberCount - parentCount;
             if (!TryPrepareArrivalRoutes(memberCount, campCell, out List<List<Vector3>> routes))
             {
                 StrategyDebugLogger.Warn("Refugees", "ArrivalDelayed", StrategyDebugLogger.F("reason", "no_route"));
@@ -137,6 +153,7 @@ namespace ProjectUnknown.Strategy
                     activeOutsideBaseWorld,
                     activeFormationAxis,
                     activeEntryCell,
+                    parentCount,
                     childCount,
                     out List<StrategyResidentAgent> family))
             {
@@ -173,6 +190,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("firstArrival", firstArrival),
                 StrategyDebugLogger.F("completedHouses", population.CompletedHouseCount),
                 StrategyDebugLogger.F("members", activeFamily.Count),
+                StrategyDebugLogger.F("parents", parentCount),
                 StrategyDebugLogger.F("children", childCount),
                 StrategyDebugLogger.F("entryCell", activeEntryCell),
                 StrategyDebugLogger.F("outsideWorld", activeOutsideBaseWorld));
@@ -262,7 +280,37 @@ namespace ProjectUnknown.Strategy
                 "Refugees",
                 "ArrivalScheduled",
                 StrategyDebugLogger.F("initial", false),
+                StrategyDebugLogger.F("population", population != null ? population.TotalResidentCount : 0),
+                StrategyDebugLogger.F("intensity", GetArrivalIntensity()),
                 StrategyDebugLogger.F("seconds", arrivalTimer));
+        }
+
+        private float GetArrivalIntensity()
+        {
+            int count = population != null ? population.TotalResidentCount : 0;
+            if (count >= PopulationHardCap)
+            {
+                return 0f;
+            }
+
+            if (count <= PopulationSlowdownStart)
+            {
+                return 1f;
+            }
+
+            return Mathf.Clamp01((PopulationHardCap - count) / (float)(PopulationHardCap - PopulationSlowdownStart));
+        }
+
+        private static int GetRefugeeParentCount(int memberCount)
+        {
+            int clampedMembers = Mathf.Clamp(memberCount, 1, 3);
+            if (clampedMembers <= 1)
+            {
+                return 1;
+            }
+
+            int maxParents = Mathf.Min(2, clampedMembers);
+            return Random.Range(1, maxParents + 1);
         }
 
         private void LogFirstArrivalWaiting()

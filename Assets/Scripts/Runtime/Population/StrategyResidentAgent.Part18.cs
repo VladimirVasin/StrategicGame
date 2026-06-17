@@ -8,8 +8,15 @@ namespace ProjectUnknown.Strategy
 
         private void UpdateWorldSorting()
         {
-            StrategyWorldSorting.Apply(spriteRenderer, transform.position);
+            StrategyWorldSorting.Apply(spriteRenderer, transform.position, GetWorldSortingOffset());
             SyncReadabilityRenderers();
+        }
+
+        private int GetWorldSortingOffset()
+        {
+            return activity == ResidentActivity.MiningCoalInPit && activeCoalPit != null
+                ? activeCoalPit.GetInteriorWorkerSortingOffset(this)
+                : 0;
         }
 
         private void SyncCarriedLogsRenderer()

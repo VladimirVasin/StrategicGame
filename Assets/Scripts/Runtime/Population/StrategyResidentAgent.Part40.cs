@@ -25,7 +25,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            activeCoalPit.PlayMiningWorkEffect(ResidentId + Mathf.RoundToInt(Time.time * 10f));
+            activeCoalPit.PlayMiningWorkEffect(this, ResidentId + Mathf.RoundToInt(Time.time * 10f));
             ResetCoalPitWorkEffectTimer(false);
         }
 

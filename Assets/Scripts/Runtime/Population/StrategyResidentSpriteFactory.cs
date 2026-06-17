@@ -10,6 +10,7 @@ namespace ProjectUnknown.Strategy
         public const int WalkFrameCount = 8;
         public const int WoodcutFrameCount = 10;
         public const int StonecutFrameCount = 10;
+        public const int CoalMineFrameCount = 12;
         public const int ConstructionFrameCount = 12;
         public const int BowFrameCount = 12;
         public const int ButcherFrameCount = 10;
@@ -228,6 +229,7 @@ namespace ProjectUnknown.Strategy
                 ResidentSpritePose.Walk => GetWalkFrame(frame),
                 ResidentSpritePose.Woodcut => GetWoodcutBodyFrame(frame),
                 ResidentSpritePose.Stonecut => GetStonecutBodyFrame(frame),
+                ResidentSpritePose.CoalMine => GetCoalMineBodyFrame(frame),
                 ResidentSpritePose.Construction => GetConstructionBodyFrame(frame),
                 ResidentSpritePose.Bow => GetBowBodyFrame(frame),
                 ResidentSpritePose.Butcher => GetButcherBodyFrame(frame),
@@ -256,6 +258,10 @@ namespace ProjectUnknown.Strategy
             else if (pose == ResidentSpritePose.Stonecut)
             {
                 DrawStonecutPickaxe(texture, frame, outline);
+            }
+            else if (pose == ResidentSpritePose.CoalMine)
+            {
+                DrawCoalMinePickaxe(texture, frame, outline);
             }
             else if (pose == ResidentSpritePose.Construction)
             {

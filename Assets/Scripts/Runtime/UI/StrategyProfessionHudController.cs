@@ -400,23 +400,37 @@ namespace ProjectUnknown.Strategy
 
         private void RefreshUi()
         {
+            if (contentRoot == null)
+            {
+                isDirty = true;
+                return;
+            }
+
             isDirty = false;
             population ??= UnityEngine.Object.FindAnyObjectByType<StrategyPopulationController>();
+            EnsureProfessionRows();
             int freeWorkers = CountFreeWorkers();
             int visibleRows = 0;
 
             for (int i = 0; i < rows.Length; i++)
             {
-                ProfessionSnapshot snapshot = BuildSnapshot(rows[i].Type, freeWorkers);
+                ProfessionRow row = rows[i];
+                if (row == null || row.Root == null)
+                {
+                    isDirty = true;
+                    continue;
+                }
+
+                ProfessionSnapshot snapshot = BuildSnapshot(row.Type, freeWorkers);
                 bool visible = snapshot.Capacity > 0;
-                rows[i].Root.gameObject.SetActive(visible);
+                row.Root.gameObject.SetActive(visible);
                 if (!visible)
                 {
                     continue;
                 }
 
                 visibleRows++;
-                ApplySnapshot(rows[i], snapshot);
+                ApplySnapshot(row, snapshot);
             }
 
             float contentHeight = Mathf.Max(0f, visibleRows * RowHeight + Mathf.Max(0, visibleRows - 1) * 8f);
