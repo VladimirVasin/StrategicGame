@@ -58,11 +58,9 @@ namespace ProjectUnknown.Strategy
         private Canvas canvas;
         private CanvasGroup menuGroup;
         private CanvasGroup trayGroup;
-        private CanvasGroup statusGroup;
         private RectTransform buildButtonRoot;
         private RectTransform dockRoot;
         private RectTransform trayRoot;
-        private RectTransform statusRoot;
         private Image buildButtonImage;
         private Text buildButtonText;
         private Text treasuryText;
@@ -70,7 +68,6 @@ namespace ProjectUnknown.Strategy
         private readonly Image[] speedButtonImages = new Image[3];
         private readonly Text[] speedButtonTexts = new Text[3];
         private StrategyTimeScaleController timeScale;
-        private Text statusText;
         private Font font;
         private bool initialized;
         private bool isOpen;
@@ -78,7 +75,6 @@ namespace ProjectUnknown.Strategy
         private int selectedCategoryIndex = -1;
         private float menuT;
         private float trayT;
-        private float statusT;
 
         public StrategyBuildTool ActiveTool { get; private set; }
         public int LastPlacementFrame { get; private set; } = -1;

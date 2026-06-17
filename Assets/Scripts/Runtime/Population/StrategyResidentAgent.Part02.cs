@@ -316,9 +316,11 @@ namespace ProjectUnknown.Strategy
             if (hiddenInsideHome)
             {
                 hiddenInsideHome = false;
+                sleepingInsideHome = false;
                 SetWorldPresenceVisible(true);
             }
 
+            returningHomeToSleep = false;
             CancelForageWork(false);
             CancelHouseholdFoodWork(false);
             home = null;

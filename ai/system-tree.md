@@ -21,7 +21,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Runtime day/night overlay tints the world above sprites and below preview/fog/UI, exposes day/clock/phase calendar snapshots, and drives dawn/nightfall player messages
   - Runtime weather overlays add wet ground, cloud shadows, mist, and rain in dedicated sorting bands around day/night and fog-of-war
   - Runtime URP post-process volume adds soft day/night/weather color grading, bloom, and vignette
-  - Runtime cinematic visual layer adds 2D global/local light, emissive pixel masks, wet puddle glints, lightning flashes, and subtle foreground depth props
+  - Runtime cinematic visual layer adds 2D global/local light, emissive pixel masks, animated building torch/lantern source sprites, light-aware nighttime darkness over unlit cells, wet puddle glints, lightning flashes, and subtle foreground depth props
   - Runtime procedural 2D shadow caster supplies soft ground/cast shadows below world sprites
   - Runtime short-lived world effect layer supplies reusable dust, sawdust, chip, spark, splash, and resource pop/fade effects
 
@@ -303,6 +303,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Reuses a stable default sprite for Build menu icon and ghost preview
     - Chooses a random building visual variant for each successfully placed supported building
     - Placed houses add ambient smoke/window-light overlay animation without changing colliders
+    - Completed buildings get animated torch, lantern, brazier, or bridge-lamp source sprites that fade in at dusk/night through the cinematic light emitter layer
     - Completed buildings, construction sites, house upgrades, and loose construction resource piles attach shared procedural ground/cast shadows
   - House visual upgrades
     - Runtime-created building-upgrade controller
@@ -424,6 +425,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Residents perform simple idle movement near their current camp/home using short walkable grid paths
     - Resident pathing can recover a blocked start cell by moving the resident to a nearby walkable cell and logging the recovery
     - Resident work starts only during morning/day/evening according to the shared day/night phase; nightfall defers new production, construction, logistics, hunting, fishing, foraging, garden, and household-food work while allowing carried resources and deposits/returns to finish
+    - During `Night`, housed idle residents path to their home, hide inside the house, and wake at the home exit after night ends
     - Householders periodically work at their house's default Garden Beds or fetch food from Granaries from `TendingHousehold` home duty
     - Non-householder residents without external work forage Berries, Roots, and Mushrooms for their own house; children younger than 7 do not forage
     - Residents assigned to a lumberjack camp path to the nearest available tree or processable wood on the map, chop mature trees, buck fallen trunks into Logs, carry Logs to camp stock, and plant new saplings nearby
@@ -526,7 +528,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Fog of war uses population, residents, placed-building records, the shared day/night phase, and weather Fog intensity as visibility inputs; placement and world selection consult fog exploration state, while the F9 debug panel can bypass player fog for testing.
 - Terrain rendering uses generated map cell kinds, seeded tile variants, neighbor transition overlays, a runtime water/shore animation overlay, and weather visual overlays.
 - Weather depends on generated map bounds, the strategy camera, day/night/fog sorting bands, the strategy wind source, water animation, and ambience audio.
-- Resident work scheduling depends on the shared day/night phase so production, construction, logistics, hunting, fishing, foraging, garden, and household-food tasks only start during settlement work time.
+- Resident work/rest scheduling depends on the shared day/night phase so production, construction, logistics, hunting, fishing, foraging, garden, and household-food tasks only start during settlement work time, while housed idle residents sleep inside homes during `Night`.
 - House visual upgrades and house resources depend on placed-building records, map walkability checks, generated upgrade/chicken/resource sprites, early idle/work agents, and the world-selection HUD.
 - Household foraging depends on generated walkable terrain, forage node reservations/regrowth, placed house records, resident work/funeral state, day/night phase, and the house-local food store.
 - Forestry depends on generated tree props, map walkability, placed lumberjack camps, resident work states, and the world-selection HUD.

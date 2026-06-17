@@ -9,15 +9,17 @@ namespace ProjectUnknown.Strategy
         Campfire,
         Mine,
         CoalPit,
+        Bridge,
         Worksite,
         Storage,
         Granary
     }
 
     [DisallowMultipleComponent]
-    internal sealed class StrategyCinematicLightEmitter : MonoBehaviour
+    internal sealed partial class StrategyCinematicLightEmitter : MonoBehaviour
     {
         private const float VisualUpdateInterval = 0.105f;
+        private const float LocalLightStrengthMultiplier = 2f;
 
         private StrategyPlacedBuilding building;
         private StrategyCampfireAnimator campfire;
@@ -110,7 +112,7 @@ namespace ProjectUnknown.Strategy
 
         public bool RefreshCinematicVisibility(Rect visibleWorldRect)
         {
-            Vector3 anchor = GetAnchorWorld();
+            Vector3 anchor = GetLightSourceWorld();
             bool visible = visibleWorldRect.Contains(new Vector2(anchor.x, anchor.y));
             SetCinematicLod(visible, false);
             return visible;
@@ -123,7 +125,7 @@ namespace ProjectUnknown.Strategy
 
         public float GetCinematicLightScore(Vector3 cameraCenter)
         {
-            Vector3 anchor = GetAnchorWorld();
+            Vector3 anchor = GetLightSourceWorld();
             float distanceSqr = (anchor - cameraCenter).sqrMagnitude;
             float priority = kind switch
             {
@@ -131,6 +133,7 @@ namespace ProjectUnknown.Strategy
                 StrategyCinematicLightKind.Mine => 92f,
                 StrategyCinematicLightKind.CoalPit => 86f,
                 StrategyCinematicLightKind.House => building != null && building.ResidentCount > 0 ? 82f : 48f,
+                StrategyCinematicLightKind.Bridge => 68f,
                 StrategyCinematicLightKind.Granary => 66f,
                 StrategyCinematicLightKind.Storage => 58f,
                 _ => 42f
@@ -166,6 +169,7 @@ namespace ProjectUnknown.Strategy
 
             glowRenderer ??= CreateRenderer("Cinematic Pixel Glow", StrategyCinematicVisualSprites.GetGlowSprite(), 18);
             coreRenderer ??= CreateRenderer("Cinematic Emissive Core", GetCoreSprite(), 19);
+            EnsureTorchVisuals();
             if (kind == StrategyCinematicLightKind.House)
             {
                 interiorRenderer ??= CreateRenderer(
@@ -189,15 +193,17 @@ namespace ProjectUnknown.Strategy
         private void UpdateAnchor()
         {
             Vector3 world = GetAnchorWorld();
+            Vector3 lightWorld = GetLightSourceWorld();
             Transform lightTransform = pointLight != null ? pointLight.transform : null;
             if (lightTransform != null)
             {
-                lightTransform.position = world;
+                lightTransform.position = lightWorld;
             }
 
-            PositionRenderer(glowRenderer, world, 18);
-            PositionRenderer(coreRenderer, world, 19);
+            PositionRenderer(glowRenderer, lightWorld, 18);
+            PositionRenderer(coreRenderer, GetCoreVisualWorld(world), 19);
             PositionRenderer(interiorRenderer, world + GetInteriorOffset(), 20);
+            UpdateTorchAnchor();
         }
 
         private void PositionRenderer(SpriteRenderer renderer, Vector3 world, int offset)
@@ -224,7 +230,7 @@ namespace ProjectUnknown.Strategy
             float activity = GetActivityFactor(night, warm, rain, fog, storm);
             float flicker = GetFlicker();
             Color color = GetColor(wet, storm);
-            float intensity = GetBaseIntensity() * activity * flicker;
+            float intensity = GetBaseIntensity() * LocalLightStrengthMultiplier * activity * flicker;
             float radius = GetBaseRadius() * Mathf.Lerp(0.92f, 1.12f, activity);
 
             if (lodPointLight)
@@ -244,6 +250,7 @@ namespace ProjectUnknown.Strategy
             ApplyRenderer(glowRenderer, color, intensity * GetGlowAlpha(), GetGlowScale(radius));
             ApplyRenderer(coreRenderer, color, intensity * GetCoreAlpha(), GetCoreScale());
             ApplyInteriorShadow(activity, night);
+            ApplyTorchLighting(color, activity, flicker);
         }
 
         private void EnsurePointLight()
@@ -337,6 +344,7 @@ namespace ProjectUnknown.Strategy
             SetRendererEnabled(glowRenderer, false);
             SetRendererEnabled(coreRenderer, false);
             SetRendererEnabled(interiorRenderer, false);
+            DisableTorchVisuals();
             visualsDisabled = true;
         }
 
@@ -431,6 +439,7 @@ namespace ProjectUnknown.Strategy
             StrategyCinematicLightKind.Mine => 0.82f,
             StrategyCinematicLightKind.CoalPit => 0.72f,
             StrategyCinematicLightKind.House => 0.54f,
+            StrategyCinematicLightKind.Bridge => 0.44f,
             StrategyCinematicLightKind.Storage => 0.34f,
             StrategyCinematicLightKind.Granary => 0.40f,
             _ => 0.42f
@@ -442,6 +451,7 @@ namespace ProjectUnknown.Strategy
             StrategyCinematicLightKind.Mine => 3.8f,
             StrategyCinematicLightKind.CoalPit => 3.4f,
             StrategyCinematicLightKind.House => 3.0f,
+            StrategyCinematicLightKind.Bridge => 2.8f,
             StrategyCinematicLightKind.Storage => 2.4f,
             StrategyCinematicLightKind.Granary => 2.8f,
             _ => 2.7f
@@ -460,6 +470,7 @@ namespace ProjectUnknown.Strategy
             StrategyBuildTool.House => StrategyCinematicLightKind.House,
             StrategyBuildTool.Mine => StrategyCinematicLightKind.Mine,
             StrategyBuildTool.CoalPit => StrategyCinematicLightKind.CoalPit,
+            StrategyBuildTool.Bridge => StrategyCinematicLightKind.Bridge,
             StrategyBuildTool.StorageYard => StrategyCinematicLightKind.Storage,
             StrategyBuildTool.Granary => StrategyCinematicLightKind.Granary,
             _ => StrategyCinematicLightKind.Worksite

@@ -87,7 +87,9 @@ namespace ProjectUnknown.Strategy
                 || carriedCoalAmount > 0
                 || carriedPlanksAmount > 0
                 || carriedGameAmount > 0
-                || carriedFishAmount > 0;
+                || carriedFishAmount > 0
+                || carriedForageAmount > 0
+                || GetCarriedHouseholdFoodAmount() > 0;
         }
 
         private void CaptureCarriedConstructionReturnReservation()

@@ -66,6 +66,25 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("foregrounds", ForegroundCount));
         }
 
+        public void RefreshSceneLightingNow()
+        {
+            if (!configured)
+            {
+                return;
+            }
+
+            EnsureSceneObjects();
+            ScanLightEmitters();
+            Rect view = GetCameraWorldRect();
+            RefreshEmitterLods(view);
+            scanTimer = ScanInterval;
+            lodTimer = LodInterval;
+            nightDarknessTimer = 0f;
+            lastNightDarknessAlpha = -1f;
+            ApplyGlobalLighting();
+            ApplyAtmosphere(0f, view);
+        }
+
         private void Update()
         {
             if (!configured)
@@ -128,6 +147,7 @@ namespace ProjectUnknown.Strategy
                     StrategyWorldSorting.CinematicScreenFlashOrder);
             }
 
+            EnsureNightDarknessMask();
             EnsurePuddles();
             EnsureForegrounds();
         }
@@ -172,7 +192,7 @@ namespace ProjectUnknown.Strategy
             for (int i = 0; i < buildings.Length; i++)
             {
                 StrategyPlacedBuilding building = buildings[i];
-                if (building == null || building.Tool == StrategyBuildTool.Bridge)
+                if (building == null)
                 {
                     continue;
                 }
@@ -284,6 +304,7 @@ namespace ProjectUnknown.Strategy
 
         private void ApplyAtmosphere(float dt, Rect view)
         {
+            ApplyNightDarknessMask(dt, view);
             ApplyScreenRenderer(depthRenderer, view, GetDepthWashColor());
             UpdateLightning(dt, view);
             puddleTimer -= dt;

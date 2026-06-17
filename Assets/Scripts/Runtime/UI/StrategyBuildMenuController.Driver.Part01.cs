@@ -90,25 +90,6 @@ namespace ProjectUnknown.Strategy
             dockLayout.childForceExpandWidth = false;
             dockLayout.childForceExpandHeight = false;
 
-            statusRoot = CreateUiObject("BuildStatusPanel", menuRoot).GetComponent<RectTransform>();
-            statusRoot.anchorMin = new Vector2(0.5f, 0f);
-            statusRoot.anchorMax = new Vector2(0.5f, 0f);
-            statusRoot.pivot = new Vector2(0.5f, 0f);
-            statusRoot.anchoredPosition = new Vector2(0f, 306f);
-            statusRoot.sizeDelta = new Vector2(520f, 42f);
-            statusGroup = statusRoot.gameObject.AddComponent<CanvasGroup>();
-            statusGroup.alpha = 0f;
-            statusGroup.blocksRaycasts = false;
-            statusGroup.interactable = false;
-            Image statusBackground = statusRoot.gameObject.AddComponent<Image>();
-            statusBackground.color = new Color(0.08f, 0.10f, 0.12f, 0.94f);
-            Outline statusOutline = statusRoot.gameObject.AddComponent<Outline>();
-            statusOutline.effectColor = new Color(0f, 0f, 0f, 0.34f);
-            statusOutline.effectDistance = new Vector2(1.2f, -1.2f);
-            statusText = CreateText("BuildStatusText", statusRoot, string.Empty, 15, TextAnchor.MiddleCenter, new Color(0.88f, 0.92f, 0.95f));
-            statusText.fontStyle = FontStyle.Bold;
-            Stretch(statusText.rectTransform, 14f, 0f, 14f, 0f);
-
             for (int i = 0; i < categories.Length; i++)
             {
                 categoryUis.Add(CreateCategoryUi(categories[i], i));
@@ -311,10 +292,6 @@ namespace ProjectUnknown.Strategy
                 }
             }
 
-            statusText.text = ActiveTool == StrategyBuildTool.None
-                ? string.Empty
-                : GetActiveToolTitle() + " selected";
-
             LayoutRebuilder.ForceRebuildLayoutImmediate(dockRoot);
             LayoutRebuilder.ForceRebuildLayoutImmediate(trayRoot);
             isDirty = false;
@@ -398,13 +375,6 @@ namespace ProjectUnknown.Strategy
                 trayRoot.localScale = Vector3.one * Mathf.Lerp(0.94f, 1f, easedTray);
             }
 
-            bool statusVisible = isOpen && ActiveTool != StrategyBuildTool.None;
-            statusT = Mathf.MoveTowards(statusT, statusVisible ? 1f : 0f, Time.unscaledDeltaTime * 9f);
-            if (statusGroup != null)
-            {
-                statusGroup.alpha = Smooth01(statusT);
-            }
-
             UpdateHoverAnimation();
         }
 
@@ -432,22 +402,6 @@ namespace ProjectUnknown.Strategy
                     item.Root.localScale = Vector3.one * Mathf.Lerp(1f, active ? 1.08f : 1.04f, Smooth01(item.HoverT));
                 }
             }
-        }
-
-        private string GetActiveToolTitle()
-        {
-            foreach (BuildCategoryData category in categories)
-            {
-                foreach (BuildItemData item in category.Items)
-                {
-                    if (item.Tool == ActiveTool)
-                    {
-                        return item.Title;
-                    }
-                }
-            }
-
-            return ActiveTool.ToString();
         }
 
         private static Vector2Int GetFootprint(StrategyBuildTool tool)

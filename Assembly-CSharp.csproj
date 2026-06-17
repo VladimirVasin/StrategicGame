@@ -212,6 +212,7 @@
     <Compile Include="Assets\Scripts\Runtime\Selection\StrategyStaticWorldInspectable.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyTrailSpriteFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWildlifeController.Part08.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part42.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingUpgradeController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyDeerAgent.Part02.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWildlifeController.Part06.cs" />
@@ -272,6 +273,7 @@
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyForestryTree.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWolfAgent.Part07.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyDeerAgent.Part04.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Core\StrategyCinematicVisualController.Part03.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyDeerSpriteFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyDayNightCycleController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Selection\StrategyWorldSelectionController.Part06.cs" />
@@ -343,10 +345,12 @@
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyRabbitAgent.Part04.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentDeathSnapshot.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part25.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Core\StrategyCinematicLightEmitter.Torch.cs" />
     <Compile Include="Assets\Scripts\Runtime\Selection\StrategyWorldSelectionController.Part05.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWildlifeController.Part02.cs" />
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyResourceIconFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyConstructionSite.Part02.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Core\StrategyBuildingLightSpriteFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Resources\Audio\Music\PUT_INGAME_MUSIC_HERE.txt" />

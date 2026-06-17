@@ -8,6 +8,67 @@ Last updated: 2026-06-17
 
 ## Done
 
+### 2026-06-17 - Opaque detached building torches
+
+- Made visible building torch/lantern/brazier source sprites render fully opaque instead of fading with their lighting visibility factor.
+- Moved every building torch anchor slightly farther outside its building footprint, including Bridge lamp anchors.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; touched C# files stayed below the 500-line limit.
+
+### 2026-06-17 - Build menu active status banner removal
+
+- Removed the centered Build menu active-tool status banner such as `Sawmill selected`.
+- Kept active build-tool feedback on the selected item card through the existing highlighted card and `Active` badge.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; touched C# files stayed below the 500-line limit.
+
+### 2026-06-17 - Stronger local cinematic lights
+
+- Doubled local cinematic light strength through a shared `StrategyCinematicLightEmitter` multiplier.
+- The multiplier now affects active `Light2D` intensity, emissive glow/core sprites, torch/lantern source sprite brightness, and night-darkness light cutout strength while leaving global day/night lighting unchanged.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; touched C# files stayed below the 500-line limit.
+
+### 2026-06-17 - Startup campfire light refresh
+
+- Fixed the startup campfire missing from cinematic lighting at scene start by refreshing cinematic light emitters after the population camp and starter Storage Yard have been created.
+- Night darkness light pockets now use configured emitters even if their camera-distance LOD flag has not refreshed yet, preventing the initial camp from staying visually dark after the camera focuses on it.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; touched C# files stayed below the 500-line limit.
+
+### 2026-06-17 - External building torch placement
+
+- Moved animated building torch sprites outside completed building footprints so they read as standalone nearby light sources instead of being embedded in building sprites.
+- Moved cinematic glow, active `Light2D` centers, and night-darkness light pockets to the external torch anchor; house window masks still stay on the house sprite.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; touched C# files stayed below the 500-line limit.
+
+### 2026-06-17 - Light-aware night darkness mask
+
+- Added a cinematic night darkness mask that strengthens nighttime darkness over unlit world cells while cutting soft transparent light pockets around active building/campfire light emitters.
+- The mask uses a low-resolution camera-space texture and updates on a short timer or meaningful camera movement so it avoids per-frame full-map work.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; touched C# files stayed below the 500-line limit.
+
+### 2026-06-17 - Building torch sorting fix
+
+- Fixed animated building torch sprites being hidden behind completed building sprites by sorting torch overlays from the building's base sprite order instead of the torch wall-anchor world Y.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; touched C# files stayed below the 500-line limit.
+
+### 2026-06-17 - Construction roof sprite artifact fix
+
+- Fixed staged construction sprites drawing house-style roof cloth as a wide horizontal strip by replacing one concave roof polygon with two simple roof-plane polygons.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; touched C# files stayed below the 500-line limit.
+
+### 2026-06-17 - Night building torch lights
+
+- Added procedural animated night light-source sprites for completed buildings through the existing cinematic light emitter path: wall torches, lanterns, braziers, and bridge lamps now fade in during dusk/night and bad weather.
+- Split torch rendering into `StrategyCinematicLightEmitter.Torch.cs` and added `StrategyBuildingLightSpriteFactory.cs` so `StrategyCinematicLightEmitter.cs` stays below the 500-line limit.
+- Included Bridges in cinematic emitter scanning while keeping real `Light2D` point lights under the existing camera-distance LOD and active-light budget.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; touched C# files stayed below the 500-line limit.
+
+### 2026-06-17 - Residents sleep inside homes at night
+
+- Added night sleep behavior for housed residents during the `Night` phase: eligible residents path to their home exit, enter the home interior, hide their world sprite/collider, and wake at the home exit after night ends.
+- Kept existing homebound young-child behavior separate from night sleep by tracking `sleepingInsideHome` and `returningHomeToSleep`.
+- Night sleep waits until carried resources are finished/returned and does not interrupt funeral duty; assigned workers/builders can still sleep once their active task has safely paused, and sleeping residents are safely released if death, funeral recall, or home removal happens.
+- Resident HUD now shows `sleeping at home` for night sleepers while keeping `inside home` for young homebound children.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; touched C# files stayed below the 500-line limit; `git diff --check` passed with only the existing CRLF warning for `Assembly-CSharp.csproj`.
+
 ### 2026-06-17 - Smooth debug weather switching
 
 - Added `StrategyWeatherController.ForceWeatherSmooth()` so debug-selected weather states use the same gradual atmospheric transition path as normal random weather changes.

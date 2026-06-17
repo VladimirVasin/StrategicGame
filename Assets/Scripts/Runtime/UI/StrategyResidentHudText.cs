@@ -121,7 +121,7 @@ namespace ProjectUnknown.Strategy
             string status = resident.Activity switch
             {
                 StrategyResidentAgent.ResidentActivity.TendingHousehold => "tending household",
-                StrategyResidentAgent.ResidentActivity.StayingInsideHome => "inside home",
+                StrategyResidentAgent.ResidentActivity.StayingInsideHome => resident.IsSleepingInsideHome ? "sleeping at home" : "inside home",
                 StrategyResidentAgent.ResidentActivity.MovingHome => "going home",
                 StrategyResidentAgent.ResidentActivity.ArrivingAsRefugee => "going to campfire",
                 StrategyResidentAgent.ResidentActivity.LeavingSettlement => "leaving settlement",

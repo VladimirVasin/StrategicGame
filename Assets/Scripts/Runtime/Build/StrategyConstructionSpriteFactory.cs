@@ -130,10 +130,7 @@ namespace ProjectUnknown.Strategy
 
             if (frameHeight >= 5)
             {
-                FillPolygon(texture, new[] { P(26, 52), P(52, 70), P(81, 52), P(72, 47), P(52, 60), P(33, 47) }, outline);
-                FillPolygon(texture, new[] { P(30, 52), P(52, 66), P(77, 52), P(70, 49), P(52, 60), P(35, 49) }, cloth);
-                DrawLine(texture, P(36, 51), P(52, 62), Rgb(92, 55, 40));
-                DrawLine(texture, P(53, 61), P(70, 50), Rgb(92, 55, 40));
+                DrawConstructionRoof(texture, outline, cloth);
             }
 
             if (frameHeight >= 6)
@@ -309,9 +306,20 @@ namespace ProjectUnknown.Strategy
             Color wall = tool == StrategyBuildTool.StorageYard ? Rgb(144, 111, 73) : Rgb(214, 180, 120);
             FillRect(texture, 34, 27, 36, 25, wall);
             DrawRectOutline(texture, 34, 27, 36, 25, outline);
-            FillPolygon(texture, new[] { P(27, 53), P(52, 70), P(80, 53), P(72, 49), P(52, 62), P(35, 49) }, outline);
-            FillPolygon(texture, new[] { P(31, 53), P(52, 66), P(76, 53), P(70, 51), P(52, 61), P(36, 51) }, cloth);
+            DrawConstructionRoof(texture, outline, cloth);
             FillRect(texture, 48, 28, 8, 15, Rgb(91, 54, 37));
+        }
+
+        private static void DrawConstructionRoof(Texture2D texture, Color outline, Color cloth)
+        {
+            Color side = Color.Lerp(cloth, outline, 0.34f);
+            Color seam = Rgb(92, 55, 40);
+            FillPolygon(texture, new[] { P(25, 52), P(52, 70), P(53, 60), P(34, 47) }, outline);
+            FillPolygon(texture, new[] { P(51, 70), P(81, 52), P(72, 47), P(52, 60) }, outline);
+            FillPolygon(texture, new[] { P(30, 52), P(52, 66), P(52, 60), P(36, 50) }, cloth);
+            FillPolygon(texture, new[] { P(52, 66), P(77, 52), P(70, 50), P(52, 60) }, side);
+            DrawLine(texture, P(36, 51), P(52, 62), seam);
+            DrawLine(texture, P(53, 61), P(70, 50), seam);
         }
 
         private static void DrawLooseMaterials(Texture2D texture, int stage, Color logDark, Color log, Color stone, Color stoneLight, Color outline)

@@ -23,6 +23,12 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            if (sleepingInsideHome)
+            {
+                UpdateNightSleep();
+                return;
+            }
+
             if (hiddenInsideHome)
             {
                 ReleaseHomeboundChild();
@@ -90,6 +96,11 @@ namespace ProjectUnknown.Strategy
             }
 
             if (TryPauseActiveWorkForNight())
+            {
+                return;
+            }
+
+            if (UpdateNightHomeState())
             {
                 return;
             }

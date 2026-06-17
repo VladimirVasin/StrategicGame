@@ -303,6 +303,7 @@ namespace ProjectUnknown.Strategy
                 placement.TryPlaceStarterStorageYard(starterStorageCampCell, InitialStorageLogs, InitialStorageStone);
             }
 
+            cinematicVisuals.RefreshSceneLightingNow();
             StrategyDebugLogger.Info("Bootstrap", "FogAndPlacementReady");
 
             StrategyDebugPanelController debugPanel = Object.FindAnyObjectByType<StrategyDebugPanelController>();

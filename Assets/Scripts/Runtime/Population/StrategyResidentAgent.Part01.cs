@@ -176,6 +176,18 @@ namespace ProjectUnknown.Strategy
             }
 
             deathRequested = true;
+            if (sleepingInsideHome)
+            {
+                ReleaseNightSleep(false);
+            }
+            else if (hiddenInsideHome)
+            {
+                hiddenInsideHome = false;
+                SetWorldPresenceVisible(true);
+                transform.position = GetHomeExitWorld();
+            }
+
+            returningHomeToSleep = false;
             DropCarriedResourcesOnDeath();
             ClearConstructionSite(null);
             CancelLumberWork();
@@ -231,6 +243,15 @@ namespace ProjectUnknown.Strategy
                 || !IsFuneralMoveActivity(funeralMoveActivity))
             {
                 return false;
+            }
+
+            if (sleepingInsideHome)
+            {
+                ReleaseNightSleep(false);
+            }
+            else if (returningHomeToSleep)
+            {
+                CancelNightSleepReturn();
             }
 
             returnCarriedResourcesImmediately = true;

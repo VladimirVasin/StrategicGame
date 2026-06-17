@@ -182,6 +182,10 @@ namespace ProjectUnknown.Strategy
             {
                 StartPlantingTree();
             }
+            else if (activity == ResidentActivity.MovingHome && returningHomeToSleep)
+            {
+                EnterNightSleep();
+            }
             else if (IsFuneralMoveActivity(activity))
             {
                 activity = ResidentActivity.WaitingAtFuneral;

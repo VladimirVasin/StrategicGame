@@ -212,6 +212,8 @@ namespace ProjectUnknown.Strategy
         private bool fishingLineCast;
         private bool deathRequested;
         private bool hiddenInsideHome;
+        private bool sleepingInsideHome;
+        private bool returningHomeToSleep;
         private bool hiddenUnderground;
         private bool returnCarriedResourcesImmediately;
         private bool silentFuneralDuty;
@@ -250,6 +252,7 @@ namespace ProjectUnknown.Strategy
             && ageYears < HomeboundChildAgeYears
             && home != null
             && !IsPendingRefugee;
+        public bool IsSleepingInsideHome => sleepingInsideHome;
         public bool IsPendingRefugee { get; private set; }
         public bool IsRefugeeTraveling => activity == ResidentActivity.ArrivingAsRefugee
             || activity == ResidentActivity.LeavingSettlement;

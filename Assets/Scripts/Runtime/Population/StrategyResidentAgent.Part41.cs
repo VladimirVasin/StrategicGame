@@ -224,6 +224,11 @@ namespace ProjectUnknown.Strategy
             transform.localRotation = Quaternion.identity;
             transform.localScale = Vector3.one;
             UseIdleSprite();
+            if (TryStartNightSleep())
+            {
+                return;
+            }
+
             waitTimer = Random.Range(0.65f, 1.45f);
         }
 
