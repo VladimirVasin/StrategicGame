@@ -232,6 +232,12 @@ namespace ProjectUnknown.Strategy
                     StrategyDebugLogger.F("pitOrigin", activeCoalPit.Origin),
                     StrategyDebugLogger.F("amount", amount),
                     StrategyDebugLogger.F("pitStock", activeCoalPit.CoalStored));
+                if (!StrategyDayNightCycleController.IsSettlementWorkTime)
+                {
+                    ResetCoalPitWorkToIdle();
+                    return;
+                }
+
                 coalWorkTimer = Random.Range(CoalPitWorkSecondsMin, CoalPitWorkSecondsMax);
                 return;
             }

@@ -65,7 +65,7 @@ namespace ProjectUnknown.Strategy
             UpdateRiverSourcePosition();
 
             float dt = Mathf.Max(0.001f, Time.unscaledDeltaTime);
-            float dayPhase = Mathf.Repeat(Time.timeSinceLevelLoad / 220f, 1f);
+            float dayPhase = StrategyDayNightCycleController.CurrentDayPhase;
             float dayBlend = Mathf.Clamp01(Mathf.Sin(dayPhase * Mathf.PI * 2f - 0.25f) * 0.55f + 0.55f);
             float nightBlend = 1f - dayBlend;
             float eveningBlend = Mathf.Clamp01(1f - Mathf.Abs(dayPhase - 0.72f) / 0.18f);

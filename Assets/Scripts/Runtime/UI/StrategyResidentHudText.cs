@@ -231,6 +231,11 @@ namespace ProjectUnknown.Strategy
                 return AppendNutritionStatus(resident, "refugee");
             }
 
+            if (resident.IsOffDutyForNight)
+            {
+                return AppendNutritionStatus(resident, "off duty for the night");
+            }
+
             if (resident.BuilderWorkplace != null && resident.Activity == StrategyResidentAgent.ResidentActivity.Idle)
             {
                 return AppendNutritionStatus(resident, "waiting for construction");

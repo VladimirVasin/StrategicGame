@@ -32,8 +32,6 @@ namespace ProjectUnknown.Strategy
         private float lodTimer;
         private float puddleTimer;
         private float foregroundTimer;
-        private float lightningTimer;
-        private float flashIntensity;
         private bool configured;
 
         public void Configure(
@@ -53,7 +51,7 @@ namespace ProjectUnknown.Strategy
             lodTimer = Random.Range(0f, LodInterval);
             puddleTimer = 0f;
             foregroundTimer = 0f;
-            lightningTimer = Random.Range(6f, 14f);
+            ResetLightningScheduler();
 
             EnsureSceneObjects();
             ScanLightEmitters();
@@ -272,15 +270,15 @@ namespace ProjectUnknown.Strategy
             float fog = weather != null ? weather.FogIntensity : 0f;
             float storm = weather != null ? weather.StormIntensity : 0f;
             Color color = Color.white;
-            color = Color.Lerp(color, new Color(1f, 0.88f, 0.65f, 1f), warm * 0.22f);
-            color = Color.Lerp(color, new Color(0.70f, 0.82f, 1f, 1f), night * 0.30f);
+            color = Color.Lerp(color, new Color(1f, 0.84f, 0.58f, 1f), warm * 0.30f);
+            color = Color.Lerp(color, new Color(0.62f, 0.76f, 1f, 1f), night * 0.42f);
             color = Color.Lerp(color, new Color(0.78f, 0.86f, 0.94f, 1f), Mathf.Max(rain * 0.18f, storm * 0.24f));
             color = Color.Lerp(color, new Color(0.86f, 0.90f, 0.86f, 1f), fog * 0.24f);
 
             globalLight.color = color;
             globalLight.intensity = Mathf.Clamp(
-                0.96f - night * 0.20f - cloud * 0.05f - rain * 0.07f - fog * 0.08f - storm * 0.08f,
-                0.68f,
+                0.97f - night * 0.30f - cloud * 0.05f - rain * 0.07f - fog * 0.08f - storm * 0.08f,
+                0.60f,
                 1.05f);
         }
 
@@ -301,22 +299,6 @@ namespace ProjectUnknown.Strategy
                 foregroundTimer = ForegroundUpdateInterval;
                 UpdateForegrounds(view);
             }
-        }
-
-        private void UpdateLightning(float dt, Rect view)
-        {
-            float storm = weather != null ? weather.StormIntensity : 0f;
-            lightningTimer -= dt * Mathf.Lerp(0.35f, 1.35f, storm);
-            if (storm > 0.22f && lightningTimer <= 0f)
-            {
-                flashIntensity = Mathf.Clamp01(Random.Range(0.18f, 0.42f) + storm * 0.36f);
-                lightningTimer = Random.Range(5.5f, 15f) / Mathf.Lerp(0.75f, 1.45f, storm);
-                StrategyDebugLogger.Info("CinematicVisuals", "LightningFlash", StrategyDebugLogger.F("storm", storm));
-            }
-
-            flashIntensity = Mathf.MoveTowards(flashIntensity, 0f, dt * 1.85f);
-            Color color = new(0.72f, 0.84f, 1f, flashIntensity * 0.52f);
-            ApplyScreenRenderer(flashRenderer, view, color);
         }
 
         private void EnsurePuddles()

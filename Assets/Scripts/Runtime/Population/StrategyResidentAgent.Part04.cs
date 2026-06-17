@@ -89,6 +89,11 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            if (TryPauseActiveWorkForNight())
+            {
+                return;
+            }
+
             if (activity == ResidentActivity.WorkingGarden)
             {
                 UpdateGardenWork();
@@ -382,62 +387,7 @@ namespace ProjectUnknown.Strategy
                     return;
                 }
 
-                if (TryStartHouseholdFoodPickupTask())
-                {
-                    return;
-                }
-
-                if (TryStartGardenTask())
-                {
-                    return;
-                }
-
-                if (TryStartLumberTask())
-                {
-                    return;
-                }
-
-                if (TryStartStoneTask())
-                {
-                    return;
-                }
-
-                if (TryStartMineTask())
-                {
-                    return;
-                }
-
-                if (TryStartCoalPitTask())
-                {
-                    return;
-                }
-
-                if (TryStartSawmillTask())
-                {
-                    return;
-                }
-
-                if (TryStartStorageTask())
-                {
-                    return;
-                }
-
-                if (TryStartGranaryTask())
-                {
-                    return;
-                }
-
-                if (TryStartConstructionTask())
-                {
-                    return;
-                }
-
-                if (TryStartHunterTask())
-                {
-                    return;
-                }
-
-                if (TryStartFisherTask())
+                if (TryStartScheduledWorkTask())
                 {
                     return;
                 }

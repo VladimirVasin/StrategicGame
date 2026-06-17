@@ -367,7 +367,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            float mist = Mathf.Max(weather.FogIntensity, weather.HeavyRainIntensity * 0.20f);
+            float mist = weather.HeavyRainIntensity * 0.20f;
             if (mist <= 0.02f)
             {
                 if (mistRenderer != null && !mistRenderer.enabled)

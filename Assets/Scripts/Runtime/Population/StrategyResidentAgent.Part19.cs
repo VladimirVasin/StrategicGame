@@ -188,6 +188,12 @@ namespace ProjectUnknown.Strategy
                     StrategyDebugLogger.F("mineStock", activeMine.IronStored));
             }
 
+            if (!StrategyDayNightCycleController.IsSettlementWorkTime)
+            {
+                ResetMineWorkToIdle("off_duty_night");
+                return;
+            }
+
             if (activeIronDeposit == null || activeIronDeposit.IsDepleted)
             {
                 activeIronDeposit = null;

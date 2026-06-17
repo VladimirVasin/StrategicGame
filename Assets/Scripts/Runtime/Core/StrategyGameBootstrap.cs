@@ -296,7 +296,7 @@ namespace ProjectUnknown.Strategy
             upgrades.Configure(map);
             StrategyDebugLogger.Info("Bootstrap", "UpgradesReady");
 
-            fog.Configure(map, population, placement);
+            fog.Configure(map, population, placement, weather);
             placement.Configure(map, buildMenu, mainCamera, population, fog, forestry, stone, upgrades);
             if (population.TryGetCampCell(out Vector2Int starterStorageCampCell))
             {
@@ -304,6 +304,16 @@ namespace ProjectUnknown.Strategy
             }
 
             StrategyDebugLogger.Info("Bootstrap", "FogAndPlacementReady");
+
+            StrategyDebugPanelController debugPanel = Object.FindAnyObjectByType<StrategyDebugPanelController>();
+            if (debugPanel == null)
+            {
+                GameObject debugPanelObject = new GameObject("Strategy Debug Panel");
+                debugPanel = debugPanelObject.AddComponent<StrategyDebugPanelController>();
+            }
+
+            debugPanel.Configure(fog, weather);
+            StrategyDebugLogger.Info("Bootstrap", "DebugPanelReady");
 
             StrategyWildlifeController wildlife = Object.FindAnyObjectByType<StrategyWildlifeController>();
             if (wildlife == null)
@@ -371,7 +381,7 @@ namespace ProjectUnknown.Strategy
                 topStatusHud = topStatusHudObject.AddComponent<StrategyTopStatusHudController>();
             }
 
-            topStatusHud.Configure(population, populationRosterHud);
+            topStatusHud.Configure(population, populationRosterHud, dayNight);
             StrategyDebugLogger.Info("Bootstrap", "TopStatusHudReady");
 
             StrategyEventLogHudController eventLogHud = Object.FindAnyObjectByType<StrategyEventLogHudController>();

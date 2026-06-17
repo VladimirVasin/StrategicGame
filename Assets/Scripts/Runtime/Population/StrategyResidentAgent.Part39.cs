@@ -18,7 +18,7 @@ namespace ProjectUnknown.Strategy
 
             while (constructionWorkCellCandidates.Count > 0)
             {
-                int index = GetNearestWorkCellIndex(constructionWorkCellCandidates);
+                int index = GetConstructionWorkCellIndex(site, constructionWorkCellCandidates);
                 Vector2Int candidate = constructionWorkCellCandidates[index];
                 constructionWorkCellCandidates.RemoveAt(index);
                 checkedCells++;

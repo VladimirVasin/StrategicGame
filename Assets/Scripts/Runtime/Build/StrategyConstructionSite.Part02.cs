@@ -20,7 +20,7 @@ namespace ProjectUnknown.Strategy
             }
 
             AddCloseBuildWorkCandidates(candidates);
-            AddBuildWorkRingCandidates(blockOrigin, blockFootprint, 2, candidates);
+            AddBuildWorkRingCandidates(origin, footprint, 2, candidates);
             return candidates.Count > 0;
         }
 
@@ -38,8 +38,48 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
-            AddBuildWorkRingCandidates(blockOrigin, blockFootprint, 4, candidates);
+            AddCloseBuildWorkCandidates(candidates);
+            AddBuildWorkRingCandidates(origin, footprint, 3, candidates);
             return candidates.Count > 0;
+        }
+
+        public int GetWorkerVisualCellPriority(Vector2Int cell)
+        {
+            if (bridgeWorkCells.Contains(cell))
+            {
+                return 0;
+            }
+
+            int localX = cell.x - origin.x;
+            int localY = cell.y - origin.y;
+            if (localY == -1 && localX >= -1 && localX <= footprint.x)
+            {
+                return 0;
+            }
+
+            int lowerSideLimit = Mathf.Max(0, footprint.y / 2);
+            bool isSide = (localX == -1 || localX == footprint.x) && localY >= 0 && localY < footprint.y;
+            if (isSide && localY <= lowerSideLimit)
+            {
+                return 1;
+            }
+
+            if (localY < -1)
+            {
+                return 2;
+            }
+
+            if (isSide)
+            {
+                return 3;
+            }
+
+            if (localY >= footprint.y)
+            {
+                return 6;
+            }
+
+            return 4;
         }
 
         private void CompleteConstruction()

@@ -290,11 +290,11 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            int count = constructionWorkCellCandidates.Count;
-            int startIndex = count > 1 ? Random.Range(0, count) : 0;
-            for (int offset = 0; offset < count; offset++)
+            while (constructionWorkCellCandidates.Count > 0)
             {
-                Vector2Int candidate = constructionWorkCellCandidates[(startIndex + offset) % count];
+                int index = GetConstructionWorkCellIndex(site, constructionWorkCellCandidates);
+                Vector2Int candidate = constructionWorkCellCandidates[index];
+                constructionWorkCellCandidates.RemoveAt(index);
                 checkedCells++;
                 workCell = candidate;
                 if (TryBuildPathTo(candidate))

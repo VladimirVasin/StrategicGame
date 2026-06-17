@@ -8,6 +8,72 @@ Last updated: 2026-06-17
 
 ## Done
 
+### 2026-06-17 - Smooth debug weather switching
+
+- Added `StrategyWeatherController.ForceWeatherSmooth()` so debug-selected weather states use the same gradual atmospheric transition path as normal random weather changes.
+- Updated the F9 debug panel weather buttons to call the smooth weather transition instead of the instant `ForceWeather()` path.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; touched C# files stayed below the 500-line limit.
+
+### 2026-06-17 - Construction worker visual position priority
+
+- Fixed builders sometimes standing visually too high behind construction-site sprites while delivering materials or building.
+- Construction-site build/dropoff candidate collection now uses the technical footprint for normal sites and assigns lower/front cells higher visual priority than rear/top cells.
+- Builder path selection now tries construction cells by visual priority first, keeping rear/top cells only as fallback when lower/front positions are unreachable.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; touched C# files stayed below the 500-line limit.
+
+### 2026-06-17 - F9 runtime debug panel
+
+- Added `StrategyDebugPanelController` as a runtime fullscreen debug overlay opened by F9 and closed by F9/Esc.
+- Moved player fog bypass control out of direct fog-of-war keyboard input: F9 now opens the panel, and the panel checkbox calls `StrategyFogOfWarController.SetPlayerFogEnabled()`.
+- Added debug weather controls for forcing Clear, Cloudy, Light Rain, Heavy Rain, Fog, and Storm through the smooth weather transition path.
+- Runtime bootstrap now creates/configures the debug panel after fog and weather are ready.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; touched C# files stayed below the 500-line limit.
+
+### 2026-06-17 - Weather Fog of War masking
+
+- Connected `StrategyFogOfWarController` to `StrategyWeatherController` so weather Fog can further reduce camp, resident, and building reveal radii.
+- Added `StrategyFogOfWarController.WeatherFog.cs` to render weather Fog inside the fog-of-war texture: visible cells stay clear, explored cells within 2 cells of visibility get light fog, within 4 cells get medium fog, and farther explored cells get dense fog.
+- Weather mist visuals now ignore `FogIntensity` and only keep the small heavy-rain mist contribution, preventing a second uniform mist layer from covering visible cells during Fog weather.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; full `Assets/Scripts` line-count scan found no C# files over 500 lines; `git diff --check` passed with only the existing CRLF warning for `Assembly-CSharp.csproj`.
+
+### 2026-06-17 - More random rain lightning
+
+- Reworked cinematic lightning scheduling so rain can produce rare lightning while storms produce more frequent but still irregular flashes.
+- Lightning now uses randomized short/normal/long delay bands, variable flash decay, and occasional multi-flash bursts instead of a mostly fixed storm-only timer.
+- Split lightning logic into `StrategyCinematicVisualController.Part02.cs` so the main cinematic visual controller stays below the 500-line C# limit.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-17 - Night fog vision tuning
+
+- Fog of war now reduces camp, resident, and building reveal radii during Dusk/Night/Dawn from the shared day/night calendar phase.
+- Explored-but-not-currently-visible cells become much darker at night while persistent exploration memory stays intact.
+- Added `StrategyFogOfWarController.Visibility.cs` for night-vision helper logic so the main fog controller stays below the 500-line C# limit.
+- Wildlife hidden-near-settlement spawn checks now use a daylight-range visibility mask so nighttime darkness does not allow animals to spawn closer to the visible settlement than intended.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; full `Assets/Scripts` line-count scan found no C# files over 500 lines; `git diff --check` passed with only the existing CRLF warning for `Assembly-CSharp.csproj`.
+
+### 2026-06-17 - Resident daytime work schedule
+
+- Added `StrategyDayNightCycleController.IsSettlementWorkTime` so resident work scheduling uses the shared day/night phase source.
+- Added `StrategyResidentAgent.Part41.cs` for resident schedule gating: new production, construction, logistics, hunting, fishing, foraging, garden, and household-food work starts only during morning/day/evening; reached work targets are deferred if night begins before arrival.
+- Nightfall now interrupts active manual work phases such as chopping, stone mining, construction hammering, hunting/fishing waits, garden work, foraging, and planting while allowing already carried resources and deposits/returns to finish so stock reservations do not deadlock.
+- Mine and Coal Pit workers finish their current extraction cycle but do not begin another one at night.
+- Resident HUD/roster status now shows assigned idle workers as `off duty for the night` instead of misleading resource/prey waiting messages.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-17 - Day cycle length tuning
+
+- Increased the scaled day/night cycle from 220 seconds to 300 seconds, making one full day last 5 minutes at x1 speed.
+- Replaced the ambience controller's old hardcoded 220-second phase calculation with `StrategyDayNightCycleController.CurrentDayPhase` so night/cicada/bird ambience stays synchronized with the visual calendar.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-17 - Calendar time HUD and stronger day-night phases
+
+- Added `StrategyCalendarSnapshot` and `StrategyTimeOfDayPhase` to `StrategyDayNightCycleController`, exposing display day, 24-hour clock time, phase label, phase progress, and phase accent colors from the existing scaled day cycle.
+- Added a compact top-right calendar/time HUD panel showing `Day`, clock time, phase label, phase color swatch, and day-progress bar while keeping the population panel as the residents-roster button.
+- Day/night now sends player-facing `Dawn` and `Nightfall` messages through the compact event log and logs phase changes with day/clock context.
+- Retuned day/night overlay, camera background, post-process color grading, vignette, bloom mood, and cinematic global light values so dawn/dusk/night read more clearly without adding new per-frame scene objects.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
 ### 2026-06-17 - Structured world inspect microHUD
 
 - Extended `StrategyWorldInspectInfo` with optional inspect kind, accent color, chips, and rows while keeping the old body text fallback constructor.
@@ -990,7 +1056,7 @@ Last updated: 2026-06-17
 
 ### 2026-06-12 - Visual day/night cycle MVP
 
-- Added `StrategyDayNightCycleController`, a runtime world overlay that cycles through dawn, day, dusk, and night over a 220-second scaled-time loop.
+- Added `StrategyDayNightCycleController`, a runtime world overlay that cycles through dawn, day, dusk, and night over a scaled-time loop.
 - The overlay renders above world sprites and below placement preview/fog/UI, so it tints the game world without darkening HUD panels.
 - The controller also blends the camera background color with the same phase and logs major phase changes.
 - Runtime bootstrap now creates/configures the day/night controller after camera setup.

@@ -2,11 +2,56 @@ using UnityEngine;
 
 namespace ProjectUnknown.Strategy
 {
+    public enum StrategyTimeOfDayPhase
+    {
+        Dawn,
+        Morning,
+        Noon,
+        Afternoon,
+        Dusk,
+        Night
+    }
+
+    public readonly struct StrategyCalendarSnapshot
+    {
+        public StrategyCalendarSnapshot(
+            int dayIndex,
+            float dayPhase,
+            int hour,
+            int minute,
+            StrategyTimeOfDayPhase phase,
+            float phaseProgress)
+        {
+            DayIndex = dayIndex;
+            DayPhase = dayPhase;
+            Hour = hour;
+            Minute = minute;
+            Phase = phase;
+            PhaseProgress = phaseProgress;
+        }
+
+        public int DayIndex { get; }
+        public int DisplayDay => DayIndex + 1;
+        public float DayPhase { get; }
+        public int Hour { get; }
+        public int Minute { get; }
+        public StrategyTimeOfDayPhase Phase { get; }
+        public float PhaseProgress { get; }
+        public bool IsNight => Phase == StrategyTimeOfDayPhase.Night;
+        public string ClockText => Hour.ToString("00") + ":" + Minute.ToString("00");
+        public string PhaseLabel => StrategyDayNightCycleController.GetPhaseLabel(Phase);
+    }
+
     [DisallowMultipleComponent]
     public sealed class StrategyDayNightCycleController : MonoBehaviour
     {
-        private const float CycleSeconds = 220f;
-        private const float LogPhaseStep = 0.25f;
+        private const float CycleSeconds = 300f;
+        private const float DawnEnd = 0.18f;
+        private const float MorningEnd = 0.32f;
+        private const float NoonEnd = 0.50f;
+        private const float AfternoonEnd = 0.62f;
+        private const float DuskEnd = 0.78f;
+        private const float ClockStartHour = 4f;
 
         private static Sprite overlaySprite;
 
@@ -14,19 +59,28 @@ namespace ProjectUnknown.Strategy
         private Camera strategyCamera;
         private SpriteRenderer overlayRenderer;
         private Color baseCameraColor = new(0.09f, 0.12f, 0.14f);
-        private int loggedPhaseIndex = -1;
+        private StrategyTimeOfDayPhase loggedPhase = (StrategyTimeOfDayPhase)(-1);
+        private StrategyTimeOfDayPhase announcedPhase = (StrategyTimeOfDayPhase)(-1);
+        private int announcedDayIndex = -1;
 
         public float DayPhase => Mathf.Repeat(Time.timeSinceLevelLoad / CycleSeconds, 1f);
+        public StrategyCalendarSnapshot CurrentSnapshot => CreateSnapshot(Time.timeSinceLevelLoad);
         public static float DayLengthSeconds => CycleSeconds;
         public static int CurrentDayIndex => Mathf.FloorToInt(Time.timeSinceLevelLoad / CycleSeconds);
         public static float CurrentDayPhase => Mathf.Repeat(Time.timeSinceLevelLoad / CycleSeconds, 1f);
-        public static bool IsHouseholdOutdoorWorkTime
+        public static StrategyCalendarSnapshot CurrentCalendarSnapshot => CreateSnapshot(Time.timeSinceLevelLoad);
+        public static bool IsSettlementWorkTime
         {
             get
             {
                 float phase = CurrentDayPhase;
-                return phase >= 0.18f && phase < 0.78f;
+                return phase >= DawnEnd && phase < DuskEnd;
             }
+        }
+
+        public static bool IsHouseholdOutdoorWorkTime
+        {
+            get { return IsSettlementWorkTime; }
         }
 
         public static float ShadowOpacityMultiplier { get; private set; } = 1f;
@@ -94,7 +148,8 @@ namespace ProjectUnknown.Strategy
 
         private void ApplyVisuals(bool forceLog)
         {
-            float phase = DayPhase;
+            StrategyCalendarSnapshot snapshot = CurrentSnapshot;
+            float phase = snapshot.DayPhase;
             Color overlayColor = EvaluateOverlayColor(phase);
             overlayRenderer.color = overlayColor;
             ShadowOpacityMultiplier = EvaluateShadowOpacity(phase);
@@ -105,146 +160,259 @@ namespace ProjectUnknown.Strategy
                 strategyCamera.backgroundColor = EvaluateCameraColor(phase);
             }
 
-            int phaseIndex = Mathf.FloorToInt(phase / LogPhaseStep);
-            if (forceLog || phaseIndex != loggedPhaseIndex)
+            if (forceLog || snapshot.Phase != loggedPhase)
             {
-                loggedPhaseIndex = phaseIndex;
+                loggedPhase = snapshot.Phase;
                 StrategyDebugLogger.Info(
                     "DayNight",
                     "PhaseChanged",
-                    StrategyDebugLogger.F("phase", GetPhaseName(phase)),
+                    StrategyDebugLogger.F("day", snapshot.DisplayDay),
+                    StrategyDebugLogger.F("clock", snapshot.ClockText),
+                    StrategyDebugLogger.F("phase", snapshot.PhaseLabel),
                     StrategyDebugLogger.F("phaseValue", phase),
                     StrategyDebugLogger.F("overlayAlpha", overlayColor.a));
             }
+
+            AnnouncePlayerFacingPhase(snapshot);
         }
 
         private static Color EvaluateOverlayColor(float phase)
         {
-            Color dawn = new Color(0.72f, 0.40f, 0.16f, 0.10f);
-            Color day = new Color(0.08f, 0.10f, 0.06f, 0.02f);
-            Color dusk = new Color(0.78f, 0.32f, 0.12f, 0.16f);
-            Color night = new Color(0.02f, 0.07f, 0.18f, 0.36f);
+            Color dawn = new Color(0.82f, 0.46f, 0.18f, 0.14f);
+            Color day = new Color(0.08f, 0.10f, 0.06f, 0.01f);
+            Color dusk = new Color(0.86f, 0.30f, 0.10f, 0.22f);
+            Color night = new Color(0.015f, 0.055f, 0.17f, 0.43f);
 
-            if (phase < 0.18f)
+            if (phase < DawnEnd)
             {
-                return Color.Lerp(night, dawn, Smooth01(phase / 0.18f));
+                return Color.Lerp(night, dawn, Smooth01(phase / DawnEnd));
             }
 
-            if (phase < 0.32f)
+            if (phase < MorningEnd)
             {
-                return Color.Lerp(dawn, day, Smooth01((phase - 0.18f) / 0.14f));
+                return Color.Lerp(dawn, day, Smooth01((phase - DawnEnd) / (MorningEnd - DawnEnd)));
             }
 
-            if (phase < 0.62f)
+            if (phase < AfternoonEnd)
             {
                 return day;
             }
 
-            if (phase < 0.78f)
+            if (phase < DuskEnd)
             {
-                return Color.Lerp(day, dusk, Smooth01((phase - 0.62f) / 0.16f));
+                return Color.Lerp(day, dusk, Smooth01((phase - AfternoonEnd) / (DuskEnd - AfternoonEnd)));
             }
 
-            return Color.Lerp(dusk, night, Smooth01((phase - 0.78f) / 0.22f));
+            return Color.Lerp(dusk, night, Smooth01((phase - DuskEnd) / (1f - DuskEnd)));
         }
 
         private static float EvaluateShadowOpacity(float phase)
         {
-            if (phase < 0.18f)
+            if (phase < DawnEnd)
             {
-                return Mathf.Lerp(0.38f, 0.74f, Smooth01(phase / 0.18f));
+                return Mathf.Lerp(0.32f, 0.80f, Smooth01(phase / DawnEnd));
             }
 
-            if (phase < 0.32f)
+            if (phase < MorningEnd)
             {
-                return Mathf.Lerp(0.74f, 1f, Smooth01((phase - 0.18f) / 0.14f));
+                return Mathf.Lerp(0.80f, 1f, Smooth01((phase - DawnEnd) / (MorningEnd - DawnEnd)));
             }
 
-            if (phase < 0.62f)
+            if (phase < AfternoonEnd)
             {
                 return 1f;
             }
 
-            if (phase < 0.78f)
+            if (phase < DuskEnd)
             {
-                return Mathf.Lerp(1f, 0.72f, Smooth01((phase - 0.62f) / 0.16f));
+                return Mathf.Lerp(1f, 0.70f, Smooth01((phase - AfternoonEnd) / (DuskEnd - AfternoonEnd)));
             }
 
-            return Mathf.Lerp(0.72f, 0.38f, Smooth01((phase - 0.78f) / 0.22f));
+            return Mathf.Lerp(0.70f, 0.32f, Smooth01((phase - DuskEnd) / (1f - DuskEnd)));
         }
 
         private static float EvaluateShadowLength(float phase)
         {
-            if (phase < 0.18f)
+            if (phase < DawnEnd)
             {
-                return Mathf.Lerp(0.78f, 1.36f, Smooth01(phase / 0.18f));
+                return Mathf.Lerp(0.78f, 1.52f, Smooth01(phase / DawnEnd));
             }
 
-            if (phase < 0.32f)
+            if (phase < MorningEnd)
             {
-                return Mathf.Lerp(1.36f, 0.92f, Smooth01((phase - 0.18f) / 0.14f));
+                return Mathf.Lerp(1.52f, 0.92f, Smooth01((phase - DawnEnd) / (MorningEnd - DawnEnd)));
             }
 
-            if (phase < 0.62f)
+            if (phase < AfternoonEnd)
             {
                 return 0.92f;
             }
 
-            if (phase < 0.78f)
+            if (phase < DuskEnd)
             {
-                return Mathf.Lerp(0.92f, 1.42f, Smooth01((phase - 0.62f) / 0.16f));
+                return Mathf.Lerp(0.92f, 1.58f, Smooth01((phase - AfternoonEnd) / (DuskEnd - AfternoonEnd)));
             }
 
-            return Mathf.Lerp(1.42f, 0.78f, Smooth01((phase - 0.78f) / 0.22f));
+            return Mathf.Lerp(1.58f, 0.78f, Smooth01((phase - DuskEnd) / (1f - DuskEnd)));
         }
 
         private Color EvaluateCameraColor(float phase)
         {
-            Color nightCamera = new Color(0.025f, 0.035f, 0.065f);
-            Color duskCamera = new Color(0.10f, 0.08f, 0.075f);
-            Color dawnCamera = new Color(0.10f, 0.09f, 0.075f);
+            Color nightCamera = new Color(0.018f, 0.026f, 0.058f);
+            Color duskCamera = new Color(0.13f, 0.075f, 0.065f);
+            Color dawnCamera = new Color(0.12f, 0.095f, 0.070f);
 
-            if (phase < 0.18f)
+            if (phase < DawnEnd)
             {
-                return Color.Lerp(nightCamera, dawnCamera, Smooth01(phase / 0.18f));
+                return Color.Lerp(nightCamera, dawnCamera, Smooth01(phase / DawnEnd));
             }
 
-            if (phase < 0.32f)
+            if (phase < MorningEnd)
             {
-                return Color.Lerp(dawnCamera, baseCameraColor, Smooth01((phase - 0.18f) / 0.14f));
+                return Color.Lerp(dawnCamera, baseCameraColor, Smooth01((phase - DawnEnd) / (MorningEnd - DawnEnd)));
             }
 
-            if (phase < 0.62f)
+            if (phase < AfternoonEnd)
             {
                 return baseCameraColor;
             }
 
-            if (phase < 0.78f)
+            if (phase < DuskEnd)
             {
-                return Color.Lerp(baseCameraColor, duskCamera, Smooth01((phase - 0.62f) / 0.16f));
+                return Color.Lerp(baseCameraColor, duskCamera, Smooth01((phase - AfternoonEnd) / (DuskEnd - AfternoonEnd)));
             }
 
-            return Color.Lerp(duskCamera, nightCamera, Smooth01((phase - 0.78f) / 0.22f));
+            return Color.Lerp(duskCamera, nightCamera, Smooth01((phase - DuskEnd) / (1f - DuskEnd)));
         }
 
-        private static string GetPhaseName(float phase)
+        public static string GetPhaseLabel(StrategyTimeOfDayPhase phase)
         {
-            if (phase < 0.18f)
+            switch (phase)
             {
-                return "Dawn";
+                case StrategyTimeOfDayPhase.Dawn:
+                    return "Dawn";
+                case StrategyTimeOfDayPhase.Morning:
+                    return "Morning";
+                case StrategyTimeOfDayPhase.Noon:
+                    return "Noon";
+                case StrategyTimeOfDayPhase.Afternoon:
+                    return "Afternoon";
+                case StrategyTimeOfDayPhase.Dusk:
+                    return "Dusk";
+                case StrategyTimeOfDayPhase.Night:
+                    return "Night";
+                default:
+                    return "Day";
+            }
+        }
+
+        public static Color GetPhaseAccentColor(StrategyTimeOfDayPhase phase)
+        {
+            switch (phase)
+            {
+                case StrategyTimeOfDayPhase.Dawn:
+                    return new Color(1f, 0.76f, 0.42f);
+                case StrategyTimeOfDayPhase.Morning:
+                    return new Color(0.96f, 0.88f, 0.58f);
+                case StrategyTimeOfDayPhase.Noon:
+                    return new Color(0.95f, 0.93f, 0.76f);
+                case StrategyTimeOfDayPhase.Afternoon:
+                    return new Color(0.92f, 0.82f, 0.50f);
+                case StrategyTimeOfDayPhase.Dusk:
+                    return new Color(1f, 0.55f, 0.32f);
+                case StrategyTimeOfDayPhase.Night:
+                    return new Color(0.50f, 0.70f, 1f);
+                default:
+                    return new Color(0.95f, 0.88f, 0.62f);
+            }
+        }
+
+        private void AnnouncePlayerFacingPhase(StrategyCalendarSnapshot snapshot)
+        {
+            bool keyPhase = snapshot.Phase == StrategyTimeOfDayPhase.Dawn
+                || snapshot.Phase == StrategyTimeOfDayPhase.Night;
+            if (!keyPhase)
+            {
+                return;
             }
 
-            if (phase < 0.62f)
+            bool alreadyAnnounced = announcedPhase == snapshot.Phase
+                && announcedDayIndex == snapshot.DayIndex;
+            if (alreadyAnnounced)
             {
-                return "Day";
+                return;
             }
 
-            if (phase < 0.78f)
+            announcedPhase = snapshot.Phase;
+            announcedDayIndex = snapshot.DayIndex;
+            string label = snapshot.Phase == StrategyTimeOfDayPhase.Night ? "Nightfall" : "Dawn";
+            StrategyEventLogHudController.Notify(
+                label + ", Day " + snapshot.DisplayDay,
+                GetPhaseAccentColor(snapshot.Phase));
+        }
+
+        private static StrategyCalendarSnapshot CreateSnapshot(float elapsedSeconds)
+        {
+            int dayIndex = Mathf.FloorToInt(elapsedSeconds / CycleSeconds);
+            float phase = Mathf.Repeat(elapsedSeconds / CycleSeconds, 1f);
+            float hourValue = Mathf.Repeat(ClockStartHour + phase * 24f, 24f);
+            int totalMinutes = Mathf.FloorToInt(hourValue * 60f) % (24 * 60);
+            int hour = totalMinutes / 60;
+            int minute = totalMinutes % 60;
+            StrategyTimeOfDayPhase timePhase = EvaluateTimeOfDayPhase(phase);
+            float progress = EvaluatePhaseProgress(phase, timePhase);
+            return new StrategyCalendarSnapshot(dayIndex, phase, hour, minute, timePhase, progress);
+        }
+
+        private static StrategyTimeOfDayPhase EvaluateTimeOfDayPhase(float phase)
+        {
+            if (phase < DawnEnd)
             {
-                return "Dusk";
+                return StrategyTimeOfDayPhase.Dawn;
             }
 
-            return "Night";
+            if (phase < MorningEnd)
+            {
+                return StrategyTimeOfDayPhase.Morning;
+            }
+
+            if (phase < NoonEnd)
+            {
+                return StrategyTimeOfDayPhase.Noon;
+            }
+
+            if (phase < AfternoonEnd)
+            {
+                return StrategyTimeOfDayPhase.Afternoon;
+            }
+
+            if (phase < DuskEnd)
+            {
+                return StrategyTimeOfDayPhase.Dusk;
+            }
+
+            return StrategyTimeOfDayPhase.Night;
+        }
+
+        private static float EvaluatePhaseProgress(float phase, StrategyTimeOfDayPhase timePhase)
+        {
+            switch (timePhase)
+            {
+                case StrategyTimeOfDayPhase.Dawn:
+                    return Mathf.InverseLerp(0f, DawnEnd, phase);
+                case StrategyTimeOfDayPhase.Morning:
+                    return Mathf.InverseLerp(DawnEnd, MorningEnd, phase);
+                case StrategyTimeOfDayPhase.Noon:
+                    return Mathf.InverseLerp(MorningEnd, NoonEnd, phase);
+                case StrategyTimeOfDayPhase.Afternoon:
+                    return Mathf.InverseLerp(NoonEnd, AfternoonEnd, phase);
+                case StrategyTimeOfDayPhase.Dusk:
+                    return Mathf.InverseLerp(AfternoonEnd, DuskEnd, phase);
+                case StrategyTimeOfDayPhase.Night:
+                    return Mathf.InverseLerp(DuskEnd, 1f, phase);
+                default:
+                    return 0f;
+            }
         }
 
         private static float Smooth01(float value)

@@ -38,7 +38,7 @@ Responsibilities:
 - Default volume/rendering profiles.
 - Shared Y-based sorting constants/helper for 2.5D world sprites.
 - Shared short-lived world-space visual effects for resource drops, construction hits, sawdust, dust, sparks, chips, and splashes.
-- Runtime world tint overlay for the visual day/night cycle.
+- Runtime world tint overlay and calendar snapshot source for the visual day/night cycle.
 - Runtime weather overlay sorting bands for wet ground, cloud shadows, mist, and rain.
 - Runtime URP post-processing for soft color grading, bloom, and vignette driven by day/night and weather state.
 - Runtime cinematic visuals for 2D global/local lights, emissive masks, wet puddle glints, lightning flashes, and foreground depth accents.
@@ -68,6 +68,7 @@ Impact hints:
 - World sprites should use `StrategyWorldSorting` instead of fixed type-based `sortingOrder` values so farther objects do not render in front of nearer ones.
 - Short-lived world effects should use `StrategyWorldEffectAnimator` and `StrategyRuntimeObjectCreationGuard` instead of spawning one-off ad hoc particle objects.
 - The day/night and weather overlays sort around world sprites while staying below placement preview/fog/UI; keep that ordering when adding more world overlays.
+- Day/night owns the canonical display day, 24-hour clock, time-of-day phase labels, phase accent colors, and dawn/nightfall event-log triggers; HUDs should read that snapshot instead of inventing separate clocks.
 - Post-process tuning should stay subtle and pixel-readable; avoid blur, heavy chromatic aberration, or aggressive grain for normal strategy view.
 - Cinematic visual effects should stay bounded to reusable emitters/controllers rather than adding per-building one-off light scripts; real `Light2D` point lights should stay LOD-capped and lazily created because many simultaneous 2D lights can cause visible frame spikes.
 - `StrategyShadowCaster2D` is the shared runtime shadow path for world sprites; tune shape/scale/offset per object type and let day/night control opacity/length globally.
@@ -110,6 +111,7 @@ Responsibilities:
 - Configure nature props after the starter camp exists so generated props can avoid the campfire clear radius.
 - Create/configure forage resource nodes after nature generation so they use current walkability.
 - Configure fog of war after population, placement, and map controllers exist.
+- Create/configure the F9 runtime debug panel after fog/weather are ready.
 - Place the starter Storage Yard near the campfire with initial Logs and Stone after placement is configured.
 - Create/configure runtime wildlife after starter placement so deer/rabbits use valid land and fish use valid water cells.
 - Create/configure visual day/night cycle after camera setup.
@@ -140,6 +142,8 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Audio/StrategyMusicController.cs`
 - `Assets/Scripts/Runtime/Audio/StrategyResidentFootstepAudio.cs`
 - `Assets/Scripts/Runtime/Map/StrategyFogOfWarController.cs`
+- `Assets/Scripts/Runtime/Map/StrategyFogOfWarController.Visibility.cs`
+- `Assets/Scripts/Runtime/Map/StrategyFogOfWarController.WeatherFog.cs`
 - `Assets/Scripts/Runtime/Map/StrategyWaterAnimationController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.Diagnostics.cs`
@@ -153,6 +157,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceController.cs`
 - `Assets/Scripts/Runtime/UI/StrategyRefugeeDialogController.cs`
 - `Assets/Scripts/Runtime/UI/StrategyConfirmationDialogController.cs`
+- `Assets/Scripts/Runtime/UI/StrategyDebugPanelController.cs`
 - `Assets/Scripts/Runtime/UI/StrategyTopStatusHudController.cs`
 - `Assets/Scripts/Runtime/UI/StrategyPopulationRosterHudController.cs`
 - `Assets/Scripts/Runtime/UI/StrategyPopulationRosterHudController.Part01.cs`
@@ -236,7 +241,8 @@ Responsibilities:
 
 - Own the current runtime weather state and smooth atmospheric intensities.
 - Randomly transition between Clear, Cloudy, LightRain, HeavyRain, Fog, and Storm.
-- Drive procedural wet-ground, cloud-shadow, mist, and rain world overlays.
+- Drive procedural wet-ground, cloud-shadow, heavy-rain mist, and rain world overlays.
+- Feed dense Fog weather into fog-of-war visibility and masked weather-fog rendering.
 - Feed rain/wind ambience with a single weather source of truth.
 - Boost the strategy `WindZone` so nature sway reacts to rain and storms.
 - Expose rain intensity to water animation for rain ripple hits.
@@ -256,6 +262,7 @@ Primary files/assets:
 Impact hints:
 
 - Weather visual overlays must stay below placement preview and fog-of-war UI-facing layers.
+- Dense weather Fog rendering is owned by Fog of War so visible cells can stay clear; do not reintroduce a uniform `FogIntensity` mist overlay over the whole map.
 - Rain/wind audio should continue reading `StrategyWeatherController.Active` instead of adding independent rain timers.
 - Weather currently has visual/audio/wind/water effects only; future gameplay effects should extend this system rather than duplicating weather rolls in crops, illness, movement, or fire logic.
 
@@ -282,12 +289,14 @@ Responsibilities:
 - Expose map bounds and cell buildability for future zoning/economy systems.
 - Track dynamic walkability blockers for placed buildings and early agents.
 - Track completed bridge walkability over River water cells without changing water/shore identity.
-- Host runtime fog-of-war exploration and visibility state.
+- Host runtime fog-of-war exploration, current visibility, day/night reveal tuning, weather Fog reveal tuning, weather-fog band rendering, and daylight-range visibility state.
 
 Primary files/assets:
 
 - `Assets/Scripts/Runtime/Map/CityMapController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyFogOfWarController.cs`
+- `Assets/Scripts/Runtime/Map/StrategyFogOfWarController.Visibility.cs`
+- `Assets/Scripts/Runtime/Map/StrategyFogOfWarController.WeatherFog.cs`
 - `Assets/Scripts/Runtime/Map/StrategyWaterAnimationController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.Diagnostics.cs`
@@ -376,16 +385,23 @@ Responsibilities:
 - Track persistent explored map cells and current visible cells.
 - Render a generated texture overlay above world sprites and below screen-space UI.
 - Use the starter camp, residents, and placed buildings as visibility sources.
+- Reduce visibility source radii during Dusk/Night/Dawn from the shared day/night phase.
+- Further reduce visibility source radii during dense Fog weather.
+- Render dense weather Fog inside explored-but-not-visible cells while leaving current visible cells clear.
+- Keep a daylight-range visibility mask for spawn systems that should not react to temporary nighttime sight loss.
 - Provide exploration checks to placement and world selection.
-- Toggle player fog off/on with F9 without clearing explored state.
+- Expose a player-fog enabled setter for debug controls without clearing explored state.
 
 Primary files/assets:
 
 - `Assets/Scripts/Runtime/Map/StrategyFogOfWarController.cs`
+- `Assets/Scripts/Runtime/Map/StrategyFogOfWarController.Visibility.cs`
+- `Assets/Scripts/Runtime/Map/StrategyFogOfWarController.WeatherFog.cs`
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.cs`
 - `Assets/Scripts/Runtime/Population/StrategyPopulationController.cs`
 - `Assets/Scripts/Runtime/Build/StrategyBuildPlacementController.cs`
 - `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.cs`
+- `Assets/Scripts/Runtime/UI/StrategyDebugPanelController.cs`
 - `Assembly-CSharp.csproj`
 
 Impact hints:
@@ -393,7 +409,10 @@ Impact hints:
 - Fog state is runtime-only and is not saved yet.
 - Placement currently requires explored cells, not current visibility.
 - Selection ignores clicks in unexplored cells, while the overlay visually hides world sprites.
-- F9 hides the fog overlay and makes map cells count as explored for player placement/selection until toggled back on.
+- Current visibility is reduced by Dusk/Night/Dawn and dense Fog weather, but persistent explored state and daylight-range hidden checks stay separate.
+- Weather Fog replaces normal explored gray-zone rendering with light/medium/dense fog bands around current visible cells.
+- Wildlife spawn/reproduction/migration hidden checks should use daylight-range visibility so temporary night blindness does not count as a safe spawn opening.
+- The F9 debug panel can hide the fog overlay and make map cells count as explored for player placement/selection until toggled back on.
 - Future scouting, enemies, stealth, minimap, or save/load should extend this subsystem instead of duplicating visibility arrays.
 
 ### Nature Props
@@ -533,6 +552,7 @@ Impact hints:
 - Wildlife is runtime-only and not saved yet.
 - Deer and birds do not reveal fog, block walkability, or provide resources yet; rabbits can yield `Game` through the hunter-camp work loop, fish can yield `Fish` through the fisher-hut work loop, and wolves are predators rather than player-harvestable resources.
 - Initial rabbit spawn, deer herds, fish shoals, birds, and wolf packs depend on hidden near-settlement candidate cells instead of map-wide placement; if no hidden candidate exists for a species, that species should skip spawning rather than appearing far from buildings or inside visible fog.
+- Wildlife hidden checks use fog daylight-range visibility, not reduced nighttime current visibility, so animals do not spawn closer to the settlement just because night lowered player sight radius.
 - Deer pathing depends on the wildlife land-travel predicate plus a separate land-target predicate, which wraps `CityMapController.IsCellWalkable`, River transit allowance, and the 4-cell structure buffer.
 - Rabbit pathing uses the same local wildlife land-travel and land-target approach and should stay cheap until a shared pathfinding service exists.
 - Land wildlife river crossing is intentionally scoped to wildlife path helpers through `StrategyWildlifeRiverCrossing`; River cells are transit-only for deer/rabbit/wolf paths and should not become final wildlife targets. Do not change global `CityMapController` walkability to make River water walkable for residents, buildings, or construction.
@@ -736,13 +756,13 @@ Impact hints:
 Responsibilities:
 
 - Runtime-created top status canvas.
-- Show total settlement population, adult count, and child count.
+- Show total settlement population, adult count, child count, display day, 24-hour clock time, time-of-day phase, and day progress.
 - Treat the compact population panel as a click target that toggles the larger resident roster HUD.
 - Show a larger residents roster HUD with settlement stats plus filterable rows for name, age, home/camp state, role, current status, and food status.
 - Expose a `Family Trees` button from the residents roster.
 - Show a fullscreen modal Family Trees HUD that pauses simulation, has permanent horizontal/vertical scrollbars, groups recorded members into connected same-surname family cards, lays those cards out as affinity-ordered left-to-right columns with compact generation rows, and draws parent-child portrait-card trees plus cross-family relationship lines with distinct deceased cards, gender symbols, and hover relationship labels.
 - Share resident role/status/home/food label formatting through `StrategyResidentHudText`.
-- Show compact birth, death, and adoption messages through a separate event-log canvas.
+- Show compact birth, death, adoption, dawn, and nightfall messages through a separate event-log canvas.
 - Refresh counts from `StrategyPopulationController` without owning population state.
 
 Primary files/assets:
@@ -767,6 +787,7 @@ Primary files/assets:
 Impact hints:
 
 - Population counts exclude pending refugee families until they are accepted into the settlement.
+- The calendar/time widget reads `StrategyDayNightCycleController.CurrentSnapshot`; keep it separate from the clickable population panel so the roster entry point remains obvious.
 - Family Trees reads recorded family data, including deceased residents preserved by `StrategyResidentFamilyRecord`, and renders deceased relatives as muted monochrome cards with a skull marker.
 - Family Trees relationship labels, cross-family lines, and column affinity currently derive from recorded parent/child links plus co-parent inference through shared children; explicit marriage/birth-family links should extend this owner instead of overloading family-name grouping.
 - Keep top HUD click targets coordinated with Build/Profession HUD positioning and raycasts.
@@ -971,7 +992,7 @@ Impact hints:
 
 - Placement is runtime-only and is not saved yet.
 - Placed objects use tool-specific sprites when available; unknown future tools still fall back to colored sprites/TextMesh labels.
-- Build placement consults fog exploration state, so early expansion starts around the camp and other revealed areas unless player fog is toggled off with F9.
+- Build placement consults fog exploration state, so early expansion starts around the camp and other revealed areas unless player fog is disabled from the F9 debug panel.
 - House ambient overlays are visual-only child sprites and should not be used for footprint/collider calculations.
 - Bridge placement requires two valid explored, unoccupied, walkable river-bank endpoint cells with a straight contiguous River water span between them; Lake water is rejected.
 - With the current catalog, `House`, `Lumberjack Camp`, `Stonecutter Camp`, `Sawmill`, `Hunter Camp`, `Fisher Hut`, `Mine`, `Coal Pit`, `Storage Yard`, and `Granary` can be selected and placed only where their technical foundation is fully walkable/buildable/explored, their future final 2.5D blocker can be reserved on buildable/explored/unoccupied cells, and builders have a nearby walkable work cell; Mine and Coal Pit are the only tools allowed to use matching Iron/Coal build-blocked mineral cells.
@@ -1323,6 +1344,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part38.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part39.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part40.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part41.cs`
 - `Assets/Scripts/Runtime/Build/StrategyLumberjackCamp.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStonecutterCamp.cs`
 - `Assets/Scripts/Runtime/Build/StrategyMine.cs`
@@ -1390,6 +1412,7 @@ Impact hints:
 - Residents use trail-aware 8-direction A* grid paths with no diagonal corner cutting and post-path smoothing for idle, home, workplace, construction, logistics, and funeral travel while keeping frame-based sprite walk cycles.
 - Resident movement records activity-weighted trail footfall per entered visible resident cell, and formed trails apply a 15% speed bonus.
 - Resident pathfinding can recover a blocked start cell by snapping to a nearby walkable cell and logging `PathStartRecovered`.
+- Resident scheduled work starts only during `StrategyDayNightCycleController.IsSettlementWorkTime`; keep carried-resource returns, deposits, and cleanup paths schedule-safe so nightfall cannot strand stock reservations.
 - Resident footstep audio is attached by `StrategyResidentAgent` and plays grass clips on selected walk frames; keep it low-volume/spatial when adding more residents or faster simulation speeds.
 - Lumberjack work keeps the same camp worksite component but chooses the nearest available tree/processable wood on the map; it tests nearby work cells for real path reachability before starting tree/log/plant movement, and includes tree chopping, trunk bucking, Logs delivery, and sapling planting.
 - Resident woodcut sprites are generated for every male/female visual variant and should stay in sync with readability outline mirroring.
@@ -1416,7 +1439,7 @@ Impact hints:
 - If no free pair exists, the completed house is available for adult-child migration and partner lookup.
 - House occupation consumes the finite free-resident pool from the starter camp while it exists; later household births and adult-child migration are the first internal population growth path.
 - Resident death must continue to go through the centralized population cleanup path; direct `Destroy` on accepted residents risks stale worksite, construction, home, HUD, or kinship state.
-- Resident helper methods for carried-resource return, construction work, workplace clearing, readability sync, refugee path following, tree movement, fishing cast/reel flow, production-input delivery, trail movement, ranged hunt stand selection, reachable forestry work-cell selection, reachable construction dropoff selection, and worker-triggered visual effects are split across `StrategyResidentAgent.Part27.cs` through `StrategyResidentAgent.Part40.cs` to keep source files below the 500-line limit.
+- Resident helper methods for carried-resource return, construction work, workplace clearing, readability sync, refugee path following, tree movement, fishing cast/reel flow, production-input delivery, trail movement, ranged hunt stand selection, reachable forestry work-cell selection, reachable construction dropoff selection, worker-triggered visual effects, and day/night work scheduling are split across `StrategyResidentAgent.Part27.cs` through `StrategyResidentAgent.Part41.cs` to keep source files below the 500-line limit.
 - Future jobs/families/economy should extend resident state rather than replacing the home/free-camp assignment model.
 
 ### World Selection

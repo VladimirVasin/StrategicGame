@@ -18,7 +18,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - 2D renderer configuration
   - Default volume profile
   - URP global settings
-  - Runtime day/night overlay tints the world above sprites and below preview/fog/UI
+  - Runtime day/night overlay tints the world above sprites and below preview/fog/UI, exposes day/clock/phase calendar snapshots, and drives dawn/nightfall player messages
   - Runtime weather overlays add wet ground, cloud shadows, mist, and rain in dedicated sorting bands around day/night and fog-of-war
   - Runtime URP post-process volume adds soft day/night/weather color grading, bloom, and vignette
   - Runtime cinematic visual layer adds 2D global/local light, emissive pixel masks, wet puddle glints, lightning flashes, and subtle foreground depth props
@@ -48,11 +48,12 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Generates nature props after population startup so the camp clear-radius exclusion is known
     - Creates forage resources after nature generation so forage nodes avoid occupied/non-walkable cells
     - Creates and wires the runtime fog-of-war layer after population and placement controllers exist
+    - Creates the F9 runtime debug panel after fog/weather are ready so testing can bypass player fog and force weather states
     - Places a starter Storage Yard near the campfire with initial Logs and Stone after placement is configured
     - Creates and wires runtime wildlife after starter placement so deer, rabbits, fish, and birds spawn in valid terrain/water/habitat areas
     - Creates runtime time-scale controls for simulation speed hotkeys
     - Creates the refugee-arrival event controller and modal refugee decision HUD
-    - Creates the top status HUD with settlement population counts, a clickable population roster HUD, family tree scene entry point, and a compact event log for births, deaths, and adoptions
+    - Creates the top status HUD with settlement population counts, a compact calendar/time widget, a clickable population roster HUD, family tree scene entry point, and a compact event log for births, deaths, adoptions, dawn, and nightfall
     - Creates the auto workforce controller before the Profession HUD so worker automation and priority controls share one runtime state
   - Strategy debug logging
     - Writes structured session logs to `debug.log`
@@ -211,8 +212,12 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Runtime-generated texture overlay above world sprites and below screen-space UI
       - Tracks persistent explored cells separately from current visible cells
       - Starter camp, residents, and placed buildings act as visibility sources
-      - Unexplored cells are fully black, explored-but-not-visible cells remain dimmed, and visible cells are clear
-      - F9 toggles player fog off/on without clearing explored state
+      - Dusk/Night/Dawn reduce camp, resident, and building reveal radii without clearing persistent explored memory
+      - Dense Fog weather further reduces camp, resident, and building reveal radii
+      - Unexplored cells are fully black, visible cells are clear, and explored-but-not-visible cells are dimmed during day, much darker at night, or replaced by layered weather fog during Fog weather
+      - Weather fog bands keep cells within 2 cells of visibility lightly fogged, within 4 cells medium fogged, and farther explored cells densely fogged
+      - Maintains a daylight-range visibility mask for systems that need "hidden from the player" checks without letting night darkness create extra spawn openings
+      - Exposes a player fog off/on switch for the F9 debug panel without clearing explored state
     - Basic buildability data reserved for future economy/zoning
     - Dynamic walkability layer for runtime blockers such as placed buildings
   - Strategy camera
@@ -418,6 +423,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Residents store a random visual variant chosen at startup
     - Residents perform simple idle movement near their current camp/home using short walkable grid paths
     - Resident pathing can recover a blocked start cell by moving the resident to a nearby walkable cell and logging the recovery
+    - Resident work starts only during morning/day/evening according to the shared day/night phase; nightfall defers new production, construction, logistics, hunting, fishing, foraging, garden, and household-food work while allowing carried resources and deposits/returns to finish
     - Householders periodically work at their house's default Garden Beds or fetch food from Granaries from `TendingHousehold` home duty
     - Non-householder residents without external work forage Berries, Roots, and Mushrooms for their own house; children younger than 7 do not forage
     - Residents assigned to a lumberjack camp path to the nearest available tree or processable wood on the map, chop mature trees, buck fallen trunks into Logs, carry Logs to camp stock, and plant new saplings nearby
@@ -475,17 +481,18 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Input foundation
   - Unity Input System package
   - Default `InputSystem_Actions.inputactions`
-  - Strategy camera, Build menu, fog toggle, and time-scale hotkeys read keyboard and mouse directly through Input System APIs
+  - Strategy camera, Build menu, debug panel, and time-scale hotkeys read keyboard and mouse directly through Input System APIs
   - Build menu creates an Input System UI event module when needed
 
 - UI foundation
   - Unity UI package installed
   - UI Toolkit module available through Unity modules
+  - Custom runtime F9 debug panel with a player fog-of-war checkbox and forced weather-state buttons
   - Custom runtime Build menu HUD
-  - Custom runtime top status HUD showing total population, adults, and children; clicking it opens a larger residents roster HUD
+  - Custom runtime top status HUD showing total population, adults, children, day number, 24-hour time, time-of-day phase, and day progress; clicking the population panel opens a larger residents roster HUD
   - Custom runtime residents roster HUD showing settlement stats plus filterable resident rows for name, age, home state, role, current status, and food status
 - Custom fullscreen Family Trees HUD opened from the residents roster; it pauses simulation, provides permanent horizontal/vertical scrollbars, lays connected same-surname family cards out as affinity-ordered left-to-right columns, and shows compact generation rows connected by local parent-pair branches plus cross-family relationship lines, deceased markers, gender symbols, and hover relationship labels
-  - Custom compact runtime event log showing births, deaths, and adoptions
+  - Custom compact runtime event log showing births, deaths, adoptions, dawn, and nightfall
   - Custom runtime world inspect microHUD for clicked graves, resources, nature props, and wildlife; residents, buildings, and construction sites use the right-side selection HUD only
     - MicroHUD supports typed chip/row dashboards for wildlife, deposits, trees, forage, and loose resource piles, with old body text kept as fallback
   - Custom runtime Profession HUD
@@ -516,16 +523,17 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Input action changes do not affect current camera controls yet because MVP controls read direct Input System devices.
 - Build menu active tool state drives the placement controller when catalog tools exist.
 - Placement uses generated map cells and buildability data.
-- Fog of war uses population, residents, and placed-building records as visibility sources; placement and world selection consult fog exploration state, with F9 acting as a player-visible bypass toggle.
+- Fog of war uses population, residents, placed-building records, the shared day/night phase, and weather Fog intensity as visibility inputs; placement and world selection consult fog exploration state, while the F9 debug panel can bypass player fog for testing.
 - Terrain rendering uses generated map cell kinds, seeded tile variants, neighbor transition overlays, a runtime water/shore animation overlay, and weather visual overlays.
 - Weather depends on generated map bounds, the strategy camera, day/night/fog sorting bands, the strategy wind source, water animation, and ambience audio.
+- Resident work scheduling depends on the shared day/night phase so production, construction, logistics, hunting, fishing, foraging, garden, and household-food tasks only start during settlement work time.
 - House visual upgrades and house resources depend on placed-building records, map walkability checks, generated upgrade/chicken/resource sprites, early idle/work agents, and the world-selection HUD.
 - Household foraging depends on generated walkable terrain, forage node reservations/regrowth, placed house records, resident work/funeral state, day/night phase, and the house-local food store.
 - Forestry depends on generated tree props, map walkability, placed lumberjack camps, resident work states, and the world-selection HUD.
 - Stone resources depend on generated nature props, map walkability, stonecutter camps, resident work states, and storage logistics.
 - Iron resources depend on generated underground indicators, Mines built over Iron, resident underground work states, and storage logistics.
 - Coal resources depend on generated underground indicators, Coal Pits built over Coal, visible in-pit resident work states, and storage logistics.
-- Wildlife depends on generated terrain/water cells, map walkability for land animals, population/resident positions, starter-camp location, hunter/fisher production buildings, and Y-based world sorting; deer and birds do not feed fog visibility or resources yet, while hunted rabbits can yield `Game` and caught fish can yield `Fish`.
+- Wildlife depends on generated terrain/water cells, map walkability for land animals, population/resident positions, fog daylight-range hidden checks, starter-camp location, hunter/fisher production buildings, and Y-based world sorting; deer and birds do not feed fog visibility or resources yet, while hunted rabbits can yield `Game` and caught fish can yield `Fish`.
 - Sawmill production depends on Storage Yard Log stock, production-input Hauler delivery, resident work states, placed-building records, map walkability, and Storage Yard Planks hauling.
 - Storage yard logistics depends on lumberjack camp stock, stonecutter camp stock, Sawmill stock, Mine stock, Coal Pit stock, Hunter Camp/Fisher Hut food stock, Granaries, resident work states, placed-building records, map walkability, and the world-selection HUD.
 - Loose construction resource piles bridge construction cancellation, build affordability, storage logistics, and builder pickup.

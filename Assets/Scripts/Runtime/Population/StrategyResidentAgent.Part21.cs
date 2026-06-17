@@ -7,6 +7,11 @@ namespace ProjectUnknown.Strategy
         private void HandleReachedPathTarget()
         {
             hasTarget = false;
+            if (TryDeferReachedWorkForNight())
+            {
+                return;
+            }
+
             if (activity == ResidentActivity.MovingToGarden)
             {
                 StartGardenWork();

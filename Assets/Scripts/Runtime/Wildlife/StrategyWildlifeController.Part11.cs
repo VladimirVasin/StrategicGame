@@ -32,7 +32,7 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
-            return !fog.IsCellVisible(cell);
+            return !fog.IsCellVisibleAtDaylightRange(cell);
         }
 
         private bool IsNearSettlementForWildlife(Vector2Int cell, WildlifeSettlementSpawnKind kind)

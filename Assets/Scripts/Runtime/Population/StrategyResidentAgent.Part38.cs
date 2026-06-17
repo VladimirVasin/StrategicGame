@@ -73,5 +73,29 @@ namespace ProjectUnknown.Strategy
 
             return bestIndex;
         }
+
+        private int GetConstructionWorkCellIndex(
+            StrategyConstructionSite site,
+            List<Vector2Int> candidates)
+        {
+            int bestIndex = 0;
+            float bestScore = float.MaxValue;
+            for (int i = 0; i < candidates.Count; i++)
+            {
+                Vector2Int candidate = candidates[i];
+                Vector3 world = map.GetCellCenterWorld(candidate.x, candidate.y);
+                int visualPriority = site != null ? site.GetWorkerVisualCellPriority(candidate) : 4;
+                float score = visualPriority * 10000f
+                    + (world - transform.position).sqrMagnitude
+                    + Random.Range(0f, 0.05f);
+                if (score < bestScore)
+                {
+                    bestScore = score;
+                    bestIndex = i;
+                }
+            }
+
+            return bestIndex;
+        }
     }
 }

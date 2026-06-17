@@ -60,6 +60,16 @@ namespace ProjectUnknown.Strategy
             SetWeather(weatherKind, true);
         }
 
+        public void ForceWeatherSmooth(StrategyWeatherKind weatherKind)
+        {
+            if (!configured)
+            {
+                return;
+            }
+
+            SetWeather(weatherKind, false);
+        }
+
         private void Awake()
         {
             Active = this;
