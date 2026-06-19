@@ -164,6 +164,7 @@
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWolfAgent.Part02.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyPopulationController.Part03.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyFishAgent.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Population\StrategyHouseholdFoodState.NightMeal.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyCinematicLightEmitter.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentSpriteFactory.Part04.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part03.cs" />

@@ -235,25 +235,9 @@ namespace ProjectUnknown.Strategy
             foodGranaryText.fontStyle = FontStyle.Bold;
             SetOffsets(foodGranaryText.rectTransform, 34f, 0f, 8f, 0f);
 
-            RectTransform cropRow = CreateUiObject("CropRow", resourcesRoot).GetComponent<RectTransform>();
-            SetTopStretch(cropRow, 6f, 138f, 6f, 24f);
-            Image cropBackground = cropRow.gameObject.AddComponent<Image>();
-            cropBackground.color = new Color(1f, 1f, 1f, 0.035f);
-            cropBackground.raycastTarget = false;
-
-            RectTransform cropIconRect = CreateUiObject("CropIcon", cropRow).GetComponent<RectTransform>();
-            SetTopLeft(cropIconRect, 8f, 4f, 16f, 16f);
-            cropIconImage = cropIconRect.gameObject.AddComponent<Image>();
-            cropIconImage.preserveAspect = true;
-            cropIconImage.raycastTarget = false;
-
-            cropValueText = CreateText("CropValueText", cropRow, 11, TextAnchor.MiddleLeft, new Color(0.78f, 0.86f, 0.82f));
-            cropValueText.fontStyle = FontStyle.Bold;
-            SetOffsets(cropValueText.rectTransform, 34f, 0f, 8f, 0f);
-
             resourcesEmptyText = CreateText("ResourcesEmptyText", resourcesRoot, 11, TextAnchor.UpperLeft, new Color(0.62f, 0.70f, 0.66f));
             resourcesEmptyText.text = "No food stored at this house";
-            SetTopStretch(resourcesEmptyText.rectTransform, 6f, 170f, 6f, 24f);
+            SetTopStretch(resourcesEmptyText.rectTransform, 6f, 138f, 6f, 24f);
 
             for (int i = 0; i < StrategyHouseResourceStore.DisplayOrder.Length; i++)
             {

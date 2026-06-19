@@ -119,7 +119,7 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            radius = GetBaseRadius() * Mathf.Lerp(1.06f, 1.36f, strength);
+            radius = GetBaseRadius() * LocalLightRadiusMultiplier * Mathf.Lerp(1.06f, 1.36f, strength);
             return radius > 0.2f;
         }
 

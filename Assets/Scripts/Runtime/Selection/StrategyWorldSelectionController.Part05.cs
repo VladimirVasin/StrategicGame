@@ -14,12 +14,6 @@ namespace ProjectUnknown.Strategy
             StrategyHouseholdFoodState food = building != null
                 ? building.GetComponent<StrategyHouseholdFoodState>()
                 : null;
-            int homeFood = building != null && building.Resources != null
-                ? building.Resources.GetTotalFoodAmount()
-                : 0;
-            float homeFoodRations = building != null && building.Resources != null
-                ? building.Resources.GetTotalRationValue()
-                : 0f;
             int granaryFood = StrategyGranary.GetTotalSettlementFood();
             float granaryFoodRations = StrategyGranary.GetTotalSettlementFoodRations();
             if (food == null)
@@ -27,8 +21,8 @@ namespace ProjectUnknown.Strategy
                 ApplyFoodStatus(
                     "Food status",
                     "No household data",
-                    "No meal",
-                    FormatFoodStockLine(homeFood, homeFoodRations, granaryFood, granaryFoodRations),
+                    "Pending",
+                    FormatFoodStockLine(granaryFood, granaryFoodRations),
                     0f,
                     new Color(0.30f, 0.34f, 0.34f, 0.94f),
                     new Color(0.52f, 0.58f, 0.56f, 0.95f));
@@ -39,7 +33,7 @@ namespace ProjectUnknown.Strategy
                 ? 1f
                 : Mathf.Clamp01(food.LastSuppliedRations / food.LastRequiredRations);
             string rationText = food.LastRequiredRations <= 0f
-                ? "No meal yet"
+                ? "Pending"
                 : FormatRations(food.LastSuppliedRations)
                     + "/"
                     + FormatRations(food.LastRequiredRations);
@@ -51,16 +45,16 @@ namespace ProjectUnknown.Strategy
             switch (food.Status)
             {
                 case StrategyHouseholdFoodStatus.Settling:
-                    statusText = "Settling in";
-                    detailText = "First meal in " + FormatDuration(food.FoodGraceSecondsRemaining);
+                    statusText = "Settling";
+                    detailText = "Dinner starts in " + FormatDuration(food.FoodGraceSecondsRemaining);
                     rowColor = new Color(0.16f, 0.28f, 0.31f, 0.94f);
                     fillColor = new Color(0.46f, 0.67f, 0.74f, 0.95f);
-                    rationText = "No meal yet";
+                    rationText = "Pending";
                     rationFill = 1f - Mathf.Clamp01(food.FoodGraceSecondsRemaining / Mathf.Max(1f, food.FoodGraceDurationSeconds));
                     break;
                 case StrategyHouseholdFoodStatus.ShortRations:
                     statusText = "Short rations";
-                    detailText = "Last meal missed " + FormatRations(food.LastMissingRations);
+                    detailText = "Last dinner short by " + FormatRations(food.LastMissingRations);
                     rowColor = new Color(0.32f, 0.26f, 0.16f, 0.94f);
                     fillColor = new Color(0.77f, 0.60f, 0.31f, 0.95f);
                     break;
@@ -78,8 +72,10 @@ namespace ProjectUnknown.Strategy
                     break;
                 default:
                     statusText = "Fed";
-                    detailText = food.IsFoodSupplyActivated
-                        ? "Next meal in " + FormatDuration(food.NextFoodTickSeconds)
+                    detailText = food.IsNightMealWaiting
+                        ? "Waiting for family " + food.NightMealPresentResidentCount + "/" + food.NightMealExpectedResidentCount
+                        : food.IsFoodSupplyActivated
+                        ? "Next dinner in " + FormatDuration(food.NextFoodTickSeconds)
                         : "Food ready";
                     rowColor = new Color(0.15f, 0.30f, 0.22f, 0.94f);
                     fillColor = new Color(0.56f, 0.76f, 0.38f, 0.95f);
@@ -90,22 +86,17 @@ namespace ProjectUnknown.Strategy
                 statusText,
                 detailText,
                 rationText,
-                FormatFoodStockLine(homeFood, homeFoodRations, granaryFood, granaryFoodRations),
+                FormatFoodStockLine(granaryFood, granaryFoodRations),
                 rationFill,
                 rowColor,
                 fillColor);
         }
 
         private static string FormatFoodStockLine(
-            int homeFood,
-            float homeFoodRations,
             int granaryFood,
             float granaryFoodRations)
         {
-            return "At home: "
-                + FormatFoodAmount(homeFood, homeFoodRations)
-                + "\nGranary reserve: "
-                + FormatFoodAmount(granaryFood, granaryFoodRations);
+            return "Granary reserve: " + FormatFoodAmount(granaryFood, granaryFoodRations);
         }
 
         private static string FormatFoodAmount(int food, float rations)
@@ -129,34 +120,6 @@ namespace ProjectUnknown.Strategy
             return minutes > 0
                 ? minutes + "m " + remainder.ToString("00") + "s"
                 : remainder + "s";
-        }
-
-        private void RefreshHouseCropRow(StrategyPlacedBuilding building)
-        {
-            StrategyBuildingUpgrade garden = null;
-            bool hasCrop = building != null
-                && building.TryGetUpgrade(StrategyBuildingUpgradeType.GardenBeds, out garden)
-                && garden.ProducedResource != StrategyResourceType.None;
-
-            if (cropValueText != null)
-            {
-                cropValueText.text = hasCrop
-                    ? "Garden crop: " + GetResourceTitle(garden.ProducedResource)
-                    : "No garden crop";
-                cropValueText.color = hasCrop
-                    ? new Color(0.82f, 0.91f, 0.78f)
-                    : new Color(0.60f, 0.67f, 0.64f);
-            }
-
-            if (cropIconImage != null)
-            {
-                cropIconImage.enabled = hasCrop;
-                if (hasCrop)
-                {
-                    cropIconImage.sprite = StrategyResourceIconFactory.GetSprite(garden.ProducedResource);
-                    cropIconImage.color = Color.white;
-                }
-            }
         }
 
         private void ApplyFoodStatus(
@@ -213,7 +176,7 @@ namespace ProjectUnknown.Strategy
             slot.anchorMax = new Vector2(0f, 1f);
             slot.pivot = new Vector2(0f, 1f);
             slot.sizeDelta = new Vector2(ResourceCellWidth, cellHeight);
-            slot.anchoredPosition = new Vector2(column * ResourceCellWidth, -166f - row * 40f);
+            slot.anchoredPosition = new Vector2(column * ResourceCellWidth, -138f - row * 40f);
             resourceSlots[index] = slot;
 
             Image background = slot.gameObject.AddComponent<Image>();

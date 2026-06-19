@@ -20,6 +20,7 @@ namespace ProjectUnknown.Strategy
     {
         private const float VisualUpdateInterval = 0.105f;
         private const float LocalLightStrengthMultiplier = 2f;
+        private const float LocalLightRadiusMultiplier = 2f;
 
         private StrategyPlacedBuilding building;
         private StrategyCampfireAnimator campfire;
@@ -231,7 +232,7 @@ namespace ProjectUnknown.Strategy
             float flicker = GetFlicker();
             Color color = GetColor(wet, storm);
             float intensity = GetBaseIntensity() * LocalLightStrengthMultiplier * activity * flicker;
-            float radius = GetBaseRadius() * Mathf.Lerp(0.92f, 1.12f, activity);
+            float radius = GetBaseRadius() * LocalLightRadiusMultiplier * Mathf.Lerp(0.92f, 1.12f, activity);
 
             if (lodPointLight)
             {

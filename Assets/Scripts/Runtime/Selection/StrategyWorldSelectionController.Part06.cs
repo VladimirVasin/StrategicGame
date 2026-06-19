@@ -29,6 +29,41 @@ namespace ProjectUnknown.Strategy
             return cell.x + ", " + cell.y;
         }
 
+        private static string GetBuildingSubtitle(StrategyPlacedBuilding building)
+        {
+            if (building == null || building.Tool != StrategyBuildTool.House)
+            {
+                return "Building";
+            }
+
+            string familyName = GetHouseFamilyName(building);
+            return string.IsNullOrWhiteSpace(familyName)
+                ? "Unoccupied home"
+                : familyName + " family home";
+        }
+
+        private static string GetHouseFamilyName(StrategyPlacedBuilding building)
+        {
+            string householderFamily = building.Householder != null
+                ? building.Householder.FamilyName
+                : string.Empty;
+            if (!string.IsNullOrWhiteSpace(householderFamily))
+            {
+                return householderFamily;
+            }
+
+            for (int i = 0; i < building.Residents.Count; i++)
+            {
+                StrategyResidentAgent resident = building.Residents[i];
+                if (resident != null && !string.IsNullOrWhiteSpace(resident.FamilyName))
+                {
+                    return resident.FamilyName;
+                }
+            }
+
+            return string.Empty;
+        }
+
         private static string GetUpgradeTitle(StrategyBuildingUpgradeType type)
         {
             return type == StrategyBuildingUpgradeType.GardenBeds

@@ -89,6 +89,8 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("resident", FullName),
                 StrategyDebugLogger.F("residentId", residentId),
                 StrategyDebugLogger.F("homeOrigin", home.Origin));
+
+            home.GetComponent<StrategyHouseholdFoodState>()?.NotifyResidentEnteredHomeForNight(this);
         }
 
         private void UpdateNightSleep()

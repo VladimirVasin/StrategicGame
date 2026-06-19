@@ -69,8 +69,6 @@ namespace ProjectUnknown.Strategy
         private Text foodStatusText;
         private Text foodMealText;
         private Text foodGranaryText;
-        private Image cropIconImage;
-        private Text cropValueText;
         private Text resourcesEmptyText;
         private readonly RectTransform[] resourceSlots = new RectTransform[StrategyHouseResourceStore.DisplayOrder.Length];
         private readonly Image[] resourceIconImages = new Image[StrategyHouseResourceStore.DisplayOrder.Length];

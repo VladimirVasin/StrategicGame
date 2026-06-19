@@ -8,6 +8,31 @@ Last updated: 2026-06-19
 
 ## Done
 
+### 2026-06-19 - House ownership subtitle
+
+- Selected House HUD now shows the owning family in the subtitle as `<FamilyName> family home`, preferring the Householder family name and falling back to the first resident family.
+- Empty houses show `Unoccupied home`; non-house buildings still show `Building`.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; touched C# files stayed below the 500-line limit.
+
+### 2026-06-19 - House garden crop HUD placement
+
+- Moved the selected-house `Garden crop` display out of the `House Food` block and into the installed `Garden Beds` upgrade state line as `Crop: <resource>`.
+- Removed the old food crop row and shifted house food resource slots upward so the food section stays compact.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; touched C# files stayed below the 500-line limit.
+
+### 2026-06-19 - Nightly household dinner timing
+
+- Moved household food consumption from a fixed phase tick to a nightly dinner flow: after the one-day settling grace, houses wait for eligible residents to enter home for `Night` before resolving food.
+- Added `StrategyHouseholdFoodState.NightMeal.cs` for family-presence tracking, resident sleep notifications, and a 42-second fallback deadline so one stuck resident cannot block household nutrition forever.
+- Updated the selected-house food HUD to use dinner wording, show `Waiting for family X/Y` when dinner is waiting on residents, and remove the duplicated `At home` stock summary from the top reserve row.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; touched C# files stayed below the 500-line limit.
+
+### 2026-06-19 - Wider local light radius
+
+- Added a separate `LocalLightRadiusMultiplier` for cinematic light emitters and set it to 2x.
+- Expanded `Light2D`, glow overlay, and night-darkness mask cutout radii without changing light strength, colors, torch sprite brightness, or glow alpha.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; touched C# files stayed below the 500-line limit.
+
 ### 2026-06-19 - Wider campfire fog vision
 
 - Increased the starter campfire/camp fog-of-war reveal source radius so the initial settlement vision opens around the campfire instead of relying on a Day 1 special case.
@@ -847,19 +872,19 @@ Last updated: 2026-06-19
 
 - Householders can now fetch one reserved `Fish` or `Game` unit from the nearest reachable Granary when their home's ration value is below the household reserve target.
 - Houses can store local `Fish` and `Game`; household ration consumption and selected-house HUD now include those resources alongside crops, Eggs, and forage.
-- Granaries now reserve household pickup food separately so daily ration fallback consumption does not eat a unit already claimed by a householder.
+- Granaries now reserve household pickup food separately so household fallback consumption does not eat a unit already claimed by a householder.
 - Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
 
 ### 2026-06-15 - Food resource ration values
 
-- Added resource-specific ration values so one food unit no longer equals one daily ration: light crops/forage contribute less, Fish contributes more, and `Game` is the strongest current food.
-- Household daily ration resolution now consumes house-local food and Granary food by ration value while still tracking consumed physical units for HUD/debug context.
+- Added resource-specific ration values so one food unit no longer equals one full resident ration: light crops/forage contribute less, Fish contributes more, and `Game` is the strongest current food.
+- Household food resolution now consumes house-local food and Granary food by ration value while still tracking consumed physical units for HUD/debug context.
 - Selected house and Granary HUD text now surfaces stock units alongside total ration value.
 - Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
 
-### 2026-06-15 - Daily household ration and resident hunger state
+### 2026-06-15 - Household food and resident hunger state
 
-- Reworked household food from periodic household starvation into one evening daily ration resolved from the day/night cycle after a one-day settling grace.
+- Reworked household food from periodic household starvation into one scheduled household meal resolved from the day/night cycle after a one-day settling grace.
 - Resident food needs now scale by life stage; short rations create per-resident nutrition debt and hungry/starving status for house and resident HUDs.
 - Houses consume local Eggs/crops/forage first, then Granary `Game`/`Fish`; sustained shortages block births and resident malnutrition severity drives mortality multipliers.
 - Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.

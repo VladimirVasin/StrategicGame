@@ -13,9 +13,8 @@ namespace ProjectUnknown.Strategy
     }
 
     [DisallowMultipleComponent]
-    public sealed class StrategyHouseholdFoodState : MonoBehaviour
+    public sealed partial class StrategyHouseholdFoodState : MonoBehaviour
     {
-        private const float DailyRationPhase = 0.78f;
         private const int SettlingGraceDays = 1;
         private const int BirthBlockShortageDays = 2;
 
@@ -87,15 +86,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            int currentDay = StrategyDayNightCycleController.CurrentDayIndex;
-            if (currentDay < configuredDayIndex + SettlingGraceDays
-                || StrategyDayNightCycleController.CurrentDayPhase < DailyRationPhase
-                || lastResolvedDayIndex == currentDay)
-            {
-                return;
-            }
-
-            ResolveDailyRation(currentDay);
+            UpdateNightMeal();
         }
 
         public string GetCompactHudText()
@@ -382,17 +373,13 @@ namespace ProjectUnknown.Strategy
         private float GetSecondsUntilNextRation()
         {
             int currentDay = StrategyDayNightCycleController.CurrentDayIndex;
-            float currentPhase = StrategyDayNightCycleController.CurrentDayPhase;
             int targetDay = Mathf.Max(currentDay, lastResolvedDayIndex + 1, configuredDayIndex + SettlingGraceDays);
-            float dayOffset = targetDay - currentDay;
-            float phaseOffset = DailyRationPhase - currentPhase;
-            if (phaseOffset < 0f)
+            if (IsNightMealTime() && CanResolveNightMealForDay(currentDay))
             {
-                dayOffset += 1f;
-                phaseOffset += 1f;
+                return 0f;
             }
 
-            return Mathf.Max(0f, (dayOffset + phaseOffset) * StrategyDayNightCycleController.DayLengthSeconds);
+            return GetSecondsUntilNightMeal(targetDay);
         }
 
         private float GetSecondsUntilFirstRation()
@@ -403,17 +390,13 @@ namespace ProjectUnknown.Strategy
             }
 
             int currentDay = StrategyDayNightCycleController.CurrentDayIndex;
-            float currentPhase = StrategyDayNightCycleController.CurrentDayPhase;
             int firstDay = configuredDayIndex + SettlingGraceDays;
-            float dayOffset = firstDay - currentDay;
-            float phaseOffset = DailyRationPhase - currentPhase;
-            if (phaseOffset < 0f)
+            if (IsNightMealTime() && CanResolveNightMealForDay(currentDay))
             {
-                dayOffset += 1f;
-                phaseOffset += 1f;
+                return 0f;
             }
 
-            return Mathf.Max(0f, (dayOffset + phaseOffset) * StrategyDayNightCycleController.DayLengthSeconds);
+            return GetSecondsUntilNightMeal(firstDay);
         }
 
         private string GetStatusText()

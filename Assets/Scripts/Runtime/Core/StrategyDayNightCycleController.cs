@@ -66,6 +66,7 @@ namespace ProjectUnknown.Strategy
         public float DayPhase => Mathf.Repeat(Time.timeSinceLevelLoad / CycleSeconds, 1f);
         public StrategyCalendarSnapshot CurrentSnapshot => CreateSnapshot(Time.timeSinceLevelLoad);
         public static float DayLengthSeconds => CycleSeconds;
+        public static float NightStartPhase => DuskEnd;
         public static int CurrentDayIndex => Mathf.FloorToInt(Time.timeSinceLevelLoad / CycleSeconds);
         public static float CurrentDayPhase => Mathf.Repeat(Time.timeSinceLevelLoad / CycleSeconds, 1f);
         public static StrategyCalendarSnapshot CurrentCalendarSnapshot => CreateSnapshot(Time.timeSinceLevelLoad);

@@ -395,16 +395,16 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Houses automatically assign their oldest adult female resident as `Householder`
     - Assigning a Householder clears external workplace/building roles and moves her into `TendingHousehold` home duty
     - The Householder role counts as home work and can block normal worker assignment
-    - Houses attach household food state that resolves one evening ration per day using age-based resident needs
+    - Houses attach household food state that resolves nightly dinner after eligible residents return home for `Night`, using age-based resident needs
     - Food resources contribute different ration values, so physical food units and supplied ration value are tracked separately
     - Householders can fetch reserved `Fish`/`Game` from Granaries into their own house when household ration reserves are low
     - Houses attach household foraging state that sends non-householder, unemployed adults and older children to gather nearby forage during daytime
-    - Household food uses a one-day settling grace and consumes house-local food before Granary stock
+    - Household food uses a one-day settling grace, waits for family presence with a fallback deadline, and consumes house-local food before Granary stock
     - Short rations create per-resident nutrition debt and days-hungry state that feeds household status
     - Sustained household shortages block new births and resident malnutrition severity drives mortality multipliers
     - Children inherit parent/family links, stay inside their assigned home until age 3, idle/walk around home after that, cannot be workers/builders, and grow into adults at age 16 after scaled game time
     - Residents roll annual mortality from age 1; risk stays very low through youth, rises gently from 40 to 50, grows faster after 50, and remains capped after that
-    - Resident mortality is multiplied by each resident's nutrition severity when daily ration shortages accumulate
+    - Resident mortality is multiplied by each resident's nutrition severity when household dinner shortages accumulate
     - Residents in active funeral duty are temporarily immune to death attempts so carriers/attendees cannot break an active procession
     - Resident death centrally removes them from homes, population counts, worksite roles, construction assignments, active reservations, and selection targets
     - Resident death creates an animated corpse snapshot that remains in the world until burial

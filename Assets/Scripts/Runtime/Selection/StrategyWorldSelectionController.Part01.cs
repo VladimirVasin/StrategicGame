@@ -195,7 +195,7 @@ namespace ProjectUnknown.Strategy
             if (building != null)
             {
                 hudTitleText.text = GetBuildingTitle(building.Tool);
-                hudSubtitleText.text = "Building";
+                hudSubtitleText.text = GetBuildingSubtitle(building);
                 SetBuildingPreviewSprite(building);
                 SetProfileSectionVisible(false);
                 SetStatusSectionVisible(false);

@@ -1282,7 +1282,7 @@ Impact hints:
 
 - Haulers reserve food before walking so multiple haulers do not target the same local stock.
 - Food source reservations prevent multiple Haulers from double-claiming the same `Game`/`Fish`.
-- `Game` and `Fish` remain runtime-local food stock, but completed houses can receive them from Householder Granary pickups and still use Granary fallback during the evening daily ration after house-local ration value is insufficient.
+- `Game` and `Fish` remain runtime-local food stock, but completed houses can receive them from Householder Granary pickups and still use Granary fallback during nightly dinner after house-local ration value is insufficient.
 - Residents currently support one active workplace: lumberjack camp, stonecutter camp, hunter camp, fisher hut, mine, storage logistics, or storage builder crew.
 - Future spoilage, food needs, cooking, market logistics, or settlement-level food services should extend this subsystem rather than folding food into construction Storage Yards.
 
@@ -1312,13 +1312,13 @@ Responsibilities:
 - Spawn children for valid adult male/female house pairs after randomized household cooldowns when house capacity allows.
 - Keep children younger than 3 years old inside their assigned home by hiding their world sprite/collider and skipping outdoor idle/funeral movement until they age out.
 - Send housed idle residents home to sleep inside during the `Night` phase by hiding their world sprite/collider until morning, while leaving homeless residents outside.
-- Resolve one household ration per evening from house-local Eggs/crops/forage/`Fish`/`Game` first, then Granary fallback stock, using resident age-based ration needs and per-resource ration values.
+- Resolve one nightly household dinner from house-local Eggs/crops/forage/`Fish`/`Game` first, then Granary fallback stock, using resident age-based ration needs and per-resource ration values after eligible residents return home for `Night`.
 - Send Householders to fetch reserved `Fish`/`Game` from reachable Granaries into their own house when local ration value is low.
-- Track per-resident nutrition debt, days hungry, hungry/starving status, and recovery when daily ration needs are met.
+- Track per-resident nutrition debt, days hungry, hungry/starving status, and recovery when nightly dinner needs are met.
 - Grow children into adults after scaled game time.
 - Continue resident aging after adulthood.
 - Roll annual resident mortality from age 1 using an accelerating age-risk curve.
-- Multiply annual resident mortality by each resident's malnutrition severity when daily ration shortages accumulate.
+- Multiply annual resident mortality by each resident's malnutrition severity when household dinner shortages accumulate.
 - Block resident death attempts while the resident is in active funeral duty, preventing carrier/attendee death from freezing the funeral controller.
 - Remove dead residents from homes, work assignments, construction assignments, active reservations, live population counts, and selected-HUD targets.
 - Create resident death snapshots and animated corpses when residents die.
@@ -1389,6 +1389,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyRefugeeArrivalController.cs`
 - `Assets/Scripts/Runtime/Population/StrategyHouseholdState.cs`
 - `Assets/Scripts/Runtime/Population/StrategyHouseholdFoodState.cs`
+- `Assets/Scripts/Runtime/Population/StrategyHouseholdFoodState.NightMeal.cs`
 - `Assets/Scripts/Runtime/Population/StrategyHouseholdForagingState.cs`
 - `Assets/Scripts/Runtime/Population/StrategyKinshipUtility.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.cs`
@@ -1455,8 +1456,8 @@ Impact hints:
 - Accepted refugee families join the normal registry as a preserved family block, stay near camp while homeless, and get priority to fill the first empty House as a whole household before normal single-adult migration or random pair assignment.
 - `StrategyHouseholdState` lives on occupied houses and owns the randomized birth timer.
 - `StrategyHouseholdState` blocks births while the same house has sustained ration shortages or birth-blocked residents.
-- `StrategyHouseholdFoodState` lives on occupied houses, resolves one evening ration per day after a one-day settling grace, consumes house-local Eggs/crops/forage/`Fish`/`Game` before Granary fallback stock, applies short rations to resident nutrition debt, and exposes aggregate food status for HUDs.
-- Householder home duty can reserve one `Fish`/`Game` unit from a Granary, path to pickup, carry it home, and store it in the house before evening ration consumption.
+- `StrategyHouseholdFoodState` lives on occupied houses, resolves one nightly dinner per day after a one-day settling grace, waits for eligible residents to enter home for `Night` with a fallback deadline, consumes house-local Eggs/crops/forage/`Fish`/`Game` before Granary fallback stock, applies short rations to resident nutrition debt, and exposes aggregate food status for HUDs.
+- Householder home duty can reserve one `Fish`/`Game` unit from a Granary, path to pickup, carry it home, and store it in the house before nightly dinner consumption.
 - `StrategyHouseholdForagingState` lives on house buildings and dispatches only unassigned non-householder residents; it should remain separate from the Profession HUD/worksite assignment model.
 - `StrategyPlacedBuilding` owns the current Householder reference for houses, preferring the oldest adult female resident and refreshing on home changes, death/unregister, and resident adulthood.
 - `StrategyResidentAgent.HasWorkplace` includes the Householder role, so profession assignment should treat householders as occupied home workers.
@@ -1467,7 +1468,7 @@ Impact hints:
 - Resident movement records activity-weighted trail footfall per entered visible resident cell, and formed trails apply a 15% speed bonus.
 - Resident pathfinding can recover a blocked start cell by snapping to a nearby walkable cell and logging `PathStartRecovered`.
 - Resident scheduled work starts only during `StrategyDayNightCycleController.IsSettlementWorkTime`; Day 1 Dawn is also work time to avoid starter construction delay, while later Dawn phases remain off normal work time. Keep carried-resource returns, deposits, and cleanup paths schedule-safe so nightfall cannot strand stock reservations.
-- Resident night sleep is separate from homebound young-child hiding: housed residents only enter the hidden home interior during `Night` when they are not carrying resources, in funeral duty, or underground, then reappear at the home exit after night ends.
+- Resident night sleep is separate from homebound young-child hiding: housed residents only enter the hidden home interior during `Night` when they are not carrying resources, in funeral duty, or underground, notify household food state for dinner readiness, then reappear at the home exit after night ends.
 - Resident footstep audio is attached by `StrategyResidentAgent` and plays grass clips on selected walk frames; keep it low-volume/spatial when adding more residents or faster simulation speeds.
 - Lumberjack work keeps the same camp worksite component but chooses the nearest available tree/processable wood on the map; it tests nearby work cells for real path reachability before starting tree/log/plant movement, and includes tree chopping, trunk bucking, Logs delivery, and sapling planting.
 - Resident woodcut sprites are generated for every male/female visual variant and should stay in sync with readability outline mirroring.

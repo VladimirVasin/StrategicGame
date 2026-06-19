@@ -287,13 +287,7 @@ namespace ProjectUnknown.Strategy
 
             if (stateText != null)
             {
-                stateText.text = installed
-                    ? "installed"
-                    : upgradeController != null
-                        ? canAfford
-                            ? "Cost: " + FormatUpgradeCost(cost)
-                            : "Missing: " + FormatUpgradeCost(cost)
-                        : "not ready";
+                stateText.text = GetUpgradeStateText(building, type, installed, canAfford, cost);
                 stateText.color = installed
                     ? new Color(0.70f, 0.88f, 0.74f)
                     : canAfford
@@ -314,6 +308,36 @@ namespace ProjectUnknown.Strategy
                         ? Color.white
                         : new Color(0.65f, 0.69f, 0.67f);
             }
+        }
+
+        private string GetUpgradeStateText(
+            StrategyPlacedBuilding building,
+            StrategyBuildingUpgradeType type,
+            bool installed,
+            bool canAfford,
+            StrategyConstructionResourceCost cost)
+        {
+            if (installed)
+            {
+                return type == StrategyBuildingUpgradeType.GardenBeds
+                    ? "Crop: " + GetGardenCropTitle(building)
+                    : "installed";
+            }
+
+            return upgradeController != null
+                ? canAfford
+                    ? "Cost: " + FormatUpgradeCost(cost)
+                    : "Missing: " + FormatUpgradeCost(cost)
+                : "not ready";
+        }
+
+        private static string GetGardenCropTitle(StrategyPlacedBuilding building)
+        {
+            return building != null
+                && building.TryGetUpgrade(StrategyBuildingUpgradeType.GardenBeds, out StrategyBuildingUpgrade garden)
+                && garden.ProducedResource != StrategyResourceType.None
+                    ? GetResourceTitle(garden.ProducedResource)
+                    : "None";
         }
 
         private static string FormatUpgradeCost(StrategyConstructionResourceCost cost)
@@ -342,8 +366,6 @@ namespace ProjectUnknown.Strategy
             }
 
             RefreshHouseFoodRows(building);
-            RefreshHouseCropRow(building);
-
             StrategyHouseResourceStore store = building.Resources;
             int visibleResourceIndex = 0;
             for (int i = 0; i < StrategyHouseResourceStore.DisplayOrder.Length; i++)
