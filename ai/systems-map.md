@@ -1,6 +1,6 @@
 # Systems Map
 
-Last updated: 2026-06-17
+Last updated: 2026-06-19
 
 Use this file as the first navigation pass before broad searches. Owner cards are starting points, not hard boundaries.
 
@@ -115,6 +115,7 @@ Responsibilities:
 - Create/configure forage resource nodes after nature generation so they use current walkability.
 - Configure fog of war after population, placement, and map controllers exist.
 - Create/configure the F9 runtime debug panel after fog/weather are ready.
+- Provide shared debug options such as instant free construction for runtime test workflows.
 - Place the starter Storage Yard near the campfire with initial Logs and Stone after placement is configured.
 - Create/configure runtime wildlife after starter placement so deer/rabbits use valid land and fish use valid water cells.
 - Create/configure visual day/night cycle after camera setup.
@@ -122,6 +123,7 @@ Responsibilities:
 - Create/configure runtime cinematic visuals after post-processing setup.
 - Create the runtime time-scale controller for F1/F2/F3 speed controls.
 - Create/configure the top status HUD with population counts, the larger resident roster HUD, the family tree modal scene, and the compact event log with birth/death/adoption messages.
+- Create/configure the runtime goals controller and starter goal sequence that gates early Build menu tools.
 - Create/configure refugee arrivals and the modal refugee decision HUD.
 - Create/configure the reusable confirmation dialog used by destructive world-selection actions.
 - Create/configure the auto workforce controller before the Profession HUD so automation settings and manual overrides have one shared runtime owner.
@@ -131,6 +133,7 @@ Primary files/assets:
 
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.cs`
 - `Assets/Scripts/Runtime/Core/StrategyDebugLogger.cs`
+- `Assets/Scripts/Runtime/Core/StrategyDebugOptions.cs`
 - `Assets/Scripts/Runtime/Core/StrategyRuntimeObjectCreationGuard.cs`
 - `Assets/Scripts/Runtime/Core/StrategyTimeScaleController.cs`
 - `Assets/Scripts/Runtime/Core/StrategyDayNightCycleController.cs`
@@ -173,6 +176,10 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/UI/StrategyPopulationRosterRowView.cs`
 - `Assets/Scripts/Runtime/UI/StrategyResidentHudText.cs`
 - `Assets/Scripts/Runtime/UI/StrategyEventLogHudController.cs`
+- `Assets/Scripts/Runtime/UI/StrategyGoalDefinition.cs`
+- `Assets/Scripts/Runtime/UI/StrategyGoalsController.cs`
+- `Assets/Scripts/Runtime/UI/StrategyGoalsHudController.cs`
+- `Assets/Scripts/Runtime/UI/StrategyStarterGoalSequenceController.cs`
 - `Assets/Scenes/SampleScene.unity`
 
 Impact hints:
@@ -415,7 +422,7 @@ Impact hints:
 - Current visibility is reduced by Dusk/Night/Dawn and dense Fog weather, but persistent explored state and daylight-range hidden checks stay separate.
 - Weather Fog replaces normal explored gray-zone rendering with light/medium/dense fog bands around current visible cells.
 - Wildlife spawn/reproduction/migration hidden checks should use daylight-range visibility so temporary night blindness does not count as a safe spawn opening.
-- The F9 debug panel can hide the fog overlay and make map cells count as explored for player placement/selection until toggled back on.
+- The F9 debug panel can hide the fog overlay and make map cells count as explored for player placement/selection until toggled back on; it also owns tester-facing instant construction toggles through shared debug options.
 - Future scouting, enemies, stealth, minimap, or save/load should extend this subsystem instead of duplicating visibility arrays.
 
 ### Nature Props
@@ -717,6 +724,8 @@ Responsibilities:
 - Bottom Build button.
 - Category cards and item tray.
 - Build item cards with Logs/Stone/Planks construction costs, affordability state, and active state.
+- F9 instant construction debug mode makes build tools affordable and shows item cost badges as `Free`.
+- Temporary goal-driven tool locks that disable locked categories/items, block mouse and hotkey selection, and show `Locked` item badges.
 - Top-left construction resource panel with x1/x2/x3 speed buttons directly beneath it.
 - Current catalog entries: `Housing` / `House`, `Production` / `Lumberjack Camp`, `Stonecutter Camp`, `Sawmill`, `Hunter Camp`, `Fisher Hut`, `Mine`, and `Coal Pit`, `Storage` / `Storage Yard` and `Granary`, and `Infrastructure` / `Bridge`.
 - Hotkeys for open/close, category/item selection, and layered cancel.
@@ -727,6 +736,10 @@ Responsibilities:
 Primary files/assets:
 
 - `Assets/Scripts/Runtime/UI/StrategyBuildMenuController.cs`
+- `Assets/Scripts/Runtime/UI/StrategyBuildMenuController.Driver.cs`
+- `Assets/Scripts/Runtime/UI/StrategyBuildMenuController.Driver.Debug.cs`
+- `Assets/Scripts/Runtime/UI/StrategyBuildMenuController.Driver.Part01.cs`
+- `Assets/Scripts/Runtime/UI/StrategyBuildMenuController.Driver.Locking.cs`
 - `Assets/Scripts/Runtime/UI/StrategyBuildMenuController.Driver.Part03.cs`
 - `Assets/Scripts/Runtime/UI/StrategyBuildMenuController.Catalog.cs`
 - `Assets/Scripts/Runtime/Build/StrategyBuildingSpriteFactory.cs`
@@ -741,12 +754,14 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Build/StrategyGranary.cs`
 - `Assets/Scripts/Runtime/Economy/StrategyConstructionResourceCost.cs`
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.cs`
+- `Assets/Scripts/Runtime/Core/StrategyDebugOptions.cs`
 - `Assembly-CSharp.csproj`
 
 Impact hints:
 
-- The public `StrategyBuildMenuController` component is a thin wrapper; `StrategyBuildMenuControllerDriver` owns selected active build tool data and reads `StrategyStorageYard.GetTotalConstructionResources()` for affordability, including Storage Yard stock and loose piles.
+- The public `StrategyBuildMenuController` component is a thin wrapper; `StrategyBuildMenuControllerDriver` owns selected active build tool data and reads `StrategyStorageYard.GetTotalConstructionResources()` for affordability, including Storage Yard stock and loose piles, unless F9 instant construction debug mode is enabled.
 - Placement reads `StrategyBuildMenuController.ActiveTool` / active tool info.
+- Starter goals call `StrategyBuildMenuController.SetAllowedTools()` and `ClearAllowedTools()`; keep lock checks shared by mouse clicks, hotkeys, active tool info, and affordability/selection visuals.
 - Current catalog has user-requested buildings only: `House`, `Lumberjack Camp`, `Stonecutter Camp`, `Sawmill`, `Hunter Camp`, `Fisher Hut`, `Mine`, `Coal Pit`, `Storage Yard`, `Granary`, and `Bridge`; do not add more without a user request.
 - Current `Housing` category directly activates `House` because it has one item.
 - Current `Production` category opens a tray with `Lumberjack Camp`, `Stonecutter Camp`, `Sawmill`, `Hunter Camp`, `Fisher Hut`, `Mine`, and `Coal Pit`.
@@ -794,6 +809,33 @@ Impact hints:
 - Family Trees reads recorded family data, including deceased residents preserved by `StrategyResidentFamilyRecord`, and renders deceased relatives as muted monochrome cards with a skull marker.
 - Family Trees relationship labels, cross-family lines, and column affinity currently derive from recorded parent/child links plus co-parent inference through shared children; explicit marriage/birth-family links should extend this owner instead of overloading family-name grouping.
 - Keep top HUD click targets coordinated with Build/Profession HUD positioning and raycasts.
+
+### Goals HUD
+
+Responsibilities:
+
+- Provide a runtime goals/checklist infrastructure used by the starter onboarding build sequence.
+- Track active goal definitions, completed goal kinds, and the derived HUD view state without owning tutorial scenario logic.
+- Keep the goals HUD hidden when there are no active goals, then show the left-side starter build checklist when bootstrap starts the sequence.
+- Render a compact non-blocking Screen Space Overlay checklist with completion marks and a short completion pulse.
+- Run the initial build sequence: 3 Houses, then Lumberjack Camp plus Stonecutter Camp, then unlock the full Build menu.
+
+Primary files/assets:
+
+- `Assets/Scripts/Runtime/UI/StrategyGoalDefinition.cs`
+- `Assets/Scripts/Runtime/UI/StrategyGoalsController.cs`
+- `Assets/Scripts/Runtime/UI/StrategyGoalsHudController.cs`
+- `Assets/Scripts/Runtime/UI/StrategyStarterGoalSequenceController.cs`
+- `Assets/Scripts/Runtime/UI/StrategyBuildMenuController.Driver.Locking.cs`
+- `Assets/Scripts/Runtime/Build/StrategyBuildPlacementController.Events.cs`
+- `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.cs`
+- `Assembly-CSharp.csproj`
+
+Impact hints:
+
+- Bootstrap creates/configures the goals layer and starts the current early build onboarding sequence.
+- Goal progress listens to completed placed buildings, not construction-site placement, through `StrategyBuildPlacementController.BuildingCompleted`.
+- Future tutorial/onboarding code should extend `StrategyStarterGoalSequenceController` or use `StrategyGoalsController` rather than building a separate checklist HUD.
 
 ### Refugee Decision HUD
 
@@ -868,6 +910,7 @@ Responsibilities:
 - Runtime-created settlement workforce automation.
 - Keep player priority settings for Construction, Food, Logistics, Wood, Stone, Planks, Iron, and Coal.
 - Tick every few seconds instead of every frame.
+- Cache current worksite arrays once per tick and reuse that snapshot through demand, fallback, release, and rebalance calculations.
 - Scan eligible free adults through `StrategyPopulationController.Residents`.
 - Compute desired targets for every auto-managed profession from the player priority values, release surplus workers through normal worksite unassign APIs, and let higher-scored shortages pull limited donors from lower-priority auto-managed roles when there are no free adults.
 - Maintain a coverage floor of 1 worker for available auto-managed professions whose player counter is above 0; a counter at 0 is the explicit opt-out that allows that role/category to fall to 0.
@@ -900,7 +943,7 @@ Primary files/assets:
 
 Impact hints:
 
-- Auto workforce can release surplus workers from overstaffed auto-managed professions, release limited lower-priority donors for higher-scored shortages, and use a stricter emergency margin to pull at-target donors for severe food/resource shortages; coverage floors protect the last worker in nonzero-counter professions, and only residents who become idle are reused immediately while workers returning carried resources re-enter the free pool on later ticks.
+- Auto workforce can release surplus workers from overstaffed auto-managed professions, release limited lower-priority donors for higher-scored shortages, and use a stricter emergency margin to pull at-target donors for severe food/resource shortages; coverage floors protect the last worker in nonzero-counter professions, worksite lookups should use the per-tick snapshot, successful assignments are capped per tick, and only residents who become idle are reused immediately while workers returning carried resources re-enter the free pool on later ticks.
 - Free adult fallback assignment runs after demand assignment so idle adults are placed into the best enabled available role when any nonzero managed profession can accept them.
 - Auto workforce does not force-reassign home duty, funeral duty, or residents still busy returning carried resources.
 - Demand scoring should continue to call public worksite APIs (`AssignWorker`, `AssignBuilder`, Storage Yard builder dispatch) so cancellation, carried-resource return, reservations, and resident state cleanup stay centralized.
@@ -949,6 +992,7 @@ Responsibilities:
 - Accepted construction sites request active builders from the uncapped hired Storage Yard builder pool through balanced dispatch across all active sites, show material-drop and hammer-hit effects, and can wait if none are free yet.
 - Bridge creates no worksite component, stores its selected span cells/endpoints on the placed-building record, and exposes bank endpoint cells as construction work/dropoff candidates so builders choose a reachable shore and do not stand in water.
 - Completed house sites ask population to populate the finished house separately from the construction crew.
+- Completed construction emits a placed-building completion event used by starter goals and future onboarding/progression systems.
 - Completed construction releases temporary construction-site map blockers before applying final building blockers.
 - Confirmed construction cancellation releases temporary map state and drops delivered/carried Logs/Stone/Planks as loose construction resource piles.
 - Confirmed building demolition releases final occupied/walkability cells; Bridge demolition also removes river-span walkability and House demolition detaches residents.
@@ -957,11 +1001,13 @@ Responsibilities:
 Primary files/assets:
 
 - `Assets/Scripts/Runtime/Build/StrategyBuildPlacementController.cs`
+- `Assets/Scripts/Runtime/Build/StrategyBuildPlacementController.Events.cs`
 - `Assets/Scripts/Runtime/Build/StrategyBuildPlacementController.Part02.cs`
 - `Assets/Scripts/Runtime/Build/StrategyBuildPlacementController.Part03.cs`
 - `Assets/Scripts/Runtime/Build/StrategyBuildPlacementController.Part04.cs`
 - `Assets/Scripts/Runtime/Build/StrategyConstructionSite.cs`
 - `Assets/Scripts/Runtime/Build/StrategyConstructionSite.Part02.cs`
+- `Assets/Scripts/Runtime/Build/StrategyConstructionSite.Debug.cs`
 - `Assets/Scripts/Runtime/Build/StrategyConstructionSite.Part03.cs`
 - `Assets/Scripts/Runtime/Build/StrategyConstructionSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Build/StrategyLooseConstructionResourcePile.cs`
@@ -989,6 +1035,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/UI/StrategyBuildMenuController.Catalog.cs`
 - `Assets/Scripts/Runtime/Economy/StrategyConstructionResourceCost.cs`
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.cs`
+- `Assets/Scripts/Runtime/Core/StrategyDebugOptions.cs`
 - `Assembly-CSharp.csproj`
 
 Impact hints:
@@ -1004,8 +1051,10 @@ Impact hints:
 - `Mine` additionally requires at least one available underground Iron deposit under its footprint.
 - `Coal Pit` additionally requires at least one available underground Coal deposit under its footprint.
 - Successful player placement creates a construction site, closes the full Build menu, and marks the frame so world selection ignores the placement click.
-- Construction site placement depends on reservable Logs/Stone/Planks, not on immediately available builders; waiting sites retry hired-builder dispatch.
+- Construction site placement normally depends on reservable Logs/Stone/Planks, not on immediately available builders; waiting sites retry hired-builder dispatch.
+- When F9 instant construction debug mode is enabled, player placement still creates a construction-site handoff but skips resource reservation, marks resources/progress complete, and immediately finalizes through the normal placed-building completion path; enabling the toggle also completes already active construction sites.
 - Final building creation happens through construction-site completion, not the original placement click.
+- Goal/progression listeners should use the building completion event so unfinished construction sites are never counted as completed buildings.
 - Loose construction resource piles left by cancelled sites count toward construction affordability and can be reserved before Storage Yard stock.
 - Future zoning/economy should replace or extend the placed marker with durable city state.
 - Occupancy currently lives in the placement controller; move it into a city/map state service when save/load or simulation appears.
@@ -1188,7 +1237,7 @@ Impact hints:
 - Haulers reserve worksite Logs/Stone/Iron/Coal/Planks before walking to prevent multiple haulers from targeting the same stock.
 - Haulers run Granary food hauling after normal storage-resource hauling checks, using the shared food reservation cleanup paths.
 - Hauler and builder staffing has no per-yard slot limit; construction sites no longer cap their active visible builder crew at 2.
-- Construction resources are reserved against Storage Yard stock and loose construction resource piles at site creation, then physically removed when builders pick them up.
+- Construction resources are normally reserved against Storage Yard stock and loose construction resource piles at site creation, then physically removed when builders pick them up; F9 instant construction debug mode bypasses this reservation path for player-placed buildings.
 - Stonecutter Camp haul reservations are separate from Storage Yard construction reservations so production stock must be moved into storage before construction can claim it.
 - Builders also create a per-builder pickup claim after a path to the pickup cell is found; cancelled work releases that claim while the construction-site reservation remains intact.
 - If a builder dies while carrying a construction resource, the dropped loose construction pile restores the original site's reservation when that site still needs the resource.
@@ -1417,7 +1466,7 @@ Impact hints:
 - Residents use trail-aware 8-direction A* grid paths with no diagonal corner cutting and post-path smoothing for idle, home, workplace, construction, logistics, and funeral travel while keeping frame-based sprite walk cycles.
 - Resident movement records activity-weighted trail footfall per entered visible resident cell, and formed trails apply a 15% speed bonus.
 - Resident pathfinding can recover a blocked start cell by snapping to a nearby walkable cell and logging `PathStartRecovered`.
-- Resident scheduled work starts only during `StrategyDayNightCycleController.IsSettlementWorkTime`; keep carried-resource returns, deposits, and cleanup paths schedule-safe so nightfall cannot strand stock reservations.
+- Resident scheduled work starts only during `StrategyDayNightCycleController.IsSettlementWorkTime`; Day 1 Dawn is also work time to avoid starter construction delay, while later Dawn phases remain off normal work time. Keep carried-resource returns, deposits, and cleanup paths schedule-safe so nightfall cannot strand stock reservations.
 - Resident night sleep is separate from homebound young-child hiding: housed residents only enter the hidden home interior during `Night` when they are not carrying resources, in funeral duty, or underground, then reappear at the home exit after night ends.
 - Resident footstep audio is attached by `StrategyResidentAgent` and plays grass clips on selected walk frames; keep it low-volume/spatial when adding more residents or faster simulation speeds.
 - Lumberjack work keeps the same camp worksite component but chooses the nearest available tree/processable wood on the map; it tests nearby work cells for real path reachability before starting tree/log/plant movement, and includes tree chopping, trunk bucking, Logs delivery, and sapling planting.

@@ -21,6 +21,7 @@ namespace ProjectUnknown.Strategy
                 "VisionPhaseChanged",
                 StrategyDebugLogger.F("phase", snapshot.PhaseLabel),
                 StrategyDebugLogger.F("nightPressure", nightVisionPressure),
+                StrategyDebugLogger.F("campRadius", GetCurrentRevealRadius(CampRevealRadius, RevealSourceKind.Camp)),
                 StrategyDebugLogger.F("residentRadius", GetCurrentRevealRadius(ResidentRevealRadius, RevealSourceKind.Resident)),
                 StrategyDebugLogger.F("buildingRadius", GetCurrentRevealRadius(BuildingRevealRadius, RevealSourceKind.Building)),
                 StrategyDebugLogger.F("exploredAlpha", exploredAlpha));

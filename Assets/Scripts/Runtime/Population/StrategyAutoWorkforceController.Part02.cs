@@ -82,7 +82,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            T[] sites = UnityEngine.Object.FindObjectsByType<T>();
+            T[] sites = GetCachedSites<T>();
             Array.Sort(sites, (left, right) => getWorkers(left).CompareTo(getWorkers(right)));
             int desired = Mathf.Min(desiredWorkers, priority);
             int capacity = 0;
@@ -164,10 +164,10 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("reason", reason));
         }
 
-        private int AssignDemand(StrategyAutoWorkforceDemand demand)
+        private int AssignDemand(StrategyAutoWorkforceDemand demand, ref int assignmentBudget)
         {
             int assigned = 0;
-            while (demand.Needed > 0 && candidates.Count > 0)
+            while (assignmentBudget > 0 && demand.Needed > 0 && candidates.Count > 0)
             {
                 StrategyResidentAgent resident = TakeNearestCandidate(demand.World);
                 if (resident == null)
@@ -181,6 +181,7 @@ namespace ProjectUnknown.Strategy
                 }
 
                 demand.Needed--;
+                assignmentBudget--;
                 assigned++;
                 StrategyDebugLogger.Info(
                     "AutoWorkforce",
@@ -264,7 +265,7 @@ namespace ProjectUnknown.Strategy
 
         private void DispatchBuildersNear(Vector3 world)
         {
-            StrategyConstructionSite[] sites = UnityEngine.Object.FindObjectsByType<StrategyConstructionSite>();
+            StrategyConstructionSite[] sites = cachedConstructionSites;
             StrategyConstructionSite nearest = null;
             float bestDistance = float.MaxValue;
             for (int i = 0; i < sites.Length; i++)
@@ -291,7 +292,27 @@ namespace ProjectUnknown.Strategy
 
         private bool TryFindStorageTarget(Vector3 world, out StrategyStorageYard yard)
         {
-            return StrategyStorageYard.TryFindNearestStorageYard(world, out yard);
+            yard = null;
+            float bestDistance = float.MaxValue;
+            for (int i = 0; i < cachedStorageYards.Length; i++)
+            {
+                StrategyStorageYard candidate = cachedStorageYards[i];
+                if (candidate == null)
+                {
+                    continue;
+                }
+
+                float distance = (candidate.FootprintBounds.center - world).sqrMagnitude;
+                if (distance >= bestDistance)
+                {
+                    continue;
+                }
+
+                bestDistance = distance;
+                yard = candidate;
+            }
+
+            return yard != null;
         }
 
         private int CountAssignedProfession(StrategyProfessionType profession)
@@ -311,11 +332,11 @@ namespace ProjectUnknown.Strategy
             };
         }
 
-        private static int CountSiteWorkers<T>(Func<T, int> getWorkers)
+        private int CountSiteWorkers<T>(Func<T, int> getWorkers)
             where T : Component
         {
             int total = 0;
-            foreach (T site in UnityEngine.Object.FindObjectsByType<T>())
+            foreach (T site in GetCachedSites<T>())
             {
                 total += site != null ? getWorkers(site) : 0;
             }

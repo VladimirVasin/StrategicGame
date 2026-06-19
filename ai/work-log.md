@@ -1,12 +1,82 @@
 # Work Log
 
-Last updated: 2026-06-17
+Last updated: 2026-06-19
 
 ## Active
 
 - None.
 
 ## Done
+
+### 2026-06-19 - Wider campfire fog vision
+
+- Increased the starter campfire/camp fog-of-war reveal source radius so the initial settlement vision opens around the campfire instead of relying on a Day 1 special case.
+- Raised the camp reveal minimums for dark phases and dense Fog weather enough that Dawn starts with a more usable visible area while resident and building sight radii stay unchanged.
+- Added the current camp reveal radius to the existing `VisionPhaseChanged` fog debug log.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; touched C# files stayed below the 500-line limit.
+
+### 2026-06-19 - F9 instant construction debug mode
+
+- Added shared `StrategyDebugOptions.InstantConstructionEnabled` and an `Instant Construction` checkbox to the F9 debug panel.
+- Build menu affordability now treats all build costs as available while instant construction is enabled and shows build item cost badges as `Free`.
+- Player placement still creates a construction-site handoff, but debug instant mode skips construction resource reservation and immediately completes the site through the normal placed-building completion path; enabling the toggle also completes existing active construction sites.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; touched C# files stayed below the 500-line limit.
+
+### 2026-06-19 - House food HUD readability pass
+
+- Reworked the selected-house food section labels from internal `u/r` shorthand into explicit home food, granary reserve, meal timing, and ration coverage text.
+- Changed the house resource panel title to `House Food`, replaced raw settling seconds with `m:ss` meal timing, and made stored food resource cards show amount plus ration value in readable words.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; touched C# files stayed below the 500-line limit.
+
+### 2026-06-19 - First-day Dawn work start
+
+- Changed `StrategyDayNightCycleController.IsSettlementWorkTime` so Day 1 counts Dawn as work time.
+- This lets auto-assigned residents start construction/logistics immediately at game start instead of waiting until Morning.
+- Later days still keep Dawn outside normal work time; night sleep and nightfall deferral behavior are unchanged.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-17 - Auto workforce worksite cache optimization
+
+- Analyzed the fresh `debug.log` tail after the first performance pass and found auto-workforce ticks still stretching one frame by hundreds of milliseconds.
+- Replaced repeated `FindObjectsByType<T>()` calls inside auto-workforce demand, fallback, count, dispatch, release, and rebalance paths with one per-tick worksite snapshot.
+- Avoided the auto-workforce call into `StrategyStorageYard.CountProductionInputBacklog()`, which scanned all scene `MonoBehaviour`s; auto workforce now checks cached Sawmills directly for production input backlog.
+- Exposed `StrategyStorageYard.GetAvailableLogisticsAmount()` as a read-only public method so automation can reuse the reservation-aware stock calculation.
+- Added `durationMs` to the existing `AutoWorkforceTick` log event so future logs show whether auto workforce remains a frame-spike source.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; touched C# files stayed below the 500-line limit; `git diff --check` passed with only the existing CRLF warning for `Assembly-CSharp.csproj`.
+
+### 2026-06-17 - Runtime performance spike smoothing
+
+- Analyzed the latest `debug.log` tail and found a startup auto-workforce burst assigning 12 residents in one tick plus frequent routine wolf roam/state logs.
+- Capped auto-workforce successful assignments per tick so large free-adult pools are spread across later ticks instead of one frame.
+- Stopped closed Build and Profession HUDs from forcing recurring full layout rebuilds; closed Build HUD now only refreshes passive stock/speed text.
+- Throttled routine wolf path/state/prey-skip logs to reduce disk-write spikes while keeping meaningful wolf diagnostics.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; touched C# files stayed below the 500-line limit; `git diff --check` passed with only the existing CRLF warning for `Assembly-CSharp.csproj`.
+
+### 2026-06-17 - Goals HUD intro and checkbox polish
+
+- Moved the Goals HUD lower on the left side so it no longer crowds the Professions button.
+- Changed the goal checkbox to a small controlled square instead of a stretched layout rectangle.
+- Added a one-shot delayed fade/slide intro so the first active goals appear a couple of seconds after startup.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; touched C# files stayed below the 500-line limit.
+
+### 2026-06-17 - Compact Goals HUD layout fix
+
+- Reworked the Goals HUD from layout-driven vertical stacking to fixed compact manual positioning so active goals no longer spill down the left side of the screen.
+- Removed the separate description line from the visible goal panel; goals now render as a small left-side checklist sized by row count.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; touched C# files stayed below the 500-line limit.
+
+### 2026-06-17 - Starter build goals and Build menu locks
+
+- Added the first active onboarding goal sequence: build 3 Houses, then build a Lumberjack Camp and Stonecutter Camp.
+- Build menu tools are temporarily locked to the current goal stage, with locked categories/items disabled and item badges showing `Locked`; all tools unlock after the second stage completes.
+- Construction completion now raises a placed-building completion event so goals count finished buildings, not placed construction sites.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; touched C# files stayed below the 500-line limit.
+
+### 2026-06-17 - Technical goals HUD foundation
+
+- Added a runtime goals controller plus lazy goals HUD infrastructure inspired by the Gruzovichky tutorial goals checklist.
+- Bootstrap now creates/configures the goals layer, but no default goals are assigned and the HUD stays hidden until future code supplies active goals.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; touched C# files stayed below the 500-line limit.
 
 ### 2026-06-17 - Opaque detached building torches
 

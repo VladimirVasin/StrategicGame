@@ -395,6 +395,33 @@ namespace ProjectUnknown.Strategy
             eventLogHud.Configure();
             StrategyDebugLogger.Info("Bootstrap", "EventLogHudReady");
 
+            StrategyGoalsHudController goalsHud = Object.FindAnyObjectByType<StrategyGoalsHudController>();
+            if (goalsHud == null)
+            {
+                GameObject goalsHudObject = new GameObject("Strategy Goals HUD");
+                goalsHud = goalsHudObject.AddComponent<StrategyGoalsHudController>();
+            }
+
+            StrategyGoalsController goals = Object.FindAnyObjectByType<StrategyGoalsController>();
+            if (goals == null)
+            {
+                GameObject goalsObject = new GameObject("Strategy Goals");
+                goals = goalsObject.AddComponent<StrategyGoalsController>();
+            }
+
+            goals.Configure(goalsHud);
+            StrategyDebugLogger.Info("Bootstrap", "GoalsReady");
+
+            StrategyStarterGoalSequenceController starterGoals = Object.FindAnyObjectByType<StrategyStarterGoalSequenceController>();
+            if (starterGoals == null)
+            {
+                GameObject starterGoalsObject = new GameObject("Strategy Starter Goals");
+                starterGoals = starterGoalsObject.AddComponent<StrategyStarterGoalSequenceController>();
+            }
+
+            starterGoals.Configure(goals, buildMenu, placement);
+            StrategyDebugLogger.Info("Bootstrap", "StarterGoalsReady");
+
             StrategyRefugeeDialogController refugeeDialog = Object.FindAnyObjectByType<StrategyRefugeeDialogController>();
             if (refugeeDialog == null)
             {

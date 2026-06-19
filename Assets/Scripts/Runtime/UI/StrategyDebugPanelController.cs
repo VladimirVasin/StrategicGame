@@ -12,7 +12,7 @@ namespace ProjectUnknown.Strategy
     {
         private const int CanvasSortingOrder = 33000;
         private const float PanelWidth = 560f;
-        private const float PanelHeight = 430f;
+        private const float PanelHeight = 510f;
 
         private static readonly Color OverlayColor = new Color(0f, 0f, 0f, 0.58f);
         private static readonly Color PanelColor = new Color(0.055f, 0.065f, 0.07f, 0.98f);
@@ -27,6 +27,7 @@ namespace ProjectUnknown.Strategy
         private StrategyWeatherController weather;
         private CanvasGroup rootGroup;
         private Toggle fogToggle;
+        private Toggle instantConstructionToggle;
         private Text currentWeatherText;
         private bool initialized;
         private bool isOpen;
@@ -153,8 +154,17 @@ namespace ProjectUnknown.Strategy
             SetTopLeft(fogToggle.GetComponent<RectTransform>(), 18f, 42f, 260f, 28f);
             fogToggle.onValueChanged.AddListener(SetFogDisabled);
 
+            RectTransform buildSection = CreatePanel("BuildSection", panel, SectionColor).GetComponent<RectTransform>();
+            SetTopLeft(buildSection, 28f, 216f, PanelWidth - 56f, 84f);
+            Text buildTitle = CreateText("BuildTitle", buildSection, "Construction", 16, TextAnchor.MiddleLeft, Color.white);
+            buildTitle.fontStyle = FontStyle.Bold;
+            SetTopLeft(buildTitle.rectTransform, 18f, 10f, 180f, 24f);
+            instantConstructionToggle = CreateToggle("InstantConstructionToggle", buildSection, "Instant Construction");
+            SetTopLeft(instantConstructionToggle.GetComponent<RectTransform>(), 18f, 42f, 300f, 28f);
+            instantConstructionToggle.onValueChanged.AddListener(SetInstantConstruction);
+
             RectTransform weatherSection = CreatePanel("WeatherSection", panel, SectionColor).GetComponent<RectTransform>();
-            SetTopLeft(weatherSection, 28f, 216f, PanelWidth - 56f, 178f);
+            SetTopLeft(weatherSection, 28f, 320f, PanelWidth - 56f, 152f);
             Text weatherTitle = CreateText("WeatherTitle", weatherSection, "Weather", 16, TextAnchor.MiddleLeft, Color.white);
             weatherTitle.fontStyle = FontStyle.Bold;
             SetTopLeft(weatherTitle.rectTransform, 18f, 10f, 180f, 24f);
@@ -219,6 +229,17 @@ namespace ProjectUnknown.Strategy
             RefreshControls();
         }
 
+        private void SetInstantConstruction(bool enabled)
+        {
+            StrategyDebugOptions.SetInstantConstructionEnabled(enabled);
+            if (enabled)
+            {
+                StrategyConstructionSite.DebugCompleteAllActiveSites();
+            }
+
+            RefreshControls();
+        }
+
         private void ForceWeatherSmooth(StrategyWeatherKind kind)
         {
             if (weather == null)
@@ -236,6 +257,11 @@ namespace ProjectUnknown.Strategy
             if (fogToggle != null)
             {
                 fogToggle.SetIsOnWithoutNotify(fog != null && !fog.IsPlayerFogEnabled);
+            }
+
+            if (instantConstructionToggle != null)
+            {
+                instantConstructionToggle.SetIsOnWithoutNotify(StrategyDebugOptions.InstantConstructionEnabled);
             }
 
             StrategyWeatherKind current = weather != null ? weather.CurrentWeather : StrategyWeatherKind.Clear;

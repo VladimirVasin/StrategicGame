@@ -5,7 +5,7 @@ namespace ProjectUnknown.Strategy
     public sealed partial class StrategyWildlifeController
     {
         private const int WildlifeStructureAvoidanceRadius = 4;
-        private const float WolfPreySearchSkipLogInterval = 8f;
+        private const float WolfPreySearchSkipLogInterval = 20f;
 
         private float nextWolfPreySearchSkipLogTime;
 

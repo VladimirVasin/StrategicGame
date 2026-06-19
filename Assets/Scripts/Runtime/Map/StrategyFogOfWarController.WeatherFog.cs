@@ -9,7 +9,7 @@ namespace ProjectUnknown.Strategy
         private const float WeatherFogCampRevealMultiplier = 0.50f;
         private const float WeatherFogResidentRevealMultiplier = 0.38f;
         private const float WeatherFogBuildingRevealMultiplier = 0.45f;
-        private const float WeatherFogCampMinimumRadius = 2.8f;
+        private const float WeatherFogCampMinimumRadius = 3.5f;
         private const float WeatherFogResidentMinimumRadius = 1.65f;
         private const float WeatherFogBuildingMinimumRadius = 2.20f;
         private const int WeatherFogLightRadiusSqr = 4;

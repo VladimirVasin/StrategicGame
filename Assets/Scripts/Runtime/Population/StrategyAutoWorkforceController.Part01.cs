@@ -31,7 +31,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            StrategyConstructionSite[] sites = Object.FindObjectsByType<StrategyConstructionSite>();
+            StrategyConstructionSite[] sites = cachedConstructionSites;
             int activeSites = 0;
             int readySites = 0;
             Vector3 focus = transform.position;
@@ -130,8 +130,8 @@ namespace ProjectUnknown.Strategy
             float dailyNeed = GetDailyRationNeed();
             float storedRations = StrategyGranary.GetTotalSettlementFoodRations();
             float reserveDays = dailyNeed <= 0.01f ? FoodReserveTargetDays : storedRations / dailyNeed;
-            bool hasHunterCamp = Object.FindObjectsByType<StrategyHunterCamp>().Length > 0;
-            bool hasFisherHut = Object.FindObjectsByType<StrategyFisherHut>().Length > 0;
+            bool hasHunterCamp = cachedHunterCamps.Length > 0;
+            bool hasFisherHut = cachedFisherHuts.Length > 0;
             if (!hasHunterCamp && !hasFisherHut)
             {
                 return;

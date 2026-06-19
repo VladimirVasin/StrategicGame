@@ -104,6 +104,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("origin", site.Origin),
                 StrategyDebugLogger.F("buildingCreated", building != null));
 
+            NotifyBuildingCompleted(building);
             Destroy(site.gameObject);
             return building;
         }
@@ -216,7 +217,8 @@ namespace ProjectUnknown.Strategy
                 visualVariant,
                 renderer);
 
-            if (!StrategyStorageYard.TryReserveConstructionResources(toolInfo.Cost, site, bounds.center))
+            bool instantConstruction = StrategyDebugOptions.InstantConstructionEnabled;
+            if (!instantConstruction && !StrategyStorageYard.TryReserveConstructionResources(toolInfo.Cost, site, bounds.center))
             {
                 StrategyDebugLogger.Warn(
                     "Build",
@@ -236,7 +238,11 @@ namespace ProjectUnknown.Strategy
             map.SetCellsWalkable(constructionBlockOrigin, constructionBlockFootprint, false);
             fog?.RequestRefresh();
             site.Begin();
-            bool buildersAssigned = StrategyStorageYard.TryAssignBuildersToSite(site);
+            bool buildersAssigned = false;
+            if (!instantConstruction)
+            {
+                buildersAssigned = StrategyStorageYard.TryAssignBuildersToSite(site);
+            }
 
             StrategyDebugLogger.Info(
                 "Build",
@@ -250,7 +256,13 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("reservedBlockOrigin", finalBlockOrigin),
                 StrategyDebugLogger.F("reservedBlockFootprint", finalBlockFootprint),
                 StrategyDebugLogger.F("visualVariant", visualVariant),
+                StrategyDebugLogger.F("instantConstruction", instantConstruction),
                 StrategyDebugLogger.F("buildersAssigned", buildersAssigned));
+            if (instantConstruction)
+            {
+                site.DebugCompleteInstantly();
+            }
+
             return site;
         }
 
@@ -294,7 +306,8 @@ namespace ProjectUnknown.Strategy
             site.Configure(this, map, bridgeInfo, origin, bounds, origin, footprint, visualVariant, renderer);
             site.ConfigureBridgeSpan(bridgeCandidate.Cells, startCell, bridgeCandidate.EndCell);
 
-            if (!StrategyStorageYard.TryReserveConstructionResources(toolInfo.Cost, site, bounds.center))
+            bool instantConstruction = StrategyDebugOptions.InstantConstructionEnabled;
+            if (!instantConstruction && !StrategyStorageYard.TryReserveConstructionResources(toolInfo.Cost, site, bounds.center))
             {
                 StrategyDebugLogger.Warn(
                     "Build",
@@ -313,7 +326,11 @@ namespace ProjectUnknown.Strategy
             MarkOccupiedCells(bridgeCandidate.Cells);
             fog?.RequestRefresh();
             site.Begin();
-            bool buildersAssigned = StrategyStorageYard.TryAssignBuildersToSite(site);
+            bool buildersAssigned = false;
+            if (!instantConstruction)
+            {
+                buildersAssigned = StrategyStorageYard.TryAssignBuildersToSite(site);
+            }
 
             StrategyDebugLogger.Info(
                 "Build",
@@ -323,7 +340,13 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("origin", origin),
                 StrategyDebugLogger.F("footprint", footprint),
                 StrategyDebugLogger.F("cells", bridgeCandidate.Cells.Count),
+                StrategyDebugLogger.F("instantConstruction", instantConstruction),
                 StrategyDebugLogger.F("buildersAssigned", buildersAssigned));
+            if (instantConstruction)
+            {
+                site.DebugCompleteInstantly();
+            }
+
             return site;
         }
 

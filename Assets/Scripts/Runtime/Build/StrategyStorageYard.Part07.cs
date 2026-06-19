@@ -204,7 +204,7 @@ namespace ProjectUnknown.Strategy
             return reservations;
         }
 
-        private int GetAvailableLogisticsAmount(StrategyResourceType resource)
+        public int GetAvailableLogisticsAmount(StrategyResourceType resource)
         {
             return resource switch
             {

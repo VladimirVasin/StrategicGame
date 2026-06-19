@@ -359,7 +359,7 @@ namespace ProjectUnknown.Strategy
                     {
                         int column = visibleResourceIndex % 2;
                         int row = visibleResourceIndex / 2;
-                        resourceSlots[i].anchoredPosition = new Vector2(column * ResourceCellWidth, -164f - row * 34f);
+                        resourceSlots[i].anchoredPosition = new Vector2(column * ResourceCellWidth, -166f - row * 40f);
                         visibleResourceIndex++;
                     }
                 }
@@ -379,11 +379,11 @@ namespace ProjectUnknown.Strategy
                 {
                     float rationValue = amount * StrategyFoodNutrition.GetRationValue(type);
                     resourceAmountTexts[i].text = GetResourceTitle(type)
-                        + ": "
+                        + "\n"
                         + amount
-                        + " | "
-                        + rationValue.ToString("0.#")
-                        + "r";
+                        + " food, "
+                        + FormatRations(rationValue)
+                        + " rations";
                     resourceAmountTexts[i].color = new Color(0.88f, 0.93f, 0.90f);
                 }
             }

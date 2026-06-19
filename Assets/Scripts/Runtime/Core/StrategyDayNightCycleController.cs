@@ -74,7 +74,7 @@ namespace ProjectUnknown.Strategy
             get
             {
                 float phase = CurrentDayPhase;
-                return phase >= DawnEnd && phase < DuskEnd;
+                return phase < DuskEnd && (phase >= DawnEnd || CurrentDayIndex == 0);
             }
         }
 

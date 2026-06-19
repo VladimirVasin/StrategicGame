@@ -88,6 +88,12 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
+            if (!IsToolAllowed(ActiveTool))
+            {
+                info = default;
+                return false;
+            }
+
             foreach (BuildCategoryData category in categories)
             {
                 foreach (BuildItemData item in category.Items)
@@ -109,7 +115,7 @@ namespace ProjectUnknown.Strategy
         public bool CanAffordActiveTool()
         {
             return TryGetActiveToolInfo(out StrategyBuildToolInfo info)
-                && info.Cost.CanAfford(StrategyStorageYard.GetTotalConstructionResources());
+                && CanAffordBuildCost(info.Cost);
         }
 
         public bool TrySpendForActiveTool()
@@ -174,7 +180,7 @@ namespace ProjectUnknown.Strategy
             HandlePointerDismissal();
             UpdateAnimation();
 
-            if (isDirty || Time.frameCount % 12 == 0)
+            if (TryRefreshBuildHud())
             {
                 RefreshUi();
             }
@@ -224,7 +230,13 @@ namespace ProjectUnknown.Strategy
                     trayT = 0f;
                 }
 
-                if (!item.Cost.CanAfford(StrategyStorageYard.GetTotalConstructionResources()))
+                if (!IsToolAllowed(item.Tool))
+                {
+                    RejectLockedTool(item.Tool);
+                    return;
+                }
+
+                if (!CanAffordBuildCost(item.Cost))
                 {
                     ActiveTool = StrategyBuildTool.None;
                     isDirty = true;
@@ -267,7 +279,13 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            if (!item.Cost.CanAfford(StrategyStorageYard.GetTotalConstructionResources()))
+            if (!IsToolAllowed(item.Tool))
+            {
+                RejectLockedTool(item.Tool);
+                return;
+            }
+
+            if (!CanAffordBuildCost(item.Cost))
             {
                 ActiveTool = StrategyBuildTool.None;
                 StrategyDebugLogger.Warn(
@@ -362,6 +380,11 @@ namespace ProjectUnknown.Strategy
         {
             int index = number - 1;
             if (index < 0 || index >= categoryUis.Count)
+            {
+                return false;
+            }
+
+            if (!CategoryHasAllowedTool(categoryUis[index]))
             {
                 return false;
             }

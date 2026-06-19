@@ -26,7 +26,7 @@ namespace ProjectUnknown.Strategy
         private int CountNeededConstruction(StrategyConstructionResourceKind kind)
         {
             int total = 0;
-            StrategyConstructionSite[] sites = Object.FindObjectsByType<StrategyConstructionSite>();
+            StrategyConstructionSite[] sites = cachedConstructionSites;
             for (int i = 0; i < sites.Length; i++)
             {
                 StrategyConstructionSite site = sites[i];
@@ -55,7 +55,7 @@ namespace ProjectUnknown.Strategy
         private int CountConstructionMaterialNeeds()
         {
             int count = 0;
-            StrategyConstructionSite[] sites = Object.FindObjectsByType<StrategyConstructionSite>();
+            StrategyConstructionSite[] sites = cachedConstructionSites;
             for (int i = 0; i < sites.Length; i++)
             {
                 StrategyConstructionSite site = sites[i];
@@ -77,7 +77,7 @@ namespace ProjectUnknown.Strategy
             AddBacklog(CountAvailableIron(out Vector3 ironWorld), ironWorld, ref backlog, ref weighted);
             AddBacklog(CountAvailableCoal(out Vector3 coalWorld), coalWorld, ref backlog, ref weighted);
             AddBacklog(CountAvailablePlanks(out Vector3 planksWorld), planksWorld, ref backlog, ref weighted);
-            AddBacklog(StrategyStorageYard.CountProductionInputBacklog(out Vector3 inputWorld), inputWorld, ref backlog, ref weighted);
+            AddBacklog(CountProductionInputBacklog(out Vector3 inputWorld), inputWorld, ref backlog, ref weighted);
             AddBacklog(CountAvailableFood(out Vector3 foodWorld), foodWorld, ref backlog, ref weighted);
             focus = backlog > 0 ? weighted / backlog : transform.position;
             return backlog;
@@ -97,7 +97,7 @@ namespace ProjectUnknown.Strategy
         private int CountTotalLogs()
         {
             int total = 0;
-            foreach (StrategyStorageYard yard in Object.FindObjectsByType<StrategyStorageYard>())
+            foreach (StrategyStorageYard yard in cachedStorageYards)
             {
                 total += yard != null ? yard.LogsStored : 0;
             }
@@ -109,7 +109,7 @@ namespace ProjectUnknown.Strategy
         private int CountTotalStone()
         {
             int total = 0;
-            foreach (StrategyStorageYard yard in Object.FindObjectsByType<StrategyStorageYard>())
+            foreach (StrategyStorageYard yard in cachedStorageYards)
             {
                 total += yard != null ? yard.StoneStored : 0;
             }
@@ -121,7 +121,7 @@ namespace ProjectUnknown.Strategy
         private int CountTotalPlanks()
         {
             int total = 0;
-            foreach (StrategyStorageYard yard in Object.FindObjectsByType<StrategyStorageYard>())
+            foreach (StrategyStorageYard yard in cachedStorageYards)
             {
                 total += yard != null ? yard.PlanksStored : 0;
             }
@@ -133,7 +133,7 @@ namespace ProjectUnknown.Strategy
         private int CountTotalIron()
         {
             int total = 0;
-            foreach (StrategyStorageYard yard in Object.FindObjectsByType<StrategyStorageYard>())
+            foreach (StrategyStorageYard yard in cachedStorageYards)
             {
                 total += yard != null ? yard.IronStored : 0;
             }
@@ -145,7 +145,7 @@ namespace ProjectUnknown.Strategy
         private int CountTotalCoal()
         {
             int total = 0;
-            foreach (StrategyStorageYard yard in Object.FindObjectsByType<StrategyStorageYard>())
+            foreach (StrategyStorageYard yard in cachedStorageYards)
             {
                 total += yard != null ? yard.CoalStored : 0;
             }
@@ -158,7 +158,7 @@ namespace ProjectUnknown.Strategy
         {
             int total = 0;
             world = transform.position;
-            foreach (StrategyLumberjackCamp camp in Object.FindObjectsByType<StrategyLumberjackCamp>())
+            foreach (StrategyLumberjackCamp camp in cachedLumberjackCamps)
             {
                 if (camp != null && camp.AvailableLogs > 0)
                 {
@@ -174,7 +174,7 @@ namespace ProjectUnknown.Strategy
         {
             int total = 0;
             world = transform.position;
-            foreach (StrategyStonecutterCamp camp in Object.FindObjectsByType<StrategyStonecutterCamp>())
+            foreach (StrategyStonecutterCamp camp in cachedStonecutterCamps)
             {
                 if (camp != null && camp.AvailableStone > 0)
                 {
@@ -190,7 +190,7 @@ namespace ProjectUnknown.Strategy
         {
             int total = 0;
             world = transform.position;
-            foreach (StrategyMine mine in Object.FindObjectsByType<StrategyMine>())
+            foreach (StrategyMine mine in cachedMines)
             {
                 if (mine != null && mine.AvailableIron > 0)
                 {
@@ -206,7 +206,7 @@ namespace ProjectUnknown.Strategy
         {
             int total = 0;
             world = transform.position;
-            foreach (StrategyCoalPit pit in Object.FindObjectsByType<StrategyCoalPit>())
+            foreach (StrategyCoalPit pit in cachedCoalPits)
             {
                 if (pit != null && pit.AvailableCoal > 0)
                 {
@@ -222,7 +222,7 @@ namespace ProjectUnknown.Strategy
         {
             int total = 0;
             world = transform.position;
-            foreach (StrategySawmill sawmill in Object.FindObjectsByType<StrategySawmill>())
+            foreach (StrategySawmill sawmill in cachedSawmills)
             {
                 if (sawmill != null && sawmill.AvailablePlanks > 0)
                 {
@@ -238,7 +238,7 @@ namespace ProjectUnknown.Strategy
         {
             int total = 0;
             world = transform.position;
-            foreach (StrategyHunterCamp camp in Object.FindObjectsByType<StrategyHunterCamp>())
+            foreach (StrategyHunterCamp camp in cachedHunterCamps)
             {
                 if (camp != null && camp.AvailableGame > 0)
                 {
@@ -247,7 +247,7 @@ namespace ProjectUnknown.Strategy
                 }
             }
 
-            foreach (StrategyFisherHut hut in Object.FindObjectsByType<StrategyFisherHut>())
+            foreach (StrategyFisherHut hut in cachedFisherHuts)
             {
                 if (hut != null && hut.AvailableFish > 0)
                 {
@@ -257,6 +257,43 @@ namespace ProjectUnknown.Strategy
             }
 
             return total;
+        }
+
+        private int CountProductionInputBacklog(out Vector3 focus)
+        {
+            int backlog = 0;
+            Vector3 weighted = Vector3.zero;
+            for (int i = 0; i < cachedSawmills.Length; i++)
+            {
+                StrategySawmill sawmill = cachedSawmills[i];
+                if (sawmill == null
+                    || !sawmill.TryGetInputDeliveryRequest(out StrategyResourceType resource, out int maxAmount)
+                    || resource == StrategyResourceType.None
+                    || StrategyFoodNutrition.IsFood(resource)
+                    || maxAmount <= 0)
+                {
+                    continue;
+                }
+
+                int available = 0;
+                for (int yardIndex = 0; yardIndex < cachedStorageYards.Length; yardIndex++)
+                {
+                    StrategyStorageYard yard = cachedStorageYards[yardIndex];
+                    available += yard != null ? yard.GetAvailableLogisticsAmount(resource) : 0;
+                }
+
+                int amount = Mathf.Min(maxAmount, available);
+                if (amount <= 0)
+                {
+                    continue;
+                }
+
+                backlog += amount;
+                weighted += sawmill.FootprintBounds.center * amount;
+            }
+
+            focus = backlog > 0 ? weighted / backlog : Vector3.zero;
+            return backlog;
         }
     }
 }

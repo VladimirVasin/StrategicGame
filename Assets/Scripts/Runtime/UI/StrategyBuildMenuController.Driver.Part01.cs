@@ -258,10 +258,16 @@ namespace ProjectUnknown.Strategy
             {
                 CategoryUi category = categoryUis[i];
                 bool selected = selectedCategoryIndex == i;
-                category.Background.color = selected
+                bool categoryAllowed = CategoryHasAllowedTool(category);
+                category.Button.interactable = categoryAllowed;
+                category.Background.color = !categoryAllowed
+                    ? new Color(0.06f, 0.07f, 0.08f, 0.88f)
+                    : selected
                     ? new Color(0.17f, 0.32f, 0.36f, 0.99f)
                     : new Color(0.09f, 0.15f, 0.18f, 0.96f);
-                category.Label.color = selected ? Color.white : new Color(0.86f, 0.91f, 0.96f);
+                category.Label.color = !categoryAllowed
+                    ? new Color(0.44f, 0.47f, 0.50f, 1f)
+                    : selected ? Color.white : new Color(0.86f, 0.91f, 0.96f);
 
                 for (int j = 0; j < category.Items.Length; j++)
                 {
@@ -273,22 +279,25 @@ namespace ProjectUnknown.Strategy
                         continue;
                     }
 
-                    bool active = ActiveTool == item.Data.Tool;
-                    bool affordable = item.Data.Cost.CanAfford(StrategyStorageYard.GetTotalConstructionResources());
-                    item.Button.interactable = affordable;
-                    item.Background.color = !affordable
+                    bool allowed = IsToolAllowed(item.Data.Tool);
+                    bool active = allowed && ActiveTool == item.Data.Tool;
+                    bool affordable = CanAffordBuildCost(item.Data.Cost);
+                    item.Button.interactable = allowed && affordable;
+                    item.Background.color = !allowed
+                        ? new Color(0.07f, 0.08f, 0.09f, 0.90f)
+                        : !affordable
                         ? new Color(0.10f, 0.11f, 0.13f, 0.88f)
                         : active
                             ? new Color(0.24f, 0.30f, 0.38f, 1f)
                             : new Color(0.13f, 0.18f, 0.24f, 0.98f);
-                    item.IconBackground.color = affordable ? item.Data.Color : new Color(0.24f, 0.25f, 0.27f, 0.92f);
-                    item.Title.color = affordable ? Color.white : new Color(0.62f, 0.66f, 0.70f, 1f);
+                    item.IconBackground.color = allowed && affordable ? item.Data.Color : new Color(0.24f, 0.25f, 0.27f, 0.92f);
+                    item.Title.color = allowed && affordable ? Color.white : new Color(0.62f, 0.66f, 0.70f, 1f);
                     item.BadgeBackground.color = active
                         ? new Color(0.60f, 0.36f, 0.10f, 0.96f)
-                        : affordable
+                        : allowed && affordable
                             ? new Color(0.18f, 0.13f, 0.06f, 0.98f)
                             : new Color(0.24f, 0.06f, 0.05f, 0.98f);
-                    item.BadgeText.text = active ? "Active" : item.Data.Cost.ToBadgeText();
+                    item.BadgeText.text = GetBuildItemBadgeText(item.Data.Cost, allowed, active);
                 }
             }
 

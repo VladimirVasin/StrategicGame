@@ -27,7 +27,7 @@ namespace ProjectUnknown.Strategy
                 ApplyFoodStatus(
                     "Food status",
                     "No household data",
-                    "Ration -",
+                    "No meal",
                     FormatFoodStockLine(homeFood, homeFoodRations, granaryFood, granaryFoodRations),
                     0f,
                     new Color(0.30f, 0.34f, 0.34f, 0.94f),
@@ -39,11 +39,10 @@ namespace ProjectUnknown.Strategy
                 ? 1f
                 : Mathf.Clamp01(food.LastSuppliedRations / food.LastRequiredRations);
             string rationText = food.LastRequiredRations <= 0f
-                ? "Ration -"
-                : "Ration "
-                    + food.LastSuppliedRations.ToString("0.#")
+                ? "No meal yet"
+                : FormatRations(food.LastSuppliedRations)
                     + "/"
-                    + food.LastRequiredRations.ToString("0.#");
+                    + FormatRations(food.LastRequiredRations);
 
             string statusText;
             string detailText;
@@ -52,41 +51,36 @@ namespace ProjectUnknown.Strategy
             switch (food.Status)
             {
                 case StrategyHouseholdFoodStatus.Settling:
-                    statusText = "Settling";
-                    detailText = "First ration soon";
+                    statusText = "Settling in";
+                    detailText = "First meal in " + FormatDuration(food.FoodGraceSecondsRemaining);
                     rowColor = new Color(0.16f, 0.28f, 0.31f, 0.94f);
                     fillColor = new Color(0.46f, 0.67f, 0.74f, 0.95f);
-                    rationText = Mathf.CeilToInt(food.FoodGraceSecondsRemaining) + "s";
+                    rationText = "No meal yet";
                     rationFill = 1f - Mathf.Clamp01(food.FoodGraceSecondsRemaining / Mathf.Max(1f, food.FoodGraceDurationSeconds));
                     break;
                 case StrategyHouseholdFoodStatus.ShortRations:
                     statusText = "Short rations";
-                    detailText = "Missing " + food.LastMissingRations.ToString("0.#");
+                    detailText = "Last meal missed " + FormatRations(food.LastMissingRations);
                     rowColor = new Color(0.32f, 0.26f, 0.16f, 0.94f);
                     fillColor = new Color(0.77f, 0.60f, 0.31f, 0.95f);
                     break;
                 case StrategyHouseholdFoodStatus.Hungry:
                     statusText = "Hungry";
-                    detailText = food.HungryResidentCount + " hungry | " + food.ShortageStreakDays + " short days";
+                    detailText = food.HungryResidentCount + " hungry, " + food.ShortageStreakDays + " short days";
                     rowColor = new Color(0.35f, 0.22f, 0.13f, 0.96f);
                     fillColor = new Color(0.86f, 0.50f, 0.24f, 0.95f);
                     break;
                 case StrategyHouseholdFoodStatus.Starving:
                     statusText = "Starving";
-                    detailText = food.StarvingResidentCount + " starving | x" + food.MortalityMultiplier.ToString("0.0");
+                    detailText = food.StarvingResidentCount + " starving, mortality x" + food.MortalityMultiplier.ToString("0.0");
                     rowColor = new Color(0.36f, 0.16f, 0.13f, 0.96f);
                     fillColor = new Color(0.86f, 0.34f, 0.24f, 0.95f);
                     break;
                 default:
                     statusText = "Fed";
-                    detailText = "Home " + food.LastHouseFoodConsumed
-                        + "u/"
-                        + food.LastHouseRationsSupplied.ToString("0.#")
-                        + "r | Granary "
-                        + (food.LastGameConsumed + food.LastFishConsumed)
-                        + "u/"
-                        + food.LastGranaryRationsSupplied.ToString("0.#")
-                        + "r";
+                    detailText = food.IsFoodSupplyActivated
+                        ? "Next meal in " + FormatDuration(food.NextFoodTickSeconds)
+                        : "Food ready";
                     rowColor = new Color(0.15f, 0.30f, 0.22f, 0.94f);
                     fillColor = new Color(0.56f, 0.76f, 0.38f, 0.95f);
                     break;
@@ -108,15 +102,33 @@ namespace ProjectUnknown.Strategy
             int granaryFood,
             float granaryFoodRations)
         {
-            return "Home food: "
-                + homeFood
-                + "u/"
-                + homeFoodRations.ToString("0.#")
-                + "r | Granary: "
-                + granaryFood
-                + "u/"
-                + granaryFoodRations.ToString("0.#")
-                + "r";
+            return "At home: "
+                + FormatFoodAmount(homeFood, homeFoodRations)
+                + "\nGranary reserve: "
+                + FormatFoodAmount(granaryFood, granaryFoodRations);
+        }
+
+        private static string FormatFoodAmount(int food, float rations)
+        {
+            return food
+                + " food, "
+                + FormatRations(rations)
+                + " rations";
+        }
+
+        private static string FormatRations(float rations)
+        {
+            return rations.ToString("0.#");
+        }
+
+        private static string FormatDuration(float seconds)
+        {
+            int totalSeconds = Mathf.CeilToInt(Mathf.Max(0f, seconds));
+            int minutes = totalSeconds / 60;
+            int remainder = totalSeconds % 60;
+            return minutes > 0
+                ? minutes + "m " + remainder.ToString("00") + "s"
+                : remainder + "s";
         }
 
         private void RefreshHouseCropRow(StrategyPlacedBuilding building)
@@ -129,8 +141,8 @@ namespace ProjectUnknown.Strategy
             if (cropValueText != null)
             {
                 cropValueText.text = hasCrop
-                    ? "Crop: " + GetResourceTitle(garden.ProducedResource)
-                    : "Crop: None";
+                    ? "Garden crop: " + GetResourceTitle(garden.ProducedResource)
+                    : "No garden crop";
                 cropValueText.color = hasCrop
                     ? new Color(0.82f, 0.91f, 0.78f)
                     : new Color(0.60f, 0.67f, 0.64f);
@@ -194,14 +206,14 @@ namespace ProjectUnknown.Strategy
             StrategyResourceType type = StrategyHouseResourceStore.DisplayOrder[index];
             int column = index % 2;
             int row = index / 2;
-            float cellHeight = 32f;
+            float cellHeight = 38f;
 
             RectTransform slot = CreateUiObject("Resource_" + type, resourcesRoot).GetComponent<RectTransform>();
             slot.anchorMin = new Vector2(0f, 1f);
             slot.anchorMax = new Vector2(0f, 1f);
             slot.pivot = new Vector2(0f, 1f);
             slot.sizeDelta = new Vector2(ResourceCellWidth, cellHeight);
-            slot.anchoredPosition = new Vector2(column * ResourceCellWidth, -164f - row * 34f);
+            slot.anchoredPosition = new Vector2(column * ResourceCellWidth, -166f - row * 40f);
             resourceSlots[index] = slot;
 
             Image background = slot.gameObject.AddComponent<Image>();
@@ -220,8 +232,9 @@ namespace ProjectUnknown.Strategy
             icon.raycastTarget = false;
             resourceIconImages[index] = icon;
 
-            Text amountText = CreateText("Amount", slot, 11, TextAnchor.MiddleLeft, new Color(0.88f, 0.93f, 0.90f));
+            Text amountText = CreateText("Amount", slot, 10, TextAnchor.MiddleLeft, new Color(0.88f, 0.93f, 0.90f));
             amountText.fontStyle = FontStyle.Bold;
+            amountText.lineSpacing = 0.95f;
             SetOffsets(amountText.rectTransform, 32f, 0f, 4f, 0f);
             resourceAmountTexts[index] = amountText;
         }

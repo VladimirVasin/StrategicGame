@@ -35,7 +35,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            T[] sites = UnityEngine.Object.FindObjectsByType<T>();
+            T[] sites = GetCachedSites<T>();
             if (!TryFindLeastStaffedCapacitySite(sites, getWorkers, getCapacity, out _))
             {
                 return;
@@ -82,10 +82,10 @@ namespace ProjectUnknown.Strategy
             AddDemand(profession, category, target, world, needed, CoverageFloorUrgency, "coverage_floor");
         }
 
-        private int AssignIdleAdultsToBestAvailableRoles(bool allowOverTarget)
+        private int AssignIdleAdultsToBestAvailableRoles(bool allowOverTarget, ref int assignmentBudget)
         {
             int assigned = 0;
-            while (candidates.Count > 0)
+            while (assignmentBudget > 0 && candidates.Count > 0)
             {
                 if (!TryCreateBestFallbackDemand(false, out StrategyAutoWorkforceDemand demand)
                     && (!allowOverTarget || !TryCreateBestFallbackDemand(true, out demand)))
@@ -104,6 +104,7 @@ namespace ProjectUnknown.Strategy
                     continue;
                 }
 
+                assignmentBudget--;
                 assigned++;
                 StrategyDebugLogger.Info(
                     "AutoWorkforce",
@@ -154,7 +155,7 @@ namespace ProjectUnknown.Strategy
                 return null;
             }
 
-            T[] sites = UnityEngine.Object.FindObjectsByType<T>();
+            T[] sites = GetCachedSites<T>();
             return TryFindLeastStaffedOpenSite(sites, getWorkers, getCapacity, out T target)
                 ? CreateFallbackDemand(profession, category, target, getWorld(target), current, targetCount, allowOverTarget)
                 : null;
@@ -311,13 +312,13 @@ namespace ProjectUnknown.Strategy
             return target != null;
         }
 
-        private static bool TryFindLeastStaffedStorageYard(
+        private bool TryFindLeastStaffedStorageYard(
             Func<StrategyStorageYard, int> getWorkers,
             out StrategyStorageYard target)
         {
             target = null;
             int bestWorkers = int.MaxValue;
-            StrategyStorageYard[] yards = UnityEngine.Object.FindObjectsByType<StrategyStorageYard>();
+            StrategyStorageYard[] yards = cachedStorageYards;
             for (int i = 0; i < yards.Length; i++)
             {
                 StrategyStorageYard yard = yards[i];

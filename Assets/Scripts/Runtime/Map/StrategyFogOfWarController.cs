@@ -12,13 +12,13 @@ namespace ProjectUnknown.Strategy
         private const float RefreshInterval = 0.18f;
         private const float RevealEdgeSoftness = 1.75f;
         private const float VisibleThreshold = 0.08f;
-        private const float CampRevealRadius = 8.5f;
+        private const float CampRevealRadius = 12.5f;
         private const float ResidentRevealRadius = 5.25f;
         private const float BuildingRevealRadius = 6.25f;
         private const float NightCampRevealMultiplier = 0.55f;
         private const float NightResidentRevealMultiplier = 0.45f;
         private const float NightBuildingRevealMultiplier = 0.55f;
-        private const float MinimumCampRevealRadius = 4f;
+        private const float MinimumCampRevealRadius = 5.25f;
         private const float MinimumResidentRevealRadius = 2.35f;
         private const float MinimumBuildingRevealRadius = 3f;
         private const float DayExploredAlpha = 0.50f;

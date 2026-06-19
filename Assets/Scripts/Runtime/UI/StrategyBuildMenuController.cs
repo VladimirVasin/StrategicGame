@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace ProjectUnknown.Strategy
@@ -17,6 +18,9 @@ namespace ProjectUnknown.Strategy
         public void ClearActiveTool() => Driver.ClearActiveTool();
         public void CloseAll() => Driver.CloseAll();
         public void CloseAfterPlacement() => Driver.CloseAfterPlacement();
+        public void SetAllowedTools(IEnumerable<StrategyBuildTool> tools) => Driver.SetAllowedTools(tools);
+        public void ClearAllowedTools() => Driver.ClearAllowedTools();
+        public bool IsToolAllowed(StrategyBuildTool tool) => Driver.IsToolAllowedForBuild(tool);
 
         private StrategyBuildMenuControllerDriver Driver
         {

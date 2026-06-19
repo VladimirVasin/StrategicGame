@@ -91,39 +91,39 @@ namespace ProjectUnknown.Strategy
             return profession switch
             {
                 StrategyProfessionType.Lumberjack => CountReleasableFromSites(
-                    UnityEngine.Object.FindObjectsByType<StrategyLumberjackCamp>(),
+                    cachedLumberjackCamps,
                     camp => camp.WorkerCount,
                     (StrategyLumberjackCamp camp, int index, out StrategyResidentAgent found) => camp.TryGetWorker(index, out found)),
                 StrategyProfessionType.Stonecutter => CountReleasableFromSites(
-                    UnityEngine.Object.FindObjectsByType<StrategyStonecutterCamp>(),
+                    cachedStonecutterCamps,
                     camp => camp.WorkerCount,
                     (StrategyStonecutterCamp camp, int index, out StrategyResidentAgent found) => camp.TryGetWorker(index, out found)),
                 StrategyProfessionType.Miner => CountReleasableFromSites(
-                    UnityEngine.Object.FindObjectsByType<StrategyMine>(),
+                    cachedMines,
                     mine => mine.WorkerCount,
                     (StrategyMine mine, int index, out StrategyResidentAgent found) => mine.TryGetWorker(index, out found)),
                 StrategyProfessionType.CoalMiner => CountReleasableFromSites(
-                    UnityEngine.Object.FindObjectsByType<StrategyCoalPit>(),
+                    cachedCoalPits,
                     pit => pit.WorkerCount,
                     (StrategyCoalPit pit, int index, out StrategyResidentAgent found) => pit.TryGetWorker(index, out found)),
                 StrategyProfessionType.Sawyer => CountReleasableFromSites(
-                    UnityEngine.Object.FindObjectsByType<StrategySawmill>(),
+                    cachedSawmills,
                     sawmill => sawmill.WorkerCount,
                     (StrategySawmill sawmill, int index, out StrategyResidentAgent found) => sawmill.TryGetWorker(index, out found)),
                 StrategyProfessionType.Hunter => CountReleasableFromSites(
-                    UnityEngine.Object.FindObjectsByType<StrategyHunterCamp>(),
+                    cachedHunterCamps,
                     camp => camp.WorkerCount,
                     (StrategyHunterCamp camp, int index, out StrategyResidentAgent found) => camp.TryGetWorker(index, out found)),
                 StrategyProfessionType.Fisher => CountReleasableFromSites(
-                    UnityEngine.Object.FindObjectsByType<StrategyFisherHut>(),
+                    cachedFisherHuts,
                     hut => hut.WorkerCount,
                     (StrategyFisherHut hut, int index, out StrategyResidentAgent found) => hut.TryGetWorker(index, out found)),
                 StrategyProfessionType.StorageWorker => CountReleasableFromSites(
-                    UnityEngine.Object.FindObjectsByType<StrategyStorageYard>(),
+                    cachedStorageYards,
                     yard => yard.WorkerCount,
                     (StrategyStorageYard yard, int index, out StrategyResidentAgent found) => yard.TryGetWorker(index, out found)),
                 StrategyProfessionType.Builder => CountReleasableFromSites(
-                    UnityEngine.Object.FindObjectsByType<StrategyStorageYard>(),
+                    cachedStorageYards,
                     yard => yard.BuilderCount,
                     (StrategyStorageYard yard, int index, out StrategyResidentAgent found) => yard.TryGetBuilder(index, out found)),
                 _ => 0
@@ -139,63 +139,63 @@ namespace ProjectUnknown.Strategy
             return profession switch
             {
                 StrategyProfessionType.Lumberjack => TryReleaseFromSites(
-                    UnityEngine.Object.FindObjectsByType<StrategyLumberjackCamp>(),
+                    cachedLumberjackCamps,
                     camp => camp.WorkerCount,
                     (StrategyLumberjackCamp camp, int index, out StrategyResidentAgent found) => camp.TryGetWorker(index, out found),
                     (camp, index) => camp.UnassignWorkerAt(index),
                     out worker,
                     allowActiveRelease),
                 StrategyProfessionType.Stonecutter => TryReleaseFromSites(
-                    UnityEngine.Object.FindObjectsByType<StrategyStonecutterCamp>(),
+                    cachedStonecutterCamps,
                     camp => camp.WorkerCount,
                     (StrategyStonecutterCamp camp, int index, out StrategyResidentAgent found) => camp.TryGetWorker(index, out found),
                     (camp, index) => camp.UnassignWorkerAt(index),
                     out worker,
                     allowActiveRelease),
                 StrategyProfessionType.Miner => TryReleaseFromSites(
-                    UnityEngine.Object.FindObjectsByType<StrategyMine>(),
+                    cachedMines,
                     mine => mine.WorkerCount,
                     (StrategyMine mine, int index, out StrategyResidentAgent found) => mine.TryGetWorker(index, out found),
                     (mine, index) => mine.UnassignWorkerAt(index),
                     out worker,
                     allowActiveRelease),
                 StrategyProfessionType.CoalMiner => TryReleaseFromSites(
-                    UnityEngine.Object.FindObjectsByType<StrategyCoalPit>(),
+                    cachedCoalPits,
                     pit => pit.WorkerCount,
                     (StrategyCoalPit pit, int index, out StrategyResidentAgent found) => pit.TryGetWorker(index, out found),
                     (pit, index) => pit.UnassignWorkerAt(index),
                     out worker,
                     allowActiveRelease),
                 StrategyProfessionType.Sawyer => TryReleaseFromSites(
-                    UnityEngine.Object.FindObjectsByType<StrategySawmill>(),
+                    cachedSawmills,
                     sawmill => sawmill.WorkerCount,
                     (StrategySawmill sawmill, int index, out StrategyResidentAgent found) => sawmill.TryGetWorker(index, out found),
                     (sawmill, index) => sawmill.UnassignWorkerAt(index),
                     out worker,
                     allowActiveRelease),
                 StrategyProfessionType.Hunter => TryReleaseFromSites(
-                    UnityEngine.Object.FindObjectsByType<StrategyHunterCamp>(),
+                    cachedHunterCamps,
                     camp => camp.WorkerCount,
                     (StrategyHunterCamp camp, int index, out StrategyResidentAgent found) => camp.TryGetWorker(index, out found),
                     (camp, index) => camp.UnassignWorkerAt(index),
                     out worker,
                     allowActiveRelease),
                 StrategyProfessionType.Fisher => TryReleaseFromSites(
-                    UnityEngine.Object.FindObjectsByType<StrategyFisherHut>(),
+                    cachedFisherHuts,
                     hut => hut.WorkerCount,
                     (StrategyFisherHut hut, int index, out StrategyResidentAgent found) => hut.TryGetWorker(index, out found),
                     (hut, index) => hut.UnassignWorkerAt(index),
                     out worker,
                     allowActiveRelease),
                 StrategyProfessionType.StorageWorker => TryReleaseFromSites(
-                    UnityEngine.Object.FindObjectsByType<StrategyStorageYard>(),
+                    cachedStorageYards,
                     yard => yard.WorkerCount,
                     (StrategyStorageYard yard, int index, out StrategyResidentAgent found) => yard.TryGetWorker(index, out found),
                     (yard, index) => yard.UnassignWorkerAt(index),
                     out worker,
                     allowActiveRelease),
                 StrategyProfessionType.Builder => TryReleaseFromSites(
-                    UnityEngine.Object.FindObjectsByType<StrategyStorageYard>(),
+                    cachedStorageYards,
                     yard => yard.BuilderCount,
                     (StrategyStorageYard yard, int index, out StrategyResidentAgent found) => yard.TryGetBuilder(index, out found),
                     (yard, index) => yard.UnassignBuilderAt(index),

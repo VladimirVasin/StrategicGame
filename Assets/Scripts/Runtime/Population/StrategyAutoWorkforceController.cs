@@ -8,6 +8,7 @@ namespace ProjectUnknown.Strategy
     {
         private const float TickInterval = 3f;
         private const float ManualOverrideSeconds = 45f;
+        private const int MaxAssignmentsPerTick = 4;
 
         private readonly StrategyAutoWorkforceSettings settings = new();
         private readonly List<StrategyAutoWorkforceDemand> demands = new();
@@ -15,6 +16,15 @@ namespace ProjectUnknown.Strategy
         private readonly Dictionary<StrategyProfessionType, float> manualLocks = new();
         private readonly Dictionary<StrategyProfessionType, int> desiredProfessionTargets = new();
         private readonly Dictionary<StrategyProfessionType, int> coverageProfessionFloors = new();
+        private StrategyConstructionSite[] cachedConstructionSites = System.Array.Empty<StrategyConstructionSite>();
+        private StrategyStorageYard[] cachedStorageYards = System.Array.Empty<StrategyStorageYard>();
+        private StrategyLumberjackCamp[] cachedLumberjackCamps = System.Array.Empty<StrategyLumberjackCamp>();
+        private StrategyStonecutterCamp[] cachedStonecutterCamps = System.Array.Empty<StrategyStonecutterCamp>();
+        private StrategyMine[] cachedMines = System.Array.Empty<StrategyMine>();
+        private StrategyCoalPit[] cachedCoalPits = System.Array.Empty<StrategyCoalPit>();
+        private StrategySawmill[] cachedSawmills = System.Array.Empty<StrategySawmill>();
+        private StrategyHunterCamp[] cachedHunterCamps = System.Array.Empty<StrategyHunterCamp>();
+        private StrategyFisherHut[] cachedFisherHuts = System.Array.Empty<StrategyFisherHut>();
         private StrategyPopulationController population;
         private float tickTimer;
         private string lastStatus = "Auto workforce ready";
@@ -108,7 +118,9 @@ namespace ProjectUnknown.Strategy
 
         private void RunAssignmentTick()
         {
+            float tickStartedAt = Time.realtimeSinceStartup;
             CleanupManualLocks();
+            RefreshWorksiteCache();
             CollectFreeCandidates();
             CollectDemands();
             int disabledReleased = ReleaseDisabledProfessionWorkers();
@@ -117,9 +129,12 @@ namespace ProjectUnknown.Strategy
             int released = disabledReleased + surplusReleased;
             demands.Sort((left, right) => right.Score.CompareTo(left.Score));
 
-            int assigned = AssignDemandsWithRebalance(ref released, out int demandReleased);
+            int assignmentBudget = MaxAssignmentsPerTick;
+            int assigned = AssignDemandsWithRebalance(ref released, out int demandReleased, ref assignmentBudget);
             bool allowOverTargetFallback = surplusReleased <= 0 && demandReleased <= 0;
-            int fallbackAssigned = AssignIdleAdultsToBestAvailableRoles(allowOverTargetFallback);
+            int fallbackAssigned = assignmentBudget > 0
+                ? AssignIdleAdultsToBestAvailableRoles(allowOverTargetFallback, ref assignmentBudget)
+                : 0;
             assigned += fallbackAssigned;
 
             lastStatus = assigned > 0
@@ -142,6 +157,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("demandReleased", demandReleased),
                 StrategyDebugLogger.F("fallbackAssigned", fallbackAssigned),
                 StrategyDebugLogger.F("assigned", assigned),
+                StrategyDebugLogger.F("durationMs", Mathf.RoundToInt((Time.realtimeSinceStartup - tickStartedAt) * 1000f)),
                 StrategyDebugLogger.F("status", lastStatus));
         }
 
@@ -187,6 +203,70 @@ namespace ProjectUnknown.Strategy
                     candidates.Add(resident);
                 }
             }
+        }
+
+        private void RefreshWorksiteCache()
+        {
+            cachedConstructionSites = UnityEngine.Object.FindObjectsByType<StrategyConstructionSite>();
+            cachedStorageYards = UnityEngine.Object.FindObjectsByType<StrategyStorageYard>();
+            cachedLumberjackCamps = UnityEngine.Object.FindObjectsByType<StrategyLumberjackCamp>();
+            cachedStonecutterCamps = UnityEngine.Object.FindObjectsByType<StrategyStonecutterCamp>();
+            cachedMines = UnityEngine.Object.FindObjectsByType<StrategyMine>();
+            cachedCoalPits = UnityEngine.Object.FindObjectsByType<StrategyCoalPit>();
+            cachedSawmills = UnityEngine.Object.FindObjectsByType<StrategySawmill>();
+            cachedHunterCamps = UnityEngine.Object.FindObjectsByType<StrategyHunterCamp>();
+            cachedFisherHuts = UnityEngine.Object.FindObjectsByType<StrategyFisherHut>();
+        }
+
+        private T[] GetCachedSites<T>()
+            where T : Component
+        {
+            if (typeof(T) == typeof(StrategyConstructionSite))
+            {
+                return (T[])(object)cachedConstructionSites;
+            }
+
+            if (typeof(T) == typeof(StrategyStorageYard))
+            {
+                return (T[])(object)cachedStorageYards;
+            }
+
+            if (typeof(T) == typeof(StrategyLumberjackCamp))
+            {
+                return (T[])(object)cachedLumberjackCamps;
+            }
+
+            if (typeof(T) == typeof(StrategyStonecutterCamp))
+            {
+                return (T[])(object)cachedStonecutterCamps;
+            }
+
+            if (typeof(T) == typeof(StrategyMine))
+            {
+                return (T[])(object)cachedMines;
+            }
+
+            if (typeof(T) == typeof(StrategyCoalPit))
+            {
+                return (T[])(object)cachedCoalPits;
+            }
+
+            if (typeof(T) == typeof(StrategySawmill))
+            {
+                return (T[])(object)cachedSawmills;
+            }
+
+            if (typeof(T) == typeof(StrategyHunterCamp))
+            {
+                return (T[])(object)cachedHunterCamps;
+            }
+
+            if (typeof(T) == typeof(StrategyFisherHut))
+            {
+                return (T[])(object)cachedFisherHuts;
+            }
+
+            return System.Array.Empty<T>();
         }
     }
 }

@@ -77,7 +77,7 @@ namespace ProjectUnknown.Strategy
             HandleManualScroll();
             UpdateAnimation();
 
-            if (isDirty || Time.frameCount % 15 == 0)
+            if (isDirty || (isOpen && Time.frameCount % 15 == 0))
             {
                 RefreshUi();
             }

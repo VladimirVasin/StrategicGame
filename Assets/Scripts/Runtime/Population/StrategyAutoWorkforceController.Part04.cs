@@ -15,11 +15,11 @@ namespace ProjectUnknown.Strategy
         private float nextDonorFailureLogTime;
         private string lastDonorFailureKey = string.Empty;
 
-        private int AssignDemandsWithRebalance(ref int released, out int demandReleased)
+        private int AssignDemandsWithRebalance(ref int released, out int demandReleased, ref int assignmentBudget)
         {
             demandReleased = 0;
-            int assigned = AssignAvailableDemands();
-            for (int i = 0; i < MaxDemandRebalanceReleasesPerTick && HasUnfilledDemand(); i++)
+            int assigned = AssignAvailableDemands(ref assignmentBudget);
+            for (int i = 0; assignmentBudget > 0 && i < MaxDemandRebalanceReleasesPerTick && HasUnfilledDemand(); i++)
             {
                 if (candidates.Count <= 0)
                 {
@@ -43,7 +43,7 @@ namespace ProjectUnknown.Strategy
                         StrategyDebugLogger.F("lockSeconds", DemandRebalanceLockSeconds));
                 }
 
-                int assignedNow = AssignAvailableDemands();
+                int assignedNow = AssignAvailableDemands(ref assignmentBudget);
                 assigned += assignedNow;
                 if (assignedNow <= 0 && candidates.Count <= 0)
                 {
@@ -54,12 +54,12 @@ namespace ProjectUnknown.Strategy
             return assigned;
         }
 
-        private int AssignAvailableDemands()
+        private int AssignAvailableDemands(ref int assignmentBudget)
         {
             int assigned = 0;
-            for (int i = 0; i < demands.Count && candidates.Count > 0; i++)
+            for (int i = 0; assignmentBudget > 0 && i < demands.Count && candidates.Count > 0; i++)
             {
-                assigned += AssignDemand(demands[i]);
+                assigned += AssignDemand(demands[i], ref assignmentBudget);
             }
 
             return assigned;

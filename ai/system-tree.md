@@ -1,6 +1,6 @@
 # System Tree
 
-Last updated: 2026-06-17
+Last updated: 2026-06-19
 
 This is a conceptual map of the current project. Keep concrete file ownership in `ai/systems-map.md`.
 
@@ -48,12 +48,13 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Generates nature props after population startup so the camp clear-radius exclusion is known
     - Creates forage resources after nature generation so forage nodes avoid occupied/non-walkable cells
     - Creates and wires the runtime fog-of-war layer after population and placement controllers exist
-    - Creates the F9 runtime debug panel after fog/weather are ready so testing can bypass player fog and force weather states
+    - Creates the F9 runtime debug panel after fog/weather are ready so testing can bypass player fog, force weather states, and enable instant free construction
     - Places a starter Storage Yard near the campfire with initial Logs and Stone after placement is configured
     - Creates and wires runtime wildlife after starter placement so deer, rabbits, fish, and birds spawn in valid terrain/water/habitat areas
     - Creates runtime time-scale controls for simulation speed hotkeys
     - Creates the refugee-arrival event controller and modal refugee decision HUD
     - Creates the top status HUD with settlement population counts, a compact calendar/time widget, a clickable population roster HUD, family tree scene entry point, and a compact event log for births, deaths, adoptions, dawn, and nightfall
+    - Creates the runtime goals controller and starter goal sequence that gates early Build menu tools
     - Creates the auto workforce controller before the Profession HUD so worker automation and priority controls share one runtime state
   - Strategy debug logging
     - Writes structured session logs to `debug.log`
@@ -424,7 +425,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Residents store a random visual variant chosen at startup
     - Residents perform simple idle movement near their current camp/home using short walkable grid paths
     - Resident pathing can recover a blocked start cell by moving the resident to a nearby walkable cell and logging the recovery
-    - Resident work starts only during morning/day/evening according to the shared day/night phase; nightfall defers new production, construction, logistics, hunting, fishing, foraging, garden, and household-food work while allowing carried resources and deposits/returns to finish
+    - Resident work normally starts only during morning/day/evening according to the shared day/night phase, with Day 1 Dawn also counted as work time so starter construction can begin immediately; nightfall defers new production, construction, logistics, hunting, fishing, foraging, garden, and household-food work while allowing carried resources and deposits/returns to finish
     - During `Night`, housed idle residents path to their home, hide inside the house, and wake at the home exit after night ends
     - Householders periodically work at their house's default Garden Beds or fetch food from Granaries from `TendingHousehold` home duty
     - Non-householder residents without external work forage Berries, Roots, and Mushrooms for their own house; children younger than 7 do not forage
@@ -442,7 +443,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Residents assigned as Haulers also deliver Storage Yard Logs into Sawmills, path to Sawmill stock, carry Planks to storage, and deposit them
     - Residents assigned as Haulers also haul `Game`/`Fish` from production food stock or loose food piles into the nearest Granary
     - Residents hired as Storage Yard builders fetch reserved Logs/Stone/Planks, deliver them to construction sites, then build with hammer animations
-    - Auto workforce assignment scans eligible free adults every few seconds, treats nonzero player values as desired profession targets plus a one-worker coverage floor, releases surplus workers from overstaffed auto-managed professions, can pull limited donors from roles above their floor for higher-scored shortages, uses `0` as the explicit opt-out that permits a role/category to have no workers, and assigns remaining free adults through existing worksite APIs while shortages/backlog/readiness affect scoring
+    - Auto workforce assignment scans eligible free adults every few seconds, uses one per-tick worksite snapshot for demand/rebalance/fallback calculations, treats nonzero player values as desired profession targets plus a one-worker coverage floor, releases surplus workers from overstaffed auto-managed professions, can pull limited donors from roles above their floor for higher-scored shortages, uses `0` as the explicit opt-out that permits a role/category to have no workers, caps successful assignments per tick to avoid frame spikes, and assigns remaining free adults through existing worksite APIs across later ticks while shortages/backlog/readiness affect scoring
     - Residents removed from a role while carrying Logs, Stone, Iron, Coal, Planks, `Game`, or `Fish` first return the carried resource to the appropriate Storage Yard or Granary; hard interruption fallbacks preserve materials instead of deleting carried stock
     - Resident death drops all carried resources: construction Logs/Stone/Planks as loose construction piles, and generic Iron, Coal, Planks, `Game`, `Fish`, Berries, Roots, and Mushrooms as loose carried-resource piles
     - Completed houses first try to pull a homeless adult male/female pair, including residents who already have workplaces or construction assignments, then fall back to adult-child migration and partner lookup
@@ -489,12 +490,14 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - UI foundation
   - Unity UI package installed
   - UI Toolkit module available through Unity modules
-  - Custom runtime F9 debug panel with a player fog-of-war checkbox and forced weather-state buttons
+  - Custom runtime F9 debug panel with player fog-of-war, instant construction, and forced weather-state controls
   - Custom runtime Build menu HUD
+    - Early starter goals can lock Build menu categories/items to Houses first, then Lumberjack/Stonecutter camps, before unlocking the full catalog
   - Custom runtime top status HUD showing total population, adults, children, day number, 24-hour time, time-of-day phase, and day progress; clicking the population panel opens a larger residents roster HUD
   - Custom runtime residents roster HUD showing settlement stats plus filterable resident rows for name, age, home state, role, current status, and food status
 - Custom fullscreen Family Trees HUD opened from the residents roster; it pauses simulation, provides permanent horizontal/vertical scrollbars, lays connected same-surname family cards out as affinity-ordered left-to-right columns, and shows compact generation rows connected by local parent-pair branches plus cross-family relationship lines, deceased markers, gender symbols, and hover relationship labels
   - Custom compact runtime event log showing births, deaths, adoptions, dawn, and nightfall
+  - Custom runtime goals HUD showing the active starter build checklist on the left side
   - Custom runtime world inspect microHUD for clicked graves, resources, nature props, and wildlife; residents, buildings, and construction sites use the right-side selection HUD only
     - MicroHUD supports typed chip/row dashboards for wildlife, deposits, trees, forage, and loose resource piles, with old body text kept as fallback
   - Custom runtime Profession HUD
@@ -541,7 +544,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Loose construction resource piles bridge construction cancellation, build affordability, storage logistics, and builder pickup.
 - Loose carried-resource piles bridge resident death cleanup, Granary food logistics, and household foraging recovery.
 - Granary food logistics depends on hunter camp stock, fisher hut stock, Storage Yard Haulers, resident work states, placed-building records, map walkability, and the world-selection HUD.
-- Construction depends on Storage Yard resource reservations, loose construction pile reservations, hired Storage Yard builder assignments, construction-site blockers, placed-building finalization, and the world-selection HUD.
+- Construction depends on Storage Yard resource reservations, loose construction pile reservations, hired Storage Yard builder assignments, construction-site blockers, placed-building finalization, F9 instant-construction debug options, and the world-selection HUD.
 - Population uses placed-building records, construction sites, the generated map walkability/trail layers, and workplace assignments; home/family assignment is independent from work/construction assignment.
 - Resident footsteps depend on population agents and the non-generated grass footstep clip set.
 - Resident movement records activity-weighted footfall into the trail layer and reads formed trails for 8-direction A* path-cost preference plus a 15% movement-speed bonus.
