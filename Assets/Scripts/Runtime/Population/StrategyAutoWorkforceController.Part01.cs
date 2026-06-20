@@ -162,6 +162,8 @@ namespace ProjectUnknown.Strategy
             AddPlankDemands();
             AddIronDemands();
             AddCoalDemands();
+            AddClayDemands();
+            AddPotteryDemands();
         }
 
         private void AddLumberDemands()
@@ -282,6 +284,50 @@ namespace ProjectUnknown.Strategy
                 pit => pit.HasStorageSpace,
                 pit => pit.FootprintBounds.center,
                 GetResourceShortageUrgency(shortage, totalCoal));
+        }
+
+        private void AddClayDemands()
+        {
+            int priority = settings.GetPriority(StrategyAutoWorkforceCategory.Clay);
+            if (priority <= 0 || IsProfessionManualLocked(StrategyProfessionType.ClayDigger))
+            {
+                return;
+            }
+
+            int totalClay = CountTotalClay();
+            int shortage = Mathf.Max(0, priority * 2 - totalClay);
+            AddCappedCampDemands<StrategyClayPit>(
+                StrategyProfessionType.ClayDigger,
+                StrategyAutoWorkforceCategory.Clay,
+                priority,
+                "clay_low_stock",
+                pit => pit.WorkerCount,
+                pit => StrategyClayPit.MaxWorkers,
+                pit => pit.HasStorageSpace,
+                pit => pit.FootprintBounds.center,
+                GetResourceShortageUrgency(shortage, totalClay));
+        }
+
+        private void AddPotteryDemands()
+        {
+            int priority = settings.GetPriority(StrategyAutoWorkforceCategory.Pottery);
+            if (priority <= 0 || IsProfessionManualLocked(StrategyProfessionType.Potter))
+            {
+                return;
+            }
+
+            int totalPottery = CountTotalPottery();
+            int shortage = Mathf.Max(0, priority * 2 - totalPottery);
+            AddCappedCampDemands<StrategyKiln>(
+                StrategyProfessionType.Potter,
+                StrategyAutoWorkforceCategory.Pottery,
+                priority,
+                "pottery_low_stock",
+                kiln => kiln.WorkerCount,
+                kiln => StrategyKiln.MaxWorkers,
+                kiln => kiln.CanStartWorkCycle() || kiln.CanAcceptInputClay(1) || kiln.CanAcceptInputCoal(1),
+                kiln => kiln.FootprintBounds.center,
+                GetResourceShortageUrgency(shortage, totalPottery));
         }
 
         private static float GetResourceShortageUrgency(int shortage, int totalStock)

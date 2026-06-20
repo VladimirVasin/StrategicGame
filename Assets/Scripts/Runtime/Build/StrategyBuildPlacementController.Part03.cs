@@ -63,6 +63,14 @@ namespace ProjectUnknown.Strategy
             {
                 blockFootprint = new Vector2Int(footprint.x, footprint.y + 1);
             }
+            else if (tool == StrategyBuildTool.ClayPit)
+            {
+                blockFootprint = new Vector2Int(footprint.x, footprint.y + 1);
+            }
+            else if (tool == StrategyBuildTool.Kiln)
+            {
+                blockFootprint = new Vector2Int(footprint.x, footprint.y + 1);
+            }
             else if (tool == StrategyBuildTool.HunterCamp)
             {
                 blockFootprint = new Vector2Int(footprint.x, footprint.y + 1);
@@ -292,6 +300,8 @@ namespace ProjectUnknown.Strategy
                 StrategyBuildTool.Sawmill => "SW",
                 StrategyBuildTool.Mine => "MN",
                 StrategyBuildTool.CoalPit => "CP",
+                StrategyBuildTool.ClayPit => "CL",
+                StrategyBuildTool.Kiln => "KI",
                 StrategyBuildTool.HunterCamp => "HC",
                 StrategyBuildTool.FisherHut => "FH",
                 StrategyBuildTool.StorageYard => "ST",
@@ -398,6 +408,12 @@ namespace ProjectUnknown.Strategy
             return coal != null && coal.CountAvailableDepositsInFootprint(origin, footprint) > 0;
         }
 
+        private static bool HasClayPitClayAccess(Vector2Int origin, Vector2Int footprint)
+        {
+            StrategyClayResourceController clay = StrategyClayResourceController.Active;
+            return clay != null && clay.CountAvailableDepositsInFootprint(origin, footprint) > 0;
+        }
+
         private static bool HasRequiredDepositAccess(
             StrategyBuildTool tool,
             Vector2Int origin,
@@ -417,6 +433,12 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
+            if (tool == StrategyBuildTool.ClayPit && !HasClayPitClayAccess(origin, footprint))
+            {
+                reason = "no_clay_deposit_under_pit";
+                return false;
+            }
+
             return true;
         }
 
@@ -432,6 +454,12 @@ namespace ProjectUnknown.Strategy
             {
                 StrategyCoalResourceController coal = StrategyCoalResourceController.Active;
                 return coal != null && coal.HasAvailableDepositAtCell(cell);
+            }
+
+            if (tool == StrategyBuildTool.ClayPit)
+            {
+                StrategyClayResourceController clay = StrategyClayResourceController.Active;
+                return clay != null && clay.HasAvailableDepositAtCell(cell);
             }
 
             return false;

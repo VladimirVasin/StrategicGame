@@ -14,7 +14,9 @@ namespace ProjectUnknown.Strategy
             StrategyAutoWorkforceCategory.Stone,
             StrategyAutoWorkforceCategory.Planks,
             StrategyAutoWorkforceCategory.Iron,
-            StrategyAutoWorkforceCategory.Coal
+            StrategyAutoWorkforceCategory.Coal,
+            StrategyAutoWorkforceCategory.Clay,
+            StrategyAutoWorkforceCategory.Pottery
         };
 
         private readonly AutoPriorityRow[] autoPriorityRows = new AutoPriorityRow[AutoPriorityOrder.Length];
@@ -33,7 +35,7 @@ namespace ProjectUnknown.Strategy
         private void CreateAutoControls(Transform parent)
         {
             RectTransform root = CreateUiObject("AutoWorkforce", parent).GetComponent<RectTransform>();
-            SetTopStretch(root, 24f, 96f, 24f, 82f);
+            SetTopStretch(root, 24f, 96f, 24f, 102f);
             Image background = root.gameObject.AddComponent<Image>();
             background.color = new Color(0.09f, 0.13f, 0.13f, 0.95f);
 

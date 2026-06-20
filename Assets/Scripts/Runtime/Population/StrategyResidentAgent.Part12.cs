@@ -22,6 +22,8 @@ namespace ProjectUnknown.Strategy
             activeStoneSource = null;
             activeIronSource = null;
             activePlanksSource = null;
+            activePotterySource = null;
+            activeClaySource = null;
             ClearProductionInputDelivery();
             transform.localRotation = Quaternion.identity;
             transform.localScale = Vector3.one;
@@ -85,7 +87,9 @@ namespace ProjectUnknown.Strategy
                 || carriedStoneAmount > 0
                 || carriedIronAmount > 0
                 || carriedCoalAmount > 0
+                || carriedClayAmount > 0
                 || carriedPlanksAmount > 0
+                || carriedPotteryAmount > 0
                 || carriedGameAmount > 0
                 || carriedFishAmount > 0
                 || carriedForageAmount > 0
@@ -195,7 +199,9 @@ namespace ProjectUnknown.Strategy
             ClearCarriedConstructionReturnReservation();
             if (IsReturningCarriedResourceActivity(activity)
                 || activity == ResidentActivity.ReturningCoalToStorage
-                || activity == ResidentActivity.ReturningPlanksToStorage)
+                || activity == ResidentActivity.ReturningClayToStorage
+                || activity == ResidentActivity.ReturningPlanksToStorage
+                || activity == ResidentActivity.ReturningPotteryToStorage)
             {
                 activity = GetRestingActivity();
             }
@@ -269,6 +275,16 @@ namespace ProjectUnknown.Strategy
             if (carriedCoalAmount > 0)
             {
                 return TryStartCoalReturn(reason);
+            }
+
+            if (carriedClayAmount > 0)
+            {
+                return TryStartClayReturn(reason);
+            }
+
+            if (carriedPotteryAmount > 0)
+            {
+                return TryStartPotteryReturn(reason);
             }
 
             if (carriedGameAmount > 0)

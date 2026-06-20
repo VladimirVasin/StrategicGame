@@ -3,6 +3,7 @@ namespace ProjectUnknown.Strategy
     public enum StrategyResourceType
     {
         None,
+        Dish,
         Eggs,
         Turnip,
         Cabbage,
@@ -17,6 +18,8 @@ namespace ProjectUnknown.Strategy
         Stone,
         Iron,
         Coal,
+        Clay,
+        Pottery,
         Planks,
         Logs
     }
@@ -28,10 +31,21 @@ namespace ProjectUnknown.Strategy
             return GetRationValue(type) > 0f;
         }
 
+        public static bool IsPreparedFood(StrategyResourceType type)
+        {
+            return type == StrategyResourceType.Dish;
+        }
+
+        public static bool IsIngredientFood(StrategyResourceType type)
+        {
+            return IsFood(type) && !IsPreparedFood(type);
+        }
+
         public static float GetRationValue(StrategyResourceType type)
         {
             return type switch
             {
+                StrategyResourceType.Dish => 1.00f,
                 StrategyResourceType.Onion => 0.15f,
                 StrategyResourceType.Berries => 0.25f,
                 StrategyResourceType.Cabbage => 0.35f,

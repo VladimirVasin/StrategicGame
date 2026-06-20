@@ -56,6 +56,10 @@ namespace ProjectUnknown.Strategy
             {
                 StartMiningCoalInPit();
             }
+            else if (activity == ResidentActivity.MovingToClayPit)
+            {
+                StartDiggingClayInPit();
+            }
             else if (activity == ResidentActivity.MovingToProductionInputPickup)
             {
                 StartPickingUpProductionInput();
@@ -67,6 +71,10 @@ namespace ProjectUnknown.Strategy
             else if (activity == ResidentActivity.MovingToSawmill)
             {
                 StartSawingLogs();
+            }
+            else if (activity == ResidentActivity.MovingToKiln)
+            {
+                StartFiringPottery();
             }
             else if (activity == ResidentActivity.MovingToStoragePickup)
             {
@@ -100,6 +108,14 @@ namespace ProjectUnknown.Strategy
             {
                 StartDepositingStorageCoal();
             }
+            else if (activity == ResidentActivity.MovingToStorageClayPickup)
+            {
+                StartPickingUpStorageClay();
+            }
+            else if (activity == ResidentActivity.CarryingClayToStorage)
+            {
+                StartDepositingStorageClay();
+            }
             else if (activity == ResidentActivity.MovingToStoragePlanksPickup)
             {
                 StartPickingUpStoragePlanks();
@@ -107,6 +123,14 @@ namespace ProjectUnknown.Strategy
             else if (activity == ResidentActivity.CarryingPlanksToStorage)
             {
                 StartDepositingStoragePlanks();
+            }
+            else if (activity == ResidentActivity.MovingToStoragePotteryPickup)
+            {
+                StartPickingUpStoragePottery();
+            }
+            else if (activity == ResidentActivity.CarryingPotteryToStorage)
+            {
+                StartDepositingStoragePottery();
             }
             else if (activity == ResidentActivity.MovingToConstructionStorage)
             {
@@ -166,6 +190,10 @@ namespace ProjectUnknown.Strategy
             {
                 StartDepositingHouseholdFood();
             }
+            else if (activity == ResidentActivity.MovingToHouseCooking)
+            {
+                StartHouseholdCooking();
+            }
             else if (IsReturningCarriedResourceActivity(activity))
             {
                 CompleteCarriedResourceReturn();
@@ -177,6 +205,10 @@ namespace ProjectUnknown.Strategy
             else if (activity == ResidentActivity.ReturningPlanksToStorage)
             {
                 CompletePlanksResourceReturn();
+            }
+            else if (activity == ResidentActivity.ReturningPotteryToStorage)
+            {
+                CompletePotteryResourceReturn();
             }
             else if (activity == ResidentActivity.MovingToPlantTree)
             {

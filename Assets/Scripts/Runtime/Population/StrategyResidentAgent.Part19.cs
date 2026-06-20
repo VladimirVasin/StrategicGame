@@ -15,6 +15,10 @@ namespace ProjectUnknown.Strategy
                 || stoneWorkplace != null
                 || hunterWorkplace != null
                 || fisherWorkplace != null
+                || coalPitWorkplace != null
+                || clayPitWorkplace != null
+                || sawmillWorkplace != null
+                || kilnWorkplace != null
                 || storageWorkplace != null
                 || builderWorkplace != null
                 || granaryWorkplace != null
@@ -28,6 +32,10 @@ namespace ProjectUnknown.Strategy
             CancelStoneWork();
             CancelHunterWork(true);
             CancelFisherWork(true);
+            CancelCoalPitWork();
+            CancelClayPitWork();
+            CancelSawmillWork(true);
+            CancelKilnWork(true);
             CancelStorageWork(true);
             CancelGranaryWork(true);
             mineWorkplace = mine;
@@ -69,6 +77,10 @@ namespace ProjectUnknown.Strategy
                 || stoneWorkplace != null
                 || hunterWorkplace != null
                 || fisherWorkplace != null
+                || coalPitWorkplace != null
+                || clayPitWorkplace != null
+                || sawmillWorkplace != null
+                || kilnWorkplace != null
                 || storageWorkplace != null
                 || builderWorkplace != null
                 || granaryWorkplace != null

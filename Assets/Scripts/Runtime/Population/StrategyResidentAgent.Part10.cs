@@ -283,7 +283,8 @@ namespace ProjectUnknown.Strategy
                     StrategyDebugLogger.F("amount", amount),
                     StrategyDebugLogger.F("rationValue", amount * StrategyFoodNutrition.GetRationValue(resource)),
                     StrategyDebugLogger.F("homeOrigin", home.Origin),
-                    StrategyDebugLogger.F("homeRations", home.Resources.GetTotalRationValue()));
+                    StrategyDebugLogger.F("preparedRations", home.Resources.GetPreparedDishRations()),
+                    StrategyDebugLogger.F("ingredientRations", home.Resources.GetTotalIngredientRationValue()));
             }
 
             ClearCarriedHouseholdFood();

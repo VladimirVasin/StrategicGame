@@ -14,8 +14,13 @@ namespace ProjectUnknown.Strategy
 
         private int GetWorldSortingOffset()
         {
-            return activity == ResidentActivity.MiningCoalInPit && activeCoalPit != null
-                ? activeCoalPit.GetInteriorWorkerSortingOffset(this)
+            if (activity == ResidentActivity.MiningCoalInPit && activeCoalPit != null)
+            {
+                return activeCoalPit.GetInteriorWorkerSortingOffset(this);
+            }
+
+            return activity == ResidentActivity.DiggingClayInPit && activeClayPit != null
+                ? activeClayPit.GetInteriorWorkerSortingOffset(this)
                 : 0;
         }
 

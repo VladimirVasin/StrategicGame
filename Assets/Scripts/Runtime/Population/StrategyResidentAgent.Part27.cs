@@ -68,6 +68,13 @@ namespace ProjectUnknown.Strategy
                     return;
                 }
             }
+            else if (completedActivity == ResidentActivity.ReturningClayToStorage)
+            {
+                if (!CompleteClayResourceReturn(out amount, out resource, out storageOrigin))
+                {
+                    return;
+                }
+            }
             else if (completedActivity == ResidentActivity.ReturningGameToGranary)
             {
                 amount = carriedGameAmount;

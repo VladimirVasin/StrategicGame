@@ -196,6 +196,7 @@ namespace ProjectUnknown.Strategy
                 StrategyResourceType.Stone => StrategyWorldEffectKind.StoneChips,
                 StrategyResourceType.Iron => StrategyWorldEffectKind.IronSparks,
                 StrategyResourceType.Coal => StrategyWorldEffectKind.CoalChips,
+                StrategyResourceType.Pottery => StrategyWorldEffectKind.Dust,
                 StrategyResourceType.Fish => StrategyWorldEffectKind.WaterSplash,
                 _ => StrategyWorldEffectKind.Dust
             };
@@ -233,6 +234,8 @@ namespace ProjectUnknown.Strategy
                 StrategyResourceType.Stone => StrategyNatureSpriteFactory.GetCarriedStoneSprite(),
                 StrategyResourceType.Iron => StrategyNatureSpriteFactory.GetCarriedIronSprite(),
                 StrategyResourceType.Coal => StrategyNatureSpriteFactory.GetCarriedCoalSprite(),
+                StrategyResourceType.Clay => StrategyNatureSpriteFactory.GetCarriedClaySprite(),
+                StrategyResourceType.Pottery => StrategyResourceIconFactory.GetSprite(StrategyResourceType.Pottery),
                 StrategyResourceType.Planks => StrategyNatureSpriteFactory.GetCarriedPlanksSprite(),
                 StrategyResourceType.Game => StrategyNatureSpriteFactory.GetCarriedGameSprite(),
                 StrategyResourceType.Fish => StrategyNatureSpriteFactory.GetCarriedFishSprite(),

@@ -52,6 +52,8 @@ namespace ProjectUnknown.Strategy
             Color32 water = new Color32(72, 142, 171, 255);
             Color32 amber = new Color32(222, 173, 74, 255);
             Color32 rust = new Color32(177, 82, 39, 255);
+            Color32 clay = new Color32(178, 101, 66, 255);
+            Color32 wetClay = new Color32(111, 76, 62, 255);
 
             switch (type)
             {
@@ -83,12 +85,28 @@ namespace ProjectUnknown.Strategy
                     FillRect(texture, 18, 18, 9, 6, new Color32(28, 32, 35, 255));
                     FillRect(texture, 22, 17, 3, 2, new Color32(104, 118, 124, 255));
                     break;
+                case StrategyProfessionType.ClayDigger:
+                    DrawLine(texture, 10, 24, 21, 10, shadow, 3);
+                    DrawLine(texture, 10, 24, 21, 10, wood, 2);
+                    FillRect(texture, 19, 8, 7, 5, metal);
+                    FillRect(texture, 17, 19, 10, 6, wetClay);
+                    FillRect(texture, 16, 18, 8, 4, clay);
+                    FillRect(texture, 23, 20, 3, 2, amber);
+                    break;
                 case StrategyProfessionType.Sawyer:
                     FillRect(texture, 7, 19, 18, 4, wood);
                     FillRect(texture, 8, 20, 16, 1, brightWood);
                     DrawLine(texture, 8, 26, 25, 9, shadow, 3);
                     DrawLine(texture, 8, 26, 25, 9, metal, 2);
                     DrawLine(texture, 13, 16, 26, 25, darkMetal, 1);
+                    break;
+                case StrategyProfessionType.Potter:
+                    FillRect(texture, 8, 18, 16, 8, wetClay);
+                    FillRect(texture, 10, 15, 12, 5, clay);
+                    FillRect(texture, 12, 12, 8, 4, new Color32(205, 132, 75, 255));
+                    FillRect(texture, 14, 8, 4, 5, new Color32(88, 46, 35, 255));
+                    FillRect(texture, 11, 24, 10, 2, amber);
+                    DrawLine(texture, 7, 27, 25, 27, shadow, 2);
                     break;
                 case StrategyProfessionType.Hunter:
                     DrawArc(texture, 10, 16, 9, new Color32(126, 82, 43, 255));

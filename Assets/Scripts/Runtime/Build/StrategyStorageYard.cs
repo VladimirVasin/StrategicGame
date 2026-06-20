@@ -15,6 +15,8 @@ namespace ProjectUnknown.Strategy
         private SpriteRenderer stoneStockRenderer;
         private SpriteRenderer ironStockRenderer;
         private SpriteRenderer coalStockRenderer;
+        private SpriteRenderer clayStockRenderer;
+        private SpriteRenderer potteryStockRenderer;
         private SpriteRenderer planksStockRenderer;
         private readonly Dictionary<object, int> constructionLogReservations = new();
         private readonly Dictionary<object, int> constructionStoneReservations = new();
@@ -27,6 +29,8 @@ namespace ProjectUnknown.Strategy
         private int stoneStored;
         private int ironStored;
         private int coalStored;
+        private int clayStored;
+        private int potteryStored;
         private int planksStored;
 
         public IReadOnlyList<StrategyResidentAgent> Workers => workers;
@@ -37,6 +41,8 @@ namespace ProjectUnknown.Strategy
         public int StoneStored => stoneStored;
         public int IronStored => ironStored;
         public int CoalStored => coalStored;
+        public int ClayStored => clayStored;
+        public int PotteryStored => potteryStored;
         public int PlanksStored => planksStored;
         public int AvailableConstructionLogs => Mathf.Max(0, logsStored - CountReservations(constructionLogReservations) - reservedLogisticsLogs - CountProductionInputReservations(StrategyResourceType.Logs));
         public int AvailableLogisticsLogs => Mathf.Max(0, logsStored - CountReservations(constructionLogReservations) - reservedLogisticsLogs - CountProductionInputReservations(StrategyResourceType.Logs));

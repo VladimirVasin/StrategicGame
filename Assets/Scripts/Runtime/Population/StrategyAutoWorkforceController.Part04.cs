@@ -383,6 +383,8 @@ namespace ProjectUnknown.Strategy
                 StrategyProfessionType.Sawyer => StrategyAutoWorkforceCategory.Planks,
                 StrategyProfessionType.Miner => StrategyAutoWorkforceCategory.Iron,
                 StrategyProfessionType.CoalMiner => StrategyAutoWorkforceCategory.Coal,
+                StrategyProfessionType.ClayDigger => StrategyAutoWorkforceCategory.Clay,
+                StrategyProfessionType.Potter => StrategyAutoWorkforceCategory.Pottery,
                 _ => StrategyAutoWorkforceCategory.Construction
             };
         }

@@ -49,11 +49,22 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyFishAgent.Part02.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingSpriteFactory.Part09.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyKiln.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyKiln.Part01.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyKiln.Part02.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyStorageYard.Part09.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part46.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part47.cs" />
     <Compile Include="Assets\Scripts\Runtime\Selection\StrategyWorldSelectionController.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyConstructionSite.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyNaturePropController.Part03.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Map\StrategyNaturePropController.Part04.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part32.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part09.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part43.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part44.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part45.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyBuildMenuController.Driver.Part03.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyProductionStorage.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyShadowSpriteFactory.cs" />
@@ -94,6 +105,7 @@
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingSpriteFactory.Part04.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentSpriteFactory.Part03.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyCoalResourceController.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Map\StrategyClayResourceController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWildlifeController.Part11.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyAutoWorkforceController.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part27.cs" />
@@ -130,6 +142,8 @@
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyIronDeposit.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyTimeScaleController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyCoalPit.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyClayPit.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyClayPit.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyHouseAmbientSpriteFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyRabbitSpriteFactory.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyPostProcessController.cs" />
@@ -208,9 +222,11 @@
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyWorldSorting.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategySawmill.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingSpriteFactory.Part07.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingSpriteFactory.Part08.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part33.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyNaturePropController.Part02.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWildlifeRiverCrossing.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Economy\StrategyResourceIconFactory.Part02.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part15.cs" />
     <Compile Include="Assets\Scripts\Runtime\Selection\StrategyStaticWorldInspectable.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyTrailSpriteFactory.cs" />
@@ -287,6 +303,7 @@
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyFisherHut.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentSpriteFactory.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyCoalDeposit.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Map\StrategyClayDeposit.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyStorageYard.Part07.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyPopulationController.cs" />
@@ -304,6 +321,7 @@
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWildlifeController.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyFamilyTreeHudController.Part04.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyProfessionHudController.Part01.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyProfessionHudController.Part06.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyConstructionSite.Part03.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyAutoWorkforceController.Part04.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildPlacementController.Part03.cs" />
@@ -346,6 +364,7 @@
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyRefugeeDialogController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part24.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyNatureSpriteFactory.Part03.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Map\StrategyNatureSpriteFactory.Part04.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyHuntingArrowProjectile.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyFuneralSpriteFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyAutoWorkforceController.Part06.cs" />

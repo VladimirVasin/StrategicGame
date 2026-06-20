@@ -11,7 +11,9 @@ namespace ProjectUnknown.Strategy
         Stone,
         Planks,
         Iron,
-        Coal
+        Coal,
+        Clay,
+        Pottery
     }
 
     public sealed class StrategyAutoWorkforceSettings
@@ -27,6 +29,8 @@ namespace ProjectUnknown.Strategy
             3,
             3,
             2,
+            1,
+            1,
             1,
             1
         };
@@ -73,6 +77,8 @@ namespace ProjectUnknown.Strategy
                 StrategyAutoWorkforceCategory.Planks => "Planks",
                 StrategyAutoWorkforceCategory.Iron => "Iron",
                 StrategyAutoWorkforceCategory.Coal => "Coal",
+                StrategyAutoWorkforceCategory.Clay => "Clay",
+                StrategyAutoWorkforceCategory.Pottery => "Pottery",
                 _ => "Priority"
             };
         }

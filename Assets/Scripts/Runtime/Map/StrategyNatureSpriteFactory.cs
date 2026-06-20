@@ -15,7 +15,9 @@ namespace ProjectUnknown.Strategy
         IronStainedGround,
         IronVein,
         CoalDustGround,
-        CoalSeam
+        CoalSeam,
+        ClayPatch,
+        ClayBank
     }
 
     internal static partial class StrategyNatureSpriteFactory
@@ -41,6 +43,8 @@ namespace ProjectUnknown.Strategy
                 StrategyNaturePropKind.IronVein => 4,
                 StrategyNaturePropKind.CoalDustGround => 4,
                 StrategyNaturePropKind.CoalSeam => 4,
+                StrategyNaturePropKind.ClayPatch => 4,
+                StrategyNaturePropKind.ClayBank => 4,
                 _ => 1
             };
         }
@@ -170,6 +174,8 @@ namespace ProjectUnknown.Strategy
                 StrategyNaturePropKind.IronVein => CreateIronVeinSprite(variant),
                 StrategyNaturePropKind.CoalDustGround => CreateCoalDustGroundSprite(variant),
                 StrategyNaturePropKind.CoalSeam => CreateCoalSeamSprite(variant),
+                StrategyNaturePropKind.ClayPatch => CreateClayPatchSprite(variant),
+                StrategyNaturePropKind.ClayBank => CreateClayBankSprite(variant),
                 _ => CreateLargeTreeSprite(variant)
             };
         }

@@ -14,6 +14,7 @@ namespace ProjectUnknown.Strategy
             StrategyHouseholdFoodState food = building != null
                 ? building.GetComponent<StrategyHouseholdFoodState>()
                 : null;
+            StrategyHouseResourceStore store = building != null ? building.Resources : null;
             int granaryFood = StrategyGranary.GetTotalSettlementFood();
             float granaryFoodRations = StrategyGranary.GetTotalSettlementFoodRations();
             if (food == null)
@@ -22,7 +23,7 @@ namespace ProjectUnknown.Strategy
                     "Food status",
                     "No household data",
                     "Pending",
-                    FormatFoodStockLine(granaryFood, granaryFoodRations),
+                    FormatFoodStockLine(store, granaryFood, granaryFoodRations),
                     0f,
                     new Color(0.30f, 0.34f, 0.34f, 0.94f),
                     new Color(0.52f, 0.58f, 0.56f, 0.95f));
@@ -86,17 +87,25 @@ namespace ProjectUnknown.Strategy
                 statusText,
                 detailText,
                 rationText,
-                FormatFoodStockLine(granaryFood, granaryFoodRations),
+                FormatFoodStockLine(store, granaryFood, granaryFoodRations),
                 rationFill,
                 rowColor,
                 fillColor);
         }
 
         private static string FormatFoodStockLine(
+            StrategyHouseResourceStore store,
             int granaryFood,
             float granaryFoodRations)
         {
-            return "Granary reserve: " + FormatFoodAmount(granaryFood, granaryFoodRations);
+            int dishes = store != null ? store.GetPreparedDishAmount() : 0;
+            float ingredientRations = store != null ? store.GetTotalIngredientRationValue() : 0f;
+            return "Dishes "
+                + dishes
+                + " | Ingredients "
+                + FormatRations(ingredientRations)
+                + "r | Granary "
+                + FormatFoodAmount(granaryFood, granaryFoodRations);
         }
 
         private static string FormatFoodAmount(int food, float rations)

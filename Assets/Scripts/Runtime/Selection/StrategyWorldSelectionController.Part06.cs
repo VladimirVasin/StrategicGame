@@ -75,6 +75,7 @@ namespace ProjectUnknown.Strategy
         {
             return type switch
             {
+                StrategyResourceType.Dish => "Dish",
                 StrategyResourceType.Eggs => "Eggs",
                 StrategyResourceType.Turnip => "Turnip",
                 StrategyResourceType.Cabbage => "Cabbage",
@@ -90,6 +91,8 @@ namespace ProjectUnknown.Strategy
                 StrategyResourceType.Stone => "Stone",
                 StrategyResourceType.Iron => "Iron",
                 StrategyResourceType.Coal => "Coal",
+                StrategyResourceType.Clay => "Clay",
+                StrategyResourceType.Pottery => "Pottery",
                 StrategyResourceType.Planks => "Planks",
                 _ => "none"
             };

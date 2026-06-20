@@ -39,6 +39,8 @@ namespace ProjectUnknown.Strategy
                         new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.Sawmill, "SW", "Sawmill", Cost(8, 4), HtmlColor("#9A6B3A")),
                         new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.Mine, "MN", "Mine", Cost(5, 5, 3), HtmlColor("#765F4C")),
                         new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.CoalPit, "CP", "Coal Pit", Cost(4, 4, 2), HtmlColor("#464B4D")),
+                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.ClayPit, "CL", "Clay Pit", Cost(3, 3, 1), HtmlColor("#A96945")),
+                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.Kiln, "KI", "Kiln", Cost(5, 5, 2), HtmlColor("#B46A3F")),
                         new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.HunterCamp, "HC", "Hunter Camp", Cost(4, 2), HtmlColor("#7B6A45")),
                         new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.FisherHut, "FH", "Fisher Hut", Cost(4, 2), HtmlColor("#4F7E8A"))
                     }),

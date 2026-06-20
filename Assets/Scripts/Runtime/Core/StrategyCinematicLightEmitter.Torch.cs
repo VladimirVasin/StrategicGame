@@ -140,6 +140,7 @@ namespace ProjectUnknown.Strategy
             {
                 StrategyCinematicLightKind.Mine => StrategyBuildingLightSpriteKind.Lantern,
                 StrategyCinematicLightKind.CoalPit => StrategyBuildingLightSpriteKind.Brazier,
+                StrategyCinematicLightKind.Kiln => StrategyBuildingLightSpriteKind.Brazier,
                 StrategyCinematicLightKind.Storage => StrategyBuildingLightSpriteKind.Lantern,
                 StrategyCinematicLightKind.Granary => StrategyBuildingLightSpriteKind.Lantern,
                 StrategyCinematicLightKind.Bridge => StrategyBuildingLightSpriteKind.BridgeLamp,
@@ -168,6 +169,8 @@ namespace ProjectUnknown.Strategy
                 StrategyBuildTool.Sawmill => LerpBounds(bounds, -0.16f, 0.34f),
                 StrategyBuildTool.Mine => LerpBounds(bounds, -0.14f, 0.30f),
                 StrategyBuildTool.CoalPit => LerpBounds(bounds, 1.14f, 0.32f),
+                StrategyBuildTool.ClayPit => LerpBounds(bounds, -0.15f, 0.31f),
+                StrategyBuildTool.Kiln => LerpBounds(bounds, 1.14f, 0.31f),
                 StrategyBuildTool.HunterCamp => LerpBounds(bounds, -0.16f, 0.31f),
                 StrategyBuildTool.FisherHut => LerpBounds(bounds, 1.15f, 0.30f),
                 StrategyBuildTool.StorageYard => LerpBounds(bounds, -0.15f, 0.33f),

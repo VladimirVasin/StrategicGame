@@ -37,10 +37,20 @@ namespace ProjectUnknown.Strategy
                     snapshot.Assigned = CountAssigned(coalPits, pit => pit.WorkerCount);
                     snapshot.Capacity = coalPits.Length * StrategyCoalPit.MaxWorkers;
                     break;
+                case StrategyProfessionType.ClayDigger:
+                    StrategyClayPit[] clayPits = FindSorted<StrategyClayPit>();
+                    snapshot.Assigned = CountAssigned(clayPits, pit => pit.WorkerCount);
+                    snapshot.Capacity = clayPits.Length * StrategyClayPit.MaxWorkers;
+                    break;
                 case StrategyProfessionType.Sawyer:
                     StrategySawmill[] sawmills = FindSorted<StrategySawmill>();
                     snapshot.Assigned = CountAssigned(sawmills, sawmill => sawmill.WorkerCount);
                     snapshot.Capacity = sawmills.Length * StrategySawmill.MaxWorkers;
+                    break;
+                case StrategyProfessionType.Potter:
+                    StrategyKiln[] kilns = FindSorted<StrategyKiln>();
+                    snapshot.Assigned = CountAssigned(kilns, kiln => kiln.WorkerCount);
+                    snapshot.Capacity = kilns.Length * StrategyKiln.MaxWorkers;
                     break;
                 case StrategyProfessionType.Hunter:
                     StrategyHunterCamp[] hunterCamps = FindSorted<StrategyHunterCamp>();
@@ -77,7 +87,9 @@ namespace ProjectUnknown.Strategy
                 StrategyProfessionType.Stonecutter => new ProfessionSnapshot(type, "Stonecutters", "mine Stone with pickaxes", new Color(0.47f, 0.53f, 0.55f)),
                 StrategyProfessionType.Miner => new ProfessionSnapshot(type, "Miners", "work underground for Iron", new Color(0.61f, 0.42f, 0.30f)),
                 StrategyProfessionType.CoalMiner => new ProfessionSnapshot(type, "Coal Miners", "dig Coal inside pits", new Color(0.33f, 0.37f, 0.38f)),
+                StrategyProfessionType.ClayDigger => new ProfessionSnapshot(type, "Clay Diggers", "dig wet Clay near water", new Color(0.66f, 0.40f, 0.27f)),
                 StrategyProfessionType.Sawyer => new ProfessionSnapshot(type, "Sawyers", "saw Logs into Planks", new Color(0.63f, 0.43f, 0.25f)),
+                StrategyProfessionType.Potter => new ProfessionSnapshot(type, "Potters", "fire Clay and Coal into Pottery", new Color(0.74f, 0.36f, 0.22f)),
                 StrategyProfessionType.Hunter => new ProfessionSnapshot(type, "Hunters", "hunt rabbits", new Color(0.56f, 0.43f, 0.26f)),
                 StrategyProfessionType.Fisher => new ProfessionSnapshot(type, "Fishers", "catch fish near water", new Color(0.32f, 0.54f, 0.63f)),
                 StrategyProfessionType.StorageWorker => new ProfessionSnapshot(type, "Haulers", "haul all resources and food", new Color(0.58f, 0.49f, 0.37f)),
@@ -150,10 +162,30 @@ namespace ProjectUnknown.Strategy
                     }
 
                     return false;
+                case StrategyProfessionType.ClayDigger:
+                    foreach (StrategyClayPit pit in FindSorted<StrategyClayPit>())
+                    {
+                        if (pit != null && pit.TryAssignNextAvailableWorker(out worker))
+                        {
+                            return true;
+                        }
+                    }
+
+                    return false;
                 case StrategyProfessionType.Sawyer:
                     foreach (StrategySawmill sawmill in FindSorted<StrategySawmill>())
                     {
                         if (sawmill != null && sawmill.TryAssignNextAvailableWorker(out worker))
+                        {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                case StrategyProfessionType.Potter:
+                    foreach (StrategyKiln kiln in FindSorted<StrategyKiln>())
+                    {
+                        if (kiln != null && kiln.TryAssignNextAvailableWorker(out worker))
                         {
                             return true;
                         }
@@ -254,11 +286,33 @@ namespace ProjectUnknown.Strategy
                     }
 
                     return false;
+                case StrategyProfessionType.ClayDigger:
+                    StrategyClayPit[] clayPits = FindSorted<StrategyClayPit>();
+                    for (int i = clayPits.Length - 1; i >= 0; i--)
+                    {
+                        if (TryRemoveWorker(clayPits[i], clayPits[i].WorkerCount, out worker, index => clayPits[i].UnassignWorkerAt(index)))
+                        {
+                            return true;
+                        }
+                    }
+
+                    return false;
                 case StrategyProfessionType.Sawyer:
                     StrategySawmill[] sawmills = FindSorted<StrategySawmill>();
                     for (int i = sawmills.Length - 1; i >= 0; i--)
                     {
                         if (TryRemoveWorker(sawmills[i], sawmills[i].WorkerCount, out worker, index => sawmills[i].UnassignWorkerAt(index)))
+                        {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                case StrategyProfessionType.Potter:
+                    StrategyKiln[] kilns = FindSorted<StrategyKiln>();
+                    for (int i = kilns.Length - 1; i >= 0; i--)
+                    {
+                        if (TryRemoveWorker(kilns[i], kilns[i].WorkerCount, out worker, index => kilns[i].UnassignWorkerAt(index)))
                         {
                             return true;
                         }
@@ -312,150 +366,6 @@ namespace ProjectUnknown.Strategy
                 default:
                     return false;
             }
-        }
-
-        private static bool TryRemoveWorker<T>(T site, int workerCount, out StrategyResidentAgent worker, Action<int> unassignAt)
-            where T : Component
-        {
-            worker = null;
-            if (site == null || workerCount <= 0)
-            {
-                return false;
-            }
-
-            int index = workerCount - 1;
-            switch (site)
-            {
-                case StrategyLumberjackCamp camp:
-                    camp.TryGetWorker(index, out worker);
-                    break;
-                case StrategyStonecutterCamp camp:
-                    camp.TryGetWorker(index, out worker);
-                    break;
-                case StrategyMine mine:
-                    mine.TryGetWorker(index, out worker);
-                    break;
-                case StrategyCoalPit pit:
-                    pit.TryGetWorker(index, out worker);
-                    break;
-                case StrategySawmill sawmill:
-                    sawmill.TryGetWorker(index, out worker);
-                    break;
-                case StrategyHunterCamp camp:
-                    camp.TryGetWorker(index, out worker);
-                    break;
-                case StrategyFisherHut hut:
-                    hut.TryGetWorker(index, out worker);
-                    break;
-                case StrategyStorageYard yard:
-                    yard.TryGetWorker(index, out worker);
-                    break;
-                case StrategyGranary granary:
-                    granary.TryGetWorker(index, out worker);
-                    break;
-            }
-
-            unassignAt(index);
-            return true;
-        }
-
-        private static bool TryRemoveBuilder(StrategyStorageYard yard, out StrategyResidentAgent worker)
-        {
-            worker = null;
-            if (yard == null || yard.BuilderCount <= 0)
-            {
-                return false;
-            }
-
-            int index = yard.BuilderCount - 1;
-            yard.TryGetBuilder(index, out worker);
-            yard.UnassignBuilderAt(index);
-            return true;
-        }
-
-        private string GetActionMessage(StrategyProfessionType type, bool assign, bool success, StrategyResidentAgent worker)
-        {
-            string title = CreateBaseSnapshot(type).Title;
-            if (!success)
-            {
-                return assign
-                    ? title + ": no free residents or workplaces"
-                    : title + ": nobody to remove";
-            }
-
-            return worker != null
-                ? worker.FullName
-                : assign
-                    ? title + ": assigned"
-                    : title + ": removed";
-        }
-
-        private int CountFreeWorkers()
-        {
-            if (population == null)
-            {
-                return 0;
-            }
-
-            int count = 0;
-            foreach (StrategyResidentAgent resident in population.Residents)
-            {
-                if (resident != null
-                    && resident.CanAcceptWorkAssignment
-                    && !resident.HasWorkplace
-                    && !resident.HasConstructionAssignment)
-                {
-                    count++;
-                }
-            }
-
-            return count;
-        }
-
-        private static int CountAssigned<T>(T[] items, Func<T, int> getCount)
-            where T : Component
-        {
-            int total = 0;
-            for (int i = 0; i < items.Length; i++)
-            {
-                if (items[i] != null)
-                {
-                    total += getCount(items[i]);
-                }
-            }
-
-            return total;
-        }
-
-        private static T[] FindSorted<T>()
-            where T : Component
-        {
-            T[] items = UnityEngine.Object.FindObjectsByType<T>();
-            Array.Sort(items, (left, right) => CompareOrigin(GetOrigin(left), GetOrigin(right)));
-            return items;
-        }
-
-        private static int CompareOrigin(Vector2Int left, Vector2Int right)
-        {
-            int y = left.y.CompareTo(right.y);
-            return y != 0 ? y : left.x.CompareTo(right.x);
-        }
-
-        private static Vector2Int GetOrigin(Component component)
-        {
-            return component switch
-            {
-                StrategyLumberjackCamp camp => camp.Origin,
-                StrategyStonecutterCamp camp => camp.Origin,
-                StrategyMine mine => mine.Origin,
-                StrategyCoalPit pit => pit.Origin,
-                StrategySawmill sawmill => sawmill.Origin,
-                StrategyHunterCamp camp => camp.Origin,
-                StrategyFisherHut hut => hut.Origin,
-                StrategyStorageYard yard => yard.Origin,
-                StrategyGranary granary => granary.Origin,
-                _ => Vector2Int.zero
-            };
         }
 
     }

@@ -113,6 +113,16 @@ namespace ProjectUnknown.Strategy
             coal.Configure(map);
             StrategyDebugLogger.Info("Bootstrap", "CoalResourcesReady");
 
+            StrategyClayResourceController clay = Object.FindAnyObjectByType<StrategyClayResourceController>();
+            if (clay == null)
+            {
+                GameObject clayObject = new GameObject("Strategy Clay Resources");
+                clay = clayObject.AddComponent<StrategyClayResourceController>();
+            }
+
+            clay.Configure(map);
+            StrategyDebugLogger.Info("Bootstrap", "ClayResourcesReady");
+
             Camera mainCamera = Camera.main;
             if (mainCamera == null)
             {

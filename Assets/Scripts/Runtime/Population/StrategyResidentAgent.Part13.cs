@@ -261,6 +261,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("stone", carriedStoneAmount),
                 StrategyDebugLogger.F("iron", carriedIronAmount),
                 StrategyDebugLogger.F("coal", carriedCoalAmount),
+                StrategyDebugLogger.F("clay", carriedClayAmount),
                 StrategyDebugLogger.F("planks", carriedPlanksAmount),
                 StrategyDebugLogger.F("game", carriedGameAmount),
                 StrategyDebugLogger.F("fish", carriedFishAmount));
@@ -324,11 +325,13 @@ namespace ProjectUnknown.Strategy
             carriedStoneAmount = 0;
             carriedIronAmount = 0;
             carriedCoalAmount = 0;
+            carriedClayAmount = 0;
             carriedPlanksAmount = 0;
             SetCarriedLogsVisible(false);
             SetCarriedStoneVisible(false);
             SetCarriedIronVisible(false);
             SetCarriedCoalVisible(false);
+            SetCarriedClayVisible(false);
             SetCarriedPlanksVisible(false);
             logisticsWorkCooldown = Random.Range(2.0f, 4.5f);
             waitTimer = Random.Range(0.35f, 0.85f);

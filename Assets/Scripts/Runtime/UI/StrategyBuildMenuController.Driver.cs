@@ -10,13 +10,14 @@ namespace ProjectUnknown.Strategy
 {
     public enum StrategyBuildTool
     {
-        None,
-        House,
+        None, House,
         LumberjackCamp,
         StonecutterCamp,
         Sawmill,
         Mine,
         CoalPit,
+        ClayPit,
+        Kiln,
         HunterCamp,
         FisherHut,
         StorageYard,

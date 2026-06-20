@@ -117,6 +117,14 @@ namespace ProjectUnknown.Strategy
             {
                 AddCoal(amount);
             }
+            else if (resource == StrategyResourceType.Clay)
+            {
+                AddClay(amount);
+            }
+            else if (resource == StrategyResourceType.Pottery)
+            {
+                AddPottery(amount);
+            }
             else if (resource == StrategyResourceType.Planks)
             {
                 AddPlanks(amount);

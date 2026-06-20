@@ -106,10 +106,18 @@ namespace ProjectUnknown.Strategy
                     cachedCoalPits,
                     pit => pit.WorkerCount,
                     (StrategyCoalPit pit, int index, out StrategyResidentAgent found) => pit.TryGetWorker(index, out found)),
+                StrategyProfessionType.ClayDigger => CountReleasableFromSites(
+                    cachedClayPits,
+                    pit => pit.WorkerCount,
+                    (StrategyClayPit pit, int index, out StrategyResidentAgent found) => pit.TryGetWorker(index, out found)),
                 StrategyProfessionType.Sawyer => CountReleasableFromSites(
                     cachedSawmills,
                     sawmill => sawmill.WorkerCount,
                     (StrategySawmill sawmill, int index, out StrategyResidentAgent found) => sawmill.TryGetWorker(index, out found)),
+                StrategyProfessionType.Potter => CountReleasableFromSites(
+                    cachedKilns,
+                    kiln => kiln.WorkerCount,
+                    (StrategyKiln kiln, int index, out StrategyResidentAgent found) => kiln.TryGetWorker(index, out found)),
                 StrategyProfessionType.Hunter => CountReleasableFromSites(
                     cachedHunterCamps,
                     camp => camp.WorkerCount,
@@ -166,11 +174,25 @@ namespace ProjectUnknown.Strategy
                     (pit, index) => pit.UnassignWorkerAt(index),
                     out worker,
                     allowActiveRelease),
+                StrategyProfessionType.ClayDigger => TryReleaseFromSites(
+                    cachedClayPits,
+                    pit => pit.WorkerCount,
+                    (StrategyClayPit pit, int index, out StrategyResidentAgent found) => pit.TryGetWorker(index, out found),
+                    (pit, index) => pit.UnassignWorkerAt(index),
+                    out worker,
+                    allowActiveRelease),
                 StrategyProfessionType.Sawyer => TryReleaseFromSites(
                     cachedSawmills,
                     sawmill => sawmill.WorkerCount,
                     (StrategySawmill sawmill, int index, out StrategyResidentAgent found) => sawmill.TryGetWorker(index, out found),
                     (sawmill, index) => sawmill.UnassignWorkerAt(index),
+                    out worker,
+                    allowActiveRelease),
+                StrategyProfessionType.Potter => TryReleaseFromSites(
+                    cachedKilns,
+                    kiln => kiln.WorkerCount,
+                    (StrategyKiln kiln, int index, out StrategyResidentAgent found) => kiln.TryGetWorker(index, out found),
+                    (kiln, index) => kiln.UnassignWorkerAt(index),
                     out worker,
                     allowActiveRelease),
                 StrategyProfessionType.Hunter => TryReleaseFromSites(

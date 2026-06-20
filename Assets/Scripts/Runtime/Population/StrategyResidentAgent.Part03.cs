@@ -14,6 +14,10 @@ namespace ProjectUnknown.Strategy
                 || stoneWorkplace != null
                 || hunterWorkplace != null
                 || mineWorkplace != null
+                || coalPitWorkplace != null
+                || clayPitWorkplace != null
+                || sawmillWorkplace != null
+                || kilnWorkplace != null
                 || storageWorkplace != null
                 || builderWorkplace != null
                 || granaryWorkplace != null
@@ -28,6 +32,10 @@ namespace ProjectUnknown.Strategy
             CancelHunterWork(true);
             CancelFisherWork(true);
             CancelMineWork();
+            CancelCoalPitWork();
+            CancelClayPitWork();
+            CancelSawmillWork(true);
+            CancelKilnWork(true);
             CancelStorageWork(true);
             CancelGranaryWork(true);
             fisherWorkplace = hut;
@@ -70,6 +78,10 @@ namespace ProjectUnknown.Strategy
                 || hunterWorkplace != null
                 || fisherWorkplace != null
                 || mineWorkplace != null
+                || coalPitWorkplace != null
+                || clayPitWorkplace != null
+                || sawmillWorkplace != null
+                || kilnWorkplace != null
                 || builderWorkplace != null
                 || granaryWorkplace != null
                 || constructionSite != null
@@ -83,6 +95,10 @@ namespace ProjectUnknown.Strategy
             CancelHunterWork(true);
             CancelFisherWork(true);
             CancelMineWork();
+            CancelCoalPitWork();
+            CancelClayPitWork();
+            CancelSawmillWork(true);
+            CancelKilnWork(true);
             CancelGranaryWork(true);
             storageWorkplace = yard;
             logisticsWorkCooldown = Random.Range(0.35f, 1.45f);
@@ -124,6 +140,10 @@ namespace ProjectUnknown.Strategy
                 || hunterWorkplace != null
                 || fisherWorkplace != null
                 || mineWorkplace != null
+                || coalPitWorkplace != null
+                || clayPitWorkplace != null
+                || sawmillWorkplace != null
+                || kilnWorkplace != null
                 || storageWorkplace != null
                 || builderWorkplace != null
                 || constructionSite != null
@@ -137,6 +157,10 @@ namespace ProjectUnknown.Strategy
             CancelHunterWork(true);
             CancelFisherWork(true);
             CancelMineWork();
+            CancelCoalPitWork();
+            CancelClayPitWork();
+            CancelSawmillWork(true);
+            CancelKilnWork(true);
             CancelStorageWork(true);
             CancelGranaryWork(true);
             granaryWorkplace = granary;
@@ -179,6 +203,10 @@ namespace ProjectUnknown.Strategy
                 || hunterWorkplace != null
                 || fisherWorkplace != null
                 || mineWorkplace != null
+                || coalPitWorkplace != null
+                || clayPitWorkplace != null
+                || sawmillWorkplace != null
+                || kilnWorkplace != null
                 || storageWorkplace != null
                 || granaryWorkplace != null
                 || constructionSite != null
@@ -192,6 +220,10 @@ namespace ProjectUnknown.Strategy
             CancelHunterWork(true);
             CancelFisherWork(true);
             CancelMineWork();
+            CancelCoalPitWork();
+            CancelClayPitWork();
+            CancelSawmillWork(true);
+            CancelKilnWork(true);
             CancelStorageWork(true);
             CancelGranaryWork(true);
             builderWorkplace = yard;

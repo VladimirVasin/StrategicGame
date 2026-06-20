@@ -127,7 +127,9 @@ namespace ProjectUnknown.Strategy
             return residentActivity == ResidentActivity.MovingToHouseholdFoodPickup
                 || residentActivity == ResidentActivity.PickingUpHouseholdFood
                 || residentActivity == ResidentActivity.CarryingHouseholdFoodHome
-                || residentActivity == ResidentActivity.DepositingHouseholdFood;
+                || residentActivity == ResidentActivity.DepositingHouseholdFood
+                || residentActivity == ResidentActivity.MovingToHouseCooking
+                || residentActivity == ResidentActivity.CookingHouseMeal;
         }
 
         private static bool IsReturningCarriedResourceActivity(ResidentActivity residentActivity)
@@ -135,6 +137,7 @@ namespace ProjectUnknown.Strategy
             return residentActivity == ResidentActivity.ReturningLogsToStorage
                 || residentActivity == ResidentActivity.ReturningStoneToStorage
                 || residentActivity == ResidentActivity.ReturningIronToStorage
+                || residentActivity == ResidentActivity.ReturningClayToStorage
                 || residentActivity == ResidentActivity.ReturningGameToGranary
                 || residentActivity == ResidentActivity.ReturningFishToGranary;
         }

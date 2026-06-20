@@ -108,7 +108,7 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            float homeRations = home.Resources.GetTotalRationValue();
+            float homeRations = home.Resources.GetPreparedDishRations() + home.Resources.GetTotalIngredientRationValue();
             float desiredReserve = Mathf.Max(1f, dailyNeed * HouseholdFoodReserveDays);
             if (homeRations >= desiredReserve)
             {
@@ -269,6 +269,7 @@ namespace ProjectUnknown.Strategy
                 || builderWorkplace != null
                 || granaryWorkplace != null
                 || sawmillWorkplace != null
+                || kilnWorkplace != null
                 || !CanWork
                 || logisticsWorkCooldown > 0f)
             {
@@ -306,7 +307,17 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
+            if (TryStartStorageClayPickup())
+            {
+                return true;
+            }
+
             if (TryStartStoragePlanksPickup())
+            {
+                return true;
+            }
+
+            if (TryStartStoragePotteryPickup())
             {
                 return true;
             }

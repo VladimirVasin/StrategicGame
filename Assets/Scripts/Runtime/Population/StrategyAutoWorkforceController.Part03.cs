@@ -76,7 +76,9 @@ namespace ProjectUnknown.Strategy
             AddBacklog(CountAvailableStone(out Vector3 stoneWorld), stoneWorld, ref backlog, ref weighted);
             AddBacklog(CountAvailableIron(out Vector3 ironWorld), ironWorld, ref backlog, ref weighted);
             AddBacklog(CountAvailableCoal(out Vector3 coalWorld), coalWorld, ref backlog, ref weighted);
+            AddBacklog(CountAvailableClay(out Vector3 clayWorld), clayWorld, ref backlog, ref weighted);
             AddBacklog(CountAvailablePlanks(out Vector3 planksWorld), planksWorld, ref backlog, ref weighted);
+            AddBacklog(CountAvailablePottery(out Vector3 potteryWorld), potteryWorld, ref backlog, ref weighted);
             AddBacklog(CountProductionInputBacklog(out Vector3 inputWorld), inputWorld, ref backlog, ref weighted);
             AddBacklog(CountAvailableFood(out Vector3 foodWorld), foodWorld, ref backlog, ref weighted);
             focus = backlog > 0 ? weighted / backlog : transform.position;
@@ -154,6 +156,30 @@ namespace ProjectUnknown.Strategy
             return total;
         }
 
+        private int CountTotalClay()
+        {
+            int total = 0;
+            foreach (StrategyStorageYard yard in cachedStorageYards)
+            {
+                total += yard != null ? yard.ClayStored : 0;
+            }
+
+            total += CountAvailableClay(out _);
+            return total;
+        }
+
+        private int CountTotalPottery()
+        {
+            int total = 0;
+            foreach (StrategyStorageYard yard in cachedStorageYards)
+            {
+                total += yard != null ? yard.PotteryStored : 0;
+            }
+
+            total += CountAvailablePottery(out _);
+            return total;
+        }
+
         private int CountAvailableLogs(out Vector3 world)
         {
             int total = 0;
@@ -218,6 +244,22 @@ namespace ProjectUnknown.Strategy
             return total;
         }
 
+        private int CountAvailableClay(out Vector3 world)
+        {
+            int total = 0;
+            world = transform.position;
+            foreach (StrategyClayPit pit in cachedClayPits)
+            {
+                if (pit != null && pit.AvailableClay > 0)
+                {
+                    total += pit.AvailableClay;
+                    world = pit.FootprintBounds.center;
+                }
+            }
+
+            return total;
+        }
+
         private int CountAvailablePlanks(out Vector3 world)
         {
             int total = 0;
@@ -228,6 +270,22 @@ namespace ProjectUnknown.Strategy
                 {
                     total += sawmill.AvailablePlanks;
                     world = sawmill.FootprintBounds.center;
+                }
+            }
+
+            return total;
+        }
+
+        private int CountAvailablePottery(out Vector3 world)
+        {
+            int total = 0;
+            world = transform.position;
+            foreach (StrategyKiln kiln in cachedKilns)
+            {
+                if (kiln != null && kiln.AvailablePottery > 0)
+                {
+                    total += kiln.AvailablePottery;
+                    world = kiln.FootprintBounds.center;
                 }
             }
 
@@ -290,6 +348,35 @@ namespace ProjectUnknown.Strategy
 
                 backlog += amount;
                 weighted += sawmill.FootprintBounds.center * amount;
+            }
+
+            for (int i = 0; i < cachedKilns.Length; i++)
+            {
+                StrategyKiln kiln = cachedKilns[i];
+                if (kiln == null
+                    || !kiln.TryGetInputDeliveryRequest(out StrategyResourceType resource, out int maxAmount)
+                    || resource == StrategyResourceType.None
+                    || StrategyFoodNutrition.IsFood(resource)
+                    || maxAmount <= 0)
+                {
+                    continue;
+                }
+
+                int available = 0;
+                for (int yardIndex = 0; yardIndex < cachedStorageYards.Length; yardIndex++)
+                {
+                    StrategyStorageYard yard = cachedStorageYards[yardIndex];
+                    available += yard != null ? yard.GetAvailableLogisticsAmount(resource) : 0;
+                }
+
+                int amount = Mathf.Min(maxAmount, available);
+                if (amount <= 0)
+                {
+                    continue;
+                }
+
+                backlog += amount;
+                weighted += kiln.FootprintBounds.center * amount;
             }
 
             focus = backlog > 0 ? weighted / backlog : Vector3.zero;

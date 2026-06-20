@@ -9,6 +9,7 @@ namespace ProjectUnknown.Strategy
         Campfire,
         Mine,
         CoalPit,
+        Kiln,
         Bridge,
         Worksite,
         Storage,
@@ -133,6 +134,7 @@ namespace ProjectUnknown.Strategy
                 StrategyCinematicLightKind.Campfire => 125f,
                 StrategyCinematicLightKind.Mine => 92f,
                 StrategyCinematicLightKind.CoalPit => 86f,
+                StrategyCinematicLightKind.Kiln => 84f,
                 StrategyCinematicLightKind.House => building != null && building.ResidentCount > 0 ? 82f : 48f,
                 StrategyCinematicLightKind.Bridge => 68f,
                 StrategyCinematicLightKind.Granary => 66f,
@@ -307,7 +309,8 @@ namespace ProjectUnknown.Strategy
 
             if (kind != StrategyCinematicLightKind.Campfire
                 && kind != StrategyCinematicLightKind.CoalPit
-                && kind != StrategyCinematicLightKind.Mine)
+                && kind != StrategyCinematicLightKind.Mine
+                && kind != StrategyCinematicLightKind.Kiln)
             {
                 return;
             }
@@ -373,6 +376,7 @@ namespace ProjectUnknown.Strategy
                     StrategyBuildTool.House => new Vector3(bounds.center.x, bounds.min.y + bounds.size.y * 0.55f, -0.22f),
                     StrategyBuildTool.Mine => new Vector3(bounds.center.x - 0.16f, bounds.min.y + bounds.size.y * 0.22f, -0.22f),
                     StrategyBuildTool.CoalPit => new Vector3(bounds.center.x, bounds.min.y + bounds.size.y * 0.35f, -0.22f),
+                    StrategyBuildTool.Kiln => new Vector3(bounds.center.x, bounds.min.y + bounds.size.y * 0.34f, -0.22f),
                     StrategyBuildTool.StorageYard => new Vector3(bounds.min.x + bounds.size.x * 0.26f, bounds.min.y + bounds.size.y * 0.42f, -0.22f),
                     StrategyBuildTool.Granary => new Vector3(bounds.center.x, bounds.min.y + bounds.size.y * 0.46f, -0.22f),
                     StrategyBuildTool.Bridge => new Vector3(bounds.center.x, bounds.center.y, -0.22f),
@@ -408,7 +412,11 @@ namespace ProjectUnknown.Strategy
                 return Mathf.Clamp01((night * 0.92f + warm * 0.30f + weatherBoost) * occupied);
             }
 
-            float worksiteBase = kind == StrategyCinematicLightKind.Mine || kind == StrategyCinematicLightKind.CoalPit ? 0.34f : 0.12f;
+            float worksiteBase = kind == StrategyCinematicLightKind.Mine
+                || kind == StrategyCinematicLightKind.CoalPit
+                || kind == StrategyCinematicLightKind.Kiln
+                ? 0.34f
+                : 0.12f;
             return Mathf.Clamp01(worksiteBase + night * 0.62f + warm * 0.16f + weatherBoost);
         }
 
@@ -426,6 +434,7 @@ namespace ProjectUnknown.Strategy
             {
                 StrategyCinematicLightKind.Mine => new Color(1f, 0.79f, 0.46f, 1f),
                 StrategyCinematicLightKind.CoalPit => new Color(1f, 0.48f, 0.24f, 1f),
+                StrategyCinematicLightKind.Kiln => new Color(1f, 0.43f, 0.18f, 1f),
                 StrategyCinematicLightKind.Campfire => new Color(1f, 0.54f, 0.22f, 1f),
                 StrategyCinematicLightKind.House => new Color(1f, 0.77f, 0.38f, 1f),
                 StrategyCinematicLightKind.Granary => new Color(1f, 0.68f, 0.34f, 1f),
@@ -439,6 +448,7 @@ namespace ProjectUnknown.Strategy
             StrategyCinematicLightKind.Campfire => 1.15f,
             StrategyCinematicLightKind.Mine => 0.82f,
             StrategyCinematicLightKind.CoalPit => 0.72f,
+            StrategyCinematicLightKind.Kiln => 0.70f,
             StrategyCinematicLightKind.House => 0.54f,
             StrategyCinematicLightKind.Bridge => 0.44f,
             StrategyCinematicLightKind.Storage => 0.34f,
@@ -451,6 +461,7 @@ namespace ProjectUnknown.Strategy
             StrategyCinematicLightKind.Campfire => 4.6f,
             StrategyCinematicLightKind.Mine => 3.8f,
             StrategyCinematicLightKind.CoalPit => 3.4f,
+            StrategyCinematicLightKind.Kiln => 3.2f,
             StrategyCinematicLightKind.House => 3.0f,
             StrategyCinematicLightKind.Bridge => 2.8f,
             StrategyCinematicLightKind.Storage => 2.4f,
@@ -471,6 +482,7 @@ namespace ProjectUnknown.Strategy
             StrategyBuildTool.House => StrategyCinematicLightKind.House,
             StrategyBuildTool.Mine => StrategyCinematicLightKind.Mine,
             StrategyBuildTool.CoalPit => StrategyCinematicLightKind.CoalPit,
+            StrategyBuildTool.Kiln => StrategyCinematicLightKind.Kiln,
             StrategyBuildTool.Bridge => StrategyCinematicLightKind.Bridge,
             StrategyBuildTool.StorageYard => StrategyCinematicLightKind.Storage,
             StrategyBuildTool.Granary => StrategyCinematicLightKind.Granary,

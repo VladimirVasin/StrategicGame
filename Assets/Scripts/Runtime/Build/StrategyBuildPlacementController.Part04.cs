@@ -141,6 +141,16 @@ namespace ProjectUnknown.Strategy
                 StrategyCoalPit pit = placed.AddComponent<StrategyCoalPit>();
                 pit.Configure(building, map, StrategyCoalResourceController.Active, population);
             }
+            else if (toolInfo.Tool == StrategyBuildTool.ClayPit)
+            {
+                StrategyClayPit pit = placed.AddComponent<StrategyClayPit>();
+                pit.Configure(building, map, StrategyClayResourceController.Active, population);
+            }
+            else if (toolInfo.Tool == StrategyBuildTool.Kiln)
+            {
+                StrategyKiln kiln = placed.AddComponent<StrategyKiln>();
+                kiln.Configure(building, map, population);
+            }
             else if (toolInfo.Tool == StrategyBuildTool.HunterCamp)
             {
                 StrategyHunterCamp camp = placed.AddComponent<StrategyHunterCamp>();

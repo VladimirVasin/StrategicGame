@@ -212,6 +212,8 @@ namespace ProjectUnknown.Strategy
                 StrategyResourceType.Stone => AvailableConstructionStone,
                 StrategyResourceType.Iron => Mathf.Max(0, ironStored - CountProductionInputReservations(resource)),
                 StrategyResourceType.Coal => Mathf.Max(0, coalStored - CountProductionInputReservations(resource)),
+                StrategyResourceType.Clay => Mathf.Max(0, clayStored - CountProductionInputReservations(resource)),
+                StrategyResourceType.Pottery => Mathf.Max(0, potteryStored - CountProductionInputReservations(resource)),
                 StrategyResourceType.Planks => AvailableConstructionPlanks,
                 _ => 0
             };
@@ -225,6 +227,8 @@ namespace ProjectUnknown.Strategy
                 StrategyResourceType.Stone => stoneStored,
                 StrategyResourceType.Iron => ironStored,
                 StrategyResourceType.Coal => coalStored,
+                StrategyResourceType.Clay => clayStored,
+                StrategyResourceType.Pottery => potteryStored,
                 StrategyResourceType.Planks => planksStored,
                 _ => 0
             };
@@ -252,6 +256,14 @@ namespace ProjectUnknown.Strategy
             else if (resource == StrategyResourceType.Coal)
             {
                 coalStored = Mathf.Max(0, coalStored - amount);
+            }
+            else if (resource == StrategyResourceType.Clay)
+            {
+                clayStored = Mathf.Max(0, clayStored - amount);
+            }
+            else if (resource == StrategyResourceType.Pottery)
+            {
+                potteryStored = Mathf.Max(0, potteryStored - amount);
             }
             else if (resource == StrategyResourceType.Planks)
             {

@@ -85,6 +85,8 @@ namespace ProjectUnknown.Strategy
                 && stoneStockRenderer != null
                 && ironStockRenderer != null
                 && coalStockRenderer != null
+                && clayStockRenderer != null
+                && potteryStockRenderer != null
                 && planksStockRenderer != null)
             {
                 return;
@@ -108,6 +110,8 @@ namespace ProjectUnknown.Strategy
 
             EnsureIronStockRenderer();
             EnsureCoalStockRenderer();
+            EnsureClayStockRenderer();
+            EnsurePotteryStockRenderer();
             EnsurePlanksStockRenderer();
             UpdateStockPosition();
         }
@@ -129,6 +133,8 @@ namespace ProjectUnknown.Strategy
 
             UpdateIronStockVisual();
             UpdateCoalStockVisual();
+            UpdateClayStockVisual();
+            UpdatePotteryStockVisual();
             UpdatePlanksStockVisual();
             UpdateStockPosition();
         }
@@ -159,6 +165,8 @@ namespace ProjectUnknown.Strategy
 
             UpdateIronStockPosition(bounds);
             UpdateCoalStockPosition(bounds);
+            UpdateClayStockPosition(bounds);
+            UpdatePotteryStockPosition(bounds);
             UpdatePlanksStockPosition(bounds);
         }
 

@@ -190,7 +190,7 @@ namespace ProjectUnknown.Strategy
             RectTransform foodIconRect = CreateUiObject("FoodIcon", foodStatusRow).GetComponent<RectTransform>();
             SetTopLeft(foodIconRect, 8f, 6f, 20f, 20f);
             Image foodIcon = foodIconRect.gameObject.AddComponent<Image>();
-            foodIcon.sprite = StrategyResourceIconFactory.GetSprite(StrategyResourceType.Game);
+            foodIcon.sprite = StrategyResourceIconFactory.GetSprite(StrategyResourceType.Dish);
             foodIcon.preserveAspect = true;
             foodIcon.raycastTarget = false;
 

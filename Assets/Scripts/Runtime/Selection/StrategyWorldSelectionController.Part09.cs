@@ -279,9 +279,17 @@ namespace ProjectUnknown.Strategy
             {
                 type = StrategyProfessionType.CoalMiner;
             }
+            else if (resident.ClayPitWorkplace != null)
+            {
+                type = StrategyProfessionType.ClayDigger;
+            }
             else if (resident.SawmillWorkplace != null)
             {
                 type = StrategyProfessionType.Sawyer;
+            }
+            else if (resident.KilnWorkplace != null)
+            {
+                type = StrategyProfessionType.Potter;
             }
             else if (resident.HunterWorkplace != null)
             {

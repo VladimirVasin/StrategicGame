@@ -198,6 +198,21 @@ namespace ProjectUnknown.Strategy
                 deposit.Cell);
         }
 
+        public static StrategyWorldInspectInfo CreateClayDeposit(StrategyClayDeposit deposit, Sprite icon)
+        {
+            return CreateDeposit(
+                deposit.Kind == StrategyClayDepositKind.ClayBank ? "Clay Bank" : "Clay Patch",
+                "Clay deposit",
+                icon,
+                StrategyResourceType.Clay,
+                deposit.ClayAmount,
+                deposit.Footprint,
+                deposit.IsDepleted ? "depleted" : deposit.IsReserved ? "reserved" : "available",
+                "free",
+                "blocked",
+                deposit.Cell);
+        }
+
         public static StrategyWorldInspectInfo CreateTree(StrategyForestryTree tree, Sprite icon)
         {
             string state = tree.HasLogsReady ? "logs ready" : tree.IsFalling ? "falling" : tree.IsFelled ? "felled" : tree.CanBeChopped ? "standing" : "growing";
@@ -389,6 +404,8 @@ namespace ProjectUnknown.Strategy
                 StrategyResourceType.Stone => "Stone",
                 StrategyResourceType.Iron => "Iron",
                 StrategyResourceType.Coal => "Coal",
+                StrategyResourceType.Clay => "Clay",
+                StrategyResourceType.Pottery => "Pottery",
                 StrategyResourceType.Planks => "Planks",
                 _ => type.ToString()
             };

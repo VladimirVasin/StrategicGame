@@ -158,7 +158,9 @@ namespace ProjectUnknown.Strategy
             carriedStoneAmount = 0;
             carriedIronAmount = 0;
             carriedCoalAmount = 0;
+            carriedClayAmount = 0;
             carriedPlanksAmount = 0;
+            carriedPotteryAmount = 0;
             carriedGameAmount = 0;
             carriedFishAmount = 0;
             carriedForageAmount = 0;
@@ -168,7 +170,9 @@ namespace ProjectUnknown.Strategy
             SetCarriedStoneVisible(false);
             SetCarriedIronVisible(false);
             SetCarriedCoalVisible(false);
+            SetCarriedClayVisible(false);
             SetCarriedPlanksVisible(false);
+            SetCarriedPotteryVisible(false);
             SetCarriedGameVisible(false);
             SetCarriedFishVisible(false);
             SetCarriedForageVisible(false);

@@ -19,7 +19,9 @@ namespace ProjectUnknown.Strategy
             StrategyProfessionType.Stonecutter,
             StrategyProfessionType.Miner,
             StrategyProfessionType.CoalMiner,
+            StrategyProfessionType.ClayDigger,
             StrategyProfessionType.Sawyer,
+            StrategyProfessionType.Potter,
             StrategyProfessionType.Hunter,
             StrategyProfessionType.Fisher,
             StrategyProfessionType.StorageWorker,
@@ -244,7 +246,7 @@ namespace ProjectUnknown.Strategy
 
             RectTransform viewport = CreateUiObject("ListViewport", panelRoot).GetComponent<RectTransform>();
             viewportRoot = viewport;
-            SetOffsets(viewport, 18f, 190f, 38f, 70f);
+            SetOffsets(viewport, 18f, 210f, 38f, 70f);
             Image viewportImage = viewport.gameObject.AddComponent<Image>();
             viewportImage.color = new Color(1f, 1f, 1f, 0.01f);
             Mask mask = viewport.gameObject.AddComponent<Mask>();

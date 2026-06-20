@@ -8,6 +8,36 @@ Last updated: 2026-06-19
 
 ## Done
 
+### 2026-06-19 - Pottery Kiln production MVP
+
+- Added `Pottery` as a storage/production resource with its own generated icon and stock/drop visuals.
+- Added `Kiln` as a Production building with a generated sprite, build menu entry, selection HUD context, nighttime light emitter, and 1 assigned `Potter`.
+- Kilns request Hauler-delivered `Clay` and `Coal` from Storage Yard stock, fire `2 Clay + 1 Coal` into `1 Pottery`, keep capped local input/output stock, and expose produced Pottery back to Storage Yard Haulers.
+- Profession HUD, resident role/status text, auto workforce priorities, Storage Yard logistics, carried-resource cleanup, death drops, and stock dashboards now include Pottery/Kiln/Potter.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; a runtime C# line-count scan found no files over 500 lines.
+
+### 2026-06-19 - Clay Pit extraction loop
+
+- Added `Clay Pit` as a Production building that can be built only on near-water Clay fields and keeps Clay Diggers visible while they dig inside the pit.
+- Added `Clay Digger` to the Profession HUD, resident role/status text, resident selection icons, and auto workforce priorities.
+- Storage Yard Haulers now reserve Clay from Clay Pits, carry up to 2 Clay at a time, deposit it into uncapped Storage Yard stock, and handle Clay return/death-drop cleanup.
+- Storage Yard and selection HUDs now show Clay stock/source context, with Clay carried, pit-stock, storage-stock, and drop-effect visuals.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; a runtime C# line-count scan found no files over 500 lines.
+
+### 2026-06-19 - Near-water Clay resource fields
+
+- Added `Clay` as a technical resource with a generated HUD icon and inspect title.
+- Added runtime Clay resource/deposit controllers and generated `Clay Patch` / `Clay Bank` map fields that spawn only on walkable land/shore cells near water.
+- Clay fields stay walkable, block normal building placement through the buildability overlay, avoid adjacent Iron/Coal/Clay fields, and expose inspect HUD data; this technical groundwork was later extended by the Clay Pit extraction loop.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; touched C# files stayed below the 500-line limit.
+
+### 2026-06-19 - Prepared household dishes MVP
+
+- Added `Dish` as a prepared food resource with its own generated HUD icon and a 1.0 ration value.
+- Split house food storage into ingredients and prepared dishes: Householders now cook ingredients into `Dish` during `Dusk`, and nightly dinner consumes only prepared dishes after the family returns home for `Night`.
+- Updated selected-house food HUD copy and debug logs to show dishes, ingredient rations, and Granary reserves separately instead of implying raw food is eaten directly at dinner.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; touched C# files stayed below the 500-line limit.
+
 ### 2026-06-19 - House ownership subtitle
 
 - Selected House HUD now shows the owning family in the subtitle as `<FamilyName> family home`, preferring the Householder family name and falling back to the first resident family.

@@ -41,10 +41,20 @@ namespace ProjectUnknown.Strategy
                 activeCoalSource.ReleaseStoredCoalReservation(this);
                 activeCoalSource = null;
             }
+            else if (activeClaySource != null)
+            {
+                activeClaySource.ReleaseStoredClayReservation(this);
+                activeClaySource = null;
+            }
             else if (activePlanksSource != null)
             {
                 activePlanksSource.ReleaseOutputPickupReservation(StrategyResourceType.Planks, this);
                 activePlanksSource = null;
+            }
+            else if (activePotterySource != null)
+            {
+                activePotterySource.ReleaseOutputPickupReservation(StrategyResourceType.Pottery, this);
+                activePotterySource = null;
             }
             else if (activeProductionInputTarget != null)
             {
@@ -77,10 +87,18 @@ namespace ProjectUnknown.Strategy
                 || residentActivity == ResidentActivity.PickingUpStorageCoal
                 || residentActivity == ResidentActivity.CarryingCoalToStorage
                 || residentActivity == ResidentActivity.DepositingStorageCoal
+                || residentActivity == ResidentActivity.MovingToStorageClayPickup
+                || residentActivity == ResidentActivity.PickingUpStorageClay
+                || residentActivity == ResidentActivity.CarryingClayToStorage
+                || residentActivity == ResidentActivity.DepositingStorageClay
                 || residentActivity == ResidentActivity.MovingToStoragePlanksPickup
                 || residentActivity == ResidentActivity.PickingUpStoragePlanks
                 || residentActivity == ResidentActivity.CarryingPlanksToStorage
                 || residentActivity == ResidentActivity.DepositingStoragePlanks
+                || residentActivity == ResidentActivity.MovingToStoragePotteryPickup
+                || residentActivity == ResidentActivity.PickingUpStoragePottery
+                || residentActivity == ResidentActivity.CarryingPotteryToStorage
+                || residentActivity == ResidentActivity.DepositingStoragePottery
                 || residentActivity == ResidentActivity.MovingToProductionInputPickup
                 || residentActivity == ResidentActivity.PickingUpProductionInput
                 || residentActivity == ResidentActivity.CarryingProductionInput

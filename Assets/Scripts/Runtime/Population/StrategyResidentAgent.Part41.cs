@@ -22,6 +22,11 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
+            if (TryStartHouseholdCookingTask())
+            {
+                return true;
+            }
+
             if (TryStartHouseholdFoodPickupTask())
             {
                 return true;
@@ -52,7 +57,17 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
+            if (TryStartClayPitTask())
+            {
+                return true;
+            }
+
             if (TryStartSawmillTask())
+            {
+                return true;
+            }
+
+            if (TryStartKilnTask())
             {
                 return true;
             }
@@ -161,9 +176,21 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            if (deferredActivity == ResidentActivity.MovingToClayPit)
+            {
+                CancelClayPitWork();
+                return;
+            }
+
             if (deferredActivity == ResidentActivity.MovingToSawmill)
             {
                 CancelSawmillWork(true);
+                return;
+            }
+
+            if (deferredActivity == ResidentActivity.MovingToKiln)
+            {
+                CancelKilnWork(true);
                 return;
             }
 
@@ -259,7 +286,9 @@ namespace ProjectUnknown.Strategy
                 || residentActivity == ResidentActivity.MovingToStone
                 || residentActivity == ResidentActivity.MovingToMine
                 || residentActivity == ResidentActivity.MovingToCoalPit
+                || residentActivity == ResidentActivity.MovingToClayPit
                 || residentActivity == ResidentActivity.MovingToSawmill
+                || residentActivity == ResidentActivity.MovingToKiln
                 || residentActivity == ResidentActivity.MovingToConstructionStorage
                 || residentActivity == ResidentActivity.MovingToConstructionSite
                 || residentActivity == ResidentActivity.MovingToHuntingRange
@@ -271,7 +300,9 @@ namespace ProjectUnknown.Strategy
                 || residentActivity == ResidentActivity.MovingToStorageStonePickup
                 || residentActivity == ResidentActivity.MovingToStorageIronPickup
                 || residentActivity == ResidentActivity.MovingToStorageCoalPickup
+                || residentActivity == ResidentActivity.MovingToStorageClayPickup
                 || residentActivity == ResidentActivity.MovingToStoragePlanksPickup
+                || residentActivity == ResidentActivity.MovingToStoragePotteryPickup
                 || residentActivity == ResidentActivity.MovingToGranaryGamePickup
                 || residentActivity == ResidentActivity.MovingToGranaryFishPickup
                 || residentActivity == ResidentActivity.MovingToPlantTree;
@@ -283,7 +314,9 @@ namespace ProjectUnknown.Strategy
                 || residentActivity == ResidentActivity.MovingToStorageStonePickup
                 || residentActivity == ResidentActivity.MovingToStorageIronPickup
                 || residentActivity == ResidentActivity.MovingToStorageCoalPickup
+                || residentActivity == ResidentActivity.MovingToStorageClayPickup
                 || residentActivity == ResidentActivity.MovingToStoragePlanksPickup
+                || residentActivity == ResidentActivity.MovingToStoragePotteryPickup
                 || residentActivity == ResidentActivity.MovingToProductionInputPickup;
         }
 

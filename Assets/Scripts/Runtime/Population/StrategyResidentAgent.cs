@@ -236,7 +236,9 @@ namespace ProjectUnknown.Strategy
             || fisherWorkplace != null
             || mineWorkplace != null
             || coalPitWorkplace != null
+            || clayPitWorkplace != null
             || sawmillWorkplace != null
+            || kilnWorkplace != null
             || storageWorkplace != null
             || builderWorkplace != null
             || granaryWorkplace != null;

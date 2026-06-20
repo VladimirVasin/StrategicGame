@@ -64,9 +64,19 @@ namespace ProjectUnknown.Strategy
                 coalWorkCooldown -= Time.deltaTime;
             }
 
+            if (clayWorkCooldown > 0f)
+            {
+                clayWorkCooldown -= Time.deltaTime;
+            }
+
             if (sawmillWorkCooldown > 0f)
             {
                 sawmillWorkCooldown -= Time.deltaTime;
+            }
+
+            if (kilnWorkCooldown > 0f)
+            {
+                kilnWorkCooldown -= Time.deltaTime;
             }
 
             if (logisticsWorkCooldown > 0f)
@@ -171,6 +181,12 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            if (activity == ResidentActivity.DiggingClayInPit)
+            {
+                UpdateDiggingClayInPit();
+                return;
+            }
+
             if (activity == ResidentActivity.PickingUpProductionInput)
             {
                 UpdatePickingUpProductionInput();
@@ -186,6 +202,12 @@ namespace ProjectUnknown.Strategy
             if (activity == ResidentActivity.SawingLogs)
             {
                 UpdateSawingLogs();
+                return;
+            }
+
+            if (activity == ResidentActivity.FiringPottery)
+            {
+                UpdateFiringPottery();
                 return;
             }
 
@@ -237,6 +259,18 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            if (activity == ResidentActivity.PickingUpStorageClay)
+            {
+                UpdatePickingUpStorageClay();
+                return;
+            }
+
+            if (activity == ResidentActivity.DepositingStorageClay)
+            {
+                UpdateDepositingStorageClay();
+                return;
+            }
+
             if (activity == ResidentActivity.PickingUpStoragePlanks)
             {
                 UpdatePickingUpStoragePlanks();
@@ -246,6 +280,18 @@ namespace ProjectUnknown.Strategy
             if (activity == ResidentActivity.DepositingStoragePlanks)
             {
                 UpdateDepositingStoragePlanks();
+                return;
+            }
+
+            if (activity == ResidentActivity.PickingUpStoragePottery)
+            {
+                UpdatePickingUpStoragePottery();
+                return;
+            }
+
+            if (activity == ResidentActivity.DepositingStoragePottery)
+            {
+                UpdateDepositingStoragePottery();
                 return;
             }
 
@@ -282,6 +328,12 @@ namespace ProjectUnknown.Strategy
             if (activity == ResidentActivity.DepositingHouseholdFood)
             {
                 UpdateDepositingHouseholdFood();
+                return;
+            }
+
+            if (activity == ResidentActivity.CookingHouseMeal)
+            {
+                UpdateHouseholdCooking();
                 return;
             }
 
@@ -378,23 +430,8 @@ namespace ProjectUnknown.Strategy
                     return;
                 }
 
-                if (activity == ResidentActivity.ReturningCoalToStorage)
+                if (TryRetryStorageProductionResourceReturn())
                 {
-                    if (!TryStartCoalReturn("resource_return_retry", true))
-                    {
-                        ScheduleCoalResourceReturnRetry();
-                    }
-
-                    return;
-                }
-
-                if (activity == ResidentActivity.ReturningPlanksToStorage)
-                {
-                    if (!TryStartPlanksReturn("resource_return_retry", true))
-                    {
-                        SchedulePlanksResourceReturnRetry();
-                    }
-
                     return;
                 }
 

@@ -25,6 +25,7 @@ namespace ProjectUnknown.Strategy
         private StrategyForestryController forestry;
         private StrategyStoneResourceController stone;
         private StrategyIronResourceController iron;
+        private StrategyClayResourceController clay;
         private Transform propRoot;
         private Vector2Int excludedCenter;
         private int excludedRadius;
@@ -124,6 +125,7 @@ namespace ProjectUnknown.Strategy
             stone = stoneController;
             iron = StrategyIronResourceController.Active;
             coal = StrategyCoalResourceController.Active;
+            clay = StrategyClayResourceController.Active;
             excludedCenter = natureExcludedCenter;
             excludedRadius = natureExcludedRadius;
             hasExclusion = useExclusion;
@@ -152,6 +154,9 @@ namespace ProjectUnknown.Strategy
             spawnedCoalDeposits = 0;
             spawnedCoalDustGround = 0;
             spawnedCoalSeams = 0;
+            spawnedClayDeposits = 0;
+            spawnedClayPatches = 0;
+            spawnedClayBanks = 0;
 
             EnsureStarterStoneDeposits();
 
@@ -171,6 +176,7 @@ namespace ProjectUnknown.Strategy
             }
 
             EnsureMinimumStoneDeposits();
+            EnsureMinimumClayDeposits();
             EnsureMinimumIronDeposits();
             EnsureMinimumCoalDeposits();
 
@@ -182,6 +188,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("stoneDeposits", spawnedStoneDeposits),
                 StrategyDebugLogger.F("ironDeposits", spawnedIronDeposits),
                 StrategyDebugLogger.F("coalDeposits", spawnedCoalDeposits),
+                StrategyDebugLogger.F("clayDeposits", spawnedClayDeposits),
                 StrategyDebugLogger.F("hasExclusion", hasExclusion),
                 StrategyDebugLogger.F("excludedCenter", hasExclusion ? excludedCenter : Vector2Int.zero),
                 StrategyDebugLogger.F("excludedRadius", hasExclusion ? excludedRadius : 0));
@@ -208,6 +215,14 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("dustGround", spawnedCoalDustGround),
                 StrategyDebugLogger.F("seams", spawnedCoalSeams),
                 StrategyDebugLogger.F("max", MaxCoalDeposits));
+            StrategyDebugLogger.Info(
+                "Clay",
+                "Generated",
+                StrategyDebugLogger.F("deposits", spawnedClayDeposits),
+                StrategyDebugLogger.F("patches", spawnedClayPatches),
+                StrategyDebugLogger.F("banks", spawnedClayBanks),
+                StrategyDebugLogger.F("max", MaxClayDeposits),
+                StrategyDebugLogger.F("waterRadius", ClayWaterSearchRadius));
         }
 
         private void PlaceNatureForCell(CityMapCell cell)
@@ -218,6 +233,11 @@ namespace ProjectUnknown.Strategy
             }
 
             if (TryPlaceStoneForCell(cell))
+            {
+                return;
+            }
+
+            if (TryPlaceClayForCell(cell))
             {
                 return;
             }

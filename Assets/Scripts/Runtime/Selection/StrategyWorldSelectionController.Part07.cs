@@ -159,6 +159,18 @@ namespace ProjectUnknown.Strategy
                 AddResidents(coalPit.Workers, results);
             }
 
+            StrategyClayPit clayPit = building.GetComponent<StrategyClayPit>();
+            if (clayPit != null)
+            {
+                AddResidents(clayPit.Workers, results);
+            }
+
+            StrategyKiln kiln = building.GetComponent<StrategyKiln>();
+            if (kiln != null)
+            {
+                AddResidents(kiln.Workers, results);
+            }
+
             StrategyHunterCamp hunterCamp = building.GetComponent<StrategyHunterCamp>();
             if (hunterCamp != null)
             {

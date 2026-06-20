@@ -27,7 +27,9 @@ namespace ProjectUnknown.Strategy
             SyncCarriedStoneRenderer();
             SyncCarriedIronRenderer();
             SyncCarriedCoalRenderer();
+            SyncCarriedClayRenderer();
             SyncCarriedPlanksRenderer();
+            SyncCarriedPotteryRenderer();
             SyncCarriedGameRenderer();
             SyncCarriedFishRenderer();
             SyncCarriedForageRenderer();

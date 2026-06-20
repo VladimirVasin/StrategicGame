@@ -172,6 +172,8 @@ namespace ProjectUnknown.Strategy
                 StrategyResourceType.Stone => carriedStoneAmount,
                 StrategyResourceType.Iron => carriedIronAmount,
                 StrategyResourceType.Coal => carriedCoalAmount,
+                StrategyResourceType.Clay => carriedClayAmount,
+                StrategyResourceType.Pottery => carriedPotteryAmount,
                 StrategyResourceType.Planks => carriedPlanksAmount,
                 _ => 0
             };
@@ -196,6 +198,14 @@ namespace ProjectUnknown.Strategy
             {
                 carriedCoalAmount = amount;
             }
+            else if (resource == StrategyResourceType.Clay)
+            {
+                carriedClayAmount = amount;
+            }
+            else if (resource == StrategyResourceType.Pottery)
+            {
+                carriedPotteryAmount = amount;
+            }
             else if (resource == StrategyResourceType.Planks)
             {
                 carriedPlanksAmount = amount;
@@ -219,6 +229,14 @@ namespace ProjectUnknown.Strategy
             else if (resource == StrategyResourceType.Coal)
             {
                 SetCarriedCoalVisible(visible);
+            }
+            else if (resource == StrategyResourceType.Clay)
+            {
+                SetCarriedClayVisible(visible);
+            }
+            else if (resource == StrategyResourceType.Pottery)
+            {
+                SetCarriedPotteryVisible(visible);
             }
             else if (resource == StrategyResourceType.Planks)
             {
@@ -261,6 +279,14 @@ namespace ProjectUnknown.Strategy
             else if (resource == StrategyResourceType.Coal)
             {
                 StoreCarriedCoalImmediately(reason, "storage_missing");
+            }
+            else if (resource == StrategyResourceType.Clay)
+            {
+                StoreCarriedClayImmediately(reason, "storage_missing");
+            }
+            else if (resource == StrategyResourceType.Pottery)
+            {
+                StoreCarriedPotteryImmediately(reason, "storage_missing");
             }
         }
     }

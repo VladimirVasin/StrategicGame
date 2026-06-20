@@ -231,6 +231,12 @@ namespace ProjectUnknown.Strategy
                 + "Coal: "
                 + coalStored
                 + "\n"
+                + "Clay: "
+                + clayStored
+                + "\n"
+                + "Pottery: "
+                + potteryStored
+                + "\n"
                 + "Planks: "
                 + planksStored
                 + "\n"
@@ -268,6 +274,8 @@ namespace ProjectUnknown.Strategy
 
             count += CountAvailableIronSources();
             count += CountAvailableCoalSources();
+            count += CountAvailableClaySources();
+            count += CountAvailablePotterySources();
             count += CountAvailablePlankSources();
             return count;
         }

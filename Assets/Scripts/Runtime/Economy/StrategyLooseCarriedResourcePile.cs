@@ -326,6 +326,8 @@ namespace ProjectUnknown.Strategy
                 StrategyResourceType.Stone => "Stone",
                 StrategyResourceType.Iron => "Iron",
                 StrategyResourceType.Coal => "Coal",
+                StrategyResourceType.Clay => "Clay",
+                StrategyResourceType.Pottery => "Pottery",
                 StrategyResourceType.Planks => "Planks",
                 _ => type.ToString()
             };

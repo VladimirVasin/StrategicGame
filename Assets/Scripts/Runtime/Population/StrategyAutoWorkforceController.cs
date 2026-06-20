@@ -22,7 +22,9 @@ namespace ProjectUnknown.Strategy
         private StrategyStonecutterCamp[] cachedStonecutterCamps = System.Array.Empty<StrategyStonecutterCamp>();
         private StrategyMine[] cachedMines = System.Array.Empty<StrategyMine>();
         private StrategyCoalPit[] cachedCoalPits = System.Array.Empty<StrategyCoalPit>();
+        private StrategyClayPit[] cachedClayPits = System.Array.Empty<StrategyClayPit>();
         private StrategySawmill[] cachedSawmills = System.Array.Empty<StrategySawmill>();
+        private StrategyKiln[] cachedKilns = System.Array.Empty<StrategyKiln>();
         private StrategyHunterCamp[] cachedHunterCamps = System.Array.Empty<StrategyHunterCamp>();
         private StrategyFisherHut[] cachedFisherHuts = System.Array.Empty<StrategyFisherHut>();
         private StrategyPopulationController population;
@@ -213,7 +215,9 @@ namespace ProjectUnknown.Strategy
             cachedStonecutterCamps = UnityEngine.Object.FindObjectsByType<StrategyStonecutterCamp>();
             cachedMines = UnityEngine.Object.FindObjectsByType<StrategyMine>();
             cachedCoalPits = UnityEngine.Object.FindObjectsByType<StrategyCoalPit>();
+            cachedClayPits = UnityEngine.Object.FindObjectsByType<StrategyClayPit>();
             cachedSawmills = UnityEngine.Object.FindObjectsByType<StrategySawmill>();
+            cachedKilns = UnityEngine.Object.FindObjectsByType<StrategyKiln>();
             cachedHunterCamps = UnityEngine.Object.FindObjectsByType<StrategyHunterCamp>();
             cachedFisherHuts = UnityEngine.Object.FindObjectsByType<StrategyFisherHut>();
         }
@@ -251,9 +255,19 @@ namespace ProjectUnknown.Strategy
                 return (T[])(object)cachedCoalPits;
             }
 
+            if (typeof(T) == typeof(StrategyClayPit))
+            {
+                return (T[])(object)cachedClayPits;
+            }
+
             if (typeof(T) == typeof(StrategySawmill))
             {
                 return (T[])(object)cachedSawmills;
+            }
+
+            if (typeof(T) == typeof(StrategyKiln))
+            {
+                return (T[])(object)cachedKilns;
             }
 
             if (typeof(T) == typeof(StrategyHunterCamp))

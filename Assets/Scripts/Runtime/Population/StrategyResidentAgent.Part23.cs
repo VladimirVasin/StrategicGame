@@ -256,7 +256,11 @@ namespace ProjectUnknown.Strategy
 
         private bool TryStartStorageCarriedReturn(string reason)
         {
-            return TryStartCarriedResourceReturn(reason) || TryStartCoalReturn(reason) || TryStartPlanksReturn(reason);
+            return TryStartCarriedResourceReturn(reason)
+                || TryStartCoalReturn(reason)
+                || TryStartClayReturn(reason)
+                || TryStartPlanksReturn(reason)
+                || TryStartPotteryReturn(reason);
         }
 
         private void ReleaseActiveStorageWorkReservations()
@@ -265,7 +269,9 @@ namespace ProjectUnknown.Strategy
             activeStoneSource?.ReleaseStoredStoneReservation(this);
             activeIronSource?.ReleaseStoredIronReservation(this);
             activeCoalSource?.ReleaseStoredCoalReservation(this);
+            activeClaySource?.ReleaseStoredClayReservation(this);
             activePlanksSource?.ReleaseOutputPickupReservation(StrategyResourceType.Planks, this);
+            activePotterySource?.ReleaseOutputPickupReservation(StrategyResourceType.Pottery, this);
             activeProductionInputTarget?.ReleaseInputDeliveryReservation(activeProductionInputResource, this);
             storageWorkplace?.ReleaseProductionInputReservation(this, activeProductionInputResource);
             activeLooseLogSource?.ReleaseStorageReservation(this);
@@ -279,7 +285,9 @@ namespace ProjectUnknown.Strategy
             activeStoneSource = null;
             activeIronSource = null;
             activeCoalSource = null;
+            activeClaySource = null;
             activePlanksSource = null;
+            activePotterySource = null;
             ClearProductionInputDelivery();
             activeLooseLogSource = null;
             activeLooseStoneSource = null;

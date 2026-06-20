@@ -381,7 +381,7 @@ namespace ProjectUnknown.Strategy
                     {
                         int column = visibleResourceIndex % 2;
                         int row = visibleResourceIndex / 2;
-                        resourceSlots[i].anchoredPosition = new Vector2(column * ResourceCellWidth, -166f - row * 40f);
+                        resourceSlots[i].anchoredPosition = new Vector2(column * ResourceCellWidth, -138f - row * 40f);
                         visibleResourceIndex++;
                     }
                 }
@@ -400,12 +400,9 @@ namespace ProjectUnknown.Strategy
                 if (resourceAmountTexts[i] != null)
                 {
                     float rationValue = amount * StrategyFoodNutrition.GetRationValue(type);
-                    resourceAmountTexts[i].text = GetResourceTitle(type)
-                        + "\n"
-                        + amount
-                        + " food, "
-                        + FormatRations(rationValue)
-                        + " rations";
+                    resourceAmountTexts[i].text = StrategyFoodNutrition.IsPreparedFood(type)
+                        ? GetResourceTitle(type) + "\n" + amount + " ready, " + FormatRations(rationValue) + " rations"
+                        : GetResourceTitle(type) + "\n" + amount + " ingredients, " + FormatRations(rationValue) + " rations";
                     resourceAmountTexts[i].color = new Color(0.88f, 0.93f, 0.90f);
                 }
             }

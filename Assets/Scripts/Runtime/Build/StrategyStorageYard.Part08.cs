@@ -29,6 +29,8 @@ namespace ProjectUnknown.Strategy
                 StrategyResourceType.Stone => new Vector3(bounds.center.x - 0.86f, bounds.min.y + 0.37f, -0.155f),
                 StrategyResourceType.Iron => new Vector3(bounds.center.x + 0.82f, bounds.min.y + 0.34f, -0.15f),
                 StrategyResourceType.Coal => new Vector3(bounds.center.x + 0.18f, bounds.min.y + 0.28f, -0.145f),
+                StrategyResourceType.Clay => new Vector3(bounds.max.x - 0.16f, bounds.min.y + 0.30f, -0.145f),
+                StrategyResourceType.Pottery => new Vector3(bounds.max.x - 0.34f, bounds.min.y + 0.58f, -0.146f),
                 StrategyResourceType.Planks => new Vector3(bounds.max.x - 0.56f, bounds.min.y + 0.39f, -0.148f),
                 _ => bounds.center
             };

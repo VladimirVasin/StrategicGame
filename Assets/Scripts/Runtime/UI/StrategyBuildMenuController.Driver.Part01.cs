@@ -423,6 +423,8 @@ namespace ProjectUnknown.Strategy
                 StrategyBuildTool.Sawmill => new Vector2Int(3, 2),
                 StrategyBuildTool.Mine => new Vector2Int(2, 2),
                 StrategyBuildTool.CoalPit => new Vector2Int(2, 2),
+                StrategyBuildTool.ClayPit => new Vector2Int(2, 2),
+                StrategyBuildTool.Kiln => new Vector2Int(2, 2),
                 StrategyBuildTool.HunterCamp => new Vector2Int(2, 2),
                 StrategyBuildTool.FisherHut => new Vector2Int(2, 2),
                 StrategyBuildTool.StorageYard => new Vector2Int(3, 2),

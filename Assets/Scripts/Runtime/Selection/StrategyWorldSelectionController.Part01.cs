@@ -207,6 +207,8 @@ namespace ProjectUnknown.Strategy
                 StrategySawmill sawmill = building.GetComponent<StrategySawmill>();
                 StrategyMine mine = building.GetComponent<StrategyMine>();
                 StrategyCoalPit coalPit = building.GetComponent<StrategyCoalPit>();
+                StrategyClayPit clayPit = building.GetComponent<StrategyClayPit>();
+                StrategyKiln kiln = building.GetComponent<StrategyKiln>();
                 StrategyHunterCamp hunterCamp = building.GetComponent<StrategyHunterCamp>();
                 StrategyFisherHut fisherHut = building.GetComponent<StrategyFisherHut>();
                 StrategyStorageYard yard = building.GetComponent<StrategyStorageYard>();
@@ -216,6 +218,8 @@ namespace ProjectUnknown.Strategy
                 bool isSawmill = sawmill != null;
                 bool isMine = mine != null;
                 bool isCoalPit = coalPit != null;
+                bool isClayPit = clayPit != null;
+                bool isKiln = kiln != null;
                 bool isHunterCamp = hunterCamp != null;
                 bool isFisherHut = fisherHut != null;
                 bool isStorageYard = yard != null;
@@ -227,7 +231,7 @@ namespace ProjectUnknown.Strategy
                 }
 
                 SetWorkersSectionVisible(false);
-                if (isLumberjackCamp || isStonecutterCamp || isSawmill || isMine || isCoalPit || isHunterCamp || isFisherHut || isGranary)
+                if (isLumberjackCamp || isStonecutterCamp || isSawmill || isMine || isCoalPit || isClayPit || isKiln || isHunterCamp || isFisherHut || isGranary)
                 {
                     LayoutContextSection(128f, 214f);
                 }
@@ -260,6 +264,18 @@ namespace ProjectUnknown.Strategy
                 {
                     hudContextTitleText.text = "Coal and Stock";
                     hudContextBodyText.text = coalPit.GetHudStatusText();
+                    SetContextSectionVisible(true);
+                }
+                else if (isClayPit)
+                {
+                    hudContextTitleText.text = "Clay and Stock";
+                    hudContextBodyText.text = clayPit.GetHudStatusText();
+                    SetContextSectionVisible(true);
+                }
+                else if (isKiln)
+                {
+                    hudContextTitleText.text = "Clay, Coal and Pottery";
+                    hudContextBodyText.text = kiln.GetHudStatusText();
                     SetContextSectionVisible(true);
                 }
                 else if (isHunterCamp)

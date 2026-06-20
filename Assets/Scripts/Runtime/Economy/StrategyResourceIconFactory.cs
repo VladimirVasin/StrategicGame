@@ -17,7 +17,6 @@ namespace ProjectUnknown.Strategy
 
             return sprite;
         }
-
         private static Sprite CreateSprite(StrategyResourceType type)
         {
             Texture2D texture = new Texture2D(24, 24, TextureFormat.RGBA32, false)
@@ -29,9 +28,8 @@ namespace ProjectUnknown.Strategy
             texture.SetPixels(new Color[24 * 24]);
             switch (type)
             {
-                case StrategyResourceType.Eggs:
-                    PaintEggs(texture);
-                    break;
+                case StrategyResourceType.Dish: PaintDish(texture); break;
+                case StrategyResourceType.Eggs: PaintEggs(texture); break;
                 case StrategyResourceType.Turnip:
                     PaintTurnip(texture);
                     break;
@@ -69,9 +67,9 @@ namespace ProjectUnknown.Strategy
                 case StrategyResourceType.Iron:
                     PaintIron(texture);
                     break;
-                case StrategyResourceType.Coal:
-                    PaintCoal(texture);
-                    break;
+                case StrategyResourceType.Coal: PaintCoal(texture); break;
+                case StrategyResourceType.Clay: PaintClay(texture); break;
+                case StrategyResourceType.Pottery: PaintPottery(texture); break;
                 case StrategyResourceType.Planks:
                     PaintPlanks(texture);
                     break;

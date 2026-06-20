@@ -83,6 +83,7 @@ namespace ProjectUnknown.Strategy
         {
             get { return IsSettlementWorkTime; }
         }
+        public static bool IsHouseholdCookingTime => CurrentCalendarSnapshot.Phase == StrategyTimeOfDayPhase.Dusk;
 
         public static float ShadowOpacityMultiplier { get; private set; } = 1f;
         public static float ShadowLengthMultiplier { get; private set; } = 1f;

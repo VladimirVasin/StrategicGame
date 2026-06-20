@@ -9,7 +9,7 @@ namespace ProjectUnknown.Strategy
         private const int StorageChipBuilders = 1;
         private const int StorageChipSources = 2;
         private const int StorageChipCount = 3;
-        private const int StorageResourceCount = 5;
+        private const int StorageResourceCount = 7;
 
         private static readonly StrategyResourceType[] StorageResourceTypes =
         {
@@ -17,7 +17,9 @@ namespace ProjectUnknown.Strategy
             StrategyResourceType.Stone,
             StrategyResourceType.Planks,
             StrategyResourceType.Iron,
-            StrategyResourceType.Coal
+            StrategyResourceType.Coal,
+            StrategyResourceType.Clay,
+            StrategyResourceType.Pottery
         };
 
         private RectTransform storageYardHudRoot;
@@ -36,7 +38,7 @@ namespace ProjectUnknown.Strategy
         private void CreateStorageYardHud()
         {
             storageYardHudRoot = CreateUiObject("StorageYardHud", hudPanel).GetComponent<RectTransform>();
-            SetTopStretch(storageYardHudRoot, 18f, 128f, 18f, 430f);
+            SetTopStretch(storageYardHudRoot, 18f, 128f, 18f, 508f);
             storageYardHudRoot.gameObject.SetActive(false);
 
             CreateStorageChip(StorageChipHaulers, "HaulersChip", 0f, "Haulers");
@@ -53,6 +55,8 @@ namespace ProjectUnknown.Strategy
             CreateStorageResourceCard(2, 0f, 152f);
             CreateStorageResourceCard(3, 166f, 152f);
             CreateStorageResourceCard(4, 0f, 230f);
+            CreateStorageResourceCard(5, 166f, 230f);
+            CreateStorageResourceCard(6, 0f, 308f);
             CreateStorageStatusPanel();
         }
 
@@ -165,7 +169,7 @@ namespace ProjectUnknown.Strategy
         private void CreateStorageStatusPanel()
         {
             RectTransform row = CreateUiObject("Status", storageYardHudRoot).GetComponent<RectTransform>();
-            SetTopStretch(row, 0f, 318f, 0f, 76f);
+            SetTopStretch(row, 0f, 386f, 0f, 76f);
             storageStatusBackground = row.gameObject.AddComponent<Image>();
             storageStatusBackground.color = new Color(0.10f, 0.15f, 0.14f, 0.92f);
             storageStatusBackground.raycastTarget = false;
@@ -216,6 +220,8 @@ namespace ProjectUnknown.Strategy
                 StrategyResourceType.Planks => yard.PlanksStored,
                 StrategyResourceType.Iron => yard.IronStored,
                 StrategyResourceType.Coal => yard.CoalStored,
+                StrategyResourceType.Clay => yard.ClayStored,
+                StrategyResourceType.Pottery => yard.PotteryStored,
                 _ => 0
             };
         }
@@ -234,6 +240,8 @@ namespace ProjectUnknown.Strategy
                 StrategyResourceType.Planks => "available " + yard.AvailableConstructionPlanks,
                 StrategyResourceType.Iron => "stored",
                 StrategyResourceType.Coal => "stored",
+                StrategyResourceType.Clay => "stored",
+                StrategyResourceType.Pottery => "stored",
                 _ => "stored"
             };
         }

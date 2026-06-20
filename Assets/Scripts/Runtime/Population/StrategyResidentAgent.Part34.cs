@@ -11,7 +11,9 @@ namespace ProjectUnknown.Strategy
             int droppedStone = carriedStoneAmount;
             int droppedIron = carriedIronAmount;
             int droppedCoal = carriedCoalAmount;
+            int droppedClay = carriedClayAmount;
             int droppedPlanks = carriedPlanksAmount;
+            int droppedPottery = carriedPotteryAmount;
             int droppedGame = carriedGameAmount;
             int droppedFish = carriedFishAmount;
             int droppedForage = carriedForageAmount;
@@ -20,7 +22,9 @@ namespace ProjectUnknown.Strategy
                 && droppedStone <= 0
                 && droppedIron <= 0
                 && droppedCoal <= 0
+                && droppedClay <= 0
                 && droppedPlanks <= 0
+                && droppedPottery <= 0
                 && droppedGame <= 0
                 && droppedFish <= 0
                 && droppedForage <= 0)
@@ -37,7 +41,9 @@ namespace ProjectUnknown.Strategy
                     droppedStone,
                     droppedIron,
                     droppedCoal,
+                    droppedClay,
                     ref droppedPlanks,
+                    droppedPottery,
                     droppedGame,
                     droppedFish,
                     droppedForageResource,
@@ -50,7 +56,9 @@ namespace ProjectUnknown.Strategy
                     droppedStone,
                     droppedIron,
                     droppedCoal,
+                    droppedClay,
                     droppedPlanks,
+                    droppedPottery,
                     droppedGame,
                     droppedFish,
                     droppedForageResource,
@@ -66,7 +74,9 @@ namespace ProjectUnknown.Strategy
             int droppedStone,
             int droppedIron,
             int droppedCoal,
+            int droppedClay,
             ref int droppedPlanks,
+            int droppedPottery,
             int droppedGame,
             int droppedFish,
             StrategyResourceType droppedForageResource,
@@ -109,7 +119,9 @@ namespace ProjectUnknown.Strategy
             DropLooseCarriedResourceOnDeath(cell, StrategyResourceType.Fish, droppedFish);
             DropLooseCarriedResourceOnDeath(cell, StrategyResourceType.Iron, droppedIron);
             DropLooseCarriedResourceOnDeath(cell, StrategyResourceType.Coal, droppedCoal);
+            DropLooseCarriedResourceOnDeath(cell, StrategyResourceType.Clay, droppedClay);
             DropLooseCarriedResourceOnDeath(cell, StrategyResourceType.Planks, droppedPlanks);
+            DropLooseCarriedResourceOnDeath(cell, StrategyResourceType.Pottery, droppedPottery);
             DropLooseCarriedResourceOnDeath(cell, droppedForageResource, droppedForage);
         }
 
@@ -118,7 +130,9 @@ namespace ProjectUnknown.Strategy
             int droppedStone,
             int droppedIron,
             int droppedCoal,
+            int droppedClay,
             int droppedPlanks,
+            int droppedPottery,
             int droppedGame,
             int droppedFish,
             StrategyResourceType droppedForageResource,
@@ -132,7 +146,9 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("stone", droppedStone),
                 StrategyDebugLogger.F("iron", droppedIron),
                 StrategyDebugLogger.F("coal", droppedCoal),
+                StrategyDebugLogger.F("clay", droppedClay),
                 StrategyDebugLogger.F("planks", droppedPlanks),
+                StrategyDebugLogger.F("pottery", droppedPottery),
                 StrategyDebugLogger.F("game", droppedGame),
                 StrategyDebugLogger.F("fish", droppedFish),
                 StrategyDebugLogger.F("forageResource", droppedForageResource),
@@ -146,7 +162,9 @@ namespace ProjectUnknown.Strategy
             carriedStoneAmount = 0;
             carriedIronAmount = 0;
             carriedCoalAmount = 0;
+            carriedClayAmount = 0;
             carriedPlanksAmount = 0;
+            carriedPotteryAmount = 0;
             carriedGameAmount = 0;
             carriedFishAmount = 0;
             carriedForageAmount = 0;
@@ -157,7 +175,9 @@ namespace ProjectUnknown.Strategy
             SetCarriedStoneVisible(false);
             SetCarriedIronVisible(false);
             SetCarriedCoalVisible(false);
+            SetCarriedClayVisible(false);
             SetCarriedPlanksVisible(false);
+            SetCarriedPotteryVisible(false);
             SetCarriedGameVisible(false);
             SetCarriedFishVisible(false);
             SetCarriedForageVisible(false);

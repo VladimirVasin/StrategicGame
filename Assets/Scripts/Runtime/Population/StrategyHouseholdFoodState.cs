@@ -115,30 +115,18 @@ namespace ProjectUnknown.Strategy
             }
 
             lastRequiredRations = CalculateRequiredRations();
-            int homeFood = house.Resources != null ? house.Resources.GetTotalFoodAmount() : 0;
-            float homeFoodRations = house.Resources != null ? house.Resources.GetTotalRationValue() : 0f;
+            int preparedDishes = house.Resources != null ? house.Resources.GetPreparedDishAmount() : 0;
+            float preparedDishRations = house.Resources != null ? house.Resources.GetPreparedDishRations() : 0f;
+            int ingredientFood = house.Resources != null ? house.Resources.GetTotalIngredientAmount() : 0;
+            float ingredientRations = house.Resources != null ? house.Resources.GetTotalIngredientRationValue() : 0f;
             int granaryFood = StrategyGranary.GetTotalSettlementFood();
             float granaryFoodRations = StrategyGranary.GetTotalSettlementFoodRations();
-            float remainingRations = lastRequiredRations;
             lastHouseFoodConsumed = house.Resources != null
-                ? house.Resources.ConsumeRations(remainingRations, out lastHouseRationsSupplied)
+                ? house.Resources.ConsumePreparedDishes(lastRequiredRations, out lastHouseRationsSupplied)
                 : 0;
-            remainingRations = Mathf.Max(0f, remainingRations - lastHouseRationsSupplied);
-
-            if (remainingRations > 0.01f)
-            {
-                lastGranaryRationsSupplied = StrategyGranary.ConsumeSettlementFoodRations(
-                    remainingRations,
-                    house.FootprintBounds.center,
-                    out lastGameConsumed,
-                    out lastFishConsumed);
-            }
-            else
-            {
-                lastGranaryRationsSupplied = 0f;
-                lastGameConsumed = 0;
-                lastFishConsumed = 0;
-            }
+            lastGranaryRationsSupplied = 0f;
+            lastGameConsumed = 0;
+            lastFishConsumed = 0;
 
             lastConsumedFood = lastHouseFoodConsumed + lastGameConsumed + lastFishConsumed;
             lastSuppliedRations = Mathf.Min(lastRequiredRations, lastHouseRationsSupplied + lastGranaryRationsSupplied);
@@ -152,22 +140,20 @@ namespace ProjectUnknown.Strategy
                 shortageStreakDays = Mathf.Max(0, shortageStreakDays - 1);
                 StrategyDebugLogger.Info(
                     "Food",
-                    "HouseholdDailyRationMet",
+                    "HouseholdDinnerDishesMet",
                     StrategyDebugLogger.F("houseOrigin", house.Origin),
                     StrategyDebugLogger.F("day", dayIndex),
                     StrategyDebugLogger.F("residents", lastResidentCount),
                     StrategyDebugLogger.F("requiredRations", lastRequiredRations),
                     StrategyDebugLogger.F("suppliedRations", lastSuppliedRations),
-                    StrategyDebugLogger.F("consumed", lastConsumedFood),
-                    StrategyDebugLogger.F("houseFood", lastHouseFoodConsumed),
-                    StrategyDebugLogger.F("houseRations", lastHouseRationsSupplied),
-                    StrategyDebugLogger.F("game", lastGameConsumed),
-                    StrategyDebugLogger.F("fish", lastFishConsumed),
-                    StrategyDebugLogger.F("granaryRations", lastGranaryRationsSupplied),
+                    StrategyDebugLogger.F("dishesConsumed", lastHouseFoodConsumed),
+                    StrategyDebugLogger.F("dishRations", lastHouseRationsSupplied),
                     StrategyDebugLogger.F("previousShortageDays", previousShortage),
                     StrategyDebugLogger.F("shortageDays", shortageStreakDays),
-                    StrategyDebugLogger.F("homeFoodBefore", homeFood),
-                    StrategyDebugLogger.F("homeRationsBefore", homeFoodRations),
+                    StrategyDebugLogger.F("dishesBefore", preparedDishes),
+                    StrategyDebugLogger.F("dishRationsBefore", preparedDishRations),
+                    StrategyDebugLogger.F("ingredientsBefore", ingredientFood),
+                    StrategyDebugLogger.F("ingredientRationsBefore", ingredientRations),
                     StrategyDebugLogger.F("granaryFoodBefore", granaryFood),
                     StrategyDebugLogger.F("granaryRationsBefore", granaryFoodRations));
             }
@@ -176,26 +162,24 @@ namespace ProjectUnknown.Strategy
                 shortageStreakDays++;
                 StrategyDebugLogger.Warn(
                     "Food",
-                    "HouseholdDailyRationShort",
+                    "HouseholdDinnerMissingDishes",
                     StrategyDebugLogger.F("houseOrigin", house.Origin),
                     StrategyDebugLogger.F("day", dayIndex),
                     StrategyDebugLogger.F("residents", lastResidentCount),
                     StrategyDebugLogger.F("requiredRations", lastRequiredRations),
                     StrategyDebugLogger.F("suppliedRations", lastSuppliedRations),
                     StrategyDebugLogger.F("missingRations", lastMissingRations),
-                    StrategyDebugLogger.F("consumed", lastConsumedFood),
-                    StrategyDebugLogger.F("houseFood", lastHouseFoodConsumed),
-                    StrategyDebugLogger.F("houseRations", lastHouseRationsSupplied),
-                    StrategyDebugLogger.F("game", lastGameConsumed),
-                    StrategyDebugLogger.F("fish", lastFishConsumed),
-                    StrategyDebugLogger.F("granaryRations", lastGranaryRationsSupplied),
+                    StrategyDebugLogger.F("dishesConsumed", lastHouseFoodConsumed),
+                    StrategyDebugLogger.F("dishRations", lastHouseRationsSupplied),
                     StrategyDebugLogger.F("previousShortageDays", previousShortage),
                     StrategyDebugLogger.F("shortageDays", shortageStreakDays),
                     StrategyDebugLogger.F("hungryResidents", hungryResidentCount),
                     StrategyDebugLogger.F("starvingResidents", starvingResidentCount),
                     StrategyDebugLogger.F("mortalityMultiplier", MortalityMultiplier),
-                    StrategyDebugLogger.F("homeFoodBefore", homeFood),
-                    StrategyDebugLogger.F("homeRationsBefore", homeFoodRations),
+                    StrategyDebugLogger.F("dishesBefore", preparedDishes),
+                    StrategyDebugLogger.F("dishRationsBefore", preparedDishRations),
+                    StrategyDebugLogger.F("ingredientsBefore", ingredientFood),
+                    StrategyDebugLogger.F("ingredientRationsBefore", ingredientRations),
                     StrategyDebugLogger.F("granaryFoodBefore", granaryFood),
                     StrategyDebugLogger.F("granaryRationsBefore", granaryFoodRations));
             }
