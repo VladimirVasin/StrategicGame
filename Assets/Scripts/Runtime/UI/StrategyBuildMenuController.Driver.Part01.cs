@@ -428,6 +428,7 @@ namespace ProjectUnknown.Strategy
                 StrategyBuildTool.Forge => new Vector2Int(2, 2),
                 StrategyBuildTool.HunterCamp => new Vector2Int(2, 2),
                 StrategyBuildTool.FisherHut => new Vector2Int(2, 2),
+                StrategyBuildTool.TradingPost => new Vector2Int(3, 2),
                 StrategyBuildTool.StorageYard => new Vector2Int(3, 2),
                 StrategyBuildTool.Granary => new Vector2Int(3, 2),
                 StrategyBuildTool.Bridge => Vector2Int.one,

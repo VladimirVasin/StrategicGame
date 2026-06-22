@@ -17,7 +17,7 @@ namespace ProjectUnknown.Strategy
 
         [Header("Zoom")]
         [SerializeField] private float minZoom = 4f;
-        [SerializeField] private float maxZoom = 36f;
+        [SerializeField] private float maxZoom = 54f;
         [SerializeField] private float wheelZoomStep = 2.5f;
         [SerializeField] private float keyZoomSpeed = 16f;
 

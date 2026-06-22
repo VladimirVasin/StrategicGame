@@ -160,19 +160,18 @@ namespace ProjectUnknown.Strategy
 
             EnsureStarterStoneDeposits();
 
-            for (int y = 0; y < map.Height; y++)
+            int totalCells = map.Width * map.Height;
+            for (int i = 0; i < totalCells && spawnedProps < MaxNatureProps; i++)
             {
-                for (int x = 0; x < map.Width; x++)
+                int cellIndex = StrategyMapDistributionUtility.GetShuffledIndex(map.ActiveSeed, i, totalCells, 701);
+                int x = cellIndex % map.Width;
+                int y = cellIndex / map.Width;
+                if (IsInsideExclusion(x, y) || !map.TryGetCell(x, y, out CityMapCell cell))
                 {
-                    if (spawnedProps >= MaxNatureProps
-                        || IsInsideExclusion(x, y)
-                        || !map.TryGetCell(x, y, out CityMapCell cell))
-                    {
-                        continue;
-                    }
-
-                    PlaceNatureForCell(cell);
+                    continue;
                 }
+
+                PlaceNatureForCell(cell);
             }
 
             EnsureMinimumStoneDeposits();
@@ -252,7 +251,12 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            float roll = Hash01(map.ActiveSeed, cell.X, cell.Y, 11);
+            float vegetationCluster = GetVegetationClusterScore(cell);
+            float roll = StrategyMapDistributionUtility.ApplyClusterToRoll(
+                Hash01(map.ActiveSeed, cell.X, cell.Y, 11),
+                vegetationCluster,
+                0.38f,
+                1.48f);
             switch (cell.Kind)
             {
                 case CityMapCellKind.Forest:
@@ -324,10 +328,12 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            float score = GetStoneScore(cell);
+            float cluster = GetStoneClusterScore(cell);
+            float score = Mathf.Clamp01(GetStoneScore(cell) * 0.82f + cluster * 0.24f);
             float roll = Hash01(map.ActiveSeed, cell.X, cell.Y, 809);
 
-            if (score > 0.76f && roll < GetStoneChance(cell.Kind, 0.032f))
+            if (score > 0.76f
+                && roll < StrategyMapDistributionUtility.ApplyClusterToChance(GetStoneChance(cell.Kind, 0.032f), cluster, 0.24f, 2.10f))
             {
                 Vector2Int cliffFootprint = Hash01(map.ActiveSeed, cell.X, cell.Y, 811) > 0.42f
                     ? new Vector2Int(3, 2)
@@ -347,7 +353,8 @@ namespace ProjectUnknown.Strategy
                 }
             }
 
-            if (score > 0.64f && roll < GetStoneChance(cell.Kind, 0.085f))
+            if (score > 0.64f
+                && roll < StrategyMapDistributionUtility.ApplyClusterToChance(GetStoneChance(cell.Kind, 0.085f), cluster, 0.30f, 1.85f))
             {
                 Vector2Int clusterFootprint = Hash01(map.ActiveSeed, cell.X, cell.Y, 823) > 0.62f
                     ? new Vector2Int(2, 2)
@@ -367,7 +374,8 @@ namespace ProjectUnknown.Strategy
                 }
             }
 
-            if (score > 0.50f && roll < GetStoneChance(cell.Kind, 0.155f))
+            if (score > 0.50f
+                && roll < StrategyMapDistributionUtility.ApplyClusterToChance(GetStoneChance(cell.Kind, 0.155f), cluster, 0.34f, 1.65f))
             {
                 return TryCreateStoneDeposit(
                     cell,
@@ -391,14 +399,16 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            int attempts = Mathf.Max(256, map.Width * map.Height * 2);
+            int totalCells = map.Width * map.Height;
+            int attempts = Mathf.Max(256, totalCells);
             for (int i = 0; i < attempts
                 && spawnedStoneDeposits < MinimumStoneDeposits
                 && spawnedProps < MaxNatureProps
                 && spawnedStoneDeposits < MaxStoneDeposits; i++)
             {
-                int x = Hash(map.ActiveSeed, i, 0, 1901, map.Width) % map.Width;
-                int y = Hash(map.ActiveSeed, i, 0, 1907, map.Height) % map.Height;
+                int cellIndex = StrategyMapDistributionUtility.GetShuffledIndex(map.ActiveSeed, i, totalCells, 1901);
+                int x = cellIndex % map.Width;
+                int y = cellIndex / map.Width;
                 if (!map.TryGetCell(x, y, out CityMapCell cell)
                     || !IsStoneAllowedKind(cell.Kind)
                     || IsInsideExclusion(x, y)
@@ -407,7 +417,7 @@ namespace ProjectUnknown.Strategy
                     continue;
                 }
 
-                float score = GetStoneScore(cell);
+                float score = Mathf.Clamp01(GetStoneScore(cell) * 0.82f + GetStoneClusterScore(cell) * 0.24f);
                 float clusterRoll = Hash01(map.ActiveSeed, x, y, 1913);
                 if (score > 0.73f && clusterRoll > 0.82f)
                 {

@@ -86,7 +86,7 @@ namespace ProjectUnknown.Strategy
             }
 
             T[] sites = GetCachedSites<T>();
-            Array.Sort(sites, (left, right) => getWorkers(left).CompareTo(getWorkers(right)));
+            demandSiteScratch.Clear();
             int desired = Mathf.Min(desiredWorkers, priority);
             int capacity = 0;
             for (int i = 0; i < sites.Length; i++)
@@ -101,20 +101,16 @@ namespace ProjectUnknown.Strategy
             int target = Mathf.Min(desired, capacity);
             SetDesiredProfessionTarget(profession, target);
             int remaining = Mathf.Max(0, target - CountAssignedProfession(profession));
-            for (int i = 0; i < sites.Length && remaining > 0; i++)
+            while (remaining > 0)
             {
-                T site = sites[i];
-                if (site == null || !canWork(site))
+                T site = FindLeastStaffedOpenSite(sites, getWorkers, getCapacity, canWork);
+                if (site == null)
                 {
-                    continue;
+                    break;
                 }
 
+                demandSiteScratch.Add(site);
                 int open = Mathf.Max(0, getCapacity(site) - getWorkers(site));
-                if (open <= 0)
-                {
-                    continue;
-                }
-
                 int needed = Mathf.Min(open, remaining);
                 remaining -= needed;
                 AddDemand(
@@ -126,6 +122,36 @@ namespace ProjectUnknown.Strategy
                     extraUrgency - getWorkers(site) * 10f,
                     reason);
             }
+        }
+
+        private T FindLeastStaffedOpenSite<T>(
+            T[] sites,
+            Func<T, int> getWorkers,
+            Func<T, int> getCapacity,
+            Func<T, bool> canWork)
+            where T : Component
+        {
+            T best = null;
+            int bestWorkers = int.MaxValue;
+            for (int i = 0; i < sites.Length; i++)
+            {
+                T site = sites[i];
+                if (site == null || demandSiteScratch.Contains(site) || !canWork(site))
+                {
+                    continue;
+                }
+
+                int workers = getWorkers(site);
+                if (workers >= getCapacity(site) || workers >= bestWorkers)
+                {
+                    continue;
+                }
+
+                best = site;
+                bestWorkers = workers;
+            }
+
+            return best;
         }
 
         private void AddDemand(

@@ -168,6 +168,7 @@ namespace ProjectUnknown.Strategy
 
             CreateResidentHud();
             CreateStorageYardHud();
+            CreateTradingPostHud();
             CreateProductionUpgradeHud();
 
             resourcesRoot = CreateUiObject("HouseResources", hudPanel).GetComponent<RectTransform>();

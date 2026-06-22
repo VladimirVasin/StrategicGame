@@ -1,6 +1,6 @@
 # Systems Map
 
-Last updated: 2026-06-19
+Last updated: 2026-06-23
 
 Use this file as the first navigation pass before broad searches. Owner cards are starting points, not hard boundaries.
 
@@ -281,7 +281,7 @@ Impact hints:
 Responsibilities:
 
 - Hold basic map-cell data for the strategy MVP.
-- Generate a visible 2D terrain map at runtime.
+- Generate a visible 192x192 default 2D terrain map at runtime.
 - Randomize the active map seed by default and derive a generation profile from it.
 - Generate variable rivers, shorelines, optional water blobs, and clustered land terrain.
 - Tag generated water and shore cells with `CityMapWaterKind.River` or `CityMapWaterKind.Lake` for direct future gameplay queries.
@@ -313,9 +313,11 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.Diagnostics.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.Visibility.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailSpriteFactory.cs`
+- `Assets/Scripts/Runtime/Map/StrategyMapDistributionUtility.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTerrainTexturePainter.cs`
 - `Assets/Scripts/Runtime/Map/CityMapController.Buildability.cs`
 - `Assets/Scripts/Runtime/Map/StrategyNaturePropController.cs`
+- `Assets/Scripts/Runtime/Map/StrategyNaturePropController.Distribution.cs`
 - `Assets/Scripts/Runtime/Map/StrategyNatureSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Map/StrategyStoneResourceController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyStoneDeposit.cs`
@@ -339,12 +341,12 @@ Impact hints:
 - Water source identity is stored on `CityMapCell.WaterKind`; future systems should query that instead of guessing river/lake from geometry.
 - River current direction is stored on `CityMapController.RiverFlowDirection`; river-specific ambience/gameplay should follow that instead of creating independent direction timers.
 - Terrain kind generation now uses a seed-derived profile plus multi-octave noise; texture painting consumes the active seed.
-- Nature prop placement consumes the active seed and generated cell kinds.
-- Stone deposit placement consumes the active seed and generated cell kinds.
-- Iron field placement consumes the active seed and generated walkable land cells; Iron deposits are underground fields that do not block walkability but block normal buildability.
-- Coal field placement consumes the active seed and generated walkable land cells; Coal deposits are underground fields that do not block walkability but block normal buildability.
-- Clay field placement consumes the active seed and generated walkable near-water land/shore cells; Clay deposits do not block walkability but block normal buildability.
-- Forage placement consumes the active seed, generated cell kinds, and current walkability; forage nodes are non-blocking but reserved/depleted/regrown by household foragers.
+- Nature prop placement consumes the active seed and generated cell kinds through a shared shuffled full-map pass, so capped prop budgets do not fill only the first scanned area on large maps.
+- Stone deposit placement consumes the active seed, generated cell kinds, and macro cluster score.
+- Iron field placement consumes the active seed, generated walkable land cells, and macro cluster score; Iron deposits are underground fields that do not block walkability but block normal buildability.
+- Coal field placement consumes the active seed, generated walkable land cells, and macro cluster score; Coal deposits are underground fields that do not block walkability but block normal buildability.
+- Clay field placement consumes the active seed, generated walkable near-water land/shore cells, and macro cluster score; Clay deposits do not block walkability but block normal buildability.
+- Forage placement consumes the active seed, generated cell kinds, current walkability, the shared shuffled full-map pass, and macro cluster score; forage nodes are non-blocking but reserved/depleted/regrown by household foragers.
 - Generated standalone tree props register as mature forestry trees and block their cells.
 - Forest groups and bushes remain non-interactive but block their cells.
 - Generated Stone deposits register as Boulder, Rock Cluster, or Cliff resource deposits and block their cells.
@@ -354,7 +356,7 @@ Impact hints:
 - Future placement/economy work should reuse `CityMapCell`/bounds rather than duplicating map dimensions.
 - Future movement/pathfinding should use `IsCellWalkable` rather than terrain kind alone.
 - Rendering is currently a generated point-filtered texture on a `SpriteRenderer`, not a Tilemap.
-- Water and shore animation is a separate transparent `SpriteRenderer` overlay above the static map and below world props; it reads active weather intensity for rain ripple hits.
+- Water and shore animation is a separate transparent `SpriteRenderer` overlay above the static map and below world props; it reads active weather intensity for rain ripple hits and repaints only cached water/shore cells after setup.
 - Trail visuals use one `SpriteRenderer` per visible trail cell under a `Trail Visuals` root, sorted above terrain/water overlays and below world props, with cardinal N/E/S/W right-angle masks and narrow line/brush sprites; cells with only diagonal or isolated trail wear stay hidden visually so early traffic noise does not form spider-web strands.
 - Trail wear is runtime-only and should be refreshed when walkability/buildability changes so blocked cells do not keep visible trails.
 - Resident pathfinding should continue to read functional trail wear as a cost preference, not as required connectivity; do not tie movement bonuses to visual-only orthogonal filtering.
@@ -427,7 +429,7 @@ Impact hints:
 - Current visibility is reduced by Dusk/Night/Dawn and dense Fog weather, but persistent explored state and daylight-range hidden checks stay separate.
 - Weather Fog replaces normal explored gray-zone rendering with light/medium/dense fog bands around current visible cells.
 - Wildlife spawn/reproduction/migration hidden checks should use daylight-range visibility so temporary night blindness does not count as a safe spawn opening.
-- The F9 debug panel can hide the fog overlay and make map cells count as explored for player placement/selection until toggled back on; it also owns tester-facing instant construction toggles through shared debug options.
+- The F9 debug panel can hide the fog overlay and make map cells count as explored for player placement/selection until toggled back on; Fog of War also skips refresh ticks while player fog is disabled. The F9 panel also owns tester-facing instant construction toggles through shared debug options.
 - Future scouting, enemies, stealth, minimap, or save/load should extend this subsystem instead of duplicating visibility arrays.
 
 ### Nature Props
@@ -738,6 +740,7 @@ Responsibilities:
 - Orthographic map navigation.
 - Initial medium-close campfire focus from runtime bootstrap.
 - Mouse-wheel and keyboard zoom.
+- Maximum zoom-out is 54 orthographic units for the current 192x192 default map.
 - WASD/arrow/edge/drag panning.
 - Camera clamping to map bounds.
 
@@ -787,7 +790,7 @@ Responsibilities:
 - F9 instant construction debug mode makes build tools affordable and shows item cost badges as `Free`.
 - Temporary goal-driven tool locks that disable locked categories/items, block mouse and hotkey selection, and show `Locked` item badges.
 - Top-left construction resource panel with x1/x2/x3 speed buttons directly beneath it.
-- Current catalog entries: `Housing` / `House`, `Extraction` / `Lumberjack Camp`, `Stonecutter Camp`, `Mine`, `Coal Pit`, `Clay Pit`, `Hunter Camp`, and `Fisher Hut`, `Production` / `Sawmill`, `Kiln`, and `Forge`, `Storage` / `Storage Yard` and `Granary`, and `Infrastructure` / `Bridge`.
+- Current catalog entries: `Housing` / `House`, `Extraction` / `Lumberjack Camp`, `Stonecutter Camp`, `Mine`, `Coal Pit`, `Clay Pit`, `Hunter Camp`, and `Fisher Hut`, `Production` / `Sawmill`, `Kiln`, and `Forge`, `Storage` / `Storage Yard` and `Granary`, `Trade` / `Trading Post`, and `Infrastructure` / `Bridge`.
 - Hotkeys for open/close, category/item selection, and layered cancel.
 - EventSystem/Input System UI setup when the scene has no UI event module.
 - Add tools/buildings gradually only by explicit user request.
@@ -822,6 +825,8 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Build/StrategyBuildingSpriteFactory.Part08.cs`
 - `Assets/Scripts/Runtime/Build/StrategyBuildingSpriteFactory.Part09.cs`
 - `Assets/Scripts/Runtime/Build/StrategyBuildingSpriteFactory.Part10.cs`
+- `Assets/Scripts/Runtime/Build/StrategyBuildingSpriteFactory.Part11.cs`
+- `Assets/Scripts/Runtime/Build/StrategyTradingPost.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStorageYard.cs`
 - `Assets/Scripts/Runtime/Build/StrategyGranary.cs`
 - `Assets/Scripts/Runtime/Economy/StrategyConstructionResourceCost.cs`
@@ -834,11 +839,12 @@ Impact hints:
 - The public `StrategyBuildMenuController` component is a thin wrapper; `StrategyBuildMenuControllerDriver` owns selected active build tool data and reads `StrategyStorageYard.GetTotalConstructionResources()` for affordability, including Storage Yard stock and loose piles, unless F9 instant construction debug mode is enabled.
 - Placement reads `StrategyBuildMenuController.ActiveTool` / active tool info.
 - Starter goals call `StrategyBuildMenuController.SetAllowedTools()` and `ClearAllowedTools()`; keep lock checks shared by mouse clicks, hotkeys, active tool info, and affordability/selection visuals.
-- Current catalog has user-requested buildings only: `House`, `Lumberjack Camp`, `Stonecutter Camp`, `Sawmill`, `Kiln`, `Forge`, `Hunter Camp`, `Fisher Hut`, `Mine`, `Coal Pit`, `Clay Pit`, `Storage Yard`, `Granary`, and `Bridge`; do not add more without a user request.
+- Current catalog has user-requested buildings only: `House`, `Lumberjack Camp`, `Stonecutter Camp`, `Sawmill`, `Kiln`, `Forge`, `Hunter Camp`, `Fisher Hut`, `Mine`, `Coal Pit`, `Clay Pit`, `Storage Yard`, `Granary`, `Trading Post`, and `Bridge`; do not add more without a user request.
 - Current `Housing` category directly activates `House` because it has one item.
 - Current `Extraction` category opens a tray with raw-resource buildings: `Lumberjack Camp`, `Stonecutter Camp`, `Mine`, `Coal Pit`, `Clay Pit`, `Hunter Camp`, and `Fisher Hut`.
 - Current `Production` category opens a tray with processing buildings: `Sawmill`, `Kiln`, and `Forge`.
 - Current `Storage` category opens a tray with `Storage Yard` and `Granary`.
+- Current `Trade` category directly activates `Trading Post` because it has one item.
 - Successful placement asks the menu to close all open layers and records the placement frame.
 - If a full HUD/menu shell appears later, decide whether this controller remains standalone or becomes part of the HUD shell.
 
@@ -989,7 +995,7 @@ Responsibilities:
 - Runtime-created settlement workforce automation.
 - Keep player priority settings for Construction, Food, Logistics, Wood, Stone, Planks, Iron, Coal, Clay, Pottery, and Tools.
 - Tick every few seconds instead of every frame.
-- Cache current worksite arrays once per tick and reuse that snapshot through demand, fallback, release, and rebalance calculations.
+- Cache current worksite arrays on a real-time cadence and reuse that snapshot through demand, fallback, release, and rebalance calculations without sorting the cached arrays in place.
 - Scan eligible free adults through `StrategyPopulationController.Residents`.
 - Compute desired targets for every auto-managed profession from the player priority values, release surplus workers through normal worksite unassign APIs, and let higher-scored shortages pull limited donors from lower-priority auto-managed roles when there are no free adults.
 - Maintain a coverage floor of 1 worker for available auto-managed professions whose player counter is above 0; a counter at 0 is the explicit opt-out that allows that role/category to fall to 0.
@@ -1050,6 +1056,7 @@ Responsibilities:
 - Choose random fisher hut visual variants for placed huts while keeping menu/preview art stable.
 - Choose random coal pit visual variants for placed pits while keeping menu/preview art stable.
 - Choose random granary visual variants for placed granaries while keeping menu/preview art stable.
+- Choose random trading post visual variants for placed trading posts while keeping menu/preview art stable.
 - Add ambient smoke/window-light overlays to placed houses.
 - Reserve construction Logs/Stone/Planks from Storage Yards before accepting a construction site, with loose construction piles as fallback sources.
 - Mark occupied cells when construction sites are accepted.
@@ -1070,6 +1077,7 @@ Responsibilities:
 - Coal Pit places a `StrategyCoalPit` worksite component, blocks its technical 2x2 footprint plus one visual row above, requires an available underground Coal deposit under its footprint, and hosts a local visual Coal stockpile.
 - Clay Pit places a `StrategyClayPit` worksite component, blocks its technical 2x2 footprint plus one visual row above, requires an available near-water Clay field under its footprint, and hosts a local visual Clay stockpile.
 - Granary places a `StrategyGranary` food-storage component, blocks its technical 3x2 footprint plus one visual row above, and hosts local visual `Game`/`Fish` stockpiles.
+- Trading Post places a `StrategyTradingPost` trade endpoint component, blocks its technical 3x2 footprint plus one visual row above, and exposes nearby walkable stop cells for caravan visits.
 - Accepted construction sites request active builders from the uncapped hired Storage Yard builder pool through balanced dispatch across all active sites, show material-drop and hammer-hit effects, and can wait if none are free yet.
 - Bridge creates no worksite component, stores its selected span cells/endpoints on the placed-building record, and exposes bank endpoint cells as construction work/dropoff candidates so builders choose a reachable shore and do not stand in water.
 - Completed house sites ask population to populate the finished house separately from the construction crew.
@@ -1106,8 +1114,10 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Build/StrategyClayPit.cs`
 - `Assets/Scripts/Runtime/Build/StrategyClayPit.Part01.cs`
 - `Assets/Scripts/Runtime/Build/StrategyBuildingSpriteFactory.Part08.cs`
+- `Assets/Scripts/Runtime/Build/StrategyBuildingSpriteFactory.Part11.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStorageYard.cs`
 - `Assets/Scripts/Runtime/Build/StrategyGranary.cs`
+- `Assets/Scripts/Runtime/Build/StrategyTradingPost.cs`
 - `Assets/Scripts/Runtime/Build/StrategyHouseAmbientAnimator.cs`
 - `Assets/Scripts/Runtime/Build/StrategyHouseAmbientSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Population/StrategyPopulationController.cs`
@@ -1345,7 +1355,7 @@ Impact hints:
 
 - Forge input reservations are separate from construction, Sawmill, and Kiln reservations so Iron/Coal/Logs input delivery cannot double-claim Storage Yard stock.
 - Forge counts Iron, Coal, Logs, Tools, pending Tools, and reservations against the shared production local stock cap of 6.
-- `Tools` currently flow from Forges to Storage Yards and are consumed by Tools-based production-building upgrades; they are not consumed by construction, trade, or upkeep yet.
+- `Tools` currently flow from Forges to Storage Yards, are consumed by Tools-based production-building upgrades, and can be sold through Trading Post caravan offers; they are not consumed by construction or upkeep yet.
 - Blacksmiths are normal exclusive workplace residents and should remain distinct from Storage Yard Haulers; Blacksmiths do not move resources between buildings.
 
 ### Storage Yard Logistics
@@ -1382,6 +1392,7 @@ Responsibilities:
 - Pay production-building upgrade costs from available Storage Yard `Tools`, `Planks`, and `Stone`.
 - Route Householders from Storage Yard Pottery stock to their own houses with cooking demand.
 - Route Haulers to food sources, pick up `Game`/`Fish`, carry it to the nearest Granary, and deposit it.
+- Expose non-food stock spend/receive helpers for Trading Post caravan transactions.
 - Route Haulers to loose construction resource piles, pick up Logs/Stone/Planks, carry them to storage, and deposit them.
 - Update lumberjack/stonecutter camp, Mine, Coal Pit, Clay Pit, Sawmill, Kiln, Forge, and storage yard stock visuals as resources move, and show Stone/Iron/Coal/Clay/Planks/Pottery/Tools as separate storage piles.
 - Show Hauler/builder counts, Logs/Stone/Iron/Coal/Clay/Planks/Pottery/Tools stock, and available source count in the selection HUD; player assignment/removal lives in the Profession HUD.
@@ -1395,6 +1406,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Build/StrategyStorageYard.Part09.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStorageYard.Part10.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStorageYard.Part11.cs`
+- `Assets/Scripts/Runtime/Build/StrategyStorageYard.Part12.cs`
 - `Assets/Scripts/Runtime/Build/StrategyProductionUpgradeCost.cs`
 - `Assets/Scripts/Runtime/Build/StrategyProductionBuildingUpgrade.cs`
 - `Assets/Scripts/Runtime/Build/StrategyProductionBuildingUpgradeCatalog.cs`
@@ -1438,7 +1450,7 @@ Impact hints:
 - Builders also create a per-builder pickup claim after a path to the pickup cell is found; cancelled work releases that claim while the construction-site reservation remains intact.
 - If a builder dies while carrying a construction resource, the dropped loose construction pile restores the original site's reservation when that site still needs the resource.
 - Residents currently support one active workplace: lumberjack camp, stonecutter camp, sawmill, kiln, hunter camp, fisher hut, mine, coal pit, clay pit, storage logistics, granary food logistics, or storage builder crew.
-- Storage Yard stock is runtime-only and uncapped; Pottery feeds household Dish cooking and Tools feed production-building upgrades, but Storage Yards still do not create a global economy or save data.
+- Storage Yard stock is runtime-only and uncapped; Pottery feeds household Dish cooking, Tools feed production-building upgrades, and Trading Posts can trade stored non-food resources through explicit transaction helpers rather than a separate global inventory.
 - Future resources should extend the logistics stock model; current Logs, Stone, Iron, Coal, Clay, Planks, Pottery, and Tools still have explicit carrying visuals/states.
 - Storage Yard construction pickup and stock-visual helpers are split into `StrategyStorageYard.Part05.cs`; stock drop effects are in `StrategyStorageYard.Part08.cs` to keep source files below the 500-line limit.
 
@@ -1453,6 +1465,7 @@ Responsibilities:
 - Find Fisher Huts with available stored `Fish` and reserve stock for Haulers.
 - Route Haulers to source camps/huts, pick up reserved food, carry it to the granary, and deposit it.
 - Provide settlement-level raw food availability and reservation APIs for Householder pickup.
+- Provide raw food spend/receive helpers for Trading Post caravan transactions.
 - Update Hunter Camp/Fisher Hut stock visuals as food is picked up.
 - Update Granary `Game`/`Fish` stock visuals and food drop effects as food is deposited.
 - Update Granary `Game`/`Fish` stock visuals as Haulers deposit stock and Householders reserve/pick up ingredients.
@@ -1462,6 +1475,7 @@ Primary files/assets:
 
 - `Assets/Scripts/Runtime/Build/StrategyGranary.cs`
 - `Assets/Scripts/Runtime/Build/StrategyGranary.Part02.cs`
+- `Assets/Scripts/Runtime/Build/StrategyGranary.Part03.cs`
 - `Assets/Scripts/Runtime/Build/StrategyHunterCamp.cs`
 - `Assets/Scripts/Runtime/Build/StrategyFisherHut.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.cs`
@@ -1481,6 +1495,47 @@ Impact hints:
 - `Game` and `Fish` remain runtime-local raw food stock; completed houses can receive them from Householder Granary pickups, nightly dinner consumes prepared house `Dish` before falling back to house-local ingredients, and each cooked Dish requires house-local Pottery.
 - Residents currently support one active workplace: lumberjack camp, stonecutter camp, hunter camp, fisher hut, mine, storage logistics, or storage builder crew.
 - Future spoilage, food needs, recipe balancing, market logistics, or settlement-level food services should extend this subsystem rather than folding food into construction Storage Yards.
+
+### Trade MVP
+
+Responsibilities:
+
+- Add `Trading Post` as a placed trade building with procedural art and a selectable trade HUD.
+- Create runtime settlement Coins through `StrategySettlementTreasury`.
+- Spawn visiting caravans after a completed Trading Post exists, path them from a reachable map edge to a stop cell beside the post, keep them for a trade window, then route them away.
+- Expose fixed MVP buy/sell offers through `StrategyTradeOfferCatalog`.
+- Execute sell offers by spending available Storage Yard or Granary stock and adding Coins.
+- Execute buy offers by spending Coins and depositing goods into the nearest valid Storage Yard or Granary.
+- Keep trade scene-object scans throttled/cached so caravan waiting does not call broad scene searches every frame.
+
+Primary files/assets:
+
+- `Assets/Scripts/Runtime/Build/StrategyTradingPost.cs`
+- `Assets/Scripts/Runtime/Build/StrategyBuildingSpriteFactory.Part11.cs`
+- `Assets/Scripts/Runtime/Build/StrategyBuildPlacementController.Part04.cs`
+- `Assets/Scripts/Runtime/Economy/StrategySettlementTreasury.cs`
+- `Assets/Scripts/Runtime/Economy/StrategyTradeOffer.cs`
+- `Assets/Scripts/Runtime/Economy/StrategyTradeOfferCatalog.cs`
+- `Assets/Scripts/Runtime/Economy/StrategyTradeTransactionService.cs`
+- `Assets/Scripts/Runtime/Economy/StrategyTradeCaravanSpriteFactory.cs`
+- `Assets/Scripts/Runtime/Economy/StrategyTradeCaravanAgent.cs`
+- `Assets/Scripts/Runtime/Economy/StrategyTradeCaravanController.cs`
+- `Assets/Scripts/Runtime/Economy/StrategyTradeCaravanController.Pathing.cs`
+- `Assets/Scripts/Runtime/Build/StrategyStorageYard.Part12.cs`
+- `Assets/Scripts/Runtime/Build/StrategyGranary.Part03.cs`
+- `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.Part13.cs`
+- `Assets/Scripts/Runtime/UI/StrategyBuildMenuController.Catalog.cs`
+- `Assets/Scripts/Runtime/UI/StrategyBuildTool.cs`
+- `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.cs`
+- `Assembly-CSharp.csproj`
+
+Impact hints:
+
+- Trade currently uses direct transaction helpers; Haulers and Householders do not physically move goods to or from caravans.
+- Selling food spends Granary `Game`/`Fish`; selling non-food spends Storage Yard stock only.
+- Buying food requires at least one Granary; buying non-food requires at least one Storage Yard.
+- Trading Post is not a worker profession and should not appear in the Profession HUD or auto workforce distribution.
+- Future trade expansion should decide whether caravans have finite offer stock, variable prices, money sinks, and physical loading/unloading logistics.
 
 ### Population MVP
 
@@ -1743,6 +1798,7 @@ Responsibilities:
 - Show selected-house resident portraits/names/age/life stage/statuses up to house capacity, including the Householder marker, compact upgrade action rows, prepared dish recipe summaries, Pottery, ingredient rations, resource icons/counts, and Garden Beds crop.
 - Show selected worksite status/resource context without worker assignment controls.
 - Show selected Storage Yards with a dedicated icon-led logistics dashboard for Haulers, builders, available sources, resource stock, and readiness status.
+- Show selected Trading Posts with settlement Coins, caravan status/ETA, and active buy/sell offer buttons.
 - Show selected lumberjack/stonecutter/sawmill/kiln/forge/hunter/fisher/mine/coal pit/clay pit/granary/storage stock and nearby source/target counts.
 - Show selected-construction-site cost, delivered resources, builder count, and progress/status context.
 - Show selected-resident full name, portrait, profile, age/life stage, current activity, and home/camp assignment.
@@ -1755,6 +1811,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.Part09.cs`
 - `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.Part10.cs`
 - `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.Part12.cs`
+- `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.Part13.cs`
 - `Assets/Scripts/Runtime/Selection/IStrategyWorldInspectable.cs`
 - `Assets/Scripts/Runtime/Selection/StrategyWorldInspectInfo.cs`
 - `Assets/Scripts/Runtime/Selection/StrategyWorldInspectInfoFactory.cs`
@@ -1777,11 +1834,15 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Build/StrategyClayPit.Part01.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStorageYard.cs`
 - `Assets/Scripts/Runtime/Build/StrategyGranary.cs`
+- `Assets/Scripts/Runtime/Build/StrategyTradingPost.cs`
 - `Assets/Scripts/Runtime/Build/StrategyConstructionSite.cs`
 - `Assets/Scripts/Runtime/Population/StrategyGraveMarker.cs`
 - `Assets/Scripts/Runtime/Economy/StrategyHouseResourceStore.cs`
 - `Assets/Scripts/Runtime/Economy/StrategyResourceIconFactory.cs`
 - `Assets/Scripts/Runtime/Economy/StrategyResourceIconFactory.Part02.cs`
+- `Assets/Scripts/Runtime/Economy/StrategySettlementTreasury.cs`
+- `Assets/Scripts/Runtime/Economy/StrategyTradeCaravanController.cs`
+- `Assets/Scripts/Runtime/Economy/StrategyTradeTransactionService.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.cs`
 - `Assets/Scripts/Runtime/Map/StrategyForestryController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyFogOfWarController.cs`

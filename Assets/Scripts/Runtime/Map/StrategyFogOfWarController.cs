@@ -7,7 +7,7 @@ namespace ProjectUnknown.Strategy
     [DisallowMultipleComponent]
     public sealed partial class StrategyFogOfWarController : MonoBehaviour
     {
-        private const int FogPixelsPerCell = 8;
+        private const int FogPixelsPerCell = 4;
         private const int FogSortingOrder = StrategyWorldSorting.FogOrder;
         private const float RefreshInterval = 0.18f;
         private const float RevealEdgeSoftness = 1.75f;
@@ -131,7 +131,7 @@ namespace ProjectUnknown.Strategy
 
         private void Update()
         {
-            if (map == null)
+            if (map == null || !isPlayerFogEnabled)
             {
                 return;
             }
@@ -148,7 +148,7 @@ namespace ProjectUnknown.Strategy
 
         private void RefreshFog()
         {
-            if (map == null)
+            if (map == null || !isPlayerFogEnabled)
             {
                 return;
             }

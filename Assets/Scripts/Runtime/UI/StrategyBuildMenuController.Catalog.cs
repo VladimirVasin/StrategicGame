@@ -60,6 +60,13 @@ namespace ProjectUnknown.Strategy
                         new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.Granary, "GR", "Granary", Cost(5, 3), HtmlColor("#A8874D"))
                     }),
                 new StrategyBuildMenuControllerDriver.BuildCategoryData(
+                    "Trade",
+                    HtmlColor("#6F5A86"),
+                    new[]
+                    {
+                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.TradingPost, "TP", "Trading Post", Cost(6, 4, 2), HtmlColor("#9C7E4E"))
+                    }),
+                new StrategyBuildMenuControllerDriver.BuildCategoryData(
                     "Infrastructure",
                     HtmlColor("#4E6E70"),
                     new[]

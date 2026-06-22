@@ -166,6 +166,11 @@ namespace ProjectUnknown.Strategy
                 StrategyFisherHut hut = placed.AddComponent<StrategyFisherHut>();
                 hut.Configure(building, map, population, StrategyWildlifeController.Active);
             }
+            else if (toolInfo.Tool == StrategyBuildTool.TradingPost)
+            {
+                StrategyTradingPost post = placed.AddComponent<StrategyTradingPost>();
+                post.Configure(building, map);
+            }
             else if (toolInfo.Tool == StrategyBuildTool.StorageYard)
             {
                 StrategyStorageYard yard = placed.AddComponent<StrategyStorageYard>();

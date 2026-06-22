@@ -8,6 +8,37 @@ Last updated: 2026-06-23
 
 ## Done
 
+### 2026-06-23 - Seeded map object distribution pass
+
+- Added shared seeded map distribution helpers for full-map shuffled cell iteration and macro cluster scoring.
+- Changed nature prop generation so the `MaxNatureProps` budget is filled from a deterministic shuffled whole-map pass instead of a linear y/x scan that could exhaust the budget on one side of a larger map.
+- Added cluster weighting to vegetation, Stone, Iron, Coal, Clay, and forage placement so generated objects form more natural patches while still preserving starter Stone guarantees and mineral walkability/buildability rules.
+- Changed forage generation to use the same full-map shuffled pass, avoiding early-scan concentration when the forage cap is reached.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-06-23 - Larger-map runtime optimization pass
+
+- Reduced Fog of War overlay resolution from 8 to 4 pixels per map cell, cutting fog texture pixel work by 4x after the 192x192 map increase.
+- Stopped Fog of War refresh ticks while the F9 player-fog bypass is enabled.
+- Cached water/shore cells for the animated water overlay so water animation no longer scans every land cell each frame; also switched overlay clearing to `Array.Clear`.
+- Removed in-place sorting of cached worksite arrays from auto workforce capped-demand collection and replaced it with a least-staffed open-site pass using a reusable scratch list.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; a full runtime C# line-count scan found no files over 500 lines.
+
+### 2026-06-23 - Larger map and proportional zoom-out
+
+- Increased the default generated city map from 128x128 to 192x192 cells.
+- Increased the strategy camera maximum orthographic zoom-out from 36 to 54 so the visible width scales proportionally with the larger map on a 16:9 viewport.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; a full runtime C# line-count scan found no files over 500 lines.
+
+### 2026-06-23 - Trading Post and caravan trade MVP
+
+- Added `Trading Post` as a Build menu `Trade` category building with generated 2.5D sprite variants, placement/finalization wiring, selection title, and a clickable right-side trade HUD.
+- Added settlement Coins through `StrategySettlementTreasury`, fixed MVP trade offers, a transaction service, and Storage Yard/Granary trade helpers so caravan trades spend/receive real stored resources instead of a separate invisible inventory.
+- Added a visible trade caravan controller/agent: caravans path from a reachable map edge to a stop cell beside a completed Trading Post, open a timed trade window, then leave the map.
+- Kept caravan waiting scene searches cached/throttled so missing Trading Posts do not trigger broad scene scans every frame.
+- Updated `Assembly-CSharp.csproj` for the new runtime trade, storage/granary partials, building sprite partial, and selection HUD partial files.
+- Verification: pushed pre-trade work to `main` in commit `a0d7719`; `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; a full runtime C# line-count scan found no files over 500 lines.
+
 ### 2026-06-23 - Tools-based production building upgrades
 
 - Added production-building upgrade definitions and costs for Lumberjack Camp, Stonecutter Camp, Mine, Coal Pit, Clay Pit, Sawmill, Kiln, Forge, Hunter Camp, and Fisher Hut.

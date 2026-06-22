@@ -129,22 +129,23 @@ namespace ProjectUnknown.Strategy
             ClearExisting();
             EnsureStarterForageNodes();
 
-            for (int y = 0; y < map.Height && nodes.Count < MaxForageNodes; y++)
+            int totalCells = map.Width * map.Height;
+            for (int i = 0; i < totalCells && nodes.Count < MaxForageNodes; i++)
             {
-                for (int x = 0; x < map.Width && nodes.Count < MaxForageNodes; x++)
+                int cellIndex = StrategyMapDistributionUtility.GetShuffledIndex(map.ActiveSeed, i, totalCells, 6101);
+                int x = cellIndex % map.Width;
+                int y = cellIndex / map.Width;
+                Vector2Int cell = new Vector2Int(x, y);
+                if (usedCells.Contains(cell)
+                    || IsTooCloseToStarter(cell, 3)
+                    || !map.IsCellWalkable(cell)
+                    || !map.TryGetCell(x, y, out CityMapCell mapCell)
+                    || !TryChooseResource(mapCell.Kind, x, y, out StrategyResourceType resource))
                 {
-                    Vector2Int cell = new Vector2Int(x, y);
-                    if (usedCells.Contains(cell)
-                        || IsTooCloseToStarter(cell, 3)
-                        || !map.IsCellWalkable(cell)
-                        || !map.TryGetCell(x, y, out CityMapCell mapCell)
-                        || !TryChooseResource(mapCell.Kind, x, y, out StrategyResourceType resource))
-                    {
-                        continue;
-                    }
-
-                    CreateNode(cell, resource, 1100 + nodes.Count);
+                    continue;
                 }
+
+                CreateNode(cell, resource, 1100 + nodes.Count);
             }
 
             StrategyDebugLogger.Info(
@@ -248,7 +249,12 @@ namespace ProjectUnknown.Strategy
         private bool TryChooseResource(CityMapCellKind kind, int x, int y, out StrategyResourceType resource)
         {
             resource = StrategyResourceType.None;
-            float chance = GetForageChance(kind);
+            float cluster = StrategyMapDistributionUtility.ClusterScore(map.ActiveSeed, x, y, 6203, 0.041f, 0.112f);
+            float chance = StrategyMapDistributionUtility.ApplyClusterToChance(
+                GetForageChance(kind),
+                cluster,
+                0.22f,
+                2.35f);
             if (chance <= 0f || Hash01(map.ActiveSeed, x, y, 1409) > chance)
             {
                 return false;

@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace ProjectUnknown.Strategy
@@ -10,6 +12,7 @@ namespace ProjectUnknown.Strategy
         private const float FrameDuration = 0.22f;
 
         private CityMapController map;
+        private readonly List<Vector2Int> animatedCells = new();
         private SpriteRenderer overlayRenderer;
         private Texture2D overlayTexture;
         private Color[] pixels;
@@ -22,8 +25,9 @@ namespace ProjectUnknown.Strategy
         {
             map = mapController;
             frameIndex = Mathf.Abs(map != null ? map.ActiveSeed : 0) % FrameCount;
-            frameTimer = Random.Range(0f, FrameDuration);
+            frameTimer = UnityEngine.Random.Range(0f, FrameDuration);
             EnsureOverlay();
+            RebuildAnimatedCells();
             PaintFrame();
         }
 
@@ -116,33 +120,49 @@ namespace ProjectUnknown.Strategy
             rainRippleIntensity = weather != null ? weather.RainIntensity : 0f;
             stormRippleIntensity = weather != null ? weather.StormIntensity : 0f;
 
-            for (int i = 0; i < pixels.Length; i++)
+            Array.Clear(pixels, 0, pixels.Length);
+
+            for (int i = 0; i < animatedCells.Count; i++)
             {
-                pixels[i] = Color.clear;
+                Vector2Int cellPosition = animatedCells[i];
+                if (!map.TryGetCell(cellPosition.x, cellPosition.y, out CityMapCell cell))
+                {
+                    continue;
+                }
+
+                if (cell.Kind == CityMapCellKind.Water)
+                {
+                    PaintWaterCell(cellPosition.x, cellPosition.y, cell);
+                }
+                else if (cell.Kind == CityMapCellKind.Shore)
+                {
+                    PaintShoreCell(cellPosition.x, cellPosition.y);
+                }
+            }
+
+            overlayTexture.SetPixels(pixels);
+            overlayTexture.Apply(false, false);
+        }
+
+        private void RebuildAnimatedCells()
+        {
+            animatedCells.Clear();
+            if (map == null)
+            {
+                return;
             }
 
             for (int y = 0; y < map.Height; y++)
             {
                 for (int x = 0; x < map.Width; x++)
                 {
-                    if (!map.TryGetCell(x, y, out CityMapCell cell))
+                    if (map.TryGetCell(x, y, out CityMapCell cell)
+                        && (cell.Kind == CityMapCellKind.Water || cell.Kind == CityMapCellKind.Shore))
                     {
-                        continue;
-                    }
-
-                    if (cell.Kind == CityMapCellKind.Water)
-                    {
-                        PaintWaterCell(x, y, cell);
-                    }
-                    else if (cell.Kind == CityMapCellKind.Shore)
-                    {
-                        PaintShoreCell(x, y);
+                        animatedCells.Add(new Vector2Int(x, y));
                     }
                 }
             }
-
-            overlayTexture.SetPixels(pixels);
-            overlayTexture.Apply(false, false);
         }
 
         private void PaintWaterCell(int cellX, int cellY, CityMapCell cell)

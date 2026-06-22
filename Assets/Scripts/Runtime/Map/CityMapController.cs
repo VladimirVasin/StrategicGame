@@ -47,8 +47,8 @@ namespace ProjectUnknown.Strategy
     public sealed partial class CityMapController : MonoBehaviour
     {
         [Header("Map")]
-        [SerializeField] private int width = 128;
-        [SerializeField] private int height = 128;
+        [SerializeField] private int width = 192;
+        [SerializeField] private int height = 192;
         [SerializeField] private float cellSize = 1f;
         [SerializeField] private int seed = 24701;
         [SerializeField] private bool randomizeSeedOnGenerate = true;

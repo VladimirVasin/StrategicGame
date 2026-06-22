@@ -1,6 +1,6 @@
 # System Tree
 
-Last updated: 2026-06-22
+Last updated: 2026-06-23
 
 This is a conceptual map of the current project. Keep concrete file ownership in `ai/systems-map.md`.
 
@@ -56,11 +56,12 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Creates the top status HUD with settlement population counts, a compact calendar/time widget, a clickable population roster HUD, family tree scene entry point, and a compact event log for births, deaths, adoptions, dawn, and nightfall
     - Creates the runtime goals controller and starter goal sequence that gates early Build menu tools
     - Creates the auto workforce controller before the Profession HUD so worker automation and priority controls share one runtime state
+    - Creates the settlement Coin treasury and trade caravan controller after placement/storage systems are ready
   - Strategy debug logging
     - Writes structured session logs to `debug.log`
     - Uses the project root path in the Unity Editor and persistent data in player builds
     - Mirrors Unity logs, warnings, errors, and exceptions
-    - Logs bootstrap, audio, map, nature, Stone, build menu, placement, population, forestry, lumberjack camp, selection, and time-scale events
+    - Logs bootstrap, audio, map, nature, Stone, build menu, placement, population, forestry, lumberjack camp, selection, trade, and time-scale events
   - Strategy time scale
     - Runtime-created time control component
     - F1 sets x1 simulation speed
@@ -88,7 +89,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Feeds rain/wind ambience and rain-driven water ripple intensity
     - Logs weather configuration and state changes to `debug.log`
   - Generated city map
-    - 128x128 default 2D terrain grid
+    - 192x192 default 2D terrain grid
     - Runtime texture/sprite rendering
     - Grass, meadow, forest, dirt, shore, and water cells
     - Randomized active generation seed by default per map generation
@@ -108,6 +109,8 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Runtime nature-props layer
       - Generated after map terrain cells are built
       - Uses active map seed for deterministic prop placement within a map session
+      - Fills capped prop budgets through a seeded shuffled whole-map pass instead of a linear y/x scan, preventing one edge of a large map from receiving most objects
+      - Uses macro cluster weighting for vegetation and generated Stone/Iron/Coal/Clay so resources form natural regions with empty space between them
       - Guarantees starter-area Stone deposits within stonecutter work distance around the startup campfire
       - Forest cells receive dense tree/forest-group visuals
       - Grass, meadow, dirt, and shore cells can receive sparse standalone trees or bushes
@@ -159,7 +162,8 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Mature trees receive chop hits, show cut marks, spawn chip/leaf effects, fall over, remain as buckable trunks, split into Logs, and are removed when Logs are collected
       - Small trees yield 3 Logs, while large/generated mature and planted mature trees yield 6 Logs
     - Forage resources MVP
-      - Spawns Berries, Roots, and Mushrooms as small non-blocking resource nodes on suitable walkable land cells
+      - Spawns Berries, Roots, and Mushrooms as small non-blocking resource nodes on suitable walkable land cells through the shared seeded shuffled whole-map pass
+      - Uses macro cluster weighting so forage appears in natural patches instead of filling only the first scanned map area
       - Guarantees a small starter ring of forage resources around the settlement outside the campfire clear radius
       - Forage nodes can be reserved by one resident, depleted on gather, and regrow after a timed delay
       - Procedural forage sprites include ready/depleted node visuals plus carried basket sprites
@@ -233,6 +237,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Orthographic view
     - Initial medium-close focus on the startup campfire
     - Mouse-wheel zoom
+    - Max zoom-out is 54 orthographic units, proportional to the 192-cell map width for a 16:9 viewport
     - WASD/arrow pan
     - Right/middle mouse drag pan
     - Optional edge pan
@@ -248,7 +253,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Exposes selected tool info, footprint, color, and cost
     - Reads construction stock availability through `StrategyStorageYard.GetTotalConstructionResources()`, including Storage Yard stock and loose piles
     - Shows x1/x2/x3 simulation speed buttons under the top-left resource panel, reusing `StrategyTimeScaleController`
-    - Current catalog contains `Housing` / `House`, `Extraction` / `Lumberjack Camp`, `Stonecutter Camp`, `Mine`, `Coal Pit`, `Clay Pit`, `Hunter Camp`, and `Fisher Hut`, `Production` / `Sawmill`, `Kiln`, and `Forge`, `Storage` / `Storage Yard` and `Granary`, and `Infrastructure` / `Bridge`
+    - Current catalog contains `Housing` / `House`, `Extraction` / `Lumberjack Camp`, `Stonecutter Camp`, `Mine`, `Coal Pit`, `Clay Pit`, `Hunter Camp`, and `Fisher Hut`, `Production` / `Sawmill`, `Kiln`, and `Forge`, `Storage` / `Storage Yard` and `Granary`, `Trade` / `Trading Post`, and `Infrastructure` / `Bridge`
     - Single-item categories directly activate their only build tool on click
   - Build placement
     - Runtime-created placement controller
@@ -280,6 +285,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Creates fisher hut components when the hut tool is placed
     - Creates storage yard components when the storage tool is placed
     - Creates granary components when the granary tool is placed
+    - Creates trading post components when the trade tool is placed
     - Fisher huts require nearby water with adjacent walkable shore access before placement is accepted
     - Bridge uses a two-click placement flow: first river bank cell, then highlighted opposite-bank candidate across contiguous River water
     - Completed bridges make their selected River water span walkable through the map bridge-walkability overlay without changing water identity
@@ -299,6 +305,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Generates 3 procedural 2.5D clay pit sprite variants in code
     - Generates 3 procedural 2.5D hunter camp sprite variants in code
     - Generates 3 procedural 2.5D fisher hut sprite variants in code
+    - Generates 3 procedural 2.5D trading post sprite variants in code
     - Generates 3 procedural 2.5D storage yard sprite variants in code
     - Generates 3 procedural 2.5D granary sprite variants in code
     - Generates dynamic span-sized 2.5D bridge sprites in code
@@ -361,6 +368,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Haulers reserve available Tools from Forges
     - Storage Yards reserve Logs/Stone/Planks for accepted construction sites; production stock must be hauled into Storage Yards before construction can reserve it
     - Storage Yards reserve non-food production inputs from local stock and route Haulers to deliver them into production buildings through the shared production logistics contract
+    - Storage Yards expose trade helpers that spend/receive Logs, Stone, Iron, Coal, Clay, Planks, Pottery, and Tools for caravan transactions
     - Loose construction resource piles from cancelled sites count as available construction resources and can be reserved by future sites
     - Storage Yards dispatch available hired builders across active construction sites, favoring empty and lower-builder-count sites before stacking extras
     - Hired builders can pick up reserved construction Logs/Stone/Planks from Storage Yards
@@ -417,6 +425,16 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Hunter Camp and Fisher Hut local food stock decreases when granary haulers pick up reserved food
     - Granary local `Game` and `Fish` stock update their visible stockpiles
     - Granary food is raw `Game`/`Fish` ingredient stock for Householder pickup, not direct nightly dinner fallback
+    - Granaries expose trade helpers that spend/receive `Game` and `Fish` for caravan transactions
+  - Trade MVP
+    - Settlement Coins live in a runtime treasury created by bootstrap
+    - Trading Post is a placed trade building with no assigned workers
+    - A caravan controller waits for a completed Trading Post, caches it, and only rescans the scene on a short cooldown while none exists
+    - Caravans spawn from a reachable map edge, path to a walkable stop cell beside the Trading Post, wait for a fixed trade window, then depart toward an edge
+    - Trade offers are fixed MVP offers split into player-sells and player-buys directions
+    - Selling pulls available non-food stock from Storage Yards or food stock from Granaries and adds Coins to the settlement treasury
+    - Buying spends Coins and deposits the purchased resource into the nearest valid Storage Yard or Granary
+    - Trading Post selection HUD shows Coins, caravan status/ETA/window, and active offer buttons
   - Population MVP
     - Runtime-created population controller
     - Startup camp creates an animated procedural campfire
@@ -520,6 +538,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - House upgrade actions are shown as compact state/action rows
     - The house HUD shows a compact Dinner row with prepared rations vs family need, next prepared/cookable dish, the main blocker, a short local stock line, current Garden Beds crop, and filtered household resource icons/counts including single food units
     - The lumberjack, stonecutter, sawmill, mine, coal pit, clay pit, kiln, forge, hunter, fisher, and granary HUDs show status/resource context without assignment controls
+    - The Trading Post HUD shows settlement Coins, caravan ETA/status, and active buy/sell offer buttons while a caravan is trading
     - Eligible production/extraction building HUDs show a compact Tools-based production upgrade action row
     - The Storage Yard HUD shows icon-led Hauler/Builder/source chips, a resource stock grid, and logistics readiness status without assignment controls
     - The construction site HUD shows final building type, cost, delivered resources, assigned builders, and build progress
@@ -589,6 +608,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Wildlife depends on generated terrain/water cells, map walkability for land animals, population/resident positions, fog daylight-range hidden checks, starter-camp location, hunter/fisher production buildings, and Y-based world sorting; birds do not feed fog visibility or resources yet, while hunted rabbits and upgraded-hunter adult deer can yield `Game` and caught fish can yield `Fish`.
 - Sawmill production depends on Storage Yard Log stock, production-input Hauler delivery, resident work states, placed-building records, map walkability, and Storage Yard Planks hauling.
 - Storage yard logistics depends on lumberjack camp stock, stonecutter camp stock, Sawmill stock, Kiln stock/input demand, Forge stock/input demand, Mine stock, Coal Pit stock, Clay Pit stock, Hunter Camp/Fisher Hut food stock, Granaries, resident work states, placed-building records, map walkability, and the world-selection HUD.
+- Trade depends on completed Trading Posts, map-edge caravan pathing, settlement Coins, Storage Yard non-food stock, Granary food stock, generated trade/caravan sprites, and the world-selection HUD.
 - Loose construction resource piles bridge construction cancellation, build affordability, storage logistics, and builder pickup.
 - Loose carried-resource piles bridge resident death cleanup, Granary food logistics, and household foraging recovery.
 - Granary food and household cooking logistics depend on hunter camp stock, fisher hut stock, Storage Yard Pottery stock, Storage Yard Haulers, Householder final-mile pickup, resident work states, placed-building records, map walkability, and the world-selection HUD.

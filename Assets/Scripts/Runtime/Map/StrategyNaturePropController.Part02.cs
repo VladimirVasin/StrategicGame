@@ -37,10 +37,12 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            float score = GetIronScore(cell);
+            float cluster = GetIronClusterScore(cell);
+            float score = Mathf.Clamp01(GetIronScore(cell) * 0.80f + cluster * 0.26f);
             float roll = Hash01(map.ActiveSeed, cell.X, cell.Y, 2701);
 
-            if (score > 0.80f && roll < GetIronChance(cell.Kind, 0.036f))
+            if (score > 0.80f
+                && roll < StrategyMapDistributionUtility.ApplyClusterToChance(GetIronChance(cell.Kind, 0.036f), cluster, 0.18f, 2.25f))
             {
                 Vector2Int veinFootprint = Hash01(map.ActiveSeed, cell.X, cell.Y, 2707) > 0.58f
                     ? new Vector2Int(3, 2)
@@ -57,7 +59,8 @@ namespace ProjectUnknown.Strategy
                     74);
             }
 
-            if (score > 0.64f && roll < GetIronChance(cell.Kind, 0.075f))
+            if (score > 0.64f
+                && roll < StrategyMapDistributionUtility.ApplyClusterToChance(GetIronChance(cell.Kind, 0.075f), cluster, 0.24f, 1.95f))
             {
                 Vector2Int stainedFootprint = Hash01(map.ActiveSeed, cell.X, cell.Y, 2713) > 0.52f
                     ? new Vector2Int(2, 2)
@@ -161,14 +164,16 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            int attempts = Mathf.Max(256, map.Width * map.Height);
+            int totalCells = map.Width * map.Height;
+            int attempts = Mathf.Max(256, totalCells);
             for (int i = 0; i < attempts
                 && spawnedIronDeposits < MinimumIronDeposits
                 && spawnedProps < MaxNatureProps
                 && spawnedIronDeposits < MaxIronDeposits; i++)
             {
-                int x = Hash(map.ActiveSeed, i, 0, 2801, map.Width) % map.Width;
-                int y = Hash(map.ActiveSeed, i, 0, 2807, map.Height) % map.Height;
+                int cellIndex = StrategyMapDistributionUtility.GetShuffledIndex(map.ActiveSeed, i, totalCells, 2801);
+                int x = cellIndex % map.Width;
+                int y = cellIndex / map.Width;
                 if (!map.TryGetCell(x, y, out CityMapCell cell)
                     || !IsIronAllowedKind(cell.Kind)
                     || IsInsideExclusion(x, y)
@@ -177,7 +182,7 @@ namespace ProjectUnknown.Strategy
                     continue;
                 }
 
-                float score = GetIronScore(cell);
+                float score = Mathf.Clamp01(GetIronScore(cell) * 0.80f + GetIronClusterScore(cell) * 0.26f);
                 if (score > 0.72f && Hash01(map.ActiveSeed, x, y, 2813) > 0.58f)
                 {
                     Vector2Int footprint = Hash01(map.ActiveSeed, x, y, 2819) > 0.66f

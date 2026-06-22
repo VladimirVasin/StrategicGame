@@ -178,12 +178,14 @@ namespace ProjectUnknown.Strategy
                 SetResourcesVisible(false);
                 SetUpgradeActionsVisible(false);
                 SetProductionUpgradeHudVisible(false);
+                SetTradingPostHudVisible(false);
                 return;
             }
 
             LayoutStatusSection(272f, 76f);
             LayoutContextSection(366f, 118f);
             SetStorageYardHudVisible(false);
+            SetTradingPostHudVisible(false);
             StrategyResidentAgent resident = selectedTransform.GetComponent<StrategyResidentAgent>();
             if (resident != null)
             {
@@ -213,6 +215,7 @@ namespace ProjectUnknown.Strategy
                 StrategyForge forge = building.GetComponent<StrategyForge>();
                 StrategyHunterCamp hunterCamp = building.GetComponent<StrategyHunterCamp>();
                 StrategyFisherHut fisherHut = building.GetComponent<StrategyFisherHut>();
+                StrategyTradingPost tradingPost = building.GetComponent<StrategyTradingPost>();
                 StrategyStorageYard yard = building.GetComponent<StrategyStorageYard>();
                 StrategyGranary granary = building.GetComponent<StrategyGranary>();
                 bool isLumberjackCamp = camp != null;
@@ -225,6 +228,7 @@ namespace ProjectUnknown.Strategy
                 bool isForge = forge != null;
                 bool isHunterCamp = hunterCamp != null;
                 bool isFisherHut = fisherHut != null;
+                bool isTradingPost = tradingPost != null;
                 bool isStorageYard = yard != null;
                 bool isGranary = granary != null;
                 SetResidentsSectionVisible(isHouse);
@@ -299,6 +303,10 @@ namespace ProjectUnknown.Strategy
                     hudContextBodyText.text = fisherHut.GetHudStatusText();
                     SetContextSectionVisible(true);
                 }
+                else if (isTradingPost)
+                {
+                    RefreshTradingPostHud(tradingPost);
+                }
                 else if (isStorageYard)
                 {
                     RefreshStorageYardHud(yard);
@@ -349,6 +357,7 @@ namespace ProjectUnknown.Strategy
                 SetResourcesVisible(false);
                 SetUpgradeActionsVisible(false);
                 SetProductionUpgradeHudVisible(false);
+                SetTradingPostHudVisible(false);
                 return;
             }
 
@@ -379,6 +388,7 @@ namespace ProjectUnknown.Strategy
                 SetResourcesVisible(false);
                 SetUpgradeActionsVisible(false);
                 SetProductionUpgradeHudVisible(false);
+                SetTradingPostHudVisible(false);
             }
         }
 

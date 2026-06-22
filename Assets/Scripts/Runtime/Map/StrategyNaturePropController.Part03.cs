@@ -101,10 +101,12 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            float score = GetCoalScore(cell);
+            float cluster = GetCoalClusterScore(cell);
+            float score = Mathf.Clamp01(GetCoalScore(cell) * 0.80f + cluster * 0.26f);
             float roll = Hash01(map.ActiveSeed, cell.X, cell.Y, 3301);
 
-            if (score > 0.82f && roll < GetCoalChance(cell.Kind, 0.032f))
+            if (score > 0.82f
+                && roll < StrategyMapDistributionUtility.ApplyClusterToChance(GetCoalChance(cell.Kind, 0.032f), cluster, 0.18f, 2.25f))
             {
                 Vector2Int seamFootprint = Hash01(map.ActiveSeed, cell.X, cell.Y, 3307) > 0.54f
                     ? new Vector2Int(3, 2)
@@ -121,7 +123,8 @@ namespace ProjectUnknown.Strategy
                     62);
             }
 
-            if (score > 0.62f && roll < GetCoalChance(cell.Kind, 0.068f))
+            if (score > 0.62f
+                && roll < StrategyMapDistributionUtility.ApplyClusterToChance(GetCoalChance(cell.Kind, 0.068f), cluster, 0.24f, 1.95f))
             {
                 Vector2Int dustFootprint = Hash01(map.ActiveSeed, cell.X, cell.Y, 3313) > 0.52f
                     ? new Vector2Int(2, 2)
@@ -225,14 +228,16 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            int attempts = Mathf.Max(256, map.Width * map.Height);
+            int totalCells = map.Width * map.Height;
+            int attempts = Mathf.Max(256, totalCells);
             for (int i = 0; i < attempts
                 && spawnedCoalDeposits < MinimumCoalDeposits
                 && spawnedProps < MaxNatureProps
                 && spawnedCoalDeposits < MaxCoalDeposits; i++)
             {
-                int x = Hash(map.ActiveSeed, i, 0, 3401, map.Width) % map.Width;
-                int y = Hash(map.ActiveSeed, i, 0, 3407, map.Height) % map.Height;
+                int cellIndex = StrategyMapDistributionUtility.GetShuffledIndex(map.ActiveSeed, i, totalCells, 3401);
+                int x = cellIndex % map.Width;
+                int y = cellIndex / map.Width;
                 if (!map.TryGetCell(x, y, out CityMapCell cell)
                     || !IsCoalAllowedKind(cell.Kind)
                     || IsInsideExclusion(x, y)
@@ -241,7 +246,7 @@ namespace ProjectUnknown.Strategy
                     continue;
                 }
 
-                float score = GetCoalScore(cell);
+                float score = Mathf.Clamp01(GetCoalScore(cell) * 0.80f + GetCoalClusterScore(cell) * 0.26f);
                 if (score > 0.74f && Hash01(map.ActiveSeed, x, y, 3413) > 0.60f)
                 {
                     Vector2Int footprint = Hash01(map.ActiveSeed, x, y, 3419) > 0.62f

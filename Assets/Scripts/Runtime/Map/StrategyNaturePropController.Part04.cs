@@ -25,9 +25,11 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            float score = GetClayScore(cell);
+            float cluster = GetClayClusterScore(cell);
+            float score = Mathf.Clamp01(GetClayScore(cell) * 0.82f + cluster * 0.24f);
             float roll = Hash01(map.ActiveSeed, cell.X, cell.Y, 4301);
-            if (score > 0.78f && roll < GetClayChance(cell.Kind, 0.060f))
+            if (score > 0.78f
+                && roll < StrategyMapDistributionUtility.ApplyClusterToChance(GetClayChance(cell.Kind, 0.060f), cluster, 0.22f, 2.05f))
             {
                 Vector2Int bankFootprint = Hash01(map.ActiveSeed, cell.X, cell.Y, 4307) > 0.56f
                     ? new Vector2Int(3, 2)
@@ -44,7 +46,8 @@ namespace ProjectUnknown.Strategy
                     64);
             }
 
-            if (score > 0.52f && roll < GetClayChance(cell.Kind, 0.112f))
+            if (score > 0.52f
+                && roll < StrategyMapDistributionUtility.ApplyClusterToChance(GetClayChance(cell.Kind, 0.112f), cluster, 0.28f, 1.80f))
             {
                 Vector2Int patchFootprint = Hash01(map.ActiveSeed, cell.X, cell.Y, 4313) > 0.58f
                     ? new Vector2Int(2, 2)
@@ -150,14 +153,16 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            int attempts = Mathf.Max(256, map.Width * map.Height);
+            int totalCells = map.Width * map.Height;
+            int attempts = Mathf.Max(256, totalCells);
             for (int i = 0; i < attempts
                 && spawnedClayDeposits < MinimumClayDeposits
                 && spawnedProps < MaxNatureProps
                 && spawnedClayDeposits < MaxClayDeposits; i++)
             {
-                int x = Hash(map.ActiveSeed, i, 0, 4401, map.Width) % map.Width;
-                int y = Hash(map.ActiveSeed, i, 0, 4407, map.Height) % map.Height;
+                int cellIndex = StrategyMapDistributionUtility.GetShuffledIndex(map.ActiveSeed, i, totalCells, 4401);
+                int x = cellIndex % map.Width;
+                int y = cellIndex / map.Width;
                 if (!map.TryGetCell(x, y, out CityMapCell cell)
                     || !IsClayAllowedKind(cell.Kind)
                     || IsInsideExclusion(x, y)
@@ -167,7 +172,7 @@ namespace ProjectUnknown.Strategy
                     continue;
                 }
 
-                float score = GetClayScore(cell);
+                float score = Mathf.Clamp01(GetClayScore(cell) * 0.82f + GetClayClusterScore(cell) * 0.24f);
                 if (score > 0.68f && Hash01(map.ActiveSeed, x, y, 4413) > 0.58f)
                 {
                     Vector2Int footprint = Hash01(map.ActiveSeed, x, y, 4419) > 0.62f

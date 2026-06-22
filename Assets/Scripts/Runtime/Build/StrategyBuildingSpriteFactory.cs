@@ -17,6 +17,7 @@ namespace ProjectUnknown.Strategy
         public const int ForgeVariantCount = 3;
         public const int HunterCampVariantCount = 3;
         public const int FisherHutVariantCount = 3;
+        public const int TradingPostVariantCount = 3;
         public const int StorageYardVariantCount = 3;
         public const int GranaryVariantCount = 3;
         public const int BridgeVariantCount = 1;
@@ -38,6 +39,7 @@ namespace ProjectUnknown.Strategy
                 StrategyBuildTool.Forge => ForgeVariantCount,
                 StrategyBuildTool.HunterCamp => HunterCampVariantCount,
                 StrategyBuildTool.FisherHut => FisherHutVariantCount,
+                StrategyBuildTool.TradingPost => TradingPostVariantCount,
                 StrategyBuildTool.StorageYard => StorageYardVariantCount,
                 StrategyBuildTool.Granary => GranaryVariantCount,
                 StrategyBuildTool.Bridge => BridgeVariantCount,
@@ -64,6 +66,7 @@ namespace ProjectUnknown.Strategy
                 && tool != StrategyBuildTool.Forge
                 && tool != StrategyBuildTool.HunterCamp
                 && tool != StrategyBuildTool.FisherHut
+                && tool != StrategyBuildTool.TradingPost
                 && tool != StrategyBuildTool.StorageYard
                 && tool != StrategyBuildTool.Granary
                 && tool != StrategyBuildTool.Bridge)
@@ -88,6 +91,7 @@ namespace ProjectUnknown.Strategy
                     StrategyBuildTool.Forge => CreateForgeSprite(normalizedVariant),
                     StrategyBuildTool.HunterCamp => CreateHunterCampSprite(normalizedVariant),
                     StrategyBuildTool.FisherHut => CreateFisherHutSprite(normalizedVariant),
+                    StrategyBuildTool.TradingPost => CreateTradingPostSprite(normalizedVariant),
                     StrategyBuildTool.StorageYard => CreateStorageYardSprite(normalizedVariant),
                     StrategyBuildTool.Granary => CreateGranarySprite(normalizedVariant),
                     StrategyBuildTool.Bridge => CreateBridgeSprite(new Vector2Int(3, 1)),

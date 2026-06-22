@@ -19,6 +19,7 @@ namespace ProjectUnknown.Strategy
         private readonly Dictionary<string, float> demandLogTimes = new();
         private readonly Dictionary<StrategyProfessionType, int> desiredProfessionTargets = new();
         private readonly Dictionary<StrategyProfessionType, int> coverageProfessionFloors = new();
+        private readonly List<Component> demandSiteScratch = new();
         private StrategyConstructionSite[] cachedConstructionSites = System.Array.Empty<StrategyConstructionSite>();
         private StrategyStorageYard[] cachedStorageYards = System.Array.Empty<StrategyStorageYard>();
         private StrategyLumberjackCamp[] cachedLumberjackCamps = System.Array.Empty<StrategyLumberjackCamp>();

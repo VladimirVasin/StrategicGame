@@ -326,6 +326,26 @@ namespace ProjectUnknown.Strategy
             debugPanel.Configure(fog, weather);
             StrategyDebugLogger.Info("Bootstrap", "DebugPanelReady");
 
+            StrategySettlementTreasury treasury = Object.FindAnyObjectByType<StrategySettlementTreasury>();
+            if (treasury == null)
+            {
+                GameObject treasuryObject = new GameObject("Strategy Settlement Treasury");
+                treasury = treasuryObject.AddComponent<StrategySettlementTreasury>();
+            }
+
+            treasury.Configure(0);
+            StrategyDebugLogger.Info("Bootstrap", "TreasuryReady");
+
+            StrategyTradeCaravanController tradeCaravans = Object.FindAnyObjectByType<StrategyTradeCaravanController>();
+            if (tradeCaravans == null)
+            {
+                GameObject tradeCaravansObject = new GameObject("Strategy Trade Caravans");
+                tradeCaravans = tradeCaravansObject.AddComponent<StrategyTradeCaravanController>();
+            }
+
+            tradeCaravans.Configure(map);
+            StrategyDebugLogger.Info("Bootstrap", "TradeCaravansReady");
+
             StrategyWildlifeController wildlife = Object.FindAnyObjectByType<StrategyWildlifeController>();
             if (wildlife == null)
             {

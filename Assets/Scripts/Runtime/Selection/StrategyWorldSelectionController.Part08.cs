@@ -38,6 +38,7 @@ namespace ProjectUnknown.Strategy
                 StrategyBuildTool.Forge => "Forge",
                 StrategyBuildTool.HunterCamp => "Hunter Camp",
                 StrategyBuildTool.FisherHut => "Fisher Hut",
+                StrategyBuildTool.TradingPost => "Trading Post",
                 StrategyBuildTool.StorageYard => "Storage Yard",
                 StrategyBuildTool.Granary => "Granary",
                 StrategyBuildTool.Bridge => "Bridge",
