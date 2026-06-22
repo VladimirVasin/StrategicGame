@@ -8,6 +8,30 @@ Last updated: 2026-06-22
 
 ## Done
 
+### 2026-06-22 - Build menu extraction category split
+
+- Split the Build menu catalog so raw-resource buildings now live under `Extraction`: Lumberjack Camp, Stonecutter Camp, Mine, Coal Pit, Clay Pit, Hunter Camp, and Fisher Hut.
+- Kept processing buildings under `Production`: Sawmill and Kiln.
+- Left goal-driven tool locks unchanged because they operate on individual build tools, not category names.
+
+### 2026-06-22 - Performance spike cleanup for wildlife and auto workforce
+
+- Analyzed the end of `debug.log`: `AutoWorkforceTick` was running every scaled 3 seconds, which became roughly every real second at x3 speed, and the last 700 lines contained 200 `AutoWorkforceDemand` logs plus 196 rabbit alert/flee logs.
+- Changed auto workforce ticking to use unscaled real time, throttled repeated demand debug logs, and refreshed expensive worksite scene-object caches on a real-time interval instead of every scaled simulation tick.
+- Added rabbit threat-reaction throttling like the existing deer guard so the same nearby threat does not repeatedly reset `Alert`/`Fleeing`, rebuild flee paths, and flood `debug.log`.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected `.cs` files remain below 500 lines.
+
+### 2026-06-22 - Orthogonal trail visuals
+
+- Changed runtime trail visuals to use only cardinal N/E/S/W connection masks and right-angle corners.
+- Hidden trail cells with only diagonal or isolated wear no longer render, reducing pale spider-web strands without changing the underlying footfall data.
+- Split functional trail checks from visual trail checks so resident movement, pathfinding, trail cost preference, and the 15% formed-trail speed bonus are not controlled by visual-only orthogonal filtering.
+
+### 2026-06-22 - Dawn work start every day
+
+- Changed `StrategyDayNightCycleController.IsSettlementWorkTime` so settlement work can start at Dawn on every day, not only on Day 1.
+- Updated AI memory and tutorial notes to remove the old Day-1-only Dawn work exception.
+
 ### 2026-06-22 - Household Pottery debug logging
 
 - Added throttled `HouseholderPotteryPickupSkipped` debug logs for householder-side Pottery pickup blockers such as cooldown, outside work time, existing carried resources, or missing reservable Pottery.
@@ -126,7 +150,7 @@ Last updated: 2026-06-22
 
 - Changed `StrategyDayNightCycleController.IsSettlementWorkTime` so Day 1 counts Dawn as work time.
 - This lets auto-assigned residents start construction/logistics immediately at game start instead of waiting until Morning.
-- Later days still keep Dawn outside normal work time; night sleep and nightfall deferral behavior are unchanged.
+- Later changes made Dawn part of normal settlement work time every day; night sleep and nightfall deferral behavior are unchanged.
 - Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
 
 ### 2026-06-17 - Auto workforce worksite cache optimization
@@ -580,7 +604,7 @@ Last updated: 2026-06-22
 - Trail wear now decays after a stale grace period, so old unused trail cells gradually disappear back into normal grass visuals.
 - Resident footfall uses activity weights: productive/work/logistics movement forms trails normally, while idle/home wandering contributes very little and funeral waiting contributes none.
 - Resident trail-aware A* now supports diagonal movement with corner-cutting prevention and smooths reconstructed paths through walkable line-of-sight checks, reducing grid-stair and checkerboard path artifacts.
-- Trail visuals now use 8-direction connection masks and narrower line/brush sprites, including diagonal links, instead of only broad cardinal segments.
+- Trail visuals temporarily used 8-direction connection masks and narrower line/brush sprites, including diagonal links, instead of only broad cardinal segments; later changes replaced rendered trail connections with cardinal-only right-angle masks.
 - Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; full `.cs` line-count scan found no files over 500 lines; `git diff --check` reported no whitespace errors and only the existing CRLF normalization warning for `Assembly-CSharp.csproj`.
 
 ### 2026-06-16 - Shutdown loose-resource spawn guard

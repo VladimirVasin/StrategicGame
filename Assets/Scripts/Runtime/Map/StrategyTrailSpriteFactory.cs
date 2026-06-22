@@ -11,19 +11,16 @@ namespace ProjectUnknown.Strategy
         private const int East = 2;
         private const int South = 4;
         private const int West = 8;
-        private const int NorthEast = 16;
-        private const int SouthEast = 32;
-        private const int SouthWest = 64;
-        private const int NorthWest = 128;
+        private const int CardinalMask = North | East | South | West;
 
         private static readonly Dictionary<int, Sprite> CachedSprites = new();
 
         public static Sprite GetSprite(int mask, int level, int variant)
         {
-            int normalizedMask = Mathf.Clamp(mask, 0, 255);
+            int normalizedMask = mask & CardinalMask;
             int normalizedLevel = Mathf.Clamp(level, 1, 3);
             int normalizedVariant = Mathf.Abs(variant) % 4;
-            int key = normalizedMask + normalizedLevel * 256 + normalizedVariant * 1024;
+            int key = normalizedMask + normalizedLevel * 16 + normalizedVariant * 64;
             if (!CachedSprites.TryGetValue(key, out Sprite sprite) || sprite == null)
             {
                 sprite = CreateSprite(normalizedMask, normalizedLevel, normalizedVariant);
@@ -92,25 +89,6 @@ namespace ProjectUnknown.Strategy
                 PaintLine(texture, center, center, 0, center, width, color);
             }
 
-            if ((mask & NorthEast) != 0)
-            {
-                PaintLine(texture, center, center, Pixels - 1, Pixels - 1, width, color);
-            }
-
-            if ((mask & SouthEast) != 0)
-            {
-                PaintLine(texture, center, center, Pixels - 1, 0, width, color);
-            }
-
-            if ((mask & SouthWest) != 0)
-            {
-                PaintLine(texture, center, center, 0, 0, width, color);
-            }
-
-            if ((mask & NorthWest) != 0)
-            {
-                PaintLine(texture, center, center, 0, Pixels - 1, width, color);
-            }
         }
 
         private static void PaintDetail(Texture2D texture, int mask, int width, Color color, int variant, int level)

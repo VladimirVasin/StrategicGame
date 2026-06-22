@@ -30,19 +30,25 @@ namespace ProjectUnknown.Strategy
                         new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.House, "HM", "House", new StrategyConstructionResourceCost(2, 3), HtmlColor("#C39B69"))
                     }),
                 new StrategyBuildMenuControllerDriver.BuildCategoryData(
-                    "Production",
-                    HtmlColor("#4F7A47"),
+                    "Extraction",
+                    HtmlColor("#5F7545"),
                     new[]
                     {
                         new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.LumberjackCamp, "LC", "Lumberjack Camp", Cost(4, 2), HtmlColor("#7D8E4A")),
                         new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.StonecutterCamp, "SC", "Stonecutter Camp", Cost(3, 4), HtmlColor("#7B8582")),
-                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.Sawmill, "SW", "Sawmill", Cost(8, 4), HtmlColor("#9A6B3A")),
                         new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.Mine, "MN", "Mine", Cost(5, 5, 3), HtmlColor("#765F4C")),
                         new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.CoalPit, "CP", "Coal Pit", Cost(4, 4, 2), HtmlColor("#464B4D")),
                         new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.ClayPit, "CL", "Clay Pit", Cost(3, 3, 1), HtmlColor("#A96945")),
-                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.Kiln, "KI", "Kiln", Cost(5, 5, 2), HtmlColor("#B46A3F")),
                         new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.HunterCamp, "HC", "Hunter Camp", Cost(4, 2), HtmlColor("#7B6A45")),
                         new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.FisherHut, "FH", "Fisher Hut", Cost(4, 2), HtmlColor("#4F7E8A"))
+                    }),
+                new StrategyBuildMenuControllerDriver.BuildCategoryData(
+                    "Production",
+                    HtmlColor("#8A6138"),
+                    new[]
+                    {
+                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.Sawmill, "SW", "Sawmill", Cost(8, 4), HtmlColor("#9A6B3A")),
+                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.Kiln, "KI", "Kiln", Cost(5, 5, 2), HtmlColor("#B46A3F"))
                     }),
                 new StrategyBuildMenuControllerDriver.BuildCategoryData(
                     "Storage",

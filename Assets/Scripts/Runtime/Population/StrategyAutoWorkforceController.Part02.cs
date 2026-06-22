@@ -156,14 +156,30 @@ namespace ProjectUnknown.Strategy
                 priority * BasePriorityScore + urgency,
                 reason);
             demands.Add(demand);
-            StrategyDebugLogger.Info(
-                "AutoWorkforce",
-                "AutoWorkforceDemand",
-                StrategyDebugLogger.F("profession", profession),
-                StrategyDebugLogger.F("category", category),
-                StrategyDebugLogger.F("needed", needed),
-                StrategyDebugLogger.F("score", demand.Score),
-                StrategyDebugLogger.F("reason", reason));
+            if (ShouldLogDemand(profession, reason))
+            {
+                StrategyDebugLogger.Info(
+                    "AutoWorkforce",
+                    "AutoWorkforceDemand",
+                    StrategyDebugLogger.F("profession", profession),
+                    StrategyDebugLogger.F("category", category),
+                    StrategyDebugLogger.F("needed", needed),
+                    StrategyDebugLogger.F("score", demand.Score),
+                    StrategyDebugLogger.F("reason", reason));
+            }
+        }
+
+        private bool ShouldLogDemand(StrategyProfessionType profession, string reason)
+        {
+            string key = profession + ":" + reason;
+            float now = Time.unscaledTime;
+            if (demandLogTimes.TryGetValue(key, out float nextAllowedTime) && now < nextAllowedTime)
+            {
+                return false;
+            }
+
+            demandLogTimes[key] = now + DemandLogInterval;
+            return true;
         }
 
         private int AssignDemand(StrategyAutoWorkforceDemand demand, ref int assignmentBudget)

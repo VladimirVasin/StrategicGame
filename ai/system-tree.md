@@ -103,7 +103,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Runtime water/shore overlay animates shallow/deep tint, river-flow streaks, lake sparkles, broken shoreline foam, wet shore edges, and weather-driven rain ripple hits over the static map texture
     - Runtime trail layer records weighted resident footfall wear on walkable/buildable land cells
     - Trail wear decays after cells go unused long enough, letting stale trails fade back out of view
-    - Trail cells render connected procedural sprites using 8-direction connection masks, wear levels, and deterministic variants
+    - Trail cells render connected procedural sprites using cardinal N/E/S/W right-angle masks, wear levels, and deterministic variants
     - Formed trails give residents a 15% movement-speed bonus and reduce resident pathfinding cost without becoming required routes
     - Runtime nature-props layer
       - Generated after map terrain cells are built
@@ -248,7 +248,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Exposes selected tool info, footprint, color, and cost
     - Reads construction stock availability through `StrategyStorageYard.GetTotalConstructionResources()`, including Storage Yard stock and loose piles
     - Shows x1/x2/x3 simulation speed buttons under the top-left resource panel, reusing `StrategyTimeScaleController`
-    - Current catalog contains `Housing` / `House`, `Production` / `Lumberjack Camp`, `Stonecutter Camp`, `Sawmill`, `Kiln`, `Mine`, `Coal Pit`, `Clay Pit`, `Hunter Camp`, and `Fisher Hut`, `Storage` / `Storage Yard` and `Granary`, and `Infrastructure` / `Bridge`
+    - Current catalog contains `Housing` / `House`, `Extraction` / `Lumberjack Camp`, `Stonecutter Camp`, `Mine`, `Coal Pit`, `Clay Pit`, `Hunter Camp`, and `Fisher Hut`, `Production` / `Sawmill` and `Kiln`, `Storage` / `Storage Yard` and `Granary`, and `Infrastructure` / `Bridge`
     - Single-item categories directly activate their only build tool on click
   - Build placement
     - Runtime-created placement controller
@@ -454,7 +454,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Residents store a random visual variant chosen at startup
     - Residents perform simple idle movement near their current camp/home using short walkable grid paths
     - Resident pathing can recover a blocked start cell by moving the resident to a nearby walkable cell and logging the recovery
-    - Resident work normally starts only during the shared pre-night work window, with Day 1 Dawn also counted as work time so starter construction can begin immediately; nightfall defers new production, construction, logistics, hunting, fishing, foraging, garden, household-food pickup, and household cooking while allowing carried resources and deposits/returns to finish
+    - Resident work normally starts during the shared Dawn-through-Dusk work window; nightfall defers new production, construction, logistics, hunting, fishing, foraging, garden, household-food pickup, and household cooking while allowing carried resources and deposits/returns to finish
     - During `Night`, housed idle residents path to their home, hide inside the house, and wake at the home exit after night ends
     - Householders periodically work at their house's default Garden Beds, fetch raw `Fish`/`Game` ingredients from Granaries, fetch Pottery from Storage Yards, or cook prepared `Dish` from ingredients and Pottery during `TendingHousehold` home duty
     - Non-householder residents without external work forage Berries, Roots, and Mushrooms for their own house; children younger than 7 do not forage

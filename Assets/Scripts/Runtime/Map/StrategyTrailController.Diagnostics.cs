@@ -135,7 +135,8 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("oldWear", oldWear),
                 StrategyDebugLogger.F("newWear", newWear),
                 StrategyDebugLogger.F("visible", GetVisibleTrailLevel(cell) > 0),
-                StrategyDebugLogger.F("rawNeighbors", CountRawTrailNeighbors(cell)));
+                StrategyDebugLogger.F("rawNeighbors", CountRawTrailNeighbors(cell)),
+                StrategyDebugLogger.F("cardinalNeighbors", CountCardinalTrailNeighbors(cell)));
         }
 
         private void RecordInvalidatedTrailCell(Vector2Int cell, byte oldLevel, float oldWear)

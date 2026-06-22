@@ -20,10 +20,10 @@ When a real tutorial or onboarding flow is implemented:
 ## Current Scenario
 
 - On normal strategy startup, the left-side Goals HUD shows `Build 3 Houses (0/3)`.
-- Day 1 Dawn counts as settlement work time, so auto-assigned builders and haulers can begin starter construction immediately.
+- Dawn counts as settlement work time on every day, so auto-assigned builders and haulers can begin starter construction immediately.
 - While this goal is active, the Build menu allows only `House`; all other building categories/items are locked.
 - Completed construction, not placed construction sites, advances goal progress.
 - After the third completed House, the next goal stage starts.
 - The second stage shows `Build Lumberjack Camp` and `Build Stonecutter Camp`.
 - While the second stage is active, the Build menu allows only `Lumberjack Camp` and `Stonecutter Camp`; other buildings remain locked.
-- After both production camps are completed, the starter goal sequence completes and the full Build menu catalog unlocks.
+- After both raw-resource camps are completed, the starter goal sequence completes and the full Build menu catalog unlocks.

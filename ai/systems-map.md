@@ -355,9 +355,9 @@ Impact hints:
 - Future movement/pathfinding should use `IsCellWalkable` rather than terrain kind alone.
 - Rendering is currently a generated point-filtered texture on a `SpriteRenderer`, not a Tilemap.
 - Water and shore animation is a separate transparent `SpriteRenderer` overlay above the static map and below world props; it reads active weather intensity for rain ripple hits.
-- Trail visuals use one `SpriteRenderer` per visible trail cell under a `Trail Visuals` root, sorted above terrain/water overlays and below world props, with 8-direction masks and narrow line/brush sprites; faint trail cells require directional/strong-neighbor support before rendering so early traffic noise stays hidden.
+- Trail visuals use one `SpriteRenderer` per visible trail cell under a `Trail Visuals` root, sorted above terrain/water overlays and below world props, with cardinal N/E/S/W right-angle masks and narrow line/brush sprites; cells with only diagonal or isolated trail wear stay hidden visually so early traffic noise does not form spider-web strands.
 - Trail wear is runtime-only and should be refreshed when walkability/buildability changes so blocked cells do not keep visible trails.
-- Resident pathfinding should continue to treat trails as a cost preference, not as required connectivity.
+- Resident pathfinding should continue to read functional trail wear as a cost preference, not as required connectivity; do not tie movement bonuses to visual-only orthogonal filtering.
 
 ### Forestry MVP
 
@@ -547,6 +547,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Wildlife/StrategyRabbitAgent.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyRabbitAgent.Part03.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyRabbitAgent.Part04.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyRabbitAgent.Part05.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyRabbitSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWolfAgent.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWolfAgent.Part04.cs`
@@ -573,7 +574,7 @@ Impact hints:
 - Initial rabbit spawn, deer herds, fish shoals, birds, and wolf packs depend on hidden near-settlement candidate cells instead of map-wide placement; if no hidden candidate exists for a species, that species should skip spawning rather than appearing far from buildings or inside visible fog.
 - Wildlife hidden checks use fog daylight-range visibility, not reduced nighttime current visibility, so animals do not spawn closer to the settlement just because night lowered player sight radius.
 - Deer pathing depends on the wildlife land-travel predicate plus a separate land-target predicate, which wraps `CityMapController.IsCellWalkable`, River transit allowance, and the 4-cell structure buffer.
-- Rabbit pathing uses the same local wildlife land-travel and land-target approach and should stay cheap until a shared pathfinding service exists.
+- Rabbit pathing uses the same local wildlife land-travel and land-target approach and should stay cheap until a shared pathfinding service exists; repeated same-threat alert/flee reactions are throttled so rabbits do not rebuild flee paths every threat check.
 - Land wildlife river crossing is intentionally scoped to wildlife path helpers through `StrategyWildlifeRiverCrossing`; River cells are transit-only for deer/rabbit/wolf paths and should not become final wildlife targets. Do not change global `CityMapController` walkability to make River water walkable for residents, buildings, or construction.
 - Fish pathing uses `CityMapCellKind.Water` plus `CityMapWaterKind` instead of `IsCellWalkable`, because water is intentionally not walkable for land agents and lake/river fish now have separate movement rules.
 - Migration state is owned by `StrategyWildlifeController`; agents only expose small retarget methods for their current home/roam center, and migration targets must stay in currently hidden near-settlement candidate cells.
@@ -781,7 +782,7 @@ Responsibilities:
 - F9 instant construction debug mode makes build tools affordable and shows item cost badges as `Free`.
 - Temporary goal-driven tool locks that disable locked categories/items, block mouse and hotkey selection, and show `Locked` item badges.
 - Top-left construction resource panel with x1/x2/x3 speed buttons directly beneath it.
-- Current catalog entries: `Housing` / `House`, `Production` / `Lumberjack Camp`, `Stonecutter Camp`, `Sawmill`, `Kiln`, `Hunter Camp`, `Fisher Hut`, `Mine`, `Coal Pit`, and `Clay Pit`, `Storage` / `Storage Yard` and `Granary`, and `Infrastructure` / `Bridge`.
+- Current catalog entries: `Housing` / `House`, `Extraction` / `Lumberjack Camp`, `Stonecutter Camp`, `Mine`, `Coal Pit`, `Clay Pit`, `Hunter Camp`, and `Fisher Hut`, `Production` / `Sawmill` and `Kiln`, `Storage` / `Storage Yard` and `Granary`, and `Infrastructure` / `Bridge`.
 - Hotkeys for open/close, category/item selection, and layered cancel.
 - EventSystem/Input System UI setup when the scene has no UI event module.
 - Add tools/buildings gradually only by explicit user request.
@@ -825,7 +826,8 @@ Impact hints:
 - Starter goals call `StrategyBuildMenuController.SetAllowedTools()` and `ClearAllowedTools()`; keep lock checks shared by mouse clicks, hotkeys, active tool info, and affordability/selection visuals.
 - Current catalog has user-requested buildings only: `House`, `Lumberjack Camp`, `Stonecutter Camp`, `Sawmill`, `Kiln`, `Hunter Camp`, `Fisher Hut`, `Mine`, `Coal Pit`, `Clay Pit`, `Storage Yard`, `Granary`, and `Bridge`; do not add more without a user request.
 - Current `Housing` category directly activates `House` because it has one item.
-- Current `Production` category opens a tray with `Lumberjack Camp`, `Stonecutter Camp`, `Sawmill`, `Kiln`, `Hunter Camp`, `Fisher Hut`, `Mine`, `Coal Pit`, and `Clay Pit`.
+- Current `Extraction` category opens a tray with raw-resource buildings: `Lumberjack Camp`, `Stonecutter Camp`, `Mine`, `Coal Pit`, `Clay Pit`, `Hunter Camp`, and `Fisher Hut`.
+- Current `Production` category opens a tray with processing buildings: `Sawmill` and `Kiln`.
 - Current `Storage` category opens a tray with `Storage Yard` and `Granary`.
 - Successful placement asks the menu to close all open layers and records the placement frame.
 - If a full HUD/menu shell appears later, decide whether this controller remains standalone or becomes part of the HUD shell.
@@ -1010,7 +1012,7 @@ Primary files/assets:
 
 Impact hints:
 
-- Auto workforce can release surplus workers from overstaffed auto-managed professions, release limited lower-priority donors for higher-scored shortages, and use a stricter emergency margin to pull at-target donors for severe food/resource shortages; coverage floors protect the last worker in nonzero-counter professions, worksite lookups should use the per-tick snapshot, successful assignments are capped per tick, and only residents who become idle are reused immediately while workers returning carried resources re-enter the free pool on later ticks.
+- Auto workforce can release surplus workers from overstaffed auto-managed professions, release limited lower-priority donors for higher-scored shortages, and use a stricter emergency margin to pull at-target donors for severe food/resource shortages; coverage floors protect the last worker in nonzero-counter professions, worksite lookups should use the cached snapshot refreshed on real-time cadence instead of scene-wide lookups every scaled tick, successful assignments are capped per tick, and only residents who become idle are reused immediately while workers returning carried resources re-enter the free pool on later ticks.
 - Free adult fallback assignment runs after demand assignment so idle adults are placed into the best enabled available role when any nonzero managed profession can accept them.
 - Auto workforce does not force-reassign home duty, funeral duty, or residents still busy returning carried resources.
 - Demand scoring should continue to call public worksite APIs (`AssignWorker`, `AssignBuilder`, Storage Yard builder dispatch) so cancellation, carried-resource return, reservations, and resident state cleanup stay centralized.
@@ -1619,7 +1621,7 @@ Impact hints:
 - Residents use trail-aware 8-direction A* grid paths with no diagonal corner cutting and post-path smoothing for idle, home, workplace, construction, logistics, and funeral travel while keeping frame-based sprite walk cycles.
 - Resident movement records activity-weighted trail footfall per entered visible resident cell, and formed trails apply a 15% speed bonus.
 - Resident pathfinding can recover a blocked start cell by snapping to a nearby walkable cell and logging `PathStartRecovered`.
-- Resident scheduled work starts only during `StrategyDayNightCycleController.IsSettlementWorkTime`; Day 1 Dawn is also work time to avoid starter construction delay, while later Dawn phases remain off normal work time. Keep carried-resource returns, deposits, and cleanup paths schedule-safe so nightfall cannot strand stock reservations.
+- Resident scheduled work starts only during `StrategyDayNightCycleController.IsSettlementWorkTime`, which now covers Dawn through Dusk on every day. Keep carried-resource returns, deposits, and cleanup paths schedule-safe so nightfall cannot strand stock reservations.
 - Resident night sleep is separate from homebound young-child hiding: housed residents only enter the hidden home interior during `Night` when they are not carrying resources, in funeral duty, or underground, notify household food state for dinner readiness, then reappear at the home exit after night ends.
 - Resident footstep audio is attached by `StrategyResidentAgent` and plays grass clips on selected walk frames; keep it low-volume/spatial when adding more residents or faster simulation speeds.
 - Lumberjack work keeps the same camp worksite component but chooses the nearest available tree/processable wood on the map; it tests nearby work cells for real path reachability before starting tree/log/plant movement, and includes tree chopping, trunk bucking, Logs delivery, and sapling planting.

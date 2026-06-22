@@ -250,17 +250,31 @@ namespace ProjectUnknown.Strategy
 
         private void StartAlert(Vector3 threatWorld, bool noisyThreat)
         {
+            if (ShouldSkipThreatReaction(StrategyRabbitBehaviorState.Alert, threatWorld))
+            {
+                lastThreatWorld = threatWorld;
+                return;
+            }
+
             hasTarget = false;
             path.Clear();
             pathIndex = 0;
             lastThreatWorld = threatWorld;
+            MarkThreatReaction(threatWorld);
             stateTimer = noisyThreat ? Random.Range(1.0f, 2.3f) : Random.Range(0.6f, 1.5f);
             SetState(StrategyRabbitBehaviorState.Alert, true, noisyThreat);
         }
 
         private void StartFleeing(Vector3 threatWorld, bool noisyThreat)
         {
+            if (ShouldSkipThreatReaction(StrategyRabbitBehaviorState.Fleeing, threatWorld))
+            {
+                lastThreatWorld = threatWorld;
+                return;
+            }
+
             lastThreatWorld = threatWorld;
+            MarkThreatReaction(threatWorld);
             stateTimer = noisyThreat ? Random.Range(1.5f, 2.8f) : Random.Range(1.0f, 2.0f);
             bool foundTarget = TryPickFleeTarget(threatWorld);
             if (!foundTarget && state == StrategyRabbitBehaviorState.Fleeing)

@@ -7,6 +7,8 @@ namespace ProjectUnknown.Strategy
     public sealed partial class StrategyAutoWorkforceController : MonoBehaviour
     {
         private const float TickInterval = 3f;
+        private const float WorksiteCacheRefreshInterval = 8f;
+        private const float DemandLogInterval = 12f;
         private const float ManualOverrideSeconds = 45f;
         private const int MaxAssignmentsPerTick = 4;
 
@@ -14,6 +16,7 @@ namespace ProjectUnknown.Strategy
         private readonly List<StrategyAutoWorkforceDemand> demands = new();
         private readonly List<StrategyResidentAgent> candidates = new();
         private readonly Dictionary<StrategyProfessionType, float> manualLocks = new();
+        private readonly Dictionary<string, float> demandLogTimes = new();
         private readonly Dictionary<StrategyProfessionType, int> desiredProfessionTargets = new();
         private readonly Dictionary<StrategyProfessionType, int> coverageProfessionFloors = new();
         private StrategyConstructionSite[] cachedConstructionSites = System.Array.Empty<StrategyConstructionSite>();
@@ -29,6 +32,7 @@ namespace ProjectUnknown.Strategy
         private StrategyFisherHut[] cachedFisherHuts = System.Array.Empty<StrategyFisherHut>();
         private StrategyPopulationController population;
         private float tickTimer;
+        private float nextWorksiteCacheRefreshTime;
         private string lastStatus = "Auto workforce ready";
 
         public StrategyAutoWorkforceSettings Settings => settings;
@@ -65,7 +69,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            tickTimer -= Time.deltaTime;
+            tickTimer -= Time.unscaledDeltaTime;
             if (tickTimer > 0f)
             {
                 return;
@@ -84,6 +88,7 @@ namespace ProjectUnknown.Strategy
 
             settings.SetEnabled(enabled);
             tickTimer = 0f;
+            nextWorksiteCacheRefreshTime = 0f;
             lastStatus = enabled ? "Auto assign enabled" : "Auto assign disabled";
             StrategyDebugLogger.Info(
                 "AutoWorkforce",
@@ -95,6 +100,7 @@ namespace ProjectUnknown.Strategy
         {
             int value = settings.AdjustPriority(category, delta);
             tickTimer = 0f;
+            nextWorksiteCacheRefreshTime = 0f;
             StrategyDebugLogger.Info(
                 "AutoWorkforce",
                 "PriorityChanged",
@@ -122,8 +128,8 @@ namespace ProjectUnknown.Strategy
         {
             float tickStartedAt = Time.realtimeSinceStartup;
             CleanupManualLocks();
-            RefreshWorksiteCache();
             CollectFreeCandidates();
+            RefreshWorksiteCacheIfDue(false);
             CollectDemands();
             int disabledReleased = ReleaseDisabledProfessionWorkers();
             int demandShortfall = Mathf.Max(0, CountUnfilledDemand() - candidates.Count);
@@ -220,6 +226,18 @@ namespace ProjectUnknown.Strategy
             cachedKilns = UnityEngine.Object.FindObjectsByType<StrategyKiln>();
             cachedHunterCamps = UnityEngine.Object.FindObjectsByType<StrategyHunterCamp>();
             cachedFisherHuts = UnityEngine.Object.FindObjectsByType<StrategyFisherHut>();
+        }
+
+        private void RefreshWorksiteCacheIfDue(bool force)
+        {
+            float now = Time.unscaledTime;
+            if (!force && now < nextWorksiteCacheRefreshTime)
+            {
+                return;
+            }
+
+            RefreshWorksiteCache();
+            nextWorksiteCacheRefreshTime = now + WorksiteCacheRefreshInterval;
         }
 
         private T[] GetCachedSites<T>()

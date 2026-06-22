@@ -20,10 +20,6 @@ namespace ProjectUnknown.Strategy
         private const int East = 2;
         private const int South = 4;
         private const int West = 8;
-        private const int NorthEast = 16;
-        private const int SouthEast = 32;
-        private const int SouthWest = 64;
-        private const int NorthWest = 128;
 
         private static readonly Vector2Int[] NeighborCells =
         {
@@ -184,7 +180,7 @@ namespace ProjectUnknown.Strategy
 
         public bool IsTrailCell(Vector2Int cell)
         {
-            return GetVisibleTrailLevel(cell) > 0;
+            return GetFunctionalTrailLevel(cell) > 0;
         }
 
         public float GetMoveSpeedMultiplier(Vector2Int cell)
@@ -295,45 +291,7 @@ namespace ProjectUnknown.Strategy
                 mask |= West;
             }
 
-            if (HasDiagonalConnection(cell, 1, 1))
-            {
-                mask |= NorthEast;
-            }
-
-            if (HasDiagonalConnection(cell, 1, -1))
-            {
-                mask |= SouthEast;
-            }
-
-            if (HasDiagonalConnection(cell, -1, -1))
-            {
-                mask |= SouthWest;
-            }
-
-            if (HasDiagonalConnection(cell, -1, 1))
-            {
-                mask |= NorthWest;
-            }
-
             return mask;
-        }
-
-        private bool HasDiagonalConnection(Vector2Int cell, int x, int y)
-        {
-            if (GetVisibleTrailLevel(cell) < 2)
-            {
-                return false;
-            }
-
-            Vector2Int diagonalCell = cell + new Vector2Int(x, y);
-            if (GetVisibleTrailLevel(diagonalCell) < 2)
-            {
-                return false;
-            }
-
-            return map != null
-                && map.IsCellWalkable(cell + new Vector2Int(x, 0))
-                && map.IsCellWalkable(cell + new Vector2Int(0, y));
         }
 
         private SpriteRenderer EnsureRenderer(int key, Vector2Int cell)

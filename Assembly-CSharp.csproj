@@ -253,6 +253,7 @@
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingSpriteFactory.Part09.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyCinematicVisualController.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyConstructionSpriteFactory.Part01.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyRabbitAgent.Part05.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyDebugLogger.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyEventLogHudController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyPopulationController.Part02.cs" />
