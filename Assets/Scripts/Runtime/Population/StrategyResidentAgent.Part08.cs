@@ -9,7 +9,7 @@ namespace ProjectUnknown.Strategy
         private void UpdateDepositingForage()
         {
             forageWorkTimer -= Time.deltaTime;
-            AnimateGardenWork();
+            AnimateForageWork(carriedForageResource, true);
             SetCarriedForageVisible(true);
             if (forageWorkTimer > 0f)
             {

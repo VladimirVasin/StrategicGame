@@ -279,7 +279,9 @@ namespace ProjectUnknown.Strategy
         private void UpdateGatheringForage()
         {
             forageWorkTimer -= Time.deltaTime;
-            AnimateGardenWork();
+            AnimateForageWork(
+                activeForageNode != null ? activeForageNode.ResourceType : StrategyResourceType.Berries,
+                false);
             if (activeForageNode != null)
             {
                 FaceWorldPoint(activeForageNode.FootprintBounds.center);
@@ -351,7 +353,9 @@ namespace ProjectUnknown.Strategy
         private void UpdatePickingUpLooseForage()
         {
             forageWorkTimer -= Time.deltaTime;
-            AnimateGardenWork();
+            AnimateForageWork(
+                activeLooseForageSource != null ? activeLooseForageSource.Resource : StrategyResourceType.Berries,
+                true);
             if (activeLooseForageSource != null)
             {
                 FaceWorldPoint(activeLooseForageSource.FootprintBounds.center);

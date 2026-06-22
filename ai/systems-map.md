@@ -430,7 +430,7 @@ Impact hints:
 - Current visibility is reduced by Dusk/Night/Dawn and dense Fog weather, but persistent explored state and daylight-range hidden checks stay separate.
 - Weather Fog replaces normal explored gray-zone rendering with light/medium/dense fog bands around current visible cells.
 - Wildlife spawn/reproduction/migration hidden checks should use daylight-range visibility so temporary night blindness does not count as a safe spawn opening.
-- The F9 debug panel can hide the fog overlay and make map cells count as explored for player placement/selection until toggled back on; Fog of War also skips refresh ticks while player fog is disabled. The F9 panel also owns tester-facing instant construction toggles through shared debug options.
+- The F9 debug panel can hide the fog overlay and make map cells count as explored for player placement/selection until toggled back on; Fog of War also skips refresh ticks while player fog is disabled. The F9 panel also owns tester-facing instant construction toggles through shared debug options and can request a normal refugee arrival event through `StrategyRefugeeArrivalController.DebugStartArrival()`.
 - Future scouting, enemies, stealth, minimap, or save/load should extend this subsystem instead of duplicating visibility arrays.
 
 ### Nature Props
@@ -1706,6 +1706,8 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Wildlife/StrategyFishAgent.cs`
 - `Assets/Scripts/Runtime/Population/StrategyHuntingArrowProjectile.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentSpriteFactory.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentSpriteFactory.Part06.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part54.cs`
 - `Assets/Scripts/Runtime/Population/StrategyCampfireAnimator.cs`
 - `Assets/Scripts/Runtime/Population/StrategyCampfireAmbientSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Population/StrategyCampfireSpriteFactory.cs`
@@ -1742,6 +1744,7 @@ Impact hints:
 - `StrategyHouseholdFoodState` lives on occupied houses, resolves one nightly dinner per day after a one-day settling grace, waits for eligible residents to enter home for `Night` with a fallback deadline, consumes prepared house recipe dishes first, falls back to house-local ingredients for missing rations, applies short rations to resident nutrition debt, and exposes aggregate food status for HUDs.
 - Householder home duty can reserve one raw `Fish`/`Game` unit from a Granary or Pottery from a Storage Yard, path to pickup, carry it home, store it in the house, and cook stored ingredients plus 1 Pottery per prepared recipe dish during `Dusk`.
 - `StrategyHouseholdForagingState` lives on house buildings and dispatches only unassigned non-householder residents; it should remain separate from the Profession HUD/worksite assignment model.
+- Household foragers use dedicated generated reach/crouch sprites plus node pulse effects instead of the generic Garden Beds animation.
 - `StrategyPlacedBuilding` owns the current Householder reference for houses, preferring the oldest adult female resident and refreshing on home changes, death/unregister, and resident adulthood.
 - `StrategyResidentAgent.HasWorkplace` includes the Householder role, so profession assignment should treat householders as occupied home workers.
 - Householder assignment clears external worksite/builder roles through their owning worksite APIs and uses `TendingHousehold` instead of `Idle` for home duty.

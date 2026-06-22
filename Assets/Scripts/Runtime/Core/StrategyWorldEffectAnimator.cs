@@ -10,7 +10,9 @@ namespace ProjectUnknown.Strategy
         StoneChips,
         CoalChips,
         IronSparks,
-        WaterSplash
+        WaterSplash,
+        Leaves,
+        Spores
     }
 
     [DisallowMultipleComponent]
@@ -199,6 +201,9 @@ namespace ProjectUnknown.Strategy
                 StrategyResourceType.Coal => StrategyWorldEffectKind.CoalChips,
                 StrategyResourceType.Pottery => StrategyWorldEffectKind.Dust,
                 StrategyResourceType.Fish => StrategyWorldEffectKind.WaterSplash,
+                StrategyResourceType.Berries => StrategyWorldEffectKind.Leaves,
+                StrategyResourceType.Mushrooms => StrategyWorldEffectKind.Spores,
+                StrategyResourceType.Roots => StrategyWorldEffectKind.Dust,
                 _ => StrategyWorldEffectKind.Dust
             };
         }
@@ -223,7 +228,13 @@ namespace ProjectUnknown.Strategy
         private static Vector3 GetEffectDrift(StrategyWorldEffectKind effectKind, int effectVariant)
         {
             float x = ((effectVariant % 3) - 1) * 0.05f;
-            float y = effectKind == StrategyWorldEffectKind.WaterSplash ? 0.10f : 0.18f;
+            float y = effectKind switch
+            {
+                StrategyWorldEffectKind.WaterSplash => 0.10f,
+                StrategyWorldEffectKind.Spores => 0.12f,
+                StrategyWorldEffectKind.Leaves => 0.15f,
+                _ => 0.18f
+            };
             return new Vector3(x, y + (effectVariant % 2) * 0.04f, 0f);
         }
 
@@ -328,6 +339,8 @@ namespace ProjectUnknown.Strategy
                 StrategyWorldEffectKind.CoalChips => Rgb(56, 53, 50),
                 StrategyWorldEffectKind.IronSparks => Rgb(238, 157, 63),
                 StrategyWorldEffectKind.WaterSplash => new Color(0.55f, 0.82f, 0.96f, 0.78f),
+                StrategyWorldEffectKind.Leaves => new Color(0.44f, 0.63f, 0.28f, 0.66f),
+                StrategyWorldEffectKind.Spores => new Color(0.78f, 0.71f, 0.58f, 0.48f),
                 _ => new Color(0.62f, 0.54f, 0.40f, 0.58f)
             };
         }
@@ -341,6 +354,8 @@ namespace ProjectUnknown.Strategy
                 StrategyWorldEffectKind.CoalChips => Rgb(96, 91, 86),
                 StrategyWorldEffectKind.IronSparks => Rgb(255, 226, 122),
                 StrategyWorldEffectKind.WaterSplash => new Color(0.82f, 0.94f, 1f, 0.70f),
+                StrategyWorldEffectKind.Leaves => new Color(0.68f, 0.78f, 0.38f, 0.48f),
+                StrategyWorldEffectKind.Spores => new Color(0.95f, 0.86f, 0.70f, 0.36f),
                 _ => new Color(0.78f, 0.69f, 0.50f, 0.42f)
             };
         }
@@ -352,6 +367,8 @@ namespace ProjectUnknown.Strategy
                 StrategyWorldEffectKind.WaterSplash => new Color(0.45f, 0.70f, 0.90f, 0.22f),
                 StrategyWorldEffectKind.IronSparks => new Color(0.95f, 0.56f, 0.18f, 0.20f),
                 StrategyWorldEffectKind.CoalChips => new Color(0.12f, 0.11f, 0.10f, 0.35f),
+                StrategyWorldEffectKind.Leaves => new Color(0.28f, 0.43f, 0.20f, 0.24f),
+                StrategyWorldEffectKind.Spores => new Color(0.86f, 0.78f, 0.64f, 0.18f),
                 _ => new Color(0.66f, 0.58f, 0.44f, 0.30f)
             };
         }

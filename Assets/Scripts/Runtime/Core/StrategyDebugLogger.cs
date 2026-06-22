@@ -12,10 +12,15 @@ namespace ProjectUnknown.Strategy
     {
         private static readonly Encoding Utf8NoBom = new UTF8Encoding(false);
         private static readonly object SyncRoot = new();
+        private const int FlushLineThreshold = 32;
+        private const float FlushIntervalSeconds = 0.5f;
 
         private bool configured;
         private bool fileWriteDisabled;
         private string logPath;
+        private StreamWriter writer;
+        private int pendingFlushLines;
+        private float nextFlushTime;
 
         public static StrategyDebugLogger Active { get; private set; }
         public static string LogPath => Active != null ? Active.logPath : string.Empty;
@@ -36,10 +41,17 @@ namespace ProjectUnknown.Strategy
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(logPath) ?? ".");
                 File.WriteAllText(logPath, string.Empty, Utf8NoBom);
+                writer = new StreamWriter(logPath, true, Utf8NoBom)
+                {
+                    AutoFlush = false
+                };
+
+                nextFlushTime = Time.realtimeSinceStartup + FlushIntervalSeconds;
             }
             catch
             {
                 fileWriteDisabled = true;
+                DisposeWriter();
                 return;
             }
 
@@ -121,12 +133,27 @@ namespace ProjectUnknown.Strategy
             {
                 lock (SyncRoot)
                 {
-                    File.AppendAllText(logPath, line + Environment.NewLine, Utf8NoBom);
+                    if (writer == null)
+                    {
+                        fileWriteDisabled = true;
+                        return;
+                    }
+
+                    writer.WriteLine(line);
+                    pendingFlushLines++;
+                    float now = Time.realtimeSinceStartup;
+                    if (pendingFlushLines >= FlushLineThreshold || now >= nextFlushTime)
+                    {
+                        writer.Flush();
+                        pendingFlushLines = 0;
+                        nextFlushTime = now + FlushIntervalSeconds;
+                    }
                 }
             }
             catch
             {
                 fileWriteDisabled = true;
+                DisposeWriter();
             }
         }
 
@@ -165,12 +192,49 @@ namespace ProjectUnknown.Strategy
             if (configured && !fileWriteDisabled)
             {
                 Info("Session", "End");
+                FlushWriter();
             }
 
             Application.logMessageReceived -= HandleUnityLogMessage;
             if (Active == this)
             {
                 Active = null;
+            }
+
+            DisposeWriter();
+        }
+
+        private void FlushWriter()
+        {
+            try
+            {
+                lock (SyncRoot)
+                {
+                    writer?.Flush();
+                    pendingFlushLines = 0;
+                    nextFlushTime = Time.realtimeSinceStartup + FlushIntervalSeconds;
+                }
+            }
+            catch
+            {
+                fileWriteDisabled = true;
+            }
+        }
+
+        private void DisposeWriter()
+        {
+            try
+            {
+                lock (SyncRoot)
+                {
+                    writer?.Dispose();
+                    writer = null;
+                    pendingFlushLines = 0;
+                }
+            }
+            catch
+            {
+                writer = null;
             }
         }
 

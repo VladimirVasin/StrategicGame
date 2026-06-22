@@ -93,6 +93,7 @@ namespace ProjectUnknown.Strategy
             settings.SetEnabled(enabled);
             tickTimer = 0f;
             nextWorksiteCacheRefreshTime = 0f;
+            ResetNoDonorSearchCooldown();
             lastStatus = enabled ? "Auto assign enabled" : "Auto assign disabled";
             StrategyDebugLogger.Info(
                 "AutoWorkforce",
@@ -105,6 +106,7 @@ namespace ProjectUnknown.Strategy
             int value = settings.AdjustPriority(category, delta);
             tickTimer = 0f;
             nextWorksiteCacheRefreshTime = 0f;
+            ResetNoDonorSearchCooldown();
             StrategyDebugLogger.Info(
                 "AutoWorkforce",
                 "PriorityChanged",
@@ -133,6 +135,25 @@ namespace ProjectUnknown.Strategy
             float tickStartedAt = Time.realtimeSinceStartup;
             CleanupManualLocks();
             CollectFreeCandidates();
+            if (candidates.Count <= 0 && IsNoDonorSearchCooldownActive())
+            {
+                lastStatus = "No free adults";
+                StrategyDebugLogger.Info(
+                    "AutoWorkforce",
+                    "AutoWorkforceTick",
+                    StrategyDebugLogger.F("enabled", settings.Enabled),
+                    StrategyDebugLogger.F("demands", demands.Count),
+                    StrategyDebugLogger.F("freeAdults", candidates.Count),
+                    StrategyDebugLogger.F("released", 0),
+                    StrategyDebugLogger.F("demandReleased", 0),
+                    StrategyDebugLogger.F("fallbackAssigned", 0),
+                    StrategyDebugLogger.F("assigned", 0),
+                    StrategyDebugLogger.F("durationMs", Mathf.RoundToInt((Time.realtimeSinceStartup - tickStartedAt) * 1000f)),
+                    StrategyDebugLogger.F("status", lastStatus),
+                    StrategyDebugLogger.F("reason", "donor_retry_cooldown"));
+                return;
+            }
+
             RefreshWorksiteCacheIfDue(false);
             CollectDemands();
             int disabledReleased = ReleaseDisabledProfessionWorkers();
@@ -219,20 +240,26 @@ namespace ProjectUnknown.Strategy
 
         private void RefreshWorksiteCache()
         {
-            cachedConstructionSites = UnityEngine.Object.FindObjectsByType<StrategyConstructionSite>();
-            cachedStorageYards = UnityEngine.Object.FindObjectsByType<StrategyStorageYard>();
-            cachedLumberjackCamps = UnityEngine.Object.FindObjectsByType<StrategyLumberjackCamp>();
-            cachedStonecutterCamps = UnityEngine.Object.FindObjectsByType<StrategyStonecutterCamp>();
-            cachedMines = UnityEngine.Object.FindObjectsByType<StrategyMine>();
-            cachedCoalPits = UnityEngine.Object.FindObjectsByType<StrategyCoalPit>();
-            cachedClayPits = UnityEngine.Object.FindObjectsByType<StrategyClayPit>();
-            cachedSawmills = UnityEngine.Object.FindObjectsByType<StrategySawmill>();
-            cachedKilns = UnityEngine.Object.FindObjectsByType<StrategyKiln>();
-            cachedForges = UnityEngine.Object.FindObjectsByType<StrategyForge>();
-            cachedHunterCamps = UnityEngine.Object.FindObjectsByType<StrategyHunterCamp>();
-            cachedFisherHuts = UnityEngine.Object.FindObjectsByType<StrategyFisherHut>();
-            cachedGranaries = UnityEngine.Object.FindObjectsByType<StrategyGranary>();
-            cachedPlacedBuildings = UnityEngine.Object.FindObjectsByType<StrategyPlacedBuilding>();
+            cachedConstructionSites = FindSceneObjects<StrategyConstructionSite>();
+            cachedStorageYards = FindSceneObjects<StrategyStorageYard>();
+            cachedLumberjackCamps = FindSceneObjects<StrategyLumberjackCamp>();
+            cachedStonecutterCamps = FindSceneObjects<StrategyStonecutterCamp>();
+            cachedMines = FindSceneObjects<StrategyMine>();
+            cachedCoalPits = FindSceneObjects<StrategyCoalPit>();
+            cachedClayPits = FindSceneObjects<StrategyClayPit>();
+            cachedSawmills = FindSceneObjects<StrategySawmill>();
+            cachedKilns = FindSceneObjects<StrategyKiln>();
+            cachedForges = FindSceneObjects<StrategyForge>();
+            cachedHunterCamps = FindSceneObjects<StrategyHunterCamp>();
+            cachedFisherHuts = FindSceneObjects<StrategyFisherHut>();
+            cachedGranaries = FindSceneObjects<StrategyGranary>();
+            cachedPlacedBuildings = FindSceneObjects<StrategyPlacedBuilding>();
+        }
+
+        private static T[] FindSceneObjects<T>()
+            where T : UnityEngine.Object
+        {
+            return UnityEngine.Object.FindObjectsByType<T>(FindObjectsInactive.Exclude);
         }
 
         private void RefreshWorksiteCacheIfDue(bool force)

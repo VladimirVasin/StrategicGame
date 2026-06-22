@@ -235,6 +235,7 @@ namespace ProjectUnknown.Strategy
                 ResidentSpritePose.Butcher => GetButcherBodyFrame(frame),
                 ResidentSpritePose.Fishing => GetFishingBodyFrame(frame),
                 ResidentSpritePose.Crying => GetCryingBodyFrame(frame),
+                ResidentSpritePose.Forage => GetForageBodyFrame(frame),
                 _ => ResidentWalkFrame.Idle
             };
 
@@ -278,6 +279,10 @@ namespace ProjectUnknown.Strategy
             else if (pose == ResidentSpritePose.Fishing)
             {
                 DrawFishingRod(texture, frame, outline);
+            }
+            else if (pose == ResidentSpritePose.Forage)
+            {
+                DrawForageTools(texture, frame, outline, skin);
             }
 
             texture.Apply(false, false);
@@ -409,6 +414,7 @@ namespace ProjectUnknown.Strategy
             {
                 ResidentSpritePose.Walk => GetWalkFrame(frame),
                 ResidentSpritePose.Crying => GetCryingBodyFrame(frame),
+                ResidentSpritePose.Forage => GetForageBodyFrame(frame),
                 _ => ResidentWalkFrame.Idle
             };
             int bodyY = Mathf.Clamp(walkFrame.BodyYOffset, 0, 1);
@@ -465,6 +471,10 @@ namespace ProjectUnknown.Strategy
             if (pose == ResidentSpritePose.Crying)
             {
                 DrawChildCryingOverlay(texture, frame, outline, skin, bodyY);
+            }
+            else if (pose == ResidentSpritePose.Forage)
+            {
+                DrawChildForageTools(texture, frame, outline, skin);
             }
 
             texture.Apply(false, false);

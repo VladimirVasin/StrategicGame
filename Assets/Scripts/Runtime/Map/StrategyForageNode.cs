@@ -15,6 +15,7 @@ namespace ProjectUnknown.Strategy
         private int variant;
         private int yieldAmount;
         private float regrowTimer;
+        private float impactPulseTimer;
         private StrategyResidentAgent reservedBy;
         private StrategyPlacedBuilding reservedForHome;
         private bool depleted;
@@ -67,6 +68,7 @@ namespace ProjectUnknown.Strategy
 
         private void Update()
         {
+            UpdateImpactPulse();
             if (!depleted)
             {
                 return;
@@ -164,6 +166,23 @@ namespace ProjectUnknown.Strategy
             return true;
         }
 
+        public void PlayGatherImpact(StrategyResidentAgent resident, int seed)
+        {
+            if (resident == null || depleted || spriteRenderer == null)
+            {
+                return;
+            }
+
+            impactPulseTimer = 0.18f;
+            Vector3 world = FootprintBounds.center + new Vector3(0f, 0.08f, -0.02f);
+            StrategyWorldEffectAnimator.Spawn(
+                GetGatherEffectKind(resourceType),
+                world,
+                spriteRenderer.sortingOrder + 2,
+                seed + variant * 17,
+                0.55f);
+        }
+
         private void UpdateVisual()
         {
             if (spriteRenderer == null)
@@ -178,6 +197,23 @@ namespace ProjectUnknown.Strategy
                     ? new Color(0.94f, 0.96f, 0.86f, 1f)
                     : Color.white;
             StrategyWorldSorting.Apply(spriteRenderer, transform.position, -1);
+        }
+
+        private void UpdateImpactPulse()
+        {
+            if (impactPulseTimer <= 0f)
+            {
+                return;
+            }
+
+            impactPulseTimer -= Time.deltaTime;
+            float progress = 1f - Mathf.Clamp01(impactPulseTimer / 0.18f);
+            float pulse = Mathf.Sin(progress * Mathf.PI) * 0.08f;
+            transform.localScale = new Vector3(1f + pulse, 1f - pulse * 0.35f, 1f);
+            if (impactPulseTimer <= 0f)
+            {
+                transform.localScale = Vector3.one;
+            }
         }
 
         private void AttachShadow()
@@ -206,6 +242,17 @@ namespace ProjectUnknown.Strategy
                 StrategyResourceType.Roots => "Roots",
                 StrategyResourceType.Mushrooms => "Mushrooms",
                 _ => type.ToString()
+            };
+        }
+
+        private static StrategyWorldEffectKind GetGatherEffectKind(StrategyResourceType type)
+        {
+            return type switch
+            {
+                StrategyResourceType.Berries => StrategyWorldEffectKind.Leaves,
+                StrategyResourceType.Mushrooms => StrategyWorldEffectKind.Spores,
+                StrategyResourceType.Roots => StrategyWorldEffectKind.Dust,
+                _ => StrategyWorldEffectKind.Leaves
             };
         }
     }

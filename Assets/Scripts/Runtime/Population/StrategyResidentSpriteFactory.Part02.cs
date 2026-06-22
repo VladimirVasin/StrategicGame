@@ -190,6 +190,7 @@ namespace ProjectUnknown.Strategy
                 ResidentSpritePose.Butcher => $"{genderName} Resident Butcher {variant + 1}-{frame + 1}",
                 ResidentSpritePose.Fishing => $"{genderName} Resident Fishing {variant + 1}-{frame + 1}",
                 ResidentSpritePose.Crying => $"{genderName} Resident Crying {variant + 1}-{frame + 1}",
+                ResidentSpritePose.Forage => $"{genderName} Resident Forage {variant + 1}-{frame + 1}",
                 _ => $"{genderName} Resident Walk {variant + 1}-{frame + 1}"
             };
         }
@@ -261,10 +262,10 @@ namespace ProjectUnknown.Strategy
             int frame,
             StrategyResidentLifeStage lifeStage)
         {
-            return ((int)lifeStage * 8192)
-                + ((int)gender * 2048)
-                + (variant * 256)
-                + ((int)pose * 48)
+            return ((int)lifeStage * 16384)
+                + ((int)gender * 8192)
+                + (variant * 1024)
+                + ((int)pose * 64)
                 + frame;
         }
 
@@ -291,7 +292,8 @@ namespace ProjectUnknown.Strategy
             Bow,
             Butcher,
             Fishing,
-            Crying
+            Crying,
+            Forage
         }
 
         private static readonly ResidentWalkFrame[] WalkFrames =

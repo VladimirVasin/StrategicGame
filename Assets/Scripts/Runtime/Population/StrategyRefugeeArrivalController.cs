@@ -116,7 +116,37 @@ namespace ProjectUnknown.Strategy
             TryStartArrival(true);
         }
 
-        private void TryStartArrival(bool firstArrival)
+        public bool DebugStartArrival()
+        {
+            if (map == null || population == null)
+            {
+                StrategyDebugLogger.Warn(
+                    "Refugees",
+                    "DebugArrivalRejected",
+                    StrategyDebugLogger.F("reason", "not_configured"));
+                return false;
+            }
+
+            if (state != RefugeeArrivalState.Waiting)
+            {
+                StrategyDebugLogger.Warn(
+                    "Refugees",
+                    "DebugArrivalRejected",
+                    StrategyDebugLogger.F("reason", "arrival_already_active"),
+                    StrategyDebugLogger.F("state", state));
+                return false;
+            }
+
+            bool started = TryStartArrival(!firstArrivalTriggered);
+            StrategyDebugLogger.Info(
+                "Refugees",
+                "DebugArrivalRequested",
+                StrategyDebugLogger.F("started", started),
+                StrategyDebugLogger.F("state", state));
+            return started;
+        }
+
+        private bool TryStartArrival(bool firstArrival)
         {
             int populationCount = population.TotalResidentCount;
             int availableSlots = PopulationHardCap - populationCount;
@@ -128,7 +158,7 @@ namespace ProjectUnknown.Strategy
                     "ArrivalSuppressedByPopulation",
                     StrategyDebugLogger.F("population", populationCount),
                     StrategyDebugLogger.F("cap", PopulationHardCap));
-                return;
+                return false;
             }
 
             if (!population.TryGetCampCell(out Vector2Int campCell)
@@ -136,7 +166,7 @@ namespace ProjectUnknown.Strategy
             {
                 StrategyDebugLogger.Warn("Refugees", "ArrivalDelayed", StrategyDebugLogger.F("reason", "no_camp"));
                 arrivalTimer = 45f;
-                return;
+                return false;
             }
 
             int memberCount = Random.Range(1, Mathf.Min(3, availableSlots) + 1);
@@ -146,7 +176,7 @@ namespace ProjectUnknown.Strategy
             {
                 StrategyDebugLogger.Warn("Refugees", "ArrivalDelayed", StrategyDebugLogger.F("reason", "no_route"));
                 arrivalTimer = 60f;
-                return;
+                return false;
             }
 
             if (!population.TryCreateRefugeeFamily(
@@ -159,7 +189,7 @@ namespace ProjectUnknown.Strategy
             {
                 StrategyDebugLogger.Warn("Refugees", "ArrivalDelayed", StrategyDebugLogger.F("reason", "family_create_failed"));
                 arrivalTimer = 60f;
-                return;
+                return false;
             }
 
             activeFamily.Clear();
@@ -194,6 +224,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("children", childCount),
                 StrategyDebugLogger.F("entryCell", activeEntryCell),
                 StrategyDebugLogger.F("outsideWorld", activeOutsideBaseWorld));
+            return true;
         }
 
         private void OpenDecisionDialog()

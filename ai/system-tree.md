@@ -168,6 +168,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Guarantees a small starter ring of forage resources around the settlement outside the campfire clear radius
       - Forage nodes can be reserved by one resident, depleted on gather, and regrow after a timed delay
       - Procedural forage sprites include ready/depleted node visuals plus carried basket sprites
+      - Foragers use dedicated crouch/reach animation frames, node pulse feedback, and small leaves/spores/dust effects on gather impact frames
     - Strategy wind
       - Runtime-created Unity `WindZone` in directional mode
       - Stores wind direction, main strength, pulse, frequency, and turbulence
@@ -488,7 +489,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - During `Night`, housed idle residents path to their home, hide inside the house, and wake at the home exit after night ends
     - During `Night`, homeless idle residents reserve reachable spots around the startup campfire; one resident can relight embers with a visible kindling animation before sleeping on the ground by the fire
     - Householders periodically work at their house's default Garden Beds, fetch raw `Fish`/`Game` ingredients from Granaries, fetch Pottery from Storage Yards, or cook prepared `Dish` from ingredients and Pottery during `TendingHousehold` home duty
-    - Non-householder residents without external work forage Berries, Roots, and Mushrooms for their own house; children younger than 7 do not forage
+    - Non-householder residents without external work forage Berries, Roots, and Mushrooms for their own house with a visible gather animation; children younger than 7 do not forage
     - Residents assigned to a lumberjack camp path to the nearest available tree or processable wood on the map, chop mature trees, buck fallen trunks into Logs, carry Logs to camp stock, and plant new saplings nearby
     - Residents assigned to a stonecutter camp path to the nearest available Stone deposit on the map, mine chunks with pickaxes, carry Stone to camp stock, and do not plant/regrow Stone
     - Residents assigned to a Mine path to the mine entrance, become hidden underground while working, trigger entrance dust/spark effects, mine reserved underground Iron, and add Iron to mine stock
@@ -555,7 +556,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - UI foundation
   - Unity UI package installed
   - UI Toolkit module available through Unity modules
-  - Custom runtime F9 debug panel with player fog-of-war, instant construction, and forced weather-state controls
+  - Custom runtime F9 debug panel with player fog-of-war, instant construction, refugee arrival summon, and forced weather-state controls
   - Custom runtime Build menu HUD
     - Early starter goals can lock Build menu categories/items to Houses first, then Lumberjack/Stonecutter camps, before unlocking the full catalog
   - Custom runtime top status HUD showing total population, adults, children, day number, 24-hour time, time-of-day phase, and day progress; clicking the population panel opens a larger residents roster HUD

@@ -11,8 +11,8 @@ namespace ProjectUnknown.Strategy
     public sealed class StrategyDebugPanelController : MonoBehaviour
     {
         private const int CanvasSortingOrder = 33000;
-        private const float PanelWidth = 560f;
-        private const float PanelHeight = 510f;
+        private const float PanelWidth = 660f;
+        private const float PanelHeight = 680f;
 
         private static readonly Color OverlayColor = new Color(0f, 0f, 0f, 0.58f);
         private static readonly Color PanelColor = new Color(0.055f, 0.065f, 0.07f, 0.98f);
@@ -25,14 +25,19 @@ namespace ProjectUnknown.Strategy
         private readonly List<WeatherButtonView> weatherButtons = new();
         private StrategyFogOfWarController fog;
         private StrategyWeatherController weather;
+        private StrategyRefugeeArrivalController refugees;
         private CanvasGroup rootGroup;
         private Toggle fogToggle;
         private Toggle instantConstructionToggle;
         private Text currentWeatherText;
+        private Text refugeeStatusText;
         private bool initialized;
         private bool isOpen;
 
-        public void Configure(StrategyFogOfWarController fogController, StrategyWeatherController weatherController)
+        public void Configure(
+            StrategyFogOfWarController fogController,
+            StrategyWeatherController weatherController,
+            StrategyRefugeeArrivalController refugeeController = null)
         {
             fog = fogController != null
                 ? fogController
@@ -40,6 +45,9 @@ namespace ProjectUnknown.Strategy
             weather = weatherController != null
                 ? weatherController
                 : weather ?? Object.FindAnyObjectByType<StrategyWeatherController>();
+            refugees = refugeeController != null
+                ? refugeeController
+                : refugees;
 
             if (!initialized)
             {
@@ -163,8 +171,19 @@ namespace ProjectUnknown.Strategy
             SetTopLeft(instantConstructionToggle.GetComponent<RectTransform>(), 18f, 42f, 300f, 28f);
             instantConstructionToggle.onValueChanged.AddListener(SetInstantConstruction);
 
+            RectTransform populationSection = CreatePanel("PopulationSection", panel, SectionColor).GetComponent<RectTransform>();
+            SetTopLeft(populationSection, 28f, 320f, PanelWidth - 56f, 84f);
+            Text populationTitle = CreateText("PopulationTitle", populationSection, "Population", 16, TextAnchor.MiddleLeft, Color.white);
+            populationTitle.fontStyle = FontStyle.Bold;
+            SetTopLeft(populationTitle.rectTransform, 18f, 10f, 180f, 24f);
+            Button summonRefugeesButton = CreateButton("SummonRefugeesButton", populationSection, "Summon Refugees", 14, ButtonColor);
+            SetTopLeft(summonRefugeesButton.GetComponent<RectTransform>(), 18f, 42f, 180f, 30f);
+            summonRefugeesButton.onClick.AddListener(SummonRefugees);
+            refugeeStatusText = CreateText("RefugeeStatus", populationSection, string.Empty, 12, TextAnchor.MiddleRight, MutedTextColor);
+            SetTopRight(refugeeStatusText.rectTransform, 18f, 46f, 260f, 24f);
+
             RectTransform weatherSection = CreatePanel("WeatherSection", panel, SectionColor).GetComponent<RectTransform>();
-            SetTopLeft(weatherSection, 28f, 320f, PanelWidth - 56f, 152f);
+            SetTopLeft(weatherSection, 28f, 424f, PanelWidth - 56f, 152f);
             Text weatherTitle = CreateText("WeatherTitle", weatherSection, "Weather", 16, TextAnchor.MiddleLeft, Color.white);
             weatherTitle.fontStyle = FontStyle.Bold;
             SetTopLeft(weatherTitle.rectTransform, 18f, 10f, 180f, 24f);
@@ -252,6 +271,26 @@ namespace ProjectUnknown.Strategy
             StrategyDebugLogger.Info("DebugPanel", "WeatherSmoothForced", StrategyDebugLogger.F("state", kind));
         }
 
+        private void SummonRefugees()
+        {
+            if (refugees == null)
+            {
+                refugees = Object.FindAnyObjectByType<StrategyRefugeeArrivalController>();
+            }
+
+            bool started = refugees != null && refugees.DebugStartArrival();
+            if (refugeeStatusText != null)
+            {
+                refugeeStatusText.text = started ? "Arrival started" : "Arrival unavailable";
+            }
+
+            StrategyDebugLogger.Info(
+                "DebugPanel",
+                "RefugeesSummoned",
+                StrategyDebugLogger.F("started", started),
+                StrategyDebugLogger.F("hasController", refugees != null));
+        }
+
         private void RefreshControls()
         {
             if (fogToggle != null)
@@ -270,6 +309,14 @@ namespace ProjectUnknown.Strategy
                 currentWeatherText.text = weather != null
                     ? "Current: " + GetWeatherLabel(current)
                     : "Current: unavailable";
+            }
+
+            if (refugeeStatusText != null
+                && (string.IsNullOrEmpty(refugeeStatusText.text)
+                    || refugeeStatusText.text == "Ready"
+                    || refugeeStatusText.text == "Controller unavailable"))
+            {
+                refugeeStatusText.text = refugees != null ? "Ready" : "Controller unavailable";
             }
 
             for (int i = 0; i < weatherButtons.Count; i++)

@@ -8,6 +8,7 @@ namespace ProjectUnknown.Strategy
         public const int WaterOverlayOrder = 1;
         public const int TrailOverlayOrder = 2;
         public const int WeatherGroundOverlayOrder = 3;
+        public const int BridgeDeckOrder = 4;
         public const int WeatherCloudShadowOrder = 26500;
         public const int DayNightOverlayOrder = 27000;
         public const int CinematicDepthOverlayOrder = 27350;

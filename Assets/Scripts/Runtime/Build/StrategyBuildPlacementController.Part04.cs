@@ -64,7 +64,14 @@ namespace ProjectUnknown.Strategy
                 renderer.color = GetPlacedColor(toolInfo);
             }
 
-            StrategyWorldSorting.Apply(renderer, placed.transform.position);
+            if (isBridge)
+            {
+                renderer.sortingOrder = StrategyWorldSorting.BridgeDeckOrder;
+            }
+            else
+            {
+                StrategyWorldSorting.Apply(renderer, placed.transform.position);
+            }
 
             if (!hasSprite)
             {

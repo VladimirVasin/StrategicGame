@@ -215,10 +215,6 @@ namespace ProjectUnknown.Strategy
             }
 
             bool housedFamily = TryPlaceAcceptedRefugeeFamily(acceptedFamily);
-            if (!housedFamily)
-            {
-                TryPopulateAvailableHouses();
-            }
 
             StrategyDebugLogger.Info(
                 "Refugees",

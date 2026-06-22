@@ -8,6 +8,43 @@ Last updated: 2026-06-23
 
 ## Done
 
+### 2026-06-23 - Forager animation pass
+
+- Added generated resident forage sprites for adults and older children, with a crouch/reach/place cycle that distinguishes Berries, Roots, and Mushrooms through carried basket details.
+- Replaced the reused Garden Beds animation for `GatheringForage`, loose-forage pickup, and forage deposit with the new forage animation cycle.
+- Added forage-node hit pulses plus reusable `Leaves` and `Spores` world effects on forage impact frames.
+- Updated `Assembly-CSharp.csproj` for `StrategyResidentAgent.Part54.cs` and `StrategyResidentSpriteFactory.Part06.cs`.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files remain at or below 500 lines.
+
+### 2026-06-23 - Debug refugee summon control
+
+- Enlarged the F9 debug panel and added a `Population` section with a `Summon Refugees` button.
+- Added `StrategyRefugeeArrivalController.DebugStartArrival()` so the debug button requests the normal refugee arrival flow instead of creating residents outside the arrival system.
+- Wired the debug panel to the refugee arrival controller from bootstrap after the refugee system is configured, with scene lookup fallback for late binding.
+- Debug summon respects active arrival state and population/camp/route failure checks, logging rejected or started requests.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files remain below 500 lines.
+
+### 2026-06-23 - Auto workforce and debug logging performance pass
+
+- Reduced periodic AutoWorkforce tick spikes by skipping repeat no-donor work while no free adults exist and the donor search retry cooldown is active.
+- Kept priority changes and auto-assign toggles as immediate retry triggers by clearing the no-donor cooldown on those player actions.
+- Updated AutoWorkforce scene cache refreshes to use the current Unity 6000 `FindObjectsByType<T>(FindObjectsInactive.Exclude)` overload without obsolete sort-mode warnings.
+- Changed `StrategyDebugLogger` from per-line `File.AppendAllText` writes to a buffered `StreamWriter` with periodic flushes, reducing disk I/O cost during noisy debug sessions.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files remain below 500 lines.
+
+### 2026-06-23 - Bridge deck render order fix
+
+- Changed completed Bridge sprites to use a fixed low bridge-deck sorting order above water/ground overlays but below normal world-sorted residents and wildlife.
+- This prevents residents crossing a bridge from rendering behind the bridge deck when Y-sorting would otherwise place the bridge sprite in front of them.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files remain below 500 lines.
+
+### 2026-06-23 - Refugee family housing fallback fix
+
+- Fixed refugee acceptance fallback so a newly accepted family is not split by the generic house-population pass when no empty house is available at acceptance time.
+- Homeless accepted refugee families now remain as an intact family block until a new completed House can place them through the homeless-family assignment path.
+- This preserves HomelessCamp sleep as an interruptible temporary state: later `AssignHome` calls still release camp sleep/relight/return before moving residents into a house.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected population partial remains below 500 lines.
+
 ### 2026-06-23 - Starter Iron/Coal generation safety
 
 - Fixed Iron/Coal minimum deposit fallback so it is not blocked by the shared `MaxNatureProps` decorative generation cap after the large-map shuffled pass fills the visual budget.

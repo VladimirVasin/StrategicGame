@@ -157,6 +157,18 @@ namespace ProjectUnknown.Strategy
                 && demand.Reason == lastNoDonorReason;
         }
 
+        private bool IsNoDonorSearchCooldownActive()
+        {
+            return Time.realtimeSinceStartup < nextNoDonorSearchTime;
+        }
+
+        private void ResetNoDonorSearchCooldown()
+        {
+            nextNoDonorSearchTime = 0f;
+            lastNoDonorProfession = default;
+            lastNoDonorReason = string.Empty;
+        }
+
         private void RegisterNoDonorSearchCooldown(StrategyAutoWorkforceDemand demand)
         {
             if (demand == null)

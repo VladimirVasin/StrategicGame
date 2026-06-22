@@ -469,6 +469,7 @@ namespace ProjectUnknown.Strategy
             }
 
             refugees.Configure(map, population, timeScale, refugeeDialog);
+            debugPanel.Configure(fog, weather, refugees);
             StrategyDebugLogger.Info("Bootstrap", "RefugeesReady");
         }
     }
