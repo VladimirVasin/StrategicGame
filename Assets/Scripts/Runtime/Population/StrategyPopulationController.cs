@@ -109,6 +109,7 @@ namespace ProjectUnknown.Strategy
         private CityMapController map;
         private Transform residentRoot;
         private StrategyFuneralController funeralController;
+        private StrategyHomelessCampController homelessCamp;
         private Vector2Int campCell;
         private Vector3 campWorld;
         private float householdMigrationTimer;
@@ -121,6 +122,7 @@ namespace ProjectUnknown.Strategy
         public int AdultResidentCount => CountResidents(true, false);
         public int ChildResidentCount => CountResidents(false, true);
         public int CompletedHouseCount => CountRegisteredHouses();
+        internal StrategyHomelessCampController HomelessCamp => homelessCamp;
 
         public void Configure(CityMapController mapController)
         {

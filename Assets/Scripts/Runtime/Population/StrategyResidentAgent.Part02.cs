@@ -24,6 +24,11 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            if (sleepingAtHomelessCamp || returningToHomelessCamp || relightingCampfire)
+            {
+                ReleaseHomelessCampSleep(false);
+            }
+
             CancelHouseholdFoodWork(true);
             home?.UnregisterResident(this);
             home = newHome;
@@ -334,6 +339,11 @@ namespace ProjectUnknown.Strategy
             }
 
             returningHomeToSleep = false;
+            if (sleepingAtHomelessCamp || returningToHomelessCamp || relightingCampfire)
+            {
+                ReleaseHomelessCampSleep(false);
+            }
+
             CancelForageWork(false);
             CancelHouseholdFoodWork(false);
             home = null;

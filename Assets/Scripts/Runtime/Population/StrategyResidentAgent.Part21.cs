@@ -226,6 +226,10 @@ namespace ProjectUnknown.Strategy
             {
                 EnterNightSleep();
             }
+            else if (activity == ResidentActivity.MovingToCampfireSleep && returningToHomelessCamp)
+            {
+                EnterHomelessCampSleepSpot();
+            }
             else if (IsFuneralMoveActivity(activity))
             {
                 activity = ResidentActivity.WaitingAtFuneral;

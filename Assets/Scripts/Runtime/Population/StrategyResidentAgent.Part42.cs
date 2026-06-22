@@ -18,6 +18,11 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
+            if (UpdateHomelessCampSleepState())
+            {
+                return true;
+            }
+
             return TryStartNightSleep();
         }
 

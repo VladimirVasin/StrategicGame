@@ -83,6 +83,13 @@ namespace ProjectUnknown.Strategy
             return building != null && kind != StrategyCinematicLightKind.Campfire;
         }
 
+        private float GetLightStateFactor()
+        {
+            return kind == StrategyCinematicLightKind.Campfire && campfire != null
+                ? campfire.LightIntensityFactor
+                : 1f;
+        }
+
         private Vector3 GetLightSourceWorld()
         {
             return CanRenderTorch() ? GetTorchAnchorWorld() : GetAnchorWorld();
@@ -113,7 +120,7 @@ namespace ProjectUnknown.Strategy
             float fog = activeWeather != null ? activeWeather.FogIntensity : 0f;
             float storm = activeWeather != null ? activeWeather.StormIntensity : 0f;
             float activity = GetActivityFactor(night, warm, rain, fog, storm);
-            strength = Mathf.Clamp01(GetBaseIntensity() * LocalLightStrengthMultiplier * activity);
+            strength = Mathf.Clamp01(GetBaseIntensity() * LocalLightStrengthMultiplier * activity * GetLightStateFactor());
             if (strength <= 0.035f)
             {
                 return false;

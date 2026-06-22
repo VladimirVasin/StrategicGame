@@ -180,6 +180,10 @@ namespace ProjectUnknown.Strategy
             {
                 ReleaseNightSleep(false);
             }
+            else if (sleepingAtHomelessCamp || returningToHomelessCamp || relightingCampfire)
+            {
+                ReleaseHomelessCampSleep(false);
+            }
             else if (hiddenInsideHome)
             {
                 hiddenInsideHome = false;
@@ -256,6 +260,10 @@ namespace ProjectUnknown.Strategy
             if (sleepingInsideHome)
             {
                 ReleaseNightSleep(false);
+            }
+            else if (sleepingAtHomelessCamp || returningToHomelessCamp || relightingCampfire)
+            {
+                ReleaseHomelessCampSleep(false);
             }
             else if (returningHomeToSleep)
             {
@@ -399,7 +407,11 @@ namespace ProjectUnknown.Strategy
         {
             idleOrigin = origin;
             idleFootprint = Vector2Int.one;
-            if (home == null && !IsRefugeeTraveling)
+            if (home == null
+                && !IsRefugeeTraveling
+                && !sleepingAtHomelessCamp
+                && !returningToHomelessCamp
+                && !relightingCampfire)
             {
                 activity = ResidentActivity.Idle;
                 hasTarget = false;

@@ -328,6 +328,9 @@ namespace ProjectUnknown.Strategy
 
             StrategyCampfireAnimator animator = campObject.AddComponent<StrategyCampfireAnimator>();
             animator.Configure(renderer, map, campCell);
+
+            homelessCamp = campObject.AddComponent<StrategyHomelessCampController>();
+            homelessCamp.Configure(map, animator, campCell);
         }
 
         private StrategyResidentAgent CreateRefugeeResident(

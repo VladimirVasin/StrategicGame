@@ -1469,6 +1469,8 @@ Responsibilities:
 - Keep pending refugees outside the normal resident registry until accepted.
 - Accept refugee families into the normal resident registry or destroy rejected temporary families after they leave the map.
 - Drive simple idle movement around the current camp/home through short walkable grid paths.
+- Route homeless residents without houses to reachable reserved sleep spots around the startup campfire during `Night`.
+- Let one homeless resident relight campfire embers with a visible kindling animation before the camp sleeps.
 - Periodically send Householders from `TendingHousehold` home duty to work at their home's default Garden Beds upgrade, fetch raw `Fish`/`Game` from Granaries, fetch Pottery from Storage Yards, or cook stored ingredients plus Pottery into `Dish`.
 - Periodically send non-householder, unemployed adults and older children to nearby forage nodes during daytime, then carry Berries/Roots/Mushrooms back to their own house.
 - Boost the Garden Beds growth cycle when garden work completes.
@@ -1511,8 +1513,9 @@ Responsibilities:
 - Generate corpse/death animation frames, dragged shroud/rope sprites, crying resident frames, and grave sprites for funeral flow.
 - Choose random resident visual variants at startup.
 - Add synced resident readability renderers: silhouette outline and ground shadow.
-- Generate and animate procedural campfire flame plus smoke/spark overlay frames at runtime.
-- Drive campfire burnout visuals and restore campfire-cell walkability after extinguish.
+- Generate resident campfire kindling and ground-sleep sprites for homeless night sleep.
+- Generate and animate procedural campfire flame, smoke/spark, ember, and relight frames at runtime.
+- Drive campfire burnout into persistent embers, restore campfire-cell walkability while extinguished, and support resident-triggered relight.
 - Drive simple chicken idle movement around a linked Chicken Coop upgrade with walk and peck sprite animations.
 - Drive Chicken Coop egg production from a cycle timer synchronized with the coop's nest/egg animation frames.
 - Expose runtime residents as read-only visibility sources for fog of war.
@@ -1533,6 +1536,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyHouseholdFoodState.cs`
 - `Assets/Scripts/Runtime/Population/StrategyHouseholdFoodState.NightMeal.cs`
 - `Assets/Scripts/Runtime/Population/StrategyHouseholdForagingState.cs`
+- `Assets/Scripts/Runtime/Population/StrategyHomelessCampController.cs`
 - `Assets/Scripts/Runtime/Population/StrategyKinshipUtility.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part36.cs`
@@ -1548,6 +1552,9 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part46.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part47.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part48.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part49.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentSpriteFactory.Part05.cs`
+- `Assets/Scripts/Runtime/Population/StrategyCampfireRelightSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Build/StrategyLumberjackCamp.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStonecutterCamp.cs`
 - `Assets/Scripts/Runtime/Build/StrategyMine.cs`
@@ -1622,7 +1629,7 @@ Impact hints:
 - Resident movement records activity-weighted trail footfall per entered visible resident cell, and formed trails apply a 15% speed bonus.
 - Resident pathfinding can recover a blocked start cell by snapping to a nearby walkable cell and logging `PathStartRecovered`.
 - Resident scheduled work starts only during `StrategyDayNightCycleController.IsSettlementWorkTime`, which now covers Dawn through Dusk on every day. Keep carried-resource returns, deposits, and cleanup paths schedule-safe so nightfall cannot strand stock reservations.
-- Resident night sleep is separate from homebound young-child hiding: housed residents only enter the hidden home interior during `Night` when they are not carrying resources, in funeral duty, or underground, notify household food state for dinner readiness, then reappear at the home exit after night ends.
+- Resident night sleep is separate from homebound young-child hiding: housed residents only enter the hidden home interior during `Night` when they are not carrying resources, in funeral duty, or underground, notify household food state for dinner readiness, then reappear at the home exit after night ends. Homeless residents instead reserve reachable campfire sleep spots, relight embers if needed, and sleep visibly around the startup campfire.
 - Resident footstep audio is attached by `StrategyResidentAgent` and plays grass clips on selected walk frames; keep it low-volume/spatial when adding more residents or faster simulation speeds.
 - Lumberjack work keeps the same camp worksite component but chooses the nearest available tree/processable wood on the map; it tests nearby work cells for real path reachability before starting tree/log/plant movement, and includes tree chopping, trunk bucking, Logs delivery, and sapling planting.
 - Resident woodcut sprites are generated for every male/female visual variant and should stay in sync with readability outline mirroring.
@@ -1651,7 +1658,7 @@ Impact hints:
 - If no free pair exists, the completed house is available for adult-child migration and partner lookup.
 - House occupation consumes the finite free-resident pool from the starter camp while it exists; later household births and adult-child migration are the first internal population growth path.
 - Resident death must continue to go through the centralized population cleanup path; direct `Destroy` on accepted residents risks stale worksite, construction, home, HUD, or kinship state.
-- Resident helper methods for carried-resource return, construction work, workplace clearing, readability sync, refugee path following, tree movement, fishing cast/reel flow, production-input delivery, trail movement, ranged hunt stand selection, reachable forestry work-cell selection, reachable construction dropoff selection, worker-triggered visual effects, day/night work scheduling, night home sleep, Clay work/logistics, Kiln/Pottery work/logistics, and household Pottery delivery are split across `StrategyResidentAgent.Part27.cs` through `StrategyResidentAgent.Part48.cs` to keep source files below the 500-line limit.
+- Resident helper methods for carried-resource return, construction work, workplace clearing, readability sync, refugee path following, tree movement, fishing cast/reel flow, production-input delivery, trail movement, ranged hunt stand selection, reachable forestry work-cell selection, reachable construction dropoff selection, worker-triggered visual effects, day/night work scheduling, night home sleep, Clay work/logistics, Kiln/Pottery work/logistics, household Pottery delivery, and homeless campfire sleep are split across `StrategyResidentAgent.Part27.cs` through `StrategyResidentAgent.Part49.cs` to keep source files below the 500-line limit.
 - Future jobs/families/economy should extend resident state rather than replacing the home/free-camp assignment model.
 
 ### World Selection

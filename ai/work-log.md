@@ -8,6 +8,15 @@ Last updated: 2026-06-22
 
 ## Done
 
+### 2026-06-22 - Homeless campfire night sleep
+
+- Added a homeless camp sleep coordinator on the startup campfire that reserves reachable sleep spots around the camp and lets one resident reserve the relight action when the fire has burned down to embers.
+- Changed homeless residents without houses to go back to the campfire during `Night`, visibly kindle the fire when needed, then sleep on the ground around it until work time returns.
+- Kept housed residents on the existing hidden-inside-house night flow; assigning a house, death, or funeral duty now releases homeless camp sleep reservations cleanly.
+- Changed the campfire from destroy-on-burnout to persistent embers with a relight animation and a light-intensity factor used by cinematic light emitters.
+- Added procedural resident kindling and ground-sleep sprites plus relight/ember campfire frames; split one rabbit partial file to keep all runtime `.cs` files under 500 lines.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; a runtime C# line-count scan found no files over 500 lines.
+
 ### 2026-06-22 - Build menu extraction category split
 
 - Split the Build menu catalog so raw-resource buildings now live under `Extraction`: Lumberjack Camp, Stonecutter Camp, Mine, Coal Pit, Clay Pit, Hunter Camp, and Fisher Hut.

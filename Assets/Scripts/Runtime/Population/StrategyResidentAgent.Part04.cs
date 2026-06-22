@@ -29,6 +29,12 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            if (IsSleepingAtCampfire)
+            {
+                UpdateSleepingByCampfire();
+                return;
+            }
+
             if (hiddenInsideHome)
             {
                 ReleaseHomeboundChild();
@@ -118,6 +124,12 @@ namespace ProjectUnknown.Strategy
             if (activity == ResidentActivity.WorkingGarden)
             {
                 UpdateGardenWork();
+                return;
+            }
+
+            if (activity == ResidentActivity.LightingCampfire)
+            {
+                UpdateLightingCampfire();
                 return;
             }
 

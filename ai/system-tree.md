@@ -409,7 +409,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Population MVP
     - Runtime-created population controller
     - Startup camp creates an animated procedural campfire
-    - Campfire blocks its own cell while burning, then gradually burns out, disappears, and releases the cell back to walkable
+    - Campfire blocks its own cell while lit, burns down into persistent embers, releases the cell while extinguished, and can be relit by homeless residents at night
       - Startup camp spawns 3 initial families
       - Each initial family has a father, a mother, and 1-2 adult children with parent/child links
       - Startup parents and adult children receive random Germanic/Nordic-style full names and age-appropriate adult ages
@@ -456,6 +456,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Resident pathing can recover a blocked start cell by moving the resident to a nearby walkable cell and logging the recovery
     - Resident work normally starts during the shared Dawn-through-Dusk work window; nightfall defers new production, construction, logistics, hunting, fishing, foraging, garden, household-food pickup, and household cooking while allowing carried resources and deposits/returns to finish
     - During `Night`, housed idle residents path to their home, hide inside the house, and wake at the home exit after night ends
+    - During `Night`, homeless idle residents reserve reachable spots around the startup campfire; one resident can relight embers with a visible kindling animation before sleeping on the ground by the fire
     - Householders periodically work at their house's default Garden Beds, fetch raw `Fish`/`Game` ingredients from Granaries, fetch Pottery from Storage Yards, or cook prepared `Dish` from ingredients and Pottery during `TendingHousehold` home duty
     - Non-householder residents without external work forage Berries, Roots, and Mushrooms for their own house; children younger than 7 do not forage
     - Residents assigned to a lumberjack camp path to the nearest available tree or processable wood on the map, chop mature trees, buck fallen trunks into Logs, carry Logs to camp stock, and plant new saplings nearby
@@ -488,7 +489,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Hunter work uses cached frame-based bow and butchering sprites for all male/female visual variants
     - Manual and automatic worker/builder assignment only accepts adult residents
     - Residents render with a synced silhouette outline and ground shadow for readability over busy terrain
-    - Runtime-generated campfire sprites include flame, smoke, spark animation frames, and runtime burnout fade/shrink behavior
+    - Runtime-generated campfire sprites include flame, smoke, spark, ember, relight, and runtime burnout/relight behavior
     - Chicken agents use local idle movement around their linked Chicken Coop with walk and peck sprite animations
   - World selection
     - Runtime-created world selection controller
@@ -563,7 +564,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Fog of war uses population, residents, placed-building records, the shared day/night phase, and weather Fog intensity as visibility inputs; placement and world selection consult fog exploration state, while the F9 debug panel can bypass player fog for testing.
 - Terrain rendering uses generated map cell kinds, seeded tile variants, neighbor transition overlays, a runtime water/shore animation overlay, and weather visual overlays.
 - Weather depends on generated map bounds, the strategy camera, day/night/fog sorting bands, the strategy wind source, water animation, and ambience audio.
-- Resident work/rest scheduling depends on the shared day/night phase so production, construction, logistics, hunting, fishing, foraging, garden, and household-food tasks only start during settlement work time, while housed idle residents sleep inside homes during `Night`.
+- Resident work/rest scheduling depends on the shared day/night phase so production, construction, logistics, hunting, fishing, foraging, garden, and household-food tasks only start during settlement work time, while housed idle residents sleep inside homes and homeless idle residents sleep around the startup campfire during `Night`.
 - House visual upgrades and house resources depend on placed-building records, map walkability checks, generated upgrade/chicken/resource sprites, early idle/work agents, and the world-selection HUD.
 - Household foraging depends on generated walkable terrain, forage node reservations/regrowth, placed house records, resident work/funeral state, day/night phase, and the house-local ingredient store.
 - Forestry depends on generated tree props, map walkability, placed lumberjack camps, resident work states, and the world-selection HUD.

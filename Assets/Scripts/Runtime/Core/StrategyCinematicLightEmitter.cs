@@ -231,9 +231,10 @@ namespace ProjectUnknown.Strategy
             float storm = activeWeather != null ? activeWeather.StormIntensity : 0f;
             float wet = activeWeather != null ? activeWeather.WetnessIntensity : 0f;
             float activity = GetActivityFactor(night, warm, rain, fog, storm);
+            float lightState = GetLightStateFactor();
             float flicker = GetFlicker();
             Color color = GetColor(wet, storm);
-            float intensity = GetBaseIntensity() * LocalLightStrengthMultiplier * activity * flicker;
+            float intensity = GetBaseIntensity() * LocalLightStrengthMultiplier * activity * lightState * flicker;
             float radius = GetBaseRadius() * LocalLightRadiusMultiplier * Mathf.Lerp(0.92f, 1.12f, activity);
 
             if (lodPointLight)
@@ -317,6 +318,11 @@ namespace ProjectUnknown.Strategy
 
             effectTimer -= elapsed;
             if (effectTimer > 0f)
+            {
+                return;
+            }
+
+            if (kind == StrategyCinematicLightKind.Campfire && GetLightStateFactor() <= 0.08f)
             {
                 return;
             }
