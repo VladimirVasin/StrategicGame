@@ -56,6 +56,11 @@ namespace ProjectUnknown.Strategy
                 activePotterySource.ReleaseOutputPickupReservation(StrategyResourceType.Pottery, this);
                 activePotterySource = null;
             }
+            else if (activeToolsSource != null)
+            {
+                activeToolsSource.ReleaseOutputPickupReservation(StrategyResourceType.Tools, this);
+                activeToolsSource = null;
+            }
             else if (activeProductionInputTarget != null)
             {
                 activeProductionInputTarget.ReleaseInputDeliveryReservation(activeProductionInputResource, this);
@@ -99,6 +104,10 @@ namespace ProjectUnknown.Strategy
                 || residentActivity == ResidentActivity.PickingUpStoragePottery
                 || residentActivity == ResidentActivity.CarryingPotteryToStorage
                 || residentActivity == ResidentActivity.DepositingStoragePottery
+                || residentActivity == ResidentActivity.MovingToStorageToolsPickup
+                || residentActivity == ResidentActivity.PickingUpStorageTools
+                || residentActivity == ResidentActivity.CarryingToolsToStorage
+                || residentActivity == ResidentActivity.DepositingStorageTools
                 || residentActivity == ResidentActivity.MovingToProductionInputPickup
                 || residentActivity == ResidentActivity.PickingUpProductionInput
                 || residentActivity == ResidentActivity.CarryingProductionInput

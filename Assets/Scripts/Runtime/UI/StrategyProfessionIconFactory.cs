@@ -108,6 +108,15 @@ namespace ProjectUnknown.Strategy
                     FillRect(texture, 11, 24, 10, 2, amber);
                     DrawLine(texture, 7, 27, 25, 27, shadow, 2);
                     break;
+                case StrategyProfessionType.Blacksmith:
+                    FillRect(texture, 6, 22, 20, 4, darkMetal);
+                    FillRect(texture, 10, 17, 12, 5, metal);
+                    DrawLine(texture, 10, 10, 23, 23, shadow, 3);
+                    DrawLine(texture, 10, 10, 23, 23, wood, 2);
+                    FillRect(texture, 5, 7, 10, 5, metal);
+                    FillRect(texture, 20, 9, 4, 4, rust);
+                    FillRect(texture, 22, 8, 3, 3, amber);
+                    break;
                 case StrategyProfessionType.Hunter:
                     DrawArc(texture, 10, 16, 9, new Color32(126, 82, 43, 255));
                     DrawLine(texture, 12, 7, 12, 25, amber, 1);

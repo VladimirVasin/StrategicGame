@@ -31,12 +31,13 @@ namespace ProjectUnknown.Strategy
             usingWorkSprite = false;
             bowShotReleased = false;
             huntingWorkTimer = 0.35f;
-            FaceWorldPoint(activeHuntTarget.transform.position);
+            FaceWorldPoint(activeHuntTarget.HuntWorldPosition);
             StrategyDebugLogger.Info(
                 "Hunting",
                 "BowAimingStarted",
                 StrategyDebugLogger.F("resident", FullName),
-                StrategyDebugLogger.F("rabbitWorld", activeHuntTarget.transform.position),
+                StrategyDebugLogger.F("targetKind", activeHuntTarget.HuntTargetKind),
+                StrategyDebugLogger.F("targetWorld", activeHuntTarget.HuntWorldPosition),
                 StrategyDebugLogger.F("campOrigin", hunterWorkplace != null ? hunterWorkplace.Origin : Vector2Int.zero));
         }
 
@@ -67,7 +68,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            FaceWorldPoint(activeHuntTarget.transform.position);
+            FaceWorldPoint(activeHuntTarget.HuntWorldPosition);
             AnimateBowWork();
             if (!bowShotReleased)
             {
@@ -173,12 +174,13 @@ namespace ProjectUnknown.Strategy
             workFrameTimer = 0f;
             appliedWorkFrame = -1;
             usingWorkSprite = false;
-            FaceWorldPoint(activeHuntTarget.transform.position);
+            FaceWorldPoint(activeHuntTarget.HuntWorldPosition);
             StrategyDebugLogger.Info(
                 "Hunting",
                 "ButcheringStarted",
                 StrategyDebugLogger.F("resident", FullName),
-                StrategyDebugLogger.F("rabbitWorld", activeHuntTarget.transform.position),
+                StrategyDebugLogger.F("targetKind", activeHuntTarget.HuntTargetKind),
+                StrategyDebugLogger.F("targetWorld", activeHuntTarget.HuntWorldPosition),
                 StrategyDebugLogger.F("campOrigin", hunterWorkplace != null ? hunterWorkplace.Origin : Vector2Int.zero));
         }
 
@@ -190,7 +192,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            FaceWorldPoint(activeHuntTarget.transform.position);
+            FaceWorldPoint(activeHuntTarget.HuntWorldPosition);
             AnimateButcherWork();
         }
 

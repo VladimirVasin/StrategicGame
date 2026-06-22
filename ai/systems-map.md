@@ -525,7 +525,7 @@ Responsibilities:
 - Let adult female rabbits reproduce when an adult male is nearby in the same group.
 - Spawn kits that grow into adults after scaled simulation time.
 - Keep rabbit reproduction under the hard 30-rabbit runtime population cap and the 3-rabbit per-group cap.
-- Let hunter camps reserve adult rabbits, stop their normal behavior during the shot sequence, yield `Game` after butchering on hit, and release/flee rabbits on missed arrows.
+- Let hunter camps reserve adult rabbits by default, unlock adult deer hunting through the Deer Hunting Kit production upgrade, stop target normal behavior during the shot sequence, yield `Game` after butchering on hit, and release/flee targets on missed arrows.
 - Let adult lake fish reproduce when another adult of the same species is nearby in the same shoal.
 - Spawn fry that grow into adults after scaled simulation time.
 - Keep fish reproduction under the hard 36-fish runtime population cap, the 3-fish per-shoal cap, and the stricter per-lake region cap.
@@ -539,12 +539,16 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.Part09.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.Part10.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.Part11.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.Part12.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeRiverCrossing.cs`
+- `Assets/Scripts/Runtime/Wildlife/IStrategyHuntTarget.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyDeerAgent.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyDeerAgent.HuntTarget.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyDeerAgent.Part03.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyDeerAgent.Part04.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyDeerSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyRabbitAgent.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyRabbitAgent.HuntTarget.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyRabbitAgent.Part03.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyRabbitAgent.Part04.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyRabbitAgent.Part05.cs`
@@ -555,6 +559,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Wildlife/StrategyWolfAgent.Part07.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWolfSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Build/StrategyHunterCamp.cs`
+- `Assets/Scripts/Runtime/Build/StrategyHunterCamp.Part01.cs`
 - `Assets/Scripts/Runtime/Build/StrategyFisherHut.cs`
 - `Assets/Scripts/Runtime/Population/StrategyHuntingArrowProjectile.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyFishAgent.cs`
@@ -570,7 +575,7 @@ Primary files/assets:
 Impact hints:
 
 - Wildlife is runtime-only and not saved yet.
-- Deer and birds do not reveal fog, block walkability, or provide resources yet; rabbits can yield `Game` through the hunter-camp work loop, fish can yield `Fish` through the fisher-hut work loop, and wolves are predators rather than player-harvestable resources.
+- Deer and birds do not reveal fog or block walkability; adult deer can yield `Game` only after the Hunter Camp upgrade, rabbits can yield `Game` through the base hunter-camp work loop, fish can yield `Fish` through the fisher-hut work loop, and wolves are predators rather than player-harvestable resources.
 - Initial rabbit spawn, deer herds, fish shoals, birds, and wolf packs depend on hidden near-settlement candidate cells instead of map-wide placement; if no hidden candidate exists for a species, that species should skip spawning rather than appearing far from buildings or inside visible fog.
 - Wildlife hidden checks use fog daylight-range visibility, not reduced nighttime current visibility, so animals do not spawn closer to the settlement just because night lowered player sight radius.
 - Deer pathing depends on the wildlife land-travel predicate plus a separate land-target predicate, which wraps `CityMapController.IsCellWalkable`, River transit allowance, and the 4-cell structure buffer.
@@ -782,7 +787,7 @@ Responsibilities:
 - F9 instant construction debug mode makes build tools affordable and shows item cost badges as `Free`.
 - Temporary goal-driven tool locks that disable locked categories/items, block mouse and hotkey selection, and show `Locked` item badges.
 - Top-left construction resource panel with x1/x2/x3 speed buttons directly beneath it.
-- Current catalog entries: `Housing` / `House`, `Extraction` / `Lumberjack Camp`, `Stonecutter Camp`, `Mine`, `Coal Pit`, `Clay Pit`, `Hunter Camp`, and `Fisher Hut`, `Production` / `Sawmill` and `Kiln`, `Storage` / `Storage Yard` and `Granary`, and `Infrastructure` / `Bridge`.
+- Current catalog entries: `Housing` / `House`, `Extraction` / `Lumberjack Camp`, `Stonecutter Camp`, `Mine`, `Coal Pit`, `Clay Pit`, `Hunter Camp`, and `Fisher Hut`, `Production` / `Sawmill`, `Kiln`, and `Forge`, `Storage` / `Storage Yard` and `Granary`, and `Infrastructure` / `Bridge`.
 - Hotkeys for open/close, category/item selection, and layered cancel.
 - EventSystem/Input System UI setup when the scene has no UI event module.
 - Add tools/buildings gradually only by explicit user request.
@@ -792,6 +797,7 @@ Primary files/assets:
 
 - `Assets/Scripts/Runtime/UI/StrategyBuildMenuController.cs`
 - `Assets/Scripts/Runtime/UI/StrategyBuildMenuController.Driver.cs`
+- `Assets/Scripts/Runtime/UI/StrategyBuildTool.cs`
 - `Assets/Scripts/Runtime/UI/StrategyBuildMenuController.Driver.Debug.cs`
 - `Assets/Scripts/Runtime/UI/StrategyBuildMenuController.Driver.Part01.cs`
 - `Assets/Scripts/Runtime/UI/StrategyBuildMenuController.Driver.Locking.cs`
@@ -804,6 +810,9 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Build/StrategyKiln.cs`
 - `Assets/Scripts/Runtime/Build/StrategyKiln.Part01.cs`
 - `Assets/Scripts/Runtime/Build/StrategyKiln.Part02.cs`
+- `Assets/Scripts/Runtime/Build/StrategyForge.cs`
+- `Assets/Scripts/Runtime/Build/StrategyForge.Part01.cs`
+- `Assets/Scripts/Runtime/Build/StrategyForge.Part02.cs`
 - `Assets/Scripts/Runtime/Build/StrategyHunterCamp.cs`
 - `Assets/Scripts/Runtime/Build/StrategyFisherHut.cs`
 - `Assets/Scripts/Runtime/Build/StrategyMine.cs`
@@ -812,6 +821,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Build/StrategyClayPit.Part01.cs`
 - `Assets/Scripts/Runtime/Build/StrategyBuildingSpriteFactory.Part08.cs`
 - `Assets/Scripts/Runtime/Build/StrategyBuildingSpriteFactory.Part09.cs`
+- `Assets/Scripts/Runtime/Build/StrategyBuildingSpriteFactory.Part10.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStorageYard.cs`
 - `Assets/Scripts/Runtime/Build/StrategyGranary.cs`
 - `Assets/Scripts/Runtime/Economy/StrategyConstructionResourceCost.cs`
@@ -824,10 +834,10 @@ Impact hints:
 - The public `StrategyBuildMenuController` component is a thin wrapper; `StrategyBuildMenuControllerDriver` owns selected active build tool data and reads `StrategyStorageYard.GetTotalConstructionResources()` for affordability, including Storage Yard stock and loose piles, unless F9 instant construction debug mode is enabled.
 - Placement reads `StrategyBuildMenuController.ActiveTool` / active tool info.
 - Starter goals call `StrategyBuildMenuController.SetAllowedTools()` and `ClearAllowedTools()`; keep lock checks shared by mouse clicks, hotkeys, active tool info, and affordability/selection visuals.
-- Current catalog has user-requested buildings only: `House`, `Lumberjack Camp`, `Stonecutter Camp`, `Sawmill`, `Kiln`, `Hunter Camp`, `Fisher Hut`, `Mine`, `Coal Pit`, `Clay Pit`, `Storage Yard`, `Granary`, and `Bridge`; do not add more without a user request.
+- Current catalog has user-requested buildings only: `House`, `Lumberjack Camp`, `Stonecutter Camp`, `Sawmill`, `Kiln`, `Forge`, `Hunter Camp`, `Fisher Hut`, `Mine`, `Coal Pit`, `Clay Pit`, `Storage Yard`, `Granary`, and `Bridge`; do not add more without a user request.
 - Current `Housing` category directly activates `House` because it has one item.
 - Current `Extraction` category opens a tray with raw-resource buildings: `Lumberjack Camp`, `Stonecutter Camp`, `Mine`, `Coal Pit`, `Clay Pit`, `Hunter Camp`, and `Fisher Hut`.
-- Current `Production` category opens a tray with processing buildings: `Sawmill` and `Kiln`.
+- Current `Production` category opens a tray with processing buildings: `Sawmill`, `Kiln`, and `Forge`.
 - Current `Storage` category opens a tray with `Storage Yard` and `Granary`.
 - Successful placement asks the menu to close all open layers and records the placement frame.
 - If a full HUD/menu shell appears later, decide whether this controller remains standalone or becomes part of the HUD shell.
@@ -928,7 +938,7 @@ Responsibilities:
 - Runtime-created top-menu `Professions` button.
 - Show a large profession panel with dynamic rows only for professions unlocked by currently built worksites.
 - Show generated pixel-art profession icons, role labels, short role descriptions, assigned/capacity counts, and `-`/`+` controls.
-- Show the `Auto Assign` toggle and compact priority steppers for Construction, Food, Logistics, Wood, Stone, Planks, Iron, Coal, Clay, and Pottery.
+- Show the `Auto Assign` toggle and compact priority steppers for Construction, Food, Logistics, Wood, Stone, Planks, Iron, Coal, Clay, Pottery, and Tools.
 - Aggregate assignment capacity/counts across all current lumberjack camps, stonecutter camps, sawmills, kilns, hunter camps, fisher huts, mines, coal pits, clay pits, and storage yards.
 - Treat Storage Yard Haulers and hired builders as unlimited-capacity roles once at least one Storage Yard exists; other worksite roles keep their own slot caps.
 - Assign the next free adult resident to the first available worksite slot for the requested profession.
@@ -977,7 +987,7 @@ Impact hints:
 Responsibilities:
 
 - Runtime-created settlement workforce automation.
-- Keep player priority settings for Construction, Food, Logistics, Wood, Stone, Planks, Iron, Coal, Clay, and Pottery.
+- Keep player priority settings for Construction, Food, Logistics, Wood, Stone, Planks, Iron, Coal, Clay, Pottery, and Tools.
 - Tick every few seconds instead of every frame.
 - Cache current worksite arrays once per tick and reuse that snapshot through demand, fallback, release, and rebalance calculations.
 - Scan eligible free adults through `StrategyPopulationController.Residents`.
@@ -985,7 +995,7 @@ Responsibilities:
 - Maintain a coverage floor of 1 worker for available auto-managed professions whose player counter is above 0; a counter at 0 is the explicit opt-out that allows that role/category to fall to 0.
 - Let emergency food/resource shortages pull a limited donor from an at-target profession only when the shortage score strongly exceeds that profession's hold score, while never taking the last worker protected by a coverage floor.
 - Ignore children, pending refugees, funeral duty, household foraging/food duty, householders, residents with external workplaces, and active construction assignees through resident availability flags.
-- Build work demands from active construction sites, Granary ration reserve, production-worksite stock/capacity, Storage Yard/Granary logistics backlog, and construction material needs.
+- Build work demands from active construction sites, Granary ration reserve, production-worksite stock/capacity, Storage Yard/Granary logistics backlog, Tools demand, and construction material needs.
 - Score demands by priority, urgency, shortage, worksite need, construction readiness, storage backlog, and resident distance.
 - Assign nearest free adults through existing worksite APIs instead of mutating resident/worksite lists directly.
 - Hire builders through Storage Yards so existing balanced construction dispatch remains the owner of construction-site assignment.
@@ -1119,7 +1129,7 @@ Impact hints:
 - Build placement consults fog exploration state, so early expansion starts around the camp and other revealed areas unless player fog is disabled from the F9 debug panel.
 - House ambient overlays are visual-only child sprites and should not be used for footprint/collider calculations.
 - Bridge placement requires two valid explored, unoccupied, walkable river-bank endpoint cells with a straight contiguous River water span between them; Lake water is rejected.
-- With the current catalog, `House`, `Lumberjack Camp`, `Stonecutter Camp`, `Sawmill`, `Hunter Camp`, `Fisher Hut`, `Mine`, `Coal Pit`, `Clay Pit`, `Storage Yard`, and `Granary` can be selected and placed only where their technical foundation is fully walkable/buildable/explored, their future final 2.5D blocker can be reserved on buildable/explored/unoccupied cells, and builders have a nearby walkable work cell; Mine, Coal Pit, and Clay Pit are the only tools allowed to use matching Iron/Coal/Clay build-blocked resource cells.
+- With the current catalog, `House`, `Lumberjack Camp`, `Stonecutter Camp`, `Sawmill`, `Kiln`, `Forge`, `Hunter Camp`, `Fisher Hut`, `Mine`, `Coal Pit`, `Clay Pit`, `Storage Yard`, and `Granary` can be selected and placed only where their technical foundation is fully walkable/buildable/explored, their future final 2.5D blocker can be reserved on buildable/explored/unoccupied cells, and builders have a nearby walkable work cell; Mine, Coal Pit, and Clay Pit are the only tools allowed to use matching Iron/Coal/Clay build-blocked resource cells.
 - Final blocker reservation no longer requires every future visual blocker cell to be walkable at construction-site placement time.
 - `Fisher Hut` additionally requires a nearby water cell with adjacent walkable shore access.
 - `Mine` additionally requires at least one available underground Iron deposit under its footprint.
@@ -1295,11 +1305,54 @@ Impact hints:
 - `Pottery` currently flows from Kilns to Storage Yards and is consumed by household `Dish` cooking; it is not consumed by construction, trade, or upkeep yet.
 - Potters are normal exclusive workplace residents and should remain distinct from Storage Yard Haulers; Potters do not move resources between buildings.
 
+### Forge Production
+
+Responsibilities:
+
+- Add `Forge` as a placed production building with local Iron, Coal, Logs, and Tools stock.
+- Assign 1 resident as a Blacksmith through the Profession HUD.
+- Request input Iron, Coal, and Logs through the shared production logistics contract.
+- Route Haulers to pick up Iron/Coal/Logs from Storage Yard stock, deliver them into the Forge, and route Blacksmiths to forge delivered inputs into `Tools`.
+- Keep Blacksmiths visible at the building and drive the forging work overlay plus spark effects while work is active.
+- Expose Forge-local Tools to Haulers for hauling.
+- Feed Storage Yard `Tools` stock used by production-building upgrades.
+
+Primary files/assets:
+
+- `Assets/Scripts/Runtime/Build/StrategyForge.cs`
+- `Assets/Scripts/Runtime/Build/StrategyForge.Part01.cs`
+- `Assets/Scripts/Runtime/Build/StrategyForge.Part02.cs`
+- `Assets/Scripts/Runtime/Build/StrategyProductionUpgradeCost.cs`
+- `Assets/Scripts/Runtime/Build/StrategyProductionBuildingUpgrade.cs`
+- `Assets/Scripts/Runtime/Build/StrategyProductionBuildingUpgradeCatalog.cs`
+- `Assets/Scripts/Runtime/Build/IStrategyProductionLogisticsNode.cs`
+- `Assets/Scripts/Runtime/Build/StrategyProductionStorage.cs`
+- `Assets/Scripts/Runtime/Build/StrategyBuildingSpriteFactory.Part10.cs`
+- `Assets/Scripts/Runtime/Build/StrategyStorageYard.cs`
+- `Assets/Scripts/Runtime/Build/StrategyStorageYard.Part10.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part50.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part51.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part53.cs`
+- `Assets/Scripts/Runtime/Population/StrategyProfessionType.cs`
+- `Assets/Scripts/Runtime/UI/StrategyProfessionHudController.cs`
+- `Assets/Scripts/Runtime/UI/StrategyBuildMenuController.Catalog.cs`
+- `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.cs`
+- `Assets/Scripts/Runtime/Economy/StrategyResourceType.cs`
+- `Assets/Scripts/Runtime/Economy/StrategyResourceIconFactory.Part03.cs`
+- `Assembly-CSharp.csproj`
+
+Impact hints:
+
+- Forge input reservations are separate from construction, Sawmill, and Kiln reservations so Iron/Coal/Logs input delivery cannot double-claim Storage Yard stock.
+- Forge counts Iron, Coal, Logs, Tools, pending Tools, and reservations against the shared production local stock cap of 6.
+- `Tools` currently flow from Forges to Storage Yards and are consumed by Tools-based production-building upgrades; they are not consumed by construction, trade, or upkeep yet.
+- Blacksmiths are normal exclusive workplace residents and should remain distinct from Storage Yard Haulers; Blacksmiths do not move resources between buildings.
+
 ### Storage Yard Logistics
 
 Responsibilities:
 
-- Add `Storage Yard` as a placed storage building with local Logs, Stone, Iron, Coal, Clay, Planks, and Pottery stock.
+- Add `Storage Yard` as a placed storage building with local Logs, Stone, Iron, Coal, Clay, Planks, Pottery, and Tools stock.
 - Keep Storage Yard stock uncapped.
 - Spawn a starter Storage Yard near the campfire with 20 Logs and 20 Stone.
 - Assign uncapped residents as Haulers, constrained by available adult residents and exclusive workplace state.
@@ -1311,6 +1364,7 @@ Responsibilities:
 - Find Clay Pits with available stored Clay and reserve stock for haulers.
 - Find Sawmills with available stored Planks and reserve stock for haulers.
 - Find Kilns with available stored Pottery and reserve stock for haulers.
+- Find Forges with available stored Tools and reserve stock for haulers.
 - Reserve Pottery from Storage Yard stock for householder pickup by houses that need it for Dish cooking.
 - Find Hunter Camps/Fisher Huts or loose food piles with available `Game`/`Fish` and reserve food for delivery to the nearest Granary.
 - Find loose construction resource piles and reserve Logs/Stone/Planks for haulers after construction cancellation.
@@ -1324,12 +1378,13 @@ Responsibilities:
 - Route Haulers to Mines, pick up Iron, carry it to storage, and deposit it.
 - Route Haulers to Coal Pits, pick up Coal, carry it to storage, and deposit it.
 - Route Haulers to Clay Pits, pick up Clay, carry it to storage, and deposit it.
-- Route Haulers to production nodes, deliver non-food inputs from Storage Yard stock, then pick up outputs such as Sawmill Planks and Kiln Pottery, carry them to storage, and deposit them.
+- Route Haulers to production nodes, deliver non-food inputs from Storage Yard stock, then pick up outputs such as Sawmill Planks, Kiln Pottery, and Forge Tools, carry them to storage, and deposit them.
+- Pay production-building upgrade costs from available Storage Yard `Tools`, `Planks`, and `Stone`.
 - Route Householders from Storage Yard Pottery stock to their own houses with cooking demand.
 - Route Haulers to food sources, pick up `Game`/`Fish`, carry it to the nearest Granary, and deposit it.
 - Route Haulers to loose construction resource piles, pick up Logs/Stone/Planks, carry them to storage, and deposit them.
-- Update lumberjack/stonecutter camp, Mine, Coal Pit, Clay Pit, Sawmill, Kiln, and storage yard stock visuals as resources move, and show Stone/Iron/Coal/Clay/Planks/Pottery as separate storage piles.
-- Show Hauler/builder counts, Logs/Stone/Iron/Coal/Clay/Planks/Pottery stock, and available source count in the selection HUD; player assignment/removal lives in the Profession HUD.
+- Update lumberjack/stonecutter camp, Mine, Coal Pit, Clay Pit, Sawmill, Kiln, Forge, and storage yard stock visuals as resources move, and show Stone/Iron/Coal/Clay/Planks/Pottery/Tools as separate storage piles.
+- Show Hauler/builder counts, Logs/Stone/Iron/Coal/Clay/Planks/Pottery/Tools stock, and available source count in the selection HUD; player assignment/removal lives in the Profession HUD.
 
 Primary files/assets:
 
@@ -1339,6 +1394,10 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Build/StrategyStorageYard.Part08.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStorageYard.Part09.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStorageYard.Part10.cs`
+- `Assets/Scripts/Runtime/Build/StrategyStorageYard.Part11.cs`
+- `Assets/Scripts/Runtime/Build/StrategyProductionUpgradeCost.cs`
+- `Assets/Scripts/Runtime/Build/StrategyProductionBuildingUpgrade.cs`
+- `Assets/Scripts/Runtime/Build/StrategyProductionBuildingUpgradeCatalog.cs`
 - `Assets/Scripts/Runtime/Build/StrategyLooseConstructionResourcePile.cs`
 - `Assets/Scripts/Runtime/Build/StrategyLooseConstructionResourcePile.Part02.cs`
 - `Assets/Scripts/Runtime/Build/IStrategyConstructionResourceSource.cs`
@@ -1347,6 +1406,8 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Build/StrategyStonecutterCamp.cs`
 - `Assets/Scripts/Runtime/Build/StrategySawmill.cs`
 - `Assets/Scripts/Runtime/Build/StrategyKiln.cs`
+- `Assets/Scripts/Runtime/Build/StrategyForge.cs`
+- `Assets/Scripts/Runtime/Build/StrategyForge.Part02.cs`
 - `Assets/Scripts/Runtime/Build/StrategyMine.cs`
 - `Assets/Scripts/Runtime/Build/StrategyCoalPit.cs`
 - `Assets/Scripts/Runtime/Build/StrategyClayPit.cs`
@@ -1357,6 +1418,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part35.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part47.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part48.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part51.cs`
 - `Assets/Scripts/Runtime/Build/StrategyBuildPlacementController.cs`
 - `Assets/Scripts/Runtime/Build/StrategyBuildingSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Economy/StrategyResourceType.cs`
@@ -1368,7 +1430,7 @@ Primary files/assets:
 
 Impact hints:
 
-- Haulers reserve worksite Logs/Stone/Iron/Coal/Clay/Planks/Pottery before walking to prevent multiple haulers from targeting the same stock.
+- Haulers reserve worksite Logs/Stone/Iron/Coal/Clay/Planks/Pottery/Tools before walking to prevent multiple haulers from targeting the same stock.
 - Haulers run Granary food hauling after normal storage-resource hauling checks, using the shared food reservation cleanup paths.
 - Hauler and builder staffing has no per-yard slot limit; construction sites no longer cap their active visible builder crew at 2.
 - Construction resources are normally reserved against Storage Yard stock and loose construction resource piles at site creation, then physically removed when builders pick them up; F9 instant construction debug mode bypasses this reservation path for player-placed buildings.
@@ -1376,8 +1438,8 @@ Impact hints:
 - Builders also create a per-builder pickup claim after a path to the pickup cell is found; cancelled work releases that claim while the construction-site reservation remains intact.
 - If a builder dies while carrying a construction resource, the dropped loose construction pile restores the original site's reservation when that site still needs the resource.
 - Residents currently support one active workplace: lumberjack camp, stonecutter camp, sawmill, kiln, hunter camp, fisher hut, mine, coal pit, clay pit, storage logistics, granary food logistics, or storage builder crew.
-- Storage Yard stock is runtime-only and uncapped; Pottery now feeds household Dish cooking, but Storage Yards still do not create a global economy or save data.
-- Future resources should extend the logistics stock model; current Logs, Stone, Iron, Coal, Clay, Planks, and Pottery still have explicit carrying visuals/states.
+- Storage Yard stock is runtime-only and uncapped; Pottery feeds household Dish cooking and Tools feed production-building upgrades, but Storage Yards still do not create a global economy or save data.
+- Future resources should extend the logistics stock model; current Logs, Stone, Iron, Coal, Clay, Planks, Pottery, and Tools still have explicit carrying visuals/states.
 - Storage Yard construction pickup and stock-visual helpers are split into `StrategyStorageYard.Part05.cs`; stock drop effects are in `StrategyStorageYard.Part08.cs` to keep source files below the 500-line limit.
 
 ### Granary Food Logistics
@@ -1640,12 +1702,12 @@ Impact hints:
 - Clay Pit work follows the local worksite assignment model but keeps clay diggers visible inside the pit during the timed work loop, reserves walkable near-water Clay fields, and stores produced Clay locally at the Clay Pit.
 - Sawmill work follows the local worksite assignment model, waits for Hauler-delivered Logs from Storage Yard stock, keeps Sawyers visible inside the Sawmill during the timed work loop, and stores produced Planks locally at the Sawmill.
 - Kiln work follows the local worksite assignment model, waits for Hauler-delivered Clay and Coal from Storage Yard stock, keeps Potters visible during the timed firing loop, and stores produced Pottery locally at the Kiln.
-- Hunter work keeps the same camp worksite component but reserves the nearest available adult rabbit through `StrategyWildlifeController`, chooses a reachable roughly 2-3 tile bow stand cell, uses a 20% arrow miss chance, and stores produced `Game` locally at the hunter camp on hits.
+- Hunter work keeps the same camp worksite component but reserves the nearest available adult rabbit through `StrategyWildlifeController` by default, can reserve adult deer after the Hunter Camp production upgrade, chooses a reachable roughly 2-3 tile bow stand cell, uses a 20% arrow miss chance, and stores produced `Game` locally at the hunter camp on hits.
 - Resident bow and butchering sprites are generated for every male/female visual variant and should stay in sync with readability outline mirroring.
 - Fisher work keeps the same hut worksite component but reserves the nearest available fish through `StrategyWildlifeController`, requires a valid land/shore stand cell around the target, abandons casts when the fish leaves cast range during cast/wait/reel phases, and stores produced `Fish` locally at the fisher hut for now.
 - Resident fishing sprites are generated for every male/female visual variant and should stay in sync with readability outline mirroring.
 - Granary food logistics is serviced by shared Haulers, moving food from production buildings into food storage after normal storage-resource hauling checks.
-- Storage Yard Haulers move Logs, Stone, Iron, Coal, Clay, Planks, and Pottery outputs from production worksites into Storage Yard stock and deliver non-food production inputs from Storage Yard stock into production nodes; Householders deliver Pottery from Storage Yards into houses for Dish cooking. Coal, Clay, Planks, and Pottery use their own carried sprite and return/drop cleanup paths.
+- Storage Yard Haulers move Logs, Stone, Iron, Coal, Clay, Planks, Pottery, and Tools outputs from production worksites into Storage Yard stock and deliver non-food production inputs from Storage Yard stock into production nodes; Householders deliver Pottery from Storage Yards into houses for Dish cooking. Coal, Clay, Planks, Pottery, and Tools use their own carried sprite and return/drop cleanup paths.
 - Construction assignment is a temporary exclusive task for hired Storage Yard builders; there is no hired-builder pool cap or construction-site builder cap, balanced dispatch spreads free builders across active sites first, and workplace assignment skips residents already attached to a construction site. Construction assignment does not block home/family assignment.
 - Builder construction pickup path failures include start/pickup walkability details in `debug.log`; repeated pickup path failures drop that builder's current site assignment so another builder can retry.
 - Worker and builder assignment must check `StrategyResidentAgent.CanWork`; children under age 3 remain inside assigned homes, and older children idle/walk but cannot work.
@@ -1658,7 +1720,7 @@ Impact hints:
 - If no free pair exists, the completed house is available for adult-child migration and partner lookup.
 - House occupation consumes the finite free-resident pool from the starter camp while it exists; later household births and adult-child migration are the first internal population growth path.
 - Resident death must continue to go through the centralized population cleanup path; direct `Destroy` on accepted residents risks stale worksite, construction, home, HUD, or kinship state.
-- Resident helper methods for carried-resource return, construction work, workplace clearing, readability sync, refugee path following, tree movement, fishing cast/reel flow, production-input delivery, trail movement, ranged hunt stand selection, reachable forestry work-cell selection, reachable construction dropoff selection, worker-triggered visual effects, day/night work scheduling, night home sleep, Clay work/logistics, Kiln/Pottery work/logistics, household Pottery delivery, and homeless campfire sleep are split across `StrategyResidentAgent.Part27.cs` through `StrategyResidentAgent.Part49.cs` to keep source files below the 500-line limit.
+- Resident helper methods for carried-resource return, construction work, workplace clearing, readability sync, refugee path following, tree movement, fishing cast/reel flow, production-input delivery, trail movement, ranged hunt stand selection, reachable forestry work-cell selection, reachable construction dropoff selection, worker-triggered visual effects, day/night work scheduling, night home sleep, Clay work/logistics, Kiln/Pottery work/logistics, household Pottery delivery, Forge/Tools work/logistics, production-upgrade speed helpers, and homeless campfire sleep are split across `StrategyResidentAgent.Part27.cs` through `StrategyResidentAgent.Part53.cs` to keep source files below the 500-line limit.
 - Future jobs/families/economy should extend resident state rather than replacing the home/free-camp assignment model.
 
 ### World Selection
@@ -1677,10 +1739,11 @@ Responsibilities:
 - Show selected-object preview sprites and status/context blocks.
 - Show selected residents with a dedicated compact dashboard: identity subtitle, portrait, role/home/food chips, and icon-led task, home, food, and family rows.
 - Expose house-specific visual upgrade actions in the selected-house HUD.
+- Expose Tools-based production upgrade actions in eligible selected-building HUDs.
 - Show selected-house resident portraits/names/age/life stage/statuses up to house capacity, including the Householder marker, compact upgrade action rows, prepared dish recipe summaries, Pottery, ingredient rations, resource icons/counts, and Garden Beds crop.
 - Show selected worksite status/resource context without worker assignment controls.
 - Show selected Storage Yards with a dedicated icon-led logistics dashboard for Haulers, builders, available sources, resource stock, and readiness status.
-- Show selected lumberjack/stonecutter/sawmill/kiln/hunter/fisher/mine/coal pit/clay pit/granary/storage stock and nearby source/target counts.
+- Show selected lumberjack/stonecutter/sawmill/kiln/forge/hunter/fisher/mine/coal pit/clay pit/granary/storage stock and nearby source/target counts.
 - Show selected-construction-site cost, delivered resources, builder count, and progress/status context.
 - Show selected-resident full name, portrait, profile, age/life stage, current activity, and home/camp assignment.
 - Show selected-grave deceased name, epitaph, age, final profession, family role, and memory text.
@@ -1691,6 +1754,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.cs`
 - `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.Part09.cs`
 - `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.Part10.cs`
+- `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.Part12.cs`
 - `Assets/Scripts/Runtime/Selection/IStrategyWorldInspectable.cs`
 - `Assets/Scripts/Runtime/Selection/StrategyWorldInspectInfo.cs`
 - `Assets/Scripts/Runtime/Selection/StrategyWorldInspectInfoFactory.cs`
@@ -1699,6 +1763,9 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/UI/StrategyConfirmationDialogController.cs`
 - `Assets/Scripts/Runtime/Build/StrategyPlacedBuilding.cs`
 - `Assets/Scripts/Runtime/Build/StrategyBuildingUpgradeController.cs`
+- `Assets/Scripts/Runtime/Build/StrategyProductionUpgradeCost.cs`
+- `Assets/Scripts/Runtime/Build/StrategyProductionBuildingUpgrade.cs`
+- `Assets/Scripts/Runtime/Build/StrategyProductionBuildingUpgradeCatalog.cs`
 - `Assets/Scripts/Runtime/Build/StrategyLumberjackCamp.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStonecutterCamp.cs`
 - `Assets/Scripts/Runtime/Build/StrategySawmill.cs`

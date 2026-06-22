@@ -45,65 +45,7 @@ namespace ProjectUnknown.Strategy
                 ExitUndergroundAtMineEntrance();
             }
 
-            if (gardenWorkCooldown > 0f)
-            {
-                gardenWorkCooldown -= Time.deltaTime;
-            }
-
-            if (lumberWorkCooldown > 0f)
-            {
-                lumberWorkCooldown -= Time.deltaTime;
-            }
-
-            if (stoneWorkCooldown > 0f)
-            {
-                stoneWorkCooldown -= Time.deltaTime;
-            }
-
-            if (mineWorkCooldown > 0f)
-            {
-                mineWorkCooldown -= Time.deltaTime;
-            }
-
-            if (coalWorkCooldown > 0f)
-            {
-                coalWorkCooldown -= Time.deltaTime;
-            }
-
-            if (clayWorkCooldown > 0f)
-            {
-                clayWorkCooldown -= Time.deltaTime;
-            }
-
-            if (sawmillWorkCooldown > 0f)
-            {
-                sawmillWorkCooldown -= Time.deltaTime;
-            }
-
-            if (kilnWorkCooldown > 0f)
-            {
-                kilnWorkCooldown -= Time.deltaTime;
-            }
-
-            if (logisticsWorkCooldown > 0f)
-            {
-                logisticsWorkCooldown -= Time.deltaTime;
-            }
-
-            if (huntingWorkCooldown > 0f)
-            {
-                huntingWorkCooldown -= Time.deltaTime;
-            }
-
-            if (fishingWorkCooldown > 0f)
-            {
-                fishingWorkCooldown -= Time.deltaTime;
-            }
-
-            if (householdFoodWorkCooldown > 0f)
-            {
-                householdFoodWorkCooldown -= Time.deltaTime;
-            }
+            UpdateWorkCooldowns(Time.deltaTime);
 
             if (IsStationaryFuneralActivity(activity))
             {
@@ -223,6 +165,12 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            if (activity == ResidentActivity.ForgingTools)
+            {
+                UpdateForgingTools();
+                return;
+            }
+
             if (activity == ResidentActivity.PickingUpStorageLogs)
             {
                 UpdatePickingUpStorageLogs();
@@ -304,6 +252,18 @@ namespace ProjectUnknown.Strategy
             if (activity == ResidentActivity.DepositingStoragePottery)
             {
                 UpdateDepositingStoragePottery();
+                return;
+            }
+
+            if (activity == ResidentActivity.PickingUpStorageTools)
+            {
+                UpdatePickingUpStorageTools();
+                return;
+            }
+
+            if (activity == ResidentActivity.DepositingStorageTools)
+            {
+                UpdateDepositingStorageTools();
                 return;
             }
 

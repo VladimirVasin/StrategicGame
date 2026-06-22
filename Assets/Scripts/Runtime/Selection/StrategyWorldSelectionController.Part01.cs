@@ -177,6 +177,7 @@ namespace ProjectUnknown.Strategy
                 SetWorkersSectionVisible(false);
                 SetResourcesVisible(false);
                 SetUpgradeActionsVisible(false);
+                SetProductionUpgradeHudVisible(false);
                 return;
             }
 
@@ -209,6 +210,7 @@ namespace ProjectUnknown.Strategy
                 StrategyCoalPit coalPit = building.GetComponent<StrategyCoalPit>();
                 StrategyClayPit clayPit = building.GetComponent<StrategyClayPit>();
                 StrategyKiln kiln = building.GetComponent<StrategyKiln>();
+                StrategyForge forge = building.GetComponent<StrategyForge>();
                 StrategyHunterCamp hunterCamp = building.GetComponent<StrategyHunterCamp>();
                 StrategyFisherHut fisherHut = building.GetComponent<StrategyFisherHut>();
                 StrategyStorageYard yard = building.GetComponent<StrategyStorageYard>();
@@ -220,6 +222,7 @@ namespace ProjectUnknown.Strategy
                 bool isCoalPit = coalPit != null;
                 bool isClayPit = clayPit != null;
                 bool isKiln = kiln != null;
+                bool isForge = forge != null;
                 bool isHunterCamp = hunterCamp != null;
                 bool isFisherHut = fisherHut != null;
                 bool isStorageYard = yard != null;
@@ -231,7 +234,7 @@ namespace ProjectUnknown.Strategy
                 }
 
                 SetWorkersSectionVisible(false);
-                if (isLumberjackCamp || isStonecutterCamp || isSawmill || isMine || isCoalPit || isClayPit || isKiln || isHunterCamp || isFisherHut || isGranary)
+                if (isLumberjackCamp || isStonecutterCamp || isSawmill || isMine || isCoalPit || isClayPit || isKiln || isForge || isHunterCamp || isFisherHut || isGranary)
                 {
                     LayoutContextSection(128f, 214f);
                 }
@@ -278,6 +281,12 @@ namespace ProjectUnknown.Strategy
                     hudContextBodyText.text = kiln.GetHudStatusText();
                     SetContextSectionVisible(true);
                 }
+                else if (isForge)
+                {
+                    hudContextTitleText.text = "Iron, Coal, Logs and Tools";
+                    hudContextBodyText.text = forge.GetHudStatusText();
+                    SetContextSectionVisible(true);
+                }
                 else if (isHunterCamp)
                 {
                     hudContextTitleText.text = "Hunting and Stock";
@@ -313,6 +322,8 @@ namespace ProjectUnknown.Strategy
                     RefreshUpgradeActions(building);
                 }
 
+                RefreshProductionUpgradeHud(building);
+
                 return;
             }
 
@@ -337,6 +348,7 @@ namespace ProjectUnknown.Strategy
                 SetWorkersSectionVisible(false);
                 SetResourcesVisible(false);
                 SetUpgradeActionsVisible(false);
+                SetProductionUpgradeHudVisible(false);
                 return;
             }
 
@@ -366,6 +378,7 @@ namespace ProjectUnknown.Strategy
                 SetWorkersSectionVisible(false);
                 SetResourcesVisible(false);
                 SetUpgradeActionsVisible(false);
+                SetProductionUpgradeHudVisible(false);
             }
         }
 

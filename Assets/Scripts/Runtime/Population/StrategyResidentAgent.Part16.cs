@@ -24,7 +24,7 @@ namespace ProjectUnknown.Strategy
                 appliedWorkFrame = -1;
             }
 
-            workFrameTimer += Time.deltaTime * FishingAnimationFrameRate;
+            workFrameTimer += Time.deltaTime * GetFishingWorkAnimationRate();
             int frameSteps = Mathf.FloorToInt(workFrameTimer);
             if (frameSteps > 0)
             {

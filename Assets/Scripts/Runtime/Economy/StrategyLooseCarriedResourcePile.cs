@@ -329,6 +329,7 @@ namespace ProjectUnknown.Strategy
                 StrategyResourceType.Clay => "Clay",
                 StrategyResourceType.Pottery => "Pottery",
                 StrategyResourceType.Planks => "Planks",
+                StrategyResourceType.Tools => "Tools",
                 _ => type.ToString()
             };
         }

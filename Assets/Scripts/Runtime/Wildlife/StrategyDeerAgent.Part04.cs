@@ -6,8 +6,10 @@ namespace ProjectUnknown.Strategy
     {
         private const float ThreatReactionRefreshSeconds = 1.15f;
         private const float ThreatReactionRefreshDistanceSqr = 1.0f;
+        private const float FailedFleeRetrySeconds = 1.4f;
 
         private float nextThreatReactionRefreshTime;
+        private float nextFailedFleeRetryTime;
         private Vector3 lastReactionThreatWorld;
 
         private void StartAlert(Vector3 threatWorld, bool noisyThreat)
@@ -29,6 +31,12 @@ namespace ProjectUnknown.Strategy
 
         private void StartFleeing(Vector3 threatWorld, bool noisyThreat)
         {
+            if (ShouldDeferFailedFleeRetry(threatWorld))
+            {
+                lastThreatWorld = threatWorld;
+                return;
+            }
+
             if (ShouldSkipThreatReaction(StrategyDeerBehaviorState.Fleeing, threatWorld))
             {
                 lastThreatWorld = threatWorld;
@@ -39,18 +47,36 @@ namespace ProjectUnknown.Strategy
             MarkThreatReaction(threatWorld);
             stateTimer = noisyThreat ? Random.Range(2.1f, 3.8f) : Random.Range(1.5f, 2.8f);
             bool foundTarget = TryPickFleeTarget(threatWorld);
-            if (!foundTarget && state == StrategyDeerBehaviorState.Fleeing)
+            if (!foundTarget)
             {
+                nextFailedFleeRetryTime = Time.time + FailedFleeRetrySeconds;
+                if (state != StrategyDeerBehaviorState.Alert)
+                {
+                    StartAlert(threatWorld, noisyThreat);
+                }
+
                 return;
             }
 
             SetState(StrategyDeerBehaviorState.Fleeing, true, noisyThreat);
         }
 
+        private void StartFailedFleeAlert(Vector3 threatWorld, bool noisyThreat)
+        {
+            nextFailedFleeRetryTime = Time.time + FailedFleeRetrySeconds;
+            StartAlert(threatWorld, noisyThreat);
+        }
+
         private bool ShouldSkipThreatReaction(StrategyDeerBehaviorState reactionState, Vector3 threatWorld)
         {
             return state == reactionState
                 && Time.time < nextThreatReactionRefreshTime
+                && (threatWorld - lastReactionThreatWorld).sqrMagnitude <= ThreatReactionRefreshDistanceSqr;
+        }
+
+        private bool ShouldDeferFailedFleeRetry(Vector3 threatWorld)
+        {
+            return Time.time < nextFailedFleeRetryTime
                 && (threatWorld - lastReactionThreatWorld).sqrMagnitude <= ThreatReactionRefreshDistanceSqr;
         }
 

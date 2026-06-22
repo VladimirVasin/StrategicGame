@@ -35,6 +35,7 @@ namespace ProjectUnknown.Strategy
                 StrategyBuildTool.CoalPit => "Coal Pit",
                 StrategyBuildTool.ClayPit => "Clay Pit",
                 StrategyBuildTool.Kiln => "Kiln",
+                StrategyBuildTool.Forge => "Forge",
                 StrategyBuildTool.HunterCamp => "Hunter Camp",
                 StrategyBuildTool.FisherHut => "Fisher Hut",
                 StrategyBuildTool.StorageYard => "Storage Yard",

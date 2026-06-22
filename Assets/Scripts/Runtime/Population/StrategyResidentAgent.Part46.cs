@@ -28,6 +28,7 @@ namespace ProjectUnknown.Strategy
                 || coalPitWorkplace != null
                 || clayPitWorkplace != null
                 || sawmillWorkplace != null
+                || forgeWorkplace != null
                 || storageWorkplace != null
                 || builderWorkplace != null
                 || granaryWorkplace != null
@@ -45,6 +46,7 @@ namespace ProjectUnknown.Strategy
             CancelCoalPitWork();
             CancelClayPitWork();
             CancelSawmillWork(true);
+            CancelForgeWork(true);
             CancelStorageWork(true);
             CancelGranaryWork(true);
             kilnWorkplace = kiln;
@@ -90,6 +92,7 @@ namespace ProjectUnknown.Strategy
                 || coalPitWorkplace != null
                 || clayPitWorkplace != null
                 || sawmillWorkplace != null
+                || forgeWorkplace != null
                 || storageWorkplace != null
                 || builderWorkplace != null
                 || granaryWorkplace != null
@@ -138,7 +141,7 @@ namespace ProjectUnknown.Strategy
             }
 
             activity = ResidentActivity.FiringPottery;
-            kilnWorkTimer = Random.Range(KilnWorkSecondsMin, KilnWorkSecondsMax);
+            kilnWorkTimer = GetUpgradedWorkDuration(KilnWorkSecondsMin, KilnWorkSecondsMax, activeKiln);
             activeKiln.BeginFiring(this);
             transform.position = activeKiln.GetInteriorWorkWorld(this);
             transform.localRotation = Quaternion.identity;

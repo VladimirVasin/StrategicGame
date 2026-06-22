@@ -52,6 +52,11 @@ namespace ProjectUnknown.Strategy
                     snapshot.Assigned = CountAssigned(kilns, kiln => kiln.WorkerCount);
                     snapshot.Capacity = kilns.Length * StrategyKiln.MaxWorkers;
                     break;
+                case StrategyProfessionType.Blacksmith:
+                    StrategyForge[] forges = FindSorted<StrategyForge>();
+                    snapshot.Assigned = CountAssigned(forges, forge => forge.WorkerCount);
+                    snapshot.Capacity = forges.Length * StrategyForge.MaxWorkers;
+                    break;
                 case StrategyProfessionType.Hunter:
                     StrategyHunterCamp[] hunterCamps = FindSorted<StrategyHunterCamp>();
                     snapshot.Assigned = CountAssigned(hunterCamps, camp => camp.WorkerCount);
@@ -90,6 +95,7 @@ namespace ProjectUnknown.Strategy
                 StrategyProfessionType.ClayDigger => new ProfessionSnapshot(type, "Clay Diggers", "dig wet Clay near water", new Color(0.66f, 0.40f, 0.27f)),
                 StrategyProfessionType.Sawyer => new ProfessionSnapshot(type, "Sawyers", "saw Logs into Planks", new Color(0.63f, 0.43f, 0.25f)),
                 StrategyProfessionType.Potter => new ProfessionSnapshot(type, "Potters", "fire Clay and Coal into Pottery", new Color(0.74f, 0.36f, 0.22f)),
+                StrategyProfessionType.Blacksmith => new ProfessionSnapshot(type, "Blacksmiths", "forge Iron, Coal and Logs into Tools", new Color(0.72f, 0.31f, 0.20f)),
                 StrategyProfessionType.Hunter => new ProfessionSnapshot(type, "Hunters", "hunt rabbits", new Color(0.56f, 0.43f, 0.26f)),
                 StrategyProfessionType.Fisher => new ProfessionSnapshot(type, "Fishers", "catch fish near water", new Color(0.32f, 0.54f, 0.63f)),
                 StrategyProfessionType.StorageWorker => new ProfessionSnapshot(type, "Haulers", "haul all resources and food", new Color(0.58f, 0.49f, 0.37f)),
@@ -186,6 +192,16 @@ namespace ProjectUnknown.Strategy
                     foreach (StrategyKiln kiln in FindSorted<StrategyKiln>())
                     {
                         if (kiln != null && kiln.TryAssignNextAvailableWorker(out worker))
+                        {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                case StrategyProfessionType.Blacksmith:
+                    foreach (StrategyForge forge in FindSorted<StrategyForge>())
+                    {
+                        if (forge != null && forge.TryAssignNextAvailableWorker(out worker))
                         {
                             return true;
                         }
@@ -313,6 +329,17 @@ namespace ProjectUnknown.Strategy
                     for (int i = kilns.Length - 1; i >= 0; i--)
                     {
                         if (TryRemoveWorker(kilns[i], kilns[i].WorkerCount, out worker, index => kilns[i].UnassignWorkerAt(index)))
+                        {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                case StrategyProfessionType.Blacksmith:
+                    StrategyForge[] forges = FindSorted<StrategyForge>();
+                    for (int i = forges.Length - 1; i >= 0; i--)
+                    {
+                        if (TryRemoveWorker(forges[i], forges[i].WorkerCount, out worker, index => forges[i].UnassignWorkerAt(index)))
                         {
                             return true;
                         }

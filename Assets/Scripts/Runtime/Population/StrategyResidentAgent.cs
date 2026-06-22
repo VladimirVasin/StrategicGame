@@ -154,7 +154,7 @@ namespace ProjectUnknown.Strategy
         private StrategyLooseCarriedResourcePile activeLooseFoodSource;
         private StrategyGranary activeGranaryDeliveryTarget;
         private StrategyGranary activeHouseholdFoodGranary;
-        private StrategyRabbitAgent activeHuntTarget;
+        private IStrategyHuntTarget activeHuntTarget;
         private StrategyFishAgent activeFishTarget;
         private StrategyConstructionResourceKind activeConstructionResource;
         private StrategyConstructionResourceKind carriedConstructionReturnResource = StrategyConstructionResourceKind.None;
@@ -239,6 +239,7 @@ namespace ProjectUnknown.Strategy
             || clayPitWorkplace != null
             || sawmillWorkplace != null
             || kilnWorkplace != null
+            || forgeWorkplace != null
             || storageWorkplace != null
             || builderWorkplace != null
             || granaryWorkplace != null;

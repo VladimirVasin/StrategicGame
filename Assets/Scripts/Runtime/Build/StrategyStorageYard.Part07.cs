@@ -215,8 +215,99 @@ namespace ProjectUnknown.Strategy
                 StrategyResourceType.Clay => Mathf.Max(0, clayStored - CountProductionInputReservations(resource)),
                 StrategyResourceType.Pottery => Mathf.Max(0, potteryStored - CountProductionInputReservations(resource) - CountHouseholdPotteryReservations()),
                 StrategyResourceType.Planks => AvailableConstructionPlanks,
+                StrategyResourceType.Tools => Mathf.Max(0, toolsStored - CountProductionInputReservations(resource)),
                 _ => 0
             };
+        }
+
+        public static int GetTotalAvailableLogisticsAmount(StrategyResourceType resource)
+        {
+            int total = 0;
+            StrategyStorageYard[] yards = Object.FindObjectsByType<StrategyStorageYard>();
+            for (int i = 0; i < yards.Length; i++)
+            {
+                total += yards[i] != null ? yards[i].GetAvailableLogisticsAmount(resource) : 0;
+            }
+
+            return total;
+        }
+
+        public static bool CanAffordProductionUpgrade(StrategyProductionUpgradeCost cost)
+        {
+            return cost.CanAfford(
+                GetTotalAvailableLogisticsAmount(StrategyResourceType.Tools),
+                GetTotalAvailableLogisticsAmount(StrategyResourceType.Planks),
+                GetTotalAvailableLogisticsAmount(StrategyResourceType.Stone));
+        }
+
+        public static bool TrySpendProductionUpgradeResources(
+            StrategyProductionUpgradeCost cost,
+            Vector3 nearWorld,
+            string reason)
+        {
+            if (cost.IsFree)
+            {
+                return true;
+            }
+
+            if (!CanAffordProductionUpgrade(cost))
+            {
+                StrategyDebugLogger.Warn(
+                    "StorageYard",
+                    "ProductionUpgradeSpendRejected",
+                    StrategyDebugLogger.F("reason", reason),
+                    StrategyDebugLogger.F("costTools", cost.Tools),
+                    StrategyDebugLogger.F("costPlanks", cost.Planks),
+                    StrategyDebugLogger.F("costStone", cost.Stone),
+                    StrategyDebugLogger.F("availableTools", GetTotalAvailableLogisticsAmount(StrategyResourceType.Tools)),
+                    StrategyDebugLogger.F("availablePlanks", GetTotalAvailableLogisticsAmount(StrategyResourceType.Planks)),
+                    StrategyDebugLogger.F("availableStone", GetTotalAvailableLogisticsAmount(StrategyResourceType.Stone)));
+                return false;
+            }
+
+            StrategyStorageYard[] yards = GetYardsSortedByDistance(nearWorld);
+            int remainingTools = SpendLogisticsFromYards(yards, StrategyResourceType.Tools, cost.Tools);
+            int remainingPlanks = SpendLogisticsFromYards(yards, StrategyResourceType.Planks, cost.Planks);
+            int remainingStone = SpendLogisticsFromYards(yards, StrategyResourceType.Stone, cost.Stone);
+            bool spent = remainingTools <= 0 && remainingPlanks <= 0 && remainingStone <= 0;
+            StrategyDebugLogger.Info(
+                "StorageYard",
+                spent ? "ProductionUpgradeResourcesSpent" : "ProductionUpgradeSpendShort",
+                StrategyDebugLogger.F("reason", reason),
+                StrategyDebugLogger.F("tools", cost.Tools),
+                StrategyDebugLogger.F("planks", cost.Planks),
+                StrategyDebugLogger.F("stone", cost.Stone),
+                StrategyDebugLogger.F("remainingTools", remainingTools),
+                StrategyDebugLogger.F("remainingPlanks", remainingPlanks),
+                StrategyDebugLogger.F("remainingStone", remainingStone));
+            return spent;
+        }
+
+        private static int SpendLogisticsFromYards(
+            StrategyStorageYard[] yards,
+            StrategyResourceType resource,
+            int requested)
+        {
+            int remaining = requested;
+            for (int i = 0; i < yards.Length && remaining > 0; i++)
+            {
+                StrategyStorageYard yard = yards[i];
+                if (yard == null)
+                {
+                    continue;
+                }
+
+                int amount = Mathf.Min(remaining, yard.GetAvailableLogisticsAmount(resource));
+                if (amount <= 0)
+                {
+                    continue;
+                }
+
+                yard.SpendLogisticsAmount(resource, amount);
+                remaining -= amount;
+            }
+
+            return remaining;
         }
 
         private int GetStoredAmount(StrategyResourceType resource)
@@ -230,6 +321,7 @@ namespace ProjectUnknown.Strategy
                 StrategyResourceType.Clay => clayStored,
                 StrategyResourceType.Pottery => potteryStored,
                 StrategyResourceType.Planks => planksStored,
+                StrategyResourceType.Tools => toolsStored,
                 _ => 0
             };
         }
@@ -268,6 +360,10 @@ namespace ProjectUnknown.Strategy
             else if (resource == StrategyResourceType.Planks)
             {
                 planksStored = Mathf.Max(0, planksStored - amount);
+            }
+            else if (resource == StrategyResourceType.Tools)
+            {
+                toolsStored = Mathf.Max(0, toolsStored - amount);
             }
 
             UpdateStockVisual();

@@ -38,6 +38,9 @@ namespace ProjectUnknown.Strategy
                 case StrategyKiln kiln:
                     kiln.TryGetWorker(index, out worker);
                     break;
+                case StrategyForge forge:
+                    forge.TryGetWorker(index, out worker);
+                    break;
                 case StrategyHunterCamp camp:
                     camp.TryGetWorker(index, out worker);
                     break;
@@ -149,6 +152,7 @@ namespace ProjectUnknown.Strategy
                 StrategyClayPit pit => pit.Origin,
                 StrategySawmill sawmill => sawmill.Origin,
                 StrategyKiln kiln => kiln.Origin,
+                StrategyForge forge => forge.Origin,
                 StrategyHunterCamp camp => camp.Origin,
                 StrategyFisherHut hut => hut.Origin,
                 StrategyStorageYard yard => yard.Origin,

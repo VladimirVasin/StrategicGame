@@ -14,6 +14,7 @@ namespace ProjectUnknown.Strategy
             int droppedClay = carriedClayAmount;
             int droppedPlanks = carriedPlanksAmount;
             int droppedPottery = carriedPotteryAmount;
+            int droppedTools = carriedToolsAmount;
             int droppedGame = carriedGameAmount;
             int droppedFish = carriedFishAmount;
             int droppedForage = carriedForageAmount;
@@ -25,6 +26,7 @@ namespace ProjectUnknown.Strategy
                 && droppedClay <= 0
                 && droppedPlanks <= 0
                 && droppedPottery <= 0
+                && droppedTools <= 0
                 && droppedGame <= 0
                 && droppedFish <= 0
                 && droppedForage <= 0)
@@ -44,6 +46,7 @@ namespace ProjectUnknown.Strategy
                     droppedClay,
                     ref droppedPlanks,
                     droppedPottery,
+                    droppedTools,
                     droppedGame,
                     droppedFish,
                     droppedForageResource,
@@ -59,6 +62,7 @@ namespace ProjectUnknown.Strategy
                     droppedClay,
                     droppedPlanks,
                     droppedPottery,
+                    droppedTools,
                     droppedGame,
                     droppedFish,
                     droppedForageResource,
@@ -77,6 +81,7 @@ namespace ProjectUnknown.Strategy
             int droppedClay,
             ref int droppedPlanks,
             int droppedPottery,
+            int droppedTools,
             int droppedGame,
             int droppedFish,
             StrategyResourceType droppedForageResource,
@@ -122,6 +127,7 @@ namespace ProjectUnknown.Strategy
             DropLooseCarriedResourceOnDeath(cell, StrategyResourceType.Clay, droppedClay);
             DropLooseCarriedResourceOnDeath(cell, StrategyResourceType.Planks, droppedPlanks);
             DropLooseCarriedResourceOnDeath(cell, StrategyResourceType.Pottery, droppedPottery);
+            DropLooseCarriedResourceOnDeath(cell, StrategyResourceType.Tools, droppedTools);
             DropLooseCarriedResourceOnDeath(cell, droppedForageResource, droppedForage);
         }
 
@@ -133,6 +139,7 @@ namespace ProjectUnknown.Strategy
             int droppedClay,
             int droppedPlanks,
             int droppedPottery,
+            int droppedTools,
             int droppedGame,
             int droppedFish,
             StrategyResourceType droppedForageResource,
@@ -149,6 +156,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("clay", droppedClay),
                 StrategyDebugLogger.F("planks", droppedPlanks),
                 StrategyDebugLogger.F("pottery", droppedPottery),
+                StrategyDebugLogger.F("tools", droppedTools),
                 StrategyDebugLogger.F("game", droppedGame),
                 StrategyDebugLogger.F("fish", droppedFish),
                 StrategyDebugLogger.F("forageResource", droppedForageResource),
@@ -165,6 +173,7 @@ namespace ProjectUnknown.Strategy
             carriedClayAmount = 0;
             carriedPlanksAmount = 0;
             carriedPotteryAmount = 0;
+            carriedToolsAmount = 0;
             carriedGameAmount = 0;
             carriedFishAmount = 0;
             carriedForageAmount = 0;
@@ -178,6 +187,7 @@ namespace ProjectUnknown.Strategy
             SetCarriedClayVisible(false);
             SetCarriedPlanksVisible(false);
             SetCarriedPotteryVisible(false);
+            SetCarriedToolsVisible(false);
             SetCarriedGameVisible(false);
             SetCarriedFishVisible(false);
             SetCarriedForageVisible(false);

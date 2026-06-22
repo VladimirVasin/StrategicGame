@@ -26,6 +26,8 @@ namespace ProjectUnknown.Strategy
                 || mineWorkplace != null
                 || coalPitWorkplace != null
                 || clayPitWorkplace != null
+                || kilnWorkplace != null
+                || forgeWorkplace != null
                 || storageWorkplace != null
                 || builderWorkplace != null
                 || granaryWorkplace != null
@@ -42,6 +44,8 @@ namespace ProjectUnknown.Strategy
             CancelMineWork();
             CancelCoalPitWork();
             CancelClayPitWork();
+            CancelKilnWork(true);
+            CancelForgeWork(true);
             CancelStorageWork(true);
             CancelGranaryWork(true);
             sawmillWorkplace = sawmill;
@@ -86,6 +90,8 @@ namespace ProjectUnknown.Strategy
                 || mineWorkplace != null
                 || coalPitWorkplace != null
                 || clayPitWorkplace != null
+                || kilnWorkplace != null
+                || forgeWorkplace != null
                 || storageWorkplace != null
                 || builderWorkplace != null
                 || granaryWorkplace != null
@@ -134,7 +140,7 @@ namespace ProjectUnknown.Strategy
             }
 
             activity = ResidentActivity.SawingLogs;
-            sawmillWorkTimer = Random.Range(SawmillWorkSecondsMin, SawmillWorkSecondsMax);
+            sawmillWorkTimer = GetUpgradedWorkDuration(SawmillWorkSecondsMin, SawmillWorkSecondsMax, activeSawmill);
             activeSawmill.BeginSawing(this);
             transform.position = activeSawmill.GetInteriorWorkWorld(this);
             transform.localRotation = Quaternion.identity;

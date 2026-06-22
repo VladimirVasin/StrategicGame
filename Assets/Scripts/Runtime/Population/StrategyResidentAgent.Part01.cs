@@ -205,6 +205,7 @@ namespace ProjectUnknown.Strategy
             CancelFisherWork(true);
             CancelSawmillWork(true);
             CancelKilnWork(true);
+            CancelForgeWork(true);
             CancelForageWork(false);
             CancelHouseholdFoodWork(false);
             activeGarden = null;
@@ -223,6 +224,7 @@ namespace ProjectUnknown.Strategy
             carriedClayAmount = 0;
             carriedPlanksAmount = 0;
             carriedPotteryAmount = 0;
+            carriedToolsAmount = 0;
             carriedGameAmount = 0;
             carriedFishAmount = 0;
             carriedForageAmount = 0;
@@ -234,6 +236,7 @@ namespace ProjectUnknown.Strategy
             SetCarriedClayVisible(false);
             SetCarriedPlanksVisible(false);
             SetCarriedPotteryVisible(false);
+            SetCarriedToolsVisible(false);
             SetCarriedGameVisible(false);
             SetCarriedFishVisible(false);
             SetCarriedForageVisible(false);
@@ -279,6 +282,7 @@ namespace ProjectUnknown.Strategy
             CancelClayPitWork();
             CancelSawmillWork(true);
             CancelKilnWork(true);
+            CancelForgeWork(true);
             CancelStorageWork(true);
             CancelGranaryWork(true);
             CancelHunterWork(true);

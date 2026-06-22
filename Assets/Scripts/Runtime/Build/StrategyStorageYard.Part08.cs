@@ -32,6 +32,7 @@ namespace ProjectUnknown.Strategy
                 StrategyResourceType.Clay => new Vector3(bounds.max.x - 0.16f, bounds.min.y + 0.30f, -0.145f),
                 StrategyResourceType.Pottery => new Vector3(bounds.max.x - 0.34f, bounds.min.y + 0.58f, -0.146f),
                 StrategyResourceType.Planks => new Vector3(bounds.max.x - 0.56f, bounds.min.y + 0.39f, -0.148f),
+                StrategyResourceType.Tools => new Vector3(bounds.center.x + 0.64f, bounds.min.y + 0.60f, -0.147f),
                 _ => bounds.center
             };
         }

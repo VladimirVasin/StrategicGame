@@ -171,13 +171,18 @@ namespace ProjectUnknown.Strategy
 
         public int GetAmount(StrategyResourceType resource)
         {
-            return resource == StrategyResourceType.Logs
-                ? logsStored
-                : resource == StrategyResourceType.Stone
-                    ? stoneStored
-                    : resource == StrategyResourceType.Iron
-                        ? ironStored
-                        : resource == StrategyResourceType.Coal ? coalStored : resource == StrategyResourceType.Clay ? clayStored : resource == StrategyResourceType.Pottery ? potteryStored : resource == StrategyResourceType.Planks ? planksStored : 0;
+            return resource switch
+            {
+                StrategyResourceType.Logs => logsStored,
+                StrategyResourceType.Stone => stoneStored,
+                StrategyResourceType.Iron => ironStored,
+                StrategyResourceType.Coal => coalStored,
+                StrategyResourceType.Clay => clayStored,
+                StrategyResourceType.Pottery => potteryStored,
+                StrategyResourceType.Planks => planksStored,
+                StrategyResourceType.Tools => toolsStored,
+                _ => 0
+            };
         }
 
         private static int CountAvailableIronSources()

@@ -25,8 +25,8 @@ namespace ProjectUnknown.Strategy
             appliedWorkFrame = -1;
             usingWorkSprite = false;
             fishingLineCast = false;
-            fishingWorkTimer = 0.72f;
-            fishingBiteTimer = Random.Range(0.65f, 1.35f);
+            fishingWorkTimer = GetUpgradedFisherWorkDuration(0.72f);
+            fishingBiteTimer = GetUpgradedFisherWorkDuration(0.65f, 1.35f);
             FaceWorldPoint(activeFishTarget.transform.position);
             SetFishingLineVisible(true);
             StrategyDebugLogger.Info(
@@ -56,7 +56,7 @@ namespace ProjectUnknown.Strategy
             }
 
             activity = ResidentActivity.WaitingForFishBite;
-            fishingBiteTimer = Random.Range(0.75f, 1.65f);
+            fishingBiteTimer = GetUpgradedFisherWorkDuration(0.75f, 1.65f);
             StrategyDebugLogger.Info(
                 "Fishing",
                 "WaitingForBite",

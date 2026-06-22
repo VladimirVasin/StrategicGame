@@ -175,6 +175,7 @@ namespace ProjectUnknown.Strategy
                 StrategyResourceType.Clay => carriedClayAmount,
                 StrategyResourceType.Pottery => carriedPotteryAmount,
                 StrategyResourceType.Planks => carriedPlanksAmount,
+                StrategyResourceType.Tools => carriedToolsAmount,
                 _ => 0
             };
         }
@@ -210,6 +211,10 @@ namespace ProjectUnknown.Strategy
             {
                 carriedPlanksAmount = amount;
             }
+            else if (resource == StrategyResourceType.Tools)
+            {
+                carriedToolsAmount = amount;
+            }
         }
 
         private void SetCarriedProductionInputVisible(StrategyResourceType resource, bool visible)
@@ -241,6 +246,10 @@ namespace ProjectUnknown.Strategy
             else if (resource == StrategyResourceType.Planks)
             {
                 SetCarriedPlanksVisible(visible);
+            }
+            else if (resource == StrategyResourceType.Tools)
+            {
+                SetCarriedToolsVisible(visible);
             }
         }
 
@@ -287,6 +296,10 @@ namespace ProjectUnknown.Strategy
             else if (resource == StrategyResourceType.Pottery)
             {
                 StoreCarriedPotteryImmediately(reason, "storage_missing");
+            }
+            else if (resource == StrategyResourceType.Tools)
+            {
+                StoreCarriedToolsImmediately(reason, "storage_missing");
             }
         }
     }

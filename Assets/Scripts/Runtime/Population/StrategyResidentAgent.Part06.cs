@@ -322,21 +322,21 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            if (hunterWorkplace.TryReserveRabbitTarget(this, out StrategyRabbitAgent rabbit)
-                && TryMoveToHuntingTarget(rabbit))
+            if (hunterWorkplace.TryReserveHuntTarget(this, out IStrategyHuntTarget target)
+                && TryMoveToHuntingTarget(target))
             {
                 return true;
             }
 
-            rabbit?.ReleaseHuntReservation(this);
+            target?.ReleaseHuntReservation(this);
             activeHuntTarget = null;
             huntingWorkCooldown = Random.Range(2.5f, 5.0f);
             return false;
         }
 
-        private bool TryMoveToHuntingTarget(StrategyRabbitAgent rabbit)
+        private bool TryMoveToHuntingTarget(IStrategyHuntTarget target)
         {
-            return TryMoveToRangedHuntingTarget(rabbit);
+            return TryMoveToRangedHuntingTarget(target);
         }
 
         private bool TryStartFisherTask()

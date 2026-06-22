@@ -48,7 +48,8 @@ namespace ProjectUnknown.Strategy
                     new[]
                     {
                         new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.Sawmill, "SW", "Sawmill", Cost(8, 4), HtmlColor("#9A6B3A")),
-                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.Kiln, "KI", "Kiln", Cost(5, 5, 2), HtmlColor("#B46A3F"))
+                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.Kiln, "KI", "Kiln", Cost(5, 5, 2), HtmlColor("#B46A3F")),
+                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.Forge, "FG", "Forge", Cost(4, 6, 3), HtmlColor("#8E4C2E"))
                     }),
                 new StrategyBuildMenuControllerDriver.BuildCategoryData(
                     "Storage",

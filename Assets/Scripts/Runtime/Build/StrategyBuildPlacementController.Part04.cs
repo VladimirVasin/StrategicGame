@@ -151,6 +151,11 @@ namespace ProjectUnknown.Strategy
                 StrategyKiln kiln = placed.AddComponent<StrategyKiln>();
                 kiln.Configure(building, map, population);
             }
+            else if (toolInfo.Tool == StrategyBuildTool.Forge)
+            {
+                StrategyForge forge = placed.AddComponent<StrategyForge>();
+                forge.Configure(building, map, population);
+            }
             else if (toolInfo.Tool == StrategyBuildTool.HunterCamp)
             {
                 StrategyHunterCamp camp = placed.AddComponent<StrategyHunterCamp>();

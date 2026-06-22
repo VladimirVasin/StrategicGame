@@ -5,29 +5,29 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyResidentAgent
     {
-        private bool TryMoveToRangedHuntingTarget(StrategyRabbitAgent rabbit)
+        private bool TryMoveToRangedHuntingTarget(IStrategyHuntTarget target)
         {
-            if (rabbit == null || !rabbit.IsAlive || rabbit.IsCarcass || map == null)
+            if (target == null || !target.IsAlive || target.IsCarcass || map == null)
             {
                 return false;
             }
 
-            activeHuntTarget = rabbit;
+            activeHuntTarget = target;
             if (CanShootCurrentHuntTarget("current_position"))
             {
                 StartAimingBow();
                 return true;
             }
 
-            if (!rabbit.TryGetCurrentCell(out Vector2Int targetCell))
+            if (!target.TryGetCurrentCell(out Vector2Int targetCell))
             {
                 RejectHuntMove(Vector2Int.zero, "target_cell_missing", 0);
                 return false;
             }
 
-            if (!TryFindHuntingStandCell(rabbit, targetCell, out HuntingStandCandidate stand, out int checkedCandidates))
+            if (!TryFindHuntingStandCell(target, targetCell, out HuntingStandCandidate stand, out int checkedCandidates))
             {
-                hunterWorkplace?.RegisterRejectedRabbitTarget(rabbit, targetCell, "no_valid_ranged_stand");
+                hunterWorkplace?.RegisterRejectedHuntTarget(target, targetCell, "no_valid_ranged_stand");
                 RejectHuntMove(targetCell, "no_valid_ranged_stand", checkedCandidates);
                 return false;
             }
@@ -39,7 +39,8 @@ namespace ProjectUnknown.Strategy
                 "Hunting",
                 "HuntMoveStarted",
                 StrategyDebugLogger.F("resident", FullName),
-                StrategyDebugLogger.F("rabbitCell", targetCell),
+                StrategyDebugLogger.F("targetKind", target.HuntTargetKind),
+                StrategyDebugLogger.F("targetCell", targetCell),
                 StrategyDebugLogger.F("workCell", stand.Cell),
                 StrategyDebugLogger.F("shotDistance", stand.Distance),
                 StrategyDebugLogger.F("campOrigin", hunterWorkplace != null ? hunterWorkplace.Origin : Vector2Int.zero));
@@ -47,7 +48,7 @@ namespace ProjectUnknown.Strategy
         }
 
         private bool TryFindHuntingStandCell(
-            StrategyRabbitAgent rabbit,
+            IStrategyHuntTarget target,
             Vector2Int targetCell,
             out HuntingStandCandidate stand,
             out int checkedCandidates)
@@ -58,7 +59,7 @@ namespace ProjectUnknown.Strategy
             int maxRadius = Mathf.CeilToInt(HuntingShotRange) + 1;
             for (int radius = Mathf.FloorToInt(HuntingMinimumShotRange); radius <= maxRadius; radius++)
             {
-                GatherHuntingStandCandidates(rabbit, targetCell, radius, candidates);
+                GatherHuntingStandCandidates(target, targetCell, radius, candidates);
             }
 
             while (candidates.Count > 0 && checkedCandidates < MaxHuntingStandPathChecks)
@@ -77,7 +78,7 @@ namespace ProjectUnknown.Strategy
         }
 
         private void GatherHuntingStandCandidates(
-            StrategyRabbitAgent rabbit,
+            IStrategyHuntTarget target,
             Vector2Int targetCell,
             int radius,
             List<HuntingStandCandidate> candidates)
@@ -98,7 +99,7 @@ namespace ProjectUnknown.Strategy
                     }
 
                     Vector3 world = map.GetCellCenterWorld(cell.x, cell.y);
-                    float distance = Vector2.Distance(world, rabbit.transform.position);
+                    float distance = Vector2.Distance(world, target.HuntWorldPosition);
                     if (!IsValidHuntingShotDistance(distance))
                     {
                         continue;
@@ -123,7 +124,7 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            float distance = Vector2.Distance(transform.position, activeHuntTarget.transform.position);
+            float distance = Vector2.Distance(transform.position, activeHuntTarget.HuntWorldPosition);
             bool valid = IsValidHuntingShotDistance(distance);
             if (!valid && phase != "current_position")
             {
@@ -148,15 +149,16 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            float shotDistance = Vector2.Distance(transform.position, activeHuntTarget.transform.position);
+            float shotDistance = Vector2.Distance(transform.position, activeHuntTarget.HuntWorldPosition);
             bool willHit = Random.value >= HuntingMissChance;
-            Vector3 rabbitWorld = activeHuntTarget.transform.position;
+            Vector3 targetWorld = activeHuntTarget.HuntWorldPosition;
             StrategyHuntingArrowProjectile.Launch(GetBowWorldPosition(), activeHuntTarget, this, willHit);
             StrategyDebugLogger.Info(
                 "Hunting",
                 "ArrowReleased",
                 StrategyDebugLogger.F("resident", FullName),
-                StrategyDebugLogger.F("rabbitWorld", rabbitWorld),
+                StrategyDebugLogger.F("targetKind", activeHuntTarget.HuntTargetKind),
+                StrategyDebugLogger.F("targetWorld", targetWorld),
                 StrategyDebugLogger.F("shotDistance", shotDistance),
                 StrategyDebugLogger.F("willHit", willHit),
                 StrategyDebugLogger.F("missChance", HuntingMissChance));
@@ -198,7 +200,7 @@ namespace ProjectUnknown.Strategy
                 "Hunting",
                 "HuntMoveRejected",
                 StrategyDebugLogger.F("resident", FullName),
-                StrategyDebugLogger.F("rabbitCell", targetCell),
+                StrategyDebugLogger.F("targetCell", targetCell),
                 StrategyDebugLogger.F("checkedStandCandidates", checkedCandidates),
                 StrategyDebugLogger.F("maxStandPathChecks", MaxHuntingStandPathChecks),
                 StrategyDebugLogger.F("reason", reason));

@@ -97,6 +97,20 @@
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyKinshipUtility.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategySawmill.Part03.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyStorageYard.Part10.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyStorageYard.Part11.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingSpriteFactory.Part10.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyForge.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyForge.Part01.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyForge.Part02.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyHunterCamp.Part01.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyProductionUpgradeCost.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyProductionBuildingUpgrade.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyProductionBuildingUpgradeCatalog.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Economy\StrategyResourceIconFactory.Part03.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part50.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part51.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part52.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part53.cs" />
     <Compile Include="Assets\Scripts\Runtime\Selection\StrategyWorldSelectionController.Part08.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyCinematicVisualController.Part02.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part31.cs" />
@@ -107,6 +121,7 @@
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentSpriteFactory.Part03.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyCoalResourceController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWildlifeController.Part11.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWildlifeController.Part12.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyAutoWorkforceController.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part27.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyForestryTree.Part01.cs" />
@@ -161,6 +176,7 @@
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentSpriteFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWolfAgent.Part03.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyRabbitAgent.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyRabbitAgent.HuntTarget.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part04.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyAutoWorkforceController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWolfAgent.cs" />
@@ -241,6 +257,7 @@
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingUpgradeController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyDeerAgent.Part02.cs" />
     <Compile Include="Assets\Scripts\Runtime\Selection\StrategyWorldSelectionController.Part11.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Selection\StrategyWorldSelectionController.Part12.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWildlifeController.Part06.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyPopulationRosterHudController.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyFamilyTreeCardHoverAnimator.cs" />
@@ -269,6 +286,7 @@
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyForageSpriteFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Camera\StrategyCameraController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyDeerAgent.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyDeerAgent.HuntTarget.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part22.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyDeerSpriteFactory.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyStoneResourceController.cs" />
@@ -344,11 +362,13 @@
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyShadowCaster2D.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyLooseConstructionResourcePile.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyBuildMenuController.Driver.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyBuildTool.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyRefugeeArrivalController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyNatureSpriteFactory.Part02.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyBirdSpriteFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyForageResourceController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWolfSpriteFactory.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Wildlife\IStrategyHuntTarget.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyClayPit.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyNaturePropController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyAutoWorkforceController.Part02.cs" />
@@ -394,6 +414,7 @@
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentDeathSnapshot.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part25.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyCinematicLightEmitter.Torch.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Core\StrategyCinematicLightKind.cs" />
     <Compile Include="Assets\Scripts\Runtime\Selection\StrategyWorldSelectionController.Part05.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWildlifeController.Part02.cs" />
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyResourceIconFactory.cs" />

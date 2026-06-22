@@ -280,6 +280,16 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
+            if (activity == ResidentActivity.ReturningToolsToStorage)
+            {
+                if (!TryStartToolsReturn("resource_return_retry", true))
+                {
+                    ScheduleToolsResourceReturnRetry();
+                }
+
+                return true;
+            }
+
             if (activity != ResidentActivity.ReturningPotteryToStorage)
             {
                 return false;

@@ -270,6 +270,7 @@ namespace ProjectUnknown.Strategy
                 || granaryWorkplace != null
                 || sawmillWorkplace != null
                 || kilnWorkplace != null
+                || forgeWorkplace != null
                 || !CanWork
                 || logisticsWorkCooldown > 0f)
             {
@@ -318,6 +319,11 @@ namespace ProjectUnknown.Strategy
             }
 
             if (TryStartStoragePotteryPickup())
+            {
+                return true;
+            }
+
+            if (TryStartStorageToolsPickup())
             {
                 return true;
             }

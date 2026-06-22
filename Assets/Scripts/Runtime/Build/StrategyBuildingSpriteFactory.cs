@@ -14,6 +14,7 @@ namespace ProjectUnknown.Strategy
         public const int CoalPitVariantCount = 3;
         public const int ClayPitVariantCount = 3;
         public const int KilnVariantCount = 3;
+        public const int ForgeVariantCount = 3;
         public const int HunterCampVariantCount = 3;
         public const int FisherHutVariantCount = 3;
         public const int StorageYardVariantCount = 3;
@@ -34,6 +35,7 @@ namespace ProjectUnknown.Strategy
                 StrategyBuildTool.CoalPit => CoalPitVariantCount,
                 StrategyBuildTool.ClayPit => ClayPitVariantCount,
                 StrategyBuildTool.Kiln => KilnVariantCount,
+                StrategyBuildTool.Forge => ForgeVariantCount,
                 StrategyBuildTool.HunterCamp => HunterCampVariantCount,
                 StrategyBuildTool.FisherHut => FisherHutVariantCount,
                 StrategyBuildTool.StorageYard => StorageYardVariantCount,
@@ -59,6 +61,7 @@ namespace ProjectUnknown.Strategy
                 && tool != StrategyBuildTool.CoalPit
                 && tool != StrategyBuildTool.ClayPit
                 && tool != StrategyBuildTool.Kiln
+                && tool != StrategyBuildTool.Forge
                 && tool != StrategyBuildTool.HunterCamp
                 && tool != StrategyBuildTool.FisherHut
                 && tool != StrategyBuildTool.StorageYard
@@ -82,6 +85,7 @@ namespace ProjectUnknown.Strategy
                     StrategyBuildTool.CoalPit => CreateCoalPitSprite(normalizedVariant),
                     StrategyBuildTool.ClayPit => CreateClayPitSprite(normalizedVariant),
                     StrategyBuildTool.Kiln => CreateKilnSprite(normalizedVariant),
+                    StrategyBuildTool.Forge => CreateForgeSprite(normalizedVariant),
                     StrategyBuildTool.HunterCamp => CreateHunterCampSprite(normalizedVariant),
                     StrategyBuildTool.FisherHut => CreateFisherHutSprite(normalizedVariant),
                     StrategyBuildTool.StorageYard => CreateStorageYardSprite(normalizedVariant),

@@ -48,17 +48,17 @@ namespace ProjectUnknown.Strategy
         private static Sprite CreateIronStainedGroundSprite(int variant)
         {
             Texture2D texture = CreateTexture(54, 34, $"Iron-stained Ground {variant + 1}");
-            Color rustDark = new Color32(92, 45, 31, 190);
-            Color rust = new Color32(151, 70, 36, 190);
-            Color rustLight = new Color32(209, 114, 53, 160);
-            Color soil = new Color32(68, 55, 45, 120);
-            Color metal = new Color32(174, 168, 145, 205);
+            Color graphite = new Color32(45, 48, 49, 170);
+            Color oreDark = new Color32(55, 45, 42, 210);
+            Color rust = new Color32(139, 63, 34, 205);
+            Color rustLight = new Color32(208, 107, 48, 180);
+            Color metal = new Color32(193, 188, 165, 230);
 
-            FillEllipse(texture, 27, 14, 23, 10, soil);
-            FillEllipse(texture, 24, 15, 16, 7, rustDark);
-            FillEllipse(texture, 31, 16, 15, 6, rust);
-            DrawIronCracks(texture, variant, rustLight, metal);
-            AddIronFlecks(texture, variant, 7, 8, 40, 15, metal, rustDark);
+            FillEllipse(texture, 27, 14, 24, 10, graphite);
+            FillPolygon(texture, new[] { P(8, 15), P(18, 9), P(31, 11), P(45, 17), P(34, 23), P(17, 22) }, oreDark);
+            DrawJaggedIronVein(texture, variant, rust, rustLight, metal);
+            AddIronShardCluster(texture, variant, metal, rustLight, oreDark);
+            AddIronFlecks(texture, variant, 8, 8, 39, 16, metal, oreDark);
 
             texture.Apply(false, false);
             return Sprite.Create(texture, new Rect(4f, 5f, 46f, 24f), new Vector2(0.5f, 0.32f), StonePixelsPerUnit);
@@ -67,22 +67,25 @@ namespace ProjectUnknown.Strategy
         private static Sprite CreateIronVeinSprite(int variant)
         {
             Texture2D texture = CreateTexture(72, 38, $"Iron Vein {variant + 1}");
-            Color earth = new Color32(57, 48, 43, 110);
-            Color seam = new Color32(95, 49, 38, 205);
-            Color rust = new Color32(175, 82, 37, 215);
-            Color rustLight = new Color32(224, 126, 57, 170);
-            Color metal = new Color32(190, 184, 159, 220);
+            Color earth = new Color32(42, 45, 45, 125);
+            Color seam = new Color32(47, 42, 40, 230);
+            Color rust = new Color32(158, 68, 33, 225);
+            Color rustLight = new Color32(223, 119, 51, 190);
+            Color metal = new Color32(202, 198, 176, 235);
 
             FillEllipse(texture, 36, 15, 30, 10, earth);
             Vector2Int start = P(8, 15 + variant % 5);
             Vector2Int mid = P(33, 16 - variant % 4);
             Vector2Int end = P(64, 13 + variant % 6);
             DrawLine(texture, start, mid, seam);
-            DrawLine(texture, P(start.x, start.y + 1), P(mid.x, mid.y + 1), rust);
+            DrawLine(texture, P(start.x, start.y + 1), P(mid.x, mid.y + 1), seam);
+            DrawLine(texture, P(start.x, start.y - 1), P(mid.x, mid.y - 1), rust);
             DrawLine(texture, mid, end, seam);
-            DrawLine(texture, P(mid.x, mid.y - 1), P(end.x, end.y - 1), rust);
-            DrawLine(texture, P(23, 16), P(17, 23), rustLight);
-            DrawLine(texture, P(45, 15), P(54, 9), rustLight);
+            DrawLine(texture, P(mid.x, mid.y - 1), P(end.x, end.y - 1), seam);
+            DrawLine(texture, P(mid.x, mid.y + 1), P(end.x, end.y + 1), rust);
+            DrawLine(texture, P(23, 16), P(17, 24), rustLight);
+            DrawLine(texture, P(45, 15), P(55, 8), rustLight);
+            DrawLine(texture, P(31, 19), P(39, 26), metal);
             AddIronFlecks(texture, variant + 7, 10, 8, 52, 18, metal, seam);
 
             texture.Apply(false, false);
@@ -123,6 +126,30 @@ namespace ProjectUnknown.Strategy
             DrawLine(texture, P(23 + variant, 12), P(38, 17), rustLight);
             DrawLine(texture, P(26, 14), P(19, 21), rustLight);
             DrawLine(texture, P(34, 16), P(43, 10), metal);
+        }
+
+        private static void DrawJaggedIronVein(Texture2D texture, int variant, Color rust, Color rustLight, Color metal)
+        {
+            Vector2Int a = P(10, 13 + variant % 3);
+            Vector2Int b = P(21, 10 + variant % 4);
+            Vector2Int c = P(34, 15 - variant % 3);
+            Vector2Int d = P(45, 12 + variant % 4);
+            DrawLine(texture, a, b, rust);
+            DrawLine(texture, b, c, rustLight);
+            DrawLine(texture, c, d, rust);
+            DrawLine(texture, P(25, 13), P(20, 21), metal);
+            DrawLine(texture, P(35, 15), P(43, 22), metal);
+        }
+
+        private static void AddIronShardCluster(Texture2D texture, int variant, Color metal, Color rustLight, Color oreDark)
+        {
+            for (int i = 0; i < 7; i++)
+            {
+                int x = 11 + ((variant * 11 + i * 7) % 33);
+                int y = 10 + ((variant * 5 + i * 9) % 13);
+                FillRect(texture, x, y, 2, 1, i % 3 == 0 ? metal : rustLight);
+                SetPixelSafe(texture, x + 1, y + 1, oreDark);
+            }
         }
 
         private static void AddIronFlecks(

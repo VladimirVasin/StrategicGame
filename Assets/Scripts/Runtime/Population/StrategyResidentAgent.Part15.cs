@@ -167,7 +167,7 @@ namespace ProjectUnknown.Strategy
                 appliedWorkFrame = -1;
             }
 
-            workFrameTimer += Time.deltaTime * WoodcutAnimationFrameRate;
+            workFrameTimer += Time.deltaTime * GetLumberWorkAnimationRate();
             int frameSteps = Mathf.FloorToInt(workFrameTimer);
             if (frameSteps > 0)
             {
@@ -245,7 +245,7 @@ namespace ProjectUnknown.Strategy
                 appliedWorkFrame = -1;
             }
 
-            workFrameTimer += Time.deltaTime * StonecutAnimationFrameRate;
+            workFrameTimer += Time.deltaTime * GetStonecutWorkAnimationRate();
             int frameSteps = Mathf.FloorToInt(workFrameTimer);
             if (frameSteps > 0)
             {

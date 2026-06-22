@@ -73,29 +73,13 @@ namespace ProjectUnknown.Strategy
                 case StrategyResourceType.Planks:
                     PaintPlanks(texture);
                     break;
+                case StrategyResourceType.Tools:
+                    PaintTools(texture);
+                    break;
             }
 
             texture.Apply(false, false);
             return Sprite.Create(texture, new Rect(0f, 0f, 24f, 24f), new Vector2(0.5f, 0.5f), PixelsPerUnit);
-        }
-
-        private static void PaintEggs(Texture2D texture)
-        {
-            Color outline = Rgb(72, 49, 32);
-            Color basket = Rgb(139, 88, 45);
-            Color basketLight = Rgb(188, 123, 62);
-            Color egg = Rgb(238, 225, 190);
-            Color eggLight = Rgb(255, 247, 220);
-
-            FillRect(texture, 4, 6, 16, 7, basket);
-            DrawRectOutline(texture, 4, 6, 16, 7, outline);
-            DrawLine(texture, 6, 12, 18, 12, basketLight);
-            FillEllipse(texture, 8, 14, 3, 5, outline);
-            FillEllipse(texture, 8, 14, 2, 4, egg);
-            FillEllipse(texture, 13, 15, 4, 5, outline);
-            FillEllipse(texture, 13, 15, 3, 4, eggLight);
-            FillEllipse(texture, 17, 14, 3, 5, outline);
-            FillEllipse(texture, 17, 14, 2, 4, egg);
         }
 
         private static void PaintTurnip(Texture2D texture)

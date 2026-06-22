@@ -129,6 +129,10 @@ namespace ProjectUnknown.Strategy
             {
                 AddPlanks(amount);
             }
+            else if (resource == StrategyResourceType.Tools)
+            {
+                AddTools(amount);
+            }
         }
 
         public void AddPlanks(int amount)

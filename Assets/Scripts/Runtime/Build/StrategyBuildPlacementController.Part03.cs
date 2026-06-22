@@ -71,6 +71,10 @@ namespace ProjectUnknown.Strategy
             {
                 blockFootprint = new Vector2Int(footprint.x, footprint.y + 1);
             }
+            else if (tool == StrategyBuildTool.Forge)
+            {
+                blockFootprint = new Vector2Int(footprint.x, footprint.y + 1);
+            }
             else if (tool == StrategyBuildTool.HunterCamp)
             {
                 blockFootprint = new Vector2Int(footprint.x, footprint.y + 1);
@@ -302,6 +306,7 @@ namespace ProjectUnknown.Strategy
                 StrategyBuildTool.CoalPit => "CP",
                 StrategyBuildTool.ClayPit => "CL",
                 StrategyBuildTool.Kiln => "KI",
+                StrategyBuildTool.Forge => "FG",
                 StrategyBuildTool.HunterCamp => "HC",
                 StrategyBuildTool.FisherHut => "FH",
                 StrategyBuildTool.StorageYard => "ST",

@@ -20,6 +20,7 @@ namespace ProjectUnknown.Strategy
             AddSiteCoverageFloor<StrategyCoalPit>(StrategyProfessionType.CoalMiner, StrategyAutoWorkforceCategory.Coal, pit => pit.WorkerCount, pit => StrategyCoalPit.MaxWorkers, pit => pit.FootprintBounds.center);
             AddSiteCoverageFloor<StrategyClayPit>(StrategyProfessionType.ClayDigger, StrategyAutoWorkforceCategory.Clay, pit => pit.WorkerCount, pit => StrategyClayPit.MaxWorkers, pit => pit.FootprintBounds.center);
             AddSiteCoverageFloor<StrategyKiln>(StrategyProfessionType.Potter, StrategyAutoWorkforceCategory.Pottery, kiln => kiln.WorkerCount, kiln => StrategyKiln.MaxWorkers, kiln => kiln.FootprintBounds.center);
+            AddSiteCoverageFloor<StrategyForge>(StrategyProfessionType.Blacksmith, StrategyAutoWorkforceCategory.Tools, forge => forge.WorkerCount, forge => StrategyForge.MaxWorkers, forge => forge.FootprintBounds.center);
             AddSiteCoverageFloor<StrategyHunterCamp>(StrategyProfessionType.Hunter, StrategyAutoWorkforceCategory.Food, camp => camp.WorkerCount, camp => StrategyHunterCamp.MaxWorkers, camp => camp.FootprintBounds.center);
             AddSiteCoverageFloor<StrategyFisherHut>(StrategyProfessionType.Fisher, StrategyAutoWorkforceCategory.Food, hut => hut.WorkerCount, hut => StrategyFisherHut.MaxWorkers, hut => hut.FootprintBounds.center);
         }
@@ -133,6 +134,7 @@ namespace ProjectUnknown.Strategy
             TryKeepBetterFallbackDemand(ref demand, TryCreateSiteFallbackDemand<StrategyCoalPit>(StrategyProfessionType.CoalMiner, StrategyAutoWorkforceCategory.Coal, pit => pit.WorkerCount, pit => StrategyCoalPit.MaxWorkers, pit => pit.FootprintBounds.center, allowOverTarget));
             TryKeepBetterFallbackDemand(ref demand, TryCreateSiteFallbackDemand<StrategyClayPit>(StrategyProfessionType.ClayDigger, StrategyAutoWorkforceCategory.Clay, pit => pit.WorkerCount, pit => StrategyClayPit.MaxWorkers, pit => pit.FootprintBounds.center, allowOverTarget));
             TryKeepBetterFallbackDemand(ref demand, TryCreateSiteFallbackDemand<StrategyKiln>(StrategyProfessionType.Potter, StrategyAutoWorkforceCategory.Pottery, kiln => kiln.WorkerCount, kiln => StrategyKiln.MaxWorkers, kiln => kiln.FootprintBounds.center, allowOverTarget));
+            TryKeepBetterFallbackDemand(ref demand, TryCreateSiteFallbackDemand<StrategyForge>(StrategyProfessionType.Blacksmith, StrategyAutoWorkforceCategory.Tools, forge => forge.WorkerCount, forge => StrategyForge.MaxWorkers, forge => forge.FootprintBounds.center, allowOverTarget));
             TryKeepBetterFallbackDemand(ref demand, TryCreateSiteFallbackDemand<StrategyHunterCamp>(StrategyProfessionType.Hunter, StrategyAutoWorkforceCategory.Food, camp => camp.WorkerCount, camp => StrategyHunterCamp.MaxWorkers, camp => camp.FootprintBounds.center, allowOverTarget));
             TryKeepBetterFallbackDemand(ref demand, TryCreateSiteFallbackDemand<StrategyFisherHut>(StrategyProfessionType.Fisher, StrategyAutoWorkforceCategory.Food, hut => hut.WorkerCount, hut => StrategyFisherHut.MaxWorkers, hut => hut.FootprintBounds.center, allowOverTarget));
             return demand != null;

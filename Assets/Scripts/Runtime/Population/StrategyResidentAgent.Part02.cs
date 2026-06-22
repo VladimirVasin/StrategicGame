@@ -72,6 +72,7 @@ namespace ProjectUnknown.Strategy
             StrategyClayPit previousClay = clayPitWorkplace;
             StrategySawmill previousSawmill = sawmillWorkplace;
             StrategyKiln previousKiln = kilnWorkplace;
+            StrategyForge previousForge = forgeWorkplace;
             StrategyStorageYard previousStorage = storageWorkplace;
             StrategyStorageYard previousBuilder = builderWorkplace;
             StrategyGranary previousGranary = granaryWorkplace;
@@ -86,6 +87,7 @@ namespace ProjectUnknown.Strategy
             previousClay?.UnassignWorker(this);
             previousSawmill?.UnassignWorker(this);
             previousKiln?.UnassignWorker(this);
+            previousForge?.UnassignWorker(this);
             previousStorage?.UnassignWorker(this);
             previousBuilder?.UnassignBuilder(this);
             previousGranary?.UnassignWorker(this);
@@ -133,6 +135,11 @@ namespace ProjectUnknown.Strategy
                 || constructionSite == site
                 || builderWorkplace == null
                 || IsReturningCarriedResourceActivity(activity)
+                || activity == ResidentActivity.ReturningCoalToStorage
+                || activity == ResidentActivity.ReturningClayToStorage
+                || activity == ResidentActivity.ReturningPlanksToStorage
+                || activity == ResidentActivity.ReturningPotteryToStorage
+                || activity == ResidentActivity.ReturningToolsToStorage
                 || !CanAcceptWorkAssignment)
             {
                 return;
@@ -148,6 +155,7 @@ namespace ProjectUnknown.Strategy
             CancelMineWork();
             CancelSawmillWork(true);
             CancelKilnWork(true);
+            CancelForgeWork(true);
             CancelClayPitWork();
             CancelForageWork(true);
             CancelHouseholdFoodWork(true);
@@ -162,6 +170,7 @@ namespace ProjectUnknown.Strategy
             carriedIronAmount = 0;
             carriedPlanksAmount = 0;
             carriedPotteryAmount = 0;
+            carriedToolsAmount = 0;
             carriedGameAmount = 0;
             carriedFishAmount = 0;
             carriedForageAmount = 0;
@@ -171,6 +180,7 @@ namespace ProjectUnknown.Strategy
             SetCarriedIronVisible(false);
             SetCarriedPlanksVisible(false);
             SetCarriedPotteryVisible(false);
+            SetCarriedToolsVisible(false);
             SetCarriedGameVisible(false);
             SetCarriedFishVisible(false);
             SetCarriedForageVisible(false);
@@ -210,6 +220,7 @@ namespace ProjectUnknown.Strategy
             carriedIronAmount = 0;
             carriedPlanksAmount = 0;
             carriedPotteryAmount = 0;
+            carriedToolsAmount = 0;
             carriedGameAmount = 0;
             carriedFishAmount = 0;
             carriedForageAmount = 0;
@@ -219,6 +230,7 @@ namespace ProjectUnknown.Strategy
             SetCarriedIronVisible(false);
             SetCarriedPlanksVisible(false);
             SetCarriedPotteryVisible(false);
+            SetCarriedToolsVisible(false);
             SetCarriedGameVisible(false);
             SetCarriedFishVisible(false);
             SetCarriedForageVisible(false);
@@ -248,6 +260,7 @@ namespace ProjectUnknown.Strategy
                 || carriedIronAmount > 0
                 || carriedPlanksAmount > 0
                 || carriedPotteryAmount > 0
+                || carriedToolsAmount > 0
                 || carriedGameAmount > 0
                 || carriedFishAmount > 0;
             CaptureCarriedConstructionReturnReservation();
@@ -284,6 +297,7 @@ namespace ProjectUnknown.Strategy
             carriedIronAmount = 0;
             carriedPlanksAmount = 0;
             carriedPotteryAmount = 0;
+            carriedToolsAmount = 0;
             carriedGameAmount = 0;
             carriedFishAmount = 0;
             SetCarriedLogsVisible(false);
@@ -291,6 +305,7 @@ namespace ProjectUnknown.Strategy
             SetCarriedIronVisible(false);
             SetCarriedPlanksVisible(false);
             SetCarriedPotteryVisible(false);
+            SetCarriedToolsVisible(false);
             SetCarriedGameVisible(false);
             SetCarriedFishVisible(false);
             transform.localRotation = Quaternion.identity;
@@ -392,6 +407,7 @@ namespace ProjectUnknown.Strategy
                 || clayPitWorkplace != null
                 || sawmillWorkplace != null
                 || kilnWorkplace != null
+                || forgeWorkplace != null
                 || storageWorkplace != null
                 || builderWorkplace != null
                 || granaryWorkplace != null
@@ -423,6 +439,7 @@ namespace ProjectUnknown.Strategy
                 || clayPitWorkplace != null
                 || sawmillWorkplace != null
                 || kilnWorkplace != null
+                || forgeWorkplace != null
                 || storageWorkplace != null
                 || builderWorkplace != null
                 || granaryWorkplace != null
@@ -454,6 +471,7 @@ namespace ProjectUnknown.Strategy
                 || clayPitWorkplace != null
                 || sawmillWorkplace != null
                 || kilnWorkplace != null
+                || forgeWorkplace != null
                 || storageWorkplace != null
                 || builderWorkplace != null
                 || granaryWorkplace != null

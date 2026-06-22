@@ -9,6 +9,7 @@ namespace ProjectUnknown.Strategy
         public const int MaxHouseResidents = 5;
 
         private readonly Dictionary<StrategyBuildingUpgradeType, StrategyBuildingUpgrade> upgrades = new();
+        private readonly HashSet<StrategyProductionBuildingUpgradeType> productionUpgrades = new();
         private readonly List<StrategyResidentAgent> residents = new();
         private readonly List<Vector2Int> bridgeCells = new();
         private SpriteRenderer spriteRenderer;
@@ -50,6 +51,7 @@ namespace ProjectUnknown.Strategy
             VisualVariant = visualVariant;
             residents.Clear();
             bridgeCells.Clear();
+            productionUpgrades.Clear();
             householder = null;
             BridgeStartCell = origin;
             BridgeEndCell = origin;
@@ -219,6 +221,22 @@ namespace ProjectUnknown.Strategy
             }
 
             upgrades.Add(upgrade.Type, upgrade);
+            return true;
+        }
+
+        public bool HasProductionUpgrade(StrategyProductionBuildingUpgradeType type)
+        {
+            return type != StrategyProductionBuildingUpgradeType.None && productionUpgrades.Contains(type);
+        }
+
+        public bool TryRegisterProductionUpgrade(StrategyProductionBuildingUpgradeType type)
+        {
+            if (type == StrategyProductionBuildingUpgradeType.None || productionUpgrades.Contains(type))
+            {
+                return false;
+            }
+
+            productionUpgrades.Add(type);
             return true;
         }
 

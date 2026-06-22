@@ -9,7 +9,7 @@ namespace ProjectUnknown.Strategy
         private const int StorageChipBuilders = 1;
         private const int StorageChipSources = 2;
         private const int StorageChipCount = 3;
-        private const int StorageResourceCount = 7;
+        private const int StorageResourceCount = 8;
 
         private static readonly StrategyResourceType[] StorageResourceTypes =
         {
@@ -19,7 +19,8 @@ namespace ProjectUnknown.Strategy
             StrategyResourceType.Iron,
             StrategyResourceType.Coal,
             StrategyResourceType.Clay,
-            StrategyResourceType.Pottery
+            StrategyResourceType.Pottery,
+            StrategyResourceType.Tools
         };
 
         private RectTransform storageYardHudRoot;
@@ -57,6 +58,7 @@ namespace ProjectUnknown.Strategy
             CreateStorageResourceCard(4, 0f, 230f);
             CreateStorageResourceCard(5, 166f, 230f);
             CreateStorageResourceCard(6, 0f, 308f);
+            CreateStorageResourceCard(7, 166f, 308f);
             CreateStorageStatusPanel();
         }
 
@@ -222,6 +224,7 @@ namespace ProjectUnknown.Strategy
                 StrategyResourceType.Coal => yard.CoalStored,
                 StrategyResourceType.Clay => yard.ClayStored,
                 StrategyResourceType.Pottery => yard.PotteryStored,
+                StrategyResourceType.Tools => yard.ToolsStored,
                 _ => 0
             };
         }
@@ -242,6 +245,7 @@ namespace ProjectUnknown.Strategy
                 StrategyResourceType.Coal => "stored",
                 StrategyResourceType.Clay => "stored",
                 StrategyResourceType.Pottery => "stored",
+                StrategyResourceType.Tools => "stored",
                 _ => "stored"
             };
         }

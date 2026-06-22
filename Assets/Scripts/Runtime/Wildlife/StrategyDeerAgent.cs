@@ -26,7 +26,7 @@ namespace ProjectUnknown.Strategy
     }
 
     [DisallowMultipleComponent]
-    public sealed partial class StrategyDeerAgent : MonoBehaviour, IStrategyWorldInspectable
+    public sealed partial class StrategyDeerAgent : MonoBehaviour, IStrategyWorldInspectable, IStrategyHuntTarget
     {
         private const float WalkSpeed = 0.78f;
         private const float FleeSpeed = 2.35f;
@@ -97,9 +97,10 @@ namespace ProjectUnknown.Strategy
         public bool IsAdult => lifeStage == StrategyDeerLifeStage.Adult;
         public bool IsAlive => isAlive;
         public bool IsPredatorReserved => predatorReservationOwner != null;
-        public bool CanBeWolfPrey => IsAdult && isAlive && predatorReservationOwner == null;
+        public bool CanBeWolfPrey => IsAdult && isAlive && huntReservationOwner == null && predatorReservationOwner == null;
         public bool CanBreed => IsAdult
             && isAlive
+            && huntReservationOwner == null
             && predatorReservationOwner == null
             && sex == StrategyDeerSex.Female
             && state != StrategyDeerBehaviorState.Alert
@@ -409,7 +410,7 @@ namespace ProjectUnknown.Strategy
                 }
                 else
                 {
-                    StartAlert(lastThreatWorld, false);
+                    StartFailedFleeAlert(lastThreatWorld, false);
                     return;
                 }
             }

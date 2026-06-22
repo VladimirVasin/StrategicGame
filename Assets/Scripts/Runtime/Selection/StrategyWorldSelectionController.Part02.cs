@@ -168,6 +168,7 @@ namespace ProjectUnknown.Strategy
 
             CreateResidentHud();
             CreateStorageYardHud();
+            CreateProductionUpgradeHud();
 
             resourcesRoot = CreateUiObject("HouseResources", hudPanel).GetComponent<RectTransform>();
             SetTopStretch(resourcesRoot, 24f, 382f, 24f, 206f);
@@ -452,7 +453,7 @@ namespace ProjectUnknown.Strategy
                 {
                     workerStatusTexts[i].text = hasWorker
                         ? GetResidentStatus(worker)
-                        : "hunts rabbits";
+                        : camp != null && camp.CanHuntDeer ? "hunts rabbits/deer" : "hunts rabbits";
                 }
 
                 bool buttonEnabled = hasWorker || (i == workerCount && canAssign);

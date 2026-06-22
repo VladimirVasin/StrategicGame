@@ -13,7 +13,7 @@ namespace ProjectUnknown.Strategy
         private const float StuckSecondsMax = 4.0f;
         private static Sprite arrowSprite;
 
-        private StrategyRabbitAgent target;
+        private IStrategyHuntTarget target;
         private object owner;
         private SpriteRenderer spriteRenderer;
         private Vector3 startWorld;
@@ -24,30 +24,30 @@ namespace ProjectUnknown.Strategy
         private bool willHit;
         private bool stuckInGround;
 
-        public static void Launch(Vector3 fromWorld, StrategyRabbitAgent rabbit, object owner)
+        public static void Launch(Vector3 fromWorld, IStrategyHuntTarget target, object owner)
         {
-            Launch(fromWorld, rabbit, owner, true);
+            Launch(fromWorld, target, owner, true);
         }
 
-        public static void Launch(Vector3 fromWorld, StrategyRabbitAgent rabbit, object owner, bool willHit)
+        public static void Launch(Vector3 fromWorld, IStrategyHuntTarget target, object owner, bool willHit)
         {
-            if (rabbit == null || owner == null)
+            if (target == null || owner == null)
             {
                 return;
             }
 
             GameObject arrowObject = new GameObject("Hunting Arrow");
             StrategyHuntingArrowProjectile projectile = arrowObject.AddComponent<StrategyHuntingArrowProjectile>();
-            projectile.Configure(fromWorld, rabbit, owner, willHit);
+            projectile.Configure(fromWorld, target, owner, willHit);
         }
 
-        private void Configure(Vector3 fromWorld, StrategyRabbitAgent rabbit, object projectileOwner, bool shouldHit)
+        private void Configure(Vector3 fromWorld, IStrategyHuntTarget huntTarget, object projectileOwner, bool shouldHit)
         {
-            target = rabbit;
+            target = huntTarget;
             owner = projectileOwner;
             willHit = shouldHit;
             startWorld = new Vector3(fromWorld.x, fromWorld.y, -0.11f);
-            targetWorld = willHit ? GetTargetWorld() : GetMissWorld(fromWorld, rabbit);
+            targetWorld = willHit ? GetTargetWorld() : GetMissWorld(fromWorld, huntTarget);
             float distance = Vector2.Distance(startWorld, targetWorld);
             duration = Mathf.Clamp(distance / Speed, 0.18f, 0.55f);
             elapsed = 0f;
@@ -145,10 +145,10 @@ namespace ProjectUnknown.Strategy
                 0.56f);
         }
 
-        private static Vector3 GetMissWorld(Vector3 fromWorld, StrategyRabbitAgent rabbit)
+        private static Vector3 GetMissWorld(Vector3 fromWorld, IStrategyHuntTarget target)
         {
-            Vector3 rabbitWorld = rabbit.transform.position;
-            Vector2 direction = rabbitWorld - fromWorld;
+            Vector3 targetWorld = target.HuntWorldPosition;
+            Vector2 direction = targetWorld - fromWorld;
             if (direction.sqrMagnitude < 0.001f)
             {
                 direction = Random.insideUnitCircle.normalized;
@@ -162,7 +162,7 @@ namespace ProjectUnknown.Strategy
             Vector2 side = new Vector2(-direction.y, direction.x);
             float overshoot = Random.Range(MissOvershootMin, MissOvershootMax);
             float lateral = Random.Range(-MissLateralOffset, MissLateralOffset);
-            Vector2 miss = (Vector2)rabbitWorld + direction * overshoot + side * lateral;
+            Vector2 miss = (Vector2)targetWorld + direction * overshoot + side * lateral;
             return new Vector3(miss.x, miss.y, -0.11f);
         }
 
@@ -173,7 +173,7 @@ namespace ProjectUnknown.Strategy
                 return transform.position;
             }
 
-            Vector3 world = target.transform.position;
+            Vector3 world = target.HuntWorldPosition;
             world.y += 0.16f;
             world.z = -0.11f;
             return world;

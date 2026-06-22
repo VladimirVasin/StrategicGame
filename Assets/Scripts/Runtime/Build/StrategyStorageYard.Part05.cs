@@ -87,7 +87,8 @@ namespace ProjectUnknown.Strategy
                 && coalStockRenderer != null
                 && clayStockRenderer != null
                 && potteryStockRenderer != null
-                && planksStockRenderer != null)
+                && planksStockRenderer != null
+                && toolsStockRenderer != null)
             {
                 return;
             }
@@ -113,6 +114,7 @@ namespace ProjectUnknown.Strategy
             EnsureClayStockRenderer();
             EnsurePotteryStockRenderer();
             EnsurePlanksStockRenderer();
+            EnsureToolsStockRenderer();
             UpdateStockPosition();
         }
 
@@ -136,6 +138,7 @@ namespace ProjectUnknown.Strategy
             UpdateClayStockVisual();
             UpdatePotteryStockVisual();
             UpdatePlanksStockVisual();
+            UpdateToolsStockVisual();
             UpdateStockPosition();
         }
 
@@ -168,6 +171,7 @@ namespace ProjectUnknown.Strategy
             UpdateClayStockPosition(bounds);
             UpdatePotteryStockPosition(bounds);
             UpdatePlanksStockPosition(bounds);
+            UpdateToolsStockPosition(bounds);
         }
 
         private void OnDestroy()

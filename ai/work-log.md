@@ -1,12 +1,46 @@
 # Work Log
 
-Last updated: 2026-06-22
+Last updated: 2026-06-23
 
 ## Active
 
 - None.
 
 ## Done
+
+### 2026-06-23 - Tools-based production building upgrades
+
+- Added production-building upgrade definitions and costs for Lumberjack Camp, Stonecutter Camp, Mine, Coal Pit, Clay Pit, Sawmill, Kiln, Forge, Hunter Camp, and Fisher Hut.
+- Production upgrades consume Storage Yard `Tools` plus Planks/Stone where required, store installed upgrade state on the placed building, and expose a compact action row in the selected-building HUD.
+- Installed work-speed upgrades now speed the relevant resident work cycle or hit animation; Hunter Camp's Deer Hunting Kit instead unlocks hunting adult deer while leaving fawns excluded.
+- Generalized resident hunting and arrow projectiles through `IStrategyHuntTarget` so rabbits and deer share the bow/miss/carcass/butchering flow; adult deer yield 4 `Game`.
+- Updated `Assembly-CSharp.csproj` for the new runtime partials and upgrade files.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; a full runtime C# line-count scan found no files over 500 lines.
+
+### 2026-06-22 - Forge and Tools production MVP
+
+- Added `Tools` as a storage/production resource with generated HUD icon, carried sprite support, stock/drop visuals, selection labels, and Storage Yard stock display.
+- Added `Forge` as a Production building with generated sprites, build menu entry, placement/finalization component wiring, selection HUD context, nighttime light emitter, and 1 assigned `Blacksmith`.
+- Forges request Hauler-delivered `Iron`, `Coal`, and `Logs` from Storage Yard stock, then Blacksmiths forge `1 Iron + 1 Coal + 1 Log` into `1 Tools` while visible at the building.
+- Storage Yard Haulers now pick up Forge-local Tools and store them in uncapped Storage Yard stock; production input logistics can deliver the Forge's required Iron/Coal/Logs through the shared `IStrategyProductionLogisticsNode` flow.
+- Profession HUD, resident role/status text, auto workforce priorities, carried-resource cleanup, death drops, stock dashboards, and AI memory now include Forge/Tools/Blacksmith.
+- Restored the missing Storage Yard household Pottery reservation API used by Householders, and split several near-limit files so the full runtime C# tree stays under 500 lines per file.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; a full C# line-count scan found no files over 500 lines.
+
+### 2026-06-22 - Distinct Iron and Clay deposit visuals
+
+- Reworked procedural Iron deposit sprites toward dark graphite ground, jagged rust veins, and sharp metallic flecks so Iron reads as underground ore rather than wet soil.
+- Reworked procedural Clay patch/bank sprites toward brighter wet terracotta, soft water-darkened streaks, highlights, and layered bank lines so Clay reads as near-water clay.
+- Kept walkability, buildability blocking, footprints, resource placement, and inspect behavior unchanged.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; `git diff --check` passed; a full C# line-count scan found no files over 500 lines.
+
+### 2026-06-22 - Wildlife and auto workforce performance pass
+
+- Analyzed the end of `debug.log`: one deer repeatedly alternated `DeerFleeing` and `DeerAlert` when no flee path could be found, producing hundreds of wildlife log entries and repeated flee target searches.
+- Added a short failed-flee retry cooldown for deer so unreachable flee attempts settle into Alert briefly instead of immediately retriggering Fleeing every threat check.
+- Reduced `AutoWorkforceTick` spikes by reusing cached Granary and placed-building arrays for food ration and household Pottery demand checks instead of calling scene-wide `FindObjectsByType` inside the tick.
+- Added a short no-donor cooldown for repeated auto workforce donor searches when the same top demand already proved that no idle donor can be released.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; `git diff --check` passed; a full C# line-count scan found no files over 500 lines.
 
 ### 2026-06-22 - Homeless campfire night sleep
 

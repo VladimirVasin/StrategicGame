@@ -22,6 +22,7 @@ namespace ProjectUnknown.Strategy
             StrategyProfessionType.ClayDigger,
             StrategyProfessionType.Sawyer,
             StrategyProfessionType.Potter,
+            StrategyProfessionType.Blacksmith,
             StrategyProfessionType.Hunter,
             StrategyProfessionType.Fisher,
             StrategyProfessionType.StorageWorker,

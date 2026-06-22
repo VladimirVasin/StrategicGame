@@ -51,6 +51,7 @@ namespace ProjectUnknown.Strategy
             SetWorkersSectionVisible(false);
             SetResourcesVisible(false);
             SetUpgradeActionsVisible(false);
+            SetProductionUpgradeHudVisible(false);
             SetResidentHudVisible(true);
 
             hudTitleText.text = resident.FullName;
@@ -290,6 +291,10 @@ namespace ProjectUnknown.Strategy
             else if (resident.KilnWorkplace != null)
             {
                 type = StrategyProfessionType.Potter;
+            }
+            else if (resident.ForgeWorkplace != null)
+            {
+                type = StrategyProfessionType.Blacksmith;
             }
             else if (resident.HunterWorkplace != null)
             {

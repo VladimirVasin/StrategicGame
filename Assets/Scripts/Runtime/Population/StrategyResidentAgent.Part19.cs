@@ -19,6 +19,7 @@ namespace ProjectUnknown.Strategy
                 || clayPitWorkplace != null
                 || sawmillWorkplace != null
                 || kilnWorkplace != null
+                || forgeWorkplace != null
                 || storageWorkplace != null
                 || builderWorkplace != null
                 || granaryWorkplace != null
@@ -36,6 +37,7 @@ namespace ProjectUnknown.Strategy
             CancelClayPitWork();
             CancelSawmillWork(true);
             CancelKilnWork(true);
+            CancelForgeWork(true);
             CancelStorageWork(true);
             CancelGranaryWork(true);
             mineWorkplace = mine;
@@ -81,6 +83,7 @@ namespace ProjectUnknown.Strategy
                 || clayPitWorkplace != null
                 || sawmillWorkplace != null
                 || kilnWorkplace != null
+                || forgeWorkplace != null
                 || storageWorkplace != null
                 || builderWorkplace != null
                 || granaryWorkplace != null
@@ -137,7 +140,7 @@ namespace ProjectUnknown.Strategy
             }
 
             activity = ResidentActivity.MiningUnderground;
-            mineWorkTimer = Random.Range(MineWorkSecondsMin, MineWorkSecondsMax);
+            mineWorkTimer = GetUpgradedWorkDuration(MineWorkSecondsMin, MineWorkSecondsMax, activeMine);
             transform.position = GetMineInteriorWorld();
             transform.localRotation = Quaternion.identity;
             transform.localScale = Vector3.one;
@@ -211,7 +214,7 @@ namespace ProjectUnknown.Strategy
                 activeIronDeposit = null;
             }
 
-            mineWorkTimer = Random.Range(MineWorkSecondsMin, MineWorkSecondsMax);
+            mineWorkTimer = GetUpgradedWorkDuration(MineWorkSecondsMin, MineWorkSecondsMax, activeMine);
         }
 
         private bool EnsureActiveIronDeposit()

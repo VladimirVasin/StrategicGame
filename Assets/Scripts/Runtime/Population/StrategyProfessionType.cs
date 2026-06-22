@@ -9,6 +9,7 @@ namespace ProjectUnknown.Strategy
         ClayDigger,
         Sawyer,
         Potter,
+        Blacksmith,
         Hunter,
         Fisher,
         StorageWorker,

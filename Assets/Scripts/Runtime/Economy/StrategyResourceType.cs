@@ -21,7 +21,8 @@ namespace ProjectUnknown.Strategy
         Clay,
         Pottery,
         Planks,
-        Logs
+        Logs,
+        Tools
     }
 
     public static class StrategyFoodNutrition

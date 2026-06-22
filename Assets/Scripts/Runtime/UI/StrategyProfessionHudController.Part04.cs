@@ -16,7 +16,8 @@ namespace ProjectUnknown.Strategy
             StrategyAutoWorkforceCategory.Iron,
             StrategyAutoWorkforceCategory.Coal,
             StrategyAutoWorkforceCategory.Clay,
-            StrategyAutoWorkforceCategory.Pottery
+            StrategyAutoWorkforceCategory.Pottery,
+            StrategyAutoWorkforceCategory.Tools
         };
 
         private readonly AutoPriorityRow[] autoPriorityRows = new AutoPriorityRow[AutoPriorityOrder.Length];

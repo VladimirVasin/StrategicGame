@@ -31,7 +31,7 @@ namespace ProjectUnknown.Strategy
     }
 
     [DisallowMultipleComponent]
-    public sealed partial class StrategyRabbitAgent : MonoBehaviour, IStrategyWorldInspectable
+    public sealed partial class StrategyRabbitAgent : MonoBehaviour, IStrategyWorldInspectable, IStrategyHuntTarget
     {
         private const float HopSpeed = 1.05f;
         private const float FleeSpeed = 2.7f;

@@ -76,6 +76,10 @@ namespace ProjectUnknown.Strategy
             {
                 StartFiringPottery();
             }
+            else if (activity == ResidentActivity.MovingToForge)
+            {
+                StartForgingTools();
+            }
             else if (activity == ResidentActivity.MovingToStoragePickup)
             {
                 StartPickingUpStorageLogs();
@@ -131,6 +135,14 @@ namespace ProjectUnknown.Strategy
             else if (activity == ResidentActivity.CarryingPotteryToStorage)
             {
                 StartDepositingStoragePottery();
+            }
+            else if (activity == ResidentActivity.MovingToStorageToolsPickup)
+            {
+                StartPickingUpStorageTools();
+            }
+            else if (activity == ResidentActivity.CarryingToolsToStorage)
+            {
+                StartDepositingStorageTools();
             }
             else if (activity == ResidentActivity.MovingToHouseholdPotteryPickup)
             {
@@ -217,6 +229,10 @@ namespace ProjectUnknown.Strategy
             else if (activity == ResidentActivity.ReturningPotteryToStorage)
             {
                 CompletePotteryResourceReturn();
+            }
+            else if (activity == ResidentActivity.ReturningToolsToStorage)
+            {
+                CompleteToolsResourceReturn();
             }
             else if (activity == ResidentActivity.MovingToPlantTree)
             {

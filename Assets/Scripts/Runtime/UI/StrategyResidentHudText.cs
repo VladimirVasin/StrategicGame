@@ -59,6 +59,11 @@ namespace ProjectUnknown.Strategy
                 return "Potter";
             }
 
+            if (resident.ForgeWorkplace != null)
+            {
+                return "Blacksmith";
+            }
+
             if (resident.HunterWorkplace != null)
             {
                 return "Hunter";
@@ -176,6 +181,8 @@ namespace ProjectUnknown.Strategy
                 StrategyResidentAgent.ResidentActivity.SawingLogs => "sawing Logs",
                 StrategyResidentAgent.ResidentActivity.MovingToKiln => "going to kiln",
                 StrategyResidentAgent.ResidentActivity.FiringPottery => "firing Pottery",
+                StrategyResidentAgent.ResidentActivity.MovingToForge => "going to forge",
+                StrategyResidentAgent.ResidentActivity.ForgingTools => "forging Tools",
                 StrategyResidentAgent.ResidentActivity.MovingToStorageStonePickup => "going for Stone",
                 StrategyResidentAgent.ResidentActivity.PickingUpStorageStone => "picking up Stone",
                 StrategyResidentAgent.ResidentActivity.CarryingStoneToStorage => "hauling Stone to storage",
@@ -200,6 +207,10 @@ namespace ProjectUnknown.Strategy
                 StrategyResidentAgent.ResidentActivity.PickingUpStoragePottery => "picking up Pottery",
                 StrategyResidentAgent.ResidentActivity.CarryingPotteryToStorage => "hauling Pottery to storage",
                 StrategyResidentAgent.ResidentActivity.DepositingStoragePottery => "depositing Pottery",
+                StrategyResidentAgent.ResidentActivity.MovingToStorageToolsPickup => "going for Tools",
+                StrategyResidentAgent.ResidentActivity.PickingUpStorageTools => "picking up Tools",
+                StrategyResidentAgent.ResidentActivity.CarryingToolsToStorage => "hauling Tools to storage",
+                StrategyResidentAgent.ResidentActivity.DepositingStorageTools => "depositing Tools",
                 StrategyResidentAgent.ResidentActivity.MovingToConstructionStorage => "going for materials",
                 StrategyResidentAgent.ResidentActivity.PickingUpConstructionLogs => "picking up construction Logs",
                 StrategyResidentAgent.ResidentActivity.PickingUpConstructionStone => "picking up construction Stone",
@@ -248,6 +259,7 @@ namespace ProjectUnknown.Strategy
                 StrategyResidentAgent.ResidentActivity.ReturningClayToStorage => "returning Clay to storage",
                 StrategyResidentAgent.ResidentActivity.ReturningPlanksToStorage => "returning Planks to storage",
                 StrategyResidentAgent.ResidentActivity.ReturningPotteryToStorage => "returning Pottery to storage",
+                StrategyResidentAgent.ResidentActivity.ReturningToolsToStorage => "returning Tools to storage",
                 StrategyResidentAgent.ResidentActivity.ReturningGameToGranary => "returning Game to granary",
                 StrategyResidentAgent.ResidentActivity.ReturningFishToGranary => "returning Fish to granary",
                 StrategyResidentAgent.ResidentActivity.MovingToFuneral => "going to funeral",
@@ -307,6 +319,11 @@ namespace ProjectUnknown.Strategy
             if (resident.KilnWorkplace != null && resident.Activity == StrategyResidentAgent.ResidentActivity.Idle)
             {
                 return AppendNutritionStatus(resident, "waiting for Clay and Coal");
+            }
+
+            if (resident.ForgeWorkplace != null && resident.Activity == StrategyResidentAgent.ResidentActivity.Idle)
+            {
+                return AppendNutritionStatus(resident, "waiting for Iron, Coal and Logs");
             }
 
             if (resident.StorageWorkplace != null && resident.Activity == StrategyResidentAgent.ResidentActivity.Idle)

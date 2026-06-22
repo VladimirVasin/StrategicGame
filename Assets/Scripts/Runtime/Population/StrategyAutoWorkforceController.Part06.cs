@@ -118,6 +118,10 @@ namespace ProjectUnknown.Strategy
                     cachedKilns,
                     kiln => kiln.WorkerCount,
                     (StrategyKiln kiln, int index, out StrategyResidentAgent found) => kiln.TryGetWorker(index, out found)),
+                StrategyProfessionType.Blacksmith => CountReleasableFromSites(
+                    cachedForges,
+                    forge => forge.WorkerCount,
+                    (StrategyForge forge, int index, out StrategyResidentAgent found) => forge.TryGetWorker(index, out found)),
                 StrategyProfessionType.Hunter => CountReleasableFromSites(
                     cachedHunterCamps,
                     camp => camp.WorkerCount,
@@ -193,6 +197,13 @@ namespace ProjectUnknown.Strategy
                     kiln => kiln.WorkerCount,
                     (StrategyKiln kiln, int index, out StrategyResidentAgent found) => kiln.TryGetWorker(index, out found),
                     (kiln, index) => kiln.UnassignWorkerAt(index),
+                    out worker,
+                    allowActiveRelease),
+                StrategyProfessionType.Blacksmith => TryReleaseFromSites(
+                    cachedForges,
+                    forge => forge.WorkerCount,
+                    (StrategyForge forge, int index, out StrategyResidentAgent found) => forge.TryGetWorker(index, out found),
+                    (forge, index) => forge.UnassignWorkerAt(index),
                     out worker,
                     allowActiveRelease),
                 StrategyProfessionType.Hunter => TryReleaseFromSites(

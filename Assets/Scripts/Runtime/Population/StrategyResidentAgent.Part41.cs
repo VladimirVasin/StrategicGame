@@ -77,6 +77,11 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
+            if (TryStartForgeTask())
+            {
+                return true;
+            }
+
             if (TryStartStorageTask())
             {
                 return true;
@@ -199,6 +204,12 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            if (deferredActivity == ResidentActivity.MovingToForge)
+            {
+                CancelForgeWork(true);
+                return;
+            }
+
             if (deferredActivity == ResidentActivity.MovingToConstructionStorage
                 || deferredActivity == ResidentActivity.MovingToConstructionSite
                 || deferredActivity == ResidentActivity.BuildingConstruction)
@@ -295,6 +306,7 @@ namespace ProjectUnknown.Strategy
                 || residentActivity == ResidentActivity.MovingToClayPit
                 || residentActivity == ResidentActivity.MovingToSawmill
                 || residentActivity == ResidentActivity.MovingToKiln
+                || residentActivity == ResidentActivity.MovingToForge
                 || residentActivity == ResidentActivity.MovingToConstructionStorage
                 || residentActivity == ResidentActivity.MovingToConstructionSite
                 || residentActivity == ResidentActivity.MovingToHuntingRange
@@ -309,6 +321,7 @@ namespace ProjectUnknown.Strategy
                 || residentActivity == ResidentActivity.MovingToStorageClayPickup
                 || residentActivity == ResidentActivity.MovingToStoragePlanksPickup
                 || residentActivity == ResidentActivity.MovingToStoragePotteryPickup
+                || residentActivity == ResidentActivity.MovingToStorageToolsPickup
                 || residentActivity == ResidentActivity.MovingToHouseholdPotteryPickup
                 || residentActivity == ResidentActivity.MovingToGranaryGamePickup
                 || residentActivity == ResidentActivity.MovingToGranaryFishPickup
@@ -324,6 +337,7 @@ namespace ProjectUnknown.Strategy
                 || residentActivity == ResidentActivity.MovingToStorageClayPickup
                 || residentActivity == ResidentActivity.MovingToStoragePlanksPickup
                 || residentActivity == ResidentActivity.MovingToStoragePotteryPickup
+                || residentActivity == ResidentActivity.MovingToStorageToolsPickup
                 || residentActivity == ResidentActivity.MovingToProductionInputPickup;
         }
 

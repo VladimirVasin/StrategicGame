@@ -240,6 +240,9 @@ namespace ProjectUnknown.Strategy
                 + "Planks: "
                 + planksStored
                 + "\n"
+                + "Tools: "
+                + toolsStored
+                + "\n"
                 + "Sources: "
                 + sourceCount;
         }
@@ -277,6 +280,7 @@ namespace ProjectUnknown.Strategy
             count += CountAvailableClaySources();
             count += CountAvailablePotterySources();
             count += CountAvailablePlankSources();
+            count += CountAvailableToolsSources();
             return count;
         }
 

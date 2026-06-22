@@ -19,16 +19,18 @@ namespace ProjectUnknown.Strategy
         private static Sprite CreateClayPatchSprite(int variant)
         {
             Texture2D texture = CreateTexture(58, 34, $"Clay Patch {variant + 1}");
-            Color mud = new Color32(92, 62, 43, 118);
-            Color wet = new Color32(128, 70, 47, 172);
-            Color clay = new Color32(174, 93, 56, 190);
-            Color light = new Color32(218, 133, 82, 145);
-            Color shine = new Color32(232, 181, 125, 135);
+            Color mud = new Color32(93, 61, 42, 120);
+            Color wet = new Color32(122, 78, 58, 188);
+            Color clay = new Color32(194, 104, 58, 215);
+            Color light = new Color32(235, 151, 88, 170);
+            Color shine = new Color32(247, 205, 143, 165);
+            Color wetBlue = new Color32(72, 88, 86, 110);
 
             FillEllipse(texture, 28, 15, 24, 10, mud);
-            FillEllipse(texture, 23, 16, 15, 7, wet);
-            FillEllipse(texture, 34, 15, 16, 6, clay);
-            DrawClayCracks(texture, variant, wet, light);
+            FillEllipse(texture, 24, 16, 17, 8, wet);
+            FillEllipse(texture, 35, 15, 17, 7, clay);
+            FillEllipse(texture, 30, 13, 11, 4, light);
+            DrawClayWetStreaks(texture, variant, wetBlue, light, shine);
             AddClayFlecks(texture, variant, 8, 8, 42, 16, shine, clay);
 
             texture.Apply(false, false);
@@ -38,21 +40,20 @@ namespace ProjectUnknown.Strategy
         private static Sprite CreateClayBankSprite(int variant)
         {
             Texture2D texture = CreateTexture(76, 40, $"Clay Bank {variant + 1}");
-            Color bankShadow = new Color32(78, 52, 39, 118);
-            Color dark = new Color32(112, 61, 42, 205);
-            Color clay = new Color32(170, 86, 50, 220);
-            Color orange = new Color32(210, 117, 69, 190);
-            Color wet = new Color32(96, 74, 58, 150);
-            Color shine = new Color32(235, 177, 117, 155);
+            Color bankShadow = new Color32(74, 51, 38, 125);
+            Color dark = new Color32(117, 67, 44, 215);
+            Color clay = new Color32(190, 96, 51, 230);
+            Color orange = new Color32(231, 132, 70, 205);
+            Color wet = new Color32(80, 87, 82, 145);
+            Color shine = new Color32(249, 198, 128, 170);
 
             FillEllipse(texture, 38, 17, 32, 11, bankShadow);
-            DrawLine(texture, P(9, 18 + variant % 3), P(33, 14 + variant % 4), dark);
-            DrawLine(texture, P(33, 14 + variant % 4), P(67, 17 - variant % 3), dark);
-            DrawLine(texture, P(10, 20 + variant % 2), P(34, 17 + variant % 4), clay);
-            DrawLine(texture, P(34, 17 + variant % 4), P(66, 20 - variant % 2), clay);
-            DrawLine(texture, P(16, 23), P(61, 24 + variant % 3), wet);
-            DrawLine(texture, P(21, 15), P(30, 10), orange);
-            DrawLine(texture, P(49, 17), P(58, 11), orange);
+            DrawClayBankLayer(texture, P(9, 18 + variant % 3), P(34, 14 + variant % 4), P(67, 17 - variant % 3), dark);
+            DrawClayBankLayer(texture, P(10, 21 + variant % 2), P(35, 18 + variant % 4), P(66, 20 - variant % 2), clay);
+            DrawClayBankLayer(texture, P(14, 24), P(38, 25 + variant % 2), P(63, 24 + variant % 3), wet);
+            DrawLine(texture, P(20, 15), P(32, 11), orange);
+            DrawLine(texture, P(48, 16), P(60, 12), orange);
+            DrawLine(texture, P(24, 19), P(47, 18), shine);
             AddClayFlecks(texture, variant + 17, 10, 9, 56, 19, shine, clay);
 
             texture.Apply(false, false);
@@ -83,12 +84,22 @@ namespace ProjectUnknown.Strategy
             return Sprite.Create(texture, new Rect(2f, 4f, 30f, 17f), new Vector2(0.5f, 0.30f), StonePixelsPerUnit);
         }
 
-        private static void DrawClayCracks(Texture2D texture, int variant, Color wet, Color light)
+        private static void DrawClayWetStreaks(Texture2D texture, int variant, Color wet, Color light, Color shine)
         {
-            DrawLine(texture, P(10, 15), P(23 + variant, 13), wet);
-            DrawLine(texture, P(23 + variant, 13), P(41, 17), wet);
-            DrawLine(texture, P(27, 14), P(20, 22), light);
-            DrawLine(texture, P(36, 16), P(46, 11), light);
+            DrawLine(texture, P(10, 18), P(23 + variant, 17), wet);
+            DrawLine(texture, P(23 + variant, 17), P(45, 18), wet);
+            DrawLine(texture, P(15, 13), P(31, 12 + variant % 2), light);
+            DrawLine(texture, P(29, 14), P(44, 13), shine);
+            SetPixelSafe(texture, 18, 20, shine);
+            SetPixelSafe(texture, 39, 16, shine);
+        }
+
+        private static void DrawClayBankLayer(Texture2D texture, Vector2Int start, Vector2Int mid, Vector2Int end, Color color)
+        {
+            DrawLine(texture, start, mid, color);
+            DrawLine(texture, mid, end, color);
+            DrawLine(texture, P(start.x, start.y + 1), P(mid.x, mid.y + 1), color);
+            DrawLine(texture, P(mid.x, mid.y + 1), P(end.x, end.y + 1), color);
         }
 
         private static void AddClayFlecks(

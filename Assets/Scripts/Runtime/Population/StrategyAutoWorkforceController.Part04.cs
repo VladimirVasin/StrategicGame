@@ -10,10 +10,14 @@ namespace ProjectUnknown.Strategy
         private const float EmergencyDemandRebalanceMargin = 140f;
         private const float ZeroCoverageRescueStealMargin = 10f;
         private const float DemandRebalanceLockSeconds = 18f;
+        private const float NoDonorRetrySeconds = 6f;
 
         private readonly Dictionary<StrategyProfessionType, float> demandRebalanceLocks = new();
         private float nextDonorFailureLogTime;
+        private float nextNoDonorSearchTime;
+        private StrategyProfessionType lastNoDonorProfession;
         private string lastDonorFailureKey = string.Empty;
+        private string lastNoDonorReason = string.Empty;
 
         private int AssignDemandsWithRebalance(ref int released, out int demandReleased, ref int assignmentBudget)
         {
@@ -111,6 +115,11 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
+            if (IsNoDonorSearchOnCooldown(demand))
+            {
+                return false;
+            }
+
             bool found = false;
             float bestHoldScore = float.MaxValue;
             for (int i = 0; i < AutoManagedProfessions.Length; i++)
@@ -131,11 +140,33 @@ namespace ProjectUnknown.Strategy
 
             if (!found)
             {
+                RegisterNoDonorSearchCooldown(demand);
                 LogDemandDonorSearchFailed(demand);
                 return false;
             }
 
+            nextNoDonorSearchTime = 0f;
             return TryReleaseProfessionWorker(source, out worker);
+        }
+
+        private bool IsNoDonorSearchOnCooldown(StrategyAutoWorkforceDemand demand)
+        {
+            return demand != null
+                && Time.realtimeSinceStartup < nextNoDonorSearchTime
+                && demand.Profession == lastNoDonorProfession
+                && demand.Reason == lastNoDonorReason;
+        }
+
+        private void RegisterNoDonorSearchCooldown(StrategyAutoWorkforceDemand demand)
+        {
+            if (demand == null)
+            {
+                return;
+            }
+
+            lastNoDonorProfession = demand.Profession;
+            lastNoDonorReason = demand.Reason;
+            nextNoDonorSearchTime = Time.realtimeSinceStartup + NoDonorRetrySeconds;
         }
 
         private bool CanDonateWorker(
@@ -385,6 +416,7 @@ namespace ProjectUnknown.Strategy
                 StrategyProfessionType.CoalMiner => StrategyAutoWorkforceCategory.Coal,
                 StrategyProfessionType.ClayDigger => StrategyAutoWorkforceCategory.Clay,
                 StrategyProfessionType.Potter => StrategyAutoWorkforceCategory.Pottery,
+                StrategyProfessionType.Blacksmith => StrategyAutoWorkforceCategory.Tools,
                 _ => StrategyAutoWorkforceCategory.Construction
             };
         }

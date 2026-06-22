@@ -32,6 +32,7 @@ namespace ProjectUnknown.Strategy
                 || coalPitWorkplace != null
                 || sawmillWorkplace != null
                 || kilnWorkplace != null
+                || forgeWorkplace != null
                 || storageWorkplace != null
                 || builderWorkplace != null
                 || granaryWorkplace != null
@@ -49,6 +50,7 @@ namespace ProjectUnknown.Strategy
             CancelCoalPitWork();
             CancelSawmillWork(true);
             CancelKilnWork(true);
+            CancelForgeWork(true);
             CancelStorageWork(true);
             CancelGranaryWork(true);
             clayPitWorkplace = pit;
@@ -94,6 +96,7 @@ namespace ProjectUnknown.Strategy
                 || coalPitWorkplace != null
                 || sawmillWorkplace != null
                 || kilnWorkplace != null
+                || forgeWorkplace != null
                 || storageWorkplace != null
                 || builderWorkplace != null
                 || granaryWorkplace != null
@@ -188,7 +191,7 @@ namespace ProjectUnknown.Strategy
             }
 
             activity = ResidentActivity.DiggingClayInPit;
-            clayWorkTimer = Random.Range(ClayPitWorkSecondsMin, ClayPitWorkSecondsMax);
+            clayWorkTimer = GetUpgradedWorkDuration(ClayPitWorkSecondsMin, ClayPitWorkSecondsMax, activeClayPit);
             transform.position = activeClayPit.GetInteriorWorkWorld(this);
             transform.localRotation = Quaternion.identity;
             transform.localScale = Vector3.one;
@@ -240,7 +243,7 @@ namespace ProjectUnknown.Strategy
                     return;
                 }
 
-                clayWorkTimer = Random.Range(ClayPitWorkSecondsMin, ClayPitWorkSecondsMax);
+                clayWorkTimer = GetUpgradedWorkDuration(ClayPitWorkSecondsMin, ClayPitWorkSecondsMax, activeClayPit);
                 return;
             }
 

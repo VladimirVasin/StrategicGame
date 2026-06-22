@@ -28,8 +28,11 @@ namespace ProjectUnknown.Strategy
         private StrategyClayPit[] cachedClayPits = System.Array.Empty<StrategyClayPit>();
         private StrategySawmill[] cachedSawmills = System.Array.Empty<StrategySawmill>();
         private StrategyKiln[] cachedKilns = System.Array.Empty<StrategyKiln>();
+        private StrategyForge[] cachedForges = System.Array.Empty<StrategyForge>();
         private StrategyHunterCamp[] cachedHunterCamps = System.Array.Empty<StrategyHunterCamp>();
         private StrategyFisherHut[] cachedFisherHuts = System.Array.Empty<StrategyFisherHut>();
+        private StrategyGranary[] cachedGranaries = System.Array.Empty<StrategyGranary>();
+        private StrategyPlacedBuilding[] cachedPlacedBuildings = System.Array.Empty<StrategyPlacedBuilding>();
         private StrategyPopulationController population;
         private float tickTimer;
         private float nextWorksiteCacheRefreshTime;
@@ -224,8 +227,11 @@ namespace ProjectUnknown.Strategy
             cachedClayPits = UnityEngine.Object.FindObjectsByType<StrategyClayPit>();
             cachedSawmills = UnityEngine.Object.FindObjectsByType<StrategySawmill>();
             cachedKilns = UnityEngine.Object.FindObjectsByType<StrategyKiln>();
+            cachedForges = UnityEngine.Object.FindObjectsByType<StrategyForge>();
             cachedHunterCamps = UnityEngine.Object.FindObjectsByType<StrategyHunterCamp>();
             cachedFisherHuts = UnityEngine.Object.FindObjectsByType<StrategyFisherHut>();
+            cachedGranaries = UnityEngine.Object.FindObjectsByType<StrategyGranary>();
+            cachedPlacedBuildings = UnityEngine.Object.FindObjectsByType<StrategyPlacedBuilding>();
         }
 
         private void RefreshWorksiteCacheIfDue(bool force)
@@ -288,6 +294,11 @@ namespace ProjectUnknown.Strategy
                 return (T[])(object)cachedKilns;
             }
 
+            if (typeof(T) == typeof(StrategyForge))
+            {
+                return (T[])(object)cachedForges;
+            }
+
             if (typeof(T) == typeof(StrategyHunterCamp))
             {
                 return (T[])(object)cachedHunterCamps;
@@ -296,6 +307,11 @@ namespace ProjectUnknown.Strategy
             if (typeof(T) == typeof(StrategyFisherHut))
             {
                 return (T[])(object)cachedFisherHuts;
+            }
+
+            if (typeof(T) == typeof(StrategyGranary))
+            {
+                return (T[])(object)cachedGranaries;
             }
 
             return System.Array.Empty<T>();

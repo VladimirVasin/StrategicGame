@@ -23,6 +23,7 @@ namespace ProjectUnknown.Strategy
             activeIronSource = null;
             activePlanksSource = null;
             activePotterySource = null;
+            activeToolsSource = null;
             activeHouseholdPotteryYard = null;
             activeHouseholdPotteryHome = null;
             activeClaySource = null;
@@ -92,6 +93,7 @@ namespace ProjectUnknown.Strategy
                 || carriedClayAmount > 0
                 || carriedPlanksAmount > 0
                 || carriedPotteryAmount > 0
+                || carriedToolsAmount > 0
                 || carriedGameAmount > 0
                 || carriedFishAmount > 0
                 || carriedForageAmount > 0
@@ -203,7 +205,8 @@ namespace ProjectUnknown.Strategy
                 || activity == ResidentActivity.ReturningCoalToStorage
                 || activity == ResidentActivity.ReturningClayToStorage
                 || activity == ResidentActivity.ReturningPlanksToStorage
-                || activity == ResidentActivity.ReturningPotteryToStorage)
+                || activity == ResidentActivity.ReturningPotteryToStorage
+                || activity == ResidentActivity.ReturningToolsToStorage)
             {
                 activity = GetRestingActivity();
             }
@@ -287,6 +290,11 @@ namespace ProjectUnknown.Strategy
             if (carriedPotteryAmount > 0)
             {
                 return TryStartPotteryReturn(reason);
+            }
+
+            if (carriedToolsAmount > 0)
+            {
+                return TryStartToolsReturn(reason);
             }
 
             if (carriedGameAmount > 0)

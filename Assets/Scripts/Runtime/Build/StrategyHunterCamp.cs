@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ProjectUnknown.Strategy
 {
     [DisallowMultipleComponent]
-    public sealed class StrategyHunterCamp : MonoBehaviour
+    public sealed partial class StrategyHunterCamp : MonoBehaviour
     {
         public const int MaxWorkers = 2;
         public const int WorkRadius = 11;
@@ -362,6 +362,7 @@ namespace ProjectUnknown.Strategy
         public string GetHudStatusText()
         {
             int rabbits = wildlife != null ? wildlife.CountHuntableRabbits(Origin, WorkRadius) : 0;
+            int deer = CanHuntDeer && wildlife != null ? wildlife.CountHuntableDeer(Origin, WorkRadius) : 0;
             return "Workers: "
                 + workers.Count
                 + "/"
@@ -372,7 +373,10 @@ namespace ProjectUnknown.Strategy
                 + (reservedGame > 0 ? " (reserved: " + reservedGame + ")" : string.Empty)
                 + "\n"
                 + "Rabbits: "
-                + rabbits;
+                + rabbits
+                + "\n"
+                + "Deer: "
+                + (CanHuntDeer ? deer.ToString() : "locked");
         }
 
         private void EnsureStockRenderer()

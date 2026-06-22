@@ -128,7 +128,7 @@ namespace ProjectUnknown.Strategy
             }
 
             float dailyNeed = GetDailyRationNeed();
-            float storedRations = StrategyGranary.GetTotalSettlementFoodRations();
+            float storedRations = CountCachedGranaryHouseholdRations();
             float reserveDays = dailyNeed <= 0.01f ? FoodReserveTargetDays : storedRations / dailyNeed;
             bool hasHunterCamp = cachedHunterCamps.Length > 0;
             bool hasFisherHut = cachedFisherHuts.Length > 0;
@@ -164,6 +164,7 @@ namespace ProjectUnknown.Strategy
             AddCoalDemands();
             AddClayDemands();
             AddPotteryDemands();
+            AddToolsDemands();
         }
 
         private void AddLumberDemands()
@@ -317,7 +318,7 @@ namespace ProjectUnknown.Strategy
             }
 
             int totalPottery = CountTotalPottery();
-            int householdDemand = StrategyStorageYard.CountRawHouseholdPotteryDemand();
+            int householdDemand = CountCachedRawHouseholdPotteryDemand();
             int shortage = Mathf.Max(0, priority * 2 + householdDemand - totalPottery);
             AddCappedCampDemands<StrategyKiln>(
                 StrategyProfessionType.Potter,
@@ -329,6 +330,31 @@ namespace ProjectUnknown.Strategy
                 kiln => kiln.CanStartWorkCycle() || kiln.CanAcceptInputClay(1) || kiln.CanAcceptInputCoal(1),
                 kiln => kiln.FootprintBounds.center,
                 GetResourceShortageUrgency(shortage, totalPottery));
+        }
+
+        private void AddToolsDemands()
+        {
+            int priority = settings.GetPriority(StrategyAutoWorkforceCategory.Tools);
+            if (priority <= 0 || IsProfessionManualLocked(StrategyProfessionType.Blacksmith))
+            {
+                return;
+            }
+
+            int totalTools = CountTotalTools();
+            int shortage = Mathf.Max(0, priority * 2 - totalTools);
+            AddCappedCampDemands<StrategyForge>(
+                StrategyProfessionType.Blacksmith,
+                StrategyAutoWorkforceCategory.Tools,
+                priority,
+                "tools_low_stock",
+                forge => forge.WorkerCount,
+                forge => StrategyForge.MaxWorkers,
+                forge => forge.CanStartWorkCycle()
+                    || forge.CanAcceptInputIron(1)
+                    || forge.CanAcceptInputCoal(1)
+                    || forge.CanAcceptInputLogs(1),
+                forge => forge.FootprintBounds.center,
+                GetResourceShortageUrgency(shortage, totalTools));
         }
 
         private static float GetResourceShortageUrgency(int shortage, int totalStock)

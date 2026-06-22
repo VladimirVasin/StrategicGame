@@ -93,6 +93,7 @@ namespace ProjectUnknown.Strategy
                 StrategyResourceType.Coal => "Coal",
                 StrategyResourceType.Clay => "Clay",
                 StrategyResourceType.Pottery => "Pottery",
+                StrategyResourceType.Tools => "Tools",
                 StrategyResourceType.Planks => "Planks",
                 _ => "none"
             };

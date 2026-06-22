@@ -79,6 +79,7 @@ namespace ProjectUnknown.Strategy
             AddBacklog(CountAvailableClay(out Vector3 clayWorld), clayWorld, ref backlog, ref weighted);
             AddBacklog(CountAvailablePlanks(out Vector3 planksWorld), planksWorld, ref backlog, ref weighted);
             AddBacklog(CountAvailablePottery(out Vector3 potteryWorld), potteryWorld, ref backlog, ref weighted);
+            AddBacklog(CountAvailableTools(out Vector3 toolsWorld), toolsWorld, ref backlog, ref weighted);
             AddBacklog(CountProductionInputBacklog(out Vector3 inputWorld), inputWorld, ref backlog, ref weighted);
             AddBacklog(CountAvailableFood(out Vector3 foodWorld), foodWorld, ref backlog, ref weighted);
             focus = backlog > 0 ? weighted / backlog : transform.position;
@@ -177,6 +178,65 @@ namespace ProjectUnknown.Strategy
             }
 
             total += CountAvailablePottery(out _);
+            return total;
+        }
+
+        private int CountTotalTools()
+        {
+            int total = 0;
+            foreach (StrategyStorageYard yard in cachedStorageYards)
+            {
+                total += yard != null ? yard.ToolsStored : 0;
+            }
+
+            total += CountAvailableTools(out _);
+            return total;
+        }
+
+        private float CountCachedGranaryHouseholdRations()
+        {
+            float total = 0f;
+            for (int i = 0; i < cachedGranaries.Length; i++)
+            {
+                StrategyGranary granary = cachedGranaries[i];
+                total += granary != null ? granary.AvailableHouseholdRationValue : 0f;
+            }
+
+            return total;
+        }
+
+        private int CountCachedRawHouseholdPotteryDemand()
+        {
+            int demand = 0;
+            for (int i = 0; i < cachedPlacedBuildings.Length; i++)
+            {
+                StrategyPlacedBuilding house = cachedPlacedBuildings[i];
+                if (house != null && house.Tool == StrategyBuildTool.House && house.Resources != null)
+                {
+                    demand += house.Resources.GetPotteryDemandForCooking(CalculateCachedHouseDailyRationNeed(house));
+                }
+            }
+
+            return demand;
+        }
+
+        private static float CalculateCachedHouseDailyRationNeed(StrategyPlacedBuilding house)
+        {
+            float total = 0f;
+            if (house == null)
+            {
+                return total;
+            }
+
+            for (int i = 0; i < house.Residents.Count; i++)
+            {
+                StrategyResidentAgent resident = house.Residents[i];
+                if (resident != null && resident.Home == house && !resident.IsPendingRefugee)
+                {
+                    total += resident.DailyRationNeed;
+                }
+            }
+
             return total;
         }
 
@@ -292,6 +352,22 @@ namespace ProjectUnknown.Strategy
             return total;
         }
 
+        private int CountAvailableTools(out Vector3 world)
+        {
+            int total = 0;
+            world = transform.position;
+            foreach (StrategyForge forge in cachedForges)
+            {
+                if (forge != null && forge.AvailableTools > 0)
+                {
+                    total += forge.AvailableTools;
+                    world = forge.FootprintBounds.center;
+                }
+            }
+
+            return total;
+        }
+
         private int CountAvailableFood(out Vector3 world)
         {
             int total = 0;
@@ -377,6 +453,35 @@ namespace ProjectUnknown.Strategy
 
                 backlog += amount;
                 weighted += kiln.FootprintBounds.center * amount;
+            }
+
+            for (int i = 0; i < cachedForges.Length; i++)
+            {
+                StrategyForge forge = cachedForges[i];
+                if (forge == null
+                    || !forge.TryGetInputDeliveryRequest(out StrategyResourceType resource, out int maxAmount)
+                    || resource == StrategyResourceType.None
+                    || StrategyFoodNutrition.IsFood(resource)
+                    || maxAmount <= 0)
+                {
+                    continue;
+                }
+
+                int available = 0;
+                for (int yardIndex = 0; yardIndex < cachedStorageYards.Length; yardIndex++)
+                {
+                    StrategyStorageYard yard = cachedStorageYards[yardIndex];
+                    available += yard != null ? yard.GetAvailableLogisticsAmount(resource) : 0;
+                }
+
+                int amount = Mathf.Min(maxAmount, available);
+                if (amount <= 0)
+                {
+                    continue;
+                }
+
+                backlog += amount;
+                weighted += forge.FootprintBounds.center * amount;
             }
 
             focus = backlog > 0 ? weighted / backlog : Vector3.zero;

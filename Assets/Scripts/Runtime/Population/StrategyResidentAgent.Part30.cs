@@ -30,6 +30,7 @@ namespace ProjectUnknown.Strategy
             SyncCarriedClayRenderer();
             SyncCarriedPlanksRenderer();
             SyncCarriedPotteryRenderer();
+            SyncCarriedToolsRenderer();
             SyncCarriedGameRenderer();
             SyncCarriedFishRenderer();
             SyncCarriedForageRenderer();

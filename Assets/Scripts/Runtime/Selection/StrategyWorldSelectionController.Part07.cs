@@ -171,6 +171,12 @@ namespace ProjectUnknown.Strategy
                 AddResidents(kiln.Workers, results);
             }
 
+            StrategyForge forge = building.GetComponent<StrategyForge>();
+            if (forge != null)
+            {
+                AddResidents(forge.Workers, results);
+            }
+
             StrategyHunterCamp hunterCamp = building.GetComponent<StrategyHunterCamp>();
             if (hunterCamp != null)
             {
