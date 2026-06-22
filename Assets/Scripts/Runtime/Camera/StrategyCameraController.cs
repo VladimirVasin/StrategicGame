@@ -132,7 +132,8 @@ namespace ProjectUnknown.Strategy
                 pan.Normalize();
             }
 
-            Vector3 movement = new Vector3(pan.x, pan.y, 0f) * keyboardPanSpeed * Time.unscaledDeltaTime;
+            float zoomScale = GetZoomScale();
+            Vector3 movement = new Vector3(pan.x, pan.y, 0f) * keyboardPanSpeed * zoomScale * Time.unscaledDeltaTime;
             movement += ReadDragPan();
 
             if (movement.sqrMagnitude > 0f)
@@ -188,23 +189,25 @@ namespace ProjectUnknown.Strategy
             }
 
             Vector2 pan = Vector2.zero;
+            float zoomScale = GetZoomScale();
+            float scaledKeyboardPanSpeed = Mathf.Max(0.01f, keyboardPanSpeed * zoomScale);
 
             if (position.x <= edgePanPixels)
             {
-                pan.x -= edgePanSpeed / Mathf.Max(0.01f, keyboardPanSpeed);
+                pan.x -= edgePanSpeed * zoomScale / scaledKeyboardPanSpeed;
             }
             else if (position.x >= Screen.width - edgePanPixels)
             {
-                pan.x += edgePanSpeed / Mathf.Max(0.01f, keyboardPanSpeed);
+                pan.x += edgePanSpeed * zoomScale / scaledKeyboardPanSpeed;
             }
 
             if (position.y <= edgePanPixels)
             {
-                pan.y -= edgePanSpeed / Mathf.Max(0.01f, keyboardPanSpeed);
+                pan.y -= edgePanSpeed * zoomScale / scaledKeyboardPanSpeed;
             }
             else if (position.y >= Screen.height - edgePanPixels)
             {
-                pan.y += edgePanSpeed / Mathf.Max(0.01f, keyboardPanSpeed);
+                pan.y += edgePanSpeed * zoomScale / scaledKeyboardPanSpeed;
             }
 
             return pan;
@@ -252,6 +255,7 @@ namespace ProjectUnknown.Strategy
         private float ReadZoomDelta()
         {
             float zoomDelta = 0f;
+            float zoomScale = GetZoomScale();
 
             Mouse mouse = Mouse.current;
             if (mouse != null && !IsPointerOverUi())
@@ -259,7 +263,7 @@ namespace ProjectUnknown.Strategy
                 float wheel = mouse.scroll.ReadValue().y;
                 if (!Mathf.Approximately(wheel, 0f))
                 {
-                    zoomDelta += Mathf.Sign(wheel) * wheelZoomStep;
+                    zoomDelta += Mathf.Sign(wheel) * wheelZoomStep * zoomScale;
                 }
             }
 
@@ -268,16 +272,26 @@ namespace ProjectUnknown.Strategy
             {
                 if (keyboard.qKey.isPressed || keyboard.minusKey.isPressed || keyboard.numpadMinusKey.isPressed)
                 {
-                    zoomDelta -= keyZoomSpeed * Time.unscaledDeltaTime;
+                    zoomDelta -= keyZoomSpeed * zoomScale * Time.unscaledDeltaTime;
                 }
 
                 if (keyboard.eKey.isPressed || keyboard.equalsKey.isPressed || keyboard.numpadPlusKey.isPressed)
                 {
-                    zoomDelta += keyZoomSpeed * Time.unscaledDeltaTime;
+                    zoomDelta += keyZoomSpeed * zoomScale * Time.unscaledDeltaTime;
                 }
             }
 
             return zoomDelta;
+        }
+
+        private float GetZoomScale()
+        {
+            if (strategyCamera == null)
+            {
+                return 1f;
+            }
+
+            return Mathf.Max(0.1f, strategyCamera.orthographicSize / Mathf.Max(0.1f, minZoom));
         }
 
         private Vector3? TryReadMouseWorldPosition()

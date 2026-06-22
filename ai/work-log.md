@@ -8,6 +8,24 @@ Last updated: 2026-06-23
 
 ## Done
 
+### 2026-06-23 - Starter Iron/Coal generation safety
+
+- Fixed Iron/Coal minimum deposit fallback so it is not blocked by the shared `MaxNatureProps` decorative generation cap after the large-map shuffled pass fills the visual budget.
+- Added starter-area guarantees for 2 Coal and 2 Iron deposits in a 10-24 cell ring around the startup campfire, with Coal placed first so nearby Coal is not starved by Iron adjacency rules.
+- Added `StarterCoalReady` / `StarterIronReady` debug events plus final Iron/Coal `starterNearby` and `nearestCampDistance` generation fields.
+- Updated `Assembly-CSharp.csproj` for `StrategyNaturePropController.Part05.cs`.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected nature controller files remain below 500 lines.
+
+### 2026-06-23 - Dark-time-only building torches
+
+- Changed building cinematic light emitters so torches, lanterns, braziers, building glow/core sprites, local `Light2D`, and night-mask light cutouts only activate during dark time.
+- Kept campfire lighting independent from the building torch rule so lit/ember/relight state still controls campfire visibility.
+
+### 2026-06-23 - Zoom-scaled camera navigation
+
+- Changed strategy camera keyboard pan, edge pan, mouse-wheel zoom, and keyboard zoom to scale proportionally with current orthographic zoom level.
+- Kept drag-pan on its existing world-units-per-pixel behavior because it already scales naturally with orthographic size.
+
 ### 2026-06-23 - Seeded map object distribution pass
 
 - Added shared seeded map distribution helpers for full-map shuffled cell iteration and macro cluster scoring.

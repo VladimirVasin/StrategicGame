@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyFishAgent.Part02.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Map\StrategyNaturePropController.Part05.cs" />
     <Compile Include="Assets\Scripts\Runtime\Selection\StrategyWorldSelectionController.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyConstructionSite.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyNaturePropController.Part03.cs" />

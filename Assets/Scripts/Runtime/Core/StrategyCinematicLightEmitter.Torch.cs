@@ -39,15 +39,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            StrategyWeatherController activeWeather = StrategyWeatherController.Active;
-            float phase = StrategyDayNightCycleController.CurrentDayPhase;
-            float night = StrategyCinematicVisualMath.NightFactor(phase);
-            float warm = StrategyCinematicVisualMath.WarmFactor(phase);
-            float rain = activeWeather != null ? activeWeather.RainIntensity : 0f;
-            float fog = activeWeather != null ? activeWeather.FogIntensity : 0f;
-            float storm = activeWeather != null ? activeWeather.StormIntensity : 0f;
-            float weather = Mathf.Max(rain * 0.18f, fog * 0.36f, storm * 0.24f);
-            float lit = Mathf.Clamp01(night * 0.98f + warm * 0.24f + weather);
+            float lit = GetDarkTimeLightFactor();
             float visibility = Mathf.Clamp01(
                 lit * Mathf.Lerp(0.82f, 1.06f, activity) * flicker * LocalLightStrengthMultiplier);
 
@@ -90,6 +82,13 @@ namespace ProjectUnknown.Strategy
                 : 1f;
         }
 
+        private float GetDarkTimeLightFactor()
+        {
+            return kind == StrategyCinematicLightKind.Campfire
+                ? 1f
+                : StrategyCinematicVisualMath.NightFactor(StrategyDayNightCycleController.CurrentDayPhase);
+        }
+
         private Vector3 GetLightSourceWorld()
         {
             return CanRenderTorch() ? GetTorchAnchorWorld() : GetAnchorWorld();
@@ -120,7 +119,12 @@ namespace ProjectUnknown.Strategy
             float fog = activeWeather != null ? activeWeather.FogIntensity : 0f;
             float storm = activeWeather != null ? activeWeather.StormIntensity : 0f;
             float activity = GetActivityFactor(night, warm, rain, fog, storm);
-            strength = Mathf.Clamp01(GetBaseIntensity() * LocalLightStrengthMultiplier * activity * GetLightStateFactor());
+            strength = Mathf.Clamp01(
+                GetBaseIntensity()
+                * LocalLightStrengthMultiplier
+                * activity
+                * GetLightStateFactor()
+                * GetDarkTimeLightFactor());
             if (strength <= 0.035f)
             {
                 return false;

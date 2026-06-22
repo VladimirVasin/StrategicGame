@@ -112,6 +112,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Fills capped prop budgets through a seeded shuffled whole-map pass instead of a linear y/x scan, preventing one edge of a large map from receiving most objects
       - Uses macro cluster weighting for vegetation and generated Stone/Iron/Coal/Clay so resources form natural regions with empty space between them
       - Guarantees starter-area Stone deposits within stonecutter work distance around the startup campfire
+      - Guarantees starter-area Coal and Iron deposits in a nearby ring before the general prop pass, and keeps Iron/Coal minimum fallbacks independent from the decorative nature-prop cap
       - Forest cells receive dense tree/forest-group visuals
       - Grass, meadow, dirt, and shore cells can receive sparse standalone trees or bushes
       - Skips a 3-cell radius around the startup campfire
@@ -125,7 +126,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Coal fields register with the Coal resource registry, keep their cells walkable but not normally buildable, avoid adjacent Iron fields, and can be reserved/mined by Coal Pits built over them
       - Generated Clay fields appear as multi-cell wet clay patches and clay banks only near water
       - Clay fields register with the Clay resource registry, keep their cells walkable but not normally buildable, avoid adjacent Iron/Coal/Clay fields, and can be reserved/mined by Clay Pits built over them
-      - Starter-area Stone deposits are placed outside the campfire clear radius before vegetation so nearby mining access is reliable
+      - Starter-area Stone, Coal, and Iron deposits are placed outside the campfire clear radius before vegetation so nearby mining access is reliable
       - Nature props attach a 2D sway adapter driven by the strategy `WindZone`
       - Nature props add lightweight procedural leaf frame overlays
       - Forest groups, bushes, generated trees, and Stone deposits attach tuned procedural ground/cast shadows

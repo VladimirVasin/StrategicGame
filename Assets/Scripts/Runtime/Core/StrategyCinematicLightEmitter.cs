@@ -219,7 +219,7 @@ namespace ProjectUnknown.Strategy
             float storm = activeWeather != null ? activeWeather.StormIntensity : 0f;
             float wet = activeWeather != null ? activeWeather.WetnessIntensity : 0f;
             float activity = GetActivityFactor(night, warm, rain, fog, storm);
-            float lightState = GetLightStateFactor();
+            float lightState = GetLightStateFactor() * GetDarkTimeLightFactor();
             float flicker = GetFlicker();
             Color color = GetColor(wet, storm);
             float intensity = GetBaseIntensity() * LocalLightStrengthMultiplier * activity * lightState * flicker;
@@ -312,6 +312,11 @@ namespace ProjectUnknown.Strategy
             }
 
             if (kind == StrategyCinematicLightKind.Campfire && GetLightStateFactor() <= 0.08f)
+            {
+                return;
+            }
+
+            if (kind != StrategyCinematicLightKind.Campfire && GetDarkTimeLightFactor() <= 0.08f)
             {
                 return;
             }

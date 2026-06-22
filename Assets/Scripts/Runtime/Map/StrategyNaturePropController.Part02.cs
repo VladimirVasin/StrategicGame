@@ -168,7 +168,6 @@ namespace ProjectUnknown.Strategy
             int attempts = Mathf.Max(256, totalCells);
             for (int i = 0; i < attempts
                 && spawnedIronDeposits < MinimumIronDeposits
-                && spawnedProps < MaxNatureProps
                 && spawnedIronDeposits < MaxIronDeposits; i++)
             {
                 int cellIndex = StrategyMapDistributionUtility.GetShuffledIndex(map.ActiveSeed, i, totalCells, 2801);

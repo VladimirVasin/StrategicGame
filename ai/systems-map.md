@@ -296,7 +296,7 @@ Responsibilities:
 - Feed generated walkable land cells and active seed into underground Coal field generation.
 - Feed generated walkable near-water land/shore cells and active seed into Clay field generation.
 - Feed generated walkable land cells and active seed into forage resource node generation.
-- Provide the campfire exclusion center used by nature generation to guarantee starter-area Stone.
+- Provide the campfire exclusion center used by nature generation to guarantee starter-area Stone, Coal, and Iron.
 - Expose map bounds and cell buildability for future zoning/economy systems.
 - Track dynamic walkability blockers for placed buildings and early agents.
 - Track completed bridge walkability over River water cells without changing water/shore identity.
@@ -318,6 +318,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Map/CityMapController.Buildability.cs`
 - `Assets/Scripts/Runtime/Map/StrategyNaturePropController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyNaturePropController.Distribution.cs`
+- `Assets/Scripts/Runtime/Map/StrategyNaturePropController.Part05.cs`
 - `Assets/Scripts/Runtime/Map/StrategyNatureSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Map/StrategyStoneResourceController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyStoneDeposit.cs`
@@ -341,7 +342,7 @@ Impact hints:
 - Water source identity is stored on `CityMapCell.WaterKind`; future systems should query that instead of guessing river/lake from geometry.
 - River current direction is stored on `CityMapController.RiverFlowDirection`; river-specific ambience/gameplay should follow that instead of creating independent direction timers.
 - Terrain kind generation now uses a seed-derived profile plus multi-octave noise; texture painting consumes the active seed.
-- Nature prop placement consumes the active seed and generated cell kinds through a shared shuffled full-map pass, so capped prop budgets do not fill only the first scanned area on large maps.
+- Nature prop placement consumes the active seed and generated cell kinds through a shared shuffled full-map pass, so capped prop budgets do not fill only the first scanned area on large maps; starter Coal/Iron guarantees and Iron/Coal minimum fallback are protected from that decorative cap.
 - Stone deposit placement consumes the active seed, generated cell kinds, and macro cluster score.
 - Iron field placement consumes the active seed, generated walkable land cells, and macro cluster score; Iron deposits are underground fields that do not block walkability but block normal buildability.
 - Coal field placement consumes the active seed, generated walkable land cells, and macro cluster score; Coal deposits are underground fields that do not block walkability but block normal buildability.
@@ -441,6 +442,7 @@ Responsibilities:
 - Generate and cache runtime 2.5D pixel-art nature sprites.
 - Use `CityMapController.ActiveSeed` plus cell coordinates for deterministic prop layout per generated map.
 - Guarantee a small starter Stone field within stonecutter work distance around the startup campfire.
+- Guarantee small starter Coal and Iron fields in a nearby ring before the shared decorative prop budget can fill.
 - Make `Forest` cells read as dense forest while adding sparse standalone trees/bushes to other land terrain.
 - Attach wind-sway animation to trees, forest groups, and bushes using the runtime strategy wind source.
 - Add procedural leaf frame overlays to trees, forest groups, and bushes.
@@ -450,10 +452,12 @@ Responsibilities:
 - Skip generated Coal fields inside the same startup campfire clear radius.
 - Skip generated Clay fields inside the same startup campfire clear radius.
 - Place starter Stone outside the clear radius before vegetation so nearby trees/bushes do not consume all accessible mining cells.
+- Place starter Coal before starter Iron so Iron adjacency rules cannot starve Coal near the settlement.
 
 Primary files/assets:
 
 - `Assets/Scripts/Runtime/Map/StrategyNaturePropController.cs`
+- `Assets/Scripts/Runtime/Map/StrategyNaturePropController.Part05.cs`
 - `Assets/Scripts/Runtime/Map/StrategyNatureSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Map/StrategyStoneResourceController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyStoneDeposit.cs`
@@ -482,6 +486,7 @@ Impact hints:
 - Coal fields are generated as flat multi-cell dark dust/seam surface marks for underground coal, stay walkable but block normal building placement through the map buildability overlay, avoid adjacent Iron fields, and are mined by `StrategyCoalPit` workers when under the Coal Pit footprint.
 - Clay fields are generated as flat multi-cell wet clay patch/bank surface marks near water, stay walkable, block normal building placement through the map buildability overlay, avoid adjacent Iron/Coal/Clay fields, and are mined by `StrategyClayPit` workers when under the Clay Pit footprint.
 - Starter Stone placement verifies that each guaranteed deposit has adjacent walkable work cells for stonecutters.
+- Starter Coal/Iron placement uses 2x2 mineable fields in a 10-24 cell ring around the campfire and logs nearby count/distance diagnostics.
 - Bootstrap creates/configures the wind controller, creates population so the camp cell is known, then configures nature after `CityMapController.GenerateMap()`.
 - Unity `WindZone` does not animate 2D sprites directly; `StrategyWindSway` adapts its values to sprite rotation/offset/scale.
 - Leaf frame overlays complement wind sway and should stay visual-only unless future forestry gameplay needs extra real prop state.

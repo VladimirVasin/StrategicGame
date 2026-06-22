@@ -14,6 +14,9 @@ namespace ProjectUnknown.Strategy
         private const int StarterStoneMinimumDeposits = 5;
         private const int StarterStoneMinDistance = 4;
         private const int StarterStoneMaxDistance = StrategyStonecutterCamp.WorkRadius;
+        private const int StarterMineralMinimumDeposits = 2;
+        private const int StarterMineralMinDistance = 10;
+        private const int StarterMineralMaxDistance = 24;
         private const int TreeSortingOrder = 3;
         private const int ForestSortingOrder = 3;
         private const int BushSortingOrder = 2;
@@ -159,6 +162,7 @@ namespace ProjectUnknown.Strategy
             spawnedClayBanks = 0;
 
             EnsureStarterStoneDeposits();
+            EnsureStarterMineralDeposits();
 
             int totalCells = map.Width * map.Height;
             for (int i = 0; i < totalCells && spawnedProps < MaxNatureProps; i++)
@@ -206,6 +210,8 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("deposits", spawnedIronDeposits),
                 StrategyDebugLogger.F("stainedGround", spawnedIronStainedGround),
                 StrategyDebugLogger.F("veins", spawnedIronVeins),
+                StrategyDebugLogger.F("starterNearby", hasExclusion ? CountIronDepositsNear(excludedCenter, StarterMineralMaxDistance) : 0),
+                StrategyDebugLogger.F("nearestCampDistance", hasExclusion ? GetNearestIronDepositDistance(excludedCenter) : -1),
                 StrategyDebugLogger.F("max", MaxIronDeposits));
             StrategyDebugLogger.Info(
                 "Coal",
@@ -213,6 +219,8 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("deposits", spawnedCoalDeposits),
                 StrategyDebugLogger.F("dustGround", spawnedCoalDustGround),
                 StrategyDebugLogger.F("seams", spawnedCoalSeams),
+                StrategyDebugLogger.F("starterNearby", hasExclusion ? CountCoalDepositsNear(excludedCenter, StarterMineralMaxDistance) : 0),
+                StrategyDebugLogger.F("nearestCampDistance", hasExclusion ? GetNearestCoalDepositDistance(excludedCenter) : -1),
                 StrategyDebugLogger.F("max", MaxCoalDeposits));
             StrategyDebugLogger.Info(
                 "Clay",
