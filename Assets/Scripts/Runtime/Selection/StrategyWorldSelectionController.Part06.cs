@@ -75,7 +75,7 @@ namespace ProjectUnknown.Strategy
         {
             return type switch
             {
-                StrategyResourceType.Dish => "Dish",
+                StrategyResourceType.Dish => "Dishes",
                 StrategyResourceType.Eggs => "Eggs",
                 StrategyResourceType.Turnip => "Turnip",
                 StrategyResourceType.Cabbage => "Cabbage",

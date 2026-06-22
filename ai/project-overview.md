@@ -6,7 +6,7 @@ Last updated: 2026-06-19
 
 - Project name: `ProjectUnknown`
 - Engine: Unity
-- Unity Editor version: `6000.4.11f1`
+- Unity Editor version: `6000.5.0f1`
 - Current baseline: fresh 2D/URP starter project
 
 ## Current Shape
@@ -44,12 +44,12 @@ Generated/local Unity folders:
 
 Confirmed from `Packages/manifest.json`:
 
-- Universal Render Pipeline: `com.unity.render-pipelines.universal` `17.4.0`
+- Universal Render Pipeline: `com.unity.render-pipelines.universal` `17.5.0`
 - Input System: `com.unity.inputsystem` `1.19.0`
 - 2D package set: animation, Aseprite import, PSD import, sprites, SpriteShape, tilemap, tilemap extras, tooling
 - UI: `com.unity.ugui` `2.0.0`
 - Visual Scripting: `com.unity.visualscripting` `1.9.11`
-- Test Framework: `com.unity.test-framework` `1.6.0`
+- Test Framework: `com.unity.test-framework` `1.7.0`
 
 ## Implemented Gameplay
 
@@ -73,7 +73,7 @@ Confirmed from `Packages/manifest.json`:
 - Runtime ambience audio loads non-generated forest birds, cicadas, night, rain, wind, and river loops from `Assets/Resources/Audio/Nature`; river ambience is spatial and follows the nearest water to the camera, while rain/wind ambience follows the current weather state.
 - Runtime in-game music loads all AudioClips from `Assets/Resources/Audio/Music` as a random playlist, avoids repeating the same track twice in a row when multiple tracks exist, and pauses/resumes the current clip when the game loses/regains focus.
 - Resident walking now uses non-generated grass footstep clips from `Assets/Resources/Audio/Footsteps/GrassWalk` through quiet spatial AudioSources on residents.
-- Storage Yard is implemented as the first storage/logistics building: it has procedural 2.5D art, uncapped assigned Haulers/builders, uncapped local Logs, Stone, Iron, Coal, Clay, Planks, and Pottery stock, growing visual stockpiles with resource drop effects, resident hauling from production camps/Mines/Coal Pits/Clay Pits/Sawmills/Kilns, food hauling to Granaries, production-input delivery to production nodes, and construction resource reservations.
+- Storage Yard is implemented as the first storage/logistics building: it has procedural 2.5D art, uncapped assigned Haulers/builders, uncapped local Logs, Stone, Iron, Coal, Clay, Planks, and Pottery stock, growing visual stockpiles with resource drop effects, resident hauling from production camps/Mines/Coal Pits/Clay Pits/Sawmills/Kilns, food hauling to Granaries, householder-facing Pottery pickup reservations, production-input delivery to production nodes, and construction resource reservations.
 - Granary is implemented as the first food-storage building: it has procedural 2.5D art, uncapped local `Game` and `Fish` stock, growing visual food stockpiles with food drop effects, and is filled by the shared Storage Yard Hauler profession rather than a separate player-facing Granary Worker profession.
 - A starter Storage Yard appears near the campfire with 20 Logs and 20 Stone at the beginning of play.
 - Runtime Build menu appears as the first HUD layer, inspired by the `Gruzovichky` bottom Build dock/category tray.
@@ -100,8 +100,8 @@ Confirmed from `Packages/manifest.json`:
 - The initial camera view starts focused near the startup campfire with a medium-close zoom.
 - Completed Houses first try to move in one whole homeless family that fits, then fall back to one random free adult man and one random free adult woman from the camp instead of creating new residents; home assignment is independent from workplace or construction assignment, and newly formed male/female household pairs apply the husband's family name to the wife.
 - Houses can hold up to 5 residents; adult male/female house pairs can have children after a randomized cooldown when they are not close relatives and the house is not full.
-- Houses resolve one nightly dinner after a settling grace: Householders bring raw `Fish`/`Game` from Granaries or use house-local Eggs/crops/forage as ingredients, cook them into prepared `Dish` during `Dusk`, and dinner consumes only prepared dishes after eligible residents return home for `Night`.
-- Ingredients and prepared dishes keep separate ration values and HUD labels; each resident still has age-based ration needs plus nutrition debt.
+- Houses resolve one nightly dinner after a settling grace: Householders bring raw `Fish`/`Game` from Granaries and Pottery from Storage Yards or use house-local Eggs/crops/forage as ingredients, cook them into recipe-based prepared dishes during `Dusk` only when house Pottery is available, each prepared dish consumes 1 Pottery, and dinner consumes prepared dishes first before falling back to house-local ingredients after eligible residents return home for `Night`.
+- Ingredients and prepared dish recipe stacks keep separate ration values and HUD labels; recipes currently span Poor/Common/Hearty/Fine/Feast quality tiers, and each resident still has age-based ration needs plus nutrition debt.
 - Empty houses can accept the oldest adult child still living with parents, and single adult-child households can pull in an adult opposite-gender partner from another parental home or the free camp pool after kinship checks; partner move-in also applies the husband's family name to the wife without changing biological parent/child IDs.
 - Residents roll annual mortality from age 1, with very low youth risk, a gentler but rising 40-50 curve, stronger old-age risk after 50, and persistent family records so dead ancestors still block close-relative pairings.
 - Residents with severe malnutrition receive a multiplicative annual mortality chance increase.
@@ -119,7 +119,7 @@ Confirmed from `Packages/manifest.json`:
 - Residents assigned to a clay pit walk to the pit entrance, remain visible inside the pit during work, mine reserved near-water Clay deposits, and deposit Clay at the pit stockpile.
 - Residents assigned to a sawmill wait for Hauler-delivered input Logs, saw them into Planks while visible inside the building, and deposit Planks at the Sawmill stockpile.
 - Residents assigned to a kiln wait for Hauler-delivered Clay and Coal, fire them into Pottery while visible at the Kiln, and deposit Pottery at the Kiln stockpile.
-- Residents assigned as Storage Yard Haulers can reserve Logs, Stone, Iron, Coal, Clay, Planks, and Pottery from production worksites, carry them to the Storage Yard, deposit them into storage, and deliver non-food production inputs such as Logs, Clay, and Coal from Storage Yard stock into production nodes such as Sawmills and Kilns; the same Haulers also haul `Game`/`Fish` to the nearest Granary.
+- Residents assigned as Storage Yard Haulers can reserve Logs, Stone, Iron, Coal, Clay, Planks, and Pottery from production worksites, carry them to the Storage Yard, deposit them into storage, and deliver non-food production inputs such as Logs, Clay, and Coal into production nodes such as Sawmills and Kilns; the same Haulers also haul `Game`/`Fish` to the nearest Granary, while Householders handle Storage Yard/Granary to House pickup for house-bound resources.
 - Stored Granary `Game`/`Fish` is raw ingredient stock that Householders can move into houses before cooking; households do not directly eat Granary stock at dinner anymore.
 - Residents assigned to construction sites fetch reserved Logs/Stone/Planks from construction resource sources, deliver them to the site, and build with generated hammer animation frames.
 - Lumberjack chopping now uses generated axe-swing sprite frames; impact frames shake/damage the tree, spawn woodchip/leaf effects, final tree hits make the tree fall, and final trunk hits split it into collectable Logs.
@@ -144,7 +144,7 @@ Confirmed from `Packages/manifest.json`:
 - Generated Iron fields stay walkable because ore is underground, block normal building placement, and can be reserved/mined into local Iron stock by Mines built over them.
 - Generated Coal fields stay walkable because coal is underground, block normal building placement, and can be reserved/mined into local Coal stock by Coal Pits built over them.
 - Generated Clay fields stay walkable, spawn only near water, block normal building placement, and can be mined by Clay Pits built over them.
-- No global economy simulation, save system, or full UI shell is implemented yet; production buildings have capped local buffers, hunter-camp `Game` and fisher-hut `Fish` can be hauled to Granaries, moved into houses by Householders, cooked into `Dish`, and consumed by household dinners, Sawmill Planks can be hauled to Storage Yards and consumed by late construction costs, Coal and Clay can be consumed by Kilns to produce Pottery, while Mine Iron and stored Pottery can be hauled to Storage Yards but are not consumed or used in costs yet.
+- No global economy simulation, save system, or full UI shell is implemented yet; production buildings have capped local buffers, hunter-camp `Game` and fisher-hut `Fish` can be hauled to Granaries, moved into houses by Householders, cooked with house Pottery into recipe-based prepared dishes, and consumed by household dinners with house-local ingredient fallback, Sawmill Planks can be hauled to Storage Yards and consumed by late construction costs, Coal and Clay can be consumed by Kilns to produce Pottery, and Pottery can be hauled to Storage Yards then picked up by Householders for household cooking, while Mine Iron is not consumed or used in costs yet.
 
 ## Source Of Truth
 

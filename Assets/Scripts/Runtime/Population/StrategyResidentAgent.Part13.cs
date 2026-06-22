@@ -377,13 +377,15 @@ namespace ProjectUnknown.Strategy
             waitTimer = Random.Range(0.35f, 0.85f);
         }
 
-        private void ResetHouseholdFoodWorkToIdle(bool storeCarriedFood)
+        private void ResetHouseholdFoodWorkToIdle(bool storeCarriedFood, string reason = "reset")
         {
             if (activeHouseholdFoodGranary != null)
             {
                 activeHouseholdFoodGranary.ReleaseHouseholdFoodReservation(this);
                 activeHouseholdFoodGranary = null;
             }
+
+            StoreCarriedHouseholdPotteryOnCancel(storeCarriedFood, reason);
 
             int carriedAmount = GetCarriedHouseholdFoodAmount();
             if (storeCarriedFood

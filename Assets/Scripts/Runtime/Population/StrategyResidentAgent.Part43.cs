@@ -26,8 +26,11 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            float dishRation = StrategyFoodNutrition.GetRationValue(StrategyResourceType.Dish);
-            if (home.Resources.GetTotalIngredientRationValue() < dishRation || !TryBuildPathToHomeDropoff())
+            int requestedDishes = CalculateRequestedDinnerDishes();
+            if (requestedDishes <= 0
+                || home.Resources.GetCookableDishCountByIngredients() <= 0
+                || home.Resources.GetPotteryAmount() <= 0
+                || !TryBuildPathToHomeDropoff())
             {
                 return false;
             }
@@ -42,7 +45,9 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("homeOrigin", home.Origin),
                 StrategyDebugLogger.F("requiredRations", dailyNeed),
                 StrategyDebugLogger.F("preparedRations", preparedRations),
-                StrategyDebugLogger.F("ingredientRations", home.Resources.GetTotalIngredientRationValue()));
+                StrategyDebugLogger.F("ingredientRations", home.Resources.GetTotalIngredientRationValue()),
+                StrategyDebugLogger.F("pottery", home.Resources.GetPotteryAmount()),
+                StrategyDebugLogger.F("requestedDishes", requestedDishes));
             return true;
         }
 
@@ -83,7 +88,9 @@ namespace ProjectUnknown.Strategy
                     dishesRequested,
                     out int dishesCooked,
                     out int consumedIngredients,
-                    out float consumedIngredientRations))
+                    out float consumedIngredientRations,
+                    out int consumedPottery,
+                    out StrategyDishCookingSummary cookingSummary))
             {
                 StrategyDebugLogger.Info(
                     "Household",
@@ -91,8 +98,13 @@ namespace ProjectUnknown.Strategy
                     StrategyDebugLogger.F("resident", FullName),
                     StrategyDebugLogger.F("homeOrigin", home.Origin),
                     StrategyDebugLogger.F("dishes", dishesCooked),
+                    StrategyDebugLogger.F("recipes", cookingSummary.RecipesText),
+                    StrategyDebugLogger.F("bestQuality", StrategyDishRecipeCatalog.GetQualityLabel(cookingSummary.BestQuality)),
+                    StrategyDebugLogger.F("producedRations", cookingSummary.ProducedRations),
                     StrategyDebugLogger.F("ingredientsConsumed", consumedIngredients),
+                    StrategyDebugLogger.F("potteryConsumed", consumedPottery),
                     StrategyDebugLogger.F("ingredientRations", consumedIngredientRations),
+                    StrategyDebugLogger.F("potteryRemaining", home.Resources.GetPotteryAmount()),
                     StrategyDebugLogger.F("preparedDishes", home.Resources.GetPreparedDishAmount()));
             }
             else
@@ -102,7 +114,9 @@ namespace ProjectUnknown.Strategy
                     "HouseholdCookingFailed",
                     StrategyDebugLogger.F("resident", FullName),
                     StrategyDebugLogger.F("homeOrigin", home != null ? home.Origin : Vector2Int.zero),
-                    StrategyDebugLogger.F("requestedDishes", dishesRequested));
+                    StrategyDebugLogger.F("requestedDishes", dishesRequested),
+                    StrategyDebugLogger.F("pottery", home != null && home.Resources != null ? home.Resources.GetPotteryAmount() : 0),
+                    StrategyDebugLogger.F("cookableByIngredients", home != null && home.Resources != null ? home.Resources.GetCookableDishCountByIngredients() : 0));
             }
 
             activity = GetRestingActivity();

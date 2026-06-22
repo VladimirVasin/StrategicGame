@@ -4,11 +4,12 @@ using UnityEngine;
 namespace ProjectUnknown.Strategy
 {
     [DisallowMultipleComponent]
-    public sealed class StrategyHouseResourceStore : MonoBehaviour
+    public sealed partial class StrategyHouseResourceStore : MonoBehaviour
     {
         public static readonly StrategyResourceType[] DisplayOrder =
         {
             StrategyResourceType.Dish,
+            StrategyResourceType.Pottery,
             StrategyResourceType.Eggs,
             StrategyResourceType.Turnip,
             StrategyResourceType.Cabbage,
@@ -38,6 +39,7 @@ namespace ProjectUnknown.Strategy
         };
 
         private readonly Dictionary<StrategyResourceType, int> amounts = new();
+        private readonly Dictionary<string, int> preparedDishAmounts = new();
 
         public bool HasAny
         {
@@ -62,6 +64,12 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            if (type == StrategyResourceType.Dish)
+            {
+                AddPreparedDish(StrategyDishRecipeCatalog.FallbackRecipe, amount);
+                return;
+            }
+
             amounts.TryGetValue(type, out int current);
             amounts[type] = current + amount;
         }
@@ -83,7 +91,9 @@ namespace ProjectUnknown.Strategy
             for (int i = 0; i < DisplayOrder.Length; i++)
             {
                 StrategyResourceType type = DisplayOrder[i];
-                total += GetAmount(type) * StrategyFoodNutrition.GetRationValue(type);
+                total += type == StrategyResourceType.Dish
+                    ? GetPreparedDishRations()
+                    : GetAmount(type) * StrategyFoodNutrition.GetRationValue(type);
             }
 
             return total;
@@ -114,12 +124,51 @@ namespace ProjectUnknown.Strategy
 
         public int GetPreparedDishAmount()
         {
-            return GetAmount(StrategyResourceType.Dish);
+            int total = 0;
+            foreach (int amount in preparedDishAmounts.Values)
+            {
+                total += Mathf.Max(0, amount);
+            }
+
+            return total;
         }
 
         public float GetPreparedDishRations()
         {
-            return GetPreparedDishAmount() * StrategyFoodNutrition.GetRationValue(StrategyResourceType.Dish);
+            float total = 0f;
+            foreach (KeyValuePair<string, int> stack in preparedDishAmounts)
+            {
+                StrategyDishRecipe recipe = StrategyDishRecipeCatalog.FindById(stack.Key);
+                if (recipe != null)
+                {
+                    total += Mathf.Max(0, stack.Value) * recipe.RationValue;
+                }
+            }
+
+            return total;
+        }
+
+        public int GetPotteryAmount()
+        {
+            return GetAmount(StrategyResourceType.Pottery);
+        }
+
+        public int GetCookableDishCountByIngredients()
+        {
+            return CountCookableDishUnits(0f);
+        }
+
+        public int GetPotteryDemandForCooking(float targetRations)
+        {
+            float dishRation = StrategyFoodNutrition.GetRationValue(StrategyResourceType.Dish);
+            if (dishRation <= 0f || targetRations <= 0.01f)
+            {
+                return 0;
+            }
+
+            float missingRations = Mathf.Max(0f, targetRations - GetPreparedDishRations());
+            int desiredDishes = CountCookableDishUnits(missingRations);
+            return Mathf.Max(0, desiredDishes - GetPotteryAmount());
         }
 
         public int ConsumeFood(int requested)
@@ -158,71 +207,6 @@ namespace ProjectUnknown.Strategy
         public int ConsumeRations(float requestedRations, out float suppliedRations)
         {
             return ConsumeIngredientRations(requestedRations, out suppliedRations);
-        }
-
-        public int ConsumePreparedDishes(float requestedRations, out float suppliedRations)
-        {
-            suppliedRations = 0f;
-            float dishRation = StrategyFoodNutrition.GetRationValue(StrategyResourceType.Dish);
-            if (dishRation <= 0f || requestedRations <= 0.01f)
-            {
-                return 0;
-            }
-
-            int available = GetPreparedDishAmount();
-            int requestedDishes = Mathf.CeilToInt(requestedRations / dishRation);
-            int taken = Mathf.Min(available, requestedDishes);
-            if (taken <= 0)
-            {
-                return 0;
-            }
-
-            int nextAmount = available - taken;
-            if (nextAmount > 0)
-            {
-                amounts[StrategyResourceType.Dish] = nextAmount;
-            }
-            else
-            {
-                amounts.Remove(StrategyResourceType.Dish);
-            }
-
-            suppliedRations = taken * dishRation;
-            return taken;
-        }
-
-        public bool TryCookDishes(
-            int requestedDishes,
-            out int dishesCooked,
-            out int consumedIngredients,
-            out float consumedIngredientRations)
-        {
-            dishesCooked = 0;
-            consumedIngredients = 0;
-            consumedIngredientRations = 0f;
-            float dishRation = StrategyFoodNutrition.GetRationValue(StrategyResourceType.Dish);
-            int targetDishes = Mathf.Max(0, requestedDishes);
-            if (targetDishes <= 0 || dishRation <= 0f)
-            {
-                return false;
-            }
-
-            int possibleDishes = Mathf.FloorToInt(GetTotalIngredientRationValue() / dishRation);
-            targetDishes = Mathf.Min(targetDishes, possibleDishes);
-            if (targetDishes <= 0)
-            {
-                return false;
-            }
-
-            consumedIngredients = ConsumeIngredientRations(targetDishes * dishRation, out consumedIngredientRations);
-            dishesCooked = Mathf.Min(targetDishes, Mathf.FloorToInt((consumedIngredientRations + 0.001f) / dishRation));
-            if (dishesCooked <= 0)
-            {
-                return false;
-            }
-
-            AddResource(StrategyResourceType.Dish, dishesCooked);
-            return true;
         }
 
         public int ConsumeIngredientRations(float requestedRations, out float suppliedRations)
@@ -278,6 +262,11 @@ namespace ProjectUnknown.Strategy
 
         public int GetAmount(StrategyResourceType type)
         {
+            if (type == StrategyResourceType.Dish)
+            {
+                return GetPreparedDishAmount();
+            }
+
             return amounts.TryGetValue(type, out int amount) ? amount : 0;
         }
     }

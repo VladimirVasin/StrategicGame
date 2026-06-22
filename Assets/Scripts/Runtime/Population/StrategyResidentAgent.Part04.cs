@@ -295,6 +295,18 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            if (activity == ResidentActivity.PickingUpHouseholdPottery)
+            {
+                UpdatePickingUpHouseholdPottery();
+                return;
+            }
+
+            if (activity == ResidentActivity.DepositingHouseholdPottery)
+            {
+                UpdateDepositingHouseholdPottery();
+                return;
+            }
+
             if (activity == ResidentActivity.PickingUpGranaryGame)
             {
                 UpdatePickingUpGranaryGame();

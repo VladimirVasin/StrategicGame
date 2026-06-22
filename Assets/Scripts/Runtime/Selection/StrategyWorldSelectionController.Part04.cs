@@ -400,9 +400,30 @@ namespace ProjectUnknown.Strategy
                 if (resourceAmountTexts[i] != null)
                 {
                     float rationValue = amount * StrategyFoodNutrition.GetRationValue(type);
-                    resourceAmountTexts[i].text = StrategyFoodNutrition.IsPreparedFood(type)
-                        ? GetResourceTitle(type) + "\n" + amount + " ready, " + FormatRations(rationValue) + " rations"
-                        : GetResourceTitle(type) + "\n" + amount + " ingredients, " + FormatRations(rationValue) + " rations";
+                    if (type == StrategyResourceType.Dish)
+                    {
+                        resourceAmountTexts[i].text = GetResourceTitle(type)
+                            + "\n"
+                            + amount
+                            + " / "
+                            + FormatRations(store.GetPreparedDishRations())
+                            + "r "
+                            + store.GetPreparedDishSummary(2);
+                    }
+                    else if (type == StrategyResourceType.Pottery)
+                    {
+                        resourceAmountTexts[i].text = GetResourceTitle(type) + "\n" + amount;
+                    }
+                    else
+                    {
+                        resourceAmountTexts[i].text = GetResourceTitle(type)
+                            + "\n"
+                            + amount
+                            + " / "
+                            + FormatRations(rationValue)
+                            + "r";
+                    }
+
                     resourceAmountTexts[i].color = new Color(0.88f, 0.93f, 0.90f);
                 }
             }

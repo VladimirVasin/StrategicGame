@@ -128,6 +128,10 @@ namespace ProjectUnknown.Strategy
                 || residentActivity == ResidentActivity.PickingUpHouseholdFood
                 || residentActivity == ResidentActivity.CarryingHouseholdFoodHome
                 || residentActivity == ResidentActivity.DepositingHouseholdFood
+                || residentActivity == ResidentActivity.MovingToHouseholdPotteryPickup
+                || residentActivity == ResidentActivity.PickingUpHouseholdPottery
+                || residentActivity == ResidentActivity.CarryingPotteryToHouse
+                || residentActivity == ResidentActivity.DepositingHouseholdPottery
                 || residentActivity == ResidentActivity.MovingToHouseCooking
                 || residentActivity == ResidentActivity.CookingHouseMeal;
         }

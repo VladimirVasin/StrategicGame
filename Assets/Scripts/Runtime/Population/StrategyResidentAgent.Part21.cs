@@ -132,6 +132,14 @@ namespace ProjectUnknown.Strategy
             {
                 StartDepositingStoragePottery();
             }
+            else if (activity == ResidentActivity.MovingToHouseholdPotteryPickup)
+            {
+                StartPickingUpHouseholdPottery();
+            }
+            else if (activity == ResidentActivity.CarryingPotteryToHouse)
+            {
+                StartDepositingHouseholdPottery();
+            }
             else if (activity == ResidentActivity.MovingToConstructionStorage)
             {
                 StartPickingUpConstructionResource();

@@ -302,7 +302,7 @@ namespace ProjectUnknown.Strategy
             }
         }
 
-        private void CancelHouseholdFoodWork(bool storeCarriedFood)
+        private void CancelHouseholdFoodWork(bool storeCarriedFood, string reason = "cancelled")
         {
             if (this == null)
             {
@@ -311,7 +311,7 @@ namespace ProjectUnknown.Strategy
 
             if (IsHouseholdFoodActivity(activity))
             {
-                ResetHouseholdFoodWorkToIdle(storeCarriedFood);
+                ResetHouseholdFoodWorkToIdle(storeCarriedFood, reason);
                 return;
             }
 

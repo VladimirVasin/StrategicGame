@@ -213,7 +213,7 @@ namespace ProjectUnknown.Strategy
                 StrategyResourceType.Iron => Mathf.Max(0, ironStored - CountProductionInputReservations(resource)),
                 StrategyResourceType.Coal => Mathf.Max(0, coalStored - CountProductionInputReservations(resource)),
                 StrategyResourceType.Clay => Mathf.Max(0, clayStored - CountProductionInputReservations(resource)),
-                StrategyResourceType.Pottery => Mathf.Max(0, potteryStored - CountProductionInputReservations(resource)),
+                StrategyResourceType.Pottery => Mathf.Max(0, potteryStored - CountProductionInputReservations(resource) - CountHouseholdPotteryReservations()),
                 StrategyResourceType.Planks => AvailableConstructionPlanks,
                 _ => 0
             };

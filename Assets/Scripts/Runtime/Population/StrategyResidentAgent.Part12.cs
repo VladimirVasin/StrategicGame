@@ -23,6 +23,8 @@ namespace ProjectUnknown.Strategy
             activeIronSource = null;
             activePlanksSource = null;
             activePotterySource = null;
+            activeHouseholdPotteryYard = null;
+            activeHouseholdPotteryHome = null;
             activeClaySource = null;
             ClearProductionInputDelivery();
             transform.localRotation = Quaternion.identity;

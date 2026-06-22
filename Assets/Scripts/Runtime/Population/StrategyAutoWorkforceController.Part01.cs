@@ -317,7 +317,8 @@ namespace ProjectUnknown.Strategy
             }
 
             int totalPottery = CountTotalPottery();
-            int shortage = Mathf.Max(0, priority * 2 - totalPottery);
+            int householdDemand = StrategyStorageYard.CountRawHouseholdPotteryDemand();
+            int shortage = Mathf.Max(0, priority * 2 + householdDemand - totalPottery);
             AddCappedCampDemands<StrategyKiln>(
                 StrategyProfessionType.Potter,
                 StrategyAutoWorkforceCategory.Pottery,

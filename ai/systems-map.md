@@ -1180,6 +1180,8 @@ Responsibilities:
 
 - Define the first resource types.
 - Store resource counts locally on placed houses.
+- Store prepared `Dish` as recipe stacks with quality/ration metadata while exposing aggregate Dish APIs.
+- Provide the runtime dish recipe catalog used by Householder cooking.
 - Generate runtime pixel-art resource icons for HUD display.
 - Provide resource display ordering for the selected-house HUD.
 - Include house-local forage food as ingredients for prepared household dishes.
@@ -1189,6 +1191,12 @@ Primary files/assets:
 
 - `Assets/Scripts/Runtime/Economy/StrategyResourceType.cs`
 - `Assets/Scripts/Runtime/Economy/StrategyHouseResourceStore.cs`
+- `Assets/Scripts/Runtime/Economy/StrategyHouseResourceStore.Dishes.cs`
+- `Assets/Scripts/Runtime/Economy/StrategyDishQuality.cs`
+- `Assets/Scripts/Runtime/Economy/StrategyDishRecipe.cs`
+- `Assets/Scripts/Runtime/Economy/StrategyDishRecipeCatalog.cs`
+- `Assets/Scripts/Runtime/Economy/StrategyPreparedDishStack.cs`
+- `Assets/Scripts/Runtime/Economy/StrategyDishCookingSummary.cs`
 - `Assets/Scripts/Runtime/Economy/StrategyResourceIconFactory.cs`
 - `Assets/Scripts/Runtime/Economy/StrategyResourceIconFactory.Part02.cs`
 - `Assets/Scripts/Runtime/Build/StrategyPlacedBuilding.cs`
@@ -1206,7 +1214,8 @@ Impact hints:
 - Current resources are house-local runtime counts, not global economy inventory.
 - Current resource sources are Garden Beds harvest ticks, Chicken Coop passive egg production, and household foraging of Berries/Roots/Mushrooms.
 - Household foraging is home labor, not a profession HUD assignment; householders are excluded and children younger than 7 do not forage.
-- Eggs, crops, forage, `Game`, and `Fish` are raw ingredients that can be stored at home and cooked into prepared `Dish`.
+- Eggs, crops, forage, `Game`, and `Fish` are raw ingredients that can be stored at home and cooked into recipe-based prepared dishes.
+- Current dish recipes span Poor/Common/Hearty/Fine/Feast quality tiers; quality currently affects ration value and HUD/debug context, not morale.
 - `Game` and `Fish` are local production-building/Granary stock resources with shared HUD icons, and Householders can move them into house-local ingredient storage.
 - Future trade, taxes, storage caps, spoilage, and needs should decide whether house stores remain local or feed into a settlement-level resource service.
 
@@ -1281,7 +1290,7 @@ Impact hints:
 
 - Kiln input reservations are separate from construction and Sawmill reservations so Clay/Coal input delivery cannot double-claim Storage Yard stock.
 - Kiln counts Clay, Coal, Pottery, pending Pottery, and reservations against the shared production local stock cap of 6.
-- `Pottery` currently flows from Kilns to Storage Yards but is not consumed by construction, food, trade, or upkeep yet.
+- `Pottery` currently flows from Kilns to Storage Yards and is consumed by household `Dish` cooking; it is not consumed by construction, trade, or upkeep yet.
 - Potters are normal exclusive workplace residents and should remain distinct from Storage Yard Haulers; Potters do not move resources between buildings.
 
 ### Storage Yard Logistics
@@ -1300,6 +1309,7 @@ Responsibilities:
 - Find Clay Pits with available stored Clay and reserve stock for haulers.
 - Find Sawmills with available stored Planks and reserve stock for haulers.
 - Find Kilns with available stored Pottery and reserve stock for haulers.
+- Reserve Pottery from Storage Yard stock for householder pickup by houses that need it for Dish cooking.
 - Find Hunter Camps/Fisher Huts or loose food piles with available `Game`/`Fish` and reserve food for delivery to the nearest Granary.
 - Find loose construction resource piles and reserve Logs/Stone/Planks for haulers after construction cancellation.
 - Reserve Logs/Stone/Planks for accepted construction sites.
@@ -1313,6 +1323,7 @@ Responsibilities:
 - Route Haulers to Coal Pits, pick up Coal, carry it to storage, and deposit it.
 - Route Haulers to Clay Pits, pick up Clay, carry it to storage, and deposit it.
 - Route Haulers to production nodes, deliver non-food inputs from Storage Yard stock, then pick up outputs such as Sawmill Planks and Kiln Pottery, carry them to storage, and deposit them.
+- Route Householders from Storage Yard Pottery stock to their own houses with cooking demand.
 - Route Haulers to food sources, pick up `Game`/`Fish`, carry it to the nearest Granary, and deposit it.
 - Route Haulers to loose construction resource piles, pick up Logs/Stone/Planks, carry them to storage, and deposit them.
 - Update lumberjack/stonecutter camp, Mine, Coal Pit, Clay Pit, Sawmill, Kiln, and storage yard stock visuals as resources move, and show Stone/Iron/Coal/Clay/Planks/Pottery as separate storage piles.
@@ -1325,6 +1336,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Build/StrategyStorageYard.Part05.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStorageYard.Part08.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStorageYard.Part09.cs`
+- `Assets/Scripts/Runtime/Build/StrategyStorageYard.Part10.cs`
 - `Assets/Scripts/Runtime/Build/StrategyLooseConstructionResourcePile.cs`
 - `Assets/Scripts/Runtime/Build/StrategyLooseConstructionResourcePile.Part02.cs`
 - `Assets/Scripts/Runtime/Build/IStrategyConstructionResourceSource.cs`
@@ -1342,6 +1354,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part35.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part47.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part48.cs`
 - `Assets/Scripts/Runtime/Build/StrategyBuildPlacementController.cs`
 - `Assets/Scripts/Runtime/Build/StrategyBuildingSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Economy/StrategyResourceType.cs`
@@ -1361,7 +1374,7 @@ Impact hints:
 - Builders also create a per-builder pickup claim after a path to the pickup cell is found; cancelled work releases that claim while the construction-site reservation remains intact.
 - If a builder dies while carrying a construction resource, the dropped loose construction pile restores the original site's reservation when that site still needs the resource.
 - Residents currently support one active workplace: lumberjack camp, stonecutter camp, sawmill, kiln, hunter camp, fisher hut, mine, coal pit, clay pit, storage logistics, granary food logistics, or storage builder crew.
-- Storage Yard stock is runtime-only and uncapped; it does not yet feed a global economy, save data, or consumption loop.
+- Storage Yard stock is runtime-only and uncapped; Pottery now feeds household Dish cooking, but Storage Yards still do not create a global economy or save data.
 - Future resources should extend the logistics stock model; current Logs, Stone, Iron, Coal, Clay, Planks, and Pottery still have explicit carrying visuals/states.
 - Storage Yard construction pickup and stock-visual helpers are split into `StrategyStorageYard.Part05.cs`; stock drop effects are in `StrategyStorageYard.Part08.cs` to keep source files below the 500-line limit.
 
@@ -1401,9 +1414,9 @@ Impact hints:
 
 - Haulers reserve food before walking so multiple haulers do not target the same local stock.
 - Food source reservations prevent multiple Haulers from double-claiming the same `Game`/`Fish`.
-- `Game` and `Fish` remain runtime-local raw food stock; completed houses can receive them from Householder Granary pickups, but nightly dinner consumes prepared house `Dish` rather than direct Granary fallback.
+- `Game` and `Fish` remain runtime-local raw food stock; completed houses can receive them from Householder Granary pickups, nightly dinner consumes prepared house `Dish` before falling back to house-local ingredients, and each cooked Dish requires house-local Pottery.
 - Residents currently support one active workplace: lumberjack camp, stonecutter camp, hunter camp, fisher hut, mine, storage logistics, or storage builder crew.
-- Future spoilage, food needs, recipe variety, market logistics, or settlement-level food services should extend this subsystem rather than folding food into construction Storage Yards.
+- Future spoilage, food needs, recipe balancing, market logistics, or settlement-level food services should extend this subsystem rather than folding food into construction Storage Yards.
 
 ### Population MVP
 
@@ -1433,7 +1446,7 @@ Responsibilities:
 - Send housed idle residents home to sleep inside during the `Night` phase by hiding their world sprite/collider until morning, while leaving homeless residents outside.
 - Resolve one nightly household dinner from prepared house `Dish`, using resident age-based ration needs after eligible residents return home for `Night`.
 - Send Householders to fetch reserved raw `Fish`/`Game` from reachable Granaries into their own house when ingredient reserves are low.
-- Send Householders to cook stored ingredients into prepared `Dish` during `Dusk` when dinner coverage is low.
+- Send Householders to fetch Pottery from Storage Yards and cook stored ingredients plus 1 Pottery per prepared `Dish` during `Dusk` when dinner coverage is low.
 - Track per-resident nutrition debt, days hungry, hungry/starving status, and recovery when nightly dinner needs are met.
 - Grow children into adults after scaled game time.
 - Continue resident aging after adulthood.
@@ -1454,7 +1467,7 @@ Responsibilities:
 - Keep pending refugees outside the normal resident registry until accepted.
 - Accept refugee families into the normal resident registry or destroy rejected temporary families after they leave the map.
 - Drive simple idle movement around the current camp/home through short walkable grid paths.
-- Periodically send Householders from `TendingHousehold` home duty to work at their home's default Garden Beds upgrade, fetch raw `Fish`/`Game` from Granaries, or cook stored ingredients into `Dish`.
+- Periodically send Householders from `TendingHousehold` home duty to work at their home's default Garden Beds upgrade, fetch raw `Fish`/`Game` from Granaries, fetch Pottery from Storage Yards, or cook stored ingredients plus Pottery into `Dish`.
 - Periodically send non-householder, unemployed adults and older children to nearby forage nodes during daytime, then carry Berries/Roots/Mushrooms back to their own house.
 - Boost the Garden Beds growth cycle when garden work completes.
 - Assign residents to lumberjack camps as workplace targets.
@@ -1480,6 +1493,7 @@ Responsibilities:
 - Route assigned Haulers to Coal Pit stock, stored-Coal pickup, storage-yard delivery, and deposit.
 - Route assigned Haulers to Clay Pit stock, stored-Clay pickup, storage-yard delivery, and deposit.
 - Route assigned Haulers to Kiln stock, stored-Pottery pickup, storage-yard delivery, and deposit.
+- Route Householders to Storage Yard Pottery stock, house delivery, and deposit when their own house needs Pottery for cooking.
 - Route assigned Haulers to Hunter Camp/Fisher Hut stock, stored-food pickup, granary delivery, and deposit.
 - Assign residents to Storage Yards as dedicated builders.
 - Route hired builders to reserved Storage Yard stock, construction resource pickup, site delivery, and hammer/build work after materials arrive.
@@ -1531,6 +1545,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part45.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part46.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part47.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part48.cs`
 - `Assets/Scripts/Runtime/Build/StrategyLumberjackCamp.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStonecutterCamp.cs`
 - `Assets/Scripts/Runtime/Build/StrategyMine.cs`
@@ -1593,8 +1608,8 @@ Impact hints:
 - Accepted refugee families join the normal registry as a preserved family block, stay near camp while homeless, and get priority to fill the first empty House as a whole household before normal single-adult migration or random pair assignment.
 - `StrategyHouseholdState` lives on occupied houses and owns the randomized birth timer.
 - `StrategyHouseholdState` blocks births while the same house has sustained ration shortages or birth-blocked residents.
-- `StrategyHouseholdFoodState` lives on occupied houses, resolves one nightly dinner per day after a one-day settling grace, waits for eligible residents to enter home for `Night` with a fallback deadline, consumes prepared house `Dish`, applies short rations to resident nutrition debt, and exposes aggregate food status for HUDs.
-- Householder home duty can reserve one raw `Fish`/`Game` unit from a Granary, path to pickup, carry it home, store it as an ingredient, and cook stored ingredients into prepared `Dish` during `Dusk`.
+- `StrategyHouseholdFoodState` lives on occupied houses, resolves one nightly dinner per day after a one-day settling grace, waits for eligible residents to enter home for `Night` with a fallback deadline, consumes prepared house recipe dishes first, falls back to house-local ingredients for missing rations, applies short rations to resident nutrition debt, and exposes aggregate food status for HUDs.
+- Householder home duty can reserve one raw `Fish`/`Game` unit from a Granary or Pottery from a Storage Yard, path to pickup, carry it home, store it in the house, and cook stored ingredients plus 1 Pottery per prepared recipe dish during `Dusk`.
 - `StrategyHouseholdForagingState` lives on house buildings and dispatches only unassigned non-householder residents; it should remain separate from the Profession HUD/worksite assignment model.
 - `StrategyPlacedBuilding` owns the current Householder reference for houses, preferring the oldest adult female resident and refreshing on home changes, death/unregister, and resident adulthood.
 - `StrategyResidentAgent.HasWorkplace` includes the Householder role, so profession assignment should treat householders as occupied home workers.
@@ -1621,7 +1636,7 @@ Impact hints:
 - Fisher work keeps the same hut worksite component but reserves the nearest available fish through `StrategyWildlifeController`, requires a valid land/shore stand cell around the target, abandons casts when the fish leaves cast range during cast/wait/reel phases, and stores produced `Fish` locally at the fisher hut for now.
 - Resident fishing sprites are generated for every male/female visual variant and should stay in sync with readability outline mirroring.
 - Granary food logistics is serviced by shared Haulers, moving food from production buildings into food storage after normal storage-resource hauling checks.
-- Storage Yard Haulers move Logs, Stone, Iron, Coal, Clay, Planks, and Pottery outputs from production worksites into Storage Yard stock, and deliver non-food production inputs from Storage Yard stock into production nodes; Coal, Clay, Planks, and Pottery use their own carried sprite and return/drop cleanup paths.
+- Storage Yard Haulers move Logs, Stone, Iron, Coal, Clay, Planks, and Pottery outputs from production worksites into Storage Yard stock and deliver non-food production inputs from Storage Yard stock into production nodes; Householders deliver Pottery from Storage Yards into houses for Dish cooking. Coal, Clay, Planks, and Pottery use their own carried sprite and return/drop cleanup paths.
 - Construction assignment is a temporary exclusive task for hired Storage Yard builders; there is no hired-builder pool cap or construction-site builder cap, balanced dispatch spreads free builders across active sites first, and workplace assignment skips residents already attached to a construction site. Construction assignment does not block home/family assignment.
 - Builder construction pickup path failures include start/pickup walkability details in `debug.log`; repeated pickup path failures drop that builder's current site assignment so another builder can retry.
 - Worker and builder assignment must check `StrategyResidentAgent.CanWork`; children under age 3 remain inside assigned homes, and older children idle/walk but cannot work.
@@ -1634,7 +1649,7 @@ Impact hints:
 - If no free pair exists, the completed house is available for adult-child migration and partner lookup.
 - House occupation consumes the finite free-resident pool from the starter camp while it exists; later household births and adult-child migration are the first internal population growth path.
 - Resident death must continue to go through the centralized population cleanup path; direct `Destroy` on accepted residents risks stale worksite, construction, home, HUD, or kinship state.
-- Resident helper methods for carried-resource return, construction work, workplace clearing, readability sync, refugee path following, tree movement, fishing cast/reel flow, production-input delivery, trail movement, ranged hunt stand selection, reachable forestry work-cell selection, reachable construction dropoff selection, worker-triggered visual effects, day/night work scheduling, night home sleep, Clay work/logistics, and Kiln/Pottery work/logistics are split across `StrategyResidentAgent.Part27.cs` through `StrategyResidentAgent.Part47.cs` to keep source files below the 500-line limit.
+- Resident helper methods for carried-resource return, construction work, workplace clearing, readability sync, refugee path following, tree movement, fishing cast/reel flow, production-input delivery, trail movement, ranged hunt stand selection, reachable forestry work-cell selection, reachable construction dropoff selection, worker-triggered visual effects, day/night work scheduling, night home sleep, Clay work/logistics, Kiln/Pottery work/logistics, and household Pottery delivery are split across `StrategyResidentAgent.Part27.cs` through `StrategyResidentAgent.Part48.cs` to keep source files below the 500-line limit.
 - Future jobs/families/economy should extend resident state rather than replacing the home/free-camp assignment model.
 
 ### World Selection
@@ -1653,7 +1668,7 @@ Responsibilities:
 - Show selected-object preview sprites and status/context blocks.
 - Show selected residents with a dedicated compact dashboard: identity subtitle, portrait, role/home/food chips, and icon-led task, home, food, and family rows.
 - Expose house-specific visual upgrade actions in the selected-house HUD.
-- Show selected-house resident portraits/names/age/life stage/statuses up to house capacity, including the Householder marker, compact upgrade action rows, prepared dishes, ingredient rations, resource icons/counts, and Garden Beds crop.
+- Show selected-house resident portraits/names/age/life stage/statuses up to house capacity, including the Householder marker, compact upgrade action rows, prepared dish recipe summaries, Pottery, ingredient rations, resource icons/counts, and Garden Beds crop.
 - Show selected worksite status/resource context without worker assignment controls.
 - Show selected Storage Yards with a dedicated icon-led logistics dashboard for Haulers, builders, available sources, resource stock, and readiness status.
 - Show selected lumberjack/stonecutter/sawmill/kiln/hunter/fisher/mine/coal pit/clay pit/granary/storage stock and nearby source/target counts.

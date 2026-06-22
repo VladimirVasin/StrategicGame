@@ -22,6 +22,7 @@ namespace ProjectUnknown.Strategy
         private readonly Dictionary<object, int> constructionStoneReservations = new();
         private readonly Dictionary<object, int> constructionPlankReservations = new();
         private readonly Dictionary<StrategyResourceType, Dictionary<object, int>> productionInputReservations = new();
+        private readonly Dictionary<object, HouseholdPotteryReservation> householdPotteryReservations = new();
         private readonly Dictionary<StrategyResidentAgent, ConstructionPickupReservation> constructionPickupReservations = new();
         private object logisticsLogsReservationOwner;
         private int reservedLogisticsLogs;
@@ -55,6 +56,12 @@ namespace ProjectUnknown.Strategy
         {
             public object Owner;
             public StrategyConstructionResourceKind Kind;
+            public int Amount;
+        }
+
+        private sealed class HouseholdPotteryReservation
+        {
+            public StrategyPlacedBuilding House;
             public int Amount;
         }
 

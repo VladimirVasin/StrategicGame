@@ -178,7 +178,7 @@ namespace ProjectUnknown.Strategy
 
             Text resourcesTitle = CreateText("ResourcesTitle", resourcesRoot, 13, TextAnchor.UpperLeft, new Color(0.86f, 0.70f, 0.42f));
             resourcesTitle.fontStyle = FontStyle.Bold;
-            resourcesTitle.text = "House Food";
+            resourcesTitle.text = "Dinner";
             SetTopStretch(resourcesTitle.rectTransform, 6f, 8f, 6f, 18f);
 
             RectTransform foodStatusRow = CreateUiObject("FoodStatusRow", resourcesRoot).GetComponent<RectTransform>();
@@ -200,6 +200,9 @@ namespace ProjectUnknown.Strategy
 
             foodMealText = CreateText("FoodMealText", foodStatusRow, 10, TextAnchor.MiddleRight, new Color(0.88f, 0.93f, 0.90f));
             foodMealText.fontStyle = FontStyle.Bold;
+            foodMealText.resizeTextForBestFit = true;
+            foodMealText.resizeTextMinSize = 8;
+            foodMealText.resizeTextMaxSize = 10;
             SetOffsets(foodMealText.rectTransform, 184f, 0f, 8f, 0f);
 
             RectTransform foodMeter = CreateUiObject("FoodMealMeter", resourcesRoot).GetComponent<RectTransform>();
@@ -226,7 +229,7 @@ namespace ProjectUnknown.Strategy
             RectTransform granaryIconRect = CreateUiObject("GranaryIcon", granaryRow).GetComponent<RectTransform>();
             SetTopLeft(granaryIconRect, 8f, 11f, 16f, 16f);
             Image granaryIcon = granaryIconRect.gameObject.AddComponent<Image>();
-            granaryIcon.sprite = StrategyResourceIconFactory.GetSprite(StrategyResourceType.Fish);
+            granaryIcon.sprite = StrategyResourceIconFactory.GetSprite(StrategyResourceType.Dish);
             granaryIcon.preserveAspect = true;
             granaryIcon.color = new Color(0.82f, 0.90f, 0.87f, 0.88f);
             granaryIcon.raycastTarget = false;

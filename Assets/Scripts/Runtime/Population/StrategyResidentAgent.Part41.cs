@@ -27,6 +27,11 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
+            if (TryStartHouseholdPotteryDelivery())
+            {
+                return true;
+            }
+
             if (TryStartHouseholdFoodPickupTask())
             {
                 return true;
@@ -221,9 +226,10 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            if (deferredActivity == ResidentActivity.MovingToHouseholdFoodPickup)
+            if (deferredActivity == ResidentActivity.MovingToHouseholdFoodPickup
+                || deferredActivity == ResidentActivity.MovingToHouseholdPotteryPickup)
             {
-                CancelHouseholdFoodWork(true);
+                CancelHouseholdFoodWork(true, "nightfall");
                 return;
             }
 
@@ -303,6 +309,7 @@ namespace ProjectUnknown.Strategy
                 || residentActivity == ResidentActivity.MovingToStorageClayPickup
                 || residentActivity == ResidentActivity.MovingToStoragePlanksPickup
                 || residentActivity == ResidentActivity.MovingToStoragePotteryPickup
+                || residentActivity == ResidentActivity.MovingToHouseholdPotteryPickup
                 || residentActivity == ResidentActivity.MovingToGranaryGamePickup
                 || residentActivity == ResidentActivity.MovingToGranaryFishPickup
                 || residentActivity == ResidentActivity.MovingToPlantTree;
