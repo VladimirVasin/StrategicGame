@@ -215,6 +215,10 @@ namespace ProjectUnknown.Strategy
             }
 
             bool housedFamily = TryPlaceAcceptedRefugeeFamily(acceptedFamily);
+            if (!housedFamily)
+            {
+                TrackUnsettledRefugeeFamily(acceptedFamily);
+            }
 
             StrategyDebugLogger.Info(
                 "Refugees",
@@ -377,6 +381,11 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
+            if (TryFindUnsettledFamilyForHouse(destinationHouse, out family))
+            {
+                return true;
+            }
+
             HashSet<int> checkedFamilies = new();
             for (int i = 0; i < residents.Count; i++)
             {
@@ -402,6 +411,7 @@ namespace ProjectUnknown.Strategy
                 if (fatherId > 0
                     && TryGetResidentById(fatherId, out StrategyResidentAgent father)
                     && father.Gender == StrategyResidentGender.Male
+                    && father.Home == null
                     && CanMoveResidentToHouse(father, destinationHouse))
                 {
                     candidateFamily.Add(father);
@@ -410,6 +420,7 @@ namespace ProjectUnknown.Strategy
                 if (motherId > 0
                     && TryGetResidentById(motherId, out StrategyResidentAgent mother)
                     && mother.Gender == StrategyResidentGender.Female
+                    && mother.Home == null
                     && CanMoveResidentToHouse(mother, destinationHouse))
                 {
                     candidateFamily.Add(mother);
@@ -484,6 +495,7 @@ namespace ProjectUnknown.Strategy
             }
 
             ConfigureHousehold(house);
+            TryClearUnsettledRefugeeFamilyIfSettled(family[0], house);
             StrategyDebugLogger.Info(
                 "Population",
                 logEvent,

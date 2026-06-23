@@ -477,7 +477,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - The first refugee family arrives after 3 completed houses; later families periodically arrive from a map edge, route only to the reachable camp-side arrival area, walk to the startup campfire, and ask for settlement acceptance through a modal paused decision
     - Refugee arrival intensity fades after 40 accepted residents and stops at 50 accepted residents; incoming family size is capped by remaining room below 50
     - Refugee families contain 1-3 members with 1-2 adult parents and optional children, using normal names, ages, visual variants, and parent/child kinship links when children are present
-    - Accepted refugees join the normal resident registry, keep their family block, and occupy the first available empty House as a whole family
+    - Accepted refugees join the normal resident registry, keep their family block, and occupy the first available empty House as a whole family; if no house is available, the family remains an unsettled group and generic pair assignment cannot split it before all members share one house
     - Rejected refugee families walk back off-map and are removed
     - Adult children continue aging and can move from a parental home into an empty house, oldest first
     - Single adult-child households periodically search for an adult opposite-gender partner from another parental home or the free camp pool, with close-relative checks, and apply the same husband-family-name rule after partner move-in

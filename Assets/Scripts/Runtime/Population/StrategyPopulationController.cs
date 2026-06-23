@@ -153,6 +153,7 @@ namespace ProjectUnknown.Strategy
 
             householdMigrationTimer = HouseholdMigrationCheckInterval;
             TryAdoptOrphanedChildren();
+            TryRejoinHomelessChildrenWithParents("migration_tick");
             TryPopulateAvailableHouses();
         }
 
@@ -437,6 +438,7 @@ namespace ProjectUnknown.Strategy
 
             RegisterHouse(house);
 
+            TryRejoinHomelessChildrenWithParents("house_completed");
             bool assignedFamily = TryPopulateHomelessFamilyHouse(house);
             bool assignedPair = false;
             if (!assignedFamily)

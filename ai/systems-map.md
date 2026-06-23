@@ -1590,6 +1590,7 @@ Responsibilities:
 - Gate the first refugee family on 3 completed registered houses; schedule later families with the repeat interval, fading arrival intensity after 40 accepted residents and stopping arrivals at 50 accepted residents.
 - Keep pending refugees outside the normal resident registry until accepted.
 - Accept refugee families into the normal resident registry or destroy rejected temporary families after they leave the map.
+- Track accepted refugee families that could not be housed immediately as unsettled groups, preventing generic pair assignment from splitting the group before all members share one house.
 - Drive simple idle movement around the current camp/home through short walkable grid paths.
 - Route homeless residents without houses to reachable reserved sleep spots around the startup campfire during `Night`.
 - Let one homeless resident relight campfire embers with a visible kindling animation before the camp sleeps.
@@ -1645,7 +1646,10 @@ Responsibilities:
 Primary files/assets:
 
 - `Assets/Scripts/Runtime/Population/StrategyPopulationController.cs`
+- `Assets/Scripts/Runtime/Population/StrategyPopulationController.Part01.cs`
+- `Assets/Scripts/Runtime/Population/StrategyPopulationController.Part02.cs`
 - `Assets/Scripts/Runtime/Population/StrategyPopulationController.Part06.cs`
+- `Assets/Scripts/Runtime/Population/StrategyPopulationController.Part07.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentDeathSnapshot.cs`
 - `Assets/Scripts/Runtime/Population/StrategyFuneralController.cs`
 - `Assets/Scripts/Runtime/Population/StrategyFuneralController.Part02.cs`

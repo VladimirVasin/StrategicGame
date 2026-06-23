@@ -64,7 +64,7 @@ namespace ProjectUnknown.Strategy
             for (int i = 0; i < residents.Count; i++)
             {
                 StrategyResidentAgent candidate = residents[i];
-                if (!CanMoveResidentToHouse(candidate, destinationHouse)
+                if (!CanMoveResidentAndHomelessDependentsToHouse(candidate, destinationHouse)
                     || !IsAdultChildLivingWithParent(candidate))
                 {
                     continue;
@@ -94,7 +94,7 @@ namespace ProjectUnknown.Strategy
             for (int i = 0; i < residents.Count; i++)
             {
                 StrategyResidentAgent candidate = residents[i];
-                if (!CanMoveResidentToHouse(candidate, destinationHouse)
+                if (!CanMoveResidentAndHomelessDependentsToHouse(candidate, destinationHouse)
                     || candidate.Gender != requiredGender
                     || !StrategyKinshipUtility.CanFormCouple(resident, candidate, this))
                 {
@@ -151,6 +151,8 @@ namespace ProjectUnknown.Strategy
             if (moved)
             {
                 ConfigureHousehold(house);
+                TryMoveUnsettledFamilyToHouse(resident, house, "resident_moved");
+                TryMoveHomelessDependentsToHouse(resident, house, "resident_moved");
                 if (previousHome != null && previousHome != house)
                 {
                     ConfigureHousehold(previousHome);
@@ -383,7 +385,8 @@ namespace ProjectUnknown.Strategy
                 if (candidate != null
                     && candidate.Gender == gender
                     && candidate.CanWork
-                    && candidate.Home == null)
+                    && candidate.Home == null
+                    && !IsInUnsettledRefugeeFamily(candidate))
                 {
                     candidates.Add(candidate);
                 }

@@ -10,6 +10,7 @@ namespace ProjectUnknown.Strategy
         private const float WorksiteCacheRefreshInterval = 8f;
         private const float DemandLogInterval = 12f;
         private const float ManualOverrideSeconds = 45f;
+        private const float NoFreeAdultFullScanRetrySeconds = 18f;
         private const int MaxAssignmentsPerTick = 4;
 
         private readonly StrategyAutoWorkforceSettings settings = new();
@@ -37,6 +38,7 @@ namespace ProjectUnknown.Strategy
         private StrategyPopulationController population;
         private float tickTimer;
         private float nextWorksiteCacheRefreshTime;
+        private float nextNoFreeAdultFullScanTime;
         private string lastStatus = "Auto workforce ready";
 
         public StrategyAutoWorkforceSettings Settings => settings;
@@ -94,6 +96,7 @@ namespace ProjectUnknown.Strategy
             tickTimer = 0f;
             nextWorksiteCacheRefreshTime = 0f;
             ResetNoDonorSearchCooldown();
+            ResetNoFreeAdultFullScanCooldown();
             lastStatus = enabled ? "Auto assign enabled" : "Auto assign disabled";
             StrategyDebugLogger.Info(
                 "AutoWorkforce",
@@ -107,6 +110,7 @@ namespace ProjectUnknown.Strategy
             tickTimer = 0f;
             nextWorksiteCacheRefreshTime = 0f;
             ResetNoDonorSearchCooldown();
+            ResetNoFreeAdultFullScanCooldown();
             StrategyDebugLogger.Info(
                 "AutoWorkforce",
                 "PriorityChanged",
@@ -118,6 +122,10 @@ namespace ProjectUnknown.Strategy
         public void RegisterManualOverride(StrategyProfessionType profession)
         {
             manualLocks[profession] = Time.time + ManualOverrideSeconds;
+            tickTimer = 0f;
+            nextWorksiteCacheRefreshTime = 0f;
+            ResetNoDonorSearchCooldown();
+            ResetNoFreeAdultFullScanCooldown();
             StrategyDebugLogger.Info(
                 "AutoWorkforce",
                 "ManualOverrideRegistered",
@@ -135,8 +143,12 @@ namespace ProjectUnknown.Strategy
             float tickStartedAt = Time.realtimeSinceStartup;
             CleanupManualLocks();
             CollectFreeCandidates();
-            if (candidates.Count <= 0 && IsNoDonorSearchCooldownActive())
+            if (candidates.Count <= 0
+                && (IsNoDonorSearchCooldownActive() || IsNoFreeAdultFullScanCooldownActive()))
             {
+                string reason = IsNoDonorSearchCooldownActive()
+                    ? "donor_retry_cooldown"
+                    : "no_free_adult_full_scan_cooldown";
                 lastStatus = "No free adults";
                 StrategyDebugLogger.Info(
                     "AutoWorkforce",
@@ -150,7 +162,7 @@ namespace ProjectUnknown.Strategy
                     StrategyDebugLogger.F("assigned", 0),
                     StrategyDebugLogger.F("durationMs", Mathf.RoundToInt((Time.realtimeSinceStartup - tickStartedAt) * 1000f)),
                     StrategyDebugLogger.F("status", lastStatus),
-                    StrategyDebugLogger.F("reason", "donor_retry_cooldown"));
+                    StrategyDebugLogger.F("reason", reason));
                 return;
             }
 
@@ -179,6 +191,10 @@ namespace ProjectUnknown.Strategy
                     : surplusReleased > 0
                     ? "Released " + surplusReleased + " surplus worker" + (surplusReleased == 1 ? string.Empty : "s")
                     : candidates.Count > 0 ? "No enabled workforce slot" : "No free adults";
+            if (candidates.Count <= 0 && released <= 0 && assigned <= 0)
+            {
+                RegisterNoFreeAdultFullScanCooldown();
+            }
 
             StrategyDebugLogger.Info(
                 "AutoWorkforce",
@@ -272,6 +288,21 @@ namespace ProjectUnknown.Strategy
 
             RefreshWorksiteCache();
             nextWorksiteCacheRefreshTime = now + WorksiteCacheRefreshInterval;
+        }
+
+        private bool IsNoFreeAdultFullScanCooldownActive()
+        {
+            return Time.realtimeSinceStartup < nextNoFreeAdultFullScanTime;
+        }
+
+        private void RegisterNoFreeAdultFullScanCooldown()
+        {
+            nextNoFreeAdultFullScanTime = Time.realtimeSinceStartup + NoFreeAdultFullScanRetrySeconds;
+        }
+
+        private void ResetNoFreeAdultFullScanCooldown()
+        {
+            nextNoFreeAdultFullScanTime = 0f;
         }
 
         private T[] GetCachedSites<T>()

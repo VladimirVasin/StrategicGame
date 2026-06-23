@@ -8,6 +8,21 @@ Last updated: 2026-06-23
 
 ## Done
 
+### 2026-06-23 - Auto workforce no-free-adult scan throttling
+
+- Analyzed `debug.log`: repeated `AutoWorkforceTick` entries still cost 40-77 ms while `freeAdults=0`, because full demand/cache/donor scans resumed after the short no-donor cooldown expired.
+- Added a separate 18-second no-free-adult full-scan cooldown after a full tick finds no assignments, no releases, and no free candidates.
+- Cooldown ticks now only perform the cheap resident candidate scan and skip worksite `FindObjectsByType`, demand collection, sorting, and donor search until a retry is due or the player changes autoassign/manual settings.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files remain below 500 lines.
+
+### 2026-06-23 - Unsettled refugee family housing invariant
+
+- Added an explicit unsettled refugee family group tracker after accepted families fail immediate whole-house placement.
+- Blocked generic free adult pair assignment from selecting one member of an unsettled refugee family before the whole group has settled into the same house.
+- Empty completed Houses now try unsettled refugee family groups before older homeless-family heuristics, covering families without child parent-link keys.
+- Added fallback rejoin checks so homeless children already split from a housed living parent can be moved into that parent's home and released from campfire sleep through normal `AssignHome`.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected population files remain below 500 lines.
+
 ### 2026-06-23 - Forager animation pass
 
 - Added generated resident forage sprites for adults and older children, with a crouch/reach/place cycle that distinguishes Berries, Roots, and Mushrooms through carried basket details.
