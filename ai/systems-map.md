@@ -285,6 +285,7 @@ Responsibilities:
 - Randomize the active map seed by default and derive a generation profile from it.
 - Generate variable rivers, shorelines, optional water blobs, and clustered land terrain.
 - Tag generated water and shore cells with `CityMapWaterKind.River` or `CityMapWaterKind.Lake` for direct future gameplay queries.
+- Assign visual-only relief height for lowlands, hills, and mountain-like terrain shading.
 - Expose `RiverFlowDirection` for systems that need to move or animate along the generated river current.
 - Paint procedural pixel-art terrain textures for generated map cells.
 - Render animated water waves, sparkles, shoreline foam, and weather-driven rain ripple hits as a transparent overlay.
@@ -305,6 +306,7 @@ Responsibilities:
 Primary files/assets:
 
 - `Assets/Scripts/Runtime/Map/CityMapController.cs`
+- `Assets/Scripts/Runtime/Map/CityMapController.Relief.cs`
 - `Assets/Scripts/Runtime/Map/StrategyFogOfWarController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyFogOfWarController.Visibility.cs`
 - `Assets/Scripts/Runtime/Map/StrategyFogOfWarController.WeatherFog.cs`
@@ -315,6 +317,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Map/StrategyTrailSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Map/StrategyMapDistributionUtility.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTerrainTexturePainter.cs`
+- `Assets/Scripts/Runtime/Map/StrategyTerrainTexturePainter.Relief.cs`
 - `Assets/Scripts/Runtime/Map/CityMapController.Buildability.cs`
 - `Assets/Scripts/Runtime/Map/StrategyNaturePropController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyNaturePropController.Distribution.cs`
@@ -338,7 +341,8 @@ Primary files/assets:
 Impact hints:
 
 - Current map is runtime-generated with a randomized active seed by default and is not saved.
-- Current terrain painter covers Grass, Meadow, Forest, Dirt, Shore, and Water with seeded variants and neighbor transition overlays.
+- Current terrain painter covers Grass, Meadow, Forest, Dirt, Shore, and Water with seeded variants, neighbor transition overlays, and visual hill/mountain relief shading.
+- `CityMapCell.ReliefHeight` is a visual-only value; do not use it as a walkability, buildability, or resource-reachability rule without an explicit gameplay design pass.
 - Water source identity is stored on `CityMapCell.WaterKind`; future systems should query that instead of guessing river/lake from geometry.
 - River current direction is stored on `CityMapController.RiverFlowDirection`; river-specific ambience/gameplay should follow that instead of creating independent direction timers.
 - Terrain kind generation now uses a seed-derived profile plus multi-octave noise; texture painting consumes the active seed.

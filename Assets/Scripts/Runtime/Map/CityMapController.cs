@@ -22,7 +22,12 @@ namespace ProjectUnknown.Strategy
 
     public readonly struct CityMapCell
     {
-        public CityMapCell(int x, int y, CityMapCellKind kind, CityMapWaterKind waterKind = CityMapWaterKind.None)
+        public CityMapCell(
+            int x,
+            int y,
+            CityMapCellKind kind,
+            CityMapWaterKind waterKind = CityMapWaterKind.None,
+            float reliefHeight = 0f)
         {
             X = x;
             Y = y;
@@ -30,12 +35,14 @@ namespace ProjectUnknown.Strategy
             WaterKind = kind == CityMapCellKind.Water || kind == CityMapCellKind.Shore
                 ? waterKind
                 : CityMapWaterKind.None;
+            ReliefHeight = Mathf.Clamp01(reliefHeight);
         }
 
         public int X { get; }
         public int Y { get; }
         public CityMapCellKind Kind { get; }
         public CityMapWaterKind WaterKind { get; }
+        public float ReliefHeight { get; }
         public bool IsWater => Kind == CityMapCellKind.Water;
         public bool IsShore => Kind == CityMapCellKind.Shore;
         public bool IsRiver => WaterKind == CityMapWaterKind.River;
@@ -105,6 +112,7 @@ namespace ProjectUnknown.Strategy
                 out int riverShore,
                 out int lakeWater,
                 out int lakeShore);
+            CountRelief(out int hillCells, out int mountainCells);
             StrategyDebugLogger.Info(
                 "Map",
                 "Generated",
@@ -122,6 +130,8 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("riverShore", riverShore),
                 StrategyDebugLogger.F("lakeWater", lakeWater),
                 StrategyDebugLogger.F("lakeShore", lakeShore),
+                StrategyDebugLogger.F("hillCells", hillCells),
+                StrategyDebugLogger.F("mountainCells", mountainCells),
                 StrategyDebugLogger.F("riverFlow", RiverFlowDirection));
         }
 
@@ -285,7 +295,8 @@ namespace ProjectUnknown.Strategy
                 for (int x = 0; x < width; x++)
                 {
                     CityMapCellKind kind = PickCellKind(x, y, profile, out CityMapWaterKind waterKind);
-                    cells[x, y] = new CityMapCell(x, y, kind, waterKind);
+                    float reliefHeight = PickReliefHeight(x, y, profile, kind, waterKind);
+                    cells[x, y] = new CityMapCell(x, y, kind, waterKind, reliefHeight);
                 }
             }
 

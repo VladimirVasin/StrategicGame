@@ -8,6 +8,15 @@ Last updated: 2026-06-23
 
 ## Done
 
+### 2026-06-23 - Visual terrain relief pass
+
+- Added seed-generated visual `ReliefHeight` to map cells, with broad/ridge noise, water lowlands, and higher inland/edge regions.
+- Added terrain relief painting with stronger slope highlights/shadows, readable contour bands, hill-face patterns, and rocky mountain flecks on high-relief land cells.
+- Reduced near-water relief suppression so the starter settlement area can still show rolling ground instead of hiding the feature until the camera reaches map edges.
+- Kept relief visual-only: walkability, buildability, resource placement, and resident pathing still use existing map cell and overlay rules.
+- Updated `Assembly-CSharp.csproj` for the new map/terrain partial files.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files remain below 500 lines.
+
 ### 2026-06-23 - Auto workforce no-free-adult scan throttling
 
 - Analyzed `debug.log`: repeated `AutoWorkforceTick` entries still cost 40-77 ms while `freeAdults=0`, because full demand/cache/donor scans resumed after the short no-donor cooldown expired.

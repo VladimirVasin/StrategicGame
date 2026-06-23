@@ -21,7 +21,7 @@ namespace ProjectUnknown.Strategy
                     CityMapWaterKind waterKind = IsWaterBoundaryKind(smoothedKind)
                         ? currentCell.WaterKind
                         : CityMapWaterKind.None;
-                    smoothed[x, y] = new CityMapCell(x, y, smoothedKind, waterKind);
+                    smoothed[x, y] = new CityMapCell(x, y, smoothedKind, waterKind, currentCell.ReliefHeight);
                 }
             }
 
@@ -203,10 +203,15 @@ namespace ProjectUnknown.Strategy
                 DetailScale = Range(random, 0.085f, 0.18f),
                 MoistureScale = Range(random, 0.024f, 0.056f),
                 ForestScale = Range(random, 0.032f, 0.075f),
+                ReliefScale = Range(random, 0.014f, 0.030f),
+                ReliefRidgeScale = Range(random, 0.030f, 0.062f),
                 BroadOffset = new Vector2(Range(random, 0f, 4096f), Range(random, 0f, 4096f)),
                 DetailOffset = new Vector2(Range(random, 0f, 4096f), Range(random, 0f, 4096f)),
                 MoistureOffset = new Vector2(Range(random, 0f, 4096f), Range(random, 0f, 4096f)),
                 ForestOffset = new Vector2(Range(random, 0f, 4096f), Range(random, 0f, 4096f)),
+                ReliefOffset = new Vector2(Range(random, 0f, 4096f), Range(random, 0f, 4096f)),
+                ReliefRidgeOffset = new Vector2(Range(random, 0f, 4096f), Range(random, 0f, 4096f)),
+                ReliefMountainBias = Range(random, 0.16f, 0.28f),
                 ForestThreshold = Range(random, 0.56f, 0.68f),
                 MeadowMoistureThreshold = Range(random, 0.50f, 0.62f),
                 MeadowBroadThreshold = Range(random, 0.42f, 0.58f),
@@ -270,10 +275,15 @@ namespace ProjectUnknown.Strategy
             public float DetailScale;
             public float MoistureScale;
             public float ForestScale;
+            public float ReliefScale;
+            public float ReliefRidgeScale;
             public Vector2 BroadOffset;
             public Vector2 DetailOffset;
             public Vector2 MoistureOffset;
             public Vector2 ForestOffset;
+            public Vector2 ReliefOffset;
+            public Vector2 ReliefRidgeOffset;
+            public float ReliefMountainBias;
             public float ForestThreshold;
             public float MeadowMoistureThreshold;
             public float MeadowBroadThreshold;

@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace ProjectUnknown.Strategy
 {
-    internal static class StrategyTerrainTexturePainter
+    internal static partial class StrategyTerrainTexturePainter
     {
         private const int VariantCount = 6;
 
@@ -26,6 +26,7 @@ namespace ProjectUnknown.Strategy
                 {
                     Color pixel = PaintBasePixel(kind, variant, seed, cellX, cellY, px, py, tilePixels);
                     pixel = ApplyNeighborTransitions(pixel, cells, cellX, cellY, px, py, tilePixels, seed);
+                    pixel = ApplyReliefShading(pixel, cells, cellX, cellY, px, py, tilePixels, seed);
 
                     if (drawGrid && (px == 0 || py == 0))
                     {

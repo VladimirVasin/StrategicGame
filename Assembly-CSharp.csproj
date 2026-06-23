@@ -142,6 +142,7 @@
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyMapDistributionUtility.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWildlifeController.Part10.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part37.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Population\StrategyPopulationController.Part07.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingSpriteFactory.Part03.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyLumberjackCamp.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyFamilyTreeHudController.Part02.cs" />
@@ -164,6 +165,7 @@
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyHouseAmbientSpriteFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyCoalPit.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyRabbitSpriteFactory.Part01.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Map\StrategyTerrainTexturePainter.Relief.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyPostProcessController.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyConfirmationDialogController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part30.cs" />
@@ -227,6 +229,7 @@
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyMine.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyConstructionSpriteFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentSpriteFactory.Part02.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Map\CityMapController.Relief.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyPopulationController.Part06.cs" />
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyTradeCaravanSpriteFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyIronResourceController.cs" />
@@ -285,7 +288,6 @@
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyDebugLogger.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyEventLogHudController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyPopulationController.Part02.cs" />
-    <Compile Include="Assets\Scripts\Runtime\Population\StrategyPopulationController.Part07.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyPopulationController.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\Selection\StrategyWorldSelectionController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentFamilyRecord.cs" />

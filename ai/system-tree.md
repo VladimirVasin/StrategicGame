@@ -595,7 +595,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Build menu active tool state drives the placement controller when catalog tools exist.
 - Placement uses generated map cells and buildability data.
 - Fog of war uses population, residents, placed-building records, the shared day/night phase, and weather Fog intensity as visibility inputs; placement and world selection consult fog exploration state, while the F9 debug panel can bypass player fog for testing.
-- Terrain rendering uses generated map cell kinds, seeded tile variants, neighbor transition overlays, a runtime water/shore animation overlay, and weather visual overlays.
+- Terrain rendering uses generated map cell kinds, visual relief height, seeded tile variants, neighbor transition overlays, a runtime water/shore animation overlay, and weather visual overlays.
 - Weather depends on generated map bounds, the strategy camera, day/night/fog sorting bands, the strategy wind source, water animation, and ambience audio.
 - Resident work/rest scheduling depends on the shared day/night phase so production, construction, logistics, hunting, fishing, foraging, garden, and household-food tasks only start during settlement work time, while housed idle residents sleep inside homes and homeless idle residents sleep around the startup campfire during `Night`.
 - House visual upgrades and house resources depend on placed-building records, map walkability checks, generated upgrade/chicken/resource sprites, early idle/work agents, and the world-selection HUD.
