@@ -420,6 +420,7 @@ namespace ProjectUnknown.Strategy
                 StrategyProfessionType.Builder => StrategyAutoWorkforceCategory.Construction,
                 StrategyProfessionType.Hunter => StrategyAutoWorkforceCategory.Food,
                 StrategyProfessionType.Fisher => StrategyAutoWorkforceCategory.Food,
+                StrategyProfessionType.Forager => StrategyAutoWorkforceCategory.Food,
                 StrategyProfessionType.StorageWorker => StrategyAutoWorkforceCategory.Logistics,
                 StrategyProfessionType.Lumberjack => StrategyAutoWorkforceCategory.Wood,
                 StrategyProfessionType.Stonecutter => StrategyAutoWorkforceCategory.Stone,

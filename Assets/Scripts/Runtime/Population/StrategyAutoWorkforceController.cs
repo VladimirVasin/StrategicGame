@@ -33,6 +33,7 @@ namespace ProjectUnknown.Strategy
         private StrategyForge[] cachedForges = System.Array.Empty<StrategyForge>();
         private StrategyHunterCamp[] cachedHunterCamps = System.Array.Empty<StrategyHunterCamp>();
         private StrategyFisherHut[] cachedFisherHuts = System.Array.Empty<StrategyFisherHut>();
+        private StrategyForagerCamp[] cachedForagerCamps = System.Array.Empty<StrategyForagerCamp>();
         private StrategyGranary[] cachedGranaries = System.Array.Empty<StrategyGranary>();
         private StrategyPlacedBuilding[] cachedPlacedBuildings = System.Array.Empty<StrategyPlacedBuilding>();
         private StrategyPopulationController population;
@@ -268,6 +269,7 @@ namespace ProjectUnknown.Strategy
             cachedForges = FindSceneObjects<StrategyForge>();
             cachedHunterCamps = FindSceneObjects<StrategyHunterCamp>();
             cachedFisherHuts = FindSceneObjects<StrategyFisherHut>();
+            cachedForagerCamps = FindSceneObjects<StrategyForagerCamp>();
             cachedGranaries = FindSceneObjects<StrategyGranary>();
             cachedPlacedBuildings = FindSceneObjects<StrategyPlacedBuilding>();
         }
@@ -366,6 +368,11 @@ namespace ProjectUnknown.Strategy
             if (typeof(T) == typeof(StrategyFisherHut))
             {
                 return (T[])(object)cachedFisherHuts;
+            }
+
+            if (typeof(T) == typeof(StrategyForagerCamp))
+            {
+                return (T[])(object)cachedForagerCamps;
             }
 
             if (typeof(T) == typeof(StrategyGranary))

@@ -130,6 +130,10 @@ namespace ProjectUnknown.Strategy
                     cachedFisherHuts,
                     hut => hut.WorkerCount,
                     (StrategyFisherHut hut, int index, out StrategyResidentAgent found) => hut.TryGetWorker(index, out found)),
+                StrategyProfessionType.Forager => CountReleasableFromSites(
+                    cachedForagerCamps,
+                    camp => camp.WorkerCount,
+                    (StrategyForagerCamp camp, int index, out StrategyResidentAgent found) => camp.TryGetWorker(index, out found)),
                 StrategyProfessionType.StorageWorker => CountReleasableFromSites(
                     cachedStorageYards,
                     yard => yard.WorkerCount,
@@ -218,6 +222,13 @@ namespace ProjectUnknown.Strategy
                     hut => hut.WorkerCount,
                     (StrategyFisherHut hut, int index, out StrategyResidentAgent found) => hut.TryGetWorker(index, out found),
                     (hut, index) => hut.UnassignWorkerAt(index),
+                    out worker,
+                    allowActiveRelease),
+                StrategyProfessionType.Forager => TryReleaseFromSites(
+                    cachedForagerCamps,
+                    camp => camp.WorkerCount,
+                    (StrategyForagerCamp camp, int index, out StrategyResidentAgent found) => camp.TryGetWorker(index, out found),
+                    (camp, index) => camp.UnassignWorkerAt(index),
                     out worker,
                     allowActiveRelease),
                 StrategyProfessionType.StorageWorker => TryReleaseFromSites(

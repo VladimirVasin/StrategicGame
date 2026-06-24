@@ -74,6 +74,11 @@ namespace ProjectUnknown.Strategy
                 return "Fisher";
             }
 
+            if (resident.ForagerWorkplace != null)
+            {
+                return "Forager";
+            }
+
             if (resident.StorageWorkplace != null || resident.GranaryWorkplace != null)
             {
                 return "Hauler";
@@ -242,6 +247,10 @@ namespace ProjectUnknown.Strategy
                 StrategyResidentAgent.ResidentActivity.PickingUpGranaryFish => "picking up Fish",
                 StrategyResidentAgent.ResidentActivity.CarryingFishToGranary => "hauling Fish to granary",
                 StrategyResidentAgent.ResidentActivity.DepositingGranaryFish => "depositing Fish in granary",
+                StrategyResidentAgent.ResidentActivity.MovingToGranaryForagePickup => "going for forage",
+                StrategyResidentAgent.ResidentActivity.PickingUpGranaryForage => "picking up forage",
+                StrategyResidentAgent.ResidentActivity.CarryingForageToGranary => "hauling forage to granary",
+                StrategyResidentAgent.ResidentActivity.DepositingGranaryForage => "depositing forage in granary",
                 StrategyResidentAgent.ResidentActivity.MovingToHouseholdFoodPickup => "going to granary",
                 StrategyResidentAgent.ResidentActivity.PickingUpHouseholdFood => "picking up household food",
                 StrategyResidentAgent.ResidentActivity.CarryingHouseholdFoodHome => "bringing food home",
@@ -252,6 +261,11 @@ namespace ProjectUnknown.Strategy
                 StrategyResidentAgent.ResidentActivity.DepositingHouseholdPottery => "storing household Pottery",
                 StrategyResidentAgent.ResidentActivity.MovingToHouseCooking => "going home to cook",
                 StrategyResidentAgent.ResidentActivity.CookingHouseMeal => "cooking dinner",
+                StrategyResidentAgent.ResidentActivity.MovingToChildPlay => "going to play",
+                StrategyResidentAgent.ResidentActivity.PlayingAlone => "playing near home",
+                StrategyResidentAgent.ResidentActivity.MovingToChildPartner => "joining other children",
+                StrategyResidentAgent.ResidentActivity.PlayingWithChild => "playing with other children",
+                StrategyResidentAgent.ResidentActivity.PlayingTag => "playing tag",
                 StrategyResidentAgent.ResidentActivity.ReturningLogsToStorage => "returning Logs to storage",
                 StrategyResidentAgent.ResidentActivity.ReturningStoneToStorage => "returning Stone to storage",
                 StrategyResidentAgent.ResidentActivity.ReturningIronToStorage => "returning Iron to storage",
@@ -262,6 +276,7 @@ namespace ProjectUnknown.Strategy
                 StrategyResidentAgent.ResidentActivity.ReturningToolsToStorage => "returning Tools to storage",
                 StrategyResidentAgent.ResidentActivity.ReturningGameToGranary => "returning Game to granary",
                 StrategyResidentAgent.ResidentActivity.ReturningFishToGranary => "returning Fish to granary",
+                StrategyResidentAgent.ResidentActivity.ReturningForageToGranary => "returning forage to granary",
                 StrategyResidentAgent.ResidentActivity.MovingToFuneral => "going to funeral",
                 StrategyResidentAgent.ResidentActivity.MourningCorpse => "mourning",
                 StrategyResidentAgent.ResidentActivity.CarryingCorpseToCemetery => "carrying the dead",
@@ -294,6 +309,11 @@ namespace ProjectUnknown.Strategy
             if (resident.FisherWorkplace != null && resident.Activity == StrategyResidentAgent.ResidentActivity.Idle)
             {
                 return AppendNutritionStatus(resident, "waiting for a bite");
+            }
+
+            if (resident.ForagerWorkplace != null && resident.Activity == StrategyResidentAgent.ResidentActivity.Idle)
+            {
+                return AppendNutritionStatus(resident, "waiting for forage");
             }
 
             if (resident.MineWorkplace != null && resident.Activity == StrategyResidentAgent.ResidentActivity.Idle)

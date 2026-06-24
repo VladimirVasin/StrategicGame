@@ -25,6 +25,7 @@ namespace ProjectUnknown.Strategy
             StrategyProfessionType.Blacksmith,
             StrategyProfessionType.Hunter,
             StrategyProfessionType.Fisher,
+            StrategyProfessionType.Forager,
             StrategyProfessionType.StorageWorker,
             StrategyProfessionType.Builder
         };

@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-
 namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyPopulationController
@@ -20,7 +19,6 @@ namespace ProjectUnknown.Strategy
             {
                 return false;
             }
-
             HashSet<Vector2Int> usedCells = new();
             IReadOnlyList<StrategyResidentAgent> houseResidents = house.Residents;
             for (int i = 0; i < houseResidents.Count; i++)
@@ -31,7 +29,6 @@ namespace ProjectUnknown.Strategy
                     usedCells.Add(cell);
                 }
             }
-
             int childId = AllocateResidentId();
             StrategyResidentGender gender = Random.value < 0.5f
                 ? StrategyResidentGender.Male
@@ -42,7 +39,6 @@ namespace ProjectUnknown.Strategy
                 : mother.FamilyName;
             string childName = GenerateResidentName(gender, familyName);
             Vector3 spawnWorld = GetHouseResidentTargetWorld(house, usedCells, houseResidents.Count);
-
             GameObject residentObject = new GameObject(childName);
             residentObject.transform.SetParent(residentRoot, false);
             SpriteRenderer renderer = residentObject.AddComponent<SpriteRenderer>();
@@ -64,13 +60,11 @@ namespace ProjectUnknown.Strategy
                 father.ResidentId,
                 mother.ResidentId,
                 familyName);
-
             father.AddChildId(childId);
             mother.AddChildId(childId);
             UpsertFamilyRecord(father, true);
             UpsertFamilyRecord(mother, true);
             RegisterResident(child);
-
             StrategyDebugLogger.Info(
                 "Population",
                 "ChildSpawned",
@@ -85,7 +79,6 @@ namespace ProjectUnknown.Strategy
             StrategyEventLogHudController.Notify("Born: " + childName, new Color(0.64f, 0.88f, 0.52f));
             return true;
         }
-
         public bool TryCreateRefugeeFamily(
             Vector3 spawnWorld,
             Vector2 formationAxis,
@@ -99,9 +92,7 @@ namespace ProjectUnknown.Strategy
             {
                 return false;
             }
-
             EnsureResidentRoot();
-
             int normalizedParentCount = Mathf.Clamp(parentCount, 1, 2);
             int normalizedChildCount = Mathf.Clamp(childCount, 0, 3 - normalizedParentCount);
             Vector2 axis = formationAxis.sqrMagnitude > 0.001f
@@ -110,7 +101,6 @@ namespace ProjectUnknown.Strategy
             string familyName = ReserveFamilyName();
             StrategyResidentAgent father = null;
             StrategyResidentAgent mother = null;
-
             for (int i = 0; i < normalizedParentCount; i++)
             {
                 StrategyResidentGender gender = normalizedParentCount == 2

@@ -16,6 +16,7 @@ namespace ProjectUnknown.Strategy
         Forge,
         HunterCamp,
         FisherHut,
+        ForagerCamp,
         TradingPost,
         StorageYard,
         Granary,

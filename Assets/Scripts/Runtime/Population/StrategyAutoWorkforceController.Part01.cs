@@ -132,14 +132,19 @@ namespace ProjectUnknown.Strategy
             float reserveDays = dailyNeed <= 0.01f ? FoodReserveTargetDays : storedRations / dailyNeed;
             bool hasHunterCamp = cachedHunterCamps.Length > 0;
             bool hasFisherHut = cachedFisherHuts.Length > 0;
-            if (!hasHunterCamp && !hasFisherHut)
+            bool hasForagerCamp = cachedForagerCamps.Length > 0;
+            if (!hasHunterCamp && !hasFisherHut && !hasForagerCamp)
             {
                 return;
             }
 
             int desiredFoodWorkers = priority;
-            int hunterWorkers = hasFisherHut ? Mathf.CeilToInt(desiredFoodWorkers * 0.5f) : desiredFoodWorkers;
-            int fisherWorkers = hasHunterCamp ? desiredFoodWorkers - hunterWorkers : desiredFoodWorkers;
+            int sourceKinds = (hasHunterCamp ? 1 : 0) + (hasFisherHut ? 1 : 0) + (hasForagerCamp ? 1 : 0);
+            int hunterWorkers = hasHunterCamp ? Mathf.CeilToInt(desiredFoodWorkers / (float)sourceKinds) : 0;
+            int remainingFoodWorkers = desiredFoodWorkers - hunterWorkers;
+            int remainingKinds = sourceKinds - (hasHunterCamp ? 1 : 0);
+            int fisherWorkers = hasFisherHut ? Mathf.CeilToInt(remainingFoodWorkers / (float)Mathf.Max(1, remainingKinds)) : 0;
+            int foragerWorkers = hasForagerCamp ? Mathf.Max(0, desiredFoodWorkers - hunterWorkers - fisherWorkers) : 0;
             float urgency = Mathf.Max(0f, FoodReserveTargetDays - reserveDays) * 25f;
             if (reserveDays < FoodReserveTargetDays)
             {
@@ -153,6 +158,7 @@ namespace ProjectUnknown.Strategy
 
             AddHunterDemands(hunterWorkers, urgency);
             AddFisherDemands(fisherWorkers, urgency);
+            AddForagerDemands(foragerWorkers, urgency);
         }
 
         private void AddMaterialDemands()

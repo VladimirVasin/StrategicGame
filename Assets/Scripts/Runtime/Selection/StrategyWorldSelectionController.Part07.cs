@@ -3,12 +3,10 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
-
 namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyWorldSelectionController
     {
-
         private void UpdateSelectionLinks(Transform target)
         {
             StrategyPlacedBuilding building = target != null ? target.GetComponent<StrategyPlacedBuilding>() : null;
@@ -17,17 +15,14 @@ namespace ProjectUnknown.Strategy
                 UpdateSelectionLinks(building);
                 return;
             }
-
             StrategyConstructionSite site = target != null ? target.GetComponent<StrategyConstructionSite>() : null;
             if (site != null)
             {
                 UpdateSelectionLinks(site);
                 return;
             }
-
             ClearSelectionLinks();
         }
-
         private void UpdateSelectionLinks(StrategyPlacedBuilding building)
         {
             linkedResidentsScratch.Clear();
@@ -187,6 +182,12 @@ namespace ProjectUnknown.Strategy
             if (fisherHut != null)
             {
                 AddResidents(fisherHut.Workers, results);
+            }
+
+            StrategyForagerCamp foragerCamp = building.GetComponent<StrategyForagerCamp>();
+            if (foragerCamp != null)
+            {
+                AddResidents(foragerCamp.Workers, results);
             }
 
             StrategyStorageYard storageYard = building.GetComponent<StrategyStorageYard>();

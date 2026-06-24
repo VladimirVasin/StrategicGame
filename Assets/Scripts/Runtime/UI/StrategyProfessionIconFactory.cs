@@ -129,6 +129,17 @@ namespace ProjectUnknown.Strategy
                     DrawLine(texture, 5, 24, 13, 22, water, 2);
                     DrawLine(texture, 15, 24, 27, 22, water, 2);
                     break;
+                case StrategyProfessionType.Forager:
+                    FillRect(texture, 8, 17, 17, 8, shadow);
+                    FillRect(texture, 7, 16, 17, 8, wood);
+                    DrawLine(texture, 9, 16, 12, 9, brightWood, 1);
+                    DrawLine(texture, 22, 16, 19, 9, brightWood, 1);
+                    DrawLine(texture, 12, 9, 19, 9, brightWood, 1);
+                    FillRect(texture, 10, 19, 3, 3, leaf);
+                    FillRect(texture, 15, 19, 3, 3, new Color32(142, 88, 54, 255));
+                    FillRect(texture, 20, 18, 2, 2, new Color32(164, 45, 86, 255));
+                    FillRect(texture, 21, 21, 2, 2, new Color32(164, 45, 86, 255));
+                    break;
                 case StrategyProfessionType.StorageWorker:
                     FillRect(texture, 7, 11, 18, 14, shadow);
                     FillRect(texture, 6, 10, 18, 14, wood);

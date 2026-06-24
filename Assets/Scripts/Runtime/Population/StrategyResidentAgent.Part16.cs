@@ -286,7 +286,11 @@ namespace ProjectUnknown.Strategy
                 || activity == ResidentActivity.MovingToGranaryFishPickup
                 || activity == ResidentActivity.PickingUpGranaryFish
                 || activity == ResidentActivity.CarryingFishToGranary
-                || activity == ResidentActivity.DepositingGranaryFish)
+                || activity == ResidentActivity.DepositingGranaryFish
+                || activity == ResidentActivity.MovingToGranaryForagePickup
+                || activity == ResidentActivity.PickingUpGranaryForage
+                || activity == ResidentActivity.CarryingForageToGranary
+                || activity == ResidentActivity.DepositingGranaryForage)
             {
                 ResetGranaryWorkToIdle(storeCarriedFood);
             }
@@ -299,6 +303,11 @@ namespace ProjectUnknown.Strategy
             {
                 activeFishSource.ReleaseStoredFishReservation(this);
                 activeFishSource = null;
+            }
+            else if (activeForageFoodSource != null)
+            {
+                activeForageFoodSource.ReleaseStoredForageReservation(this);
+                activeForageFoodSource = null;
             }
         }
 
@@ -338,6 +347,7 @@ namespace ProjectUnknown.Strategy
                 ClearCarriedHouseholdFood();
                 SetCarriedGameVisible(false);
                 SetCarriedFishVisible(false);
+                SetCarriedForageVisible(false);
             }
         }
 

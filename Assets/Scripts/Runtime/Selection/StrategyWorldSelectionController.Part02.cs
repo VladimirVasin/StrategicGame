@@ -172,7 +172,7 @@ namespace ProjectUnknown.Strategy
             CreateProductionUpgradeHud();
 
             resourcesRoot = CreateUiObject("HouseResources", hudPanel).GetComponent<RectTransform>();
-            SetTopStretch(resourcesRoot, 24f, 382f, 24f, 206f);
+            SetTopStretch(resourcesRoot, 24f, 382f, 24f, 274f);
             Image resourcesBackground = resourcesRoot.gameObject.AddComponent<Image>();
             resourcesBackground.color = new Color(0.08f, 0.11f, 0.10f, 0.86f);
             resourcesBackground.raycastTarget = false;
@@ -184,31 +184,26 @@ namespace ProjectUnknown.Strategy
             SetTopStretch(resourcesTitle.rectTransform, 6f, 8f, 6f, 18f);
 
             RectTransform foodStatusRow = CreateUiObject("FoodStatusRow", resourcesRoot).GetComponent<RectTransform>();
-            SetTopStretch(foodStatusRow, 6f, 32f, 6f, 40f);
+            SetTopStretch(foodStatusRow, 6f, 32f, 6f, 60f);
             foodStatusRowImage = foodStatusRow.gameObject.AddComponent<Image>();
             foodStatusRowImage.color = new Color(0.16f, 0.25f, 0.22f, 0.92f);
             foodStatusRowImage.raycastTarget = false;
 
-            RectTransform foodIconRect = CreateUiObject("FoodIcon", foodStatusRow).GetComponent<RectTransform>();
-            SetTopLeft(foodIconRect, 8f, 6f, 20f, 20f);
-            Image foodIcon = foodIconRect.gameObject.AddComponent<Image>();
-            foodIcon.sprite = StrategyResourceIconFactory.GetSprite(StrategyResourceType.Dish);
-            foodIcon.preserveAspect = true;
-            foodIcon.raycastTarget = false;
-
-            foodStatusText = CreateText("FoodStatusText", foodStatusRow, 12, TextAnchor.MiddleLeft, Color.white);
+            foodStatusText = CreateText("FoodStatusText", foodStatusRow, 11, TextAnchor.MiddleLeft, Color.white);
             foodStatusText.fontStyle = FontStyle.Bold;
-            SetOffsets(foodStatusText.rectTransform, 36f, 0f, 96f, 0f);
+            foodStatusText.lineSpacing = 1.05f;
+            SetOffsets(foodStatusText.rectTransform, 8f, 0f, 128f, 0f);
 
-            foodMealText = CreateText("FoodMealText", foodStatusRow, 10, TextAnchor.MiddleRight, new Color(0.88f, 0.93f, 0.90f));
+            foodMealText = CreateText("FoodMealText", foodStatusRow, 11, TextAnchor.MiddleRight, new Color(0.88f, 0.93f, 0.90f));
             foodMealText.fontStyle = FontStyle.Bold;
+            foodMealText.lineSpacing = 1.05f;
             foodMealText.resizeTextForBestFit = true;
             foodMealText.resizeTextMinSize = 8;
-            foodMealText.resizeTextMaxSize = 10;
-            SetOffsets(foodMealText.rectTransform, 184f, 0f, 8f, 0f);
+            foodMealText.resizeTextMaxSize = 11;
+            SetOffsets(foodMealText.rectTransform, 182f, 0f, 8f, 0f);
 
             RectTransform foodMeter = CreateUiObject("FoodMealMeter", resourcesRoot).GetComponent<RectTransform>();
-            SetTopStretch(foodMeter, 6f, 78f, 6f, 8f);
+            SetTopStretch(foodMeter, 6f, 98f, 6f, 8f);
             Image foodMeterBackground = foodMeter.gameObject.AddComponent<Image>();
             foodMeterBackground.color = new Color(0.01f, 0.03f, 0.025f, 0.88f);
             foodMeterBackground.raycastTarget = false;
@@ -223,26 +218,18 @@ namespace ProjectUnknown.Strategy
             foodMealFillImage.raycastTarget = false;
 
             RectTransform granaryRow = CreateUiObject("GranaryFoodRow", resourcesRoot).GetComponent<RectTransform>();
-            SetTopStretch(granaryRow, 6f, 94f, 6f, 38f);
+            SetTopStretch(granaryRow, 6f, 114f, 6f, 22f);
             Image granaryBackground = granaryRow.gameObject.AddComponent<Image>();
             granaryBackground.color = new Color(1f, 1f, 1f, 0.035f);
             granaryBackground.raycastTarget = false;
 
-            RectTransform granaryIconRect = CreateUiObject("GranaryIcon", granaryRow).GetComponent<RectTransform>();
-            SetTopLeft(granaryIconRect, 8f, 11f, 16f, 16f);
-            Image granaryIcon = granaryIconRect.gameObject.AddComponent<Image>();
-            granaryIcon.sprite = StrategyResourceIconFactory.GetSprite(StrategyResourceType.Dish);
-            granaryIcon.preserveAspect = true;
-            granaryIcon.color = new Color(0.82f, 0.90f, 0.87f, 0.88f);
-            granaryIcon.raycastTarget = false;
-
-            foodGranaryText = CreateText("GranaryFoodText", granaryRow, 11, TextAnchor.MiddleLeft, new Color(0.78f, 0.86f, 0.82f));
+            foodGranaryText = CreateText("GranaryFoodText", granaryRow, 10, TextAnchor.MiddleLeft, new Color(0.78f, 0.86f, 0.82f));
             foodGranaryText.fontStyle = FontStyle.Bold;
-            SetOffsets(foodGranaryText.rectTransform, 34f, 0f, 8f, 0f);
+            SetOffsets(foodGranaryText.rectTransform, 8f, 0f, 8f, 0f);
 
             resourcesEmptyText = CreateText("ResourcesEmptyText", resourcesRoot, 11, TextAnchor.UpperLeft, new Color(0.62f, 0.70f, 0.66f));
             resourcesEmptyText.text = "No food stored at this house";
-            SetTopStretch(resourcesEmptyText.rectTransform, 6f, 138f, 6f, 24f);
+            SetTopStretch(resourcesEmptyText.rectTransform, 6f, 142f, 6f, 24f);
 
             for (int i = 0; i < StrategyHouseResourceStore.DisplayOrder.Length; i++)
             {
@@ -250,7 +237,7 @@ namespace ProjectUnknown.Strategy
             }
 
             upgradeActionsRoot = CreateUiObject("HouseUpgradeActions", hudPanel).GetComponent<RectTransform>();
-            SetTopStretch(upgradeActionsRoot, 24f, 592f, 24f, 196f);
+            SetTopStretch(upgradeActionsRoot, 24f, 666f, 24f, 196f);
             Image upgradesBackground = upgradeActionsRoot.gameObject.AddComponent<Image>();
             upgradesBackground.color = new Color(0.05f, 0.08f, 0.075f, 0.86f);
             upgradesBackground.raycastTarget = false;

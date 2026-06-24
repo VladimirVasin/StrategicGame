@@ -336,7 +336,11 @@ namespace ProjectUnknown.Strategy
 
         private static bool IsGranaryFood(StrategyResourceType type)
         {
-            return type == StrategyResourceType.Game || type == StrategyResourceType.Fish;
+            return type == StrategyResourceType.Game
+                || type == StrategyResourceType.Fish
+                || type == StrategyResourceType.Berries
+                || type == StrategyResourceType.Roots
+                || type == StrategyResourceType.Mushrooms;
         }
 
         private static bool IsHouseholdForage(StrategyResourceType type)

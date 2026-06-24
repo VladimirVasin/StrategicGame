@@ -24,11 +24,13 @@ namespace ProjectUnknown.Strategy
         public int WorkerCount => workers.Count;
         public int GameStored => gameStored;
         public int FishStored => fishStored;
-        public int TotalFoodStored => gameStored + fishStored;
+        public int TotalFoodStored => gameStored + fishStored + ForageStored;
         public float TotalRationValue => gameStored * StrategyFoodNutrition.GetRationValue(StrategyResourceType.Game)
-            + fishStored * StrategyFoodNutrition.GetRationValue(StrategyResourceType.Fish);
+            + fishStored * StrategyFoodNutrition.GetRationValue(StrategyResourceType.Fish)
+            + GetStoredForageRations();
         public float AvailableHouseholdRationValue => GetAvailableFishForHouseholds() * StrategyFoodNutrition.GetRationValue(StrategyResourceType.Fish)
-            + GetAvailableGameForHouseholds() * StrategyFoodNutrition.GetRationValue(StrategyResourceType.Game);
+            + GetAvailableGameForHouseholds() * StrategyFoodNutrition.GetRationValue(StrategyResourceType.Game)
+            + GetAvailableForageHouseholdRations();
         public Vector2Int Origin => building != null ? building.Origin : Vector2Int.zero;
         public Bounds FootprintBounds => building != null ? building.FootprintBounds : new Bounds(transform.position, Vector3.one);
 
@@ -363,79 +365,19 @@ namespace ProjectUnknown.Strategy
             object owner,
             out StrategyResourceType resource,
             out StrategyHunterCamp gameSource,
-            out StrategyFisherHut fishSource)
+            out StrategyFisherHut fishSource,
+            out StrategyForagerCamp forageSource)
         {
             resource = StrategyResourceType.None;
             gameSource = null;
             fishSource = null;
+            forageSource = null;
             if (owner == null)
             {
                 return false;
             }
 
-            float bestDistance = float.MaxValue;
-            StrategyHunterCamp bestGame = null;
-            StrategyHunterCamp[] camps = Object.FindObjectsByType<StrategyHunterCamp>();
-            for (int i = 0; i < camps.Length; i++)
-            {
-                StrategyHunterCamp camp = camps[i];
-                if (camp == null || camp.AvailableGame <= 0)
-                {
-                    continue;
-                }
-
-                float distance = (camp.FootprintBounds.center - FootprintBounds.center).sqrMagnitude;
-                if (distance < bestDistance)
-                {
-                    bestDistance = distance;
-                    bestGame = camp;
-                    resource = StrategyResourceType.Game;
-                }
-            }
-
-            StrategyFisherHut bestFish = null;
-            StrategyFisherHut[] huts = Object.FindObjectsByType<StrategyFisherHut>();
-            for (int i = 0; i < huts.Length; i++)
-            {
-                StrategyFisherHut hut = huts[i];
-                if (hut == null || hut.AvailableFish <= 0)
-                {
-                    continue;
-                }
-
-                float distance = (hut.FootprintBounds.center - FootprintBounds.center).sqrMagnitude;
-                if (distance < bestDistance)
-                {
-                    bestDistance = distance;
-                    bestFish = hut;
-                    bestGame = null;
-                    resource = StrategyResourceType.Fish;
-                }
-            }
-
-            if (resource == StrategyResourceType.Game)
-            {
-                if (bestGame == null || !bestGame.TryReserveStoredGame(owner, out _))
-                {
-                    return false;
-                }
-
-                gameSource = bestGame;
-                return true;
-            }
-
-            if (resource == StrategyResourceType.Fish)
-            {
-                if (bestFish == null || !bestFish.TryReserveStoredFish(owner, out _))
-                {
-                    return false;
-                }
-
-                fishSource = bestFish;
-                return true;
-            }
-
-            return false;
+            return TryReserveNearestFoodSource(owner, out resource, out gameSource, out fishSource, out forageSource);
         }
 
         public bool TryReserveHouseholdFood(
@@ -462,15 +404,7 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
-            if (GetAvailableFishForHouseholds() > 0)
-            {
-                resource = StrategyResourceType.Fish;
-            }
-            else if (GetAvailableGameForHouseholds() > 0)
-            {
-                resource = StrategyResourceType.Game;
-            }
-            else
+            if (!TryChooseHouseholdFoodResource(out resource))
             {
                 return false;
             }

@@ -66,7 +66,6 @@ namespace ProjectUnknown.Strategy
         private const float SecondsPerYear = 100f;
         private const int AdultAgeYears = 16;
         private const int HomeboundChildAgeYears = 3;
-        private const int ForagingChildMinimumAge = 7;
         private const float AdultDailyRationNeed = 1.0f;
         private const float OlderChildDailyRationNeed = 0.7f;
         private const float YoungChildDailyRationNeed = 0.4f;
@@ -109,6 +108,7 @@ namespace ProjectUnknown.Strategy
         private StrategyStonecutterCamp stoneWorkplace;
         private StrategyHunterCamp hunterWorkplace;
         private StrategyFisherHut fisherWorkplace;
+        private StrategyForagerCamp foragerWorkplace;
         private StrategyMine mineWorkplace;
         private StrategyStorageYard storageWorkplace;
         private StrategyStorageYard builderWorkplace;
@@ -139,6 +139,7 @@ namespace ProjectUnknown.Strategy
         private ResidentActivity activity;
         private StrategyBuildingUpgrade activeGarden;
         private StrategyForageNode activeForageNode;
+        private StrategyForagerCamp activeForagerCamp;
         private StrategyLooseCarriedResourcePile activeLooseForageSource;
         private StrategyForestryTree activeTree;
         private StrategyLumberjackCamp activeLogSource;
@@ -151,6 +152,7 @@ namespace ProjectUnknown.Strategy
         private StrategyMine activeIronSource;
         private StrategyHunterCamp activeGameSource;
         private StrategyFisherHut activeFishSource;
+        private StrategyForagerCamp activeForageFoodSource;
         private StrategyLooseCarriedResourcePile activeLooseFoodSource;
         private StrategyGranary activeGranaryDeliveryTarget;
         private StrategyGranary activeHouseholdFoodGranary;
@@ -176,6 +178,7 @@ namespace ProjectUnknown.Strategy
         private float logisticsWorkCooldown;
         private float huntingWorkCooldown;
         private float fishingWorkCooldown;
+        private float foragerWorkCooldown;
         private float householdFoodWorkCooldown;
         private float nextHuntMoveRejectedLogTime;
         private float huntingWorkTimer;
@@ -223,6 +226,7 @@ namespace ProjectUnknown.Strategy
         public StrategyStonecutterCamp StoneWorkplace => stoneWorkplace;
         public StrategyHunterCamp HunterWorkplace => hunterWorkplace;
         public StrategyFisherHut FisherWorkplace => fisherWorkplace;
+        public StrategyForagerCamp ForagerWorkplace => foragerWorkplace;
         public StrategyMine MineWorkplace => mineWorkplace;
         public StrategyStorageYard StorageWorkplace => storageWorkplace;
         public StrategyStorageYard BuilderWorkplace => builderWorkplace;
@@ -234,6 +238,7 @@ namespace ProjectUnknown.Strategy
             || stoneWorkplace != null
             || hunterWorkplace != null
             || fisherWorkplace != null
+            || foragerWorkplace != null
             || mineWorkplace != null
             || coalPitWorkplace != null
             || clayPitWorkplace != null
@@ -402,23 +407,7 @@ namespace ProjectUnknown.Strategy
 
         public bool CanStartHouseholdForagingForHome(StrategyPlacedBuilding targetHome)
         {
-            return targetHome != null
-                && home == targetHome
-                && targetHome.Tool == StrategyBuildTool.House
-                && !deathRequested
-                && !IsPendingRefugee
-                && !IsHouseholder
-                && !HasExternalWorkplace
-                && constructionSite == null
-                && !IsFuneralDutyActive
-                && !hiddenInsideHome
-                && !IsHomeboundYoungChild
-                && (IsAdult || ageYears >= ForagingChildMinimumAge)
-                && activity == ResidentActivity.Idle
-                && !hasTarget
-                && activeForageNode == null
-                && activeLooseForageSource == null
-                && carriedForageAmount <= 0;
+            return false;
         }
 
         private float GetCurrentMoveSpeed()

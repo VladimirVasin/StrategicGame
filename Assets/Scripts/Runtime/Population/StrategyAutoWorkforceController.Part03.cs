@@ -390,6 +390,15 @@ namespace ProjectUnknown.Strategy
                 }
             }
 
+            foreach (StrategyForagerCamp camp in cachedForagerCamps)
+            {
+                if (camp != null && camp.AvailableForage > 0)
+                {
+                    total += camp.AvailableForage;
+                    world = camp.FootprintBounds.center;
+                }
+            }
+
             return total;
         }
 

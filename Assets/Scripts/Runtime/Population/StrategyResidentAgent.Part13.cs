@@ -264,7 +264,9 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("clay", carriedClayAmount),
                 StrategyDebugLogger.F("planks", carriedPlanksAmount),
                 StrategyDebugLogger.F("game", carriedGameAmount),
-                StrategyDebugLogger.F("fish", carriedFishAmount));
+                StrategyDebugLogger.F("fish", carriedFishAmount),
+                StrategyDebugLogger.F("forage", carriedForageAmount),
+                StrategyDebugLogger.F("forageResource", carriedForageResource));
         }
 
         private void ResetLumberWorkToIdle()
@@ -354,12 +356,18 @@ namespace ProjectUnknown.Strategy
                 activeLooseFoodSource.ReleaseReservation(this);
             }
 
+            if (activeForageFoodSource != null)
+            {
+                activeForageFoodSource.ReleaseStoredForageReservation(this);
+            }
+
             activeGameSource = null;
             activeFishSource = null;
+            activeForageFoodSource = null;
             activeLooseFoodSource = null;
             activeGranaryDeliveryTarget = null;
             if (storeCarriedFood
-                && (carriedGameAmount > 0 || carriedFishAmount > 0)
+                && (carriedGameAmount > 0 || carriedFishAmount > 0 || carriedForageAmount > 0)
                 && TryStartCarriedResourceReturn("granary_work_cancelled"))
             {
                 return;
@@ -371,8 +379,11 @@ namespace ProjectUnknown.Strategy
             UseIdleSprite();
             carriedGameAmount = 0;
             carriedFishAmount = 0;
+            carriedForageAmount = 0;
+            carriedForageResource = StrategyResourceType.None;
             SetCarriedGameVisible(false);
             SetCarriedFishVisible(false);
+            SetCarriedForageVisible(false);
             logisticsWorkCooldown = Random.Range(2.0f, 4.5f);
             waitTimer = Random.Range(0.35f, 0.85f);
         }
@@ -407,6 +418,7 @@ namespace ProjectUnknown.Strategy
             ClearCarriedHouseholdFood();
             SetCarriedGameVisible(false);
             SetCarriedFishVisible(false);
+            SetCarriedForageVisible(false);
             activity = GetRestingActivity();
             hasTarget = false;
             path.Clear();

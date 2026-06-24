@@ -5,16 +5,12 @@ namespace ProjectUnknown.Strategy
     [DisallowMultipleComponent]
     public sealed class StrategyForageNode : MonoBehaviour, IStrategyWorldInspectable
     {
-        private const float RegrowSecondsMin = 70f;
-        private const float RegrowSecondsMax = 130f;
-
         private StrategyForageResourceController controller;
         private SpriteRenderer spriteRenderer;
         private StrategyResourceType resourceType;
         private Vector2Int cell;
         private int variant;
         private int yieldAmount;
-        private float regrowTimer;
         private float impactPulseTimer;
         private StrategyResidentAgent reservedBy;
         private StrategyPlacedBuilding reservedForHome;
@@ -40,7 +36,6 @@ namespace ProjectUnknown.Strategy
             variant = visualVariant;
             spriteRenderer = renderer != null ? renderer : GetComponent<SpriteRenderer>();
             depleted = false;
-            regrowTimer = 0f;
             reservedBy = null;
             reservedForHome = null;
             UpdateVisual();
@@ -69,26 +64,6 @@ namespace ProjectUnknown.Strategy
         private void Update()
         {
             UpdateImpactPulse();
-            if (!depleted)
-            {
-                return;
-            }
-
-            regrowTimer -= Time.deltaTime;
-            if (regrowTimer > 0f)
-            {
-                return;
-            }
-
-            depleted = false;
-            reservedBy = null;
-            reservedForHome = null;
-            UpdateVisual();
-            StrategyDebugLogger.Info(
-                "Forage",
-                "NodeRegrown",
-                StrategyDebugLogger.F("resource", resourceType),
-                StrategyDebugLogger.F("cell", cell));
         }
 
         public bool IsReservedBy(StrategyResidentAgent resident)
@@ -151,10 +126,11 @@ namespace ProjectUnknown.Strategy
             gatheredType = resourceType;
             amount = yieldAmount;
             depleted = true;
-            regrowTimer = Random.Range(RegrowSecondsMin, RegrowSecondsMax);
             reservedBy = null;
             reservedForHome = null;
-            UpdateVisual();
+            float respawnSeconds = controller != null
+                ? controller.HandleNodeGathered(this, resourceType)
+                : 0f;
             StrategyDebugLogger.Info(
                 "Forage",
                 "NodeGathered",
@@ -162,7 +138,14 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("cell", cell),
                 StrategyDebugLogger.F("resident", resident.FullName),
                 StrategyDebugLogger.F("amount", amount),
-                StrategyDebugLogger.F("regrowSeconds", regrowTimer));
+                StrategyDebugLogger.F("respawnSeconds", respawnSeconds));
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.enabled = false;
+            }
+
+            gameObject.SetActive(false);
+            Destroy(gameObject);
             return true;
         }
 

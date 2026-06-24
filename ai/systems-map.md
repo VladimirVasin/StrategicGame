@@ -1,6 +1,6 @@
 # Systems Map
 
-Last updated: 2026-06-23
+Last updated: 2026-06-24
 
 Use this file as the first navigation pass before broad searches. Owner cards are starting points, not hard boundaries.
 
@@ -160,6 +160,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Map/StrategyWindController.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.cs`
 - `Assets/Scripts/Runtime/Population/StrategyRefugeeArrivalController.cs`
+- `Assets/Scripts/Runtime/Population/StrategyRefugeeArrivalController.Part02.cs`
 - `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceController.cs`
 - `Assets/Scripts/Runtime/UI/StrategyRefugeeDialogController.cs`
 - `Assets/Scripts/Runtime/UI/StrategyConfirmationDialogController.cs`
@@ -332,6 +333,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Map/StrategyClayResourceController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyClayDeposit.cs`
 - `Assets/Scripts/Runtime/Map/StrategyForageResourceController.cs`
+- `Assets/Scripts/Runtime/Map/StrategyForageResourceController.Respawn.cs`
 - `Assets/Scripts/Runtime/Map/StrategyForageNode.cs`
 - `Assets/Scripts/Runtime/Map/StrategyForageSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Map/StrategyForestryController.cs`
@@ -351,7 +353,7 @@ Impact hints:
 - Iron field placement consumes the active seed, generated walkable land cells, and macro cluster score; Iron deposits are underground fields that do not block walkability but block normal buildability.
 - Coal field placement consumes the active seed, generated walkable land cells, and macro cluster score; Coal deposits are underground fields that do not block walkability but block normal buildability.
 - Clay field placement consumes the active seed, generated walkable near-water land/shore cells, and macro cluster score; Clay deposits do not block walkability but block normal buildability.
-- Forage placement consumes the active seed, generated cell kinds, current walkability, the shared shuffled full-map pass, and macro cluster score; forage nodes are non-blocking but reserved/depleted/regrown by household foragers.
+- Forage placement consumes the active seed, generated cell kinds, current walkability, the shared shuffled full-map pass, and macro cluster score; forage nodes are non-blocking, support reservation, disappear after gathering, and use a timed respawn queue that places replacements near mature standing trees.
 - Generated standalone tree props register as mature forestry trees and block their cells.
 - Forest groups and bushes remain non-interactive but block their cells.
 - Generated Stone deposits register as Boulder, Rock Cluster, or Cliff resource deposits and block their cells.
@@ -799,7 +801,7 @@ Responsibilities:
 - F9 instant construction debug mode makes build tools affordable and shows item cost badges as `Free`.
 - Temporary goal-driven tool locks that disable locked categories/items, block mouse and hotkey selection, and show `Locked` item badges.
 - Top-left construction resource panel with x1/x2/x3 speed buttons directly beneath it.
-- Current catalog entries: `Housing` / `House`, `Extraction` / `Lumberjack Camp`, `Stonecutter Camp`, `Mine`, `Coal Pit`, `Clay Pit`, `Hunter Camp`, and `Fisher Hut`, `Production` / `Sawmill`, `Kiln`, and `Forge`, `Storage` / `Storage Yard` and `Granary`, `Trade` / `Trading Post`, and `Infrastructure` / `Bridge`.
+- Current catalog entries: `Housing` / `House`, `Extraction` / `Lumberjack Camp`, `Stonecutter Camp`, `Mine`, `Coal Pit`, `Clay Pit`, `Hunter Camp`, `Fisher Hut`, and `Forager Camp`, `Production` / `Sawmill`, `Kiln`, and `Forge`, `Storage` / `Storage Yard` and `Granary`, `Trade` / `Trading Post`, and `Infrastructure` / `Bridge`.
 - Hotkeys for open/close, category/item selection, and layered cancel.
 - EventSystem/Input System UI setup when the scene has no UI event module.
 - Add tools/buildings gradually only by explicit user request.
@@ -827,6 +829,9 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Build/StrategyForge.Part02.cs`
 - `Assets/Scripts/Runtime/Build/StrategyHunterCamp.cs`
 - `Assets/Scripts/Runtime/Build/StrategyFisherHut.cs`
+- `Assets/Scripts/Runtime/Build/StrategyForagerCamp.cs`
+- `Assets/Scripts/Runtime/Build/StrategyForagerCamp.Part01.cs`
+- `Assets/Scripts/Runtime/Build/StrategyForagerCamp.Part02.cs`
 - `Assets/Scripts/Runtime/Build/StrategyMine.cs`
 - `Assets/Scripts/Runtime/Build/StrategyCoalPit.cs`
 - `Assets/Scripts/Runtime/Build/StrategyClayPit.cs`
@@ -848,9 +853,9 @@ Impact hints:
 - The public `StrategyBuildMenuController` component is a thin wrapper; `StrategyBuildMenuControllerDriver` owns selected active build tool data and reads `StrategyStorageYard.GetTotalConstructionResources()` for affordability, including Storage Yard stock and loose piles, unless F9 instant construction debug mode is enabled.
 - Placement reads `StrategyBuildMenuController.ActiveTool` / active tool info.
 - Starter goals call `StrategyBuildMenuController.SetAllowedTools()` and `ClearAllowedTools()`; keep lock checks shared by mouse clicks, hotkeys, active tool info, and affordability/selection visuals.
-- Current catalog has user-requested buildings only: `House`, `Lumberjack Camp`, `Stonecutter Camp`, `Sawmill`, `Kiln`, `Forge`, `Hunter Camp`, `Fisher Hut`, `Mine`, `Coal Pit`, `Clay Pit`, `Storage Yard`, `Granary`, `Trading Post`, and `Bridge`; do not add more without a user request.
+- Current catalog has user-requested buildings only: `House`, `Lumberjack Camp`, `Stonecutter Camp`, `Sawmill`, `Kiln`, `Forge`, `Hunter Camp`, `Fisher Hut`, `Forager Camp`, `Mine`, `Coal Pit`, `Clay Pit`, `Storage Yard`, `Granary`, `Trading Post`, and `Bridge`; do not add more without a user request.
 - Current `Housing` category directly activates `House` because it has one item.
-- Current `Extraction` category opens a tray with raw-resource buildings: `Lumberjack Camp`, `Stonecutter Camp`, `Mine`, `Coal Pit`, `Clay Pit`, `Hunter Camp`, and `Fisher Hut`.
+- Current `Extraction` category opens a tray with raw-resource buildings: `Lumberjack Camp`, `Stonecutter Camp`, `Mine`, `Coal Pit`, `Clay Pit`, `Hunter Camp`, `Fisher Hut`, and `Forager Camp`.
 - Current `Production` category opens a tray with processing buildings: `Sawmill`, `Kiln`, and `Forge`.
 - Current `Storage` category opens a tray with `Storage Yard` and `Granary`.
 - Current `Trade` category directly activates `Trading Post` because it has one item.
@@ -937,6 +942,7 @@ Primary files/assets:
 
 - `Assets/Scripts/Runtime/UI/StrategyRefugeeDialogController.cs`
 - `Assets/Scripts/Runtime/Population/StrategyRefugeeArrivalController.cs`
+- `Assets/Scripts/Runtime/Population/StrategyRefugeeArrivalController.Part02.cs`
 - `Assets/Scripts/Runtime/Core/StrategyTimeScaleController.cs`
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.cs`
 - `Assembly-CSharp.csproj`
@@ -954,7 +960,7 @@ Responsibilities:
 - Show a large profession panel with dynamic rows only for professions unlocked by currently built worksites.
 - Show generated pixel-art profession icons, role labels, short role descriptions, assigned/capacity counts, and `-`/`+` controls.
 - Show the `Auto Assign` toggle and compact priority steppers for Construction, Food, Logistics, Wood, Stone, Planks, Iron, Coal, Clay, Pottery, and Tools.
-- Aggregate assignment capacity/counts across all current lumberjack camps, stonecutter camps, sawmills, kilns, hunter camps, fisher huts, mines, coal pits, clay pits, and storage yards.
+- Aggregate assignment capacity/counts across all current lumberjack camps, stonecutter camps, sawmills, kilns, hunter camps, fisher huts, forager camps, mines, coal pits, clay pits, and storage yards.
 - Treat Storage Yard Haulers and hired builders as unlimited-capacity roles once at least one Storage Yard exists; other worksite roles keep their own slot caps.
 - Assign the next free adult resident to the first available worksite slot for the requested profession.
 - Remove one currently assigned resident from the requested profession through the owning worksite API.
@@ -980,6 +986,9 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Build/StrategyKiln.Part02.cs`
 - `Assets/Scripts/Runtime/Build/StrategyHunterCamp.cs`
 - `Assets/Scripts/Runtime/Build/StrategyFisherHut.cs`
+- `Assets/Scripts/Runtime/Build/StrategyForagerCamp.cs`
+- `Assets/Scripts/Runtime/Build/StrategyForagerCamp.Part01.cs`
+- `Assets/Scripts/Runtime/Build/StrategyForagerCamp.Part02.cs`
 - `Assets/Scripts/Runtime/Build/StrategyMine.cs`
 - `Assets/Scripts/Runtime/Build/StrategyCoalPit.cs`
 - `Assets/Scripts/Runtime/Build/StrategyClayPit.cs`
@@ -1010,7 +1019,7 @@ Responsibilities:
 - Maintain a coverage floor of 1 worker for available auto-managed professions whose player counter is above 0; a counter at 0 is the explicit opt-out that allows that role/category to fall to 0.
 - Let emergency food/resource shortages pull a limited donor from an at-target profession only when the shortage score strongly exceeds that profession's hold score, while never taking the last worker protected by a coverage floor.
 - Ignore children, pending refugees, funeral duty, household foraging/food duty, householders, residents with external workplaces, and active construction assignees through resident availability flags.
-- Build work demands from active construction sites, Granary ration reserve, production-worksite stock/capacity, Storage Yard/Granary logistics backlog, Tools demand, and construction material needs.
+- Build work demands from active construction sites, Granary ration reserve, food-production worksite stock/capacity, production-worksite stock/capacity, Storage Yard/Granary logistics backlog, Tools demand, and construction material needs.
 - Score demands by priority, urgency, shortage, worksite need, construction readiness, storage backlog, and resident distance.
 - Assign nearest free adults through existing worksite APIs instead of mutating resident/worksite lists directly.
 - Hire builders through Storage Yards so existing balanced construction dispatch remains the owner of construction-site assignment.
@@ -1041,7 +1050,7 @@ Impact hints:
 - Free adult fallback assignment runs after demand assignment so idle adults are placed into the best enabled available role when any nonzero managed profession can accept them.
 - Auto workforce does not force-reassign home duty, funeral duty, or residents still busy returning carried resources.
 - Demand scoring should continue to call public worksite APIs (`AssignWorker`, `AssignBuilder`, Storage Yard builder dispatch) so cancellation, carried-resource return, reservations, and resident state cleanup stay centralized.
-- Food automation should keep using Hunter/Fisher production plus shared Haulers into Granaries; do not reintroduce a separate player-facing Granary Worker profession.
+- Food automation should keep using Hunter/Fisher/Forager production plus shared Haulers into Granaries; do not reintroduce a separate player-facing Granary Worker profession.
 - Builder automation should hire Storage Yard builders and let `StrategyStorageYard.TryAssignBuildersToSite` balance actual construction-site assignment.
 - Priority UI labels and debug event labels must stay in English.
 
@@ -1063,6 +1072,7 @@ Responsibilities:
 - Choose random storage yard visual variants for placed storage yards while keeping menu/preview art stable.
 - Choose random hunter camp visual variants for placed camps while keeping menu/preview art stable.
 - Choose random fisher hut visual variants for placed huts while keeping menu/preview art stable.
+- Choose random forager camp visual variants for placed camps while keeping menu/preview art stable.
 - Choose random coal pit visual variants for placed pits while keeping menu/preview art stable.
 - Choose random granary visual variants for placed granaries while keeping menu/preview art stable.
 - Choose random trading post visual variants for placed trading posts while keeping menu/preview art stable.
@@ -1082,6 +1092,7 @@ Responsibilities:
 - Storage yard places a `StrategyStorageYard` worksite component, blocks its technical 3x2 footprint plus one visual row above, and hosts local visual Logs/Stone/Iron/Coal/Clay/Planks/Pottery stockpiles.
 - Hunter camp places a `StrategyHunterCamp` worksite component, blocks its technical 2x2 footprint plus one visual row above, and hosts a local visual `Game` stockpile.
 - Fisher hut places a `StrategyFisherHut` worksite component, blocks its technical 2x2 footprint plus one visual row above, requires nearby water/shore access, and hosts a local visual `Fish` stockpile.
+- Forager Camp places a `StrategyForagerCamp` worksite component, blocks its technical 2x2 footprint plus one visual row above, and hosts local visual Berries/Roots/Mushrooms stock.
 - Mine places a `StrategyMine` worksite component, blocks its technical 2x2 footprint plus one visual row above, requires an available underground Iron deposit under its footprint, and hosts a local visual Iron stockpile.
 - Coal Pit places a `StrategyCoalPit` worksite component, blocks its technical 2x2 footprint plus one visual row above, requires an available underground Coal deposit under its footprint, and hosts a local visual Coal stockpile.
 - Clay Pit places a `StrategyClayPit` worksite component, blocks its technical 2x2 footprint plus one visual row above, requires an available near-water Clay field under its footprint, and hosts a local visual Clay stockpile.
@@ -1148,7 +1159,7 @@ Impact hints:
 - Build placement consults fog exploration state, so early expansion starts around the camp and other revealed areas unless player fog is disabled from the F9 debug panel.
 - House ambient overlays are visual-only child sprites and should not be used for footprint/collider calculations.
 - Bridge placement requires two valid explored, unoccupied, walkable river-bank endpoint cells with a straight contiguous River water span between them; Lake water is rejected.
-- With the current catalog, `House`, `Lumberjack Camp`, `Stonecutter Camp`, `Sawmill`, `Kiln`, `Forge`, `Hunter Camp`, `Fisher Hut`, `Mine`, `Coal Pit`, `Clay Pit`, `Storage Yard`, and `Granary` can be selected and placed only where their technical foundation is fully walkable/buildable/explored, their future final 2.5D blocker can be reserved on buildable/explored/unoccupied cells, and builders have a nearby walkable work cell; Mine, Coal Pit, and Clay Pit are the only tools allowed to use matching Iron/Coal/Clay build-blocked resource cells.
+- With the current catalog, `House`, `Lumberjack Camp`, `Stonecutter Camp`, `Sawmill`, `Kiln`, `Forge`, `Hunter Camp`, `Fisher Hut`, `Forager Camp`, `Mine`, `Coal Pit`, `Clay Pit`, `Storage Yard`, and `Granary` can be selected and placed only where their technical foundation is fully walkable/buildable/explored, their future final 2.5D blocker can be reserved on buildable/explored/unoccupied cells, and builders have a nearby walkable work cell; Mine, Coal Pit, and Clay Pit are the only tools allowed to use matching Iron/Coal/Clay build-blocked resource cells.
 - Final blocker reservation no longer requires every future visual blocker cell to be walkable at construction-site placement time.
 - `Fisher Hut` additionally requires a nearby water cell with adjacent walkable shore access.
 - `Mine` additionally requires at least one available underground Iron deposit under its footprint.
@@ -1167,17 +1178,11 @@ Impact hints:
 
 Responsibilities:
 
-- Install default Garden Beds automatically for placed houses.
-- Install optional visual/production upgrades for placed houses from the selected-house HUD.
-- Charge small construction resource costs from available Storage Yard resources when optional upgrades are installed.
-- Track installed upgrade types on each placed house.
-- Generate and cache upgrade sprites at runtime.
-- Find nearby walkable cells for upgrade visuals without changing map walkability yet.
-- Provide installed Garden Beds records for timed crop production and householder work behavior.
-- Assign a produced resource to Garden Beds and Chicken Coop.
-- Spawn idle chickens when a Chicken Coop upgrade is installed.
-- Animate installed Garden Beds and Chicken Coop sprites with procedural frames.
-- Show upgrade state, costs, and affordability state in the selected-house HUD.
+- Keep the legacy Garden Beds and Chicken Coop upgrade implementation available in code while it is inactive in normal House flow.
+- Generate and cache old upgrade sprites at runtime.
+- Track old installed upgrade types on placed houses if legacy code paths are re-enabled later.
+- Support old Chicken Coop idle chicken spawning when a legacy coop exists.
+- Avoid exposing Garden Beds or Chicken Coop as selected-house actions until crop/egg production becomes explicit standalone building work.
 
 Primary files/assets:
 
@@ -1198,12 +1203,10 @@ Primary files/assets:
 
 Impact hints:
 
-- Current upgrades are visual/behavioral/resource-producing: default Garden Beds choose one crop, harvest it into the owning house on a fixed growth tick, and Householder work boosts the growth cycle; Chicken Coop spawns idle chickens and passively adds Eggs.
-- Garden Beds are installed for free automatically on each House; Chicken Coop costs 1 Stone/2 Planks.
-- Optional upgrade installation spends available Storage Yard stock immediately and respects construction reservations.
-- Garden Beds sprite animation follows growth progress toward the next harvest; other upgrade sprite animation remains visual-only and does not change upgrade footprint or walkability.
-- Placement uses `CityMapController.IsCellWalkable` to avoid houses/water but keeps residents free to walk through the visual upgrade cells for now.
-- Future production/upkeep effects should extend this subsystem and the house resource layer instead of putting production logic directly into the HUD.
+- Current House placement does not auto-install Garden Beds, and the selected-house HUD does not show Garden Beds or Chicken Coop actions.
+- Householder home duty no longer starts Garden Beds work.
+- The old upgrade controller, sprites, and chicken agent can be reused or removed when Garden Beds and Chicken Coop become standalone crop/egg buildings.
+- Do not re-enable direct house-local food production unless the design intentionally returns food production to Houses.
 
 ### House Resources MVP
 
@@ -1215,7 +1218,7 @@ Responsibilities:
 - Provide the runtime dish recipe catalog used by Householder cooking.
 - Generate runtime pixel-art resource icons for HUD display.
 - Provide resource display ordering for the selected-house HUD.
-- Include house-local forage food as ingredients for prepared household dishes.
+- Keep existing forage food resource types usable as house-local ingredients when present.
 - Provide shared HUD icon support for non-house stock resources such as hunted `Game` and caught `Fish`.
 
 Primary files/assets:
@@ -1235,6 +1238,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyHouseholdForagingState.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.cs`
 - `Assets/Scripts/Runtime/Map/StrategyForageResourceController.cs`
+- `Assets/Scripts/Runtime/Map/StrategyForageResourceController.Respawn.cs`
 - `Assets/Scripts/Runtime/Map/StrategyForageNode.cs`
 - `Assets/Scripts/Runtime/Map/StrategyForageSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.cs`
@@ -1243,11 +1247,11 @@ Primary files/assets:
 Impact hints:
 
 - Current resources are house-local runtime counts, not global economy inventory.
-- Current resource sources are Garden Beds harvest ticks, Chicken Coop passive egg production, and household foraging of Berries/Roots/Mushrooms.
-- Household foraging is home labor, not a profession HUD assignment; householders are excluded and children younger than 7 do not forage.
-- Eggs, crops, forage, `Game`, and `Fish` are raw ingredients that can be stored at home and cooked into recipe-based prepared dishes.
+- Current normal house-local ingredient source is Householder delivery of raw `Fish`/`Game`/forage food from Granaries.
+- Household foraging from Houses, Garden Beds, and Chicken Coop are inactive legacy paths; Forager Camps are the active external source for forage food.
+- Eggs, crops, forage, `Game`, and `Fish` are raw ingredients that can be stored at home and cooked into recipe-based prepared dishes, but crops/Eggs currently have no normal active production path.
 - Current dish recipes span Poor/Common/Hearty/Fine/Feast quality tiers; quality currently affects ration value and HUD/debug context, not morale.
-- `Game` and `Fish` are local production-building/Granary stock resources with shared HUD icons, and Householders can move them into house-local ingredient storage.
+- `Game`, `Fish`, Berries, Roots, and Mushrooms are local production-building/Granary stock resources with shared HUD icons, and Householders can move them into house-local ingredient storage.
 - Future trade, taxes, storage caps, spoilage, and needs should decide whether house stores remain local or feed into a settlement-level resource service.
 
 ### Sawmill Production
@@ -1385,7 +1389,7 @@ Responsibilities:
 - Find Kilns with available stored Pottery and reserve stock for haulers.
 - Find Forges with available stored Tools and reserve stock for haulers.
 - Reserve Pottery from Storage Yard stock for householder pickup by houses that need it for Dish cooking.
-- Find Hunter Camps/Fisher Huts or loose food piles with available `Game`/`Fish` and reserve food for delivery to the nearest Granary.
+- Find Hunter Camps/Fisher Huts/Forager Camps or loose food piles with available `Game`/`Fish`/forage food and reserve food for delivery to the nearest Granary.
 - Find loose construction resource piles and reserve Logs/Stone/Planks for haulers after construction cancellation.
 - Reserve Logs/Stone/Planks for accepted construction sites.
 - Include loose construction resource piles in construction affordability and reservations.
@@ -1458,7 +1462,7 @@ Impact hints:
 - Stonecutter Camp haul reservations are separate from Storage Yard construction reservations so production stock must be moved into storage before construction can claim it.
 - Builders also create a per-builder pickup claim after a path to the pickup cell is found; cancelled work releases that claim while the construction-site reservation remains intact.
 - If a builder dies while carrying a construction resource, the dropped loose construction pile restores the original site's reservation when that site still needs the resource.
-- Residents currently support one active workplace: lumberjack camp, stonecutter camp, sawmill, kiln, hunter camp, fisher hut, mine, coal pit, clay pit, storage logistics, granary food logistics, or storage builder crew.
+- Residents currently support one active workplace: lumberjack camp, stonecutter camp, sawmill, kiln, hunter camp, fisher hut, forager camp, mine, coal pit, clay pit, storage logistics, granary food logistics, or storage builder crew.
 - Storage Yard stock is runtime-only and uncapped; Pottery feeds household Dish cooking, Tools feed production-building upgrades, and Trading Posts can trade stored non-food resources through explicit transaction helpers rather than a separate global inventory.
 - Future resources should extend the logistics stock model; current Logs, Stone, Iron, Coal, Clay, Planks, Pottery, and Tools still have explicit carrying visuals/states.
 - Storage Yard construction pickup and stock-visual helpers are split into `StrategyStorageYard.Part05.cs`; stock drop effects are in `StrategyStorageYard.Part08.cs` to keep source files below the 500-line limit.
@@ -1467,17 +1471,18 @@ Impact hints:
 
 Responsibilities:
 
-- Add `Granary` as a placed food-storage building with local `Game` and `Fish` stock.
+- Add `Granary` as a placed food-storage building with local `Game`, `Fish`, Berries, Roots, and Mushrooms stock.
 - Keep Granary food stock uncapped.
 - Use shared Storage Yard Haulers instead of a separate player-facing Granary Worker profession.
 - Find Hunter Camps with available stored `Game` and reserve stock for Haulers.
 - Find Fisher Huts with available stored `Fish` and reserve stock for Haulers.
+- Find Forager Camps with available stored Berries/Roots/Mushrooms and reserve stock for Haulers.
 - Route Haulers to source camps/huts, pick up reserved food, carry it to the granary, and deposit it.
 - Provide settlement-level raw food availability and reservation APIs for Householder pickup.
 - Provide raw food spend/receive helpers for Trading Post caravan transactions.
-- Update Hunter Camp/Fisher Hut stock visuals as food is picked up.
-- Update Granary `Game`/`Fish` stock visuals and food drop effects as food is deposited.
-- Update Granary `Game`/`Fish` stock visuals as Haulers deposit stock and Householders reserve/pick up ingredients.
+- Update Hunter Camp/Fisher Hut/Forager Camp stock visuals as food is picked up.
+- Update Granary `Game`/`Fish`/forage stock visuals and food drop effects as food is deposited.
+- Update Granary `Game`/`Fish`/forage stock visuals as Haulers deposit stock and Householders reserve/pick up ingredients.
 - Show food stock and available source counts in the selection HUD.
 
 Primary files/assets:
@@ -1485,8 +1490,12 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Build/StrategyGranary.cs`
 - `Assets/Scripts/Runtime/Build/StrategyGranary.Part02.cs`
 - `Assets/Scripts/Runtime/Build/StrategyGranary.Part03.cs`
+- `Assets/Scripts/Runtime/Build/StrategyGranary.Forage.cs`
 - `Assets/Scripts/Runtime/Build/StrategyHunterCamp.cs`
 - `Assets/Scripts/Runtime/Build/StrategyFisherHut.cs`
+- `Assets/Scripts/Runtime/Build/StrategyForagerCamp.cs`
+- `Assets/Scripts/Runtime/Build/StrategyForagerCamp.Part01.cs`
+- `Assets/Scripts/Runtime/Build/StrategyForagerCamp.Part02.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.cs`
 - `Assets/Scripts/Runtime/Build/StrategyBuildPlacementController.cs`
 - `Assets/Scripts/Runtime/Build/StrategyBuildingSpriteFactory.cs`
@@ -1500,10 +1509,45 @@ Primary files/assets:
 Impact hints:
 
 - Haulers reserve food before walking so multiple haulers do not target the same local stock.
-- Food source reservations prevent multiple Haulers from double-claiming the same `Game`/`Fish`.
-- `Game` and `Fish` remain runtime-local raw food stock; completed houses can receive them from Householder Granary pickups, nightly dinner consumes prepared house `Dish` before falling back to house-local ingredients, and each cooked Dish requires house-local Pottery.
-- Residents currently support one active workplace: lumberjack camp, stonecutter camp, hunter camp, fisher hut, mine, storage logistics, or storage builder crew.
+- Food source reservations prevent multiple Haulers from double-claiming the same `Game`/`Fish`/forage food.
+- `Game`, `Fish`, Berries, Roots, and Mushrooms remain runtime-local raw food stock; completed houses can receive them from Householder Granary pickups, nightly dinner consumes prepared house `Dish` before falling back to house-local ingredients, and each cooked Dish requires house-local Pottery.
+- Residents currently support one active workplace: lumberjack camp, stonecutter camp, hunter camp, fisher hut, forager camp, mine, storage logistics, or storage builder crew.
 - Future spoilage, food needs, recipe balancing, market logistics, or settlement-level food services should extend this subsystem rather than folding food into construction Storage Yards.
+
+### Forager Camp Production
+
+Responsibilities:
+
+- Add `Forager Camp` as a cheap external food-production building with local Berries, Roots, and Mushrooms stock.
+- Assign up to 2 adult residents as `Forager` through the Profession HUD or auto workforce Food demand.
+- Reserve generated `StrategyForageNode` resources through the shared forage resource controller.
+- Route Foragers to reachable forage nodes, gather with forage animation frames, carry food back to the camp, and deposit it into local camp stock.
+- Expose Forager Camp food stock to Granary Haulers so households never forage directly from Houses.
+- Show Forager Camp stock/source context in the selection HUD.
+
+Primary files/assets:
+
+- `Assets/Scripts/Runtime/Build/StrategyForagerCamp.cs`
+- `Assets/Scripts/Runtime/Build/StrategyForagerCamp.Part01.cs`
+- `Assets/Scripts/Runtime/Build/StrategyForagerCamp.Part02.cs`
+- `Assets/Scripts/Runtime/Map/StrategyForageResourceController.cs`
+- `Assets/Scripts/Runtime/Map/StrategyForageResourceController.Respawn.cs`
+- `Assets/Scripts/Runtime/Map/StrategyForageNode.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part55.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part56.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part57.cs`
+- `Assets/Scripts/Runtime/Population/StrategyProfessionType.cs`
+- `Assets/Scripts/Runtime/UI/StrategyProfessionHudController.cs`
+- `Assets/Scripts/Runtime/UI/StrategyProfessionIconFactory.cs`
+- `Assets/Scripts/Runtime/UI/StrategyBuildMenuController.Catalog.cs`
+- `Assets/Scripts/Runtime/Build/StrategyBuildingSpriteFactory.Part11.cs`
+- `Assembly-CSharp.csproj`
+
+Impact hints:
+
+- Forager Camp is the active source for forage ingredients; do not re-enable House-owned household foraging unless the design intentionally returns food production to homes.
+- Camp stock is local and capped like other production sites; Granaries remain the uncapped food storage and Householder pickup source.
+- Auto workforce treats Foragers as part of the Food category alongside Hunters and Fishers.
 
 ### Trade MVP
 
@@ -1551,6 +1595,7 @@ Impact hints:
 Responsibilities:
 
 - Create the starter camp with an animated campfire.
+- Select the starter camp cell on walkable land at least 6 cells from generated water/shore when possible.
 - Block the campfire cell while the fire is burning, then release it after the campfire burns out and disappears.
 - Expose the starter camp world position for the initial camera focus.
 - Spawn 3 initial families at startup, each with a father, a mother, and 1-2 adult children.
@@ -1562,7 +1607,7 @@ Responsibilities:
 - Track placed house records for household migration checks.
 - Attach household birth state to occupied houses.
 - Attach household food state to occupied houses.
-- Attach household foraging state to house buildings.
+- Keep legacy household foraging state compiled but do not attach it to Houses or dispatch it.
 - Assign the oldest adult female resident in each house as `Householder` and move her into home-duty work.
 - Check close kinship through resident parent/ancestor links for future family/couple rules.
 - Populate completed houses from the homeless adult male/female pool when possible, even if those residents already have workplaces or construction assignments.
@@ -1571,6 +1616,7 @@ Responsibilities:
 - Bind assigned residents to their home building.
 - Spawn children for valid adult male/female house pairs after randomized household cooldowns when house capacity allows.
 - Keep children younger than 3 years old inside their assigned home by hiding their world sprite/collider and skipping outdoor idle/funeral movement until they age out.
+- Give older children daytime ambient play activities near home/camp, including solo play, pair play with siblings or nearby children, and tag.
 - Send housed idle residents home to sleep inside during the `Night` phase by hiding their world sprite/collider until morning, while leaving homeless residents outside.
 - Resolve one nightly household dinner from prepared house `Dish`, using resident age-based ration needs after eligible residents return home for `Night`.
 - Send Householders to fetch reserved raw `Fish`/`Game` from reachable Granaries into their own house when ingredient reserves are low.
@@ -1592,15 +1638,15 @@ Responsibilities:
 - Move an eligible adult opposite-gender partner into single-resident adult-child houses while blocking close relatives.
 - Create temporary refugee families with 1-3 members, 1-2 adult parents, and optional children.
 - Gate the first refugee family on 3 completed registered houses; schedule later families with the repeat interval, fading arrival intensity after 40 accepted residents and stopping arrivals at 50 accepted residents.
+- Spawn refugee arrivals inside the map about 4 cells beyond a random side of the daylight-visible fog boundary, with a walkable in-map edge fallback for debug/no-fog cases.
 - Keep pending refugees outside the normal resident registry until accepted.
-- Accept refugee families into the normal resident registry or destroy rejected temporary families after they leave the map.
+- Accept refugee families into the normal resident registry or destroy rejected temporary families after they return to the hidden in-map arrival staging point.
 - Track accepted refugee families that could not be housed immediately as unsettled groups, preventing generic pair assignment from splitting the group before all members share one house.
 - Drive simple idle movement around the current camp/home through short walkable grid paths.
 - Route homeless residents without houses to reachable reserved sleep spots around the startup campfire during `Night`.
 - Let one homeless resident relight campfire embers with a visible kindling animation before the camp sleeps.
-- Periodically send Householders from `TendingHousehold` home duty to work at their home's default Garden Beds upgrade, fetch raw `Fish`/`Game` from Granaries, fetch Pottery from Storage Yards, or cook stored ingredients plus Pottery into `Dish`.
-- Periodically send non-householder, unemployed adults and older children to nearby forage nodes during daytime, then carry Berries/Roots/Mushrooms back to their own house.
-- Boost the Garden Beds growth cycle when garden work completes.
+- Periodically send Householders from `TendingHousehold` home duty to fetch raw `Fish`/`Game`/forage food from Granaries, fetch Pottery from Storage Yards, or cook stored ingredients plus Pottery into `Dish`.
+- Do not send residents for household foraging directly from Houses; assigned Forager Camp workers own generated forage gathering.
 - Assign residents to lumberjack camps as workplace targets.
 - Route assigned lumberjacks to the nearest available mature trees/processable wood, chopping work, fallen-trunk bucking, Logs pickup, camp stock deposit, planting cells, and sapling planting.
 - Assign residents to stonecutter camps as workplace targets.
@@ -1617,6 +1663,8 @@ Responsibilities:
 - Route assigned hunters to the nearest available reserved adult rabbits, roughly 2-3 tile bow stand cells, bow aiming, arrow shots with a 20% miss chance, carcass approach on hit, butchering, `Game` carrying, and camp stock deposit.
 - Assign residents to fisher huts as workplace targets.
 - Route assigned fishers to the nearest available fish with validated land/shore cells, line casting with cast-range revalidation, hooked-fish reeling, `Fish` carrying, and hut stock deposit.
+- Assign residents to Forager Camps as workplace targets.
+- Route assigned Foragers to generated Berries/Roots/Mushrooms nodes, forage gather timing, carried forage visuals, and camp stock deposit.
 - Assign residents to storage yards as Haulers.
 - Route assigned Haulers to lumberjack camp stock, stored-Logs pickup, storage-yard delivery, and deposit.
 - Route assigned Haulers to stonecutter camp stock, stored-Stone pickup, storage-yard delivery, and deposit.
@@ -1625,7 +1673,7 @@ Responsibilities:
 - Route assigned Haulers to Clay Pit stock, stored-Clay pickup, storage-yard delivery, and deposit.
 - Route assigned Haulers to Kiln stock, stored-Pottery pickup, storage-yard delivery, and deposit.
 - Route Householders to Storage Yard Pottery stock, house delivery, and deposit when their own house needs Pottery for cooking.
-- Route assigned Haulers to Hunter Camp/Fisher Hut stock, stored-food pickup, granary delivery, and deposit.
+- Route assigned Haulers to Hunter Camp/Fisher Hut/Forager Camp stock, stored-food pickup, granary delivery, and deposit.
 - Assign residents to Storage Yards as dedicated builders.
 - Route hired builders to reserved Storage Yard stock, construction resource pickup, site delivery, and hammer/build work after materials arrive.
 - Drive frame-based axe swing animation and hit timing for lumberjacks.
@@ -1652,6 +1700,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyPopulationController.cs`
 - `Assets/Scripts/Runtime/Population/StrategyPopulationController.Part01.cs`
 - `Assets/Scripts/Runtime/Population/StrategyPopulationController.Part02.cs`
+- `Assets/Scripts/Runtime/Population/StrategyPopulationController.Part08.cs`
 - `Assets/Scripts/Runtime/Population/StrategyPopulationController.Part06.cs`
 - `Assets/Scripts/Runtime/Population/StrategyPopulationController.Part07.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentDeathSnapshot.cs`
@@ -1662,6 +1711,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyFuneralSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Population/StrategyGraveMarker.cs`
 - `Assets/Scripts/Runtime/Population/StrategyRefugeeArrivalController.cs`
+- `Assets/Scripts/Runtime/Population/StrategyRefugeeArrivalController.Part02.cs`
 - `Assets/Scripts/Runtime/Population/StrategyHouseholdState.cs`
 - `Assets/Scripts/Runtime/Population/StrategyHouseholdFoodState.cs`
 - `Assets/Scripts/Runtime/Population/StrategyHouseholdFoodState.NightMeal.cs`
@@ -1683,6 +1733,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part47.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part48.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part49.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part58.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentSpriteFactory.Part05.cs`
 - `Assets/Scripts/Runtime/Population/StrategyCampfireRelightSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Build/StrategyLumberjackCamp.cs`
@@ -1707,6 +1758,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Map/StrategyClayDeposit.cs`
 - `Assets/Scripts/Runtime/Map/StrategyStonecutEffectAnimator.cs`
 - `Assets/Scripts/Runtime/Map/StrategyForageResourceController.cs`
+- `Assets/Scripts/Runtime/Map/StrategyForageResourceController.Respawn.cs`
 - `Assets/Scripts/Runtime/Map/StrategyForageNode.cs`
 - `Assets/Scripts/Runtime/Map/StrategyForageSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.cs`
@@ -1746,13 +1798,14 @@ Impact hints:
 - Cemetery placement should remain away from active settlement space without drifting to extreme map edges; current scoring favors a moderate camp distance, penalizes edge cells, and rejects grave candidates without enough carrier-reachable stand cells.
 - `StrategyPopulationController` also owns the runtime house registry used for free-house migration and partner retry checks.
 - Pending refugee families are rendered as resident agents but are not counted as residents, workers, or fog sources until accepted.
+- Refugee entry selection depends on `StrategyFogOfWarController.IsCellVisibleAtDaylightRange` so temporary night/fog visibility reductions do not move arrivals closer to the settlement.
 - Accepted refugee families join the normal registry as a preserved family block, stay near camp while homeless, and get priority to fill the first empty House as a whole household before normal single-adult migration or random pair assignment.
 - `StrategyHouseholdState` lives on occupied houses and owns the randomized birth timer.
 - `StrategyHouseholdState` blocks births while the same house has sustained ration shortages or birth-blocked residents.
 - `StrategyHouseholdFoodState` lives on occupied houses, resolves one nightly dinner per day after a one-day settling grace, waits for eligible residents to enter home for `Night` with a fallback deadline, consumes prepared house recipe dishes first, falls back to house-local ingredients for missing rations, applies short rations to resident nutrition debt, and exposes aggregate food status for HUDs.
-- Householder home duty can reserve one raw `Fish`/`Game` unit from a Granary or Pottery from a Storage Yard, path to pickup, carry it home, store it in the house, and cook stored ingredients plus 1 Pottery per prepared recipe dish during `Dusk`.
-- `StrategyHouseholdForagingState` lives on house buildings and dispatches only unassigned non-householder residents; it should remain separate from the Profession HUD/worksite assignment model.
-- Household foragers use dedicated generated reach/crouch sprites plus node pulse effects instead of the generic Garden Beds animation.
+- Householder home duty can reserve one raw `Fish`/`Game`/forage-food unit from a Granary or Pottery from a Storage Yard, path to pickup, carry it home, store it in the house, and cook stored ingredients plus 1 Pottery per prepared recipe dish during `Dusk`.
+- `StrategyHouseholdForagingState` is compiled as inactive legacy code; placed Houses no longer attach it, and resident start guards return false so house-driven foraging cannot dispatch.
+- Generated forage reach/crouch sprites and node pulse effects are used by Forager Camp workers and are not started by Houses.
 - `StrategyPlacedBuilding` owns the current Householder reference for houses, preferring the oldest adult female resident and refreshing on home changes, death/unregister, and resident adulthood.
 - `StrategyResidentAgent.HasWorkplace` includes the Householder role, so profession assignment should treat householders as occupied home workers.
 - Householder assignment clears external worksite/builder roles through their owning worksite APIs and uses `TendingHousehold` instead of `Idle` for home duty.
@@ -1781,7 +1834,7 @@ Impact hints:
 - Storage Yard Haulers move Logs, Stone, Iron, Coal, Clay, Planks, Pottery, and Tools outputs from production worksites into Storage Yard stock and deliver non-food production inputs from Storage Yard stock into production nodes; Householders deliver Pottery from Storage Yards into houses for Dish cooking. Coal, Clay, Planks, Pottery, and Tools use their own carried sprite and return/drop cleanup paths.
 - Construction assignment is a temporary exclusive task for hired Storage Yard builders; there is no hired-builder pool cap or construction-site builder cap, balanced dispatch spreads free builders across active sites first, and workplace assignment skips residents already attached to a construction site. Construction assignment does not block home/family assignment.
 - Builder construction pickup path failures include start/pickup walkability details in `debug.log`; repeated pickup path failures drop that builder's current site assignment so another builder can retry.
-- Worker and builder assignment must check `StrategyResidentAgent.CanWork`; children under age 3 remain inside assigned homes, and older children idle/walk but cannot work.
+- Worker and builder assignment must check `StrategyResidentAgent.CanWork`; children under age 3 remain inside assigned homes, and older children can play but cannot work.
 - Resident construction sprites are generated for every male/female visual variant and should stay in sync with readability outline mirroring.
 - Resident crying sprites are generated for adult and child funeral mourning/waiting states and should stay in sync with readability outline mirroring.
 - Chickens use the same local path style as before; their animation is visual-only.
@@ -1791,7 +1844,7 @@ Impact hints:
 - If no free pair exists, the completed house is available for adult-child migration and partner lookup.
 - House occupation consumes the finite free-resident pool from the starter camp while it exists; later household births and adult-child migration are the first internal population growth path.
 - Resident death must continue to go through the centralized population cleanup path; direct `Destroy` on accepted residents risks stale worksite, construction, home, HUD, or kinship state.
-- Resident helper methods for carried-resource return, construction work, workplace clearing, readability sync, refugee path following, tree movement, fishing cast/reel flow, production-input delivery, trail movement, ranged hunt stand selection, reachable forestry work-cell selection, reachable construction dropoff selection, worker-triggered visual effects, day/night work scheduling, night home sleep, Clay work/logistics, Kiln/Pottery work/logistics, household Pottery delivery, Forge/Tools work/logistics, production-upgrade speed helpers, and homeless campfire sleep are split across `StrategyResidentAgent.Part27.cs` through `StrategyResidentAgent.Part53.cs` to keep source files below the 500-line limit.
+- Resident helper methods for carried-resource return, construction work, workplace clearing, readability sync, refugee path following, tree movement, fishing cast/reel flow, production-input delivery, trail movement, ranged hunt stand selection, reachable forestry work-cell selection, reachable construction dropoff selection, worker-triggered visual effects, day/night work scheduling, night home sleep, Clay work/logistics, Kiln/Pottery work/logistics, household Pottery delivery, Forge/Tools work/logistics, production-upgrade speed helpers, homeless campfire sleep, forager work, and child play are split across `StrategyResidentAgent` partial files to keep source files below the 500-line limit.
 - Future jobs/families/economy should extend resident state rather than replacing the home/free-camp assignment model.
 
 ### World Selection
@@ -1809,9 +1862,9 @@ Responsibilities:
 - Render typed inspect chip/row dashboards for wildlife, mineral deposits, trees, forage, loose carried resources, and loose construction materials while keeping legacy body text as a fallback.
 - Show selected-object preview sprites and status/context blocks.
 - Show selected residents with a dedicated compact dashboard: identity subtitle, portrait, role/home/food chips, and icon-led task, home, food, and family rows.
-- Expose house-specific visual upgrade actions in the selected-house HUD.
+- Keep Garden Beds and Chicken Coop hidden from the selected-house HUD.
 - Expose Tools-based production upgrade actions in eligible selected-building HUDs.
-- Show selected-house resident portraits/names/age/life stage/statuses up to house capacity, including the Householder marker, compact upgrade action rows, prepared dish recipe summaries, Pottery, ingredient rations, resource icons/counts, and Garden Beds crop.
+- Show selected-house resident portraits/names/age/life stage/statuses up to house capacity, including the Householder marker, prepared dish recipe summaries, Pottery, ingredient rations, and resource icons/counts.
 - Show selected worksite status/resource context without worker assignment controls.
 - Show selected Storage Yards with a dedicated icon-led logistics dashboard for Haulers, builders, available sources, resource stock, and readiness status.
 - Show selected Trading Posts with settlement Coins, caravan status/ETA, and active buy/sell offer buttons.

@@ -57,7 +57,6 @@ namespace ProjectUnknown.Strategy
             BridgeEndCell = origin;
             spriteRenderer = renderer;
             EnsureResourceStore();
-            EnsureHouseholdForaging();
             EnsureWorldShadow();
             EnsureClickCollider();
         }
@@ -265,19 +264,6 @@ namespace ProjectUnknown.Strategy
             if (resources == null)
             {
                 resources = gameObject.AddComponent<StrategyHouseResourceStore>();
-            }
-        }
-
-        private void EnsureHouseholdForaging()
-        {
-            if (Tool != StrategyBuildTool.House)
-            {
-                return;
-            }
-
-            if (GetComponent<StrategyHouseholdForagingState>() == null)
-            {
-                gameObject.AddComponent<StrategyHouseholdForagingState>();
             }
         }
 

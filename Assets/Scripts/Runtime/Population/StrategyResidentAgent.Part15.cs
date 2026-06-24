@@ -34,6 +34,7 @@ namespace ProjectUnknown.Strategy
 
         private void GrowUp()
         {
+            CancelChildPlay(false);
             lifeStage = StrategyResidentLifeStage.Adult;
             ageYears = Mathf.Max(ageYears, AdultAgeYears);
             transform.localRotation = Quaternion.identity;

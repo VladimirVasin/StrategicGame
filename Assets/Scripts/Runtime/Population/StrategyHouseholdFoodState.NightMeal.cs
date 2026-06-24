@@ -17,6 +17,9 @@ namespace ProjectUnknown.Strategy
             && CanResolveNightMealForDay(nightMealDayIndex);
         public int NightMealPresentResidentCount => nightMealPresentResidentCount;
         public int NightMealExpectedResidentCount => nightMealExpectedResidentCount;
+        public float NightMealFallbackSecondsRemaining => IsNightMealWaiting
+            ? Mathf.Max(0f, NightMealFallbackSeconds - nightMealWaitSeconds)
+            : 0f;
 
         public void NotifyResidentEnteredHomeForNight(StrategyResidentAgent resident)
         {

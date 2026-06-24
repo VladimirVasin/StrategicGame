@@ -20,6 +20,7 @@ namespace ProjectUnknown.Strategy
         private StrategyPopulationController population;
         private StrategyTimeScaleController timeScale;
         private StrategyRefugeeDialogController dialog;
+        private StrategyFogOfWarController fog;
         private RefugeeArrivalState state;
         private Vector2Int activeEntryCell;
         private Vector3 activeOutsideBaseWorld;
@@ -42,12 +43,14 @@ namespace ProjectUnknown.Strategy
             CityMapController mapController,
             StrategyPopulationController populationController,
             StrategyTimeScaleController timeScaleController,
-            StrategyRefugeeDialogController dialogController)
+            StrategyRefugeeDialogController dialogController,
+            StrategyFogOfWarController fogController)
         {
             map = mapController;
             population = populationController;
             timeScale = timeScaleController;
             dialog = dialogController;
+            fog = fogController;
             dialog?.Configure();
             if (state == RefugeeArrivalState.Waiting && !firstArrivalTriggered && !loggedWaitingForFirstArrival)
             {
@@ -223,7 +226,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("parents", parentCount),
                 StrategyDebugLogger.F("children", childCount),
                 StrategyDebugLogger.F("entryCell", activeEntryCell),
-                StrategyDebugLogger.F("outsideWorld", activeOutsideBaseWorld));
+                StrategyDebugLogger.F("spawnWorld", activeOutsideBaseWorld));
             return true;
         }
 
@@ -399,8 +402,7 @@ namespace ProjectUnknown.Strategy
 
             for (int attempt = 0; attempt < MaxRouteAttempts; attempt++)
             {
-                Vector2Int entryCell = GetRandomEdgeCell();
-                if (!map.IsCellWalkable(entryCell))
+                if (!TryGetRandomArrivalEntryCell(out Vector2Int entryCell, out Vector2 outward))
                 {
                     continue;
                 }
@@ -424,14 +426,10 @@ namespace ProjectUnknown.Strategy
                     continue;
                 }
 
-                Vector2 outward = GetOutwardDirection(entryCell);
                 activeEntryCell = entryCell;
                 activeFormationAxis = -outward;
                 Vector3 entryWorld = map.GetCellCenterWorld(entryCell.x, entryCell.y);
-                activeOutsideBaseWorld = new Vector3(
-                    entryWorld.x + outward.x * map.CellSize * 2.8f,
-                    entryWorld.y + outward.y * map.CellSize * 2.8f,
-                    -0.08f);
+                activeOutsideBaseWorld = new Vector3(entryWorld.x, entryWorld.y, -0.08f);
                 routes = preparedRoutes;
                 return true;
             }

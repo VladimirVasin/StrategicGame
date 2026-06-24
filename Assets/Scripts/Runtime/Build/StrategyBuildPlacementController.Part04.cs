@@ -112,7 +112,6 @@ namespace ProjectUnknown.Strategy
             {
                 StrategyHouseAmbientAnimator ambient = placed.AddComponent<StrategyHouseAmbientAnimator>();
                 ambient.Configure(renderer, visualVariant);
-                TryInstallDefaultGardenBeds(building);
                 population?.RegisterHouse(building);
                 if (autoAssignHouseResidents)
                 {
@@ -172,6 +171,11 @@ namespace ProjectUnknown.Strategy
             {
                 StrategyFisherHut hut = placed.AddComponent<StrategyFisherHut>();
                 hut.Configure(building, map, population, StrategyWildlifeController.Active);
+            }
+            else if (toolInfo.Tool == StrategyBuildTool.ForagerCamp)
+            {
+                StrategyForagerCamp camp = placed.AddComponent<StrategyForagerCamp>();
+                camp.Configure(building, map, population, StrategyForageResourceController.Active);
             }
             else if (toolInfo.Tool == StrategyBuildTool.TradingPost)
             {

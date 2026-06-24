@@ -97,6 +97,7 @@ namespace ProjectUnknown.Strategy
                 || !StrategyDayNightCycleController.IsHouseholdOutdoorWorkTime
                 || carriedGameAmount > 0
                 || carriedFishAmount > 0
+                || carriedForageAmount > 0
                 || carriedHouseholdFoodResource != StrategyResourceType.None)
             {
                 return false;

@@ -73,6 +73,8 @@ namespace ProjectUnknown.Strategy
         private readonly RectTransform[] resourceSlots = new RectTransform[StrategyHouseResourceStore.DisplayOrder.Length];
         private readonly Image[] resourceIconImages = new Image[StrategyHouseResourceStore.DisplayOrder.Length];
         private readonly Text[] resourceAmountTexts = new Text[StrategyHouseResourceStore.DisplayOrder.Length];
+        private readonly Text[] resourceQuantityTexts = new Text[StrategyHouseResourceStore.DisplayOrder.Length];
+        private readonly Text[] resourceNutritionTexts = new Text[StrategyHouseResourceStore.DisplayOrder.Length];
         private RectTransform upgradeActionsRoot;
         private Button gardenBedsButton;
         private Text gardenBedsButtonText;

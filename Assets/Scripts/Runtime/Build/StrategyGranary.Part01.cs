@@ -21,7 +21,7 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            int stock = householdFoodReservedResource == StrategyResourceType.Game ? gameStored : fishStored;
+            int stock = GetStoredFood(householdFoodReservedResource);
             amount = Mathf.Min(householdFoodReservedAmount, stock);
             if (amount <= 0)
             {
@@ -30,14 +30,7 @@ namespace ProjectUnknown.Strategy
             }
 
             resource = householdFoodReservedResource;
-            if (resource == StrategyResourceType.Game)
-            {
-                gameStored -= amount;
-            }
-            else
-            {
-                fishStored -= amount;
-            }
+            RemoveFood(resource, amount);
 
             ClearHouseholdFoodReservation();
             UpdateStockVisual();
@@ -49,6 +42,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("amount", amount),
                 StrategyDebugLogger.F("gameStock", gameStored),
                 StrategyDebugLogger.F("fishStock", fishStored),
+                StrategyDebugLogger.F("forageStock", GetForageStockText()),
                 StrategyDebugLogger.F("owner", owner));
             return true;
         }
@@ -291,6 +285,7 @@ namespace ProjectUnknown.Strategy
         public string GetHudStatusText()
         {
             CountAvailableSources(out int gameSources, out int fishSources);
+            int forageSources = CountAvailableForagerSources();
             return "Serviced by Haulers"
                 + "\n"
                 + "Game: "
@@ -298,6 +293,9 @@ namespace ProjectUnknown.Strategy
                 + "\n"
                 + "Fish: "
                 + fishStored
+                + "\n"
+                + "Forage: "
+                + GetForageStockText()
                 + "\n"
                 + "Rations: "
                 + TotalRationValue.ToString("0.#")
@@ -307,7 +305,10 @@ namespace ProjectUnknown.Strategy
                 + gameSources
                 + " / "
                 + "fish "
-                + fishSources;
+                + fishSources
+                + " / "
+                + "forage "
+                + forageSources;
         }
 
         private void CountAvailableSources(out int gameSources, out int fishSources)

@@ -301,9 +301,16 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            if (!TryFindCampCell(true, out campCell) && !TryFindCampCell(false, out campCell))
+            if (!TryFindCampCell(true, out campCell)
+                && !TryFindCampCell(false, out campCell)
+                && !TryFindFallbackCampCell(out campCell))
             {
                 campCell = new Vector2Int(map.Width / 2, map.Height / 2);
+                StrategyDebugLogger.Warn(
+                    "Population",
+                    "StarterCampWaterClearanceFallback",
+                    StrategyDebugLogger.F("cell", campCell),
+                    StrategyDebugLogger.F("minWaterDistance", CampMinWaterDistance));
             }
 
             campWorld = map.GetCellCenterWorld(campCell.x, campCell.y);
@@ -315,6 +322,7 @@ namespace ProjectUnknown.Strategy
                 "StarterCampCreated",
                 StrategyDebugLogger.F("cell", campCell),
                 StrategyDebugLogger.F("world", campWorld),
+                StrategyDebugLogger.F("waterClearance", GetNearestWaterDistance(campCell, CampMinWaterDistance)),
                 StrategyDebugLogger.F("residents", residents.Count));
         }
 

@@ -192,6 +192,7 @@ namespace ProjectUnknown.Strategy
             }
 
             returningHomeToSleep = false;
+            CancelChildPlay(false);
             DropCarriedResourcesOnDeath();
             ClearConstructionSite(null);
             CancelLumberWork();
@@ -274,6 +275,7 @@ namespace ProjectUnknown.Strategy
             }
 
             returnCarriedResourcesImmediately = true;
+            CancelChildPlay(true);
             ClearConstructionSite(null);
             CancelLumberWork();
             CancelStoneWork();
@@ -409,6 +411,7 @@ namespace ProjectUnknown.Strategy
 
         public void SetCampIdleOrigin(Vector2Int origin)
         {
+            CancelChildPlay(true);
             idleOrigin = origin;
             idleFootprint = Vector2Int.one;
             if (home == null

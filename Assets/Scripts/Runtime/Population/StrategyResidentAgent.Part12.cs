@@ -40,6 +40,7 @@ namespace ProjectUnknown.Strategy
         {
             activeGameSource = null;
             activeFishSource = null;
+            activeForageFoodSource = null;
             activeGranaryDeliveryTarget = null;
             transform.localRotation = Quaternion.identity;
             transform.localScale = Vector3.one;
@@ -305,6 +306,11 @@ namespace ProjectUnknown.Strategy
             if (carriedFishAmount > 0)
             {
                 return TryStartFoodReturn(StrategyResourceType.Fish, reason);
+            }
+
+            if (carriedForageAmount > 0)
+            {
+                return TryStartForageFoodReturn(reason);
             }
 
             return false;

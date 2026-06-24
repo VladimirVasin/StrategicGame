@@ -58,6 +58,11 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            if (TryCancelChildPlayForNight())
+            {
+                return;
+            }
+
             if (UpdateNightHomeState())
             {
                 return;
@@ -303,6 +308,18 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            if (activity == ResidentActivity.PickingUpGranaryForage)
+            {
+                UpdatePickingUpGranaryForage();
+                return;
+            }
+
+            if (activity == ResidentActivity.DepositingGranaryForage)
+            {
+                UpdateDepositingGranaryForage();
+                return;
+            }
+
             if (activity == ResidentActivity.PickingUpHouseholdFood)
             {
                 UpdatePickingUpHouseholdFood();
@@ -395,6 +412,12 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            if (IsStationaryChildPlayActivity(activity))
+            {
+                UpdateChildPlayActivity();
+                return;
+            }
+
             if (waitTimer > 0f)
             {
                 waitTimer -= Time.deltaTime;
@@ -420,6 +443,11 @@ namespace ProjectUnknown.Strategy
                 }
 
                 if (TryStartScheduledWorkTask())
+                {
+                    return;
+                }
+
+                if (TryStartChildIdleActivity())
                 {
                     return;
                 }

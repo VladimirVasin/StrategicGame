@@ -468,7 +468,7 @@ namespace ProjectUnknown.Strategy
                 refugees = refugeesObject.AddComponent<StrategyRefugeeArrivalController>();
             }
 
-            refugees.Configure(map, population, timeScale, refugeeDialog);
+            refugees.Configure(map, population, timeScale, refugeeDialog, fog);
             debugPanel.Configure(fog, weather, refugees);
             StrategyDebugLogger.Info("Bootstrap", "RefugeesReady");
         }

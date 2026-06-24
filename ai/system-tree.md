@@ -1,6 +1,6 @@
 # System Tree
 
-Last updated: 2026-06-23
+Last updated: 2026-06-24
 
 This is a conceptual map of the current project. Keep concrete file ownership in `ai/systems-map.md`.
 
@@ -166,8 +166,8 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Spawns Berries, Roots, and Mushrooms as small non-blocking resource nodes on suitable walkable land cells through the shared seeded shuffled whole-map pass
       - Uses macro cluster weighting so forage appears in natural patches instead of filling only the first scanned map area
       - Guarantees a small starter ring of forage resources around the settlement outside the campfire clear radius
-      - Forage nodes can be reserved by one resident, depleted on gather, and regrow after a timed delay
-      - Procedural forage sprites include ready/depleted node visuals plus carried basket sprites
+      - Forage nodes can be reserved by one resident, disappear after a successful gather, and queue a timed replacement spawn near mature standing trees
+      - Procedural forage sprites include ready node visuals plus carried basket sprites
       - Foragers use dedicated crouch/reach animation frames, node pulse feedback, and small leaves/spores/dust effects on gather impact frames
     - Strategy wind
       - Runtime-created Unity `WindZone` in directional mode
@@ -255,7 +255,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Exposes selected tool info, footprint, color, and cost
     - Reads construction stock availability through `StrategyStorageYard.GetTotalConstructionResources()`, including Storage Yard stock and loose piles
     - Shows x1/x2/x3 simulation speed buttons under the top-left resource panel, reusing `StrategyTimeScaleController`
-    - Current catalog contains `Housing` / `House`, `Extraction` / `Lumberjack Camp`, `Stonecutter Camp`, `Mine`, `Coal Pit`, `Clay Pit`, `Hunter Camp`, and `Fisher Hut`, `Production` / `Sawmill`, `Kiln`, and `Forge`, `Storage` / `Storage Yard` and `Granary`, `Trade` / `Trading Post`, and `Infrastructure` / `Bridge`
+    - Current catalog contains `Housing` / `House`, `Extraction` / `Lumberjack Camp`, `Stonecutter Camp`, `Mine`, `Coal Pit`, `Clay Pit`, `Hunter Camp`, `Fisher Hut`, and `Forager Camp`, `Production` / `Sawmill`, `Kiln`, and `Forge`, `Storage` / `Storage Yard` and `Granary`, `Trade` / `Trading Post`, and `Infrastructure` / `Bridge`
     - Single-item categories directly activate their only build tool on click
   - Build placement
     - Runtime-created placement controller
@@ -307,6 +307,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Generates 3 procedural 2.5D clay pit sprite variants in code
     - Generates 3 procedural 2.5D hunter camp sprite variants in code
     - Generates 3 procedural 2.5D fisher hut sprite variants in code
+    - Generates 3 procedural 2.5D forager camp sprite variants in code
     - Generates 3 procedural 2.5D trading post sprite variants in code
     - Generates 3 procedural 2.5D storage yard sprite variants in code
     - Generates 3 procedural 2.5D granary sprite variants in code
@@ -329,24 +330,13 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Chooses a random building visual variant for each successfully placed supported building
     - Placed houses add ambient smoke/window-light overlay animation without changing colliders
     - Completed buildings get animated torch, lantern, brazier, or bridge-lamp source sprites that fade in at dusk/night through the cinematic light emitter layer
-    - Completed buildings, construction sites, house upgrades, and loose construction resource piles attach shared procedural ground/cast shadows
-  - House visual upgrades
-    - Runtime-created building-upgrade controller
-    - Current visual/production upgrades: Garden Beds and Chicken Coop
-    - Garden Beds are installed for free by default when each House is placed/completed
-    - Chicken Coop costs 1 Stone and 2 Planks from available Storage Yard resources
-    - Upgrade sprites are generated in code
-    - Chicken Coop is installed from the selected house HUD
-    - The selected house HUD shows upgrade state/cost and disables unaffordable upgrade buttons
-    - Upgrade placement searches nearby walkable cells but does not mark those cells as blocked yet
-    - Placed houses remember which visual upgrades are installed
-    - Garden Beds choose one crop resource when automatically installed: Turnip, Cabbage, Onion, Carrot, or Potato
-    - Garden Beds periodically attract the owning householder for a short work animation
-    - Garden Beds add the chosen crop to the owning house on a fixed harvest tick
-    - Completed Garden Beds work accelerates the current growth cycle
-    - Installing Chicken Coop spawns small idle chickens around that coop
-    - Chicken Coop passively adds Eggs to the owning house
-    - Garden Beds sprites show growth progress toward the next harvest; Chicken Coop sprites animate procedurally while installed
+    - Completed buildings, construction sites, and loose construction resource piles attach shared procedural ground/cast shadows
+  - House visual upgrades (legacy inactive)
+    - Runtime-created building-upgrade controller and generated Garden Beds/Chicken Coop sprites still exist in code
+    - Houses no longer auto-install default Garden Beds
+    - The selected house HUD no longer exposes Garden Beds or Chicken Coop actions
+    - Householder home duty no longer starts Garden Beds work
+    - Old Garden Beds/Chicken Coop behavior is reserved for future standalone crop/egg buildings or removal
   - House resources MVP
     - Runtime house-local resource store
     - Current house-local ingredients: Eggs, Turnip, Cabbage, Onion, Carrot, Potato, Berries, Roots, Mushrooms, `Fish`, and `Game`
@@ -388,7 +378,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Haulers walk to Kilns, pick up Pottery, carry it to the Storage Yard, and deposit it
     - Haulers walk to Forges, pick up Tools, carry them to the Storage Yard, and deposit them
     - Householders reserve and carry Pottery from Storage Yard stock into their own houses when cooking needs it
-    - Haulers can also reserve `Game`/`Fish` from Hunter Camps/Fisher Huts or loose food piles and deliver that food to the nearest Granary
+    - Haulers can also reserve `Game`/`Fish`/forage food from Hunter Camps/Fisher Huts/Forager Camps or loose food piles and deliver that food to the nearest Granary
     - Lumberjack camp local Logs stock decreases when haulers pick up reserved Logs
     - Stonecutter camp local Stone stock decreases when haulers pick up reserved Stone
     - Mine local Iron stock decreases when haulers pick up reserved Iron
@@ -422,12 +412,13 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Granary food storage capacity is uncapped
     - Haulers reserve available `Game` from Hunter Camps
     - Haulers reserve available `Fish` from Fisher Huts
-    - Haulers can recover loose dropped `Game` and `Fish` piles
+    - Haulers reserve available Berries, Roots, and Mushrooms from Forager Camps
+    - Haulers can recover loose dropped `Game`, `Fish`, Berries, Roots, and Mushrooms piles
     - Haulers walk to source camps/huts, pick up reserved food, carry it to the Granary, and deposit it
-    - Hunter Camp and Fisher Hut local food stock decreases when granary haulers pick up reserved food
-    - Granary local `Game` and `Fish` stock update their visible stockpiles
-    - Granary food is raw `Game`/`Fish` ingredient stock for Householder pickup, not direct nightly dinner fallback
-    - Granaries expose trade helpers that spend/receive `Game` and `Fish` for caravan transactions
+    - Hunter Camp, Fisher Hut, and Forager Camp local food stock decreases when granary haulers pick up reserved food
+    - Granary local `Game`, `Fish`, Berries, Roots, and Mushrooms stock updates its visible stockpiles
+    - Granary food is raw `Game`/`Fish`/forage ingredient stock for Householder pickup, not direct nightly dinner fallback
+    - Granaries expose trade helpers that spend/receive stored food for caravan transactions
   - Trade MVP
     - Settlement Coins live in a runtime treasury created by bootstrap
     - Trading Post is a placed trade building with no assigned workers
@@ -440,6 +431,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Population MVP
     - Runtime-created population controller
     - Startup camp creates an animated procedural campfire
+      - Camp placement keeps at least 6 cells of clearance from generated water/shore when possible
     - Campfire blocks its own cell while lit, burns down into persistent embers, releases the cell while extinguished, and can be relit by homeless residents at night
       - Startup camp spawns 3 initial families
       - Each initial family has a father, a mother, and 1-2 adult children with parent/child links
@@ -456,13 +448,13 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - The Householder role counts as home work and can block normal worker assignment
     - Houses attach household food state that resolves nightly dinner after eligible residents return home for `Night`, using age-based resident needs
     - Ingredients and prepared dish recipe stacks contribute different ration values, so physical food units and supplied ration value are tracked separately
-    - Householders can fetch reserved `Fish`/`Game` from Granaries into their own house when household ingredient reserves are low
+    - Householders can fetch reserved `Fish`/`Game`/forage food from Granaries into their own house when household ingredient reserves are low
     - Householders can fetch Pottery from Storage Yards and cook stored ingredients plus 1 Pottery per prepared recipe dish during `Dusk`
-    - Houses attach household foraging state that sends non-householder, unemployed adults and older children to gather nearby forage during daytime
+    - Houses do not attach household foraging state; house-driven resident foraging is inactive because Forager Camps own external forage work
     - Household food uses a one-day settling grace, waits for family presence with a fallback deadline, and consumes prepared house-local dishes before direct ingredients
     - Short rations create per-resident nutrition debt and days-hungry state that feeds household status
     - Sustained household shortages block new births and resident malnutrition severity drives mortality multipliers
-    - Children inherit parent/family links, stay inside their assigned home until age 3, idle/walk around home after that, cannot be workers/builders, and grow into adults at age 16 after scaled game time
+    - Children inherit parent/family links, stay inside their assigned home until age 3, run daytime solo/pair/tag play near home or camp after that, cannot be workers/builders, and grow into adults at age 16 after scaled game time
     - Residents roll annual mortality from age 1; risk stays very low through youth, rises gently from 40 to 50, grows faster after 50, and remains capped after that
     - Resident mortality is multiplied by each resident's nutrition severity when household dinner shortages accumulate
     - Residents in active funeral duty are temporarily immune to death attempts so carriers/attendees cannot break an active procession
@@ -474,22 +466,22 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Spontaneous cemetery placement prefers a moderate distance from the settlement, penalizes extreme map edges, and filters graves by carrier-reachable walkable stand cells
     - Completed burials create runtime-generated clickable grave sprites with epitaph HUD data and mark grave cells as not walkable
     - Funeral activities temporarily interrupt active resident tasks without permanently removing workplace roles
-    - The first refugee family arrives after 3 completed houses; later families periodically arrive from a map edge, route only to the reachable camp-side arrival area, walk to the startup campfire, and ask for settlement acceptance through a modal paused decision
+    - The first refugee family arrives after 3 completed houses; later families periodically spawn inside the map about 4 cells beyond a random side of the daylight-visible fog boundary, route only to the reachable camp-side arrival area, walk to the startup campfire, and ask for settlement acceptance through a modal paused decision
     - Refugee arrival intensity fades after 40 accepted residents and stops at 50 accepted residents; incoming family size is capped by remaining room below 50
     - Refugee families contain 1-3 members with 1-2 adult parents and optional children, using normal names, ages, visual variants, and parent/child kinship links when children are present
     - Accepted refugees join the normal resident registry, keep their family block, and occupy the first available empty House as a whole family; if no house is available, the family remains an unsettled group and generic pair assignment cannot split it before all members share one house
-    - Rejected refugee families walk back off-map and are removed
+    - Rejected refugee families walk back toward their hidden in-map arrival staging point and are removed
     - Adult children continue aging and can move from a parental home into an empty house, oldest first
     - Single adult-child households periodically search for an adult opposite-gender partner from another parental home or the free camp pool, with close-relative checks, and apply the same husband-family-name rule after partner move-in
     - Residents keep a reference to their home building once assigned
     - Residents store a random visual variant chosen at startup
     - Residents perform simple idle movement near their current camp/home using short walkable grid paths
     - Resident pathing can recover a blocked start cell by moving the resident to a nearby walkable cell and logging the recovery
-    - Resident work normally starts during the shared Dawn-through-Dusk work window; nightfall defers new production, construction, logistics, hunting, fishing, foraging, garden, household-food pickup, and household cooking while allowing carried resources and deposits/returns to finish
+    - Resident work normally starts during the shared Dawn-through-Dusk work window; nightfall defers new production, construction, logistics, hunting, fishing, household-food pickup, and household cooking while allowing carried resources and deposits/returns to finish
     - During `Night`, housed idle residents path to their home, hide inside the house, and wake at the home exit after night ends
     - During `Night`, homeless idle residents reserve reachable spots around the startup campfire; one resident can relight embers with a visible kindling animation before sleeping on the ground by the fire
-    - Householders periodically work at their house's default Garden Beds, fetch raw `Fish`/`Game` ingredients from Granaries, fetch Pottery from Storage Yards, or cook prepared `Dish` from ingredients and Pottery during `TendingHousehold` home duty
-    - Non-householder residents without external work forage Berries, Roots, and Mushrooms for their own house with a visible gather animation; children younger than 7 do not forage
+    - Householders fetch raw `Fish`/`Game` ingredients from Granaries, fetch Pottery from Storage Yards, or cook prepared `Dish` from ingredients and Pottery during `TendingHousehold` home duty
+    - Non-householder residents no longer forage directly for their own house; generated forage nodes are consumed by assigned Forager Camp workers instead
     - Residents assigned to a lumberjack camp path to the nearest available tree or processable wood on the map, chop mature trees, buck fallen trunks into Logs, carry Logs to camp stock, and plant new saplings nearby
     - Residents assigned to a stonecutter camp path to the nearest available Stone deposit on the map, mine chunks with pickaxes, carry Stone to camp stock, and do not plant/regrow Stone
     - Residents assigned to a Mine path to the mine entrance, become hidden underground while working, trigger entrance dust/spark effects, mine reserved underground Iron, and add Iron to mine stock
@@ -499,13 +491,14 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Residents assigned to a Kiln wait for Hauler-delivered Clay and Coal, work visibly at the Kiln, fire them into `Pottery`, and add Pottery to Kiln stock
     - Residents assigned to a hunter camp reserve the nearest available adult rabbit on the map, move to roughly 2-3 tile bow range, shoot arrow projectiles with a 20% miss chance, butcher carcasses on hit, carry `Game`, and deposit it into hunter camp stock
     - Residents assigned to a fisher hut reserve the nearest available fish on the map, move to shore, cast/reel while range remains valid, carry `Fish`, and deposit it into fisher hut stock
+    - Residents assigned to a Forager Camp reserve generated Berries/Roots/Mushrooms nodes, gather forage with reach/crouch animation frames, and deposit it into camp stock
     - Residents assigned as Haulers path to lumberjack camp stock, carry Logs to storage, and deposit them
     - Residents assigned as Haulers also path to stonecutter camp stock, carry Stone to storage, and deposit it
     - Residents assigned as Haulers also path to Mine stock, carry Iron to storage, and deposit it
     - Residents assigned as Haulers also path to Coal Pit stock, carry Coal to storage, and deposit it
     - Residents assigned as Haulers also path to Clay Pit stock, carry Clay to storage, and deposit it
     - Residents assigned as Haulers also deliver Storage Yard Logs into Sawmills, path to Sawmill stock, carry Planks to storage, deliver Storage Yard Clay/Coal into Kilns, path to Kiln stock, carry Pottery to storage, and deposit it; house-demanded Pottery is picked up from Storage Yards by Householders
-    - Residents assigned as Haulers also haul `Game`/`Fish` from production food stock or loose food piles into the nearest Granary
+    - Residents assigned as Haulers also haul `Game`/`Fish`/forage food from production food stock or loose food piles into the nearest Granary
     - Residents hired as Storage Yard builders fetch reserved Logs/Stone/Planks, deliver them to construction sites, then build with hammer animations
     - Auto workforce assignment scans eligible free adults every few seconds, uses one per-tick worksite snapshot for demand/rebalance/fallback calculations, treats nonzero player values as desired profession targets plus a one-worker coverage floor, releases surplus workers from overstaffed auto-managed professions, can pull limited donors from roles above their floor for higher-scored shortages, uses `0` as the explicit opt-out that permits a role/category to have no workers, caps successful assignments per tick to avoid frame spikes, and assigns remaining free adults through existing worksite APIs across later ticks while shortages/backlog/readiness affect scoring
     - Residents removed from a role while carrying Logs, Stone, Iron, Coal, Clay, Planks, Pottery, `Game`, or `Fish` first return the carried resource to the appropriate Storage Yard or Granary; hard interruption fallbacks preserve materials instead of deleting carried stock
@@ -521,7 +514,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Manual and automatic worker/builder assignment only accepts adult residents
     - Residents render with a synced silhouette outline and ground shadow for readability over busy terrain
     - Runtime-generated campfire sprites include flame, smoke, spark, ember, relight, and runtime burnout/relight behavior
-    - Chicken agents use local idle movement around their linked Chicken Coop with walk and peck sprite animations
+    - Chicken agents can still drive local idle movement around a linked legacy Chicken Coop with walk and peck sprite animations
   - World selection
     - Runtime-created world selection controller
     - Clickable placed buildings and residents use 2D colliders
@@ -536,9 +529,8 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Non-selectable inspect objects resolve from visible sprite bounds at click time instead of adding mass 2D physics colliders
     - Trees, bushes/forest thickets, Stone deposits, Iron/Coal/Clay indicators, forage nodes, loose resource piles, chickens, deer, rabbits, fish, birds, and wolves expose lightweight inspect data
     - The house HUD shows assigned residents up to house capacity with portraits, names, age/life stage, current statuses, and the Householder marker
-    - The house HUD exposes default Garden Beds state and the Chicken Coop upgrade action
-    - House upgrade actions are shown as compact state/action rows
-    - The house HUD shows a compact Dinner row with prepared rations vs family need, next prepared/cookable dish, the main blocker, a short local stock line, current Garden Beds crop, and filtered household resource icons/counts including single food units
+    - The house HUD does not expose Garden Beds or Chicken Coop house-upgrade actions
+    - The house HUD shows a compact Dinner row with prepared rations vs family need, next prepared/cookable dish, the main blocker, a short local stock line, and filtered household resource icons/counts including single food units
     - The lumberjack, stonecutter, sawmill, mine, coal pit, clay pit, kiln, forge, hunter, fisher, and granary HUDs show status/resource context without assignment controls
     - The Trading Post HUD shows settlement Coins, caravan ETA/status, and active buy/sell offer buttons while a caravan is trading
     - Eligible production/extraction building HUDs show a compact Tools-based production upgrade action row
@@ -594,12 +586,12 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Input action changes do not affect current camera controls yet because MVP controls read direct Input System devices.
 - Build menu active tool state drives the placement controller when catalog tools exist.
 - Placement uses generated map cells and buildability data.
-- Fog of war uses population, residents, placed-building records, the shared day/night phase, and weather Fog intensity as visibility inputs; placement and world selection consult fog exploration state, while the F9 debug panel can bypass player fog for testing.
+- Fog of war uses population, residents, placed-building records, the shared day/night phase, and weather Fog intensity as visibility inputs; placement and world selection consult fog exploration state, refugee arrivals use daylight-range visible boundaries for in-map entry staging, while the F9 debug panel can bypass player fog for testing.
 - Terrain rendering uses generated map cell kinds, visual relief height, seeded tile variants, neighbor transition overlays, a runtime water/shore animation overlay, and weather visual overlays.
 - Weather depends on generated map bounds, the strategy camera, day/night/fog sorting bands, the strategy wind source, water animation, and ambience audio.
-- Resident work/rest scheduling depends on the shared day/night phase so production, construction, logistics, hunting, fishing, foraging, garden, and household-food tasks only start during settlement work time, while housed idle residents sleep inside homes and homeless idle residents sleep around the startup campfire during `Night`.
-- House visual upgrades and house resources depend on placed-building records, map walkability checks, generated upgrade/chicken/resource sprites, early idle/work agents, and the world-selection HUD.
-- Household foraging depends on generated walkable terrain, forage node reservations/regrowth, placed house records, resident work/funeral state, day/night phase, and the house-local ingredient store.
+- Resident work/rest scheduling depends on the shared day/night phase so production, construction, logistics, hunting, fishing, and household-food tasks only start during settlement work time, while housed idle residents sleep inside homes and homeless idle residents sleep around the startup campfire during `Night`.
+- House resources depend on placed-building records, resident home duty, Granary food pickup, Storage Yard Pottery pickup, and the world-selection HUD.
+- Generated forage nodes remain inspectable map resources and are consumed by Forager Camp workers instead of House-driven household foraging.
 - Forestry depends on generated tree props, map walkability, placed lumberjack camps, resident work states, and the world-selection HUD.
 - Stone resources depend on generated nature props, map walkability, stonecutter camps, resident work states, and storage logistics.
 - Iron resources depend on generated underground indicators, Mines built over Iron, resident underground work states, and storage logistics.
@@ -609,16 +601,16 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Forge/Tools production depends on Storage Yard Iron, Coal, and Logs stock, production-input Hauler delivery, resident work states, placed-building records, Storage Yard Tools hauling, and production-building upgrade demand.
 - Wildlife depends on generated terrain/water cells, map walkability for land animals, population/resident positions, fog daylight-range hidden checks, starter-camp location, hunter/fisher production buildings, and Y-based world sorting; birds do not feed fog visibility or resources yet, while hunted rabbits and upgraded-hunter adult deer can yield `Game` and caught fish can yield `Fish`.
 - Sawmill production depends on Storage Yard Log stock, production-input Hauler delivery, resident work states, placed-building records, map walkability, and Storage Yard Planks hauling.
-- Storage yard logistics depends on lumberjack camp stock, stonecutter camp stock, Sawmill stock, Kiln stock/input demand, Forge stock/input demand, Mine stock, Coal Pit stock, Clay Pit stock, Hunter Camp/Fisher Hut food stock, Granaries, resident work states, placed-building records, map walkability, and the world-selection HUD.
+- Storage yard logistics depends on lumberjack camp stock, stonecutter camp stock, Sawmill stock, Kiln stock/input demand, Forge stock/input demand, Mine stock, Coal Pit stock, Clay Pit stock, Hunter Camp/Fisher Hut/Forager Camp food stock, Granaries, resident work states, placed-building records, map walkability, and the world-selection HUD.
 - Trade depends on completed Trading Posts, map-edge caravan pathing, settlement Coins, Storage Yard non-food stock, Granary food stock, generated trade/caravan sprites, and the world-selection HUD.
 - Loose construction resource piles bridge construction cancellation, build affordability, storage logistics, and builder pickup.
-- Loose carried-resource piles bridge resident death cleanup, Granary food logistics, and household foraging recovery.
-- Granary food and household cooking logistics depend on hunter camp stock, fisher hut stock, Storage Yard Pottery stock, Storage Yard Haulers, Householder final-mile pickup, resident work states, placed-building records, map walkability, and the world-selection HUD.
+- Loose carried-resource piles bridge resident death cleanup and Granary food logistics; legacy household forage recovery is currently inactive.
+- Granary food and household cooking logistics depend on hunter camp stock, fisher hut stock, forager camp stock, Storage Yard Pottery stock, Storage Yard Haulers, Householder final-mile pickup, resident work states, placed-building records, map walkability, and the world-selection HUD.
 - Construction depends on Storage Yard resource reservations, loose construction pile reservations, hired Storage Yard builder assignments, construction-site blockers, placed-building finalization, F9 instant-construction debug options, and the world-selection HUD.
 - Population uses placed-building records, construction sites, the generated map walkability/trail layers, and workplace assignments; home/family assignment is independent from work/construction assignment.
 - Resident footsteps depend on population agents and the non-generated grass footstep clip set.
 - Resident movement records activity-weighted footfall into the trail layer and reads formed trails for 8-direction A* path-cost preference plus a 15% movement-speed bonus.
-- World selection uses placed-building/resident/construction-site colliders, inspectable world-object sprite bounds, generated map cell data, fog state, the strategy camera, house upgrade state, and production-building upgrade state.
+- World selection uses placed-building/resident/construction-site colliders, inspectable world-object sprite bounds, generated map cell data, fog state, the strategy camera, house resource state, and production-building upgrade state.
 - Profession HUD depends on population adults and current worksite components; it owns player-facing worker assignment/removal while existing worksite components still own role state and work loops, with Storage Yard Haulers/builders treated as uncapped roles.
 - Auto workforce depends on population availability, Profession HUD priority settings, construction sites, Storage Yard builder/hauler APIs, production worksite stock/capacity, Forge/Tools demand, and Granary raw food ingredient availability.
 - Strategy camera checks UI pointer state so bottom HUD interaction does not pan/zoom the map.

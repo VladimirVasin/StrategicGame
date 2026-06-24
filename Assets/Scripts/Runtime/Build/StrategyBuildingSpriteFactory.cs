@@ -17,6 +17,7 @@ namespace ProjectUnknown.Strategy
         public const int ForgeVariantCount = 3;
         public const int HunterCampVariantCount = 3;
         public const int FisherHutVariantCount = 3;
+        public const int ForagerCampVariantCount = 3;
         public const int TradingPostVariantCount = 3;
         public const int StorageYardVariantCount = 3;
         public const int GranaryVariantCount = 3;
@@ -39,6 +40,7 @@ namespace ProjectUnknown.Strategy
                 StrategyBuildTool.Forge => ForgeVariantCount,
                 StrategyBuildTool.HunterCamp => HunterCampVariantCount,
                 StrategyBuildTool.FisherHut => FisherHutVariantCount,
+                StrategyBuildTool.ForagerCamp => ForagerCampVariantCount,
                 StrategyBuildTool.TradingPost => TradingPostVariantCount,
                 StrategyBuildTool.StorageYard => StorageYardVariantCount,
                 StrategyBuildTool.Granary => GranaryVariantCount,
@@ -66,6 +68,7 @@ namespace ProjectUnknown.Strategy
                 && tool != StrategyBuildTool.Forge
                 && tool != StrategyBuildTool.HunterCamp
                 && tool != StrategyBuildTool.FisherHut
+                && tool != StrategyBuildTool.ForagerCamp
                 && tool != StrategyBuildTool.TradingPost
                 && tool != StrategyBuildTool.StorageYard
                 && tool != StrategyBuildTool.Granary
@@ -91,6 +94,7 @@ namespace ProjectUnknown.Strategy
                     StrategyBuildTool.Forge => CreateForgeSprite(normalizedVariant),
                     StrategyBuildTool.HunterCamp => CreateHunterCampSprite(normalizedVariant),
                     StrategyBuildTool.FisherHut => CreateFisherHutSprite(normalizedVariant),
+                    StrategyBuildTool.ForagerCamp => CreateForagerCampSprite(normalizedVariant),
                     StrategyBuildTool.TradingPost => CreateTradingPostSprite(normalizedVariant),
                     StrategyBuildTool.StorageYard => CreateStorageYardSprite(normalizedVariant),
                     StrategyBuildTool.Granary => CreateGranarySprite(normalizedVariant),

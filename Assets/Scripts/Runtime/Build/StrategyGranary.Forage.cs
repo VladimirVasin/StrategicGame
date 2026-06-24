@@ -1,0 +1,293 @@
+using UnityEngine;
+
+namespace ProjectUnknown.Strategy
+{
+    public sealed partial class StrategyGranary
+    {
+        private int berriesStored;
+        private int rootsStored;
+        private int mushroomsStored;
+
+        public int BerriesStored => berriesStored;
+        public int RootsStored => rootsStored;
+        public int MushroomsStored => mushroomsStored;
+        public int ForageStored => berriesStored + rootsStored + mushroomsStored;
+
+        public void AddFood(StrategyResourceType resource, int amount)
+        {
+            if (resource == StrategyResourceType.Game)
+            {
+                AddGame(amount);
+                return;
+            }
+
+            if (resource == StrategyResourceType.Fish)
+            {
+                AddFish(amount);
+                return;
+            }
+
+            AddForageFood(resource, amount);
+        }
+
+        private bool TryReserveNearestFoodSource(
+            object owner,
+            out StrategyResourceType resource,
+            out StrategyHunterCamp gameSource,
+            out StrategyFisherHut fishSource,
+            out StrategyForagerCamp forageSource)
+        {
+            resource = StrategyResourceType.None;
+            gameSource = null;
+            fishSource = null;
+            forageSource = null;
+            float bestDistance = float.MaxValue;
+
+            StrategyHunterCamp[] camps = Object.FindObjectsByType<StrategyHunterCamp>();
+            for (int i = 0; i < camps.Length; i++)
+            {
+                StrategyHunterCamp camp = camps[i];
+                if (camp == null || camp.AvailableGame <= 0)
+                {
+                    continue;
+                }
+
+                float distance = GetFoodSourceDistance(camp.FootprintBounds);
+                if (distance < bestDistance)
+                {
+                    bestDistance = distance;
+                    gameSource = camp;
+                    fishSource = null;
+                    forageSource = null;
+                    resource = StrategyResourceType.Game;
+                }
+            }
+
+            StrategyFisherHut[] huts = Object.FindObjectsByType<StrategyFisherHut>();
+            for (int i = 0; i < huts.Length; i++)
+            {
+                StrategyFisherHut hut = huts[i];
+                if (hut == null || hut.AvailableFish <= 0)
+                {
+                    continue;
+                }
+
+                float distance = GetFoodSourceDistance(hut.FootprintBounds);
+                if (distance < bestDistance)
+                {
+                    bestDistance = distance;
+                    gameSource = null;
+                    fishSource = hut;
+                    forageSource = null;
+                    resource = StrategyResourceType.Fish;
+                }
+            }
+
+            StrategyForagerCamp[] foragerCamps = Object.FindObjectsByType<StrategyForagerCamp>();
+            for (int i = 0; i < foragerCamps.Length; i++)
+            {
+                StrategyForagerCamp camp = foragerCamps[i];
+                if (camp == null || camp.AvailableForage <= 0)
+                {
+                    continue;
+                }
+
+                float distance = GetFoodSourceDistance(camp.FootprintBounds);
+                if (distance < bestDistance)
+                {
+                    bestDistance = distance;
+                    gameSource = null;
+                    fishSource = null;
+                    forageSource = camp;
+                }
+            }
+
+            if (gameSource != null)
+            {
+                return gameSource.TryReserveStoredGame(owner, out _)
+                    && SetReservedFoodSource(StrategyResourceType.Game, ref resource);
+            }
+
+            if (fishSource != null)
+            {
+                return fishSource.TryReserveStoredFish(owner, out _)
+                    && SetReservedFoodSource(StrategyResourceType.Fish, ref resource);
+            }
+
+            if (forageSource != null
+                && forageSource.TryReserveStoredForage(owner, out StrategyResourceType forageResource, out _))
+            {
+                resource = forageResource;
+                return true;
+            }
+
+            return false;
+        }
+
+        private float GetFoodSourceDistance(Bounds sourceBounds)
+        {
+            return (sourceBounds.center - FootprintBounds.center).sqrMagnitude;
+        }
+
+        private static bool SetReservedFoodSource(StrategyResourceType value, ref StrategyResourceType resource)
+        {
+            resource = value;
+            return true;
+        }
+
+        private bool TryChooseHouseholdFoodResource(out StrategyResourceType resource)
+        {
+            if (GetAvailableFishForHouseholds() > 0)
+            {
+                resource = StrategyResourceType.Fish;
+                return true;
+            }
+
+            if (GetAvailableGameForHouseholds() > 0)
+            {
+                resource = StrategyResourceType.Game;
+                return true;
+            }
+
+            if (GetAvailableForHouseholds(StrategyResourceType.Berries) > 0)
+            {
+                resource = StrategyResourceType.Berries;
+                return true;
+            }
+
+            if (GetAvailableForHouseholds(StrategyResourceType.Roots) > 0)
+            {
+                resource = StrategyResourceType.Roots;
+                return true;
+            }
+
+            if (GetAvailableForHouseholds(StrategyResourceType.Mushrooms) > 0)
+            {
+                resource = StrategyResourceType.Mushrooms;
+                return true;
+            }
+
+            resource = StrategyResourceType.None;
+            return false;
+        }
+
+        private int GetStoredFood(StrategyResourceType resource)
+        {
+            return resource switch
+            {
+                StrategyResourceType.Game => gameStored,
+                StrategyResourceType.Fish => fishStored,
+                StrategyResourceType.Berries => berriesStored,
+                StrategyResourceType.Roots => rootsStored,
+                StrategyResourceType.Mushrooms => mushroomsStored,
+                _ => 0
+            };
+        }
+
+        private int GetAvailableForHouseholds(StrategyResourceType resource)
+        {
+            return Mathf.Max(0, GetStoredFood(resource) - GetReservedHouseholdAmount(resource));
+        }
+
+        private float GetStoredForageRations()
+        {
+            return berriesStored * StrategyFoodNutrition.GetRationValue(StrategyResourceType.Berries)
+                + rootsStored * StrategyFoodNutrition.GetRationValue(StrategyResourceType.Roots)
+                + mushroomsStored * StrategyFoodNutrition.GetRationValue(StrategyResourceType.Mushrooms);
+        }
+
+        private float GetAvailableForageHouseholdRations()
+        {
+            return GetAvailableForHouseholds(StrategyResourceType.Berries) * StrategyFoodNutrition.GetRationValue(StrategyResourceType.Berries)
+                + GetAvailableForHouseholds(StrategyResourceType.Roots) * StrategyFoodNutrition.GetRationValue(StrategyResourceType.Roots)
+                + GetAvailableForHouseholds(StrategyResourceType.Mushrooms) * StrategyFoodNutrition.GetRationValue(StrategyResourceType.Mushrooms);
+        }
+
+        private void RemoveFood(StrategyResourceType resource, int amount)
+        {
+            int taken = Mathf.Max(0, amount);
+            switch (resource)
+            {
+                case StrategyResourceType.Game:
+                    gameStored = Mathf.Max(0, gameStored - taken);
+                    break;
+                case StrategyResourceType.Fish:
+                    fishStored = Mathf.Max(0, fishStored - taken);
+                    break;
+                case StrategyResourceType.Berries:
+                    berriesStored = Mathf.Max(0, berriesStored - taken);
+                    break;
+                case StrategyResourceType.Roots:
+                    rootsStored = Mathf.Max(0, rootsStored - taken);
+                    break;
+                case StrategyResourceType.Mushrooms:
+                    mushroomsStored = Mathf.Max(0, mushroomsStored - taken);
+                    break;
+            }
+        }
+
+        private void AddForageFood(StrategyResourceType resource, int amount)
+        {
+            if (!IsForageFood(resource) || amount <= 0)
+            {
+                return;
+            }
+
+            switch (resource)
+            {
+                case StrategyResourceType.Berries:
+                    berriesStored += amount;
+                    break;
+                case StrategyResourceType.Roots:
+                    rootsStored += amount;
+                    break;
+                case StrategyResourceType.Mushrooms:
+                    mushroomsStored += amount;
+                    break;
+            }
+
+            UpdateStockVisual();
+            PlayFoodStoredEffect(resource, amount);
+            StrategyDebugLogger.Info(
+                "Granary",
+                "FoodStored",
+                StrategyDebugLogger.F("granaryOrigin", Origin),
+                StrategyDebugLogger.F("resource", resource),
+                StrategyDebugLogger.F("added", amount),
+                StrategyDebugLogger.F("stock", GetStoredFood(resource)),
+                StrategyDebugLogger.F("forageStock", GetForageStockText()));
+        }
+
+        private int CountAvailableForagerSources()
+        {
+            int count = 0;
+            StrategyForagerCamp[] camps = Object.FindObjectsByType<StrategyForagerCamp>();
+            for (int i = 0; i < camps.Length; i++)
+            {
+                if (camps[i] != null && camps[i].AvailableForage > 0)
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
+        private string GetForageStockText()
+        {
+            return "Berries "
+                + berriesStored
+                + " / Roots "
+                + rootsStored
+                + " / Mushrooms "
+                + mushroomsStored;
+        }
+
+        private static bool IsForageFood(StrategyResourceType resource)
+        {
+            return resource == StrategyResourceType.Berries
+                || resource == StrategyResourceType.Roots
+                || resource == StrategyResourceType.Mushrooms;
+        }
+    }
+}

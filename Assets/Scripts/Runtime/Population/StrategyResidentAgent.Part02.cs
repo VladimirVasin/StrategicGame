@@ -1,18 +1,15 @@
 using System.Collections.Generic;
 using UnityEngine;
-
 namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyResidentAgent
     {
-
         public void AssignHome(StrategyPlacedBuilding newHome)
         {
             if (newHome == null || home == newHome)
             {
                 return;
             }
-
             if (!newHome.CanAcceptResident(this))
             {
                 StrategyDebugLogger.Warn(
@@ -23,12 +20,11 @@ namespace ProjectUnknown.Strategy
                     StrategyDebugLogger.F("reason", "resident_capacity"));
                 return;
             }
-
             if (sleepingAtHomelessCamp || returningToHomelessCamp || relightingCampfire)
             {
                 ReleaseHomelessCampSleep(false);
             }
-
+            CancelChildPlay(true);
             CancelHouseholdFoodWork(true);
             home?.UnregisterResident(this);
             home = newHome;
@@ -359,6 +355,7 @@ namespace ProjectUnknown.Strategy
                 ReleaseHomelessCampSleep(false);
             }
 
+            CancelChildPlay(true);
             CancelForageWork(false);
             CancelHouseholdFoodWork(false);
             home = null;

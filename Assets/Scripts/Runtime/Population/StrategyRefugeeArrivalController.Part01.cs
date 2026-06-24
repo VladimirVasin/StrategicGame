@@ -285,38 +285,6 @@ namespace ProjectUnknown.Strategy
             return route;
         }
 
-        private Vector2Int GetRandomEdgeCell()
-        {
-            int side = Random.Range(0, 4);
-            return side switch
-            {
-                0 => new Vector2Int(0, Random.Range(0, map.Height)),
-                1 => new Vector2Int(map.Width - 1, Random.Range(0, map.Height)),
-                2 => new Vector2Int(Random.Range(0, map.Width), 0),
-                _ => new Vector2Int(Random.Range(0, map.Width), map.Height - 1)
-            };
-        }
-
-        private Vector2 GetOutwardDirection(Vector2Int entryCell)
-        {
-            if (entryCell.x <= 0)
-            {
-                return Vector2.left;
-            }
-
-            if (entryCell.x >= map.Width - 1)
-            {
-                return Vector2.right;
-            }
-
-            if (entryCell.y <= 0)
-            {
-                return Vector2.down;
-            }
-
-            return Vector2.up;
-        }
-
         private Vector3 GetFormationOffset(int index)
         {
             Vector2 axis = activeFormationAxis.sqrMagnitude > 0.001f

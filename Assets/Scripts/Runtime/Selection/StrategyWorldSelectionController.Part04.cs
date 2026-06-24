@@ -368,69 +368,95 @@ namespace ProjectUnknown.Strategy
             RefreshHouseFoodRows(building);
             StrategyHouseResourceStore store = building.Resources;
             int visibleResourceIndex = 0;
-            for (int i = 0; i < StrategyHouseResourceStore.DisplayOrder.Length; i++)
+            if (store != null)
             {
-                StrategyResourceType type = StrategyHouseResourceStore.DisplayOrder[i];
-                int amount = store != null ? store.GetAmount(type) : 0;
-                bool isVisible = amount > 0;
+                List<StrategyPreparedDishStack> preparedDishes = new();
+                store.CopyPreparedDishStacks(preparedDishes);
+                for (int i = 0; i < preparedDishes.Count && visibleResourceIndex < resourceSlots.Length; i++)
+                {
+                    StrategyPreparedDishStack stack = preparedDishes[i];
+                    ShowDinnerFoodRow(
+                        visibleResourceIndex++,
+                        StrategyResourceType.Dish,
+                        stack.Recipe != null ? stack.Recipe.DisplayName : "Dishes",
+                        stack.Amount,
+                        stack.Rations);
+                }
 
+                for (int i = 0; i < StrategyHouseResourceStore.DisplayOrder.Length && visibleResourceIndex < resourceSlots.Length; i++)
+                {
+                    StrategyResourceType type = StrategyHouseResourceStore.DisplayOrder[i];
+                    if (!StrategyFoodNutrition.IsIngredientFood(type))
+                    {
+                        continue;
+                    }
+
+                    int amount = store.GetAmount(type);
+                    if (amount <= 0)
+                    {
+                        continue;
+                    }
+
+                    ShowDinnerFoodRow(
+                        visibleResourceIndex++,
+                        type,
+                        GetResourceTitle(type),
+                        amount,
+                        amount * StrategyFoodNutrition.GetRationValue(type));
+                }
+            }
+
+            for (int i = visibleResourceIndex; i < resourceSlots.Length; i++)
+            {
                 if (resourceSlots[i] != null)
                 {
-                    resourceSlots[i].gameObject.SetActive(isVisible);
-                    if (isVisible)
-                    {
-                        int column = visibleResourceIndex % 2;
-                        int row = visibleResourceIndex / 2;
-                        resourceSlots[i].anchoredPosition = new Vector2(column * ResourceCellWidth, -138f - row * 40f);
-                        visibleResourceIndex++;
-                    }
-                }
-
-                if (!isVisible)
-                {
-                    continue;
-                }
-
-                if (resourceIconImages[i] != null)
-                {
-                    resourceIconImages[i].sprite = StrategyResourceIconFactory.GetSprite(type);
-                    resourceIconImages[i].color = Color.white;
-                }
-
-                if (resourceAmountTexts[i] != null)
-                {
-                    float rationValue = amount * StrategyFoodNutrition.GetRationValue(type);
-                    if (type == StrategyResourceType.Dish)
-                    {
-                        resourceAmountTexts[i].text = GetResourceTitle(type)
-                            + "\n"
-                            + amount
-                            + " / "
-                            + FormatRations(store.GetPreparedDishRations())
-                            + "r "
-                            + store.GetPreparedDishSummary(2);
-                    }
-                    else if (type == StrategyResourceType.Pottery)
-                    {
-                        resourceAmountTexts[i].text = GetResourceTitle(type) + "\n" + amount;
-                    }
-                    else
-                    {
-                        resourceAmountTexts[i].text = GetResourceTitle(type)
-                            + "\n"
-                            + amount
-                            + " / "
-                            + FormatRations(rationValue)
-                            + "r";
-                    }
-
-                    resourceAmountTexts[i].color = new Color(0.88f, 0.93f, 0.90f);
+                    resourceSlots[i].gameObject.SetActive(false);
                 }
             }
 
             if (resourcesEmptyText != null)
             {
                 resourcesEmptyText.gameObject.SetActive(visibleResourceIndex <= 0);
+            }
+        }
+
+        private void ShowDinnerFoodRow(
+            int rowIndex,
+            StrategyResourceType iconType,
+            string displayName,
+            int amount,
+            float rationValue)
+        {
+            if (rowIndex < 0 || rowIndex >= resourceSlots.Length || resourceSlots[rowIndex] == null)
+            {
+                return;
+            }
+
+            resourceSlots[rowIndex].gameObject.SetActive(true);
+            resourceSlots[rowIndex].anchoredPosition = new Vector2(0f, -142f - rowIndex * 30f);
+
+            if (resourceIconImages[rowIndex] != null)
+            {
+                resourceIconImages[rowIndex].sprite = StrategyResourceIconFactory.GetSprite(iconType);
+                resourceIconImages[rowIndex].color = Color.white;
+            }
+
+            if (resourceAmountTexts[rowIndex] != null)
+            {
+                resourceAmountTexts[rowIndex].text = displayName;
+                resourceAmountTexts[rowIndex].color = new Color(0.88f, 0.93f, 0.90f);
+            }
+
+            if (resourceQuantityTexts[rowIndex] != null)
+            {
+                resourceQuantityTexts[rowIndex].text = amount.ToString();
+                resourceQuantityTexts[rowIndex].color = new Color(0.88f, 0.93f, 0.90f);
+            }
+
+            if (resourceNutritionTexts[rowIndex] != null)
+            {
+                resourceNutritionTexts[rowIndex].text = FormatRations(rationValue) + "r";
+                resourceNutritionTexts[rowIndex].color = new Color(0.88f, 0.93f, 0.90f);
             }
         }
 

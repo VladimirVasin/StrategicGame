@@ -143,50 +143,8 @@ namespace ProjectUnknown.Strategy
                 || residentActivity == ResidentActivity.ReturningIronToStorage
                 || residentActivity == ResidentActivity.ReturningClayToStorage
                 || residentActivity == ResidentActivity.ReturningGameToGranary
-                || residentActivity == ResidentActivity.ReturningFishToGranary;
-        }
-
-        private int GetCarriedHouseholdFoodAmount()
-        {
-            return carriedHouseholdFoodResource switch
-            {
-                StrategyResourceType.Game => carriedGameAmount,
-                StrategyResourceType.Fish => carriedFishAmount,
-                _ => 0
-            };
-        }
-
-        private void ClearCarriedHouseholdFood()
-        {
-            if (carriedHouseholdFoodResource == StrategyResourceType.Game)
-            {
-                carriedGameAmount = 0;
-            }
-            else if (carriedHouseholdFoodResource == StrategyResourceType.Fish)
-            {
-                carriedFishAmount = 0;
-            }
-
-            carriedHouseholdFoodResource = StrategyResourceType.None;
-        }
-
-        private void SetCarriedHouseholdFoodVisible(bool visible)
-        {
-            if (carriedHouseholdFoodResource == StrategyResourceType.Game)
-            {
-                SetCarriedGameVisible(visible);
-                SetCarriedFishVisible(false);
-            }
-            else if (carriedHouseholdFoodResource == StrategyResourceType.Fish)
-            {
-                SetCarriedFishVisible(visible);
-                SetCarriedGameVisible(false);
-            }
-            else
-            {
-                SetCarriedGameVisible(false);
-                SetCarriedFishVisible(false);
-            }
+                || residentActivity == ResidentActivity.ReturningFishToGranary
+                || residentActivity == ResidentActivity.ReturningForageToGranary;
         }
 
         private void FaceWorldPoint(Vector3 world)

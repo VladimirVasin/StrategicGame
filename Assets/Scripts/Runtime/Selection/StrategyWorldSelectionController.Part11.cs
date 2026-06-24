@@ -10,25 +10,38 @@ namespace ProjectUnknown.Strategy
                 ? building.GetComponent<StrategyHouseholdFoodState>()
                 : null;
             StrategyHouseResourceStore store = building != null ? building.Resources : null;
-            float dinnerNeed = Mathf.Max(CalculateHouseDinnerNeed(building), food != null ? food.LastRequiredRations : 0f);
-            float readyRations = store != null ? store.GetPreparedDishRations() : 0f;
-            float fill = dinnerNeed > 0.01f ? readyRations / dinnerNeed : readyRations > 0f ? 1f : 0f;
+            float dinnerNeed = CalculateHouseDinnerNeed(building);
+            float availableRations = store != null ? store.GetTotalRationValue() : 0f;
+            float fill = dinnerNeed > 0.01f ? availableRations / dinnerNeed : availableRations > 0f ? 1f : 0f;
 
-            string readyLine = dinnerNeed > 0.01f
-                ? "Ready: " + FormatRations(readyRations) + "/" + FormatRations(dinnerNeed) + "r"
-                : "Ready: " + FormatRations(readyRations) + "r";
-            string detailLine = GetDinnerDetailLine(food, store, dinnerNeed, readyRations);
-            string stateLine = GetDinnerStateLine(food, store, dinnerNeed, readyRations);
-            GetDinnerColors(food, dinnerNeed, readyRations, out Color rowColor, out Color fillColor);
+            string summaryLabels = "Need\nAvailable\nMeal check";
+            string summaryValues = FormatRations(dinnerNeed)
+                + "r\n"
+                + FormatRations(availableRations)
+                + "r\n"
+                + FormatMealCheckTimer(food);
+            GetDinnerColors(food, dinnerNeed, availableRations, out Color rowColor, out Color fillColor);
 
             ApplyFoodStatus(
-                readyLine,
-                detailLine,
-                stateLine,
-                FormatDinnerStockLine(store),
+                summaryLabels,
+                summaryValues,
+                "Food                         Qty   Nutrition",
                 fill,
                 rowColor,
                 fillColor);
+        }
+
+        private static string FormatMealCheckTimer(StrategyHouseholdFoodState food)
+        {
+            if (food == null)
+            {
+                return "--";
+            }
+
+            float seconds = food.IsNightMealWaiting
+                ? food.NightMealFallbackSecondsRemaining
+                : food.NextFoodTickSeconds;
+            return seconds <= 0.5f ? "now" : FormatDuration(seconds);
         }
 
         private static string GetDinnerDetailLine(
@@ -206,10 +219,9 @@ namespace ProjectUnknown.Strategy
         }
 
         private void ApplyFoodStatus(
-            string status,
-            string detail,
-            string ration,
-            string stock,
+            string summaryLabels,
+            string summaryValues,
+            string tableHeader,
             float rationFill,
             Color statusColor,
             Color fillColor)
@@ -221,17 +233,17 @@ namespace ProjectUnknown.Strategy
 
             if (foodStatusText != null)
             {
-                foodStatusText.text = status + "\n" + detail;
+                foodStatusText.text = summaryLabels;
             }
 
             if (foodMealText != null)
             {
-                foodMealText.text = ration;
+                foodMealText.text = summaryValues;
             }
 
             if (foodGranaryText != null)
             {
-                foodGranaryText.text = stock;
+                foodGranaryText.text = tableHeader;
             }
 
             if (foodMealFillRect != null)

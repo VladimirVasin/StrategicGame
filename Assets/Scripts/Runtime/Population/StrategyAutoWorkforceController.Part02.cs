@@ -20,6 +20,7 @@ namespace ProjectUnknown.Strategy
             StrategyProfessionType.Blacksmith,
             StrategyProfessionType.Hunter,
             StrategyProfessionType.Fisher,
+            StrategyProfessionType.Forager,
             StrategyProfessionType.StorageWorker,
             StrategyProfessionType.Builder
         };
@@ -59,6 +60,25 @@ namespace ProjectUnknown.Strategy
                 hut => StrategyFisherHut.MaxWorkers,
                 hut => hut.HasStorageSpace,
                 hut => hut.FootprintBounds.center,
+                urgency);
+        }
+
+        private void AddForagerDemands(int desiredFoodWorkers, float urgency)
+        {
+            if (IsProfessionManualLocked(StrategyProfessionType.Forager))
+            {
+                return;
+            }
+
+            AddCappedCampDemands<StrategyForagerCamp>(
+                StrategyProfessionType.Forager,
+                StrategyAutoWorkforceCategory.Food,
+                desiredFoodWorkers,
+                "low_food",
+                camp => camp.WorkerCount,
+                camp => StrategyForagerCamp.MaxWorkers,
+                camp => camp.HasStorageSpace,
+                camp => camp.FootprintBounds.center,
                 urgency);
         }
 
@@ -288,6 +308,7 @@ namespace ProjectUnknown.Strategy
                 StrategyForge forge => forge.AssignWorker(resident),
                 StrategyHunterCamp camp => camp.AssignWorker(resident),
                 StrategyFisherHut hut => hut.AssignWorker(resident),
+                StrategyForagerCamp camp => camp.AssignWorker(resident),
                 StrategyStorageYard yard when demand.Profession == StrategyProfessionType.Builder => yard.AssignBuilder(resident),
                 StrategyStorageYard yard => yard.AssignWorker(resident),
                 _ => false
@@ -377,6 +398,7 @@ namespace ProjectUnknown.Strategy
                 StrategyProfessionType.Blacksmith => CountSiteWorkers<StrategyForge>(forge => forge.WorkerCount),
                 StrategyProfessionType.Hunter => CountSiteWorkers<StrategyHunterCamp>(camp => camp.WorkerCount),
                 StrategyProfessionType.Fisher => CountSiteWorkers<StrategyFisherHut>(hut => hut.WorkerCount),
+                StrategyProfessionType.Forager => CountSiteWorkers<StrategyForagerCamp>(camp => camp.WorkerCount),
                 StrategyProfessionType.StorageWorker => CountSiteWorkers<StrategyStorageYard>(yard => yard.WorkerCount),
                 StrategyProfessionType.Builder => CountSiteWorkers<StrategyStorageYard>(yard => yard.BuilderCount),
                 _ => 0

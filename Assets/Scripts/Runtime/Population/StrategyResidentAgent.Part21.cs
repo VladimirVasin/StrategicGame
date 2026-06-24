@@ -202,6 +202,14 @@ namespace ProjectUnknown.Strategy
             {
                 StartDepositingGranaryFish();
             }
+            else if (activity == ResidentActivity.MovingToGranaryForagePickup)
+            {
+                StartPickingUpGranaryForage();
+            }
+            else if (activity == ResidentActivity.CarryingForageToGranary)
+            {
+                StartDepositingGranaryForage();
+            }
             else if (activity == ResidentActivity.MovingToHouseholdFoodPickup)
             {
                 StartPickingUpHouseholdFood();
@@ -245,6 +253,10 @@ namespace ProjectUnknown.Strategy
             else if (activity == ResidentActivity.MovingToCampfireSleep && returningToHomelessCamp)
             {
                 EnterHomelessCampSleepSpot();
+            }
+            else if (IsMovingChildPlayActivity(activity))
+            {
+                StartReachedChildPlay();
             }
             else if (IsFuneralMoveActivity(activity))
             {

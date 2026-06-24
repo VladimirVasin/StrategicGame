@@ -67,6 +67,11 @@ namespace ProjectUnknown.Strategy
                     snapshot.Assigned = CountAssigned(fisherHuts, hut => hut.WorkerCount);
                     snapshot.Capacity = fisherHuts.Length * StrategyFisherHut.MaxWorkers;
                     break;
+                case StrategyProfessionType.Forager:
+                    StrategyForagerCamp[] foragerCamps = FindSorted<StrategyForagerCamp>();
+                    snapshot.Assigned = CountAssigned(foragerCamps, camp => camp.WorkerCount);
+                    snapshot.Capacity = foragerCamps.Length * StrategyForagerCamp.MaxWorkers;
+                    break;
                 case StrategyProfessionType.StorageWorker:
                     StrategyStorageYard[] storageYards = FindSorted<StrategyStorageYard>();
                     snapshot.Assigned = CountAssigned(storageYards, yard => yard.WorkerCount);
@@ -98,6 +103,7 @@ namespace ProjectUnknown.Strategy
                 StrategyProfessionType.Blacksmith => new ProfessionSnapshot(type, "Blacksmiths", "forge Iron, Coal and Logs into Tools", new Color(0.72f, 0.31f, 0.20f)),
                 StrategyProfessionType.Hunter => new ProfessionSnapshot(type, "Hunters", "hunt rabbits", new Color(0.56f, 0.43f, 0.26f)),
                 StrategyProfessionType.Fisher => new ProfessionSnapshot(type, "Fishers", "catch fish near water", new Color(0.32f, 0.54f, 0.63f)),
+                StrategyProfessionType.Forager => new ProfessionSnapshot(type, "Foragers", "gather wild food", new Color(0.41f, 0.55f, 0.30f)),
                 StrategyProfessionType.StorageWorker => new ProfessionSnapshot(type, "Haulers", "haul all resources and food", new Color(0.58f, 0.49f, 0.37f)),
                 StrategyProfessionType.Builder => new ProfessionSnapshot(type, "Builders", "build structures", new Color(0.75f, 0.55f, 0.27f)),
                 _ => new ProfessionSnapshot(type, "Profession", string.Empty, Color.white)
@@ -222,6 +228,16 @@ namespace ProjectUnknown.Strategy
                     foreach (StrategyFisherHut hut in FindSorted<StrategyFisherHut>())
                     {
                         if (hut != null && hut.TryAssignNextAvailableWorker(out worker))
+                        {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                case StrategyProfessionType.Forager:
+                    foreach (StrategyForagerCamp camp in FindSorted<StrategyForagerCamp>())
+                    {
+                        if (camp != null && camp.TryAssignNextAvailableWorker(out worker))
                         {
                             return true;
                         }
@@ -362,6 +378,17 @@ namespace ProjectUnknown.Strategy
                     for (int i = fisherHuts.Length - 1; i >= 0; i--)
                     {
                         if (TryRemoveWorker(fisherHuts[i], fisherHuts[i].WorkerCount, out worker, index => fisherHuts[i].UnassignWorkerAt(index)))
+                        {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                case StrategyProfessionType.Forager:
+                    StrategyForagerCamp[] foragerCamps = FindSorted<StrategyForagerCamp>();
+                    for (int i = foragerCamps.Length - 1; i >= 0; i--)
+                    {
+                        if (TryRemoveWorker(foragerCamps[i], foragerCamps[i].WorkerCount, out worker, index => foragerCamps[i].UnassignWorkerAt(index)))
                         {
                             return true;
                         }

@@ -12,6 +12,7 @@ namespace ProjectUnknown.Strategy
         Blacksmith,
         Hunter,
         Fisher,
+        Forager,
         StorageWorker,
         Builder
     }

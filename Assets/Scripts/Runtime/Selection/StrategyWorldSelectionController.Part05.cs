@@ -12,16 +12,14 @@ namespace ProjectUnknown.Strategy
         private void CreateResourceSlot(int index)
         {
             StrategyResourceType type = StrategyHouseResourceStore.DisplayOrder[index];
-            int column = index % 2;
-            int row = index / 2;
-            float cellHeight = 38f;
+            float cellHeight = 28f;
 
             RectTransform slot = CreateUiObject("Resource_" + type, resourcesRoot).GetComponent<RectTransform>();
             slot.anchorMin = new Vector2(0f, 1f);
             slot.anchorMax = new Vector2(0f, 1f);
             slot.pivot = new Vector2(0f, 1f);
-            slot.sizeDelta = new Vector2(ResourceCellWidth, cellHeight);
-            slot.anchoredPosition = new Vector2(column * ResourceCellWidth, -138f - row * 40f);
+            slot.sizeDelta = new Vector2(ResourceCellWidth * 2f, cellHeight);
+            slot.anchoredPosition = new Vector2(0f, -142f - index * 30f);
             resourceSlots[index] = slot;
 
             Image background = slot.gameObject.AddComponent<Image>();
@@ -40,11 +38,23 @@ namespace ProjectUnknown.Strategy
             icon.raycastTarget = false;
             resourceIconImages[index] = icon;
 
-            Text amountText = CreateText("Amount", slot, 10, TextAnchor.MiddleLeft, new Color(0.88f, 0.93f, 0.90f));
+            Text amountText = CreateText("Name", slot, 10, TextAnchor.MiddleLeft, new Color(0.88f, 0.93f, 0.90f));
             amountText.fontStyle = FontStyle.Bold;
-            amountText.lineSpacing = 0.95f;
-            SetOffsets(amountText.rectTransform, 32f, 0f, 4f, 0f);
+            amountText.resizeTextForBestFit = true;
+            amountText.resizeTextMinSize = 8;
+            amountText.resizeTextMaxSize = 10;
+            SetOffsets(amountText.rectTransform, 32f, 0f, 116f, 0f);
             resourceAmountTexts[index] = amountText;
+
+            Text quantityText = CreateText("Qty", slot, 10, TextAnchor.MiddleCenter, new Color(0.88f, 0.93f, 0.90f));
+            quantityText.fontStyle = FontStyle.Bold;
+            SetOffsets(quantityText.rectTransform, 162f, 0f, 72f, 0f);
+            resourceQuantityTexts[index] = quantityText;
+
+            Text nutritionText = CreateText("Nutrition", slot, 10, TextAnchor.MiddleRight, new Color(0.88f, 0.93f, 0.90f));
+            nutritionText.fontStyle = FontStyle.Bold;
+            SetOffsets(nutritionText.rectTransform, 208f, 0f, 8f, 0f);
+            resourceNutritionTexts[index] = nutritionText;
         }
 
         private void EnsureResidentRowCount(int count)

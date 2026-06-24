@@ -37,11 +37,6 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
-            if (TryStartGardenTask())
-            {
-                return true;
-            }
-
             if (TryStartLumberTask())
             {
                 return true;
@@ -88,6 +83,11 @@ namespace ProjectUnknown.Strategy
             }
 
             if (TryStartGranaryTask())
+            {
+                return true;
+            }
+
+            if (TryStartForagerTask())
             {
                 return true;
             }
@@ -325,6 +325,7 @@ namespace ProjectUnknown.Strategy
                 || residentActivity == ResidentActivity.MovingToHouseholdPotteryPickup
                 || residentActivity == ResidentActivity.MovingToGranaryGamePickup
                 || residentActivity == ResidentActivity.MovingToGranaryFishPickup
+                || residentActivity == ResidentActivity.MovingToGranaryForagePickup
                 || residentActivity == ResidentActivity.MovingToPlantTree;
         }
 
@@ -344,7 +345,8 @@ namespace ProjectUnknown.Strategy
         private static bool IsNightBlockedGranaryPickupActivity(ResidentActivity residentActivity)
         {
             return residentActivity == ResidentActivity.MovingToGranaryGamePickup
-                || residentActivity == ResidentActivity.MovingToGranaryFishPickup;
+                || residentActivity == ResidentActivity.MovingToGranaryFishPickup
+                || residentActivity == ResidentActivity.MovingToGranaryForagePickup;
         }
     }
 }

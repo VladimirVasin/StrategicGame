@@ -215,6 +215,7 @@ namespace ProjectUnknown.Strategy
                 StrategyForge forge = building.GetComponent<StrategyForge>();
                 StrategyHunterCamp hunterCamp = building.GetComponent<StrategyHunterCamp>();
                 StrategyFisherHut fisherHut = building.GetComponent<StrategyFisherHut>();
+                StrategyForagerCamp foragerCamp = building.GetComponent<StrategyForagerCamp>();
                 StrategyTradingPost tradingPost = building.GetComponent<StrategyTradingPost>();
                 StrategyStorageYard yard = building.GetComponent<StrategyStorageYard>();
                 StrategyGranary granary = building.GetComponent<StrategyGranary>();
@@ -228,6 +229,7 @@ namespace ProjectUnknown.Strategy
                 bool isForge = forge != null;
                 bool isHunterCamp = hunterCamp != null;
                 bool isFisherHut = fisherHut != null;
+                bool isForagerCamp = foragerCamp != null;
                 bool isTradingPost = tradingPost != null;
                 bool isStorageYard = yard != null;
                 bool isGranary = granary != null;
@@ -238,7 +240,7 @@ namespace ProjectUnknown.Strategy
                 }
 
                 SetWorkersSectionVisible(false);
-                if (isLumberjackCamp || isStonecutterCamp || isSawmill || isMine || isCoalPit || isClayPit || isKiln || isForge || isHunterCamp || isFisherHut || isGranary)
+                if (isLumberjackCamp || isStonecutterCamp || isSawmill || isMine || isCoalPit || isClayPit || isKiln || isForge || isHunterCamp || isFisherHut || isForagerCamp || isGranary)
                 {
                     LayoutContextSection(128f, 214f);
                 }
@@ -303,6 +305,12 @@ namespace ProjectUnknown.Strategy
                     hudContextBodyText.text = fisherHut.GetHudStatusText();
                     SetContextSectionVisible(true);
                 }
+                else if (isForagerCamp)
+                {
+                    hudContextTitleText.text = "Forage and Stock";
+                    hudContextBodyText.text = foragerCamp.GetHudStatusText();
+                    SetContextSectionVisible(true);
+                }
                 else if (isTradingPost)
                 {
                     RefreshTradingPostHud(tradingPost);
@@ -324,11 +332,7 @@ namespace ProjectUnknown.Strategy
                     RefreshResources(building);
                 }
 
-                SetUpgradeActionsVisible(isHouse);
-                if (isHouse)
-                {
-                    RefreshUpgradeActions(building);
-                }
+                SetUpgradeActionsVisible(false);
 
                 RefreshProductionUpgradeHud(building);
 

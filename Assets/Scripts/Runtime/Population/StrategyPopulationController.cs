@@ -18,6 +18,7 @@ namespace ProjectUnknown.Strategy
         private const float InitialAdultChildAgeMax = 18f;
         private const float InitialParentChildAgeGapMin = 17f;
         private const int CampSpawnRadius = 3;
+        private const int CampMinWaterDistance = 6;
         private const float HouseholdMigrationCheckInterval = 4f;
         private const int MortalityStartAgeYears = 1;
         private const int MortalityAccelerationAgeYears = 40;

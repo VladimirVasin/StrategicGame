@@ -304,6 +304,10 @@ namespace ProjectUnknown.Strategy
             {
                 type = StrategyProfessionType.Fisher;
             }
+            else if (resident.ForagerWorkplace != null)
+            {
+                type = StrategyProfessionType.Forager;
+            }
             else if (resident.StorageWorkplace != null || resident.GranaryWorkplace != null)
             {
                 type = StrategyProfessionType.StorageWorker;

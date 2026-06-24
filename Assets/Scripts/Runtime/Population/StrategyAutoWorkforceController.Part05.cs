@@ -23,6 +23,7 @@ namespace ProjectUnknown.Strategy
             AddSiteCoverageFloor<StrategyForge>(StrategyProfessionType.Blacksmith, StrategyAutoWorkforceCategory.Tools, forge => forge.WorkerCount, forge => StrategyForge.MaxWorkers, forge => forge.FootprintBounds.center);
             AddSiteCoverageFloor<StrategyHunterCamp>(StrategyProfessionType.Hunter, StrategyAutoWorkforceCategory.Food, camp => camp.WorkerCount, camp => StrategyHunterCamp.MaxWorkers, camp => camp.FootprintBounds.center);
             AddSiteCoverageFloor<StrategyFisherHut>(StrategyProfessionType.Fisher, StrategyAutoWorkforceCategory.Food, hut => hut.WorkerCount, hut => StrategyFisherHut.MaxWorkers, hut => hut.FootprintBounds.center);
+            AddSiteCoverageFloor<StrategyForagerCamp>(StrategyProfessionType.Forager, StrategyAutoWorkforceCategory.Food, camp => camp.WorkerCount, camp => StrategyForagerCamp.MaxWorkers, camp => camp.FootprintBounds.center);
         }
 
         private void AddSiteCoverageFloor<T>(
@@ -137,6 +138,7 @@ namespace ProjectUnknown.Strategy
             TryKeepBetterFallbackDemand(ref demand, TryCreateSiteFallbackDemand<StrategyForge>(StrategyProfessionType.Blacksmith, StrategyAutoWorkforceCategory.Tools, forge => forge.WorkerCount, forge => StrategyForge.MaxWorkers, forge => forge.FootprintBounds.center, allowOverTarget));
             TryKeepBetterFallbackDemand(ref demand, TryCreateSiteFallbackDemand<StrategyHunterCamp>(StrategyProfessionType.Hunter, StrategyAutoWorkforceCategory.Food, camp => camp.WorkerCount, camp => StrategyHunterCamp.MaxWorkers, camp => camp.FootprintBounds.center, allowOverTarget));
             TryKeepBetterFallbackDemand(ref demand, TryCreateSiteFallbackDemand<StrategyFisherHut>(StrategyProfessionType.Fisher, StrategyAutoWorkforceCategory.Food, hut => hut.WorkerCount, hut => StrategyFisherHut.MaxWorkers, hut => hut.FootprintBounds.center, allowOverTarget));
+            TryKeepBetterFallbackDemand(ref demand, TryCreateSiteFallbackDemand<StrategyForagerCamp>(StrategyProfessionType.Forager, StrategyAutoWorkforceCategory.Food, camp => camp.WorkerCount, camp => StrategyForagerCamp.MaxWorkers, camp => camp.FootprintBounds.center, allowOverTarget));
             return demand != null;
         }
 

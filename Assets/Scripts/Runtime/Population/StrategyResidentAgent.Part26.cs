@@ -123,7 +123,11 @@ namespace ProjectUnknown.Strategy
                 || residentActivity == ResidentActivity.MovingToGranaryFishPickup
                 || residentActivity == ResidentActivity.PickingUpGranaryFish
                 || residentActivity == ResidentActivity.CarryingFishToGranary
-                || residentActivity == ResidentActivity.DepositingGranaryFish;
+                || residentActivity == ResidentActivity.DepositingGranaryFish
+                || residentActivity == ResidentActivity.MovingToGranaryForagePickup
+                || residentActivity == ResidentActivity.PickingUpGranaryForage
+                || residentActivity == ResidentActivity.CarryingForageToGranary
+                || residentActivity == ResidentActivity.DepositingGranaryForage;
         }
     }
 }

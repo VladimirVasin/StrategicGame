@@ -5,7 +5,7 @@ using UnityEngine;
 namespace ProjectUnknown.Strategy
 {
     [DisallowMultipleComponent]
-    public sealed class StrategyForageResourceController : MonoBehaviour
+    public sealed partial class StrategyForageResourceController : MonoBehaviour
     {
         private const int MaxForageNodes = 280;
         private const int StarterSearchMinRadius = 4;
@@ -54,9 +54,9 @@ namespace ProjectUnknown.Strategy
 
         public void UnregisterNode(StrategyForageNode node)
         {
-            if (node != null)
+            if (node != null && nodes.Remove(node))
             {
-                nodes.Remove(node);
+                usedCells.Remove(node.Cell);
             }
         }
 
@@ -68,15 +68,37 @@ namespace ProjectUnknown.Strategy
             out StrategyForageNode node,
             out Vector2Int workCell)
         {
+            return TryReserveForBuilding(house, resident, radius, acceptsResource, out node, out workCell);
+        }
+
+        public bool TryReserveForWorksite(
+            StrategyPlacedBuilding worksite,
+            StrategyResidentAgent resident,
+            int radius,
+            Func<StrategyResourceType, bool> acceptsResource,
+            out StrategyForageNode node,
+            out Vector2Int workCell)
+        {
+            return TryReserveForBuilding(worksite, resident, radius, acceptsResource, out node, out workCell);
+        }
+
+        private bool TryReserveForBuilding(
+            StrategyPlacedBuilding owner,
+            StrategyResidentAgent resident,
+            int radius,
+            Func<StrategyResourceType, bool> acceptsResource,
+            out StrategyForageNode node,
+            out Vector2Int workCell)
+        {
             node = null;
             workCell = default;
-            if (map == null || house == null || resident == null)
+            if (map == null || owner == null || resident == null)
             {
                 return false;
             }
 
             RemoveMissingNodes();
-            Vector2Int center = house.Origin + new Vector2Int(house.Footprint.x / 2, house.Footprint.y / 2);
+            Vector2Int center = owner.Origin + new Vector2Int(owner.Footprint.x / 2, owner.Footprint.y / 2);
             int radiusSqr = radius * radius;
             float bestScore = float.MaxValue;
             StrategyForageNode bestNode = null;
@@ -109,7 +131,7 @@ namespace ProjectUnknown.Strategy
                 }
             }
 
-            if (bestNode == null || !bestNode.TryReserve(resident, house))
+            if (bestNode == null || !bestNode.TryReserve(resident, owner))
             {
                 return false;
             }
@@ -361,6 +383,7 @@ namespace ProjectUnknown.Strategy
 
             nodes.Clear();
             usedCells.Clear();
+            pendingRespawns.Clear();
         }
 
         private void RemoveMissingNodes()

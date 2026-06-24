@@ -126,6 +126,13 @@ namespace ProjectUnknown.Strategy
                 SetCarriedFishVisible(false);
                 SetFishingLineVisible(false);
             }
+            else if (completedActivity == ResidentActivity.ReturningForageToGranary)
+            {
+                if (!CompleteForageFoodReturn(out amount, out resource, out storageOrigin))
+                {
+                    return;
+                }
+            }
 
             returnStorageYard = null;
             returnGranary = null;

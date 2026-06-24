@@ -17,7 +17,7 @@ namespace ProjectUnknown.Strategy
                 world,
                 StrategyWorldSorting.ForPosition(world, 4),
                 amount,
-                (resource == StrategyResourceType.Game ? gameStored : fishStored) + amount * 19);
+                GetStoredFood(resource) + amount * 19);
         }
 
         private static Vector3 GetFoodStockWorld(StrategyResourceType resource, Bounds bounds)

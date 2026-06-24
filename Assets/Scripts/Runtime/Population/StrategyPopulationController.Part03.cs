@@ -1,11 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
-
 namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyPopulationController
     {
-
         private bool TryFindCampSpawnCell(HashSet<Vector2Int> usedCells, int spawnSlot, out Vector2Int cell)
         {
             List<Vector2Int> candidates = new();
@@ -20,7 +18,6 @@ namespace ProjectUnknown.Strategy
                         {
                             continue;
                         }
-
                         Vector2Int candidate = campCell + new Vector2Int(x, y);
                         if (map.IsCellWalkable(candidate) && !usedCells.Contains(candidate))
                         {
@@ -28,14 +25,12 @@ namespace ProjectUnknown.Strategy
                         }
                     }
                 }
-
                 if (candidates.Count > 0)
                 {
                     cell = candidates[StableIndex(candidates.Count, spawnSlot + radius * 31)];
                     return true;
                 }
             }
-
             cell = default;
             return false;
         }
@@ -98,6 +93,11 @@ namespace ProjectUnknown.Strategy
         private bool IsCampCellCandidate(Vector2Int cell, bool preferOpenLand)
         {
             if (!map.TryGetCell(cell.x, cell.y, out CityMapCell mapCell) || !map.IsCellWalkable(cell))
+            {
+                return false;
+            }
+
+            if (mapCell.IsWater || mapCell.IsShore || HasWaterNearCell(cell, CampMinWaterDistance))
             {
                 return false;
             }

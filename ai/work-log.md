@@ -1,12 +1,72 @@
 # Work Log
 
-Last updated: 2026-06-23
+Last updated: 2026-06-24
 
 ## Active
 
 - None.
 
 ## Done
+
+### 2026-06-24 - Child idle play activities
+
+- Added child-only ambient idle activities for children age 3+ during daytime: solo play near home/camp, pair play with siblings or nearby children, and short tag movement loops.
+- Added paired child-play coordination with partner cleanup on death, funeral calls, home changes, camp-origin resets, nightfall, and adulthood so child agents do not keep stale play links.
+- Added selected-resident status text for child play states and split the behavior into `StrategyResidentAgent.Part58.cs`.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; no C# files under `Assets/Scripts` exceed 500 lines.
+
+### 2026-06-24 - Starter camp water clearance
+
+- Added a startup camp placement rule that rejects camp cells with generated water/shore within 6 cells, so new settlements start inland instead of beside rivers or lakes.
+- Added a logged relaxed fallback that chooses the driest walkable land cell only if no fully clear cell exists on an unusual generated map.
+- Split camp water-clearance helpers into `StrategyPopulationController.Part08.cs` and updated `Assembly-CSharp.csproj`.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; no C# files under `Assets/Scripts` exceed 500 lines.
+
+### 2026-06-24 - Forage node despawn and tree respawn
+
+- Changed gathered forage nodes to disappear immediately after successful interaction instead of remaining as depleted world objects.
+- Added a timed forage respawn queue that creates replacement Berries/Roots/Mushrooms near mature standing forestry trees after a 70-130 second delay, retrying later if no valid tree-adjacent cell is available.
+- Kept forage nodes non-blocking and reservable, while freeing their occupied forage-cell tracking as soon as they are gathered/destroyed.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; no C# files under `Assets/Scripts` exceed 500 lines.
+
+### 2026-06-24 - Forager Camp external food work
+
+- Added `Forager Camp` as a cheap 2x2 Extraction building with 2 assigned `Forager` slots, generated 2.5D sprites, build-menu/profession HUD integration, and auto-workforce Food-category demand.
+- Moved normal forage gathering out of Houses: House-driven foraging remains inactive, while assigned Foragers reserve generated forage nodes, gather Berries/Roots/Mushrooms, and deposit them into Forager Camp stock.
+- Extended Granary food logistics to reserve/pick up Forager Camp forage stock, store Berries/Roots/Mushrooms alongside `Game`/`Fish`, and let Householders carry any raw Granary food home for cooking.
+- Updated selection/roster/profession HUD text, carried-resource return/drop cleanup, and AI memory for the external forage food chain.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; no C# files under `Assets/Scripts` exceed 500 lines.
+
+### 2026-06-24 - House household foraging disabled
+
+- Stopped placed Houses from attaching `StrategyHouseholdForagingState`, so new houses no longer own direct household foraging dispatch.
+- Changed the resident household-foraging start guard to return false, preventing old/accidental house forage dispatchers from starting forage node or loose-forage pickup work.
+- Updated AI memory to mark House-driven foraging as inactive legacy while keeping generated forage nodes/sprites available for future external food-production buildings.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files remain below 500 lines.
+
+### 2026-06-24 - House food upgrades disabled
+
+- Stopped completed Houses from auto-installing default Garden Beds.
+- Hid the selected-house Garden Beds and Chicken Coop upgrade action block, so those house upgrades are no longer player-accessible.
+- Removed Householder Garden Beds work from the scheduled home-duty task chain while keeping cooking, Granary food pickup, and Storage Yard Pottery pickup active.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files remain below 500 lines.
+
+### 2026-06-24 - Refugee fog-perimeter arrival spawn
+
+- Changed refugee arrival entry selection from an off-map edge spawn to an in-map walkable cell about 4 cells beyond a random side of the daylight-visible fog boundary.
+- Kept the existing route validation to reachable camp-side arrival targets before spawning a temporary family.
+- Added an inside-map edge fallback for debug/no-fog cases, so arrivals still work without spawning beyond map bounds.
+- Rejected refugee families now walk back to the hidden entry staging point before temporary cleanup instead of walking off-map.
+- Updated `Assembly-CSharp.csproj` and Unity `.meta` for the new refugee-arrival partial file.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files remain below 500 lines.
+
+### 2026-06-24 - Compact Dinner HUD table
+
+- Reworked the selected House `Dinner` HUD from mixed status text into a compact table with current family `Need`, current house-food `Available`, and the next `Meal check` timer.
+- Changed Dinner availability to count all house-local food nutrition, including raw ingredient fallback, instead of only prepared Dish rations.
+- Changed the house food list to show only stored food rows with `Food`, `Qty`, and `Nutrition`; Pottery and absent Dish rows no longer appear in the Dinner table.
+- Added a read-only night-meal fallback countdown so the HUD shows the real remaining wait while the house is waiting for residents to come home before resolving dinner.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files remain below 500 lines.
 
 ### 2026-06-23 - Visual terrain relief pass
 

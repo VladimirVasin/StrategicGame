@@ -188,7 +188,7 @@ namespace ProjectUnknown.Strategy
                     out StrategyResourceType resource,
                     out int amount)
                 || amount <= 0
-                || (resource != StrategyResourceType.Game && resource != StrategyResourceType.Fish))
+                || !StrategyFoodNutrition.IsIngredientFood(resource))
             {
                 StrategyDebugLogger.Warn(
                     "Household",
@@ -202,19 +202,31 @@ namespace ProjectUnknown.Strategy
 
             activeHouseholdFoodGranary = null;
             carriedHouseholdFoodResource = resource;
+            carriedGameAmount = 0;
+            carriedFishAmount = 0;
+            carriedForageAmount = 0;
+            carriedForageResource = StrategyResourceType.None;
             if (resource == StrategyResourceType.Game)
             {
                 carriedGameAmount = amount;
-                carriedFishAmount = 0;
                 SetCarriedGameVisible(true);
                 SetCarriedFishVisible(false);
+                SetCarriedForageVisible(false);
+            }
+            else if (resource == StrategyResourceType.Fish)
+            {
+                carriedFishAmount = amount;
+                SetCarriedFishVisible(true);
+                SetCarriedGameVisible(false);
+                SetCarriedForageVisible(false);
             }
             else
             {
-                carriedFishAmount = amount;
-                carriedGameAmount = 0;
-                SetCarriedFishVisible(true);
+                carriedForageResource = resource;
+                carriedForageAmount = amount;
+                SetCarriedForageVisible(true);
                 SetCarriedGameVisible(false);
+                SetCarriedFishVisible(false);
             }
 
             activity = ResidentActivity.CarryingHouseholdFoodHome;
@@ -290,6 +302,7 @@ namespace ProjectUnknown.Strategy
             ClearCarriedHouseholdFood();
             SetCarriedGameVisible(false);
             SetCarriedFishVisible(false);
+            SetCarriedForageVisible(false);
             activity = GetRestingActivity();
             transform.localRotation = Quaternion.identity;
             transform.localScale = Vector3.one;
