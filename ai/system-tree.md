@@ -341,7 +341,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Runtime house-local resource store
     - Current house-local ingredients: Eggs, Turnip, Cabbage, Onion, Carrot, Potato, Berries, Roots, Mushrooms, `Fish`, and `Game`
     - Prepared `Dish` is stored as recipe stacks with aggregate amount/ration APIs for older dinner, HUD, and logistics callers
-    - Householders fetch raw food from Granaries, fetch Pottery from Storage Yards, and cook raw ingredients plus 1 Pottery per prepared recipe dish during `Dusk`; nightly household dinner consumes prepared dishes first and falls back to house-local ingredients
+    - Householders fetch raw food from Granaries, or from Hunter Camps/Fisher Huts/Forager Camps when no Granary food is available, fetch Pottery from Storage Yards, and cook raw ingredients plus 1 Pottery per prepared recipe dish during `Dusk`; nightly household dinner consumes prepared dishes first and falls back to house-local ingredients
     - Dish recipes span Poor, Common, Hearty, Fine, and Feast quality tiers with different ingredient combinations, ingredient counts, and ration values
     - Shared resource identity/icon layer also includes `Dish`, Stone, `Game`, `Fish`, and `Tools` for production/storage-style HUDs and future economy work
     - Loose carried-resource piles preserve dropped `Game`, `Fish`, Berries, Roots, and Mushrooms after resident death
@@ -448,7 +448,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - The Householder role counts as home work and can block normal worker assignment
     - Houses attach household food state that resolves nightly dinner after eligible residents return home for `Night`, using age-based resident needs
     - Ingredients and prepared dish recipe stacks contribute different ration values, so physical food units and supplied ration value are tracked separately
-    - Householders can fetch reserved `Fish`/`Game`/forage food from Granaries into their own house when household ingredient reserves are low
+    - Householders can fetch reserved `Fish`/`Game`/forage food from Granaries into their own house when household ingredient reserves are low, with direct production-food fallback only when Granaries have no available food
     - Householders can fetch Pottery from Storage Yards and cook stored ingredients plus 1 Pottery per prepared recipe dish during `Dusk`
     - Houses do not attach household foraging state; house-driven resident foraging is inactive because Forager Camps own external forage work
     - Household food uses a one-day settling grace, waits for family presence with a fallback deadline, and consumes prepared house-local dishes before direct ingredients
@@ -550,7 +550,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - UI Toolkit module available through Unity modules
   - Custom runtime F9 debug panel with player fog-of-war, instant construction, refugee arrival summon, and forced weather-state controls
   - Custom runtime Build menu HUD
-    - Early starter goals can lock Build menu categories/items to Houses first, then Lumberjack/Stonecutter camps, before unlocking the full catalog
+    - Early starter goals can lock Build menu categories/items to Houses first, then Forager Camp, then Lumberjack/Stonecutter camps, before unlocking the full catalog
   - Custom runtime top status HUD showing total population, adults, children, day number, 24-hour time, time-of-day phase, and day progress; clicking the population panel opens a larger residents roster HUD
   - Custom runtime residents roster HUD showing settlement stats plus filterable resident rows for name, age, home state, role, current status, and food status
 - Custom fullscreen Family Trees HUD opened from the residents roster; it pauses simulation, provides permanent horizontal/vertical scrollbars, lays connected same-surname family cards out as affinity-ordered left-to-right columns, and shows compact generation rows connected by local parent-pair branches plus cross-family relationship lines, deceased markers, gender symbols, and hover relationship labels
@@ -590,7 +590,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Terrain rendering uses generated map cell kinds, visual relief height, seeded tile variants, neighbor transition overlays, a runtime water/shore animation overlay, and weather visual overlays.
 - Weather depends on generated map bounds, the strategy camera, day/night/fog sorting bands, the strategy wind source, water animation, and ambience audio.
 - Resident work/rest scheduling depends on the shared day/night phase so production, construction, logistics, hunting, fishing, and household-food tasks only start during settlement work time, while housed idle residents sleep inside homes and homeless idle residents sleep around the startup campfire during `Night`.
-- House resources depend on placed-building records, resident home duty, Granary food pickup, Storage Yard Pottery pickup, and the world-selection HUD.
+- House resources depend on placed-building records, resident home duty, Granary food pickup, production-food fallback pickup, Storage Yard Pottery pickup, and the world-selection HUD.
 - Generated forage nodes remain inspectable map resources and are consumed by Forager Camp workers instead of House-driven household foraging.
 - Forestry depends on generated tree props, map walkability, placed lumberjack camps, resident work states, and the world-selection HUD.
 - Stone resources depend on generated nature props, map walkability, stonecutter camps, resident work states, and storage logistics.
@@ -605,7 +605,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Trade depends on completed Trading Posts, map-edge caravan pathing, settlement Coins, Storage Yard non-food stock, Granary food stock, generated trade/caravan sprites, and the world-selection HUD.
 - Loose construction resource piles bridge construction cancellation, build affordability, storage logistics, and builder pickup.
 - Loose carried-resource piles bridge resident death cleanup and Granary food logistics; legacy household forage recovery is currently inactive.
-- Granary food and household cooking logistics depend on hunter camp stock, fisher hut stock, forager camp stock, Storage Yard Pottery stock, Storage Yard Haulers, Householder final-mile pickup, resident work states, placed-building records, map walkability, and the world-selection HUD.
+- Granary food and household cooking logistics depend on hunter camp stock, fisher hut stock, forager camp stock, Storage Yard Pottery stock, Storage Yard Haulers, Householder final-mile pickup with direct production-source fallback when Granaries are empty, resident work states, placed-building records, map walkability, and the world-selection HUD.
 - Construction depends on Storage Yard resource reservations, loose construction pile reservations, hired Storage Yard builder assignments, construction-site blockers, placed-building finalization, F9 instant-construction debug options, and the world-selection HUD.
 - Population uses placed-building records, construction sites, the generated map walkability/trail layers, and workplace assignments; home/family assignment is independent from work/construction assignment.
 - Resident footsteps depend on population agents and the non-generated grass footstep clip set.

@@ -390,11 +390,7 @@ namespace ProjectUnknown.Strategy
 
         private void ResetHouseholdFoodWorkToIdle(bool storeCarriedFood, string reason = "reset")
         {
-            if (activeHouseholdFoodGranary != null)
-            {
-                activeHouseholdFoodGranary.ReleaseHouseholdFoodReservation(this);
-                activeHouseholdFoodGranary = null;
-            }
+            ReleaseActiveHouseholdFoodReservation();
 
             StoreCarriedHouseholdPotteryOnCancel(storeCarriedFood, reason);
 

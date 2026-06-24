@@ -324,11 +324,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            if (activeHouseholdFoodGranary != null)
-            {
-                activeHouseholdFoodGranary.ReleaseHouseholdFoodReservation(this);
-                activeHouseholdFoodGranary = null;
-            }
+            ReleaseActiveHouseholdFoodReservation();
 
             if (storeCarriedFood
                 && carriedHouseholdFoodResource != StrategyResourceType.None

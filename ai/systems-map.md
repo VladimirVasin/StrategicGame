@@ -911,7 +911,7 @@ Responsibilities:
 - Track active goal definitions, completed goal kinds, and the derived HUD view state without owning tutorial scenario logic.
 - Keep the goals HUD hidden when there are no active goals, then show the left-side starter build checklist when bootstrap starts the sequence.
 - Render a compact non-blocking Screen Space Overlay checklist with completion marks and a short completion pulse.
-- Run the initial build sequence: 3 Houses, then Lumberjack Camp plus Stonecutter Camp, then unlock the full Build menu.
+- Run the initial build sequence: 3 Houses, then Forager Camp, then Lumberjack Camp plus Stonecutter Camp, then unlock the full Build menu.
 
 Primary files/assets:
 
@@ -1247,11 +1247,11 @@ Primary files/assets:
 Impact hints:
 
 - Current resources are house-local runtime counts, not global economy inventory.
-- Current normal house-local ingredient source is Householder delivery of raw `Fish`/`Game`/forage food from Granaries.
+- Current normal house-local ingredient source is Householder delivery of raw `Fish`/`Game`/forage food from Granaries, with direct Hunter Camp/Fisher Hut/Forager Camp fallback only when no Granary food is available.
 - Household foraging from Houses, Garden Beds, and Chicken Coop are inactive legacy paths; Forager Camps are the active external source for forage food.
 - Eggs, crops, forage, `Game`, and `Fish` are raw ingredients that can be stored at home and cooked into recipe-based prepared dishes, but crops/Eggs currently have no normal active production path.
 - Current dish recipes span Poor/Common/Hearty/Fine/Feast quality tiers; quality currently affects ration value and HUD/debug context, not morale.
-- `Game`, `Fish`, Berries, Roots, and Mushrooms are local production-building/Granary stock resources with shared HUD icons, and Householders can move them into house-local ingredient storage.
+- `Game`, `Fish`, Berries, Roots, and Mushrooms are local production-building/Granary stock resources with shared HUD icons, and Householders can move Granary stock, or production stock as a Granary-empty fallback, into house-local ingredient storage.
 - Future trade, taxes, storage caps, spoilage, and needs should decide whether house stores remain local or feed into a settlement-level resource service.
 
 ### Sawmill Production
@@ -1478,7 +1478,7 @@ Responsibilities:
 - Find Fisher Huts with available stored `Fish` and reserve stock for Haulers.
 - Find Forager Camps with available stored Berries/Roots/Mushrooms and reserve stock for Haulers.
 - Route Haulers to source camps/huts, pick up reserved food, carry it to the granary, and deposit it.
-- Provide settlement-level raw food availability and reservation APIs for Householder pickup.
+- Provide settlement-level raw food availability and reservation APIs for preferred Householder Granary pickup, with resident-side direct production-source fallback when Granary food is unavailable.
 - Provide raw food spend/receive helpers for Trading Post caravan transactions.
 - Update Hunter Camp/Fisher Hut/Forager Camp stock visuals as food is picked up.
 - Update Granary `Game`/`Fish`/forage stock visuals and food drop effects as food is deposited.
@@ -1510,7 +1510,7 @@ Impact hints:
 
 - Haulers reserve food before walking so multiple haulers do not target the same local stock.
 - Food source reservations prevent multiple Haulers from double-claiming the same `Game`/`Fish`/forage food.
-- `Game`, `Fish`, Berries, Roots, and Mushrooms remain runtime-local raw food stock; completed houses can receive them from Householder Granary pickups, nightly dinner consumes prepared house `Dish` before falling back to house-local ingredients, and each cooked Dish requires house-local Pottery.
+- `Game`, `Fish`, Berries, Roots, and Mushrooms remain runtime-local raw food stock; completed houses can receive them from Householder Granary pickups or direct production-source fallback when Granaries are empty, nightly dinner consumes prepared house `Dish` before falling back to house-local ingredients, and each cooked Dish requires house-local Pottery.
 - Residents currently support one active workplace: lumberjack camp, stonecutter camp, hunter camp, fisher hut, forager camp, mine, storage logistics, or storage builder crew.
 - Future spoilage, food needs, recipe balancing, market logistics, or settlement-level food services should extend this subsystem rather than folding food into construction Storage Yards.
 
@@ -1619,7 +1619,7 @@ Responsibilities:
 - Give older children daytime ambient play activities near home/camp, including solo play, pair play with siblings or nearby children, and tag.
 - Send housed idle residents home to sleep inside during the `Night` phase by hiding their world sprite/collider until morning, while leaving homeless residents outside.
 - Resolve one nightly household dinner from prepared house `Dish`, using resident age-based ration needs after eligible residents return home for `Night`.
-- Send Householders to fetch reserved raw `Fish`/`Game` from reachable Granaries into their own house when ingredient reserves are low.
+- Send Householders to fetch reserved raw `Fish`/`Game`/forage food from reachable Granaries into their own house when ingredient reserves are low, or from reachable Hunter/Fisher/Forager production stock when no Granary food is available.
 - Send Householders to fetch Pottery from Storage Yards and cook stored ingredients plus 1 Pottery per prepared `Dish` during `Dusk` when dinner coverage is low.
 - Track per-resident nutrition debt, days hungry, hungry/starving status, and recovery when nightly dinner needs are met.
 - Grow children into adults after scaled game time.
@@ -1645,7 +1645,7 @@ Responsibilities:
 - Drive simple idle movement around the current camp/home through short walkable grid paths.
 - Route homeless residents without houses to reachable reserved sleep spots around the startup campfire during `Night`.
 - Let one homeless resident relight campfire embers with a visible kindling animation before the camp sleeps.
-- Periodically send Householders from `TendingHousehold` home duty to fetch raw `Fish`/`Game`/forage food from Granaries, fetch Pottery from Storage Yards, or cook stored ingredients plus Pottery into `Dish`.
+- Periodically send Householders from `TendingHousehold` home duty to fetch raw `Fish`/`Game`/forage food from Granaries or Granary-empty production fallback sources, fetch Pottery from Storage Yards, or cook stored ingredients plus Pottery into `Dish`.
 - Do not send residents for household foraging directly from Houses; assigned Forager Camp workers own generated forage gathering.
 - Assign residents to lumberjack camps as workplace targets.
 - Route assigned lumberjacks to the nearest available mature trees/processable wood, chopping work, fallen-trunk bucking, Logs pickup, camp stock deposit, planting cells, and sapling planting.
@@ -1803,7 +1803,7 @@ Impact hints:
 - `StrategyHouseholdState` lives on occupied houses and owns the randomized birth timer.
 - `StrategyHouseholdState` blocks births while the same house has sustained ration shortages or birth-blocked residents.
 - `StrategyHouseholdFoodState` lives on occupied houses, resolves one nightly dinner per day after a one-day settling grace, waits for eligible residents to enter home for `Night` with a fallback deadline, consumes prepared house recipe dishes first, falls back to house-local ingredients for missing rations, applies short rations to resident nutrition debt, and exposes aggregate food status for HUDs.
-- Householder home duty can reserve one raw `Fish`/`Game`/forage-food unit from a Granary or Pottery from a Storage Yard, path to pickup, carry it home, store it in the house, and cook stored ingredients plus 1 Pottery per prepared recipe dish during `Dusk`.
+- Householder home duty can reserve one raw `Fish`/`Game`/forage-food unit from a Granary, or from Hunter Camp/Fisher Hut/Forager Camp stock when Granaries have no available food, plus Pottery from a Storage Yard, path to pickup, carry it home, store it in the house, and cook stored ingredients plus 1 Pottery per prepared recipe dish during `Dusk`.
 - `StrategyHouseholdForagingState` is compiled as inactive legacy code; placed Houses no longer attach it, and resident start guards return false so house-driven foraging cannot dispatch.
 - Generated forage reach/crouch sprites and node pulse effects are used by Forager Camp workers and are not started by Houses.
 - `StrategyPlacedBuilding` owns the current Householder reference for houses, preferring the oldest adult female resident and refreshing on home changes, death/unregister, and resident adulthood.

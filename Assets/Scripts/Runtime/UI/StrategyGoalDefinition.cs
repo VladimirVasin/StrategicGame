@@ -6,7 +6,8 @@ namespace ProjectUnknown.Strategy
         BuildAnyBuilding = 1,
         BuildThreeHouses = 2,
         BuildLumberjackCamp = 3,
-        BuildStonecutterCamp = 4
+        BuildStonecutterCamp = 4,
+        BuildForagerCamp = 5
     }
 
     public readonly struct StrategyGoalDefinition

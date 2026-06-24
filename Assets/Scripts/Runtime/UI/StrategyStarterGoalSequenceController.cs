@@ -13,6 +13,7 @@ namespace ProjectUnknown.Strategy
         private StrategyBuildPlacementController placement;
         private StarterGoalPhase phase;
         private int completedHouses;
+        private bool foragerCampCompleted;
         private bool lumberjackCampCompleted;
         private bool stonecutterCampCompleted;
 
@@ -41,6 +42,7 @@ namespace ProjectUnknown.Strategy
                 "StarterGoals",
                 "Configured",
                 StrategyDebugLogger.F("houses", completedHouses),
+                StrategyDebugLogger.F("foragerCamp", foragerCampCompleted),
                 StrategyDebugLogger.F("lumberjackCamp", lumberjackCampCompleted),
                 StrategyDebugLogger.F("stonecutterCamp", stonecutterCampCompleted));
         }
@@ -69,6 +71,11 @@ namespace ProjectUnknown.Strategy
             {
                 lumberjackCampCompleted = true;
                 StrategyDebugLogger.Info("StarterGoals", "LumberjackCampCompleted");
+            }
+            else if (building.Tool == StrategyBuildTool.ForagerCamp)
+            {
+                foragerCampCompleted = true;
+                StrategyDebugLogger.Info("StarterGoals", "ForagerCampCompleted");
             }
             else if (building.Tool == StrategyBuildTool.StonecutterCamp)
             {
@@ -101,11 +108,26 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            if (!foragerCampCompleted)
+            {
+                if (phase == StarterGoalPhase.Houses)
+                {
+                    goals.CompleteGoal(StrategyGoalKind.BuildThreeHouses);
+                }
+
+                StartForagerCampPhase();
+                return;
+            }
+
             if (!lumberjackCampCompleted || !stonecutterCampCompleted)
             {
                 if (phase == StarterGoalPhase.Houses)
                 {
                     goals.CompleteGoal(StrategyGoalKind.BuildThreeHouses);
+                }
+                else if (phase == StarterGoalPhase.ForagerCamp)
+                {
+                    goals.CompleteGoal(StrategyGoalKind.BuildForagerCamp);
                 }
 
                 StartCampPhase();
@@ -124,6 +146,20 @@ namespace ProjectUnknown.Strategy
                 "Build 3 Houses (" + completedHouses + "/" + TargetHouseCount + ")",
                 "Secure shelter before expanding production."));
             StrategyDebugLogger.Info("StarterGoals", "HousePhaseReady", StrategyDebugLogger.F("houses", completedHouses));
+        }
+
+        private void StartForagerCampPhase()
+        {
+            phase = StarterGoalPhase.ForagerCamp;
+            buildMenu.SetAllowedTools(new[] { StrategyBuildTool.ForagerCamp });
+            goals.SetGoals(new StrategyGoalDefinition(
+                StrategyGoalKind.BuildForagerCamp,
+                "Build Forager Camp",
+                "Move forage food production outside homes."));
+            StrategyDebugLogger.Info(
+                "StarterGoals",
+                "ForagerCampPhaseReady",
+                StrategyDebugLogger.F("foragerCamp", foragerCampCompleted));
         }
 
         private void StartCampPhase()
@@ -155,8 +191,9 @@ namespace ProjectUnknown.Strategy
         {
             if (phase != StarterGoalPhase.Complete)
             {
-                goals.CompleteGoal(StrategyGoalKind.BuildLumberjackCamp);
-                goals.CompleteGoal(StrategyGoalKind.BuildStonecutterCamp);
+                CompleteGoalIfActive(StrategyGoalKind.BuildForagerCamp);
+                CompleteGoalIfActive(StrategyGoalKind.BuildLumberjackCamp);
+                CompleteGoalIfActive(StrategyGoalKind.BuildStonecutterCamp);
             }
 
             phase = StarterGoalPhase.Complete;
@@ -167,6 +204,7 @@ namespace ProjectUnknown.Strategy
         private void CountExistingBuildings()
         {
             completedHouses = 0;
+            foragerCampCompleted = false;
             lumberjackCampCompleted = false;
             stonecutterCampCompleted = false;
 
@@ -192,6 +230,10 @@ namespace ProjectUnknown.Strategy
                 {
                     lumberjackCampCompleted = true;
                 }
+                else if (building.Tool == StrategyBuildTool.ForagerCamp)
+                {
+                    foragerCampCompleted = true;
+                }
                 else if (building.Tool == StrategyBuildTool.StonecutterCamp)
                 {
                     stonecutterCampCompleted = true;
@@ -199,10 +241,19 @@ namespace ProjectUnknown.Strategy
             }
         }
 
+        private void CompleteGoalIfActive(StrategyGoalKind kind)
+        {
+            if (goals != null && goals.IsGoalActive(kind))
+            {
+                goals.CompleteGoal(kind);
+            }
+        }
+
         private enum StarterGoalPhase
         {
             None,
             Houses,
+            ForagerCamp,
             ProductionCamps,
             Complete
         }

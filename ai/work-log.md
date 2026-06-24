@@ -8,6 +8,20 @@ Last updated: 2026-06-24
 
 ## Done
 
+### 2026-06-24 - Householder production food fallback
+
+- Added a Householder food pickup fallback that reserves food directly from Hunter Camps, Fisher Huts, or Forager Camps only when no Granary food is available or no Granary exists.
+- Kept Granaries as the preferred household food source, and limited Householder production-source reservations to one food unit while preserving normal Hauler carry limits.
+- Split the new household food source routing into `StrategyResidentAgent.Part59.cs` and updated the project file for local builds.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; no C# files under `Assets/Scripts` exceed 500 physical lines.
+
+### 2026-06-24 - Starter Forager Camp goal
+
+- Inserted `Build Forager Camp` as a new starter objective immediately after `Build 3 Houses`.
+- The Build menu now locks to `Forager Camp` for that intermediate stage, then proceeds to the existing Lumberjack Camp plus Stonecutter Camp stage before unlocking the full catalog.
+- Updated the tutorial scenario and AI memory to match the new starter goal order.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; no C# files under `Assets/Scripts` exceed 500 physical lines.
+
 ### 2026-06-24 - Child idle play activities
 
 - Added child-only ambient idle activities for children age 3+ during daytime: solo play near home/camp, pair play with siblings or nearby children, and short tag movement loops.

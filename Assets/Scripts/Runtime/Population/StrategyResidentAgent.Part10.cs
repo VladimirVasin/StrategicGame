@@ -137,7 +137,7 @@ namespace ProjectUnknown.Strategy
             path.Clear();
             pathIndex = 0;
 
-            if (activeHouseholdFoodGranary == null
+            if (!HasActiveHouseholdFoodSource()
                 || carriedHouseholdFoodResource == StrategyResourceType.None)
             {
                 ResetHouseholdFoodWorkToIdle(false);
@@ -146,13 +146,14 @@ namespace ProjectUnknown.Strategy
 
             activity = ResidentActivity.PickingUpHouseholdFood;
             lumberWorkTimer = Random.Range(LogisticsPickupSecondsMin, LogisticsPickupSecondsMax);
-            FaceWorldPoint(activeHouseholdFoodGranary.FootprintBounds.center);
+            FaceWorldPoint(GetActiveHouseholdFoodSourceBounds().center);
             StrategyDebugLogger.Info(
                 "Household",
                 "HouseholderFoodPickupCollecting",
                 StrategyDebugLogger.F("resident", FullName),
                 StrategyDebugLogger.F("homeOrigin", home != null ? home.Origin : Vector2Int.zero),
-                StrategyDebugLogger.F("granaryOrigin", activeHouseholdFoodGranary.Origin),
+                StrategyDebugLogger.F("source", GetActiveHouseholdFoodSourceKind()),
+                StrategyDebugLogger.F("sourceOrigin", GetActiveHouseholdFoodSourceOrigin()),
                 StrategyDebugLogger.F("resource", carriedHouseholdFoodResource));
         }
 
@@ -165,28 +166,31 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            if (activeHouseholdFoodGranary == null
+            if (!HasActiveHouseholdFoodSource()
                 || home == null
                 || home.Resources == null
                 || !TryBuildPathToHomeDropoff())
             {
-                activeHouseholdFoodGranary?.ReleaseHouseholdFoodReservation(this);
+                Vector2Int rejectedSourceOrigin = GetActiveHouseholdFoodSourceOrigin();
+                string sourceKind = GetActiveHouseholdFoodSourceKind();
+                ReleaseActiveHouseholdFoodReservation();
                 StrategyDebugLogger.Warn(
                     "Household",
                     "HouseholderFoodPickupRejected",
                     StrategyDebugLogger.F("resident", FullName),
                     StrategyDebugLogger.F("homeOrigin", home != null ? home.Origin : Vector2Int.zero),
-                    StrategyDebugLogger.F("granaryOrigin", activeHouseholdFoodGranary != null ? activeHouseholdFoodGranary.Origin : Vector2Int.zero),
+                    StrategyDebugLogger.F("source", sourceKind),
+                    StrategyDebugLogger.F("sourceOrigin", rejectedSourceOrigin),
                     StrategyDebugLogger.F("reason", "no_home_path"));
                 ResetHouseholdFoodWorkToIdle(false);
                 return;
             }
 
-            Vector2Int granaryOrigin = activeHouseholdFoodGranary.Origin;
-            if (!activeHouseholdFoodGranary.TryTakeReservedHouseholdFood(
-                    this,
+            string takenSourceKind = GetActiveHouseholdFoodSourceKind();
+            if (!TryTakeActiveHouseholdFoodReservation(
                     out StrategyResourceType resource,
-                    out int amount)
+                    out int amount,
+                    out Vector2Int sourceOrigin)
                 || amount <= 0
                 || !StrategyFoodNutrition.IsIngredientFood(resource))
             {
@@ -194,41 +198,14 @@ namespace ProjectUnknown.Strategy
                     "Household",
                     "HouseholderFoodPickupRejected",
                     StrategyDebugLogger.F("resident", FullName),
-                    StrategyDebugLogger.F("granaryOrigin", granaryOrigin),
+                    StrategyDebugLogger.F("source", takenSourceKind),
+                    StrategyDebugLogger.F("sourceOrigin", sourceOrigin),
                     StrategyDebugLogger.F("reason", "take_failed"));
                 ResetHouseholdFoodWorkToIdle(false);
                 return;
             }
 
-            activeHouseholdFoodGranary = null;
-            carriedHouseholdFoodResource = resource;
-            carriedGameAmount = 0;
-            carriedFishAmount = 0;
-            carriedForageAmount = 0;
-            carriedForageResource = StrategyResourceType.None;
-            if (resource == StrategyResourceType.Game)
-            {
-                carriedGameAmount = amount;
-                SetCarriedGameVisible(true);
-                SetCarriedFishVisible(false);
-                SetCarriedForageVisible(false);
-            }
-            else if (resource == StrategyResourceType.Fish)
-            {
-                carriedFishAmount = amount;
-                SetCarriedFishVisible(true);
-                SetCarriedGameVisible(false);
-                SetCarriedForageVisible(false);
-            }
-            else
-            {
-                carriedForageResource = resource;
-                carriedForageAmount = amount;
-                SetCarriedForageVisible(true);
-                SetCarriedGameVisible(false);
-                SetCarriedFishVisible(false);
-            }
-
+            ApplyCarriedHouseholdFood(resource, amount);
             activity = ResidentActivity.CarryingHouseholdFoodHome;
             hasTarget = true;
             waitTimer = Random.Range(0.02f, 0.10f);
@@ -241,7 +218,8 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("resident", FullName),
                 StrategyDebugLogger.F("resource", resource),
                 StrategyDebugLogger.F("amount", amount),
-                StrategyDebugLogger.F("granaryOrigin", granaryOrigin),
+                StrategyDebugLogger.F("source", takenSourceKind),
+                StrategyDebugLogger.F("sourceOrigin", sourceOrigin),
                 StrategyDebugLogger.F("homeOrigin", home != null ? home.Origin : Vector2Int.zero));
         }
 

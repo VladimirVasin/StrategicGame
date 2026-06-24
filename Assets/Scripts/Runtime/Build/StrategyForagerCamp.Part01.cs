@@ -121,7 +121,8 @@ namespace ProjectUnknown.Strategy
 
             forageReservationOwner = owner;
             forageReservedResource = resource;
-            forageReservedAmount = Mathf.Min(StrategyProductionStorage.HaulerCarryLimit, GetStoredAmount(resource));
+            int carryLimit = owner is StrategyResidentAgent { IsHouseholder: true } ? 1 : StrategyProductionStorage.HaulerCarryLimit;
+            forageReservedAmount = Mathf.Min(carryLimit, GetStoredAmount(resource));
             amount = forageReservedAmount;
             return amount > 0;
         }

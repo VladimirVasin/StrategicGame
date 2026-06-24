@@ -116,10 +116,8 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            if (!StrategyGranary.TryReserveNearestHouseholdFood(
+            if (!TryReserveHouseholdFoodPickupSource(
                     home.FootprintBounds.center,
-                    this,
-                    out StrategyGranary granary,
                     out StrategyResourceType resource,
                     out int amount,
                     out Vector2Int pickupCell))
@@ -132,7 +130,9 @@ namespace ProjectUnknown.Strategy
 
             if (!TryBuildPathTo(pickupCell))
             {
-                granary.ReleaseHouseholdFoodReservation(this);
+                Vector2Int sourceOrigin = GetActiveHouseholdFoodSourceOrigin();
+                string sourceKind = GetActiveHouseholdFoodSourceKind();
+                ReleaseActiveHouseholdFoodReservation();
                 householdFoodWorkCooldown = Random.Range(
                     HouseholdFoodPickupRetryCooldownMin,
                     HouseholdFoodPickupRetryCooldownMax);
@@ -141,13 +141,13 @@ namespace ProjectUnknown.Strategy
                     "HouseholderFoodPickupRejected",
                     StrategyDebugLogger.F("resident", FullName),
                     StrategyDebugLogger.F("homeOrigin", home.Origin),
-                    StrategyDebugLogger.F("granaryOrigin", granary.Origin),
+                    StrategyDebugLogger.F("source", sourceKind),
+                    StrategyDebugLogger.F("sourceOrigin", sourceOrigin),
                     StrategyDebugLogger.F("resource", resource),
                     StrategyDebugLogger.F("reason", "no_pickup_path"));
                 return false;
             }
 
-            activeHouseholdFoodGranary = granary;
             carriedHouseholdFoodResource = resource;
             activity = ResidentActivity.MovingToHouseholdFoodPickup;
             hasTarget = true;
@@ -162,7 +162,8 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("homeOrigin", home.Origin),
                 StrategyDebugLogger.F("homeRations", homeRations),
                 StrategyDebugLogger.F("desiredRations", desiredReserve),
-                StrategyDebugLogger.F("granaryOrigin", granary.Origin),
+                StrategyDebugLogger.F("source", GetActiveHouseholdFoodSourceKind()),
+                StrategyDebugLogger.F("sourceOrigin", GetActiveHouseholdFoodSourceOrigin()),
                 StrategyDebugLogger.F("resource", resource),
                 StrategyDebugLogger.F("amount", amount),
                 StrategyDebugLogger.F("pickupCell", pickupCell));
