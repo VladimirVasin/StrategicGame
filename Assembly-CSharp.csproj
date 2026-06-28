@@ -76,6 +76,7 @@
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyStonecutEffectAnimator.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildPlacementController.Events.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyStorageYard.Part11.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyConstructionSite.Part04.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\IStrategyProductionLogisticsNode.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyKiln.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyFamilyTreeHudController.Part03.cs" />
@@ -239,6 +240,7 @@
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyMine.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyConstructionSpriteFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part59.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part60.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentSpriteFactory.Part02.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\CityMapController.Relief.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyPopulationController.Part06.cs" />
@@ -346,6 +348,7 @@
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyLooseConstructionResourcePile.Part02.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingUpgrade.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyFuneralController.Part01.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Population\StrategyRefugeeArrivalController.Part03.cs" />
     <Compile Include="Assets\Scripts\Runtime\Weather\StrategyWeatherVisualController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyStorageYard.Part04.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyCampfireSpriteFactory.cs" />

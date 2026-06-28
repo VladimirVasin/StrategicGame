@@ -1,5 +1,4 @@
 using UnityEngine;
-
 namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyResidentAgent
@@ -435,9 +434,11 @@ namespace ProjectUnknown.Strategy
 
         private void ResetConstructionWorkToIdle()
         {
+            constructionSite?.ReleaseBuildWorkReservation(this);
             CaptureCarriedConstructionReturnReservation();
             ReleaseActiveConstructionPickupReservation();
             activeConstructionSource = null;
+            activeConstructionDeliverySite = null;
             activeConstructionResource = StrategyConstructionResourceKind.None;
             constructionPickupPathFailures = 0;
             if ((carriedLogAmount > 0 || carriedStoneAmount > 0 || carriedPlanksAmount > 0)
@@ -445,7 +446,6 @@ namespace ProjectUnknown.Strategy
             {
                 return;
             }
-
             carriedLogAmount = 0;
             carriedStoneAmount = 0;
             carriedPlanksAmount = 0;

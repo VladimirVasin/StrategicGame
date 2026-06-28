@@ -335,6 +335,11 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
+            if (TryStartHaulerConstructionDeliveryTask())
+            {
+                return true;
+            }
+
             logisticsWorkCooldown = Random.Range(2.5f, 5.5f);
             return false;
         }

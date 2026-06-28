@@ -1,6 +1,6 @@
 # System Tree
 
-Last updated: 2026-06-28
+Last updated: 2026-06-29
 
 This is a conceptual map of the current project. Keep concrete file ownership in `ai/systems-map.md`.
 
@@ -383,6 +383,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Haulers walk to Forges, pick up Tools, carry them to the Storage Yard, and deposit them
     - Householders reserve and carry Pottery from Storage Yard stock into their own houses when cooking needs it
     - Haulers can also reserve `Game`/`Fish`/`Eggs`/forage food from Hunter Camps/Fisher Huts/Forager Camps/Chicken Coops or loose food piles and deliver that food to the nearest Granary
+    - If normal storage, production, and Granary orders are unavailable, Haulers can fallback-deliver reserved construction Logs/Stone/Planks directly to active construction sites without becoming builders
     - Lumberjack camp local Logs stock decreases when haulers pick up reserved Logs
     - Stonecutter camp local Stone stock decreases when haulers pick up reserved Stone
     - Mine local Iron stock decreases when haulers pick up reserved Iron
@@ -472,6 +473,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Completed burials create runtime-generated clickable grave sprites with epitaph HUD data and mark grave cells as not walkable
     - Funeral activities temporarily interrupt active resident tasks without permanently removing workplace roles
     - The first refugee family arrives no earlier than `Dusk` on Day 2; later families periodically spawn inside the map about 4 cells beyond a random side of the daylight-visible fog boundary, route only to the reachable camp-side arrival area, walk to the startup campfire, and ask for settlement acceptance through a modal paused decision
+    - After the scripted first arrival, a once-per-game-day dynamic refugee roll can start an earlier later-family arrival when accepted adults are below total finite worker slots from capped worksites plus active construction-site pressure
     - Refugee arrival intensity fades after 40 accepted residents and stops at 50 accepted residents; incoming family size is capped by remaining room below 50
     - Refugee families contain 1-3 members with 1-2 adult parents and optional children, using normal names, ages, visual variants, and parent/child kinship links when children are present
     - Accepted refugees join the normal resident registry, keep their family block, and occupy the first available empty House as a whole family; if no house is available, the family remains an unsettled group and generic pair assignment cannot split it before all members share one house
@@ -504,7 +506,8 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Residents assigned as Haulers also path to Clay Pit stock, carry Clay to storage, and deposit it
     - Residents assigned as Haulers also deliver Storage Yard Logs into Sawmills, path to Sawmill stock, carry Planks to storage, deliver Storage Yard Clay/Coal into Kilns, path to Kiln stock, carry Pottery to storage, and deposit it; house-demanded Pottery is picked up from Storage Yards by Householders
     - Residents assigned as Haulers also haul `Game`/`Fish`/`Eggs`/forage food from production food stock or loose food piles into the nearest Granary
-    - Residents hired as Storage Yard builders fetch reserved Logs/Stone/Planks, deliver them to construction sites, then build with hammer animations up to the currently delivered-material progress cap
+    - Residents assigned as Haulers can fallback-deliver construction Logs/Stone/Planks to active construction sites only when normal Hauler orders are unavailable
+    - Residents hired as Storage Yard builders fetch reserved Logs/Stone/Planks, deliver them to construction sites, then reserve individual unlocked build-hit units and build with hammer animations up to the currently delivered-material progress cap
     - Auto workforce assignment scans eligible free adults every few seconds, uses one per-tick worksite snapshot for demand/rebalance/fallback calculations, treats nonzero player values as desired profession targets plus a one-worker coverage floor, releases surplus workers from overstaffed auto-managed professions, can pull limited donors from roles above their floor for higher-scored shortages, protects Food workers from non-food donor steals during household food emergencies or active food demand, uses `0` as the explicit opt-out that permits a role/category to have no workers, caps successful assignments per tick to avoid frame spikes, throttles deep no-free-adult full scans, and assigns remaining free adults through existing worksite APIs across later ticks while shortages/backlog/readiness affect scoring
     - Residents removed from a role while carrying Logs, Stone, Iron, Coal, Clay, Planks, Pottery, `Game`, or `Fish` first return the carried resource to the appropriate Storage Yard or Granary; hard interruption fallbacks preserve materials instead of deleting carried stock
     - Resident death drops all carried resources: construction Logs/Stone/Planks as loose construction piles, and generic Iron, Coal, Clay, Planks, Pottery, `Game`, `Fish`, `Eggs`, Berries, Roots, and Mushrooms as loose carried-resource piles
@@ -611,12 +614,13 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Loose construction resource piles bridge construction cancellation, build affordability, storage logistics, and builder pickup.
 - Loose carried-resource piles bridge resident death cleanup and Granary food logistics; legacy household forage recovery is currently inactive.
 - Granary food and household cooking logistics depend on hunter camp stock, fisher hut stock, forager camp stock, chicken coop stock, Storage Yard Pottery stock, Storage Yard Haulers, Householder final-mile pickup with direct production-source fallback when Granaries are empty, resident work states, placed-building records, map walkability, and the world-selection HUD.
-- Construction depends on Storage Yard resource reservations, loose construction pile reservations, hired Storage Yard builder assignments, construction-site blockers, placed-building finalization, F9 instant-construction debug options, and the world-selection HUD.
+- Construction depends on Storage Yard resource reservations, loose construction pile reservations, idle Hauler construction-material fallback delivery, hired Storage Yard builder assignments, construction-site blockers, placed-building finalization, F9 instant-construction debug options, and the world-selection HUD.
 - Population uses placed-building records, construction sites, the generated map walkability/trail layers, and workplace assignments; home/family assignment is independent from work/construction assignment.
 - Resident footsteps depend on population agents and the non-generated grass footstep clip set.
 - Resident movement records activity-weighted footfall into the trail layer for functional preference, records completed building-to-building route traversals for visible trail formation, and reads formed trails for 8-direction A* path-cost preference plus a 15% movement-speed bonus.
 - World selection uses placed-building/resident/construction-site colliders, inspectable world-object sprite bounds, generated map cell data, fog state, the strategy camera, house resource state, and production-building upgrade state.
 - Profession HUD depends on population adults and current worksite components; it owns player-facing worker assignment/removal while existing worksite components still own role state and work loops, with Storage Yard Haulers/builders treated as uncapped roles.
+- Refugee arrival demand depends on accepted adult counts plus finite worksite/construction slot counts, while intentionally ignoring uncapped Storage Yard Hauler/builder capacity.
 - Auto workforce depends on population availability, Profession HUD priority settings, construction sites, Storage Yard builder/hauler APIs, production worksite stock/capacity, Forge/Tools demand, household food emergency state, and Granary raw food ingredient availability.
 - Strategy camera checks UI pointer state so bottom HUD interaction does not pan/zoom the map.
 - New gameplay systems should be added here and mapped to concrete files/assets in `systems-map.md`.

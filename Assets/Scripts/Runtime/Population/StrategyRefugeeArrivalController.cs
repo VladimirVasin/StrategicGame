@@ -77,11 +77,7 @@ namespace ProjectUnknown.Strategy
                     return;
                 }
 
-                arrivalTimer -= Time.deltaTime * GetArrivalIntensity();
-                if (arrivalTimer <= 0f)
-                {
-                    TryStartArrival(false);
-                }
+                UpdateRecurringArrivalGate();
 
                 return;
             }
@@ -101,22 +97,6 @@ namespace ProjectUnknown.Strategy
             {
                 FinishRejectedDeparture();
             }
-        }
-
-        private void UpdateFirstArrivalGate()
-        {
-            if (!IsFirstArrivalScheduleReady())
-            {
-                return;
-            }
-
-            arrivalTimer -= Time.deltaTime * GetArrivalIntensity();
-            if (arrivalTimer > 0f)
-            {
-                return;
-            }
-
-            TryStartArrival(true);
         }
 
         public bool DebugStartArrival()
@@ -201,6 +181,7 @@ namespace ProjectUnknown.Strategy
             if (firstArrival)
             {
                 firstArrivalTriggered = true;
+                lastDynamicArrivalRollDayIndex = StrategyDayNightCycleController.CurrentCalendarSnapshot.DayIndex;
             }
 
             for (int i = 0; i < activeFamily.Count; i++)
@@ -306,35 +287,6 @@ namespace ProjectUnknown.Strategy
             ScheduleNextArrival();
         }
 
-        private void ScheduleNextArrival()
-        {
-            arrivalTimer = Random.Range(RepeatArrivalMinSeconds, RepeatArrivalMaxSeconds);
-            state = RefugeeArrivalState.Waiting;
-            StrategyDebugLogger.Info(
-                "Refugees",
-                "ArrivalScheduled",
-                StrategyDebugLogger.F("initial", false),
-                StrategyDebugLogger.F("population", population != null ? population.TotalResidentCount : 0),
-                StrategyDebugLogger.F("intensity", GetArrivalIntensity()),
-                StrategyDebugLogger.F("seconds", arrivalTimer));
-        }
-
-        private float GetArrivalIntensity()
-        {
-            int count = population != null ? population.TotalResidentCount : 0;
-            if (count >= PopulationHardCap)
-            {
-                return 0f;
-            }
-
-            if (count <= PopulationSlowdownStart)
-            {
-                return 1f;
-            }
-
-            return Mathf.Clamp01((PopulationHardCap - count) / (float)(PopulationHardCap - PopulationSlowdownStart));
-        }
-
         private static int GetRefugeeParentCount(int memberCount)
         {
             int clampedMembers = Mathf.Clamp(memberCount, 1, 3);
@@ -345,32 +297,6 @@ namespace ProjectUnknown.Strategy
 
             int maxParents = Mathf.Min(2, clampedMembers);
             return Random.Range(1, maxParents + 1);
-        }
-
-        private void LogFirstArrivalWaiting()
-        {
-            loggedWaitingForFirstArrival = true;
-            arrivalTimer = 0f;
-            StrategyDebugLogger.Info(
-                "Refugees",
-                "FirstArrivalWaitingForSchedule",
-                StrategyDebugLogger.F("targetDay", FirstArrivalDayIndex + 1),
-                StrategyDebugLogger.F("targetPhase", StrategyTimeOfDayPhase.Dusk),
-                StrategyDebugLogger.F("currentDay", StrategyDayNightCycleController.CurrentCalendarSnapshot.DisplayDay),
-                StrategyDebugLogger.F("currentPhase", StrategyDayNightCycleController.CurrentCalendarSnapshot.PhaseLabel));
-        }
-
-        private static bool IsFirstArrivalScheduleReady()
-        {
-            StrategyCalendarSnapshot snapshot = StrategyDayNightCycleController.CurrentCalendarSnapshot;
-            if (snapshot.DayIndex > FirstArrivalDayIndex)
-            {
-                return true;
-            }
-
-            return snapshot.DayIndex == FirstArrivalDayIndex
-                && (snapshot.Phase == StrategyTimeOfDayPhase.Dusk
-                    || snapshot.Phase == StrategyTimeOfDayPhase.Night);
         }
 
         private bool HasFamilyFinishedTravel(StrategyResidentAgent.ResidentActivity travelActivity)

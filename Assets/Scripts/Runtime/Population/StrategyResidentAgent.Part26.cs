@@ -21,6 +21,12 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            if (IsHaulerConstructionDeliveryActive && IsConstructionActivity(activity))
+            {
+                ResetConstructionWorkToIdle();
+                return;
+            }
+
             if (activeLogSource != null)
             {
                 activeLogSource.ReleaseStoredLogsReservation(this);

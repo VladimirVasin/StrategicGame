@@ -53,12 +53,20 @@ namespace ProjectUnknown.Strategy
 
         private void CompleteConstructionDelivery()
         {
+            StrategyConstructionSite targetSite = GetActiveConstructionDeliverySite();
+            bool wasHaulerDelivery = IsHaulerConstructionDeliveryActive;
             activeConstructionSource = null;
+            activeConstructionDeliverySite = null;
             transform.localRotation = Quaternion.identity;
             transform.localScale = Vector3.one;
             UseIdleSprite();
             activity = ResidentActivity.Idle;
-            waitTimer = constructionSite != null && constructionSite.CanBuildWithDeliveredResources
+            if (wasHaulerDelivery)
+            {
+                logisticsWorkCooldown = Random.Range(0.35f, 0.95f);
+            }
+
+            waitTimer = !wasHaulerDelivery && targetSite != null && targetSite.CanBuildWithDeliveredResources
                 ? Random.Range(0.05f, 0.22f)
                 : Random.Range(0.20f, 0.55f);
         }
@@ -104,49 +112,50 @@ namespace ProjectUnknown.Strategy
 
         private void CaptureCarriedConstructionReturnReservation()
         {
-            if (constructionSite == null || constructionSite.IsCompleted)
+            StrategyConstructionSite targetSite = GetActiveConstructionDeliverySite();
+            if (targetSite == null || targetSite.IsCompleted)
             {
                 return;
             }
 
             if (activeConstructionResource == StrategyConstructionResourceKind.Logs && carriedLogAmount > 0)
             {
-                carriedConstructionReturnSite = constructionSite;
+                carriedConstructionReturnSite = targetSite;
                 carriedConstructionReturnResource = StrategyConstructionResourceKind.Logs;
                 return;
             }
 
             if (activeConstructionResource == StrategyConstructionResourceKind.Stone && carriedStoneAmount > 0)
             {
-                carriedConstructionReturnSite = constructionSite;
+                carriedConstructionReturnSite = targetSite;
                 carriedConstructionReturnResource = StrategyConstructionResourceKind.Stone;
                 return;
             }
 
             if (activeConstructionResource == StrategyConstructionResourceKind.Planks && carriedPlanksAmount > 0)
             {
-                carriedConstructionReturnSite = constructionSite;
+                carriedConstructionReturnSite = targetSite;
                 carriedConstructionReturnResource = StrategyConstructionResourceKind.Planks;
                 return;
             }
 
             if (carriedLogAmount > 0)
             {
-                carriedConstructionReturnSite = constructionSite;
+                carriedConstructionReturnSite = targetSite;
                 carriedConstructionReturnResource = StrategyConstructionResourceKind.Logs;
                 return;
             }
 
             if (carriedStoneAmount > 0)
             {
-                carriedConstructionReturnSite = constructionSite;
+                carriedConstructionReturnSite = targetSite;
                 carriedConstructionReturnResource = StrategyConstructionResourceKind.Stone;
                 return;
             }
 
             if (carriedPlanksAmount > 0)
             {
-                carriedConstructionReturnSite = constructionSite;
+                carriedConstructionReturnSite = targetSite;
                 carriedConstructionReturnResource = StrategyConstructionResourceKind.Planks;
             }
         }

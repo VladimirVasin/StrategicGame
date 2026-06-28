@@ -9,6 +9,7 @@ namespace ProjectUnknown.Strategy
         private const float BuilderRequestInterval = 2f;
 
         private readonly List<StrategyResidentAgent> builders = new();
+        private readonly List<StrategyResidentAgent> buildWorkReservations = new();
         private readonly List<Vector2Int> bridgeCells = new();
         private readonly List<Vector2Int> bridgeWorkCells = new();
         private readonly HashSet<int> futureHomeResidentIds = new();
@@ -64,7 +65,7 @@ namespace ProjectUnknown.Strategy
         public float BuildableProgressLimit => ResourcesComplete ? 1f : DeliveredResourceFraction;
         public int BuildableHitLimit => Mathf.Clamp(Mathf.CeilToInt(BuildableProgressLimit * buildHitsRequired), 0, buildHitsRequired);
         public float Progress => buildHitsRequired <= 0 ? 1f : Mathf.Min(Mathf.Clamp01(buildHits / (float)buildHitsRequired), BuildableProgressLimit);
-        public bool CanBuildWithDeliveredResources => !completed && buildHitsRequired > 0 && buildHits < BuildableHitLimit;
+        public bool CanBuildWithDeliveredResources => !completed && buildHitsRequired > 0 && UnreservedBuildHitCount > 0;
         public int BuilderCount => builders.Count;
         public IReadOnlyList<StrategyResidentAgent> Builders => builders;
         public bool HasBridgeSpan => hasBridgeSpan;
@@ -189,6 +190,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            ReleaseBuildWorkReservation(resident);
             builders.Remove(resident);
             if (resident.ResidentId > 0)
             {
@@ -328,31 +330,6 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("deliveredStone", deliveredStone),
                 StrategyDebugLogger.F("deliveredPlanks", deliveredPlanks),
                 StrategyDebugLogger.F("resourcesComplete", ResourcesComplete));
-        }
-
-        public void ReceiveBuildHit(StrategyResidentAgent builder, Vector3 hitWorld)
-        {
-            if (completed || !CanBuildWithDeliveredResources || builder == null || !builders.Contains(builder))
-            {
-                return;
-            }
-
-            buildHits = Mathf.Min(buildHits + 1, BuildableHitLimit);
-            UpdateVisuals();
-            PlayBuildHitEffect(hitWorld);
-            StrategyDebugLogger.Info(
-                "Construction",
-                "BuildHit",
-                StrategyDebugLogger.F("tool", tool),
-                StrategyDebugLogger.F("origin", origin),
-                StrategyDebugLogger.F("builder", builder.FullName),
-                StrategyDebugLogger.F("progress", Progress),
-                StrategyDebugLogger.F("buildableProgressLimit", BuildableProgressLimit));
-
-            if (buildHits >= buildHitsRequired)
-            {
-                CompleteConstruction();
-            }
         }
 
         public string GetHudStatusText()

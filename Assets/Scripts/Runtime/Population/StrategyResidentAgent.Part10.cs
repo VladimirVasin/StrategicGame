@@ -294,7 +294,8 @@ namespace ProjectUnknown.Strategy
             path.Clear();
             pathIndex = 0;
 
-            if (constructionSite == null
+            StrategyConstructionSite targetSite = GetActiveConstructionDeliverySite();
+            if (targetSite == null
                 || activeConstructionSource == null
                 || activeConstructionResource == StrategyConstructionResourceKind.None)
             {
@@ -311,11 +312,14 @@ namespace ProjectUnknown.Strategy
             };
             lumberWorkTimer = Random.Range(ConstructionPickupSecondsMin, ConstructionPickupSecondsMax);
             FaceWorldPoint(activeConstructionSource.FootprintBounds.center);
+            string eventName = IsHaulerConstructionDeliveryActive
+                ? "HaulerConstructionPickupStarted"
+                : "BuilderPickupStarted";
             StrategyDebugLogger.Info(
                 "Construction",
-                "BuilderPickupStarted",
+                eventName,
                 StrategyDebugLogger.F("resident", FullName),
-                StrategyDebugLogger.F("siteOrigin", constructionSite.Origin),
+                StrategyDebugLogger.F("siteOrigin", targetSite.Origin),
                 StrategyDebugLogger.F("sourceOrigin", activeConstructionSource.Origin),
                 StrategyDebugLogger.F("resource", activeConstructionResource));
         }
@@ -331,19 +335,21 @@ namespace ProjectUnknown.Strategy
 
             Vector2Int dropoffCell = default;
             int checkedDropoffCells = 0;
-            if (constructionSite == null
+            StrategyConstructionSite targetSite = GetActiveConstructionDeliverySite();
+            bool isHaulerDelivery = IsHaulerConstructionDeliveryActive;
+            if (targetSite == null
                 || activeConstructionSource == null
                 || activeConstructionResource == StrategyConstructionResourceKind.None
                 || !TryBuildPathToConstructionDropoffCell(
-                    constructionSite,
+                    targetSite,
                     out dropoffCell,
                     out checkedDropoffCells))
             {
                 StrategyDebugLogger.Warn(
                     "Construction",
-                    "BuilderPickupRejected",
+                    isHaulerDelivery ? "HaulerConstructionPickupRejected" : "BuilderPickupRejected",
                     StrategyDebugLogger.F("resident", FullName),
-                    StrategyDebugLogger.F("siteOrigin", constructionSite != null ? constructionSite.Origin : Vector2Int.zero),
+                    StrategyDebugLogger.F("siteOrigin", targetSite != null ? targetSite.Origin : Vector2Int.zero),
                     StrategyDebugLogger.F("dropoffCell", dropoffCell),
                     StrategyDebugLogger.F("checkedDropoffCells", checkedDropoffCells),
                     StrategyDebugLogger.F("reason", "no_dropoff_path"));
@@ -351,13 +357,13 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            if (!activeConstructionSource.TryTakeReservedConstructionResource(constructionSite, this, activeConstructionResource, StrategyProductionStorage.BuilderCarryLimit, out int amount))
+            if (!activeConstructionSource.TryTakeReservedConstructionResource(targetSite, this, activeConstructionResource, StrategyProductionStorage.BuilderCarryLimit, out int amount))
             {
                 StrategyDebugLogger.Warn(
                     "Construction",
-                    "BuilderPickupRejected",
+                    isHaulerDelivery ? "HaulerConstructionPickupRejected" : "BuilderPickupRejected",
                     StrategyDebugLogger.F("resident", FullName),
-                    StrategyDebugLogger.F("siteOrigin", constructionSite.Origin),
+                    StrategyDebugLogger.F("siteOrigin", targetSite.Origin),
                     StrategyDebugLogger.F("sourceOrigin", activeConstructionSource.Origin),
                     StrategyDebugLogger.F("resource", activeConstructionResource),
                     StrategyDebugLogger.F("reason", "take_failed"));
@@ -391,9 +397,9 @@ namespace ProjectUnknown.Strategy
             waitTimer = Random.Range(0.02f, 0.10f);
             StrategyDebugLogger.Info(
                 "Construction",
-                "BuilderResourcePickedUp",
+                isHaulerDelivery ? "HaulerConstructionResourcePickedUp" : "BuilderResourcePickedUp",
                 StrategyDebugLogger.F("resident", FullName),
-                StrategyDebugLogger.F("siteOrigin", constructionSite.Origin),
+                StrategyDebugLogger.F("siteOrigin", targetSite.Origin),
                 StrategyDebugLogger.F("sourceOrigin", sourceOrigin),
                 StrategyDebugLogger.F("resource", activeConstructionResource),
                 StrategyDebugLogger.F("amount", amount),
@@ -405,7 +411,8 @@ namespace ProjectUnknown.Strategy
             hasTarget = false;
             path.Clear();
             pathIndex = 0;
-            if (constructionSite == null)
+            StrategyConstructionSite targetSite = GetActiveConstructionDeliverySite();
+            if (targetSite == null)
             {
                 ResetConstructionWorkToIdle();
                 return;
@@ -413,12 +420,12 @@ namespace ProjectUnknown.Strategy
 
             activity = ResidentActivity.DepositingConstructionResource;
             lumberWorkTimer = Random.Range(ConstructionDepositSecondsMin, ConstructionDepositSecondsMax);
-            FaceWorldPoint(constructionSite.FootprintBounds.center);
+            FaceWorldPoint(targetSite.FootprintBounds.center);
             StrategyDebugLogger.Info(
                 "Construction",
-                "BuilderDepositStarted",
+                IsHaulerConstructionDeliveryActive ? "HaulerConstructionDepositStarted" : "BuilderDepositStarted",
                 StrategyDebugLogger.F("resident", FullName),
-                StrategyDebugLogger.F("siteOrigin", constructionSite.Origin),
+                StrategyDebugLogger.F("siteOrigin", targetSite.Origin),
                 StrategyDebugLogger.F("resource", activeConstructionResource),
                 StrategyDebugLogger.F("logs", carriedLogAmount),
                 StrategyDebugLogger.F("stone", carriedStoneAmount),
@@ -437,19 +444,20 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            if (constructionSite != null)
+            StrategyConstructionSite targetSite = GetActiveConstructionDeliverySite();
+            if (targetSite != null)
             {
                 if (activeConstructionResource == StrategyConstructionResourceKind.Logs && carriedLogAmount > 0)
                 {
-                    constructionSite.AddDeliveredResource(StrategyConstructionResourceKind.Logs, carriedLogAmount);
+                    targetSite.AddDeliveredResource(StrategyConstructionResourceKind.Logs, carriedLogAmount);
                 }
                 else if (activeConstructionResource == StrategyConstructionResourceKind.Stone && carriedStoneAmount > 0)
                 {
-                    constructionSite.AddDeliveredResource(StrategyConstructionResourceKind.Stone, carriedStoneAmount);
+                    targetSite.AddDeliveredResource(StrategyConstructionResourceKind.Stone, carriedStoneAmount);
                 }
                 else if (activeConstructionResource == StrategyConstructionResourceKind.Planks && carriedPlanksAmount > 0)
                 {
-                    constructionSite.AddDeliveredResource(StrategyConstructionResourceKind.Planks, carriedPlanksAmount);
+                    targetSite.AddDeliveredResource(StrategyConstructionResourceKind.Planks, carriedPlanksAmount);
                 }
             }
 

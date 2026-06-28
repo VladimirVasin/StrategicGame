@@ -131,6 +131,7 @@ namespace ProjectUnknown.Strategy
             }
 
             builders.Clear();
+            ClearBuildWorkReservations();
             bridgeCells.Clear();
             bridgeWorkCells.Clear();
             futureHomeResidentIds.Clear();

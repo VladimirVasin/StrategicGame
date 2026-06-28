@@ -8,6 +8,28 @@ Last updated: 2026-06-29
 
 ## Done
 
+### 2026-06-29 - Hauler construction material fallback
+
+- Storage Yard Haulers now try a fallback construction-material delivery job only after normal storage hauling, production input delivery, production output hauling, and Granary food hauling have no available orders.
+- Added a separate temporary construction delivery target on residents so Haulers can reuse the existing construction pickup/deposit activity chain without becoming hired builders or taking hammer-work reservations.
+- Construction pickup, deposit, cancellation, assignment clear, and carried-resource return paths now resolve either a builder's assigned construction site or a Hauler's temporary construction delivery site.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-06-29 - Builder build-work reservations
+
+- Added per-builder build-hit reservations on construction sites so delivered-material progress can be worked in parallel only up to the number of unreserved build units currently unlocked.
+- Builders now reserve one build unit before entering the hammer animation, consume that reservation on the construction impact frame, and release it when construction work is reset, assignment is cleared, the site completes, or the site is destroyed.
+- Moved build-hit consumption into `StrategyConstructionSite.Part04.cs`, kept `CanBuildWithDeliveredResources` tied to unreserved build work, and extended `BuildHit` diagnostics with reserved/unreserved hit counts.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-06-29 - Dynamic refugee workforce-demand arrivals
+
+- Added a once-per-game-day dynamic refugee arrival roll after the scripted Day 2 first family.
+- The daily chance now rises from accepted adult deficit against total worker slots from capped worksites plus one finite construction slot per active construction site; uncapped Storage Yard Hauler/builder roles are intentionally excluded from this count.
+- Added `DynamicArrivalRoll` diagnostics with adults, work slots, open slots, adult deficit, intensity, chance, roll, and result, while keeping the existing repeat timer, population slowdown, hard cap, fog-edge staging, route validation, and modal decision flow.
+- Split refugee scheduling/demand helpers into `StrategyRefugeeArrivalController.Part03.cs` and updated `Assembly-CSharp.csproj`.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
 ### 2026-06-29 - Build menu subcategory layer
 
 - Added an optional third Build menu layer: categories can now contain subcategories before showing build item cards.

@@ -5,7 +5,6 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyResidentAgent
     {
-
         private bool TryStartGranaryTask()
         {
             StrategyGranary targetGranary = granaryWorkplace;
@@ -497,6 +496,5 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("hutOrigin", fisherWorkplace != null ? fisherWorkplace.Origin : Vector2Int.zero));
             return true;
         }
-
     }
 }

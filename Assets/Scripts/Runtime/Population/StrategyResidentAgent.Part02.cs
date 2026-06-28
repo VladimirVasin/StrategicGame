@@ -246,7 +246,7 @@ namespace ProjectUnknown.Strategy
 
         public void ClearConstructionSite(StrategyConstructionSite site, bool allowCarriedResourceReturn = true)
         {
-            if (site != null && constructionSite != site)
+            if (site != null && constructionSite != site && activeConstructionDeliverySite != site)
             {
                 return;
             }
@@ -278,6 +278,7 @@ namespace ProjectUnknown.Strategy
 
             constructionSite = null;
             activeConstructionSource = null;
+            activeConstructionDeliverySite = null;
             activeConstructionResource = StrategyConstructionResourceKind.None;
             constructionPickupPathFailures = 0;
             constructionFutureHome = false;

@@ -323,7 +323,12 @@ namespace ProjectUnknown.Strategy
                     workFrame = (workFrame + 1) % StrategyResidentSpriteFactory.ConstructionFrameCount;
                     if (workFrame == ConstructionImpactFrame && constructionSite != null)
                     {
-                        constructionSite.ReceiveBuildHit(this, transform.position);
+                        if (!constructionSite.ConsumeReservedBuildWork(this, transform.position))
+                        {
+                            ResetConstructionWorkToIdle();
+                            return;
+                        }
+
                         if (constructionSite == null || constructionSite.IsCompleted)
                         {
                             return;
