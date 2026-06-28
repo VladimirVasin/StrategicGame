@@ -108,6 +108,11 @@ namespace ProjectUnknown.Strategy
 
         private bool TryBuildTrailAwarePathTo(Vector2Int targetCell)
         {
+            if (!suppressTrailRouteCapture)
+            {
+                ClearPendingTrailRoute();
+            }
+
             if (map == null
                 || !TryGetPathStartCell(out Vector2Int startCell)
                 || !map.IsCellWalkable(targetCell))
@@ -231,11 +236,13 @@ namespace ProjectUnknown.Strategy
         {
             if (!TryReconstructTrailCells(startCell, targetCell, cameFrom, out List<Vector2Int> cells))
             {
+                ClearPendingTrailRoute();
                 path.Clear();
                 pathIndex = 0;
                 return;
             }
 
+            PrepareTrailRouteForBuiltPath(startCell, targetCell, cells);
             SmoothTrailCells(startCell, cells);
             path.Clear();
             for (int i = 0; i < cells.Count; i++)

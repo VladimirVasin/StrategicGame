@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace ProjectUnknown.Strategy
@@ -177,6 +178,8 @@ namespace ProjectUnknown.Strategy
                 "TrailStats",
                 StrategyDebugLogger.F("interval", interval),
                 StrategyDebugLogger.F("activeWearCells", activeWearCells.Count),
+                StrategyDebugLogger.F("activeRouteCells", activeRouteCells.Count),
+                StrategyDebugLogger.F("buildingRoutes", routeTraversalCounts.Count),
                 StrategyDebugLogger.F("visibleCells", visible),
                 StrategyDebugLogger.F("rendererCells", renderers.Count),
                 StrategyDebugLogger.F("faintCells", faint),
@@ -194,6 +197,11 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("rejectedBuildability", rejectedBuildabilitySinceStats),
                 StrategyDebugLogger.F("levelUps", trailLevelUpsSinceStats),
                 StrategyDebugLogger.F("levelDowns", trailLevelDownsSinceStats),
+                StrategyDebugLogger.F("routeTraversals", routeTraversalsSinceStats),
+                StrategyDebugLogger.F("routeLevelUps", routeLevelUpsSinceStats),
+                StrategyDebugLogger.F("routeLevelDowns", routeLevelDownsSinceStats),
+                StrategyDebugLogger.F("routeInvalidations", routeInvalidationsSinceStats),
+                StrategyDebugLogger.F("routeClears", routeClearsSinceStats),
                 StrategyDebugLogger.F("invalidations", trailInvalidationsSinceStats),
                 StrategyDebugLogger.F("clears", trailClearsSinceStats));
 
@@ -207,31 +215,54 @@ namespace ProjectUnknown.Strategy
             worn = 0;
             visible = 0;
             hiddenFaint = 0;
+            HashSet<int> counted = new();
             foreach (int key in activeWearCells)
             {
-                Vector2Int cell = new Vector2Int(key % map.Width, key / map.Width);
-                byte level = GetTrailLevel(cell);
-                if (level == 1)
-                {
-                    faint++;
-                }
-                else if (level == 2)
-                {
-                    clear++;
-                }
-                else if (level >= 3)
-                {
-                    worn++;
-                }
+                CountTrailStatsCell(key, counted, ref faint, ref clear, ref worn, ref visible, ref hiddenFaint);
+            }
 
-                if (GetVisibleTrailLevel(cell) > 0)
-                {
-                    visible++;
-                }
-                else if (level == 1)
-                {
-                    hiddenFaint++;
-                }
+            foreach (int key in activeRouteCells)
+            {
+                CountTrailStatsCell(key, counted, ref faint, ref clear, ref worn, ref visible, ref hiddenFaint);
+            }
+        }
+
+        private void CountTrailStatsCell(
+            int key,
+            HashSet<int> counted,
+            ref int faint,
+            ref int clear,
+            ref int worn,
+            ref int visible,
+            ref int hiddenFaint)
+        {
+            if (!counted.Add(key))
+            {
+                return;
+            }
+
+            Vector2Int cell = new Vector2Int(key % map.Width, key / map.Width);
+            byte level = GetFunctionalTrailLevel(cell);
+            if (level == 1)
+            {
+                faint++;
+            }
+            else if (level == 2)
+            {
+                clear++;
+            }
+            else if (level >= 3)
+            {
+                worn++;
+            }
+
+            if (GetVisibleTrailLevel(cell) > 0)
+            {
+                visible++;
+            }
+            else if (level == 1)
+            {
+                hiddenFaint++;
             }
         }
 
@@ -250,6 +281,11 @@ namespace ProjectUnknown.Strategy
             trailLevelDownsSinceStats = 0;
             trailInvalidationsSinceStats = 0;
             trailClearsSinceStats = 0;
+            routeTraversalsSinceStats = 0;
+            routeLevelUpsSinceStats = 0;
+            routeLevelDownsSinceStats = 0;
+            routeInvalidationsSinceStats = 0;
+            routeClearsSinceStats = 0;
         }
     }
 }

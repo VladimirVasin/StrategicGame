@@ -75,6 +75,25 @@ namespace ProjectUnknown.Strategy
             trayLayout.childForceExpandWidth = false;
             trayLayout.childForceExpandHeight = false;
 
+            subcategoryRoot = CreateUiObject("BuildSubcategoryDock", menuRoot).GetComponent<RectTransform>();
+            subcategoryRoot.anchorMin = new Vector2(0.5f, 0f);
+            subcategoryRoot.anchorMax = new Vector2(0.5f, 0f);
+            subcategoryRoot.pivot = new Vector2(0.5f, 0f);
+            subcategoryRoot.anchoredPosition = new Vector2(0f, 122f);
+            subcategoryRoot.sizeDelta = new Vector2(720f, 52f);
+            subcategoryGroup = subcategoryRoot.gameObject.AddComponent<CanvasGroup>();
+            subcategoryGroup.alpha = 0f;
+            subcategoryGroup.blocksRaycasts = false;
+            subcategoryGroup.interactable = false;
+            HorizontalLayoutGroup subcategoryLayout = subcategoryRoot.gameObject.AddComponent<HorizontalLayoutGroup>();
+            subcategoryLayout.padding = new RectOffset(10, 10, 6, 6);
+            subcategoryLayout.spacing = 8f;
+            subcategoryLayout.childAlignment = TextAnchor.MiddleCenter;
+            subcategoryLayout.childControlWidth = false;
+            subcategoryLayout.childControlHeight = false;
+            subcategoryLayout.childForceExpandWidth = false;
+            subcategoryLayout.childForceExpandHeight = false;
+
             dockRoot = CreateUiObject("BuildCategoryDock", menuRoot).GetComponent<RectTransform>();
             dockRoot.anchorMin = new Vector2(0.5f, 0f);
             dockRoot.anchorMax = new Vector2(0.5f, 0f);
@@ -146,16 +165,82 @@ namespace ProjectUnknown.Strategy
             button.onClick.AddListener(() => SelectCategory(category, true));
             AddHoverRelay(root.gameObject, hovered => category.IsHovered = hovered);
 
-            category.Items = new BuildItemUi[data.Items.Length];
-            for (int i = 0; i < data.Items.Length; i++)
+            List<BuildItemUi> items = new();
+            if (data.HasSubcategories)
             {
-                category.Items[i] = CreateItemUi(data.Items[i]);
+                category.Subcategories = new BuildSubcategoryUi[data.Subcategories.Length];
+                for (int i = 0; i < data.Subcategories.Length; i++)
+                {
+                    BuildSubcategoryData subcategoryData = data.Subcategories[i];
+                    category.Subcategories[i] = CreateSubcategoryUi(category, subcategoryData, i);
+                    for (int j = 0; j < subcategoryData.Items.Length; j++)
+                    {
+                        items.Add(CreateItemUi(subcategoryData.Items[j], i));
+                    }
+                }
             }
+            else
+            {
+                category.Subcategories = Array.Empty<BuildSubcategoryUi>();
+                for (int i = 0; i < data.Items.Length; i++)
+                {
+                    items.Add(CreateItemUi(data.Items[i], -1));
+                }
+            }
+
+            category.Items = items.ToArray();
 
             return category;
         }
 
-        private BuildItemUi CreateItemUi(BuildItemData data)
+        private BuildSubcategoryUi CreateSubcategoryUi(CategoryUi category, BuildSubcategoryData data, int index)
+        {
+            RectTransform root = CreateUiObject("BuildSubcategory_" + data.Label, subcategoryRoot).GetComponent<RectTransform>();
+            root.sizeDelta = new Vector2(138f, 38f);
+            LayoutElement layout = root.gameObject.AddComponent<LayoutElement>();
+            layout.preferredWidth = 138f;
+            layout.preferredHeight = 38f;
+
+            Image background = root.gameObject.AddComponent<Image>();
+            background.color = new Color(0.10f, 0.16f, 0.17f, 0.96f);
+            Outline outline = root.gameObject.AddComponent<Outline>();
+            outline.effectColor = new Color(0f, 0f, 0f, 0.32f);
+            outline.effectDistance = new Vector2(1.2f, -1.2f);
+
+            RectTransform accent = CreateUiObject("Accent", root).GetComponent<RectTransform>();
+            accent.anchorMin = new Vector2(0f, 0f);
+            accent.anchorMax = new Vector2(0f, 1f);
+            accent.pivot = new Vector2(0f, 0.5f);
+            accent.offsetMin = new Vector2(0f, 0f);
+            accent.offsetMax = new Vector2(6f, 0f);
+            Image accentImage = accent.gameObject.AddComponent<Image>();
+            accentImage.color = data.AccentColor;
+            accentImage.raycastTarget = false;
+
+            Text label = CreateText("Label", root, data.Label, 11, TextAnchor.MiddleCenter, new Color(0.86f, 0.91f, 0.96f));
+            label.fontStyle = FontStyle.Bold;
+            Stretch(label.rectTransform, 12f, 0f, 8f, 0f);
+
+            Button button = root.gameObject.AddComponent<Button>();
+            button.targetGraphic = background;
+            ConfigureButtonColors(button);
+
+            BuildSubcategoryUi subcategory = new BuildSubcategoryUi
+            {
+                Data = data,
+                Index = index,
+                Root = root,
+                Background = background,
+                Label = label,
+                Button = button
+            };
+
+            button.onClick.AddListener(() => SelectSubcategory(category, subcategory, true));
+            AddHoverRelay(root.gameObject, hovered => subcategory.IsHovered = hovered);
+            return subcategory;
+        }
+
+        private BuildItemUi CreateItemUi(BuildItemData data, int subcategoryIndex)
         {
             RectTransform root = CreateUiObject("BuildItem_" + data.Tool, trayRoot).GetComponent<RectTransform>();
             root.sizeDelta = new Vector2(138f, 116f);
@@ -214,6 +299,7 @@ namespace ProjectUnknown.Strategy
             BuildItemUi item = new BuildItemUi
             {
                 Data = data,
+                SubcategoryIndex = subcategoryIndex,
                 Root = root,
                 Background = background,
                 IconBackground = iconBackground,
@@ -269,10 +355,33 @@ namespace ProjectUnknown.Strategy
                     ? new Color(0.44f, 0.47f, 0.50f, 1f)
                     : selected ? Color.white : new Color(0.86f, 0.91f, 0.96f);
 
+                for (int j = 0; j < category.Subcategories.Length; j++)
+                {
+                    BuildSubcategoryUi subcategory = category.Subcategories[j];
+                    bool subcategoryVisible = selected && category.Data.HasSubcategories;
+                    subcategory.Root.gameObject.SetActive(subcategoryVisible);
+                    if (!subcategoryVisible)
+                    {
+                        continue;
+                    }
+
+                    bool subcategoryAllowed = SubcategoryHasAllowedTool(category, subcategory);
+                    bool subcategorySelected = selectedSubcategoryIndex == subcategory.Index;
+                    subcategory.Button.interactable = subcategoryAllowed;
+                    subcategory.Background.color = !subcategoryAllowed
+                        ? new Color(0.06f, 0.07f, 0.08f, 0.88f)
+                        : subcategorySelected
+                            ? new Color(0.18f, 0.32f, 0.32f, 0.98f)
+                            : new Color(0.10f, 0.16f, 0.17f, 0.96f);
+                    subcategory.Label.color = subcategoryAllowed
+                        ? Color.white
+                        : new Color(0.48f, 0.51f, 0.54f, 1f);
+                }
+
                 for (int j = 0; j < category.Items.Length; j++)
                 {
                     BuildItemUi item = category.Items[j];
-                    bool visible = selected;
+                    bool visible = IsItemInSelectedLayer(category, item);
                     item.Root.gameObject.SetActive(visible);
                     if (!visible)
                     {
@@ -302,6 +411,7 @@ namespace ProjectUnknown.Strategy
             }
 
             LayoutRebuilder.ForceRebuildLayoutImmediate(dockRoot);
+            LayoutRebuilder.ForceRebuildLayoutImmediate(subcategoryRoot);
             LayoutRebuilder.ForceRebuildLayoutImmediate(trayRoot);
             isDirty = false;
         }
@@ -367,7 +477,28 @@ namespace ProjectUnknown.Strategy
                 dockRoot.localScale = Vector3.one * Mathf.Lerp(0.96f, 1f, easedMenu);
             }
 
-            bool trayOpen = isOpen && selectedCategoryIndex >= 0;
+            bool subcategoryOpen = isOpen && selectedCategoryIndex >= 0
+                && selectedCategoryIndex < categoryUis.Count
+                && categoryUis[selectedCategoryIndex].Data.HasSubcategories;
+            subcategoryT = Mathf.MoveTowards(subcategoryT, subcategoryOpen ? 1f : 0f, Time.unscaledDeltaTime * TrayAnimationSpeed);
+            float easedSubcategory = Smooth01(subcategoryT);
+
+            if (subcategoryGroup != null)
+            {
+                subcategoryGroup.alpha = easedSubcategory;
+                subcategoryGroup.blocksRaycasts = subcategoryOpen && easedSubcategory > 0.45f;
+                subcategoryGroup.interactable = subcategoryOpen && easedSubcategory > 0.45f;
+            }
+
+            if (subcategoryRoot != null)
+            {
+                subcategoryRoot.anchoredPosition = new Vector2(0f, Mathf.Lerp(78f, 152f, easedSubcategory) + Mathf.Lerp(-112f, 0f, easedMenu));
+                subcategoryRoot.localScale = Vector3.one * Mathf.Lerp(0.94f, 1f, easedSubcategory);
+            }
+
+            bool trayOpen = isOpen
+                && selectedCategoryIndex >= 0
+                && (!subcategoryOpen || selectedSubcategoryIndex >= 0);
             trayT = Mathf.MoveTowards(trayT, trayOpen ? 1f : 0f, Time.unscaledDeltaTime * TrayAnimationSpeed);
             float easedTray = Smooth01(trayT);
 
@@ -380,7 +511,8 @@ namespace ProjectUnknown.Strategy
 
             if (trayRoot != null)
             {
-                trayRoot.anchoredPosition = new Vector2(0f, Mathf.Lerp(78f, 152f, easedTray) + Mathf.Lerp(-112f, 0f, easedMenu));
+                float trayOpenY = subcategoryOpen ? 204f : 152f;
+                trayRoot.anchoredPosition = new Vector2(0f, Mathf.Lerp(78f, trayOpenY, easedTray) + Mathf.Lerp(-112f, 0f, easedMenu));
                 trayRoot.localScale = Vector3.one * Mathf.Lerp(0.94f, 1f, easedTray);
             }
 
@@ -397,6 +529,20 @@ namespace ProjectUnknown.Strategy
                 category.HoverT = Mathf.MoveTowards(category.HoverT, target, Time.unscaledDeltaTime * 8f);
                 category.Root.localScale = Vector3.one * Mathf.Lerp(1f, selected ? 1.08f : 1.04f, Smooth01(category.HoverT));
 
+                for (int j = 0; j < category.Subcategories.Length; j++)
+                {
+                    BuildSubcategoryUi subcategory = category.Subcategories[j];
+                    if (!subcategory.Root.gameObject.activeSelf)
+                    {
+                        continue;
+                    }
+
+                    bool active = selectedSubcategoryIndex == subcategory.Index;
+                    float subcategoryTarget = subcategory.IsHovered || active ? 1f : 0f;
+                    subcategory.HoverT = Mathf.MoveTowards(subcategory.HoverT, subcategoryTarget, Time.unscaledDeltaTime * 8f);
+                    subcategory.Root.localScale = Vector3.one * Mathf.Lerp(1f, active ? 1.06f : 1.03f, Smooth01(subcategory.HoverT));
+                }
+
                 for (int j = 0; j < category.Items.Length; j++)
                 {
                     BuildItemUi item = category.Items[j];
@@ -411,31 +557,6 @@ namespace ProjectUnknown.Strategy
                     item.Root.localScale = Vector3.one * Mathf.Lerp(1f, active ? 1.08f : 1.04f, Smooth01(item.HoverT));
                 }
             }
-        }
-
-        private static Vector2Int GetFootprint(StrategyBuildTool tool)
-        {
-            return tool switch
-            {
-                StrategyBuildTool.House => new Vector2Int(2, 2),
-                StrategyBuildTool.LumberjackCamp => new Vector2Int(2, 2),
-                StrategyBuildTool.StonecutterCamp => new Vector2Int(2, 2),
-                StrategyBuildTool.Sawmill => new Vector2Int(3, 2),
-                StrategyBuildTool.Mine => new Vector2Int(2, 2),
-                StrategyBuildTool.CoalPit => new Vector2Int(2, 2),
-                StrategyBuildTool.ClayPit => new Vector2Int(2, 2),
-                StrategyBuildTool.Kiln => new Vector2Int(2, 2),
-                StrategyBuildTool.Forge => new Vector2Int(2, 2),
-                StrategyBuildTool.HunterCamp => new Vector2Int(2, 2),
-                StrategyBuildTool.FisherHut => new Vector2Int(2, 2),
-                StrategyBuildTool.ForagerCamp => new Vector2Int(2, 2),
-                StrategyBuildTool.ChickenCoop => new Vector2Int(2, 2),
-                StrategyBuildTool.TradingPost => new Vector2Int(3, 2),
-                StrategyBuildTool.StorageYard => new Vector2Int(3, 2),
-                StrategyBuildTool.Granary => new Vector2Int(3, 2),
-                StrategyBuildTool.Bridge => Vector2Int.one,
-                _ => Vector2Int.one
-            };
         }
 
     }

@@ -76,6 +76,30 @@ namespace ProjectUnknown.Strategy
             return false;
         }
 
+        private bool SubcategoryHasAllowedTool(CategoryUi category, BuildSubcategoryUi subcategory)
+        {
+            if (category == null || subcategory == null || subcategory.Data == null)
+            {
+                return false;
+            }
+
+            if (!hasToolLock)
+            {
+                return true;
+            }
+
+            BuildItemData[] items = subcategory.Data.Items;
+            for (int i = 0; i < items.Length; i++)
+            {
+                if (items[i] != null && IsToolAllowed(items[i].Tool))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         private void RejectLockedTool(StrategyBuildTool tool)
         {
             ActiveTool = StrategyBuildTool.None;
@@ -104,7 +128,23 @@ namespace ProjectUnknown.Strategy
                 && !CategoryHasAllowedTool(categoryUis[selectedCategoryIndex]))
             {
                 selectedCategoryIndex = -1;
+                selectedSubcategoryIndex = -1;
+                subcategoryT = 0f;
                 trayT = 0f;
+            }
+
+            if (selectedCategoryIndex >= 0
+                && selectedCategoryIndex < categoryUis.Count
+                && selectedSubcategoryIndex >= 0)
+            {
+                CategoryUi category = categoryUis[selectedCategoryIndex];
+                if (category.Subcategories == null
+                    || selectedSubcategoryIndex >= category.Subcategories.Length
+                    || !SubcategoryHasAllowedTool(category, category.Subcategories[selectedSubcategoryIndex]))
+                {
+                    selectedSubcategoryIndex = -1;
+                    trayT = 0f;
+                }
             }
         }
 

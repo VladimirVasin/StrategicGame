@@ -34,15 +34,33 @@ namespace ProjectUnknown.Strategy
                     HtmlColor("#5F7545"),
                     new[]
                     {
-                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.LumberjackCamp, "LC", "Lumberjack Camp", Cost(4, 2), HtmlColor("#7D8E4A")),
-                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.StonecutterCamp, "SC", "Stonecutter Camp", Cost(3, 4), HtmlColor("#7B8582")),
-                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.Mine, "MN", "Mine", Cost(5, 5, 3), HtmlColor("#765F4C")),
-                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.CoalPit, "CP", "Coal Pit", Cost(4, 4, 2), HtmlColor("#464B4D")),
-                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.ClayPit, "CL", "Clay Pit", Cost(3, 3, 1), HtmlColor("#A96945")),
-                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.HunterCamp, "HC", "Hunter Camp", Cost(4, 2), HtmlColor("#7B6A45")),
-                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.FisherHut, "FH", "Fisher Hut", Cost(4, 2), HtmlColor("#4F7E8A")),
-                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.ForagerCamp, "FC", "Forager Camp", Cost(2, 1), HtmlColor("#6E8D50")),
-                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.ChickenCoop, "CC", "Chicken Coop", Cost(3, 1), HtmlColor("#B98B45"))
+                        new StrategyBuildMenuControllerDriver.BuildSubcategoryData(
+                            "Camps",
+                            HtmlColor("#6D7D46"),
+                            new[]
+                            {
+                                new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.LumberjackCamp, "LC", "Lumberjack Camp", Cost(4, 2), HtmlColor("#7D8E4A")),
+                                new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.StonecutterCamp, "SC", "Stonecutter Camp", Cost(3, 4), HtmlColor("#7B8582"))
+                            }),
+                        new StrategyBuildMenuControllerDriver.BuildSubcategoryData(
+                            "Deposits",
+                            HtmlColor("#725F52"),
+                            new[]
+                            {
+                                new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.Mine, "MN", "Mine", Cost(5, 5, 3), HtmlColor("#765F4C")),
+                                new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.CoalPit, "CP", "Coal Pit", Cost(4, 4, 2), HtmlColor("#464B4D")),
+                                new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.ClayPit, "CL", "Clay Pit", Cost(3, 3, 1), HtmlColor("#A96945"))
+                            }),
+                        new StrategyBuildMenuControllerDriver.BuildSubcategoryData(
+                            "Food",
+                            HtmlColor("#677E4C"),
+                            new[]
+                            {
+                                new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.HunterCamp, "HC", "Hunter Camp", Cost(4, 2), HtmlColor("#7B6A45")),
+                                new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.FisherHut, "FH", "Fisher Hut", Cost(4, 2), HtmlColor("#4F7E8A")),
+                                new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.ForagerCamp, "FC", "Forager Camp", Cost(2, 1), HtmlColor("#6E8D50")),
+                                new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.ChickenCoop, "CC", "Chicken Coop", Cost(3, 1), HtmlColor("#B98B45"))
+                            })
                     }),
                 new StrategyBuildMenuControllerDriver.BuildCategoryData(
                     "Production",

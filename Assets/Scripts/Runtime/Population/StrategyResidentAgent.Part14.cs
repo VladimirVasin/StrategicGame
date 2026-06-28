@@ -126,7 +126,10 @@ namespace ProjectUnknown.Strategy
             int savedPathIndex = pathIndex;
             bool savedHasTarget = hasTarget;
             Vector3 savedPosition = transform.position;
+            TrailRouteState savedTrailRoute = CaptureTrailRouteState();
+            suppressTrailRouteCapture = true;
             bool reachable = TryBuildPathTo(targetCell);
+            RestoreTrailRouteState(savedTrailRoute);
             path.Clear();
             path.AddRange(savedPath);
             pathIndex = savedPathIndex;
@@ -433,6 +436,7 @@ namespace ProjectUnknown.Strategy
 
         private void BuildDirectWorldPath(Vector3 targetWorld)
         {
+            ClearPendingTrailRoute();
             path.Clear();
             path.Add(new Vector3(targetWorld.x, targetWorld.y, -0.08f));
             pathIndex = 0;

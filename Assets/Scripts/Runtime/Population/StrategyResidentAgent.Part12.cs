@@ -58,7 +58,7 @@ namespace ProjectUnknown.Strategy
             transform.localScale = Vector3.one;
             UseIdleSprite();
             activity = ResidentActivity.Idle;
-            waitTimer = constructionSite != null && constructionSite.ResourcesComplete
+            waitTimer = constructionSite != null && constructionSite.CanBuildWithDeliveredResources
                 ? Random.Range(0.05f, 0.22f)
                 : Random.Range(0.20f, 0.55f);
         }

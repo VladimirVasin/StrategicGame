@@ -324,59 +324,7 @@ namespace ProjectUnknown.Strategy
             }
 
             lastDonorFailureKey = key;
-            nextDonorFailureLogTime = Time.realtimeSinceStartup + 3f;
-            int sameProfession = 0;
-            int manualLocked = 0;
-            int rebalanceLocked = 0;
-            int noWorkers = 0;
-            int busyWorkers = 0;
-            int coverageFloorBlocked = 0;
-            int atOrBelowTarget = 0;
-            int scoreTooLow = 0;
-            int foodEmergencyBlocked = 0;
-            float bestScoreGap = float.NegativeInfinity;
-            bool hasScoreGap = false;
-            for (int i = 0; i < AutoManagedProfessions.Length; i++)
-            {
-                string reason = GetDemandDonorBlockReason(AutoManagedProfessions[i], demand, out float holdScore);
-                if (holdScore < float.MaxValue)
-                {
-                    hasScoreGap = true;
-                    bestScoreGap = Mathf.Max(bestScoreGap, demand.Score - holdScore);
-                }
-
-                switch (reason)
-                {
-                    case "target_profession":
-                        sameProfession++;
-                        break;
-                    case "manual_locked":
-                        manualLocked++;
-                        break;
-                    case "rebalance_locked":
-                        rebalanceLocked++;
-                        break;
-                    case "no_workers":
-                        noWorkers++;
-                        break;
-                    case "busy_workers":
-                        busyWorkers++;
-                        break;
-                    case "coverage_floor":
-                        coverageFloorBlocked++;
-                        break;
-                    case "at_or_below_target":
-                        atOrBelowTarget++;
-                        break;
-                    case "score_too_low":
-                        scoreTooLow++;
-                        break;
-                    case "food_emergency":
-                        foodEmergencyBlocked++;
-                        break;
-                }
-            }
-
+            nextDonorFailureLogTime = Time.realtimeSinceStartup + NoDonorRetrySeconds;
             StrategyDebugLogger.Info(
                 "AutoWorkforce",
                 "AutoWorkforceRebalanceSkipped",
@@ -386,17 +334,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("reason", "no_donor"),
                 StrategyDebugLogger.F("zeroCoverageRescue", IsZeroCoverageRescueDemand(demand)),
                 StrategyDebugLogger.F("emergencyDemand", IsEmergencyDemand(demand)),
-                StrategyDebugLogger.F("sameProfession", sameProfession),
-                StrategyDebugLogger.F("manualLocked", manualLocked),
-                StrategyDebugLogger.F("rebalanceLocked", rebalanceLocked),
-                StrategyDebugLogger.F("noWorkers", noWorkers),
-                StrategyDebugLogger.F("busyWorkers", busyWorkers),
-                StrategyDebugLogger.F("coverageFloorBlocked", coverageFloorBlocked),
-                StrategyDebugLogger.F("atOrBelowTarget", atOrBelowTarget),
-                StrategyDebugLogger.F("scoreTooLow", scoreTooLow),
-                StrategyDebugLogger.F("foodEmergencyBlocked", foodEmergencyBlocked),
-                StrategyDebugLogger.F("hasScoreGap", hasScoreGap),
-                StrategyDebugLogger.F("bestScoreGap", hasScoreGap ? bestScoreGap : 0f));
+                StrategyDebugLogger.F("cooldownSeconds", NoDonorRetrySeconds));
         }
 
         private void RegisterDemandRebalanceLock(StrategyProfessionType source, StrategyProfessionType target)

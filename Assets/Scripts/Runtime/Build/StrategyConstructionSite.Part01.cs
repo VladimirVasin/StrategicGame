@@ -58,9 +58,11 @@ namespace ProjectUnknown.Strategy
         {
             if (spriteRenderer != null)
             {
-                int stage = ResourcesComplete
+                int materialStage = Mathf.Clamp(Mathf.FloorToInt(DeliveredResourceFraction * 2f), 0, 2);
+                int progressStage = Progress > 0f
                     ? Mathf.Clamp(1 + Mathf.FloorToInt(Progress * (StrategyConstructionSpriteFactory.StageCount - 1)), 1, StrategyConstructionSpriteFactory.StageCount - 1)
-                    : Mathf.Clamp(Mathf.FloorToInt(((deliveredLogs + deliveredStone + deliveredPlanks) / Mathf.Max(1f, cost.Total)) * 2f), 0, 2);
+                    : materialStage;
+                int stage = ResourcesComplete ? progressStage : Mathf.Max(materialStage, progressStage);
                 spriteRenderer.sprite = tool == StrategyBuildTool.Bridge
                     ? StrategyConstructionSpriteFactory.GetBridgeConstructionSprite(footprint, stage)
                     : StrategyConstructionSpriteFactory.GetConstructionSprite(tool, visualVariant, stage);

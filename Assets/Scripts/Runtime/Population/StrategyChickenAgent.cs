@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ProjectUnknown.Strategy
 {
     [DisallowMultipleComponent]
-    public sealed class StrategyChickenAgent : MonoBehaviour, IStrategyWorldInspectable
+    public sealed partial class StrategyChickenAgent : MonoBehaviour, IStrategyWorldInspectable
     {
         private const float MoveSpeed = 0.48f;
         private const float TargetReachDistance = 0.035f;
@@ -12,6 +12,9 @@ namespace ProjectUnknown.Strategy
         private const float WalkAnimationFrameRate = 10f;
         private const float PeckAnimationFrameRate = 11f;
         private const float MovingThresholdSqr = 0.000001f;
+        private const float VisualScale = 1.18f;
+        private const float ShadowWidth = 0.22f;
+        private const float ShadowHeight = 0.08f;
         private static readonly Vector2Int[] CardinalDirections =
         {
             new Vector2Int(1, 0),
@@ -31,15 +34,19 @@ namespace ProjectUnknown.Strategy
         private float walkFrameTimer;
         private float peckFrameTimer;
         private float peckCooldown;
+        private Vector3 shelterWorld;
         private int walkFrame;
         private int peckFrame;
         private int appliedFrame = -1;
         private bool hasTarget;
         private bool isPecking;
+        private bool returningToCoopForNight;
+        private bool shelteredInsideCoop;
         private bool usingAnimatedSprite;
 
         public StrategyBuildingUpgrade Coop => coop;
         public StrategyChickenCoop StandaloneCoop => standaloneCoop;
+        public bool IsShelteredInsideCoop => shelteredInsideCoop;
 
         public void Configure(
             CityMapController mapController,
@@ -73,13 +80,13 @@ namespace ProjectUnknown.Strategy
             bobPhase = Random.Range(0f, 100f);
 
             transform.position = new Vector3(spawnWorld.x, spawnWorld.y, -0.09f);
-            transform.localScale = Vector3.one;
+            transform.localScale = BaseVisualScale();
             StrategyWorldSorting.Apply(spriteRenderer, transform.position);
             StrategyShadowCaster2D.Attach(
                 spriteRenderer,
                 StrategyShadowShape.SoftEllipse,
                 new Vector2(0f, 0.015f),
-                new Vector2(0.22f, 0.08f),
+                new Vector2(ShadowWidth, ShadowHeight),
                 0.24f,
                 -4,
                 0f,
@@ -105,6 +112,17 @@ namespace ProjectUnknown.Strategy
         {
             if (map == null || !HasCoop())
             {
+                return;
+            }
+
+            if (shelteredInsideCoop)
+            {
+                return;
+            }
+
+            if (returningToCoopForNight)
+            {
+                UpdateNightShelterMovement();
                 return;
             }
 
@@ -169,6 +187,11 @@ namespace ProjectUnknown.Strategy
 
         private void LateUpdate()
         {
+            if (shelteredInsideCoop)
+            {
+                return;
+            }
+
             StrategyWorldSorting.Apply(spriteRenderer, transform.position);
         }
 
@@ -299,7 +322,7 @@ namespace ProjectUnknown.Strategy
         {
             UseIdleSprite();
             float pulse = 1f + Mathf.Sin((Time.time + bobPhase) * 8f) * 0.045f;
-            transform.localScale = new Vector3(1f, pulse, 1f);
+            transform.localScale = new Vector3(VisualScale, VisualScale * pulse, 1f);
         }
 
         private void AnimateWalk()
@@ -309,7 +332,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            transform.localScale = Vector3.one;
+            transform.localScale = BaseVisualScale();
             usingAnimatedSprite = true;
 
             walkFrameTimer += Time.deltaTime * WalkAnimationFrameRate;
@@ -334,7 +357,7 @@ namespace ProjectUnknown.Strategy
             peckFrameTimer = 0f;
             appliedFrame = -1;
             usingAnimatedSprite = true;
-            transform.localScale = Vector3.one;
+            transform.localScale = BaseVisualScale();
         }
 
         private void AnimatePeck()
@@ -345,7 +368,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            transform.localScale = Vector3.one;
+            transform.localScale = BaseVisualScale();
             peckFrameTimer += Time.deltaTime * PeckAnimationFrameRate;
             int nextFrame = Mathf.FloorToInt(peckFrameTimer);
             if (nextFrame > peckFrame)
@@ -386,8 +409,23 @@ namespace ProjectUnknown.Strategy
             walkFrameTimer = 0f;
         }
 
+        private static Vector3 BaseVisualScale()
+        {
+            return new Vector3(VisualScale, VisualScale, 1f);
+        }
+
         private string GetStateTitle()
         {
+            if (shelteredInsideCoop)
+            {
+                return "inside coop";
+            }
+
+            if (returningToCoopForNight)
+            {
+                return "returning";
+            }
+
             if (isPecking)
             {
                 return "pecking";

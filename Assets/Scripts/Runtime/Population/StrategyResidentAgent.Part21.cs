@@ -6,6 +6,7 @@ namespace ProjectUnknown.Strategy
     {
         private void HandleReachedPathTarget()
         {
+            CompletePendingTrailRouteTraversal();
             hasTarget = false;
             if (TryDeferReachedWorkForNight())
             {

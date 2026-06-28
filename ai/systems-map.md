@@ -109,7 +109,7 @@ Responsibilities:
 - Configure runtime ambience audio after camera setup.
 - Focus the initial camera view on the startup campfire after population creates it.
 - Configure water/shore animation after map generation.
-- Create/configure runtime trail wear and trail visuals after map generation.
+- Create/configure runtime footfall trail wear, building-route trail wear, and trail visuals after map generation.
 - Create/configure the Stone resource registry before nature generation.
 - Configure nature props after the starter camp exists so generated props can avoid the campfire clear radius.
 - Create/configure forage resource nodes after nature generation so they use current walkability.
@@ -153,6 +153,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Map/StrategyWaterAnimationController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.Diagnostics.cs`
+- `Assets/Scripts/Runtime/Map/StrategyTrailController.Routes.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.Visibility.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Map/StrategyStoneResourceController.cs`
@@ -290,8 +291,9 @@ Responsibilities:
 - Expose `RiverFlowDirection` for systems that need to move or animate along the generated river current.
 - Paint procedural pixel-art terrain textures for generated map cells.
 - Render animated water waves, sparkles, shoreline foam, and weather-driven rain ripple hits as a transparent overlay.
-- Track weighted resident footfall wear on walkable/buildable land cells, decay stale wear, and render formed trails as connected procedural sprites.
-- Expose formed trails as a 15% resident movement-speed bonus and a reduced resident pathfinding cost.
+- Track weighted resident footfall wear on walkable/buildable land cells for functional movement/path-cost preference.
+- Track completed resident movement between different placed buildings as building-route wear, attach new routes to existing stable route-trail cells, decay stale route wear, and render visible formed trails from route wear as connected procedural sprites.
+- Expose formed functional trails from route or footfall wear as a 15% resident movement-speed bonus and a reduced resident pathfinding cost.
 - Feed generated cell kinds and active seed into the visual nature-props layer.
 - Feed generated land cells and active seed into Stone deposit generation.
 - Feed generated walkable land cells and active seed into underground Iron field generation.
@@ -314,6 +316,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Map/StrategyWaterAnimationController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.Diagnostics.cs`
+- `Assets/Scripts/Runtime/Map/StrategyTrailController.Routes.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.Visibility.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Map/StrategyMapDistributionUtility.cs`
@@ -364,9 +367,9 @@ Impact hints:
 - Future movement/pathfinding should use `IsCellWalkable` rather than terrain kind alone.
 - Rendering is currently a generated point-filtered texture on a `SpriteRenderer`, not a Tilemap.
 - Water and shore animation is a separate transparent `SpriteRenderer` overlay above the static map and below world props; it reads active weather intensity for rain ripple hits and repaints only cached water/shore cells after setup.
-- Trail visuals use one `SpriteRenderer` per visible trail cell under a `Trail Visuals` root, sorted above terrain/water overlays and below world props, with cardinal N/E/S/W right-angle masks and narrow line/brush sprites; cells with only diagonal or isolated trail wear stay hidden visually so early traffic noise does not form spider-web strands.
-- Trail wear is runtime-only and should be refreshed when walkability/buildability changes so blocked cells do not keep visible trails.
-- Resident pathfinding should continue to read functional trail wear as a cost preference, not as required connectivity; do not tie movement bonuses to visual-only orthogonal filtering.
+- Trail visuals use one `SpriteRenderer` per visible route-trail cell under a `Trail Visuals` root, sorted above terrain/water overlays and below world props, with cardinal N/E/S/W right-angle masks, narrow line/brush sprites, supported weak-cell filtering, and route attachment to existing stable trails; visual trail formation comes from completed building-to-building traversals rather than per-step footfall squares.
+- Trail wear is runtime-only and should be refreshed when walkability/buildability changes so blocked cells do not keep visible or functional trails.
+- Resident pathfinding should continue to read functional trail wear as a cost preference, not as required connectivity; do not tie movement bonuses to visual-only route filtering.
 
 ### Forestry MVP
 
@@ -799,13 +802,13 @@ Responsibilities:
 
 - Runtime-created Build menu inspired by `Gruzovichky` bottom Build dock.
 - Bottom Build button.
-- Category cards and item tray.
+- Category cards, optional subcategory dock, and item tray.
 - Build item cards with Logs/Stone/Planks construction costs, affordability state, and active state.
 - F9 instant construction debug mode makes build tools affordable and shows item cost badges as `Free`.
 - Temporary goal-driven tool locks that disable locked categories/items, block mouse and hotkey selection, and show `Locked` item badges.
 - Top-left construction resource panel with x1/x2/x3 speed buttons directly beneath it.
-- Current catalog entries: `Housing` / `House`, `Extraction` / `Lumberjack Camp`, `Stonecutter Camp`, `Mine`, `Coal Pit`, `Clay Pit`, `Hunter Camp`, `Fisher Hut`, and `Forager Camp`, `Production` / `Sawmill`, `Kiln`, and `Forge`, `Storage` / `Storage Yard` and `Granary`, `Trade` / `Trading Post`, and `Infrastructure` / `Bridge`.
-- Hotkeys for open/close, category/item selection, and layered cancel.
+- Current catalog entries: `Housing` / `House`, `Extraction` / `Camps` (`Lumberjack Camp`, `Stonecutter Camp`), `Deposits` (`Mine`, `Coal Pit`, `Clay Pit`), and `Food` (`Hunter Camp`, `Fisher Hut`, `Forager Camp`, `Chicken Coop`), `Production` / `Sawmill`, `Kiln`, and `Forge`, `Storage` / `Storage Yard` and `Granary`, `Trade` / `Trading Post`, and `Infrastructure` / `Bridge`.
+- Hotkeys for open/close, category/subcategory/item selection, and layered cancel.
 - EventSystem/Input System UI setup when the scene has no UI event module.
 - Add tools/buildings gradually only by explicit user request.
 - Single-item categories behave as direct build-tool buttons.
@@ -855,10 +858,10 @@ Impact hints:
 
 - The public `StrategyBuildMenuController` component is a thin wrapper; `StrategyBuildMenuControllerDriver` owns selected active build tool data and reads `StrategyStorageYard.GetTotalConstructionResources()` for affordability, including Storage Yard stock and loose piles, unless F9 instant construction debug mode is enabled.
 - Placement reads `StrategyBuildMenuController.ActiveTool` / active tool info.
-- Starter goals call `StrategyBuildMenuController.SetAllowedTools()` and `ClearAllowedTools()`; keep lock checks shared by mouse clicks, hotkeys, active tool info, and affordability/selection visuals.
+- Starter goals call `StrategyBuildMenuController.SetAllowedTools()` and `ClearAllowedTools()`; keep lock checks shared by mouse clicks, hotkeys, active tool info, subcategory visibility, and affordability/selection visuals.
 - Current catalog has user-requested buildings only: `House`, `Lumberjack Camp`, `Stonecutter Camp`, `Sawmill`, `Kiln`, `Forge`, `Hunter Camp`, `Fisher Hut`, `Forager Camp`, `Mine`, `Coal Pit`, `Clay Pit`, `Storage Yard`, `Granary`, `Trading Post`, and `Bridge`; do not add more without a user request.
 - Current `Housing` category directly activates `House` because it has one item.
-- Current `Extraction` category opens a tray with raw-resource buildings: `Lumberjack Camp`, `Stonecutter Camp`, `Mine`, `Coal Pit`, `Clay Pit`, `Hunter Camp`, `Fisher Hut`, and `Forager Camp`.
+- Current `Extraction` category opens a subcategory dock before item cards: `Camps` for `Lumberjack Camp`/`Stonecutter Camp`, `Deposits` for Mine/Coal/Clay extraction, and `Food` for Hunter/Fisher/Forager/Chicken Coop food buildings.
 - Current `Production` category opens a tray with processing buildings: `Sawmill`, `Kiln`, and `Forge`.
 - Current `Storage` category opens a tray with `Storage Yard` and `Granary`.
 - Current `Trade` category directly activates `Trading Post` because it has one item.
@@ -1051,7 +1054,7 @@ Primary files/assets:
 
 Impact hints:
 
-- Auto workforce can release surplus workers from overstaffed auto-managed professions, release limited lower-priority donors for higher-scored shortages, and use a stricter emergency margin to pull at-target donors for severe food/resource shortages; Hunter/Fisher/Forager donors are protected from non-food steals during household food emergencies or active food demand, coverage floors protect the last worker in nonzero-counter professions, worksite lookups should use the cached snapshot refreshed on real-time cadence instead of scene-wide lookups every scaled tick, successful assignments are capped per tick, and only residents who become idle are reused immediately while workers returning carried resources re-enter the free pool on later ticks.
+- Auto workforce can release surplus workers from overstaffed auto-managed professions, release limited lower-priority donors for higher-scored shortages, and use a stricter emergency margin to pull at-target donors for severe food/resource shortages; Hunter/Fisher/Forager donors are protected from non-food steals during household food emergencies or active food demand, coverage floors protect the last worker in nonzero-counter professions, worksite lookups should use the cached snapshot refreshed on real-time cadence instead of scene-wide lookups every scaled tick, repeated no-free-adult full scans and donor-failure diagnostics should stay throttled/lightweight, successful assignments are capped per tick, and only residents who become idle are reused immediately while workers returning carried resources re-enter the free pool on later ticks.
 - Free adult fallback assignment runs after demand assignment so idle adults are placed into the best enabled available role when any nonzero managed profession can accept them.
 - Auto workforce does not force-reassign home duty, funeral duty, or residents still busy returning carried resources.
 - Demand scoring should continue to call public worksite APIs (`AssignWorker`, `AssignBuilder`, Storage Yard builder dispatch) so cancellation, carried-resource return, reservations, and resident state cleanup stay centralized.
@@ -1103,7 +1106,7 @@ Responsibilities:
 - Clay Pit places a `StrategyClayPit` worksite component, blocks its technical 2x2 footprint plus one visual row above, requires an available near-water Clay field under its footprint, and hosts a local visual Clay stockpile.
 - Granary places a `StrategyGranary` food-storage component, blocks its technical 3x2 footprint plus one visual row above, and hosts local visual `Game`/`Fish` stockpiles.
 - Trading Post places a `StrategyTradingPost` trade endpoint component, blocks its technical 3x2 footprint plus one visual row above, and exposes nearby walkable stop cells for caravan visits.
-- Accepted construction sites request active builders from the uncapped hired Storage Yard builder pool through balanced dispatch across all active sites, show material-drop and hammer-hit effects, and can wait if none are free yet.
+- Accepted construction sites request active builders from the uncapped hired Storage Yard builder pool through balanced dispatch across all active sites, show material-drop and hammer-hit effects, let builders hammer up to the progress cap allowed by physically delivered materials, and can wait if none are free yet.
 - Bridge creates no worksite component, stores its selected span cells/endpoints on the placed-building record, and exposes bank endpoint cells as construction work/dropoff candidates so builders choose a reachable shore and do not stand in water.
 - Completed house sites ask population to populate the finished house separately from the construction crew.
 - Completed construction emits a placed-building completion event used by starter goals and future onboarding/progression systems.
@@ -1562,15 +1565,18 @@ Impact hints:
 Responsibilities:
 
 - Add `Chicken Coop` as a cheap external egg-production building with no assigned worker slots.
+- Use an enlarged standalone coop sprite on a `4x4` placement footprint; final walk blocking extends to `4x5` through the shared 2.5D blocker rule.
 - Produce `Eggs` autonomously on a cycle timer into capped local production stock.
-- Spawn idle chickens around the placed building without creating a new profession.
+- Spawn slightly larger idle chickens around the placed building without creating a new profession, send them inside at `Night`, and release them outside after `Night`.
 - Expose Chicken Coop `Eggs` stock to Granary Haulers and to Householder direct fallback pickup when Granaries have no available food.
 - Show Chicken Coop egg stock, reservation count, no-worker state, and next-egg timer in the selection HUD.
 
 Primary files/assets:
 
 - `Assets/Scripts/Runtime/Build/StrategyChickenCoop.cs`
+- `Assets/Scripts/Runtime/Build/StrategyChickenCoop.NightShelter.cs`
 - `Assets/Scripts/Runtime/Population/StrategyChickenAgent.cs`
+- `Assets/Scripts/Runtime/Population/StrategyChickenAgent.NightShelter.cs`
 - `Assets/Scripts/Runtime/Population/StrategyChickenSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Build/StrategyBuildingSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Build/StrategyBuildingSpriteFactory.Part11.cs`
@@ -1590,6 +1596,8 @@ Impact hints:
 
 - Chicken Coops intentionally do not appear in profession assignment because they have no workers.
 - Local Egg stock is capped through `StrategyProductionStorage`; Granaries remain the uncapped food storage layer.
+- Standalone Chicken Coop art wraps the legacy upgrade sprite frames at a lower pixels-per-unit value for build, placed, and Egg-production animation sprites; do not change `StrategyBuildingUpgradeSpriteFactory` unless the legacy House upgrade art also needs to change.
+- Chicken night sheltering is visual-only: Egg production and stock reservations continue through the coop component while chicken sprites hide inside at `Night`.
 - Keep House Chicken Coop upgrade behavior inactive unless the design explicitly returns egg production to Houses.
 
 ### Trade MVP
@@ -1680,7 +1688,7 @@ Responsibilities:
 - Move the oldest adult child still living with parents into empty houses.
 - Move an eligible adult opposite-gender partner into single-resident adult-child houses while blocking close relatives.
 - Create temporary refugee families with 1-3 members, 1-2 adult parents, and optional children.
-- Gate the first refugee family on 3 completed registered houses; schedule later families with the repeat interval, fading arrival intensity after 40 accepted residents and stopping arrivals at 50 accepted residents.
+- Gate the first refugee family on the scripted evening of Day 2; schedule later families with the repeat interval, fading arrival intensity after 40 accepted residents and stopping arrivals at 50 accepted residents.
 - Spawn refugee arrivals inside the map about 4 cells beyond a random side of the daylight-visible fog boundary, with a walkable in-map edge fallback for debug/no-fog cases.
 - Keep pending refugees outside the normal resident registry until accepted.
 - Accept refugee families into the normal resident registry or destroy rejected temporary families after they return to the hidden in-map arrival staging point.
@@ -1718,7 +1726,7 @@ Responsibilities:
 - Route Householders to Storage Yard Pottery stock, house delivery, and deposit when their own house needs Pottery for cooking.
 - Route assigned Haulers to Hunter Camp/Fisher Hut/Forager Camp/Chicken Coop stock, stored-food pickup, granary delivery, and deposit.
 - Assign residents to Storage Yards as dedicated builders.
-- Route hired builders to reserved Storage Yard stock, construction resource pickup, site delivery, and hammer/build work after materials arrive.
+- Route hired builders to reserved Storage Yard stock, construction resource pickup, site delivery, and hammer/build work up to the currently delivered-material progress cap.
 - Drive frame-based axe swing animation and hit timing for lumberjacks.
 - Drive frame-based pickaxe swing animation and hit timing for stonecutters.
 - Drive frame-based bow shot and butchering animation/timing for hunters.
@@ -1734,7 +1742,7 @@ Responsibilities:
 - Generate resident campfire kindling and ground-sleep sprites for homeless night sleep.
 - Generate and animate procedural campfire flame, smoke/spark, ember, and relight frames at runtime.
 - Drive campfire burnout into persistent embers, restore campfire-cell walkability while extinguished, and support resident-triggered relight.
-- Drive simple chicken idle movement around standalone or legacy linked Chicken Coops with walk and peck sprite animations.
+- Drive simple chicken idle movement around standalone or legacy linked Chicken Coops with walk and peck sprite animations, plus standalone coop night shelter/release visuals.
 - Drive standalone Chicken Coop egg production from a cycle timer synchronized with the coop's nest/egg animation frames.
 - Expose runtime residents as read-only visibility sources for fog of war.
 
@@ -1764,6 +1772,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyKinshipUtility.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part36.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.TrailRoutes.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part37.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part38.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part39.cs`
@@ -1857,7 +1866,7 @@ Impact hints:
 - `StrategyKinshipUtility` treats close parent/ancestor graph distance as a block for future couple/family rules, including ancestors whose resident GameObjects were destroyed after death.
 - Resident readability helpers are visual-only child `SpriteRenderer`s and should stay synced when changing resident animation frames.
 - Residents use trail-aware 8-direction A* grid paths with no diagonal corner cutting and post-path smoothing for idle, home, workplace, construction, logistics, and funeral travel while keeping frame-based sprite walk cycles.
-- Resident movement records activity-weighted trail footfall per entered visible resident cell, and formed trails apply a 15% speed bonus.
+- Resident movement records activity-weighted trail footfall per entered visible resident cell for functional trail preference, records completed building-to-building route traversals for visible trail formation, and formed trails apply a 15% speed bonus.
 - Resident pathfinding can recover a blocked start cell by snapping to a nearby walkable cell and logging `PathStartRecovered`.
 - Resident scheduled work starts only during `StrategyDayNightCycleController.IsSettlementWorkTime`, which now covers Dawn through Dusk on every day. Keep carried-resource returns, deposits, and cleanup paths schedule-safe so nightfall cannot strand stock reservations.
 - Resident night sleep is separate from homebound young-child hiding: housed residents only enter the hidden home interior during `Night` when they are not carrying resources, in funeral duty, or underground, notify household food state for dinner readiness, then reappear at the home exit after night ends. Homeless residents instead reserve reachable campfire sleep spots, relight embers if needed, and sleep visibly around the startup campfire with a small `Zzz...` indicator.
@@ -1882,14 +1891,14 @@ Impact hints:
 - Worker and builder assignment must check `StrategyResidentAgent.CanWork`; children under age 3 remain inside assigned homes, and older children can play but cannot work.
 - Resident construction sprites are generated for every male/female visual variant and should stay in sync with readability outline mirroring.
 - Resident crying sprites are generated for adult and child funeral mourning/waiting states and should stay in sync with readability outline mirroring.
-- Chickens use the same local path style as before; their animation is visual-only.
+- Chickens use the same local path style as before; their animation and standalone coop night sheltering are visual-only.
 - House construction no longer consumes residents as builders; after completion, the finished house tries to pull one homeless adult male and one homeless adult female from the starter camp/free pool, regardless of workplace or construction role.
 - Male/female household pair creation and partner move-in rename the wife to the husband's family name; this is a current display/name rule, not a separate explicit marriage entity yet.
 - Assigning a home should not cancel active workplace/construction tasks; idle residents can walk home immediately, and busy residents keep the home binding for later idle/home behavior.
 - If no free pair exists, the completed house is available for adult-child migration and partner lookup.
 - House occupation consumes the finite free-resident pool from the starter camp while it exists; later household births and adult-child migration are the first internal population growth path.
 - Resident death must continue to go through the centralized population cleanup path; direct `Destroy` on accepted residents risks stale worksite, construction, home, HUD, or kinship state.
-- Resident helper methods for carried-resource return, construction work, workplace clearing, readability sync, refugee path following, tree movement, fishing cast/reel flow, production-input delivery, trail movement, ranged hunt stand selection, reachable forestry work-cell selection, reachable construction dropoff selection, worker-triggered visual effects, day/night work scheduling, night home sleep, Clay work/logistics, Kiln/Pottery work/logistics, household Pottery delivery, Forge/Tools work/logistics, production-upgrade speed helpers, homeless campfire sleep, forager work, and child play are split across `StrategyResidentAgent` partial files to keep source files below the 500-line limit.
+- Resident helper methods for carried-resource return, construction work, workplace clearing, readability sync, refugee path following, tree movement, fishing cast/reel flow, production-input delivery, trail movement, building-route trail capture, ranged hunt stand selection, reachable forestry work-cell selection, reachable construction dropoff selection, worker-triggered visual effects, day/night work scheduling, night home sleep, Clay work/logistics, Kiln/Pottery work/logistics, household Pottery delivery, Forge/Tools work/logistics, production-upgrade speed helpers, homeless campfire sleep, forager work, and child play are split across `StrategyResidentAgent` partial files to keep source files below the 500-line limit.
 - Future jobs/families/economy should extend resident state rather than replacing the home/free-camp assignment model.
 
 ### World Selection

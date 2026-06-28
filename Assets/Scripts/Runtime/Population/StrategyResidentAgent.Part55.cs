@@ -4,6 +4,8 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyResidentAgent
     {
+        private const float ForageMinimumWorkWindowSeconds = 12f;
+
         public void AssignForagerWorkplace(StrategyForagerCamp camp)
         {
             if (camp == null
@@ -144,6 +146,7 @@ namespace ProjectUnknown.Strategy
                 && camp == foragerWorkplace
                 && camp.HasStorageSpace
                 && CanWork
+                && HasEnoughForageWorkWindow()
                 && foragerWorkCooldown <= 0f
                 && workplace == null
                 && stoneWorkplace == null
@@ -166,6 +169,19 @@ namespace ProjectUnknown.Strategy
                 && activeForageNode == null
                 && activeLooseForageSource == null
                 && carriedForageAmount <= 0;
+        }
+
+        private static bool HasEnoughForageWorkWindow()
+        {
+            if (!StrategyDayNightCycleController.IsSettlementWorkTime)
+            {
+                return false;
+            }
+
+            float remainingWorkSeconds =
+                (StrategyDayNightCycleController.NightStartPhase - StrategyDayNightCycleController.CurrentDayPhase)
+                * StrategyDayNightCycleController.DayLengthSeconds;
+            return remainingWorkSeconds >= ForageMinimumWorkWindowSeconds;
         }
     }
 }

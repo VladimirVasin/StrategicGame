@@ -378,9 +378,11 @@ namespace ProjectUnknown.Strategy
             {
                 hudTitleText.text = "Construction";
                 hudSubtitleText.text = constructionSite.Title;
-                int stage = constructionSite.ResourcesComplete
+                int materialStage = Mathf.Clamp(Mathf.FloorToInt(constructionSite.DeliveredResourceFraction * 2f), 0, 2);
+                int progressStage = constructionSite.Progress > 0f
                     ? Mathf.Clamp(1 + Mathf.FloorToInt(constructionSite.Progress * (StrategyConstructionSpriteFactory.StageCount - 1)), 1, StrategyConstructionSpriteFactory.StageCount - 1)
-                    : 0;
+                    : materialStage;
+                int stage = constructionSite.ResourcesComplete ? progressStage : Mathf.Max(materialStage, progressStage);
                 SetPreviewSprite(constructionSite.Tool == StrategyBuildTool.Bridge
                     ? StrategyConstructionSpriteFactory.GetBridgeConstructionSprite(constructionSite.Footprint, stage)
                     : StrategyConstructionSpriteFactory.GetConstructionSprite(constructionSite.Tool, constructionSite.VisualVariant, stage));

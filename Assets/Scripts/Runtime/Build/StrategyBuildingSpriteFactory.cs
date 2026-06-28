@@ -18,7 +18,7 @@ namespace ProjectUnknown.Strategy
         public const int HunterCampVariantCount = 3;
         public const int FisherHutVariantCount = 3;
         public const int ForagerCampVariantCount = 3;
-        public const int ChickenCoopVariantCount = 3;
+        public const int ChickenCoopVariantCount = StrategyBuildingUpgradeSpriteFactory.AnimationFrameCount;
         public const int TradingPostVariantCount = 3;
         public const int StorageYardVariantCount = 3;
         public const int GranaryVariantCount = 3;
@@ -120,6 +120,19 @@ namespace ProjectUnknown.Strategy
             if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
             {
                 sprite = CreateBridgeSprite(normalizedFootprint);
+                CachedSprites[cacheKey] = sprite;
+            }
+
+            return sprite;
+        }
+
+        public static Sprite GetStandaloneChickenCoopSprite(int frame)
+        {
+            int normalizedFrame = NormalizeVariant(frame, StrategyBuildingUpgradeSpriteFactory.AnimationFrameCount);
+            int cacheKey = GetCacheKey(StrategyBuildTool.ChickenCoop, normalizedFrame);
+            if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
+            {
+                sprite = CreateChickenCoopSprite(normalizedFrame);
                 CachedSprites[cacheKey] = sprite;
             }
 

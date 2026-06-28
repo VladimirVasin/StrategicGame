@@ -95,6 +95,7 @@
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyProfessionHudController.Part02.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyStorageYard.Part12.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyFogOfWarController.WeatherFog.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Population\StrategyChickenAgent.NightShelter.cs" />
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyDishRecipeCatalog.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyRabbitAgent.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyBuildTool.cs" />
@@ -324,6 +325,7 @@
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingSpriteFactory.Part11.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part11.cs" />
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyResourceType.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Map\StrategyTrailController.Routes.cs" />
     <Compile Include="Assets\Scripts\Runtime\Selection\StrategyWorldSelectionController.Part13.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyFamilyTreeHudController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part47.cs" />
@@ -338,6 +340,7 @@
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyHouseResourceStore.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part23.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyGranary.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.TrailRoutes.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part14.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyForge.Part02.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyLooseConstructionResourcePile.Part02.cs" />
@@ -405,6 +408,7 @@
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyNaturePropController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyAutoWorkforceController.Part02.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyBuildMenuController.Driver.Debug.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyChickenCoop.NightShelter.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWolfAgent.Part04.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part10.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyAutoWorkforceController.Part05.cs" />

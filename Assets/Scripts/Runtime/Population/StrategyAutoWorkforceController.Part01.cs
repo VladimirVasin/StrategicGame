@@ -45,12 +45,12 @@ namespace ProjectUnknown.Strategy
                 }
 
                 activeSites++;
-                if (site.ResourcesComplete)
+                if (site.CanBuildWithDeliveredResources)
                 {
                     readySites++;
                 }
 
-                float siteScore = (site.ResourcesComplete ? 60f : 30f)
+                float siteScore = (site.CanBuildWithDeliveredResources ? 60f : 30f)
                     + site.Cost.Total
                     + site.Progress * 20f
                     - site.BuilderCount * 8f;
@@ -138,6 +138,8 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            bool foodReserveLow = reserveDays < FoodReserveTargetDays;
+            bool foodEmergency = reserveDays <= FoodEmergencyDays || HasHouseholdFoodEmergency();
             int desiredFoodWorkers = priority;
             int sourceKinds = (hasHunterCamp ? 1 : 0) + (hasFisherHut ? 1 : 0) + (hasForagerCamp ? 1 : 0);
             int hunterWorkers = hasHunterCamp ? Mathf.CeilToInt(desiredFoodWorkers / (float)sourceKinds) : 0;
@@ -146,14 +148,32 @@ namespace ProjectUnknown.Strategy
             int fisherWorkers = hasFisherHut ? Mathf.CeilToInt(remainingFoodWorkers / (float)Mathf.Max(1, remainingKinds)) : 0;
             int foragerWorkers = hasForagerCamp ? Mathf.Max(0, desiredFoodWorkers - hunterWorkers - fisherWorkers) : 0;
             float urgency = Mathf.Max(0f, FoodReserveTargetDays - reserveDays) * 25f;
-            if (reserveDays < FoodReserveTargetDays)
+            if (foodReserveLow)
             {
                 urgency += ResourceShortagePriorityBonus;
             }
 
-            if (reserveDays <= FoodEmergencyDays)
+            if (foodEmergency)
             {
                 urgency += EmptyResourceUrgencyBonus;
+            }
+
+            if (foodReserveLow && hasForagerCamp)
+            {
+                int foragerCapacityFloor = cachedForagerCamps.Length * StrategyForagerCamp.MaxWorkers;
+                int protectedForagers = Mathf.Min(priority, foragerCapacityFloor);
+                if (protectedForagers > foragerWorkers)
+                {
+                    foragerWorkers = protectedForagers;
+                    int remainingProtectedFoodWorkers = Mathf.Max(0, desiredFoodWorkers - foragerWorkers);
+                    int otherSourceKinds = (hasHunterCamp ? 1 : 0) + (hasFisherHut ? 1 : 0);
+                    hunterWorkers = hasHunterCamp && otherSourceKinds > 0
+                        ? Mathf.CeilToInt(remainingProtectedFoodWorkers / (float)otherSourceKinds)
+                        : 0;
+                    fisherWorkers = hasFisherHut
+                        ? Mathf.Max(0, remainingProtectedFoodWorkers - hunterWorkers)
+                        : 0;
+                }
             }
 
             AddHunterDemands(hunterWorkers, urgency);

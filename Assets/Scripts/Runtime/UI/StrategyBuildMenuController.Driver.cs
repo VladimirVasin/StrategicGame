@@ -23,9 +23,11 @@ namespace ProjectUnknown.Strategy
         private BuildCategoryData[] categories;
         private Canvas canvas;
         private CanvasGroup menuGroup;
+        private CanvasGroup subcategoryGroup;
         private CanvasGroup trayGroup;
         private RectTransform buildButtonRoot;
         private RectTransform dockRoot;
+        private RectTransform subcategoryRoot;
         private RectTransform trayRoot;
         private Image buildButtonImage;
         private Text buildButtonText;
@@ -39,7 +41,9 @@ namespace ProjectUnknown.Strategy
         private bool isOpen;
         private bool isDirty = true;
         private int selectedCategoryIndex = -1;
+        private int selectedSubcategoryIndex = -1;
         private float menuT;
+        private float subcategoryT;
         private float trayT;
 
         public StrategyBuildTool ActiveTool { get; private set; }
@@ -114,6 +118,7 @@ namespace ProjectUnknown.Strategy
 
             isOpen = false;
             selectedCategoryIndex = -1;
+            selectedSubcategoryIndex = -1;
             ActiveTool = StrategyBuildTool.None;
             isDirty = true;
         }
@@ -187,12 +192,14 @@ namespace ProjectUnknown.Strategy
             }
 
             bool sameCategory = selectedCategoryIndex == category.Index;
-            if (category.Items is { Length: 1 })
+            if (!category.Data.HasSubcategories && category.Items is { Length: 1 })
             {
                 BuildItemData item = category.Items[0].Data;
                 selectedCategoryIndex = category.Index;
+                selectedSubcategoryIndex = -1;
                 if (!sameCategory)
                 {
+                    subcategoryT = 0f;
                     trayT = 0f;
                 }
 
@@ -229,12 +236,35 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            selectedCategoryIndex = allowToggle && sameCategory ? -1 : category.Index;
-            if (!sameCategory)
+            bool closingCategory = allowToggle && sameCategory;
+            selectedCategoryIndex = closingCategory ? -1 : category.Index;
+            selectedSubcategoryIndex = -1;
+            if (!sameCategory || closingCategory)
             {
+                subcategoryT = 0f;
                 trayT = 0f;
             }
 
+            isDirty = true;
+        }
+
+        private void SelectSubcategory(CategoryUi category, BuildSubcategoryUi subcategory, bool allowToggle)
+        {
+            if (category == null || subcategory == null)
+            {
+                return;
+            }
+
+            if (!SubcategoryHasAllowedTool(category, subcategory))
+            {
+                return;
+            }
+
+            bool sameSubcategory = selectedCategoryIndex == category.Index
+                && selectedSubcategoryIndex == subcategory.Index;
+            selectedCategoryIndex = category.Index;
+            selectedSubcategoryIndex = allowToggle && sameSubcategory ? -1 : subcategory.Index;
+            trayT = 0f;
             isDirty = true;
         }
 
@@ -318,6 +348,11 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            if (selectedCategoryIndex >= 0 && TrySelectSubcategoryHotkey(number))
+            {
+                return;
+            }
+
             TrySelectCategoryHotkey(number);
         }
 
@@ -333,7 +368,17 @@ namespace ProjectUnknown.Strategy
 
             if (selectedCategoryIndex >= 0)
             {
-                selectedCategoryIndex = -1;
+                if (selectedSubcategoryIndex >= 0)
+                {
+                    selectedSubcategoryIndex = -1;
+                    trayT = 0f;
+                }
+                else
+                {
+                    selectedCategoryIndex = -1;
+                    subcategoryT = 0f;
+                }
+
                 isDirty = true;
                 return;
             }
@@ -359,6 +404,34 @@ namespace ProjectUnknown.Strategy
             return true;
         }
 
+        private bool TrySelectSubcategoryHotkey(int number)
+        {
+            if (selectedCategoryIndex < 0 || selectedCategoryIndex >= categoryUis.Count)
+            {
+                return false;
+            }
+
+            CategoryUi category = categoryUis[selectedCategoryIndex];
+            if (category == null || category.Subcategories == null || category.Subcategories.Length <= 0)
+            {
+                return false;
+            }
+
+            int index = number - 1;
+            if (index < 0 || index >= category.Subcategories.Length)
+            {
+                return false;
+            }
+
+            if (!SubcategoryHasAllowedTool(category, category.Subcategories[index]))
+            {
+                return false;
+            }
+
+            SelectSubcategory(category, category.Subcategories[index], true);
+            return true;
+        }
+
         private bool TryActivateItemHotkey(int number)
         {
             if (selectedCategoryIndex < 0 || selectedCategoryIndex >= categoryUis.Count)
@@ -366,15 +439,48 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            BuildItemUi[] items = categoryUis[selectedCategoryIndex].Items;
-            int index = number - 1;
-            if (items == null || index < 0 || index >= items.Length)
+            CategoryUi category = categoryUis[selectedCategoryIndex];
+            BuildItemUi[] items = category.Items;
+            if (items == null)
             {
                 return false;
             }
 
-            ToggleTool(items[index].Data);
-            return true;
+            int visibleIndex = 0;
+            for (int i = 0; i < items.Length; i++)
+            {
+                BuildItemUi item = items[i];
+                if (item == null || !IsItemInSelectedLayer(category, item))
+                {
+                    continue;
+                }
+
+                visibleIndex++;
+                if (visibleIndex != number)
+                {
+                    continue;
+                }
+
+                ToggleTool(item.Data);
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool IsItemInSelectedLayer(CategoryUi category, BuildItemUi item)
+        {
+            if (category == null || item == null || selectedCategoryIndex != category.Index)
+            {
+                return false;
+            }
+
+            if (!category.Data.HasSubcategories)
+            {
+                return true;
+            }
+
+            return selectedSubcategoryIndex >= 0 && item.SubcategoryIndex == selectedSubcategoryIndex;
         }
 
         private void BuildUi()

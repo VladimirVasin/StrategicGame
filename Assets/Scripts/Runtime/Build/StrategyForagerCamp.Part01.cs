@@ -89,6 +89,7 @@ namespace ProjectUnknown.Strategy
             {
                 PlayForageStoredEffect(resource, accepted);
                 UpdateStockVisual();
+                LogForageStockEvent("ForageStockAdded", resource, accepted, null);
             }
         }
 
@@ -150,6 +151,7 @@ namespace ProjectUnknown.Strategy
             RemoveStoredForage(resource, amount);
             ClearForageReservation();
             UpdateStockVisual();
+            LogForageStockEvent("ForageStockTaken", resource, amount, owner);
             return true;
         }
 

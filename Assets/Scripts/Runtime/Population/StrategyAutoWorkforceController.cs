@@ -10,7 +10,7 @@ namespace ProjectUnknown.Strategy
         private const float WorksiteCacheRefreshInterval = 8f;
         private const float DemandLogInterval = 12f;
         private const float ManualOverrideSeconds = 45f;
-        private const float NoFreeAdultFullScanRetrySeconds = 18f;
+        private const float NoFreeAdultFullScanRetrySeconds = 45f;
         private const int SlowTickLogThresholdMs = 16;
         private const int MaxAssignmentsPerTick = 4;
 

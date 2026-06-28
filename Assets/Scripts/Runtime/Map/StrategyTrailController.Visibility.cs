@@ -6,13 +6,19 @@ namespace ProjectUnknown.Strategy
     {
         private byte GetVisibleTrailLevel(Vector2Int cell)
         {
-            byte level = GetFunctionalTrailLevel(cell);
+            byte level = GetRawRouteTrailLevel(cell);
             if (level <= 0)
             {
                 return 0;
             }
 
-            if (CountCardinalTrailNeighbors(cell) <= 0)
+            int cardinalRouteNeighbors = CountCardinalRouteTrailNeighbors(cell);
+            if (cardinalRouteNeighbors <= 0)
+            {
+                return 0;
+            }
+
+            if (level == 1 && !HasVisibleWeakRouteSupport(cell, cardinalRouteNeighbors))
             {
                 return 0;
             }
@@ -20,15 +26,49 @@ namespace ProjectUnknown.Strategy
             return level;
         }
 
+        private bool HasVisibleWeakRouteSupport(Vector2Int cell, int cardinalRouteNeighbors)
+        {
+            return CountCardinalStrongRouteTrailNeighbors(cell) > 0
+                || HasOpposingRouteTrailNeighbors(cell)
+                || cardinalRouteNeighbors >= 3;
+        }
+
+        private bool IsStableRouteTrailCell(Vector2Int cell)
+        {
+            return GetRawRouteTrailLevel(cell) >= 2
+                && CountCardinalRouteTrailNeighbors(cell) > 0;
+        }
+
+        private bool HasOpposingRouteTrailNeighbors(Vector2Int cell)
+        {
+            return HasRawRouteTrailNeighbor(cell, Vector2Int.up) && HasRawRouteTrailNeighbor(cell, Vector2Int.down)
+                || HasRawRouteTrailNeighbor(cell, Vector2Int.left) && HasRawRouteTrailNeighbor(cell, Vector2Int.right);
+        }
+
+        private int CountCardinalStrongRouteTrailNeighbors(Vector2Int cell)
+        {
+            int count = 0;
+            count += GetRawRouteTrailLevel(cell + Vector2Int.up) >= 2 ? 1 : 0;
+            count += GetRawRouteTrailLevel(cell + Vector2Int.right) >= 2 ? 1 : 0;
+            count += GetRawRouteTrailLevel(cell + Vector2Int.down) >= 2 ? 1 : 0;
+            count += GetRawRouteTrailLevel(cell + Vector2Int.left) >= 2 ? 1 : 0;
+            return count;
+        }
+
+        private bool HasRawRouteTrailNeighbor(Vector2Int cell, Vector2Int offset)
+        {
+            return GetRawRouteTrailLevel(cell + offset) > 0;
+        }
+
         private byte GetFunctionalTrailLevel(Vector2Int cell)
         {
-            byte level = GetTrailLevel(cell);
-            if (level <= 0)
-            {
-                return 0;
-            }
+            byte routeLevel = GetRawRouteTrailLevel(cell);
+            byte footfallLevel = GetTrailLevel(cell);
+            byte functionalFootfallLevel = footfallLevel >= 2 || (footfallLevel > 0 && HasFunctionalFaintSupport(cell))
+                ? footfallLevel
+                : (byte)0;
 
-            return level >= 2 || HasFunctionalFaintSupport(cell) ? level : (byte)0;
+            return routeLevel > functionalFootfallLevel ? routeLevel : functionalFootfallLevel;
         }
 
         private bool HasFunctionalFaintSupport(Vector2Int cell)

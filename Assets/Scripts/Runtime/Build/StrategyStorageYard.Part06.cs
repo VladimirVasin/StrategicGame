@@ -7,7 +7,7 @@ namespace ProjectUnknown.Strategy
         private const float BuilderCountScoreWeight = 1000f;
         private const float BuilderEmptySiteScoreBonus = 500f;
         private const float BuilderRequestedSiteScoreBonus = 4f;
-        private const float BuilderResourceCompleteScoreBonus = 12f;
+        private const float BuilderBuildableSiteScoreBonus = 12f;
         private const float BuilderDistanceScoreWeight = 0.02f;
 
         private static bool TryAssignBuildersAcrossSites(StrategyConstructionSite requestedSite)
@@ -122,9 +122,9 @@ namespace ProjectUnknown.Strategy
                     score += BuilderEmptySiteScoreBonus;
                 }
 
-                if (site.ResourcesComplete)
+                if (site.CanBuildWithDeliveredResources)
                 {
-                    score += BuilderResourceCompleteScoreBonus;
+                    score += BuilderBuildableSiteScoreBonus;
                 }
 
                 if (site == requestedSite)

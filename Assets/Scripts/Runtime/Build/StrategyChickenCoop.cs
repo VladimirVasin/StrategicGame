@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ProjectUnknown.Strategy
 {
     [DisallowMultipleComponent]
-    public sealed class StrategyChickenCoop : MonoBehaviour
+    public sealed partial class StrategyChickenCoop : MonoBehaviour
     {
         private const int ChickensPerCoop = 3;
         private const float EggCycleSeconds = 22f;
@@ -42,6 +42,7 @@ namespace ProjectUnknown.Strategy
             StartProductionCycle(Random.Range(0.05f, 0.65f), false);
             EnsureStockRenderer();
             SpawnChickens();
+            SyncChickenNightState(true);
             UpdateVisuals();
             StrategyDebugLogger.Info(
                 "ChickenCoop",
@@ -195,6 +196,8 @@ namespace ProjectUnknown.Strategy
             {
                 return;
             }
+
+            SyncChickenNightState(false);
 
             if (productionTimer > 0f)
             {
@@ -397,9 +400,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            spriteRenderer.sprite = StrategyBuildingUpgradeSpriteFactory.GetAnimatedSprite(
-                StrategyBuildingUpgradeType.ChickenCoop,
-                frame);
+            spriteRenderer.sprite = StrategyBuildingSpriteFactory.GetStandaloneChickenCoopSprite(frame);
             appliedFrame = frame;
         }
 

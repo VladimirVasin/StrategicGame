@@ -25,8 +25,8 @@ When a real tutorial or onboarding flow is implemented:
 - Completed construction, not placed construction sites, advances goal progress.
 - After the third completed House, the next goal stage starts.
 - The second stage shows `Build Forager Camp`.
-- While the second stage is active, the Build menu allows only `Forager Camp`; other buildings remain locked.
+- While the second stage is active, the Build menu allows only `Extraction` / `Food` / `Forager Camp`; other buildings remain locked.
 - After the Forager Camp is completed, the third goal stage starts.
 - The third stage shows `Build Lumberjack Camp` and `Build Stonecutter Camp`.
-- While the third stage is active, the Build menu allows only `Lumberjack Camp` and `Stonecutter Camp`; other buildings remain locked.
+- While the third stage is active, the Build menu allows only `Extraction` / `Camps` / `Lumberjack Camp` and `Stonecutter Camp`; other buildings remain locked.
 - After both raw-resource camps are completed, the starter goal sequence completes and the full Build menu catalog unlocks.

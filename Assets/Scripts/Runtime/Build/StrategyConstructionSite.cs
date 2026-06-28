@@ -59,7 +59,12 @@ namespace ProjectUnknown.Strategy
         public int NeededPlanks => Mathf.Max(0, cost.Planks - deliveredPlanks);
         public bool ResourcesComplete => NeededLogs <= 0 && NeededStone <= 0 && NeededPlanks <= 0;
         public bool IsCompleted => completed;
-        public float Progress => buildHitsRequired <= 0 ? 1f : Mathf.Clamp01(buildHits / (float)buildHitsRequired);
+        public int DeliveredResourceTotal => deliveredLogs + deliveredStone + deliveredPlanks;
+        public float DeliveredResourceFraction => cost.Total <= 0 ? 1f : Mathf.Clamp01(DeliveredResourceTotal / (float)cost.Total);
+        public float BuildableProgressLimit => ResourcesComplete ? 1f : DeliveredResourceFraction;
+        public int BuildableHitLimit => Mathf.Clamp(Mathf.CeilToInt(BuildableProgressLimit * buildHitsRequired), 0, buildHitsRequired);
+        public float Progress => buildHitsRequired <= 0 ? 1f : Mathf.Min(Mathf.Clamp01(buildHits / (float)buildHitsRequired), BuildableProgressLimit);
+        public bool CanBuildWithDeliveredResources => !completed && buildHitsRequired > 0 && buildHits < BuildableHitLimit;
         public int BuilderCount => builders.Count;
         public IReadOnlyList<StrategyResidentAgent> Builders => builders;
         public bool HasBridgeSpan => hasBridgeSpan;
@@ -327,12 +332,12 @@ namespace ProjectUnknown.Strategy
 
         public void ReceiveBuildHit(StrategyResidentAgent builder, Vector3 hitWorld)
         {
-            if (completed || !ResourcesComplete || builder == null || !builders.Contains(builder))
+            if (completed || !CanBuildWithDeliveredResources || builder == null || !builders.Contains(builder))
             {
                 return;
             }
 
-            buildHits++;
+            buildHits = Mathf.Min(buildHits + 1, BuildableHitLimit);
             UpdateVisuals();
             PlayBuildHitEffect(hitWorld);
             StrategyDebugLogger.Info(
@@ -341,7 +346,8 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("tool", tool),
                 StrategyDebugLogger.F("origin", origin),
                 StrategyDebugLogger.F("builder", builder.FullName),
-                StrategyDebugLogger.F("progress", Progress));
+                StrategyDebugLogger.F("progress", Progress),
+                StrategyDebugLogger.F("buildableProgressLimit", BuildableProgressLimit));
 
             if (buildHits >= buildHitsRequired)
             {
@@ -371,6 +377,10 @@ namespace ProjectUnknown.Strategy
                 + "\n"
                 + "Progress: "
                 + Mathf.RoundToInt(Progress * 100f)
+                + "%"
+                + "\n"
+                + "Buildable now: "
+                + Mathf.RoundToInt(BuildableProgressLimit * 100f)
                 + "%";
         }
 

@@ -78,6 +78,7 @@ namespace ProjectUnknown.Strategy
             float elapsed = decayTimer;
             decayTimer = 0f;
             DecayOldTrails(elapsed);
+            DecayOldRouteTrails(elapsed);
             LogTrailStatsIfDue(elapsed);
         }
 

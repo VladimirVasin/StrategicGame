@@ -87,7 +87,32 @@ namespace ProjectUnknown.Strategy
             {
                 Label = label;
                 AccentColor = accentColor;
-                Items = items;
+                Items = items ?? Array.Empty<BuildItemData>();
+                Subcategories = Array.Empty<BuildSubcategoryData>();
+            }
+
+            public BuildCategoryData(string label, Color accentColor, BuildSubcategoryData[] subcategories)
+            {
+                Label = label;
+                AccentColor = accentColor;
+                Subcategories = subcategories ?? Array.Empty<BuildSubcategoryData>();
+                Items = FlattenItems(Subcategories);
+            }
+
+            public string Label { get; }
+            public Color AccentColor { get; }
+            public BuildItemData[] Items { get; }
+            public BuildSubcategoryData[] Subcategories { get; }
+            public bool HasSubcategories => Subcategories.Length > 0;
+        }
+
+        internal sealed class BuildSubcategoryData
+        {
+            public BuildSubcategoryData(string label, Color accentColor, BuildItemData[] items)
+            {
+                Label = label;
+                AccentColor = accentColor;
+                Items = items ?? Array.Empty<BuildItemData>();
             }
 
             public string Label { get; }
@@ -121,7 +146,20 @@ namespace ProjectUnknown.Strategy
             public Image Background;
             public Text Label;
             public Button Button;
+            public BuildSubcategoryUi[] Subcategories;
             public BuildItemUi[] Items;
+            public bool IsHovered;
+            public float HoverT;
+        }
+
+        private sealed class BuildSubcategoryUi
+        {
+            public BuildSubcategoryData Data;
+            public int Index;
+            public RectTransform Root;
+            public Image Background;
+            public Text Label;
+            public Button Button;
             public bool IsHovered;
             public float HoverT;
         }
@@ -129,6 +167,7 @@ namespace ProjectUnknown.Strategy
         private sealed class BuildItemUi
         {
             public BuildItemData Data;
+            public int SubcategoryIndex;
             public RectTransform Root;
             public Image Background;
             public Image IconBackground;
@@ -153,6 +192,28 @@ namespace ProjectUnknown.Strategy
             {
                 OnHoverChanged?.Invoke(false);
             }
+        }
+
+        private static BuildItemData[] FlattenItems(BuildSubcategoryData[] subcategories)
+        {
+            if (subcategories == null || subcategories.Length <= 0)
+            {
+                return Array.Empty<BuildItemData>();
+            }
+
+            List<BuildItemData> items = new();
+            for (int i = 0; i < subcategories.Length; i++)
+            {
+                BuildSubcategoryData subcategory = subcategories[i];
+                if (subcategory == null || subcategory.Items == null)
+                {
+                    continue;
+                }
+
+                items.AddRange(subcategory.Items);
+            }
+
+            return items.ToArray();
         }
     }
 }

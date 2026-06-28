@@ -237,6 +237,11 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
+            if (constructionSite.CanBuildWithDeliveredResources)
+            {
+                return TryStartConstructionWorkTask();
+            }
+
             if (!constructionSite.ResourcesComplete)
             {
                 if (!constructionSite.TryFindResourcePickup(
@@ -326,6 +331,17 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
+            return TryStartConstructionWorkTask();
+        }
+
+        private bool TryStartConstructionWorkTask()
+        {
+            if (constructionSite == null || !constructionSite.CanBuildWithDeliveredResources)
+            {
+                waitTimer = Random.Range(0.45f, 1.1f);
+                return false;
+            }
+
             if (!TryBuildPathToConstructionWorkCell(constructionSite, out Vector2Int workCell, out int checkedWorkCells))
             {
                 waitTimer = Random.Range(0.45f, 1.1f);
@@ -348,7 +364,8 @@ namespace ProjectUnknown.Strategy
                 "BuilderWorkMoveStarted",
                 StrategyDebugLogger.F("resident", FullName),
                 StrategyDebugLogger.F("siteOrigin", constructionSite.Origin),
-                StrategyDebugLogger.F("workCell", workCell));
+                StrategyDebugLogger.F("workCell", workCell),
+                StrategyDebugLogger.F("buildableProgressLimit", constructionSite.BuildableProgressLimit));
             return true;
         }
 

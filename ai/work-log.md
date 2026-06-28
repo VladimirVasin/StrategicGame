@@ -1,6 +1,6 @@
 # Work Log
 
-Last updated: 2026-06-28
+Last updated: 2026-06-29
 
 ## Active
 
@@ -8,9 +8,66 @@ Last updated: 2026-06-28
 
 ## Done
 
+### 2026-06-29 - Build menu subcategory layer
+
+- Added an optional third Build menu layer: categories can now contain subcategories before showing build item cards.
+- Grouped the crowded `Extraction` category into `Camps`, `Deposits`, and `Food`, while smaller categories keep their previous direct category-to-item behavior.
+- Updated Build menu hotkeys, layered cancel, affordability visuals, and goal-driven tool locks to respect subcategories.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-06-29 - Partial construction progress from delivered materials
+
+- Construction sites now expose a delivered-resource build cap: delivered Logs/Stone/Planks determine how far current hammer work may progress before more materials arrive.
+- Hired Storage Yard builders can start hammering as soon as delivered materials allow progress, stop when they reach the current cap, then resume resource pickup until the site is fully supplied and completed.
+- Updated construction visuals, selected-site HUD preview/status, builder dispatch scoring, and auto-workforce construction readiness so partially supplied buildable sites are treated as active work.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-06-29 - Refugee schedule, coop scale, and auto-workforce perf fixes
+
+- Changed the first automatic refugee family gate from `3 completed Houses` to the scripted evening of Day 2 (`Dusk`/`Night`), while keeping later refugee families on the existing repeat schedule and population cap.
+- Fixed standalone Chicken Coop runtime animation so placed coops use the enlarged standalone sprite frames during Egg production instead of shrinking back to the legacy House-upgrade sprite scale.
+- Reduced repeated no-free-adult AutoWorkforce spikes by extending the deep full-scan retry cooldown and making donor-failure diagnostics lightweight instead of re-running the expensive donor-block summary pass.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-06-29 - Route trail attachment cleanup
+
+- Changed building-route trail wear so a newly completed route attaches to the first stable route-trail cells it crosses and records only the missing endpoint connector segments instead of always wearing the full A-B path.
+- Tightened weak route-cell visibility: level-1 route cells now need a stronger route neighbor, opposing route neighbors, or a small supported junction before rendering, reducing isolated square trail patches.
+- Extended `TrailRouteTraversed` diagnostics with full vs recorded cell counts plus attachment cells, so future debug logs can show whether new routes are joining the existing trail network.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-06-29 - Forager low-food staffing bugfix
+
+- Kept Forager Camp staffing protected during low food reserves: when Food priority is enabled and reserve days are below target, auto workforce now keeps Forager demand up to the available Forager Camp worker capacity within the Food priority budget instead of letting the hunter/fisher split drop Foragers to one worker.
+- Added a short late-day start guard for Forager Camp work so workers avoid reserving forage nodes when there is not enough settlement work time left before night.
+- Added Forager Camp stock diagnostics after forage is added or taken, including per-resource stock, total/available stock, reserved amount, and ration value.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-06-28 - Larger Chicken Coop visuals
+
+- Doubled the standalone Chicken Coop building sprite world size while keeping the legacy House Chicken Coop upgrade sprite unchanged.
+- Increased standalone Chicken Coop placement from `2x2` to `4x4`; the existing 2.5D walk blocker now reserves the `4x5` final block for placed coops.
+- Slightly increased chicken agent visuals and their soft shadow scale across idle, walk, peck, and night-shelter release states.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-06-28 - Building-route trail visuals
+
+- Switched visible trail formation from per-cell resident footfall noise to completed building-to-building route traversals.
+- Added route wear/count tracking in `StrategyTrailController.Routes.cs`; route cells build up gradually along the captured path between two different placed buildings, with weaker endpoint wear to avoid square plazas around entrances.
+- Kept the old activity-weighted resident footfall layer for functional movement speed/pathfinding preference, while visual trail rendering now reads the route layer.
+- Added resident route capture in `StrategyResidentAgent.TrailRoutes.cs`, suppressing route capture during reachability probes so only real completed movement contributes.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; no C# files under `Assets/Scripts` exceed 500 lines.
+
+### 2026-06-28 - Chicken Coop night shelter visuals
+
+- Standalone Chicken Coop chickens now follow the shared day/night cycle visually: at `Night` they path back toward the coop, hide inside it, and after `Night` they reappear outside around the coop.
+- Split the new visual shelter behavior into `StrategyChickenCoop.NightShelter.cs` and `StrategyChickenAgent.NightShelter.cs` so production logic, idle movement, and the C# file-size limit stay clean.
+- Kept the behavior visual-only: Chicken Coops still need no workers and keep autonomous Egg production/stock logistics unchanged.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; no C# files under `Assets/Scripts` exceed 500 lines.
+
 ### 2026-06-28 - Standalone Chicken Coop egg production
 
-- Added `Chicken Coop` as a cheap standalone Extraction building with no worker slots, 2x2 placement, generated coop art, idle chickens, local capped `Eggs` stock, a next-egg timer, and selected-building HUD context.
+- Added `Chicken Coop` as a cheap standalone Extraction building with no worker slots, generated coop art, idle chickens, local capped `Eggs` stock, a next-egg timer, and selected-building HUD context.
 - Reused the existing chicken visuals/idle behavior for the new standalone coop while keeping the old House upgrade path inactive.
 - Extended Granary food logistics to reserve, haul, store, display, and count `Eggs` alongside other raw food; Haulers can collect Eggs from Chicken Coops, and Householders can use Chicken Coops as a direct fallback source when Granary food is unavailable.
 - Added Eggs to carried basket visuals, loose food recovery for Granaries, auto-workforce food backlog counting, and local project files.

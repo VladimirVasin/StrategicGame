@@ -6,7 +6,7 @@ namespace ProjectUnknown.Strategy
     [DisallowMultipleComponent]
     public sealed partial class StrategyRefugeeArrivalController : MonoBehaviour
     {
-        private const int FirstArrivalHouseRequirement = 3;
+        private const int FirstArrivalDayIndex = 1;
         private const float RepeatArrivalMinSeconds = 420f;
         private const float RepeatArrivalMaxSeconds = 720f;
         private const int PopulationSlowdownStart = 40;
@@ -105,7 +105,7 @@ namespace ProjectUnknown.Strategy
 
         private void UpdateFirstArrivalGate()
         {
-            if (population.CompletedHouseCount < FirstArrivalHouseRequirement)
+            if (!IsFirstArrivalScheduleReady())
             {
                 return;
             }
@@ -353,9 +353,24 @@ namespace ProjectUnknown.Strategy
             arrivalTimer = 0f;
             StrategyDebugLogger.Info(
                 "Refugees",
-                "FirstArrivalWaitingForHouses",
-                StrategyDebugLogger.F("requiredHouses", FirstArrivalHouseRequirement),
-                StrategyDebugLogger.F("completedHouses", population != null ? population.CompletedHouseCount : 0));
+                "FirstArrivalWaitingForSchedule",
+                StrategyDebugLogger.F("targetDay", FirstArrivalDayIndex + 1),
+                StrategyDebugLogger.F("targetPhase", StrategyTimeOfDayPhase.Dusk),
+                StrategyDebugLogger.F("currentDay", StrategyDayNightCycleController.CurrentCalendarSnapshot.DisplayDay),
+                StrategyDebugLogger.F("currentPhase", StrategyDayNightCycleController.CurrentCalendarSnapshot.PhaseLabel));
+        }
+
+        private static bool IsFirstArrivalScheduleReady()
+        {
+            StrategyCalendarSnapshot snapshot = StrategyDayNightCycleController.CurrentCalendarSnapshot;
+            if (snapshot.DayIndex > FirstArrivalDayIndex)
+            {
+                return true;
+            }
+
+            return snapshot.DayIndex == FirstArrivalDayIndex
+                && (snapshot.Phase == StrategyTimeOfDayPhase.Dusk
+                    || snapshot.Phase == StrategyTimeOfDayPhase.Night);
         }
 
         private bool HasFamilyFinishedTravel(StrategyResidentAgent.ResidentActivity travelActivity)

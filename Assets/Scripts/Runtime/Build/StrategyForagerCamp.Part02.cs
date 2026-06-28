@@ -77,6 +77,36 @@ namespace ProjectUnknown.Strategy
                 + ")";
         }
 
+        private void LogForageStockEvent(string eventName, StrategyResourceType resource, int amount, object owner)
+        {
+            StrategyDebugLogger.Info(
+                "ForagerCamp",
+                eventName,
+                StrategyDebugLogger.F("campOrigin", Origin),
+                StrategyDebugLogger.F("resource", resource),
+                StrategyDebugLogger.F("amount", amount),
+                StrategyDebugLogger.F("berriesStock", berriesStored),
+                StrategyDebugLogger.F("rootsStock", rootsStored),
+                StrategyDebugLogger.F("mushroomsStock", mushroomsStored),
+                StrategyDebugLogger.F("totalStock", TotalForageStored),
+                StrategyDebugLogger.F("availableStock", AvailableForage),
+                StrategyDebugLogger.F("reservedAmount", forageReservedAmount),
+                StrategyDebugLogger.F("rationStock", GetStoredRations()),
+                StrategyDebugLogger.F("owner", FormatForageStockOwner(owner)));
+        }
+
+        private static string FormatForageStockOwner(object owner)
+        {
+            if (owner == null)
+            {
+                return "none";
+            }
+
+            return owner is StrategyResidentAgent resident
+                ? resident.FullName
+                : owner.GetType().Name;
+        }
+
         private void ClearForageReservation()
         {
             forageReservationOwner = null;

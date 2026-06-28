@@ -12,9 +12,11 @@ namespace ProjectUnknown.Strategy
         private readonly HashSet<StrategyProductionBuildingUpgradeType> productionUpgrades = new();
         private readonly List<StrategyResidentAgent> residents = new();
         private readonly List<Vector2Int> bridgeCells = new();
+        private static readonly List<StrategyPlacedBuilding> activeBuildings = new();
         private SpriteRenderer spriteRenderer;
         private StrategyHouseResourceStore resources;
         private StrategyResidentAgent householder;
+        private bool registeredActiveBuilding;
 
         public StrategyBuildTool Tool { get; private set; }
         public Vector2Int Origin { get; private set; }
@@ -35,6 +37,7 @@ namespace ProjectUnknown.Strategy
         public IReadOnlyList<Vector2Int> BridgeCells => bridgeCells;
         public StrategyHouseResourceStore Resources => resources;
         public StrategyResidentAgent Householder => householder;
+        public static IReadOnlyList<StrategyPlacedBuilding> ActiveBuildings => activeBuildings;
 
         public void Configure(
             StrategyBuildTool tool,
@@ -56,6 +59,7 @@ namespace ProjectUnknown.Strategy
             BridgeStartCell = origin;
             BridgeEndCell = origin;
             spriteRenderer = renderer;
+            RegisterActiveBuilding();
             EnsureResourceStore();
             EnsureWorldShadow();
             EnsureClickCollider();
@@ -315,6 +319,28 @@ namespace ProjectUnknown.Strategy
                 StrategyBuildTool.StorageYard => 0.25f,
                 _ => 0.31f
             };
+        }
+
+        private void RegisterActiveBuilding()
+        {
+            if (registeredActiveBuilding)
+            {
+                return;
+            }
+
+            activeBuildings.Add(this);
+            registeredActiveBuilding = true;
+        }
+
+        private void OnDestroy()
+        {
+            if (!registeredActiveBuilding)
+            {
+                return;
+            }
+
+            activeBuildings.Remove(this);
+            registeredActiveBuilding = false;
         }
     }
 }

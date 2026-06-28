@@ -7,7 +7,7 @@ namespace ProjectUnknown.Strategy
             hasTarget = false;
             path.Clear();
             pathIndex = 0;
-            if (constructionSite == null || !constructionSite.ResourcesComplete)
+            if (constructionSite == null || !constructionSite.CanBuildWithDeliveredResources)
             {
                 ResetConstructionWorkToIdle();
                 return;
@@ -34,7 +34,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            if (!constructionSite.ResourcesComplete)
+            if (!constructionSite.CanBuildWithDeliveredResources)
             {
                 ResetConstructionWorkToIdle();
                 return;
