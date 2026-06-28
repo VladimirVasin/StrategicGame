@@ -216,6 +216,7 @@ namespace ProjectUnknown.Strategy
                 StrategyHunterCamp hunterCamp = building.GetComponent<StrategyHunterCamp>();
                 StrategyFisherHut fisherHut = building.GetComponent<StrategyFisherHut>();
                 StrategyForagerCamp foragerCamp = building.GetComponent<StrategyForagerCamp>();
+                StrategyChickenCoop chickenCoop = building.GetComponent<StrategyChickenCoop>();
                 StrategyTradingPost tradingPost = building.GetComponent<StrategyTradingPost>();
                 StrategyStorageYard yard = building.GetComponent<StrategyStorageYard>();
                 StrategyGranary granary = building.GetComponent<StrategyGranary>();
@@ -230,6 +231,7 @@ namespace ProjectUnknown.Strategy
                 bool isHunterCamp = hunterCamp != null;
                 bool isFisherHut = fisherHut != null;
                 bool isForagerCamp = foragerCamp != null;
+                bool isChickenCoop = chickenCoop != null;
                 bool isTradingPost = tradingPost != null;
                 bool isStorageYard = yard != null;
                 bool isGranary = granary != null;
@@ -240,7 +242,7 @@ namespace ProjectUnknown.Strategy
                 }
 
                 SetWorkersSectionVisible(false);
-                if (isLumberjackCamp || isStonecutterCamp || isSawmill || isMine || isCoalPit || isClayPit || isKiln || isForge || isHunterCamp || isFisherHut || isForagerCamp || isGranary)
+                if (isLumberjackCamp || isStonecutterCamp || isSawmill || isMine || isCoalPit || isClayPit || isKiln || isForge || isHunterCamp || isFisherHut || isForagerCamp || isChickenCoop || isGranary)
                 {
                     LayoutContextSection(128f, 214f);
                 }
@@ -309,6 +311,12 @@ namespace ProjectUnknown.Strategy
                 {
                     hudContextTitleText.text = "Forage and Stock";
                     hudContextBodyText.text = foragerCamp.GetHudStatusText();
+                    SetContextSectionVisible(true);
+                }
+                else if (isChickenCoop)
+                {
+                    hudContextTitleText.text = "Eggs and Stock";
+                    hudContextBodyText.text = chickenCoop.GetHudStatusText();
                     SetContextSectionVisible(true);
                 }
                 else if (isTradingPost)

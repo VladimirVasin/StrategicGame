@@ -4,7 +4,6 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyResidentAgent
     {
-
         private void StoreReturnedMaterialAtYard(
             StrategyStorageYard yard,
             StrategyConstructionResourceKind resource,
@@ -361,9 +360,15 @@ namespace ProjectUnknown.Strategy
                 activeForageFoodSource.ReleaseStoredForageReservation(this);
             }
 
+            if (activeEggFoodSource != null)
+            {
+                activeEggFoodSource.ReleaseStoredEggsReservation(this);
+            }
+
             activeGameSource = null;
             activeFishSource = null;
             activeForageFoodSource = null;
+            activeEggFoodSource = null;
             activeLooseFoodSource = null;
             activeGranaryDeliveryTarget = null;
             if (storeCarriedFood

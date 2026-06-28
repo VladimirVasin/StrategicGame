@@ -27,6 +27,12 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            if (resource == StrategyResourceType.Eggs)
+            {
+                AddEggs(amount);
+                return;
+            }
+
             AddForageFood(resource, amount);
         }
 
@@ -35,12 +41,14 @@ namespace ProjectUnknown.Strategy
             out StrategyResourceType resource,
             out StrategyHunterCamp gameSource,
             out StrategyFisherHut fishSource,
-            out StrategyForagerCamp forageSource)
+            out StrategyForagerCamp forageSource,
+            out StrategyChickenCoop eggSource)
         {
             resource = StrategyResourceType.None;
             gameSource = null;
             fishSource = null;
             forageSource = null;
+            eggSource = null;
             float bestDistance = float.MaxValue;
 
             StrategyHunterCamp[] camps = Object.FindObjectsByType<StrategyHunterCamp>();
@@ -99,6 +107,28 @@ namespace ProjectUnknown.Strategy
                     gameSource = null;
                     fishSource = null;
                     forageSource = camp;
+                    eggSource = null;
+                }
+            }
+
+            StrategyChickenCoop[] coops = Object.FindObjectsByType<StrategyChickenCoop>();
+            for (int i = 0; i < coops.Length; i++)
+            {
+                StrategyChickenCoop coop = coops[i];
+                if (coop == null || coop.AvailableEggs <= 0)
+                {
+                    continue;
+                }
+
+                float distance = GetFoodSourceDistance(coop.FootprintBounds);
+                if (distance < bestDistance)
+                {
+                    bestDistance = distance;
+                    gameSource = null;
+                    fishSource = null;
+                    forageSource = null;
+                    eggSource = coop;
+                    resource = StrategyResourceType.Eggs;
                 }
             }
 
@@ -119,6 +149,12 @@ namespace ProjectUnknown.Strategy
             {
                 resource = forageResource;
                 return true;
+            }
+
+            if (eggSource != null)
+            {
+                return eggSource.TryReserveStoredEggs(owner, out _)
+                    && SetReservedFoodSource(StrategyResourceType.Eggs, ref resource);
             }
 
             return false;
@@ -146,6 +182,12 @@ namespace ProjectUnknown.Strategy
             if (GetAvailableGameForHouseholds() > 0)
             {
                 resource = StrategyResourceType.Game;
+                return true;
+            }
+
+            if (GetAvailableEggsForHouseholds() > 0)
+            {
+                resource = StrategyResourceType.Eggs;
                 return true;
             }
 
@@ -177,6 +219,7 @@ namespace ProjectUnknown.Strategy
             {
                 StrategyResourceType.Game => gameStored,
                 StrategyResourceType.Fish => fishStored,
+                StrategyResourceType.Eggs => eggsStored,
                 StrategyResourceType.Berries => berriesStored,
                 StrategyResourceType.Roots => rootsStored,
                 StrategyResourceType.Mushrooms => mushroomsStored,
@@ -213,6 +256,9 @@ namespace ProjectUnknown.Strategy
                     break;
                 case StrategyResourceType.Fish:
                     fishStored = Mathf.Max(0, fishStored - taken);
+                    break;
+                case StrategyResourceType.Eggs:
+                    eggsStored = Mathf.Max(0, eggsStored - taken);
                     break;
                 case StrategyResourceType.Berries:
                     berriesStored = Mathf.Max(0, berriesStored - taken);

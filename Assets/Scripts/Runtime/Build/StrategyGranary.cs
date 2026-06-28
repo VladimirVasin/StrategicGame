@@ -14,22 +14,27 @@ namespace ProjectUnknown.Strategy
         private StrategyPopulationController population;
         private SpriteRenderer gameStockRenderer;
         private SpriteRenderer fishStockRenderer;
+        private SpriteRenderer eggStockRenderer;
         private object householdFoodReservationOwner;
         private StrategyResourceType householdFoodReservedResource = StrategyResourceType.None;
         private int householdFoodReservedAmount;
         private int gameStored;
         private int fishStored;
+        private int eggsStored;
 
         public IReadOnlyList<StrategyResidentAgent> Workers => workers;
         public int WorkerCount => workers.Count;
         public int GameStored => gameStored;
         public int FishStored => fishStored;
-        public int TotalFoodStored => gameStored + fishStored + ForageStored;
+        public int EggsStored => eggsStored;
+        public int TotalFoodStored => gameStored + fishStored + eggsStored + ForageStored;
         public float TotalRationValue => gameStored * StrategyFoodNutrition.GetRationValue(StrategyResourceType.Game)
             + fishStored * StrategyFoodNutrition.GetRationValue(StrategyResourceType.Fish)
+            + eggsStored * StrategyFoodNutrition.GetRationValue(StrategyResourceType.Eggs)
             + GetStoredForageRations();
         public float AvailableHouseholdRationValue => GetAvailableFishForHouseholds() * StrategyFoodNutrition.GetRationValue(StrategyResourceType.Fish)
             + GetAvailableGameForHouseholds() * StrategyFoodNutrition.GetRationValue(StrategyResourceType.Game)
+            + GetAvailableEggsForHouseholds() * StrategyFoodNutrition.GetRationValue(StrategyResourceType.Eggs)
             + GetAvailableForageHouseholdRations();
         public Vector2Int Origin => building != null ? building.Origin : Vector2Int.zero;
         public Bounds FootprintBounds => building != null ? building.FootprintBounds : new Bounds(transform.position, Vector3.one);
@@ -366,18 +371,20 @@ namespace ProjectUnknown.Strategy
             out StrategyResourceType resource,
             out StrategyHunterCamp gameSource,
             out StrategyFisherHut fishSource,
-            out StrategyForagerCamp forageSource)
+            out StrategyForagerCamp forageSource,
+            out StrategyChickenCoop eggSource)
         {
             resource = StrategyResourceType.None;
             gameSource = null;
             fishSource = null;
             forageSource = null;
+            eggSource = null;
             if (owner == null)
             {
                 return false;
             }
 
-            return TryReserveNearestFoodSource(owner, out resource, out gameSource, out fishSource, out forageSource);
+            return TryReserveNearestFoodSource(owner, out resource, out gameSource, out fishSource, out forageSource, out eggSource);
         }
 
         public bool TryReserveHouseholdFood(
@@ -421,6 +428,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("amount", amount),
                 StrategyDebugLogger.F("gameStock", gameStored),
                 StrategyDebugLogger.F("fishStock", fishStored),
+                StrategyDebugLogger.F("eggStock", eggsStored),
                 StrategyDebugLogger.F("owner", owner));
             return true;
         }

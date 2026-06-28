@@ -126,6 +126,17 @@ namespace ProjectUnknown.Strategy
         private bool TryCreateBestFallbackDemand(bool allowOverTarget, out StrategyAutoWorkforceDemand demand)
         {
             demand = null;
+            if (HasHouseholdFoodEmergency())
+            {
+                TryKeepBetterFallbackDemand(ref demand, TryCreateSiteFallbackDemand<StrategyHunterCamp>(StrategyProfessionType.Hunter, StrategyAutoWorkforceCategory.Food, camp => camp.WorkerCount, camp => StrategyHunterCamp.MaxWorkers, camp => camp.FootprintBounds.center, allowOverTarget));
+                TryKeepBetterFallbackDemand(ref demand, TryCreateSiteFallbackDemand<StrategyFisherHut>(StrategyProfessionType.Fisher, StrategyAutoWorkforceCategory.Food, hut => hut.WorkerCount, hut => StrategyFisherHut.MaxWorkers, hut => hut.FootprintBounds.center, allowOverTarget));
+                TryKeepBetterFallbackDemand(ref demand, TryCreateSiteFallbackDemand<StrategyForagerCamp>(StrategyProfessionType.Forager, StrategyAutoWorkforceCategory.Food, camp => camp.WorkerCount, camp => StrategyForagerCamp.MaxWorkers, camp => camp.FootprintBounds.center, allowOverTarget));
+                if (demand != null)
+                {
+                    return true;
+                }
+            }
+
             TryKeepBetterFallbackDemand(ref demand, TryCreateStorageFallbackDemand(StrategyProfessionType.Builder, StrategyAutoWorkforceCategory.Construction, yard => yard.BuilderCount, allowOverTarget));
             TryKeepBetterFallbackDemand(ref demand, TryCreateStorageFallbackDemand(StrategyProfessionType.StorageWorker, StrategyAutoWorkforceCategory.Logistics, yard => yard.WorkerCount, allowOverTarget));
             TryKeepBetterFallbackDemand(ref demand, TryCreateSiteFallbackDemand<StrategyLumberjackCamp>(StrategyProfessionType.Lumberjack, StrategyAutoWorkforceCategory.Wood, camp => camp.WorkerCount, camp => StrategyLumberjackCamp.MaxWorkers, camp => camp.FootprintBounds.center, allowOverTarget));

@@ -75,7 +75,8 @@ namespace ProjectUnknown.Strategy
                     out StrategyResourceType resource,
                     out StrategyHunterCamp gameSource,
                     out StrategyFisherHut fishSource,
-                    out StrategyForagerCamp forageSource))
+                    out StrategyForagerCamp forageSource,
+                    out StrategyChickenCoop eggSource))
             {
                 logisticsWorkCooldown = Random.Range(2.5f, 5.5f);
                 return false;
@@ -144,6 +145,41 @@ namespace ProjectUnknown.Strategy
                     StrategyDebugLogger.F("resident", FullName),
                     StrategyDebugLogger.F("sourceOrigin", fishSource.Origin),
                     StrategyDebugLogger.F("resource", StrategyResourceType.Fish),
+                    StrategyDebugLogger.F("pickupCell", pickupCell),
+                    StrategyDebugLogger.F("granaryOrigin", targetGranary.Origin));
+                return true;
+            }
+
+            if (resource == StrategyResourceType.Eggs)
+            {
+                if (eggSource == null
+                    || !eggSource.TryFindDropoffCell(out Vector2Int pickupCell)
+                    || !TryBuildPathTo(pickupCell))
+                {
+                    eggSource?.ReleaseStoredEggsReservation(this);
+                    logisticsWorkCooldown = Random.Range(2.0f, 4.0f);
+                    StrategyDebugLogger.Warn(
+                        "Granary",
+                        "FoodPickupMoveRejected",
+                        StrategyDebugLogger.F("resident", FullName),
+                        StrategyDebugLogger.F("sourceOrigin", eggSource != null ? eggSource.Origin : Vector2Int.zero),
+                        StrategyDebugLogger.F("resource", StrategyResourceType.Eggs),
+                        StrategyDebugLogger.F("reason", "no_pickup_path"));
+                    return false;
+                }
+
+                activeEggFoodSource = eggSource;
+                activeGranaryDeliveryTarget = targetGranary;
+                carriedForageResource = resource;
+                activity = ResidentActivity.MovingToGranaryForagePickup;
+                hasTarget = true;
+                waitTimer = Random.Range(0.05f, 0.20f);
+                StrategyDebugLogger.Info(
+                    "Granary",
+                    "FoodPickupMoveStarted",
+                    StrategyDebugLogger.F("resident", FullName),
+                    StrategyDebugLogger.F("sourceOrigin", eggSource.Origin),
+                    StrategyDebugLogger.F("resource", resource),
                     StrategyDebugLogger.F("pickupCell", pickupCell),
                     StrategyDebugLogger.F("granaryOrigin", targetGranary.Origin));
                 return true;

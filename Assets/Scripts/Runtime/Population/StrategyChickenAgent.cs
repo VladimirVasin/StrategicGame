@@ -23,6 +23,7 @@ namespace ProjectUnknown.Strategy
         private readonly List<Vector3> path = new();
         private CityMapController map;
         private StrategyBuildingUpgrade coop;
+        private StrategyChickenCoop standaloneCoop;
         private SpriteRenderer spriteRenderer;
         private int pathIndex;
         private float waitTimer;
@@ -38,6 +39,7 @@ namespace ProjectUnknown.Strategy
         private bool usingAnimatedSprite;
 
         public StrategyBuildingUpgrade Coop => coop;
+        public StrategyChickenCoop StandaloneCoop => standaloneCoop;
 
         public void Configure(
             CityMapController mapController,
@@ -45,8 +47,28 @@ namespace ProjectUnknown.Strategy
             Vector3 spawnWorld,
             SpriteRenderer renderer)
         {
-            map = mapController;
             coop = chickenCoop;
+            standaloneCoop = null;
+            ConfigureShared(mapController, spawnWorld, renderer);
+        }
+
+        public void Configure(
+            CityMapController mapController,
+            StrategyChickenCoop chickenCoop,
+            Vector3 spawnWorld,
+            SpriteRenderer renderer)
+        {
+            coop = null;
+            standaloneCoop = chickenCoop;
+            ConfigureShared(mapController, spawnWorld, renderer);
+        }
+
+        private void ConfigureShared(
+            CityMapController mapController,
+            Vector3 spawnWorld,
+            SpriteRenderer renderer)
+        {
+            map = mapController;
             spriteRenderer = renderer;
             bobPhase = Random.Range(0f, 100f);
 
@@ -72,7 +94,7 @@ namespace ProjectUnknown.Strategy
             bool hasCell = map != null && map.TryWorldToCell(transform.position, out cell);
             info = StrategyWorldInspectInfoFactory.CreateChicken(
                 GetStateTitle(),
-                coop != null ? coop.Origin.x + ", " + coop.Origin.y : "none",
+                GetCoopOriginText(),
                 spriteRenderer != null ? spriteRenderer.sprite : StrategyChickenSpriteFactory.GetSprite(),
                 cell,
                 hasCell);
@@ -81,7 +103,7 @@ namespace ProjectUnknown.Strategy
 
         private void Update()
         {
-            if (map == null || coop == null)
+            if (map == null || !HasCoop())
             {
                 return;
             }
@@ -152,12 +174,14 @@ namespace ProjectUnknown.Strategy
 
         private void PickNextIdleTarget()
         {
+            Vector2Int origin = GetCoopOrigin();
+            Vector2Int footprint = GetCoopFootprint();
             for (int attempt = 0; attempt < 18; attempt++)
             {
-                int minX = coop.Origin.x - IdleRadius;
-                int maxX = coop.Origin.x + coop.Footprint.x + IdleRadius - 1;
-                int minY = coop.Origin.y - IdleRadius;
-                int maxY = coop.Origin.y + coop.Footprint.y + IdleRadius - 1;
+                int minX = origin.x - IdleRadius;
+                int maxX = origin.x + footprint.x + IdleRadius - 1;
+                int minY = origin.y - IdleRadius;
+                int maxY = origin.y + footprint.y + IdleRadius - 1;
                 Vector2Int cell = new Vector2Int(
                     Random.Range(minX, maxX + 1),
                     Random.Range(minY, maxY + 1));
@@ -263,10 +287,12 @@ namespace ProjectUnknown.Strategy
 
         private bool IsCoopCell(Vector2Int cell)
         {
-            return cell.x >= coop.Origin.x
-                && cell.x < coop.Origin.x + coop.Footprint.x
-                && cell.y >= coop.Origin.y
-                && cell.y < coop.Origin.y + coop.Footprint.y;
+            Vector2Int origin = GetCoopOrigin();
+            Vector2Int footprint = GetCoopFootprint();
+            return cell.x >= origin.x
+                && cell.x < origin.x + footprint.x
+                && cell.y >= origin.y
+                && cell.y < origin.y + footprint.y;
         }
 
         private void AnimateIdle()
@@ -368,6 +394,42 @@ namespace ProjectUnknown.Strategy
             }
 
             return hasTarget ? "walking" : "idle";
+        }
+
+        private bool HasCoop()
+        {
+            return coop != null || standaloneCoop != null;
+        }
+
+        private Vector2Int GetCoopOrigin()
+        {
+            if (coop != null)
+            {
+                return coop.Origin;
+            }
+
+            return standaloneCoop != null ? standaloneCoop.Origin : Vector2Int.zero;
+        }
+
+        private Vector2Int GetCoopFootprint()
+        {
+            if (coop != null)
+            {
+                return coop.Footprint;
+            }
+
+            return standaloneCoop != null ? standaloneCoop.Footprint : Vector2Int.one;
+        }
+
+        private string GetCoopOriginText()
+        {
+            if (!HasCoop())
+            {
+                return "none";
+            }
+
+            Vector2Int origin = GetCoopOrigin();
+            return origin.x + ", " + origin.y;
         }
     }
 }

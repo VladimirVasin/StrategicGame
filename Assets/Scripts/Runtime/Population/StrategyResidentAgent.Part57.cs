@@ -69,14 +69,19 @@ namespace ProjectUnknown.Strategy
             transform.localScale = Vector3.one;
             UseIdleSprite();
             SetCarriedForageVisible(true);
+            string destination = activeForagerCamp != null ? "ForagerCamp" : "House";
+            Vector2Int destinationOrigin = activeForagerCamp != null
+                ? activeForagerCamp.Origin
+                : home != null ? home.Origin : Vector2Int.zero;
             StrategyDebugLogger.Info(
                 "Forage",
                 "ResidentForageCarrying",
                 StrategyDebugLogger.F("resident", FullName),
                 StrategyDebugLogger.F("resource", carriedForageResource),
                 StrategyDebugLogger.F("amount", carriedForageAmount),
-                StrategyDebugLogger.F("campOrigin", activeForagerCamp != null ? activeForagerCamp.Origin : Vector2Int.zero),
-                StrategyDebugLogger.F("homeOrigin", home != null ? home.Origin : Vector2Int.zero));
+                StrategyDebugLogger.F("destination", destination),
+                StrategyDebugLogger.F("destinationOrigin", destinationOrigin),
+                StrategyDebugLogger.F("campOrigin", activeForagerCamp != null ? activeForagerCamp.Origin : Vector2Int.zero));
         }
 
         private void StartPickingUpLooseForage()
@@ -312,7 +317,7 @@ namespace ProjectUnknown.Strategy
             {
                 StrategyResourceType.Game => carriedGameAmount,
                 StrategyResourceType.Fish => carriedFishAmount,
-                StrategyResourceType.Berries or StrategyResourceType.Roots or StrategyResourceType.Mushrooms => carriedForageAmount,
+                StrategyResourceType.Berries or StrategyResourceType.Roots or StrategyResourceType.Mushrooms or StrategyResourceType.Eggs => carriedForageAmount,
                 _ => 0
             };
         }

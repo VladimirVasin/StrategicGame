@@ -177,6 +177,11 @@ namespace ProjectUnknown.Strategy
                 StrategyForagerCamp camp = placed.AddComponent<StrategyForagerCamp>();
                 camp.Configure(building, map, population, StrategyForageResourceController.Active);
             }
+            else if (toolInfo.Tool == StrategyBuildTool.ChickenCoop)
+            {
+                StrategyChickenCoop coop = placed.AddComponent<StrategyChickenCoop>();
+                coop.Configure(building, map);
+            }
             else if (toolInfo.Tool == StrategyBuildTool.TradingPost)
             {
                 StrategyTradingPost post = placed.AddComponent<StrategyTradingPost>();

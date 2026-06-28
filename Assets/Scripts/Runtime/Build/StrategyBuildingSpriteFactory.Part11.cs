@@ -52,6 +52,12 @@ namespace ProjectUnknown.Strategy
             return Sprite.Create(texture, new Rect(4f, 10f, 88f, 58f), new Vector2(0.5f, 0.2f), PixelsPerUnit);
         }
 
+        private static Sprite CreateChickenCoopSprite(int variant)
+        {
+            int frame = variant % StrategyBuildingUpgradeSpriteFactory.AnimationFrameCount;
+            return StrategyBuildingUpgradeSpriteFactory.GetAnimatedSprite(StrategyBuildingUpgradeType.ChickenCoop, frame);
+        }
+
         private static Sprite CreateTradingPostSprite(int variant)
         {
             Texture2D texture = CreateTexture(104, 82, $"Trading Post 2.5D Sprite {variant + 1}");

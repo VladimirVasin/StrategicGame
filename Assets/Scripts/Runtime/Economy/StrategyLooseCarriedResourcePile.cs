@@ -338,6 +338,7 @@ namespace ProjectUnknown.Strategy
         {
             return type == StrategyResourceType.Game
                 || type == StrategyResourceType.Fish
+                || type == StrategyResourceType.Eggs
                 || type == StrategyResourceType.Berries
                 || type == StrategyResourceType.Roots
                 || type == StrategyResourceType.Mushrooms;

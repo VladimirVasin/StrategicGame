@@ -341,6 +341,55 @@ namespace ProjectUnknown.Strategy
             return new Vector3(fallback.x, fallback.y, -0.08f);
         }
 
+        private static bool TryStartFuneralMoveAround(
+            StrategyResidentAgent resident,
+            Vector3 centerWorld,
+            int preferredIndex,
+            float radius,
+            StrategyResidentAgent.ResidentActivity activity,
+            bool silent = false)
+        {
+            if (resident == null)
+            {
+                return false;
+            }
+
+            for (int attempt = 0; attempt < 8; attempt++)
+            {
+                Vector3 target = centerWorld + GetRingOffset(preferredIndex + attempt, radius);
+                if (resident.TryStartFuneralMove(target, activity, silent, false))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool TryStartFuneralMoveToGrave(
+            StrategyResidentAgent resident,
+            Vector2Int graveCell,
+            int preferredIndex,
+            StrategyResidentAgent.ResidentActivity activity,
+            bool silent = false)
+        {
+            if (resident == null)
+            {
+                return false;
+            }
+
+            for (int attempt = 0; attempt < 8; attempt++)
+            {
+                Vector3 target = GetGraveStandWorld(graveCell, preferredIndex + attempt);
+                if (resident.TryStartFuneralMove(target, activity, silent, false))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         private void EnsureCorpseRoot()
         {
             if (corpseRoot != null)

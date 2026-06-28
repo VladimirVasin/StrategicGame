@@ -230,6 +230,11 @@ namespace ProjectUnknown.Strategy
                 holdScore = demandHoldScore;
             }
 
+            if (ShouldProtectFoodDonor(profession, demand))
+            {
+                return "food_emergency";
+            }
+
             bool canUseZeroRescueDonor = zeroCoverageRescue
                 && CanUseZeroCoverageRescueDonor(profession, demand, current, holdScore);
             int coverageFloor = GetCoverageFloorTarget(profession);
@@ -286,6 +291,25 @@ namespace ProjectUnknown.Strategy
                     || demand.Reason != null && demand.Reason.EndsWith("_shortage", System.StringComparison.Ordinal));
         }
 
+        private bool ShouldProtectFoodDonor(StrategyProfessionType profession, StrategyAutoWorkforceDemand demand)
+        {
+            if (!IsFoodProfession(profession)
+                || demand == null
+                || demand.Category == StrategyAutoWorkforceCategory.Food)
+            {
+                return false;
+            }
+
+            return HasHouseholdFoodEmergency() || GetDemandScoreForProfession(profession) > 0f;
+        }
+
+        private static bool IsFoodProfession(StrategyProfessionType profession)
+        {
+            return profession == StrategyProfessionType.Hunter
+                || profession == StrategyProfessionType.Fisher
+                || profession == StrategyProfessionType.Forager;
+        }
+
         private static bool IsCoverageDemand(StrategyAutoWorkforceDemand demand)
         {
             return demand != null && demand.Reason == "coverage_floor";
@@ -309,12 +333,15 @@ namespace ProjectUnknown.Strategy
             int coverageFloorBlocked = 0;
             int atOrBelowTarget = 0;
             int scoreTooLow = 0;
+            int foodEmergencyBlocked = 0;
             float bestScoreGap = float.NegativeInfinity;
+            bool hasScoreGap = false;
             for (int i = 0; i < AutoManagedProfessions.Length; i++)
             {
                 string reason = GetDemandDonorBlockReason(AutoManagedProfessions[i], demand, out float holdScore);
                 if (holdScore < float.MaxValue)
                 {
+                    hasScoreGap = true;
                     bestScoreGap = Mathf.Max(bestScoreGap, demand.Score - holdScore);
                 }
 
@@ -344,6 +371,9 @@ namespace ProjectUnknown.Strategy
                     case "score_too_low":
                         scoreTooLow++;
                         break;
+                    case "food_emergency":
+                        foodEmergencyBlocked++;
+                        break;
                 }
             }
 
@@ -364,7 +394,9 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("coverageFloorBlocked", coverageFloorBlocked),
                 StrategyDebugLogger.F("atOrBelowTarget", atOrBelowTarget),
                 StrategyDebugLogger.F("scoreTooLow", scoreTooLow),
-                StrategyDebugLogger.F("bestScoreGap", bestScoreGap));
+                StrategyDebugLogger.F("foodEmergencyBlocked", foodEmergencyBlocked),
+                StrategyDebugLogger.F("hasScoreGap", hasScoreGap),
+                StrategyDebugLogger.F("bestScoreGap", hasScoreGap ? bestScoreGap : 0f));
         }
 
         private void RegisterDemandRebalanceLock(StrategyProfessionType source, StrategyProfessionType target)

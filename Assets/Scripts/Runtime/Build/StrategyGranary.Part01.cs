@@ -42,6 +42,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("amount", amount),
                 StrategyDebugLogger.F("gameStock", gameStored),
                 StrategyDebugLogger.F("fishStock", fishStored),
+                StrategyDebugLogger.F("eggStock", eggsStored),
                 StrategyDebugLogger.F("forageStock", GetForageStockText()),
                 StrategyDebugLogger.F("owner", owner));
             return true;
@@ -144,6 +145,25 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("stock", fishStored));
         }
 
+        public void AddEggs(int amount)
+        {
+            if (amount <= 0)
+            {
+                return;
+            }
+
+            eggsStored += amount;
+            UpdateStockVisual();
+            PlayFoodStoredEffect(StrategyResourceType.Eggs, amount);
+            StrategyDebugLogger.Info(
+                "Granary",
+                "FoodStored",
+                StrategyDebugLogger.F("granaryOrigin", Origin),
+                StrategyDebugLogger.F("resource", StrategyResourceType.Eggs),
+                StrategyDebugLogger.F("added", amount),
+                StrategyDebugLogger.F("stock", eggsStored));
+        }
+
         public int ConsumeFood(int requested, out int gameTaken, out int fishTaken)
         {
             gameTaken = 0;
@@ -197,13 +217,18 @@ namespace ProjectUnknown.Strategy
                 StrategyResourceType.Fish,
                 ref remaining,
                 out float fishRations);
+            int eggsTaken = ConsumeStoredResourceRations(
+                ref eggsStored,
+                StrategyResourceType.Eggs,
+                ref remaining,
+                out float eggRations);
             gameTaken = ConsumeStoredResourceRations(
                 ref gameStored,
                 StrategyResourceType.Game,
                 ref remaining,
                 out float gameRations);
 
-            float suppliedRations = fishRations + gameRations;
+            float suppliedRations = fishRations + eggRations + gameRations;
             if (suppliedRations <= 0f)
             {
                 return 0f;
@@ -218,10 +243,13 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("suppliedRations", suppliedRations),
                 StrategyDebugLogger.F("game", gameTaken),
                 StrategyDebugLogger.F("fish", fishTaken),
+                StrategyDebugLogger.F("eggs", eggsTaken),
                 StrategyDebugLogger.F("gameRations", gameRations),
                 StrategyDebugLogger.F("fishRations", fishRations),
+                StrategyDebugLogger.F("eggRations", eggRations),
                 StrategyDebugLogger.F("gameStock", gameStored),
-                StrategyDebugLogger.F("fishStock", fishStored));
+                StrategyDebugLogger.F("fishStock", fishStored),
+                StrategyDebugLogger.F("eggStock", eggsStored));
             return suppliedRations;
         }
 
@@ -241,6 +269,10 @@ namespace ProjectUnknown.Strategy
             else if (resource == StrategyResourceType.Fish)
             {
                 available = Mathf.Max(0, stored - GetReservedHouseholdAmount(StrategyResourceType.Fish));
+            }
+            else if (resource == StrategyResourceType.Eggs)
+            {
+                available = Mathf.Max(0, stored - GetReservedHouseholdAmount(StrategyResourceType.Eggs));
             }
 
             if (available <= 0 || rationValue <= 0f || remainingRations <= 0.01f)
@@ -271,6 +303,11 @@ namespace ProjectUnknown.Strategy
             return Mathf.Max(0, fishStored - GetReservedHouseholdAmount(StrategyResourceType.Fish));
         }
 
+        private int GetAvailableEggsForHouseholds()
+        {
+            return Mathf.Max(0, eggsStored - GetReservedHouseholdAmount(StrategyResourceType.Eggs));
+        }
+
         private int GetReservedHouseholdAmount(StrategyResourceType resource)
         {
             return householdFoodReservedResource == resource ? householdFoodReservedAmount : 0;
@@ -284,7 +321,7 @@ namespace ProjectUnknown.Strategy
 
         public string GetHudStatusText()
         {
-            CountAvailableSources(out int gameSources, out int fishSources);
+            CountAvailableSources(out int gameSources, out int fishSources, out int eggSources);
             int forageSources = CountAvailableForagerSources();
             return "Serviced by Haulers"
                 + "\n"
@@ -293,6 +330,9 @@ namespace ProjectUnknown.Strategy
                 + "\n"
                 + "Fish: "
                 + fishStored
+                + "\n"
+                + "Eggs: "
+                + eggsStored
                 + "\n"
                 + "Forage: "
                 + GetForageStockText()
@@ -307,14 +347,18 @@ namespace ProjectUnknown.Strategy
                 + "fish "
                 + fishSources
                 + " / "
+                + "eggs "
+                + eggSources
+                + " / "
                 + "forage "
                 + forageSources;
         }
 
-        private void CountAvailableSources(out int gameSources, out int fishSources)
+        private void CountAvailableSources(out int gameSources, out int fishSources, out int eggSources)
         {
             gameSources = 0;
             fishSources = 0;
+            eggSources = 0;
             StrategyHunterCamp[] camps = Object.FindObjectsByType<StrategyHunterCamp>();
             for (int i = 0; i < camps.Length; i++)
             {
@@ -330,6 +374,15 @@ namespace ProjectUnknown.Strategy
                 if (huts[i] != null && huts[i].AvailableFish > 0)
                 {
                     fishSources++;
+                }
+            }
+
+            StrategyChickenCoop[] coops = Object.FindObjectsByType<StrategyChickenCoop>();
+            for (int i = 0; i < coops.Length; i++)
+            {
+                if (coops[i] != null && coops[i].AvailableEggs > 0)
+                {
+                    eggSources++;
                 }
             }
         }
@@ -361,70 +414,6 @@ namespace ProjectUnknown.Strategy
                     return leftDistance.CompareTo(rightDistance);
                 });
             return granaries;
-        }
-
-        private void EnsureStockRenderers()
-        {
-            if (gameStockRenderer == null)
-            {
-                GameObject gameObject = new GameObject("Game Stock");
-                gameObject.transform.SetParent(transform, false);
-                gameStockRenderer = gameObject.AddComponent<SpriteRenderer>();
-                gameStockRenderer.color = Color.white;
-            }
-
-            if (fishStockRenderer == null)
-            {
-                GameObject fishObject = new GameObject("Fish Stock");
-                fishObject.transform.SetParent(transform, false);
-                fishStockRenderer = fishObject.AddComponent<SpriteRenderer>();
-                fishStockRenderer.color = Color.white;
-            }
-
-            UpdateStockPosition();
-        }
-
-        private void UpdateStockVisual()
-        {
-            EnsureStockRenderers();
-            if (gameStockRenderer != null)
-            {
-                gameStockRenderer.sprite = StrategyBuildingSpriteFactory.GetGranaryGameStockSprite(gameStored);
-                gameStockRenderer.gameObject.SetActive(gameStored > 0 && gameStockRenderer.sprite != null);
-            }
-
-            if (fishStockRenderer != null)
-            {
-                fishStockRenderer.sprite = StrategyBuildingSpriteFactory.GetGranaryFishStockSprite(fishStored);
-                fishStockRenderer.gameObject.SetActive(fishStored > 0 && fishStockRenderer.sprite != null);
-            }
-
-            UpdateStockPosition();
-        }
-
-        private void UpdateStockPosition()
-        {
-            if (building == null)
-            {
-                return;
-            }
-
-            Bounds bounds = building.FootprintBounds;
-            if (gameStockRenderer != null)
-            {
-                Vector3 gameWorld = new Vector3(bounds.min.x + 0.42f, bounds.min.y + 0.35f, -0.13f);
-                gameStockRenderer.transform.localPosition = transform.InverseTransformPoint(gameWorld);
-                gameStockRenderer.transform.localScale = Vector3.one;
-                StrategyWorldSorting.Apply(gameStockRenderer, gameWorld, 1);
-            }
-
-            if (fishStockRenderer != null)
-            {
-                Vector3 fishWorld = new Vector3(bounds.max.x - 0.42f, bounds.min.y + 0.37f, -0.13f);
-                fishStockRenderer.transform.localPosition = transform.InverseTransformPoint(fishWorld);
-                fishStockRenderer.transform.localScale = Vector3.one;
-                StrategyWorldSorting.Apply(fishStockRenderer, fishWorld, 1);
-            }
         }
 
         private void OnDestroy()

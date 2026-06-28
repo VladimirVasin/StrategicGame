@@ -14,23 +14,37 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            List<StrategyResidentAgent> participants = population.CollectFuneralParticipants(funeral.Snapshot, MaxFamilyParticipants);
             funeral.Participants.Clear();
-            funeral.Participants.AddRange(population.CollectFuneralParticipants(funeral.Snapshot, MaxFamilyParticipants));
 
             Vector3 corpseWorld = funeral.Corpse.transform.position;
             int started = 0;
-            for (int i = 0; i < funeral.Participants.Count; i++)
+            for (int i = 0; i < participants.Count; i++)
             {
-                StrategyResidentAgent participant = funeral.Participants[i];
+                StrategyResidentAgent participant = participants[i];
                 if (participant == null)
                 {
                     continue;
                 }
 
-                Vector3 target = corpseWorld + GetRingOffset(i, 0.76f);
-                if (participant.TryStartFuneralMove(target, StrategyResidentAgent.ResidentActivity.MovingToFuneral))
+                if (TryStartFuneralMoveAround(
+                    participant,
+                    corpseWorld,
+                    i,
+                    0.76f,
+                    StrategyResidentAgent.ResidentActivity.MovingToFuneral))
                 {
+                    funeral.Participants.Add(participant);
                     started++;
+                }
+                else
+                {
+                    StrategyDebugLogger.Warn(
+                        "Funeral",
+                        "FamilyFuneralPathRejected",
+                        StrategyDebugLogger.F("resident", funeral.Snapshot.FullName),
+                        StrategyDebugLogger.F("participant", participant.FullName),
+                        StrategyDebugLogger.F("corpseWorld", corpseWorld));
                 }
             }
 
@@ -41,7 +55,8 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("resident", funeral.Snapshot.FullName),
                 StrategyDebugLogger.F("residentId", funeral.Snapshot.ResidentId),
                 StrategyDebugLogger.F("reason", reason),
-                StrategyDebugLogger.F("participants", funeral.Participants.Count),
+                StrategyDebugLogger.F("participants", participants.Count),
+                StrategyDebugLogger.F("reachableParticipants", funeral.Participants.Count),
                 StrategyDebugLogger.F("started", started));
         }
 

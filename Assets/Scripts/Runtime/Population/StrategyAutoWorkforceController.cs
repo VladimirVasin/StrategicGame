@@ -11,6 +11,7 @@ namespace ProjectUnknown.Strategy
         private const float DemandLogInterval = 12f;
         private const float ManualOverrideSeconds = 45f;
         private const float NoFreeAdultFullScanRetrySeconds = 18f;
+        private const int SlowTickLogThresholdMs = 16;
         private const int MaxAssignmentsPerTick = 4;
 
         private readonly StrategyAutoWorkforceSettings settings = new();
@@ -34,13 +35,17 @@ namespace ProjectUnknown.Strategy
         private StrategyHunterCamp[] cachedHunterCamps = System.Array.Empty<StrategyHunterCamp>();
         private StrategyFisherHut[] cachedFisherHuts = System.Array.Empty<StrategyFisherHut>();
         private StrategyForagerCamp[] cachedForagerCamps = System.Array.Empty<StrategyForagerCamp>();
+        private StrategyChickenCoop[] cachedChickenCoops = System.Array.Empty<StrategyChickenCoop>();
         private StrategyGranary[] cachedGranaries = System.Array.Empty<StrategyGranary>();
         private StrategyPlacedBuilding[] cachedPlacedBuildings = System.Array.Empty<StrategyPlacedBuilding>();
         private StrategyPopulationController population;
         private float tickTimer;
         private float nextWorksiteCacheRefreshTime;
         private float nextNoFreeAdultFullScanTime;
+        private float nextAutoWorkforceStatusLogTime;
         private string lastStatus = "Auto workforce ready";
+        private string lastLoggedTickStatus = string.Empty;
+        private string lastLoggedTickReason = string.Empty;
 
         public StrategyAutoWorkforceSettings Settings => settings;
         public bool IsAutoAssignEnabled => settings.Enabled;
@@ -151,19 +156,7 @@ namespace ProjectUnknown.Strategy
                     ? "donor_retry_cooldown"
                     : "no_free_adult_full_scan_cooldown";
                 lastStatus = "No free adults";
-                StrategyDebugLogger.Info(
-                    "AutoWorkforce",
-                    "AutoWorkforceTick",
-                    StrategyDebugLogger.F("enabled", settings.Enabled),
-                    StrategyDebugLogger.F("demands", demands.Count),
-                    StrategyDebugLogger.F("freeAdults", candidates.Count),
-                    StrategyDebugLogger.F("released", 0),
-                    StrategyDebugLogger.F("demandReleased", 0),
-                    StrategyDebugLogger.F("fallbackAssigned", 0),
-                    StrategyDebugLogger.F("assigned", 0),
-                    StrategyDebugLogger.F("durationMs", Mathf.RoundToInt((Time.realtimeSinceStartup - tickStartedAt) * 1000f)),
-                    StrategyDebugLogger.F("status", lastStatus),
-                    StrategyDebugLogger.F("reason", reason));
+                LogAssignmentTick(tickStartedAt, demands.Count, candidates.Count, 0, 0, 0, 0, reason);
                 return;
             }
 
@@ -197,18 +190,45 @@ namespace ProjectUnknown.Strategy
                 RegisterNoFreeAdultFullScanCooldown();
             }
 
+            LogAssignmentTick(tickStartedAt, demands.Count, candidates.Count, released, demandReleased, fallbackAssigned, assigned, string.Empty);
+        }
+
+        private void LogAssignmentTick(
+            float tickStartedAt,
+            int demandCount,
+            int freeAdults,
+            int released,
+            int demandReleased,
+            int fallbackAssigned,
+            int assigned,
+            string reason)
+        {
+            int durationMs = Mathf.RoundToInt((Time.realtimeSinceStartup - tickStartedAt) * 1000f);
+            bool changed = lastStatus != lastLoggedTickStatus || reason != lastLoggedTickReason;
+            bool hasAction = released > 0 || demandReleased > 0 || fallbackAssigned > 0 || assigned > 0;
+            bool hasWorkContext = demandCount > 0 || freeAdults > 0;
+            bool periodic = hasWorkContext && Time.realtimeSinceStartup >= nextAutoWorkforceStatusLogTime;
+            if (!hasAction && !changed && !periodic && durationMs < SlowTickLogThresholdMs)
+            {
+                return;
+            }
+
+            lastLoggedTickStatus = lastStatus;
+            lastLoggedTickReason = reason;
+            nextAutoWorkforceStatusLogTime = Time.realtimeSinceStartup + DemandLogInterval;
             StrategyDebugLogger.Info(
                 "AutoWorkforce",
                 "AutoWorkforceTick",
                 StrategyDebugLogger.F("enabled", settings.Enabled),
-                StrategyDebugLogger.F("demands", demands.Count),
-                StrategyDebugLogger.F("freeAdults", candidates.Count),
+                StrategyDebugLogger.F("demands", demandCount),
+                StrategyDebugLogger.F("freeAdults", freeAdults),
                 StrategyDebugLogger.F("released", released),
                 StrategyDebugLogger.F("demandReleased", demandReleased),
                 StrategyDebugLogger.F("fallbackAssigned", fallbackAssigned),
                 StrategyDebugLogger.F("assigned", assigned),
-                StrategyDebugLogger.F("durationMs", Mathf.RoundToInt((Time.realtimeSinceStartup - tickStartedAt) * 1000f)),
-                StrategyDebugLogger.F("status", lastStatus));
+                StrategyDebugLogger.F("durationMs", durationMs),
+                StrategyDebugLogger.F("status", lastStatus),
+                StrategyDebugLogger.F("reason", reason));
         }
 
         private void CleanupManualLocks()
@@ -270,6 +290,7 @@ namespace ProjectUnknown.Strategy
             cachedHunterCamps = FindSceneObjects<StrategyHunterCamp>();
             cachedFisherHuts = FindSceneObjects<StrategyFisherHut>();
             cachedForagerCamps = FindSceneObjects<StrategyForagerCamp>();
+            cachedChickenCoops = FindSceneObjects<StrategyChickenCoop>();
             cachedGranaries = FindSceneObjects<StrategyGranary>();
             cachedPlacedBuildings = FindSceneObjects<StrategyPlacedBuilding>();
         }

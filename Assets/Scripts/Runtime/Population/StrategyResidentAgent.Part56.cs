@@ -10,7 +10,8 @@ namespace ProjectUnknown.Strategy
             path.Clear();
             pathIndex = 0;
 
-            if ((activeForageFoodSource == null && activeLooseFoodSource == null) || activeGranaryDeliveryTarget == null)
+            if ((activeForageFoodSource == null && activeLooseFoodSource == null && activeEggFoodSource == null)
+                || activeGranaryDeliveryTarget == null)
             {
                 ResetGranaryWorkToIdle();
                 return;
@@ -20,13 +21,15 @@ namespace ProjectUnknown.Strategy
             lumberWorkTimer = Random.Range(LogisticsPickupSecondsMin, LogisticsPickupSecondsMax);
             Bounds sourceBounds = activeLooseFoodSource != null
                 ? activeLooseFoodSource.FootprintBounds
-                : activeForageFoodSource.FootprintBounds;
+                : activeForageFoodSource != null
+                    ? activeForageFoodSource.FootprintBounds
+                    : activeEggFoodSource.FootprintBounds;
             FaceWorldPoint(sourceBounds.center);
             StrategyDebugLogger.Info(
                 "Granary",
                 "ForagePickupStarted",
                 StrategyDebugLogger.F("resident", FullName),
-                StrategyDebugLogger.F("sourceOrigin", activeLooseFoodSource != null ? activeLooseFoodSource.Origin : activeForageFoodSource.Origin),
+                StrategyDebugLogger.F("sourceOrigin", GetActiveGranaryForageSourceOrigin()),
                 StrategyDebugLogger.F("granaryOrigin", activeGranaryDeliveryTarget.Origin));
         }
 
@@ -39,12 +42,13 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            if ((activeForageFoodSource == null && activeLooseFoodSource == null)
+            if ((activeForageFoodSource == null && activeLooseFoodSource == null && activeEggFoodSource == null)
                 || activeGranaryDeliveryTarget == null
                 || !activeGranaryDeliveryTarget.TryFindDropoffCell(out Vector2Int dropoffCell)
                 || !TryBuildPathTo(dropoffCell))
             {
                 activeForageFoodSource?.ReleaseStoredForageReservation(this);
+                activeEggFoodSource?.ReleaseStoredEggsReservation(this);
                 activeLooseFoodSource?.ReleaseReservation(this);
                 StrategyDebugLogger.Warn(
                     "Granary",
@@ -77,6 +81,24 @@ namespace ProjectUnknown.Strategy
 
                 activeLooseFoodSource = null;
             }
+            else if (activeEggFoodSource != null)
+            {
+                sourceOrigin = activeEggFoodSource.Origin;
+                resource = StrategyResourceType.Eggs;
+                if (!activeEggFoodSource.TryTakeReservedEggs(this, out carriedForageAmount))
+                {
+                    StrategyDebugLogger.Warn(
+                        "Granary",
+                        "ForagePickupRejected",
+                        StrategyDebugLogger.F("resident", FullName),
+                        StrategyDebugLogger.F("reason", "take_failed"),
+                        StrategyDebugLogger.F("sourceOrigin", sourceOrigin));
+                    ResetGranaryWorkToIdle();
+                    return;
+                }
+
+                activeEggFoodSource = null;
+            }
             else if (!activeForageFoodSource.TryTakeReservedForage(this, out resource, out carriedForageAmount))
             {
                 StrategyDebugLogger.Warn(
@@ -95,6 +117,7 @@ namespace ProjectUnknown.Strategy
 
             carriedForageResource = resource;
             activeForageFoodSource = null;
+            activeEggFoodSource = null;
             activity = ResidentActivity.CarryingForageToGranary;
             hasTarget = true;
             waitTimer = Random.Range(0.02f, 0.10f);
@@ -275,7 +298,23 @@ namespace ProjectUnknown.Strategy
         {
             return resource == StrategyResourceType.Berries
                 || resource == StrategyResourceType.Roots
-                || resource == StrategyResourceType.Mushrooms;
+                || resource == StrategyResourceType.Mushrooms
+                || resource == StrategyResourceType.Eggs;
+        }
+
+        private Vector2Int GetActiveGranaryForageSourceOrigin()
+        {
+            if (activeLooseFoodSource != null)
+            {
+                return activeLooseFoodSource.Origin;
+            }
+
+            if (activeForageFoodSource != null)
+            {
+                return activeForageFoodSource.Origin;
+            }
+
+            return activeEggFoodSource != null ? activeEggFoodSource.Origin : Vector2Int.zero;
         }
     }
 }

@@ -5,7 +5,6 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyWildlifeController
     {
-
         public bool TryReserveWolfResidentTarget(
             StrategyWolfAgent wolf,
             Vector2Int center,
@@ -97,7 +96,8 @@ namespace ProjectUnknown.Strategy
                         Vector2Int candidate = center + new Vector2Int(x, y);
                         if (candidate == currentCell
                             || wolf.IsWolfRoamTargetBlocked(candidate)
-                            || !IsWolfRoamCandidate(candidate))
+                            || !IsWolfRoamCandidate(candidate)
+                            || !HasWalkableMigrationConnection(currentCell, candidate, Mathf.Max(64, radiusLimit * radiusLimit + 48)))
                         {
                             continue;
                         }
@@ -379,7 +379,13 @@ namespace ProjectUnknown.Strategy
                     return false;
                 }
 
-                if (!TryPickMigrationTarget(currentCenter, targetMinDistance, isCandidate, scoreCandidate, out state.Target))
+                if (!TryPickMigrationTarget(
+                    currentCenter,
+                    targetMinDistance,
+                    isCandidate,
+                    scoreCandidate,
+                    requireWalkableConnection,
+                    out state.Target))
                 {
                     state.Cooldown = Random.Range(18f, 34f);
                     return false;
@@ -427,13 +433,17 @@ namespace ProjectUnknown.Strategy
             state.FailedSteps++;
             if (state.FailedSteps >= 3)
             {
-                StrategyDebugLogger.Warn(
-                    "Wildlife",
-                    "MigrationAborted",
-                    StrategyDebugLogger.F("kind", kind),
-                    StrategyDebugLogger.F("id", id),
-                    StrategyDebugLogger.F("center", currentCenter),
-                    StrategyDebugLogger.F("target", state.Target));
+                if (ShouldLogMigrationAbort(kind, id))
+                {
+                    StrategyDebugLogger.Warn(
+                        "Wildlife",
+                        "MigrationAborted",
+                        StrategyDebugLogger.F("kind", kind),
+                        StrategyDebugLogger.F("id", id),
+                        StrategyDebugLogger.F("center", currentCenter),
+                        StrategyDebugLogger.F("target", state.Target));
+                }
+
                 state.HasTarget = false;
                 state.Cooldown = Random.Range(12f, 28f);
                 state.FailedSteps = 0;
@@ -447,6 +457,7 @@ namespace ProjectUnknown.Strategy
             int minDistance,
             System.Func<Vector2Int, bool> isCandidate,
             System.Func<Vector2Int, float> scoreCandidate,
+            bool requireWalkableConnection,
             out Vector2Int target)
         {
             target = default;
@@ -457,6 +468,12 @@ namespace ProjectUnknown.Strategy
                 Vector2Int candidate = new Vector2Int(Random.Range(0, map.Width), Random.Range(0, map.Height));
                 float distance = Vector2Int.Distance(candidate, currentCenter);
                 if (distance < minDistance || !isCandidate(candidate))
+                {
+                    continue;
+                }
+
+                if (requireWalkableConnection
+                    && !HasWalkableMigrationConnection(currentCenter, candidate, GetMigrationTargetMaxVisited(currentCenter, candidate)))
                 {
                     continue;
                 }
@@ -474,5 +491,6 @@ namespace ProjectUnknown.Strategy
 
             return found;
         }
+
     }
 }

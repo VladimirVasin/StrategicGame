@@ -73,6 +73,11 @@ namespace ProjectUnknown.Strategy
 
             switch (resource)
             {
+                case StrategyResourceType.Eggs:
+                    FillEllipse(texture, 10, 15, 3, 4, Rgb(235, 221, 180));
+                    FillEllipse(texture, 16, 16, 3, 4, Rgb(246, 235, 200));
+                    FillEllipse(texture, 20, 14, 3, 4, Rgb(214, 191, 151));
+                    break;
                 case StrategyResourceType.Berries:
                     FillEllipse(texture, 10, 15, 2, 2, Rgb(142, 42, 74));
                     FillEllipse(texture, 15, 16, 2, 2, Rgb(184, 54, 91));

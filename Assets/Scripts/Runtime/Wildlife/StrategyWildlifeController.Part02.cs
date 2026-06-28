@@ -159,50 +159,6 @@ namespace ProjectUnknown.Strategy
             }
         }
 
-        public bool TryReserveFishForFishing(Vector2Int center, int radius, object owner, out StrategyFishAgent reservedFish)
-        {
-            reservedFish = null;
-            if (owner == null || map == null)
-            {
-                return false;
-            }
-
-            RemoveMissingFish();
-            float bestSqr = float.MaxValue;
-            StrategyFishAgent best = null;
-            for (int i = 0; i < fish.Count; i++)
-            {
-                StrategyFishAgent candidate = fish[i];
-                if (candidate == null || !candidate.CanBeFished || !candidate.TryGetCurrentCell(out Vector2Int cell))
-                {
-                    continue;
-                }
-
-                float sqr = (cell - center).sqrMagnitude;
-                if (sqr >= bestSqr)
-                {
-                    continue;
-                }
-
-                bestSqr = sqr;
-                best = candidate;
-            }
-
-            if (best == null || !best.TryReserveForFishing(owner))
-            {
-                return false;
-            }
-
-            reservedFish = best;
-            StrategyDebugLogger.Info(
-                "Wildlife",
-                "FishReservedForFishing",
-                StrategyDebugLogger.F("hutCenter", center),
-                StrategyDebugLogger.F("radius", radius),
-                StrategyDebugLogger.F("fishWorld", reservedFish.transform.position));
-            return true;
-        }
-
         public int CountCatchableFish(Vector2Int center, int radius)
         {
             if (map == null)

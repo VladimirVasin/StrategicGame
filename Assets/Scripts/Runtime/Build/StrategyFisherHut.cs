@@ -180,7 +180,18 @@ namespace ProjectUnknown.Strategy
 
             return HasStorageSpace
                 && wildlife != null
-                && wildlife.TryReserveFishForFishing(Origin, WorkRadius, owner, out fish);
+                && wildlife.TryReserveFishForFishing(Origin, WorkRadius, owner, candidate => CanReserveFishTarget(owner, candidate), out fish);
+        }
+
+        private bool CanReserveFishTarget(object owner, StrategyFishAgent fish)
+        {
+            if (!TryFindFishingCell(fish, out Vector2Int fishingCell))
+            {
+                return false;
+            }
+
+            StrategyResidentAgent resident = owner as StrategyResidentAgent;
+            return resident == null || resident.CanReachCellForReservation(fishingCell);
         }
 
         public bool TryFindFishingCell(StrategyFishAgent fish, out Vector2Int cell)

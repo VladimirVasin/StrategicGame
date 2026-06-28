@@ -7,13 +7,20 @@ namespace ProjectUnknown.Strategy
         private const float CampfireRelightSeconds = 4.8f;
         private const float CampfireKindleFrameRate = 7.2f;
         private const float GroundSleepFrameRate = 1.8f;
+        private const float CampfireSleepIndicatorScale = 0.055f;
+        private const float CampfireSleepIndicatorBaseHeight = 0.72f;
+        private const float CampfireSleepIndicatorBobHeight = 0.06f;
+        private const float CampfireSleepIndicatorBobRate = 1.7f;
 
         private Vector2Int homelessCampSleepCell;
         private float homelessCampActionTimer;
+        private float campfireSleepIndicatorPhase;
         private bool hasHomelessCampSleepCell;
         private bool returningToHomelessCamp;
         private bool sleepingAtHomelessCamp;
         private bool relightingCampfire;
+        private TextMesh campfireSleepIndicatorText;
+        private MeshRenderer campfireSleepIndicatorRenderer;
 
         public bool IsSleepingAtCampfire => sleepingAtHomelessCamp;
 
@@ -129,6 +136,7 @@ namespace ProjectUnknown.Strategy
             activity = ResidentActivity.LightingCampfire;
             relightingCampfire = true;
             sleepingAtHomelessCamp = false;
+            HideCampfireSleepIndicator();
             homelessCampActionTimer = CampfireRelightSeconds;
             usingWalkSprite = false;
             usingWorkSprite = false;
@@ -194,6 +202,7 @@ namespace ProjectUnknown.Strategy
             }
 
             ApplyGroundSleepFrame();
+            ShowCampfireSleepIndicator();
             footstepAudio?.ResetStepPhase();
             StrategyDebugLogger.Info(
                 "HomelessCamp",
@@ -220,6 +229,7 @@ namespace ProjectUnknown.Strategy
             transform.localScale = Vector3.one;
             footstepAudio?.ResetStepPhase();
             ApplyGroundSleepFrame();
+            UpdateCampfireSleepIndicator();
         }
 
         private void ReleaseHomelessCampSleep(bool log)
@@ -231,6 +241,7 @@ namespace ProjectUnknown.Strategy
             sleepingAtHomelessCamp = false;
             relightingCampfire = false;
             hasHomelessCampSleepCell = false;
+            HideCampfireSleepIndicator();
             activity = GetRestingActivity();
             hasTarget = false;
             path.Clear();
@@ -314,6 +325,94 @@ namespace ProjectUnknown.Strategy
                 spriteRenderer.sprite = sprite;
                 appliedWorkFrame = workFrame;
                 SyncReadabilityRenderers();
+            }
+        }
+
+        private void ShowCampfireSleepIndicator()
+        {
+            EnsureCampfireSleepIndicator();
+            if (campfireSleepIndicatorText == null)
+            {
+                return;
+            }
+
+            campfireSleepIndicatorPhase = Random.Range(0f, 10f);
+            campfireSleepIndicatorText.gameObject.SetActive(true);
+            UpdateCampfireSleepIndicator();
+        }
+
+        private void HideCampfireSleepIndicator()
+        {
+            if (campfireSleepIndicatorText != null)
+            {
+                campfireSleepIndicatorText.gameObject.SetActive(false);
+            }
+        }
+
+        private void UpdateCampfireSleepIndicator()
+        {
+            if (campfireSleepIndicatorText == null || !campfireSleepIndicatorText.gameObject.activeSelf)
+            {
+                return;
+            }
+
+            campfireSleepIndicatorPhase += Time.deltaTime * CampfireSleepIndicatorBobRate;
+            float bob = Mathf.Sin(campfireSleepIndicatorPhase) * CampfireSleepIndicatorBobHeight;
+            float drift = Mathf.Sin(campfireSleepIndicatorPhase * 0.53f + residentId) * 0.025f;
+            campfireSleepIndicatorText.transform.localPosition = new Vector3(
+                drift,
+                CampfireSleepIndicatorBaseHeight + bob,
+                -0.16f);
+
+            float alpha = 0.74f + Mathf.Sin(campfireSleepIndicatorPhase * 1.25f) * 0.16f;
+            campfireSleepIndicatorText.color = new Color(0.82f, 0.90f, 1f, alpha);
+            if (campfireSleepIndicatorRenderer != null && spriteRenderer != null)
+            {
+                campfireSleepIndicatorRenderer.sortingLayerID = spriteRenderer.sortingLayerID;
+                campfireSleepIndicatorRenderer.sortingOrder = spriteRenderer.sortingOrder + 6;
+            }
+        }
+
+        private void EnsureCampfireSleepIndicator()
+        {
+            if (campfireSleepIndicatorText != null)
+            {
+                return;
+            }
+
+            GameObject indicator = new GameObject("Campfire Sleep Indicator");
+            indicator.transform.SetParent(transform, false);
+            indicator.transform.localScale = Vector3.one * CampfireSleepIndicatorScale;
+            indicator.SetActive(false);
+
+            campfireSleepIndicatorText = indicator.AddComponent<TextMesh>();
+            campfireSleepIndicatorText.text = "Zzz...";
+            campfireSleepIndicatorText.anchor = TextAnchor.MiddleCenter;
+            campfireSleepIndicatorText.alignment = TextAlignment.Center;
+            campfireSleepIndicatorText.fontSize = 44;
+            campfireSleepIndicatorText.characterSize = 1f;
+            campfireSleepIndicatorText.fontStyle = FontStyle.Bold;
+            campfireSleepIndicatorText.color = new Color(0.82f, 0.90f, 1f, 0.86f);
+
+            Font font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            if (font != null)
+            {
+                campfireSleepIndicatorText.font = font;
+            }
+
+            campfireSleepIndicatorRenderer = indicator.GetComponent<MeshRenderer>();
+            if (campfireSleepIndicatorRenderer != null)
+            {
+                if (font != null)
+                {
+                    campfireSleepIndicatorRenderer.sharedMaterial = font.material;
+                }
+
+                if (spriteRenderer != null)
+                {
+                    campfireSleepIndicatorRenderer.sortingLayerID = spriteRenderer.sortingLayerID;
+                    campfireSleepIndicatorRenderer.sortingOrder = spriteRenderer.sortingOrder + 6;
+                }
             }
         }
     }

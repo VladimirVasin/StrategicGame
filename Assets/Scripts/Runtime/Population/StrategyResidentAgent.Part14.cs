@@ -115,6 +115,26 @@ namespace ProjectUnknown.Strategy
             return TryBuildTrailAwarePathTo(targetCell);
         }
 
+        public bool CanReachCellForReservation(Vector2Int targetCell)
+        {
+            if (map == null)
+            {
+                return false;
+            }
+
+            List<Vector3> savedPath = new(path);
+            int savedPathIndex = pathIndex;
+            bool savedHasTarget = hasTarget;
+            Vector3 savedPosition = transform.position;
+            bool reachable = TryBuildPathTo(targetCell);
+            path.Clear();
+            path.AddRange(savedPath);
+            pathIndex = savedPathIndex;
+            hasTarget = savedHasTarget;
+            transform.position = savedPosition;
+            return reachable;
+        }
+
         private bool TryGetPathStartCell(out Vector2Int startCell)
         {
             startCell = default;

@@ -252,6 +252,7 @@ namespace ProjectUnknown.Strategy
                 StrategyResourceType.Tools => StrategyResourceIconFactory.GetSprite(StrategyResourceType.Tools),
                 StrategyResourceType.Game => StrategyNatureSpriteFactory.GetCarriedGameSprite(),
                 StrategyResourceType.Fish => StrategyNatureSpriteFactory.GetCarriedFishSprite(),
+                StrategyResourceType.Eggs => StrategyForageSpriteFactory.GetCarriedSprite(placedResource),
                 StrategyResourceType.Berries => StrategyForageSpriteFactory.GetCarriedSprite(placedResource),
                 StrategyResourceType.Roots => StrategyForageSpriteFactory.GetCarriedSprite(placedResource),
                 StrategyResourceType.Mushrooms => StrategyForageSpriteFactory.GetCarriedSprite(placedResource),

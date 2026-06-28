@@ -41,7 +41,8 @@ namespace ProjectUnknown.Strategy
                         new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.ClayPit, "CL", "Clay Pit", Cost(3, 3, 1), HtmlColor("#A96945")),
                         new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.HunterCamp, "HC", "Hunter Camp", Cost(4, 2), HtmlColor("#7B6A45")),
                         new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.FisherHut, "FH", "Fisher Hut", Cost(4, 2), HtmlColor("#4F7E8A")),
-                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.ForagerCamp, "FC", "Forager Camp", Cost(2, 1), HtmlColor("#6E8D50"))
+                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.ForagerCamp, "FC", "Forager Camp", Cost(2, 1), HtmlColor("#6E8D50")),
+                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.ChickenCoop, "CC", "Chicken Coop", Cost(3, 1), HtmlColor("#B98B45"))
                     }),
                 new StrategyBuildMenuControllerDriver.BuildCategoryData(
                     "Production",

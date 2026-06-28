@@ -17,6 +17,7 @@ namespace ProjectUnknown.Strategy
         HunterCamp,
         FisherHut,
         ForagerCamp,
+        ChickenCoop,
         TradingPost,
         StorageYard,
         Granary,

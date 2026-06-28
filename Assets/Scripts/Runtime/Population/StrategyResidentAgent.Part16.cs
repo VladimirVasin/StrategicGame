@@ -309,6 +309,11 @@ namespace ProjectUnknown.Strategy
                 activeForageFoodSource.ReleaseStoredForageReservation(this);
                 activeForageFoodSource = null;
             }
+            else if (activeEggFoodSource != null)
+            {
+                activeEggFoodSource.ReleaseStoredEggsReservation(this);
+                activeEggFoodSource = null;
+            }
         }
 
         private void CancelHouseholdFoodWork(bool storeCarriedFood, string reason = "cancelled")

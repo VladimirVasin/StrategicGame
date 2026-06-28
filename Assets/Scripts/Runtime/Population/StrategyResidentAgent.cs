@@ -153,6 +153,7 @@ namespace ProjectUnknown.Strategy
         private StrategyHunterCamp activeGameSource;
         private StrategyFisherHut activeFishSource;
         private StrategyForagerCamp activeForageFoodSource;
+        private StrategyChickenCoop activeEggFoodSource;
         private StrategyLooseCarriedResourcePile activeLooseFoodSource;
         private StrategyGranary activeGranaryDeliveryTarget;
         private StrategyGranary activeHouseholdFoodGranary;

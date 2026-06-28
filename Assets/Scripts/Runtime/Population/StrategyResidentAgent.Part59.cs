@@ -7,6 +7,7 @@ namespace ProjectUnknown.Strategy
         private StrategyHunterCamp activeHouseholdFoodHunterCamp;
         private StrategyFisherHut activeHouseholdFoodFisherHut;
         private StrategyForagerCamp activeHouseholdFoodForagerCamp;
+        private StrategyChickenCoop activeHouseholdFoodChickenCoop;
 
         private bool TryReserveHouseholdFoodPickupSource(
             Vector3 requesterWorld,
@@ -48,6 +49,7 @@ namespace ProjectUnknown.Strategy
             StrategyHunterCamp gameSource = null;
             StrategyFisherHut fishSource = null;
             StrategyForagerCamp forageSource = null;
+            StrategyChickenCoop eggSource = null;
             float bestDistance = float.MaxValue;
 
             StrategyHunterCamp[] hunterCamps = Object.FindObjectsByType<StrategyHunterCamp>();
@@ -66,6 +68,7 @@ namespace ProjectUnknown.Strategy
                     gameSource = camp;
                     fishSource = null;
                     forageSource = null;
+                    eggSource = null;
                     pickupCell = cell;
                 }
             }
@@ -86,6 +89,7 @@ namespace ProjectUnknown.Strategy
                     gameSource = null;
                     fishSource = hut;
                     forageSource = null;
+                    eggSource = null;
                     pickupCell = cell;
                 }
             }
@@ -106,6 +110,28 @@ namespace ProjectUnknown.Strategy
                     gameSource = null;
                     fishSource = null;
                     forageSource = camp;
+                    eggSource = null;
+                    pickupCell = cell;
+                }
+            }
+
+            StrategyChickenCoop[] chickenCoops = Object.FindObjectsByType<StrategyChickenCoop>();
+            for (int i = 0; i < chickenCoops.Length; i++)
+            {
+                StrategyChickenCoop coop = chickenCoops[i];
+                if (coop == null || coop.AvailableEggs <= 0 || !coop.TryFindDropoffCell(out Vector2Int cell))
+                {
+                    continue;
+                }
+
+                float distance = (coop.FootprintBounds.center - requesterWorld).sqrMagnitude;
+                if (distance < bestDistance)
+                {
+                    bestDistance = distance;
+                    gameSource = null;
+                    fishSource = null;
+                    forageSource = null;
+                    eggSource = coop;
                     pickupCell = cell;
                 }
             }
@@ -130,6 +156,13 @@ namespace ProjectUnknown.Strategy
                 return amount > 0;
             }
 
+            if (eggSource != null && eggSource.TryReserveStoredEggs(this, out amount))
+            {
+                activeHouseholdFoodChickenCoop = eggSource;
+                resource = StrategyResourceType.Eggs;
+                return amount > 0;
+            }
+
             pickupCell = default;
             return false;
         }
@@ -139,7 +172,8 @@ namespace ProjectUnknown.Strategy
             return activeHouseholdFoodGranary != null
                 || activeHouseholdFoodHunterCamp != null
                 || activeHouseholdFoodFisherHut != null
-                || activeHouseholdFoodForagerCamp != null;
+                || activeHouseholdFoodForagerCamp != null
+                || activeHouseholdFoodChickenCoop != null;
         }
 
         private Bounds GetActiveHouseholdFoodSourceBounds()
@@ -157,6 +191,11 @@ namespace ProjectUnknown.Strategy
             if (activeHouseholdFoodFisherHut != null)
             {
                 return activeHouseholdFoodFisherHut.FootprintBounds;
+            }
+
+            if (activeHouseholdFoodChickenCoop != null)
+            {
+                return activeHouseholdFoodChickenCoop.FootprintBounds;
             }
 
             return activeHouseholdFoodForagerCamp != null
@@ -181,6 +220,11 @@ namespace ProjectUnknown.Strategy
                 return activeHouseholdFoodFisherHut.Origin;
             }
 
+            if (activeHouseholdFoodChickenCoop != null)
+            {
+                return activeHouseholdFoodChickenCoop.Origin;
+            }
+
             return activeHouseholdFoodForagerCamp != null ? activeHouseholdFoodForagerCamp.Origin : Vector2Int.zero;
         }
 
@@ -199,6 +243,11 @@ namespace ProjectUnknown.Strategy
             if (activeHouseholdFoodFisherHut != null)
             {
                 return "FisherHut";
+            }
+
+            if (activeHouseholdFoodChickenCoop != null)
+            {
+                return "ChickenCoop";
             }
 
             return activeHouseholdFoodForagerCamp != null ? "ForagerCamp" : "None";
@@ -263,6 +312,19 @@ namespace ProjectUnknown.Strategy
                 return taken;
             }
 
+            if (activeHouseholdFoodChickenCoop != null)
+            {
+                resource = StrategyResourceType.Eggs;
+                bool taken = activeHouseholdFoodChickenCoop.TryTakeReservedEggs(this, out amount);
+                if (!taken)
+                {
+                    activeHouseholdFoodChickenCoop.ReleaseStoredEggsReservation(this);
+                }
+
+                activeHouseholdFoodChickenCoop = null;
+                return taken;
+            }
+
             return false;
         }
 
@@ -315,6 +377,12 @@ namespace ProjectUnknown.Strategy
             {
                 activeHouseholdFoodForagerCamp.ReleaseStoredForageReservation(this);
                 activeHouseholdFoodForagerCamp = null;
+            }
+
+            if (activeHouseholdFoodChickenCoop != null)
+            {
+                activeHouseholdFoodChickenCoop.ReleaseStoredEggsReservation(this);
+                activeHouseholdFoodChickenCoop = null;
             }
         }
     }

@@ -83,6 +83,10 @@ namespace ProjectUnknown.Strategy
             {
                 blockFootprint = new Vector2Int(footprint.x, footprint.y + 1);
             }
+            else if (tool == StrategyBuildTool.ChickenCoop)
+            {
+                blockFootprint = new Vector2Int(footprint.x, footprint.y + 1);
+            }
             else if (tool == StrategyBuildTool.StorageYard)
             {
                 blockFootprint = new Vector2Int(footprint.x, footprint.y + 1);
@@ -309,6 +313,8 @@ namespace ProjectUnknown.Strategy
                 StrategyBuildTool.Forge => "FG",
                 StrategyBuildTool.HunterCamp => "HC",
                 StrategyBuildTool.FisherHut => "FH",
+                StrategyBuildTool.ForagerCamp => "FC",
+                StrategyBuildTool.ChickenCoop => "CC",
                 StrategyBuildTool.StorageYard => "ST",
                 StrategyBuildTool.Granary => "GR",
                 StrategyBuildTool.Bridge => "BR",

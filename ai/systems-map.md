@@ -1,6 +1,6 @@
 # Systems Map
 
-Last updated: 2026-06-24
+Last updated: 2026-06-28
 
 Use this file as the first navigation pass before broad searches. Owner cards are starting points, not hard boundaries.
 
@@ -510,7 +510,7 @@ Responsibilities:
 - Spawn compact wolf packs only on currently hidden safe land cells in a wider near-settlement ring, preferring alternating river sides when a generated river route exists.
 - Use completed buildings and active construction sites as wildlife spawn anchors, with the startup camp as a fallback only when no building/construction anchor exists.
 - Provide adult-rabbit reservation/count lookup for hunter camps.
-- Provide catchable-fish reservation/count lookup for fisher huts.
+- Provide catchable-fish reservation/count lookup for fisher huts, including optional requester reachability filtering before a fish is reserved.
 - Provide wolf predator reservation hooks for rabbit/deer surplus above high population-control thresholds and for vulnerable far-from-settlement adult residents.
 - Generate and cache runtime 2.5D pixel-art deer sprites for male bucks and female does.
 - Generate and cache runtime 2.5D pixel-art rabbit sprites for male and female visuals.
@@ -530,7 +530,7 @@ Responsibilities:
 - Keep river fish on the generated river route until they despawn at the route end.
 - Keep birds on local habitat choices inside loose home ranges without blocking map cells.
 - Periodically migrate deer herds, rabbit groups, wolf packs, decorative bird homes, and lake fish shoals by retargeting their loose home centers toward new suitable habitat.
-- Keep land wildlife migration away from dense settlement pressure and advance it only through short connected walkable steps so herds/packs do not jump through water or blockers.
+- Keep land wildlife migration away from dense settlement pressure and choose/advance land targets only through connected walkable routes so herds/packs do not jump through water or blockers.
 - React to nearby residents and noisy work by switching to alert/flee states.
 - Let adult does reproduce when an adult buck is nearby in the same herd.
 - Spawn fawns that grow into adults after scaled simulation time.
@@ -549,6 +549,8 @@ Responsibilities:
 Primary files/assets:
 
 - `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.Fishing.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.MigrationDiagnostics.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.Part09.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.Part10.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.Part11.cs`
@@ -595,7 +597,7 @@ Impact hints:
 - Rabbit pathing uses the same local wildlife land-travel and land-target approach and should stay cheap until a shared pathfinding service exists; repeated same-threat alert/flee reactions are throttled so rabbits do not rebuild flee paths every threat check.
 - Land wildlife river crossing is intentionally scoped to wildlife path helpers through `StrategyWildlifeRiverCrossing`; River cells are transit-only for deer/rabbit/wolf paths and should not become final wildlife targets. Do not change global `CityMapController` walkability to make River water walkable for residents, buildings, or construction.
 - Fish pathing uses `CityMapCellKind.Water` plus `CityMapWaterKind` instead of `IsCellWalkable`, because water is intentionally not walkable for land agents and lake/river fish now have separate movement rules.
-- Migration state is owned by `StrategyWildlifeController`; agents only expose small retarget methods for their current home/roam center, and migration targets must stay in currently hidden near-settlement candidate cells.
+- Migration state is owned by `StrategyWildlifeController`; agents only expose small retarget methods for their current home/roam center, and migration targets must stay in currently hidden near-settlement candidate cells connected to the current land-wildlife travel region.
 - Reproduction is owned by `StrategyWildlifeController`; deer/rabbit/fish birth cells must be currently hidden and near settlement anchors, while agents own species or sex, life stage, growth, movement, and animation state. Birds are decorative and do not reproduce yet; wolves do not reproduce yet and use pack spawn only.
 - Wolf settlement avoidance is pressure-based and reads camp position, placed buildings, active construction sites, and nearby residents; land wildlife pathing also uses the cached structure buffer, so keep it cheaper than per-frame global scans.
 - Wolf prey lookup is population-control logic, not continuous hunting: rabbit hunting only starts above the rabbit control threshold after subtracting predator and hunter reservations, and deer hunting only starts above the deer control threshold after subtracting predator reservations.
@@ -603,6 +605,7 @@ Impact hints:
 - Wolf pack placement uses the generated river route to prefer alternating river sides, but falls back to any valid safe side and logs `WolfPackRiverSideFallback` if one side has no candidate.
 - Wolf movement diagnostics are owned by `StrategyWolfAgent` and log state changes, target acquisition/release, path readiness/failures, roam failures, and movement stalls under the `Wildlife` log category.
 - `FishLakeBirthBlocked` debug logging is throttled per lake region; keep cap checks cheap and avoid per-fish spam when a lake is full.
+- Fisher Hut fish reservation can pass a requester reachability filter into wildlife selection; keep this pre-reservation filter so fishers do not reserve fish whose shore stand cell is unreachable.
 - Future deer hunting, leather, broader predator ecology, wolf HUD, or animal saving should extend this subsystem instead of adding animal behavior into population or nature-prop code.
 
 ### Stone Resources MVP
@@ -1027,10 +1030,12 @@ Responsibilities:
 - Register a short manual-removal override per profession so auto-fill does not immediately undo player `-` clicks.
 - Log demand, assignment, skipped assignment, manual override, priority, and tick status events.
 - Rebalance only idle worksite workers during normal surplus/demand donor releases; explicit priority-0 profession shutdowns can still cancel active work.
+- Protect Hunter/Fisher/Forager workers from non-food donor steals while a household food emergency or active food demand exists.
 
 Primary files/assets:
 
 - `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceController.cs`
+- `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceController.FoodEmergency.cs`
 - `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceController.Part01.cs`
 - `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceController.Part02.cs`
 - `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceController.Part03.cs`
@@ -1046,7 +1051,7 @@ Primary files/assets:
 
 Impact hints:
 
-- Auto workforce can release surplus workers from overstaffed auto-managed professions, release limited lower-priority donors for higher-scored shortages, and use a stricter emergency margin to pull at-target donors for severe food/resource shortages; coverage floors protect the last worker in nonzero-counter professions, worksite lookups should use the cached snapshot refreshed on real-time cadence instead of scene-wide lookups every scaled tick, successful assignments are capped per tick, and only residents who become idle are reused immediately while workers returning carried resources re-enter the free pool on later ticks.
+- Auto workforce can release surplus workers from overstaffed auto-managed professions, release limited lower-priority donors for higher-scored shortages, and use a stricter emergency margin to pull at-target donors for severe food/resource shortages; Hunter/Fisher/Forager donors are protected from non-food steals during household food emergencies or active food demand, coverage floors protect the last worker in nonzero-counter professions, worksite lookups should use the cached snapshot refreshed on real-time cadence instead of scene-wide lookups every scaled tick, successful assignments are capped per tick, and only residents who become idle are reused immediately while workers returning carried resources re-enter the free pool on later ticks.
 - Free adult fallback assignment runs after demand assignment so idle adults are placed into the best enabled available role when any nonzero managed profession can accept them.
 - Auto workforce does not force-reassign home duty, funeral duty, or residents still busy returning carried resources.
 - Demand scoring should continue to call public worksite APIs (`AssignWorker`, `AssignBuilder`, Storage Yard builder dispatch) so cancellation, carried-resource return, reservations, and resident state cleanup stay centralized.
@@ -1178,11 +1183,11 @@ Impact hints:
 
 Responsibilities:
 
-- Keep the legacy Garden Beds and Chicken Coop upgrade implementation available in code while it is inactive in normal House flow.
+- Keep the legacy Garden Beds and House Chicken Coop upgrade implementation available in code while it is inactive in normal House flow.
 - Generate and cache old upgrade sprites at runtime.
 - Track old installed upgrade types on placed houses if legacy code paths are re-enabled later.
 - Support old Chicken Coop idle chicken spawning when a legacy coop exists.
-- Avoid exposing Garden Beds or Chicken Coop as selected-house actions until crop/egg production becomes explicit standalone building work.
+- Avoid exposing Garden Beds or House Chicken Coop as selected-house actions; standalone Chicken Coop owns active egg production.
 
 Primary files/assets:
 
@@ -1205,7 +1210,7 @@ Impact hints:
 
 - Current House placement does not auto-install Garden Beds, and the selected-house HUD does not show Garden Beds or Chicken Coop actions.
 - Householder home duty no longer starts Garden Beds work.
-- The old upgrade controller, sprites, and chicken agent can be reused or removed when Garden Beds and Chicken Coop become standalone crop/egg buildings.
+- The old upgrade controller remains inactive legacy; the standalone Chicken Coop now owns active egg production while reusing chicken sprites/agent behavior.
 - Do not re-enable direct house-local food production unless the design intentionally returns food production to Houses.
 
 ### House Resources MVP
@@ -1247,11 +1252,11 @@ Primary files/assets:
 Impact hints:
 
 - Current resources are house-local runtime counts, not global economy inventory.
-- Current normal house-local ingredient source is Householder delivery of raw `Fish`/`Game`/forage food from Granaries, with direct Hunter Camp/Fisher Hut/Forager Camp fallback only when no Granary food is available.
-- Household foraging from Houses, Garden Beds, and Chicken Coop are inactive legacy paths; Forager Camps are the active external source for forage food.
-- Eggs, crops, forage, `Game`, and `Fish` are raw ingredients that can be stored at home and cooked into recipe-based prepared dishes, but crops/Eggs currently have no normal active production path.
+- Current normal house-local ingredient source is Householder delivery of raw `Fish`/`Game`/`Eggs`/forage food from Granaries, with direct Hunter Camp/Fisher Hut/Forager Camp/Chicken Coop fallback only when no Granary food is available.
+- Household foraging from Houses and Garden Beds/House Chicken Coop upgrade paths are inactive legacy paths; Forager Camps are the active external source for forage food and standalone Chicken Coops are the active external source for Eggs.
+- Eggs, crops, forage, `Game`, and `Fish` are raw ingredients that can be stored at home and cooked into recipe-based prepared dishes; Eggs now come from standalone Chicken Coops, while crop ingredients still have no normal active production path.
 - Current dish recipes span Poor/Common/Hearty/Fine/Feast quality tiers; quality currently affects ration value and HUD/debug context, not morale.
-- `Game`, `Fish`, Berries, Roots, and Mushrooms are local production-building/Granary stock resources with shared HUD icons, and Householders can move Granary stock, or production stock as a Granary-empty fallback, into house-local ingredient storage.
+- `Game`, `Fish`, `Eggs`, Berries, Roots, and Mushrooms are local production-building/Granary stock resources with shared HUD icons, and Householders can move Granary stock, or production stock as a Granary-empty fallback, into house-local ingredient storage.
 - Future trade, taxes, storage caps, spoilage, and needs should decide whether house stores remain local or feed into a settlement-level resource service.
 
 ### Sawmill Production
@@ -1471,18 +1476,19 @@ Impact hints:
 
 Responsibilities:
 
-- Add `Granary` as a placed food-storage building with local `Game`, `Fish`, Berries, Roots, and Mushrooms stock.
+- Add `Granary` as a placed food-storage building with local `Game`, `Fish`, `Eggs`, Berries, Roots, and Mushrooms stock.
 - Keep Granary food stock uncapped.
 - Use shared Storage Yard Haulers instead of a separate player-facing Granary Worker profession.
 - Find Hunter Camps with available stored `Game` and reserve stock for Haulers.
 - Find Fisher Huts with available stored `Fish` and reserve stock for Haulers.
 - Find Forager Camps with available stored Berries/Roots/Mushrooms and reserve stock for Haulers.
+- Find Chicken Coops with available stored `Eggs` and reserve stock for Haulers.
 - Route Haulers to source camps/huts, pick up reserved food, carry it to the granary, and deposit it.
 - Provide settlement-level raw food availability and reservation APIs for preferred Householder Granary pickup, with resident-side direct production-source fallback when Granary food is unavailable.
 - Provide raw food spend/receive helpers for Trading Post caravan transactions.
-- Update Hunter Camp/Fisher Hut/Forager Camp stock visuals as food is picked up.
-- Update Granary `Game`/`Fish`/forage stock visuals and food drop effects as food is deposited.
-- Update Granary `Game`/`Fish`/forage stock visuals as Haulers deposit stock and Householders reserve/pick up ingredients.
+- Update Hunter Camp/Fisher Hut/Forager Camp/Chicken Coop stock visuals as food is picked up.
+- Update Granary `Game`/`Fish`/`Eggs`/forage stock visuals and food drop effects as food is deposited.
+- Update Granary `Game`/`Fish`/`Eggs`/forage stock visuals as Haulers deposit stock and Householders reserve/pick up ingredients.
 - Show food stock and available source counts in the selection HUD.
 
 Primary files/assets:
@@ -1491,6 +1497,8 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Build/StrategyGranary.Part02.cs`
 - `Assets/Scripts/Runtime/Build/StrategyGranary.Part03.cs`
 - `Assets/Scripts/Runtime/Build/StrategyGranary.Forage.cs`
+- `Assets/Scripts/Runtime/Build/StrategyGranary.StockVisuals.cs`
+- `Assets/Scripts/Runtime/Build/StrategyChickenCoop.cs`
 - `Assets/Scripts/Runtime/Build/StrategyHunterCamp.cs`
 - `Assets/Scripts/Runtime/Build/StrategyFisherHut.cs`
 - `Assets/Scripts/Runtime/Build/StrategyForagerCamp.cs`
@@ -1509,8 +1517,8 @@ Primary files/assets:
 Impact hints:
 
 - Haulers reserve food before walking so multiple haulers do not target the same local stock.
-- Food source reservations prevent multiple Haulers from double-claiming the same `Game`/`Fish`/forage food.
-- `Game`, `Fish`, Berries, Roots, and Mushrooms remain runtime-local raw food stock; completed houses can receive them from Householder Granary pickups or direct production-source fallback when Granaries are empty, nightly dinner consumes prepared house `Dish` before falling back to house-local ingredients, and each cooked Dish requires house-local Pottery.
+- Food source reservations prevent multiple Haulers from double-claiming the same `Game`/`Fish`/`Eggs`/forage food.
+- `Game`, `Fish`, `Eggs`, Berries, Roots, and Mushrooms remain runtime-local raw food stock; completed houses can receive them from Householder Granary pickups or direct production-source fallback when Granaries are empty, nightly dinner consumes prepared house `Dish` before falling back to house-local ingredients, and each cooked Dish requires house-local Pottery.
 - Residents currently support one active workplace: lumberjack camp, stonecutter camp, hunter camp, fisher hut, forager camp, mine, storage logistics, or storage builder crew.
 - Future spoilage, food needs, recipe balancing, market logistics, or settlement-level food services should extend this subsystem rather than folding food into construction Storage Yards.
 
@@ -1548,6 +1556,41 @@ Impact hints:
 - Forager Camp is the active source for forage ingredients; do not re-enable House-owned household foraging unless the design intentionally returns food production to homes.
 - Camp stock is local and capped like other production sites; Granaries remain the uncapped food storage and Householder pickup source.
 - Auto workforce treats Foragers as part of the Food category alongside Hunters and Fishers.
+
+### Chicken Coop Production
+
+Responsibilities:
+
+- Add `Chicken Coop` as a cheap external egg-production building with no assigned worker slots.
+- Produce `Eggs` autonomously on a cycle timer into capped local production stock.
+- Spawn idle chickens around the placed building without creating a new profession.
+- Expose Chicken Coop `Eggs` stock to Granary Haulers and to Householder direct fallback pickup when Granaries have no available food.
+- Show Chicken Coop egg stock, reservation count, no-worker state, and next-egg timer in the selection HUD.
+
+Primary files/assets:
+
+- `Assets/Scripts/Runtime/Build/StrategyChickenCoop.cs`
+- `Assets/Scripts/Runtime/Population/StrategyChickenAgent.cs`
+- `Assets/Scripts/Runtime/Population/StrategyChickenSpriteFactory.cs`
+- `Assets/Scripts/Runtime/Build/StrategyBuildingSpriteFactory.cs`
+- `Assets/Scripts/Runtime/Build/StrategyBuildingSpriteFactory.Part11.cs`
+- `Assets/Scripts/Runtime/Build/StrategyBuildPlacementController.Part03.cs`
+- `Assets/Scripts/Runtime/Build/StrategyBuildPlacementController.Part04.cs`
+- `Assets/Scripts/Runtime/UI/StrategyBuildTool.cs`
+- `Assets/Scripts/Runtime/UI/StrategyBuildMenuController.Catalog.cs`
+- `Assets/Scripts/Runtime/UI/StrategyBuildMenuController.Driver.Part01.cs`
+- `Assets/Scripts/Runtime/Build/StrategyGranary.cs`
+- `Assets/Scripts/Runtime/Build/StrategyGranary.Forage.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part56.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part59.cs`
+- `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.Part01.cs`
+- `Assembly-CSharp.csproj`
+
+Impact hints:
+
+- Chicken Coops intentionally do not appear in profession assignment because they have no workers.
+- Local Egg stock is capped through `StrategyProductionStorage`; Granaries remain the uncapped food storage layer.
+- Keep House Chicken Coop upgrade behavior inactive unless the design explicitly returns egg production to Houses.
 
 ### Trade MVP
 
@@ -1617,7 +1660,7 @@ Responsibilities:
 - Spawn children for valid adult male/female house pairs after randomized household cooldowns when house capacity allows.
 - Keep children younger than 3 years old inside their assigned home by hiding their world sprite/collider and skipping outdoor idle/funeral movement until they age out.
 - Give older children daytime ambient play activities near home/camp, including solo play, pair play with siblings or nearby children, and tag.
-- Send housed idle residents home to sleep inside during the `Night` phase by hiding their world sprite/collider until morning, while leaving homeless residents outside.
+- Send housed idle residents home to sleep inside during the `Night` phase by hiding their world sprite/collider until morning, while leaving homeless residents outside with a visible `Zzz...` sleep indicator.
 - Resolve one nightly household dinner from prepared house `Dish`, using resident age-based ration needs after eligible residents return home for `Night`.
 - Send Householders to fetch reserved raw `Fish`/`Game`/forage food from reachable Granaries into their own house when ingredient reserves are low, or from reachable Hunter/Fisher/Forager production stock when no Granary food is available.
 - Send Householders to fetch Pottery from Storage Yards and cook stored ingredients plus 1 Pottery per prepared `Dish` during `Dusk` when dinner coverage is low.
@@ -1673,7 +1716,7 @@ Responsibilities:
 - Route assigned Haulers to Clay Pit stock, stored-Clay pickup, storage-yard delivery, and deposit.
 - Route assigned Haulers to Kiln stock, stored-Pottery pickup, storage-yard delivery, and deposit.
 - Route Householders to Storage Yard Pottery stock, house delivery, and deposit when their own house needs Pottery for cooking.
-- Route assigned Haulers to Hunter Camp/Fisher Hut/Forager Camp stock, stored-food pickup, granary delivery, and deposit.
+- Route assigned Haulers to Hunter Camp/Fisher Hut/Forager Camp/Chicken Coop stock, stored-food pickup, granary delivery, and deposit.
 - Assign residents to Storage Yards as dedicated builders.
 - Route hired builders to reserved Storage Yard stock, construction resource pickup, site delivery, and hammer/build work after materials arrive.
 - Drive frame-based axe swing animation and hit timing for lumberjacks.
@@ -1691,8 +1734,8 @@ Responsibilities:
 - Generate resident campfire kindling and ground-sleep sprites for homeless night sleep.
 - Generate and animate procedural campfire flame, smoke/spark, ember, and relight frames at runtime.
 - Drive campfire burnout into persistent embers, restore campfire-cell walkability while extinguished, and support resident-triggered relight.
-- Drive simple chicken idle movement around a linked Chicken Coop upgrade with walk and peck sprite animations.
-- Drive Chicken Coop egg production from a cycle timer synchronized with the coop's nest/egg animation frames.
+- Drive simple chicken idle movement around standalone or legacy linked Chicken Coops with walk and peck sprite animations.
+- Drive standalone Chicken Coop egg production from a cycle timer synchronized with the coop's nest/egg animation frames.
 - Expose runtime residents as read-only visibility sources for fog of war.
 
 Primary files/assets:
@@ -1705,6 +1748,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyPopulationController.Part07.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentDeathSnapshot.cs`
 - `Assets/Scripts/Runtime/Population/StrategyFuneralController.cs`
+- `Assets/Scripts/Runtime/Population/StrategyFuneralController.Part01.cs`
 - `Assets/Scripts/Runtime/Population/StrategyFuneralController.Part02.cs`
 - `Assets/Scripts/Runtime/Population/StrategyCemeteryController.cs`
 - `Assets/Scripts/Runtime/Population/StrategyCorpse.cs`
@@ -1733,6 +1777,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part47.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part48.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part49.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part57.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part58.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentSpriteFactory.Part05.cs`
 - `Assets/Scripts/Runtime/Population/StrategyCampfireRelightSpriteFactory.cs`
@@ -1791,7 +1836,7 @@ Impact hints:
 - Active funeral duty is a hard death guard in the central population death path; future funeral recovery work can replace this only after carrier/attendee death is safely handled.
 - `StrategyFuneralController` owns the runtime funeral state machine; it should stay separate from normal workplace AI and should only use public resident funeral hooks.
 - Service burials are selected when a funeral has no living family/household participants; they use one silent adult carrier chosen from the nearest eligible adults and should not start crying/mourning poses.
-- `StrategyFuneralController` builds a carrier reachable-cell set before reserving a grave; funeral resident movement must fail rather than fall back to direct world movement when no walkable path exists.
+- `StrategyFuneralController` keeps only movers with started funeral paths in family/attendee lists, tries nearby corpse/grave stand positions before rejection, and builds a carrier reachable-cell set before reserving a grave; funeral resident movement must fail rather than fall back to direct world movement when no walkable path exists.
 - Funeral processions drag the corpse behind a primary carrier with a visible rope and clamp the corpse within one map-cell distance from that carrier.
 - Burial starts after reachable expected attendees gather around the reserved grave or after the grave-gather timeout prevents a deadlock.
 - `StrategyCemeteryController` owns spontaneous cemetery placement and grave reservation; graves are world blockers and clickable markers, so map walkability and grave HUD data must be updated when grave cells are created.
@@ -1803,7 +1848,7 @@ Impact hints:
 - `StrategyHouseholdState` lives on occupied houses and owns the randomized birth timer.
 - `StrategyHouseholdState` blocks births while the same house has sustained ration shortages or birth-blocked residents.
 - `StrategyHouseholdFoodState` lives on occupied houses, resolves one nightly dinner per day after a one-day settling grace, waits for eligible residents to enter home for `Night` with a fallback deadline, consumes prepared house recipe dishes first, falls back to house-local ingredients for missing rations, applies short rations to resident nutrition debt, and exposes aggregate food status for HUDs.
-- Householder home duty can reserve one raw `Fish`/`Game`/forage-food unit from a Granary, or from Hunter Camp/Fisher Hut/Forager Camp stock when Granaries have no available food, plus Pottery from a Storage Yard, path to pickup, carry it home, store it in the house, and cook stored ingredients plus 1 Pottery per prepared recipe dish during `Dusk`.
+- Householder home duty can reserve one raw `Fish`/`Game`/`Eggs`/forage-food unit from a Granary, or from Hunter Camp/Fisher Hut/Forager Camp/Chicken Coop stock when Granaries have no available food, plus Pottery from a Storage Yard, path to pickup, carry it home, store it in the house, and cook stored ingredients plus 1 Pottery per prepared recipe dish during `Dusk`.
 - `StrategyHouseholdForagingState` is compiled as inactive legacy code; placed Houses no longer attach it, and resident start guards return false so house-driven foraging cannot dispatch.
 - Generated forage reach/crouch sprites and node pulse effects are used by Forager Camp workers and are not started by Houses.
 - `StrategyPlacedBuilding` owns the current Householder reference for houses, preferring the oldest adult female resident and refreshing on home changes, death/unregister, and resident adulthood.
@@ -1815,7 +1860,7 @@ Impact hints:
 - Resident movement records activity-weighted trail footfall per entered visible resident cell, and formed trails apply a 15% speed bonus.
 - Resident pathfinding can recover a blocked start cell by snapping to a nearby walkable cell and logging `PathStartRecovered`.
 - Resident scheduled work starts only during `StrategyDayNightCycleController.IsSettlementWorkTime`, which now covers Dawn through Dusk on every day. Keep carried-resource returns, deposits, and cleanup paths schedule-safe so nightfall cannot strand stock reservations.
-- Resident night sleep is separate from homebound young-child hiding: housed residents only enter the hidden home interior during `Night` when they are not carrying resources, in funeral duty, or underground, notify household food state for dinner readiness, then reappear at the home exit after night ends. Homeless residents instead reserve reachable campfire sleep spots, relight embers if needed, and sleep visibly around the startup campfire.
+- Resident night sleep is separate from homebound young-child hiding: housed residents only enter the hidden home interior during `Night` when they are not carrying resources, in funeral duty, or underground, notify household food state for dinner readiness, then reappear at the home exit after night ends. Homeless residents instead reserve reachable campfire sleep spots, relight embers if needed, and sleep visibly around the startup campfire with a small `Zzz...` indicator.
 - Resident footstep audio is attached by `StrategyResidentAgent` and plays grass clips on selected walk frames; keep it low-volume/spatial when adding more residents or faster simulation speeds.
 - Lumberjack work keeps the same camp worksite component but chooses the nearest available tree/processable wood on the map; it tests nearby work cells for real path reachability before starting tree/log/plant movement, and includes tree chopping, trunk bucking, Logs delivery, and sapling planting.
 - Resident woodcut sprites are generated for every male/female visual variant and should stay in sync with readability outline mirroring.

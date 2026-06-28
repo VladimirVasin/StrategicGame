@@ -41,6 +41,7 @@ namespace ProjectUnknown.Strategy
             activeGameSource = null;
             activeFishSource = null;
             activeForageFoodSource = null;
+            activeEggFoodSource = null;
             activeGranaryDeliveryTarget = null;
             transform.localRotation = Quaternion.identity;
             transform.localScale = Vector3.one;

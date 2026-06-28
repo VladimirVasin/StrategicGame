@@ -266,8 +266,12 @@ namespace ProjectUnknown.Strategy
                     continue;
                 }
 
-                Vector3 target = GetGraveStandWorld(funeral.GraveCell, i);
-                if (carrier.TryStartFuneralMove(target, StrategyResidentAgent.ResidentActivity.CarryingCorpseToCemetery, serviceBurial))
+                if (TryStartFuneralMoveToGrave(
+                    carrier,
+                    funeral.GraveCell,
+                    i,
+                    StrategyResidentAgent.ResidentActivity.CarryingCorpseToCemetery,
+                    serviceBurial))
                 {
                     startedCarriers.Add(carrier);
                     funeral.ExpectedBurialAttendees.Add(carrier);
@@ -308,8 +312,11 @@ namespace ProjectUnknown.Strategy
                     continue;
                 }
 
-                Vector3 target = GetGraveStandWorld(funeral.GraveCell, mournerIndex + requiredCarrierCount);
-                if (participant.TryStartFuneralMove(target, StrategyResidentAgent.ResidentActivity.MovingToBurial))
+                if (TryStartFuneralMoveToGrave(
+                    participant,
+                    funeral.GraveCell,
+                    mournerIndex + requiredCarrierCount,
+                    StrategyResidentAgent.ResidentActivity.MovingToBurial))
                 {
                     funeral.ExpectedBurialAttendees.Add(participant);
                 }

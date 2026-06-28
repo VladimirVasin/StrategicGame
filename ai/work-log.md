@@ -1,12 +1,35 @@
 # Work Log
 
-Last updated: 2026-06-24
+Last updated: 2026-06-28
 
 ## Active
 
 - None.
 
 ## Done
+
+### 2026-06-28 - Standalone Chicken Coop egg production
+
+- Added `Chicken Coop` as a cheap standalone Extraction building with no worker slots, 2x2 placement, generated coop art, idle chickens, local capped `Eggs` stock, a next-egg timer, and selected-building HUD context.
+- Reused the existing chicken visuals/idle behavior for the new standalone coop while keeping the old House upgrade path inactive.
+- Extended Granary food logistics to reserve, haul, store, display, and count `Eggs` alongside other raw food; Haulers can collect Eggs from Chicken Coops, and Householders can use Chicken Coops as a direct fallback source when Granary food is unavailable.
+- Added Eggs to carried basket visuals, loose food recovery for Granaries, auto-workforce food backlog counting, and local project files.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; no C# files under `Assets/Scripts` exceed 500 lines.
+
+### 2026-06-28 - Debug-log bugfix pass except food-balance tuning
+
+- Fixed wildlife/fishing path issues from the latest `debug.log`: land wildlife now prefilters migration and wolf roam targets for walkable connectivity, repeated migration-abort logs are throttled, and Fisher Huts reserve only in-radius fish with reachable shore stand cells for the requesting resident.
+- Tightened AutoWorkforce behavior during food pressure without changing food yields, ration needs, or mortality: Food workers are protected from non-food donor steals during household food emergencies or active food demand, food fallback assignment is preferred while a household food emergency exists, repeated no-op tick logs are suppressed, and donor-skip diagnostics no longer emit `-Infinity` score gaps.
+- Fixed funeral participation accounting so only residents with started funeral movement stay in participant/attendee lists; corpse and grave gathering now try alternate nearby stand positions before rejecting a mover.
+- Cleaned forage carry diagnostics by logging the actual destination and destination origin instead of misleading `homeOrigin=0,0` for Forager Camp deliveries.
+- Split new helpers into small partial files (`StrategyAutoWorkforceController.FoodEmergency.cs`, `StrategyWildlifeController.Fishing.cs`, `StrategyWildlifeController.MigrationDiagnostics.cs`) and updated `Assembly-CSharp.csproj`.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-06-24 - Campfire sleep indicator
+
+- Added a small animated world-space `Zzz...` indicator above homeless residents while they sleep outside at the campfire.
+- The indicator appears only during `SleepingByCampfire`, bobs/fades gently, follows resident sorting, and hides when the resident wakes or relights the fire.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; no C# files under `Assets/Scripts` exceed 500 physical lines.
 
 ### 2026-06-24 - Householder production food fallback
 

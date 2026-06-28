@@ -250,7 +250,11 @@ namespace ProjectUnknown.Strategy
             }
         }
 
-        public bool TryStartFuneralMove(Vector3 targetWorld, ResidentActivity funeralMoveActivity, bool silent = false)
+        public bool TryStartFuneralMove(
+            Vector3 targetWorld,
+            ResidentActivity funeralMoveActivity,
+            bool silent = false,
+            bool logFailure = true)
         {
             if (map == null
                 || deathRequested
@@ -302,13 +306,17 @@ namespace ProjectUnknown.Strategy
                 path.Clear();
                 pathIndex = 0;
                 hasTarget = false;
-                StrategyDebugLogger.Warn(
-                    "Funeral",
-                    "ResidentFuneralMoveFailed",
-                    StrategyDebugLogger.F("resident", FullName),
-                    StrategyDebugLogger.F("activity", funeralMoveActivity),
-                    StrategyDebugLogger.F("targetWorld", targetWorld),
-                    StrategyDebugLogger.F("reason", "no_walkable_path"));
+                if (logFailure)
+                {
+                    StrategyDebugLogger.Warn(
+                        "Funeral",
+                        "ResidentFuneralMoveFailed",
+                        StrategyDebugLogger.F("resident", FullName),
+                        StrategyDebugLogger.F("activity", funeralMoveActivity),
+                        StrategyDebugLogger.F("targetWorld", targetWorld),
+                        StrategyDebugLogger.F("reason", "no_walkable_path"));
+                }
+
                 return false;
             }
 

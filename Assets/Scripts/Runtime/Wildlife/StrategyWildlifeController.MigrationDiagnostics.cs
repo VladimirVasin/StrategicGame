@@ -1,0 +1,32 @@
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace ProjectUnknown.Strategy
+{
+    public sealed partial class StrategyWildlifeController
+    {
+        private const float MigrationAbortLogCooldownSeconds = 30f;
+
+        private readonly Dictionary<string, float> migrationAbortLogTimes = new();
+
+        private int GetMigrationTargetMaxVisited(Vector2Int start, Vector2Int target)
+        {
+            int distance = Mathf.CeilToInt(Vector2Int.Distance(start, target));
+            int localLimit = Mathf.Max(128, distance * distance * 2);
+            return map != null ? Mathf.Min(map.Width * map.Height, localLimit) : localLimit;
+        }
+
+        private bool ShouldLogMigrationAbort(string kind, int id)
+        {
+            string key = kind + ":" + id;
+            float now = Time.time;
+            if (migrationAbortLogTimes.TryGetValue(key, out float nextTime) && now < nextTime)
+            {
+                return false;
+            }
+
+            migrationAbortLogTimes[key] = now + MigrationAbortLogCooldownSeconds;
+            return true;
+        }
+    }
+}
