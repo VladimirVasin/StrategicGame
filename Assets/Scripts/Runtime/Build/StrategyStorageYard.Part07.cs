@@ -6,6 +6,8 @@ namespace ProjectUnknown.Strategy
     public sealed partial class StrategyStorageYard
     {
         private const int ProductionInputDeliveryStackLimit = StrategyProductionStorage.HaulerCarryLimit;
+        private static readonly List<IStrategyProductionLogisticsNode> productionNodeQuery = new();
+        private static Vector3 productionNodeSortWorld;
 
         public bool TryReserveProductionInputDelivery(
             object owner,
@@ -21,8 +23,8 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            IStrategyProductionLogisticsNode[] nodes = GetProductionNodesSortedByDistance(FootprintBounds.center);
-            for (int i = 0; i < nodes.Length; i++)
+            List<IStrategyProductionLogisticsNode> nodes = GetProductionNodesSortedByDistance(FootprintBounds.center);
+            for (int i = 0; i < nodes.Count; i++)
             {
                 IStrategyProductionLogisticsNode node = nodes[i];
                 if (node == null
@@ -120,9 +122,9 @@ namespace ProjectUnknown.Strategy
         {
             int backlog = 0;
             Vector3 weighted = Vector3.zero;
-            StrategyStorageYard[] yards = Object.FindObjectsByType<StrategyStorageYard>();
-            IStrategyProductionLogisticsNode[] nodes = GetProductionNodesSortedByDistance(Vector3.zero);
-            for (int i = 0; i < nodes.Length; i++)
+            List<StrategyStorageYard> yards = GetActiveYards();
+            List<IStrategyProductionLogisticsNode> nodes = GetProductionNodesSortedByDistance(Vector3.zero);
+            for (int i = 0; i < nodes.Count; i++)
             {
                 IStrategyProductionLogisticsNode node = nodes[i];
                 if (node == null
@@ -135,7 +137,7 @@ namespace ProjectUnknown.Strategy
                 }
 
                 int available = 0;
-                for (int j = 0; j < yards.Length; j++)
+                for (int j = 0; j < yards.Count; j++)
                 {
                     available += yards[j] != null ? yards[j].GetAvailableLogisticsAmount(resource) : 0;
                 }
@@ -223,8 +225,8 @@ namespace ProjectUnknown.Strategy
         public static int GetTotalAvailableLogisticsAmount(StrategyResourceType resource)
         {
             int total = 0;
-            StrategyStorageYard[] yards = Object.FindObjectsByType<StrategyStorageYard>();
-            for (int i = 0; i < yards.Length; i++)
+            List<StrategyStorageYard> yards = GetActiveYards();
+            for (int i = 0; i < yards.Count; i++)
             {
                 total += yards[i] != null ? yards[i].GetAvailableLogisticsAmount(resource) : 0;
             }
@@ -265,7 +267,7 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            StrategyStorageYard[] yards = GetYardsSortedByDistance(nearWorld);
+            List<StrategyStorageYard> yards = GetYardsSortedByDistance(nearWorld);
             int remainingTools = SpendLogisticsFromYards(yards, StrategyResourceType.Tools, cost.Tools);
             int remainingPlanks = SpendLogisticsFromYards(yards, StrategyResourceType.Planks, cost.Planks);
             int remainingStone = SpendLogisticsFromYards(yards, StrategyResourceType.Stone, cost.Stone);
@@ -284,12 +286,12 @@ namespace ProjectUnknown.Strategy
         }
 
         private static int SpendLogisticsFromYards(
-            StrategyStorageYard[] yards,
+            IReadOnlyList<StrategyStorageYard> yards,
             StrategyResourceType resource,
             int requested)
         {
             int remaining = requested;
-            for (int i = 0; i < yards.Length && remaining > 0; i++)
+            for (int i = 0; i < yards.Count && remaining > 0; i++)
             {
                 StrategyStorageYard yard = yards[i];
                 if (yard == null)
@@ -369,40 +371,61 @@ namespace ProjectUnknown.Strategy
             UpdateStockVisual();
         }
 
-        private static IStrategyProductionLogisticsNode[] GetProductionNodesSortedByDistance(Vector3 nearWorld)
+        private static List<IStrategyProductionLogisticsNode> GetProductionNodesSortedByDistance(Vector3 nearWorld)
         {
-            MonoBehaviour[] behaviours = Object.FindObjectsByType<MonoBehaviour>();
-            List<IStrategyProductionLogisticsNode> nodes = new();
-            for (int i = 0; i < behaviours.Length; i++)
+            productionNodeQuery.Clear();
+            IReadOnlyList<StrategyPlacedBuilding> buildings = StrategyPlacedBuilding.ActiveBuildings;
+            for (int i = 0; i < buildings.Count; i++)
             {
-                if (behaviours[i] is IStrategyProductionLogisticsNode node)
+                StrategyPlacedBuilding building = buildings[i];
+                if (building == null)
                 {
-                    nodes.Add(node);
+                    continue;
+                }
+
+                if (building.TryGetComponent(out StrategySawmill sawmill) && sawmill != null)
+                {
+                    productionNodeQuery.Add(sawmill);
+                }
+
+                if (building.TryGetComponent(out StrategyKiln kiln) && kiln != null)
+                {
+                    productionNodeQuery.Add(kiln);
+                }
+
+                if (building.TryGetComponent(out StrategyForge forge) && forge != null)
+                {
+                    productionNodeQuery.Add(forge);
                 }
             }
 
-            nodes.Sort((left, right) =>
+            productionNodeSortWorld = nearWorld;
+            productionNodeQuery.Sort(CompareProductionNodesByDistance);
+            return productionNodeQuery;
+        }
+
+        private static int CompareProductionNodesByDistance(
+            IStrategyProductionLogisticsNode left,
+            IStrategyProductionLogisticsNode right)
+        {
+            if (left == null && right == null)
             {
-                if (left == null && right == null)
-                {
-                    return 0;
-                }
+                return 0;
+            }
 
-                if (left == null)
-                {
-                    return 1;
-                }
+            if (left == null)
+            {
+                return 1;
+            }
 
-                if (right == null)
-                {
-                    return -1;
-                }
+            if (right == null)
+            {
+                return -1;
+            }
 
-                float leftDistance = (left.FootprintBounds.center - nearWorld).sqrMagnitude;
-                float rightDistance = (right.FootprintBounds.center - nearWorld).sqrMagnitude;
-                return leftDistance.CompareTo(rightDistance);
-            });
-            return nodes.ToArray();
+            float leftDistance = (left.FootprintBounds.center - productionNodeSortWorld).sqrMagnitude;
+            float rightDistance = (right.FootprintBounds.center - productionNodeSortWorld).sqrMagnitude;
+            return leftDistance.CompareTo(rightDistance);
         }
     }
 }

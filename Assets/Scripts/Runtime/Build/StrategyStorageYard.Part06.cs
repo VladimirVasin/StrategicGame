@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace ProjectUnknown.Strategy
@@ -9,6 +10,7 @@ namespace ProjectUnknown.Strategy
         private const float BuilderRequestedSiteScoreBonus = 4f;
         private const float BuilderBuildableSiteScoreBonus = 12f;
         private const float BuilderDistanceScoreWeight = 0.02f;
+        private static readonly List<StrategyConstructionSite> constructionSiteQuery = new();
 
         private static bool TryAssignBuildersAcrossSites(StrategyConstructionSite requestedSite)
         {
@@ -17,15 +19,15 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            StrategyConstructionSite[] sites = GetActiveConstructionSites();
-            if (sites.Length <= 0)
+            List<StrategyConstructionSite> sites = GetActiveConstructionSites();
+            if (sites.Count <= 0)
             {
                 return false;
             }
 
             int assignedCount = 0;
-            StrategyStorageYard[] yards = GetYardsSortedByDistance(requestedSite.FootprintBounds.center);
-            for (int i = 0; i < yards.Length; i++)
+            List<StrategyStorageYard> yards = GetYardsSortedByDistance(requestedSite.FootprintBounds.center);
+            for (int i = 0; i < yards.Count; i++)
             {
                 StrategyStorageYard yard = yards[i];
                 if (yard == null)
@@ -53,7 +55,7 @@ namespace ProjectUnknown.Strategy
                     StrategyDebugLogger.F("requestedTool", requestedSite.Tool),
                     StrategyDebugLogger.F("requestedOrigin", requestedSite.Origin),
                     StrategyDebugLogger.F("assigned", assignedCount),
-                    StrategyDebugLogger.F("siteCount", sites.Length));
+                    StrategyDebugLogger.F("siteCount", sites.Count));
             }
 
             return assignedCount > 0;
@@ -82,11 +84,19 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("builderCount", target.BuilderCount));
         }
 
-        private static StrategyConstructionSite[] GetActiveConstructionSites()
+        private static List<StrategyConstructionSite> GetActiveConstructionSites()
         {
-            StrategyConstructionSite[] sites = Object.FindObjectsByType<StrategyConstructionSite>();
-            System.Array.Sort(
-                sites,
+            constructionSiteQuery.Clear();
+            IReadOnlyList<StrategyConstructionSite> sites = StrategyConstructionSite.ActiveSites;
+            for (int i = 0; i < sites.Count; i++)
+            {
+                if (sites[i] != null)
+                {
+                    constructionSiteQuery.Add(sites[i]);
+                }
+            }
+
+            constructionSiteQuery.Sort(
                 (left, right) =>
                 {
                     int leftCount = left != null && !left.IsCompleted ? left.BuilderCount : int.MaxValue;
@@ -96,17 +106,17 @@ namespace ProjectUnknown.Strategy
                         ? countCompare
                         : GetSitePriority(right).CompareTo(GetSitePriority(left));
                 });
-            return sites;
+            return constructionSiteQuery;
         }
 
         private static StrategyConstructionSite ChooseBuilderDispatchSite(
             StrategyResidentAgent builder,
-            StrategyConstructionSite[] sites,
+            IReadOnlyList<StrategyConstructionSite> sites,
             StrategyConstructionSite requestedSite)
         {
             StrategyConstructionSite best = null;
             float bestScore = float.MinValue;
-            for (int i = 0; i < sites.Length; i++)
+            for (int i = 0; i < sites.Count; i++)
             {
                 StrategyConstructionSite site = sites[i];
                 if (site == null || site.IsCompleted)

@@ -306,6 +306,7 @@ Responsibilities:
 - Track dynamic walkability blockers for placed buildings and early agents.
 - Track completed bridge walkability over River water cells without changing water/shore identity.
 - Host runtime fog-of-war exploration, current visibility, day/night reveal tuning, weather Fog reveal tuning, weather-fog band rendering, and daylight-range visibility state.
+- Emit `Map/Generated` diagnostics with total and subphase generation timings.
 
 Primary files/assets:
 
@@ -357,7 +358,7 @@ Impact hints:
 - Iron field placement consumes the active seed, generated walkable land cells, and macro cluster score; Iron deposits are underground fields that do not block walkability but block normal buildability.
 - Coal field placement consumes the active seed, generated walkable land cells, and macro cluster score; Coal deposits are underground fields that do not block walkability but block normal buildability.
 - Clay field placement consumes the active seed, generated walkable near-water land/shore cells, and macro cluster score; Clay deposits do not block walkability but block normal buildability.
-- Forage placement consumes the active seed, generated cell kinds, current walkability, the shared shuffled full-map pass, and macro cluster score; forage nodes are non-blocking, support reservation, disappear after gathering, and use a timed respawn queue that places replacements near mature standing trees.
+- Forage placement consumes the active seed, generated cell kinds, current walkability, the shared shuffled full-map pass, and macro cluster score; forage nodes are non-blocking, support reservation, disappear after gathering, and use a faster timed respawn queue that places replacements near mature standing trees inside active Forager Camp work radii. The controller leaves capacity headroom after initial generation, periodically supports under-supplied Forager Camps, and applies local density/per-camp soft caps to avoid over-clustering.
 - Generated standalone tree props register as mature forestry trees and block their cells.
 - Forest groups and bushes remain non-interactive but block their cells.
 - Generated Stone deposits register as Boulder, Rock Cluster, or Cliff resource deposits and block their cells.
@@ -513,6 +514,8 @@ Responsibilities:
 - Spawn decorative birds only on currently hidden species-appropriate land/water cells near settlement anchors, without reproduction or resources.
 - Spawn compact wolf packs only on currently hidden safe land cells in a wider near-settlement ring, preferring alternating river sides when a generated river route exists.
 - Use completed buildings and active construction sites as wildlife spawn anchors, with the startup camp as a fallback only when no building/construction anchor exists.
+- Periodically support under-supplied Hunter Camps by spawning huntable rabbits in a controlled 7-11 cell ring around the camp.
+- Allow upgraded Hunter Camps with Deer Hunting Kit to receive rare deer support spawns in the same controlled ring.
 - Provide adult-rabbit reservation/count lookup for hunter camps.
 - Provide catchable-fish reservation/count lookup for fisher huts, including optional requester reachability filtering before a fish is reserved.
 - Provide wolf predator reservation hooks for rabbit/deer surplus above high population-control thresholds and for vulnerable far-from-settlement adult residents.
@@ -535,6 +538,7 @@ Responsibilities:
 - Keep birds on local habitat choices inside loose home ranges without blocking map cells.
 - Periodically migrate deer herds, rabbit groups, wolf packs, decorative bird homes, and lake fish shoals by retargeting their loose home centers toward new suitable habitat.
 - Keep land wildlife migration away from dense settlement pressure and choose/advance land targets only through connected walkable routes so herds/packs do not jump through water or blockers.
+- Temporarily cool down failed migration target cells so groups do not repeatedly choose cells that already aborted.
 - React to nearby residents and noisy work by switching to alert/flee states.
 - Let adult does reproduce when an adult buck is nearby in the same herd.
 - Spawn fawns that grow into adults after scaled simulation time.
@@ -559,6 +563,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.Part10.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.Part11.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.Part12.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.Part13.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeRiverCrossing.cs`
 - `Assets/Scripts/Runtime/Wildlife/IStrategyHuntTarget.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyDeerAgent.cs`
@@ -597,11 +602,13 @@ Impact hints:
 - Deer and birds do not reveal fog or block walkability; adult deer can yield `Game` only after the Hunter Camp upgrade, rabbits can yield `Game` through the base hunter-camp work loop, fish can yield `Fish` through the fisher-hut work loop, and wolves are predators rather than player-harvestable resources.
 - Initial rabbit spawn, deer herds, fish shoals, birds, and wolf packs depend on hidden near-settlement candidate cells instead of map-wide placement; if no hidden candidate exists for a species, that species should skip spawning rather than appearing far from buildings or inside visible fog.
 - Wildlife hidden checks use fog daylight-range visibility, not reduced nighttime current visibility, so animals do not spawn closer to the settlement just because night lowered player sight radius.
+- Hunter Camp support spawns must remain hidden/daylight-valid, outside the near-building inner ring, inside `StrategyHunterCamp.WorkRadius`, and below local density plus global population caps.
 - Deer pathing depends on the wildlife land-travel predicate plus a separate land-target predicate, which wraps `CityMapController.IsCellWalkable`, River transit allowance, and the 4-cell structure buffer.
 - Rabbit pathing uses the same local wildlife land-travel and land-target approach and should stay cheap until a shared pathfinding service exists; repeated same-threat alert/flee reactions are throttled so rabbits do not rebuild flee paths every threat check.
 - Land wildlife river crossing is intentionally scoped to wildlife path helpers through `StrategyWildlifeRiverCrossing`; River cells are transit-only for deer/rabbit/wolf paths and should not become final wildlife targets. Do not change global `CityMapController` walkability to make River water walkable for residents, buildings, or construction.
 - Fish pathing uses `CityMapCellKind.Water` plus `CityMapWaterKind` instead of `IsCellWalkable`, because water is intentionally not walkable for land agents and lake/river fish now have separate movement rules.
 - Migration state is owned by `StrategyWildlifeController`; agents only expose small retarget methods for their current home/roam center, and migration targets must stay in currently hidden near-settlement candidate cells connected to the current land-wildlife travel region.
+- Failed wildlife migration targets enter a short cooldown before they can be selected again; keep this guard before committing targets so repeated abort loops do not spam logs or pathfinding.
 - Reproduction is owned by `StrategyWildlifeController`; deer/rabbit/fish birth cells must be currently hidden and near settlement anchors, while agents own species or sex, life stage, growth, movement, and animation state. Birds are decorative and do not reproduce yet; wolves do not reproduce yet and use pack spawn only.
 - Wolf settlement avoidance is pressure-based and reads camp position, placed buildings, active construction sites, and nearby residents; land wildlife pathing also uses the cached structure buffer, so keep it cheaper than per-frame global scans.
 - Wolf prey lookup is population-control logic, not continuous hunting: rabbit hunting only starts above the rabbit control threshold after subtracting predator and hunter reservations, and deer hunting only starts above the deer control threshold after subtracting predator reservations.
@@ -819,7 +826,9 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/UI/StrategyBuildMenuController.cs`
 - `Assets/Scripts/Runtime/UI/StrategyBuildMenuController.Driver.cs`
 - `Assets/Scripts/Runtime/UI/StrategyBuildTool.cs`
+- `Assets/Scripts/Runtime/UI/StrategyBuildMenuController.Driver.Animation.cs`
 - `Assets/Scripts/Runtime/UI/StrategyBuildMenuController.Driver.Debug.cs`
+- `Assets/Scripts/Runtime/UI/StrategyBuildMenuController.Driver.Hud.cs`
 - `Assets/Scripts/Runtime/UI/StrategyBuildMenuController.Driver.Part01.cs`
 - `Assets/Scripts/Runtime/UI/StrategyBuildMenuController.Driver.Locking.cs`
 - `Assets/Scripts/Runtime/UI/StrategyBuildMenuController.Driver.Part03.cs`
@@ -1040,6 +1049,7 @@ Primary files/assets:
 
 - `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceController.cs`
 - `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceController.FoodEmergency.cs`
+- `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceController.Cache.cs`
 - `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceController.Part01.cs`
 - `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceController.Part02.cs`
 - `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceController.Part03.cs`
@@ -1055,7 +1065,7 @@ Primary files/assets:
 
 Impact hints:
 
-- Auto workforce can release surplus workers from overstaffed auto-managed professions, release limited lower-priority donors for higher-scored shortages, and use a stricter emergency margin to pull at-target donors for severe food/resource shortages; Hunter/Fisher/Forager donors are protected from non-food steals during household food emergencies or active food demand, coverage floors protect the last worker in nonzero-counter professions, worksite lookups should use the cached snapshot refreshed on real-time cadence instead of scene-wide lookups every scaled tick, repeated no-free-adult full scans and donor-failure diagnostics should stay throttled/lightweight, successful assignments are capped per tick, and only residents who become idle are reused immediately while workers returning carried resources re-enter the free pool on later ticks.
+- Auto workforce can release surplus workers from overstaffed auto-managed professions, release limited lower-priority donors for higher-scored shortages, and use a stricter emergency margin to pull at-target donors for severe food/resource shortages; Hunter/Fisher/Forager donors are protected from non-food steals during household food emergencies or active food demand, coverage floors protect the last worker in nonzero-counter professions, worksite lookups should use the cached snapshot rebuilt from active placed buildings and active construction sites on active-count changes plus a longer fallback interval instead of scene-wide lookups every scaled tick, repeated no-free-adult full scans and donor-failure diagnostics should stay throttled/lightweight, successful assignments are capped per tick, and only residents who become idle are reused immediately while workers returning carried resources re-enter the free pool on later ticks.
 - Free adult fallback assignment runs after demand assignment so idle adults are placed into the best enabled available role when any nonzero managed profession can accept them.
 - Auto workforce does not force-reassign home duty, funeral duty, or residents still busy returning carried resources.
 - Demand scoring should continue to call public worksite APIs (`AssignWorker`, `AssignBuilder`, Storage Yard builder dispatch) so cancellation, carried-resource return, reservations, and resident state cleanup stay centralized.
@@ -1124,6 +1134,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Build/StrategyBuildPlacementController.Part03.cs`
 - `Assets/Scripts/Runtime/Build/StrategyBuildPlacementController.Part04.cs`
 - `Assets/Scripts/Runtime/Build/StrategyConstructionSite.cs`
+- `Assets/Scripts/Runtime/Build/StrategyConstructionSite.Active.cs`
 - `Assets/Scripts/Runtime/Build/StrategyConstructionSite.Part02.cs`
 - `Assets/Scripts/Runtime/Build/StrategyConstructionSite.Debug.cs`
 - `Assets/Scripts/Runtime/Build/StrategyConstructionSite.Part03.cs`
@@ -1177,6 +1188,7 @@ Impact hints:
 - `Clay Pit` additionally requires at least one available near-water Clay field under its footprint.
 - Successful player placement creates a construction site, closes the full Build menu, and marks the frame so world selection ignores the placement click.
 - Construction site placement normally depends on reservable Logs/Stone/Planks, not on immediately available builders; waiting sites retry hired-builder dispatch.
+- Construction sites register/unregister active-site membership for systems that need cheap current-site lookups; keep lifecycle calls paired with configure, completion, and destroy paths.
 - When F9 instant construction debug mode is enabled, player placement still creates a construction-site handoff but skips resource reservation, marks resources/progress complete, and immediately finalizes through the normal placed-building completion path; enabling the toggle also completes already active construction sites.
 - Final building creation happens through construction-site completion, not the original placement click.
 - Goal/progression listeners should use the building completion event so unfinished construction sites are never counted as completed buildings.

@@ -1,9 +1,11 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyResidentAgent
     {
+        private static readonly List<StrategyConstructionSite> constructionDeliverySiteQuery = new();
         private StrategyConstructionSite activeConstructionDeliverySite;
 
         private bool IsHaulerConstructionDeliveryActive =>
@@ -21,11 +23,20 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            StrategyConstructionSite[] sites = Object.FindObjectsByType<StrategyConstructionSite>();
-            System.Array.Sort(sites, CompareHaulerConstructionSites);
-            for (int i = 0; i < sites.Length; i++)
+            constructionDeliverySiteQuery.Clear();
+            IReadOnlyList<StrategyConstructionSite> sites = StrategyConstructionSite.ActiveSites;
+            for (int i = 0; i < sites.Count; i++)
             {
-                StrategyConstructionSite site = sites[i];
+                if (sites[i] != null)
+                {
+                    constructionDeliverySiteQuery.Add(sites[i]);
+                }
+            }
+
+            constructionDeliverySiteQuery.Sort(CompareHaulerConstructionSites);
+            for (int i = 0; i < constructionDeliverySiteQuery.Count; i++)
+            {
+                StrategyConstructionSite site = constructionDeliverySiteQuery[i];
                 if (site == null || site.IsCompleted || site.ResourcesComplete)
                 {
                     continue;

@@ -102,6 +102,7 @@ namespace ProjectUnknown.Strategy
             UpdateVisuals();
             EnsureWorldShadow();
             EnsureClickCollider();
+            RegisterActiveSite();
         }
 
         public void ConfigureBridgeSpan(

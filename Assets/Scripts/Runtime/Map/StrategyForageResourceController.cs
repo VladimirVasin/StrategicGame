@@ -7,7 +7,10 @@ namespace ProjectUnknown.Strategy
     [DisallowMultipleComponent]
     public sealed partial class StrategyForageResourceController : MonoBehaviour
     {
-        private const int MaxForageNodes = 280;
+        private const int MaxForageNodes = 380;
+        private const int InitialForageNodeTarget = 310;
+        private const int LocalDensityRadius = 5;
+        private const int LocalDensityMaxNodes = 5;
         private const int StarterSearchMinRadius = 4;
         private const int StarterSearchMaxRadius = 14;
         private const int StarterBerries = 5;
@@ -152,7 +155,8 @@ namespace ProjectUnknown.Strategy
             EnsureStarterForageNodes();
 
             int totalCells = map.Width * map.Height;
-            for (int i = 0; i < totalCells && nodes.Count < MaxForageNodes; i++)
+            int initialTarget = Mathf.Min(InitialForageNodeTarget, MaxForageNodes);
+            for (int i = 0; i < totalCells && nodes.Count < initialTarget; i++)
             {
                 int cellIndex = StrategyMapDistributionUtility.GetShuffledIndex(map.ActiveSeed, i, totalCells, 6101);
                 int x = cellIndex % map.Width;
@@ -163,6 +167,11 @@ namespace ProjectUnknown.Strategy
                     || !map.IsCellWalkable(cell)
                     || !map.TryGetCell(x, y, out CityMapCell mapCell)
                     || !TryChooseResource(mapCell.Kind, x, y, out StrategyResourceType resource))
+                {
+                    continue;
+                }
+
+                if (!HasLocalForageRoom(cell))
                 {
                     continue;
                 }
@@ -339,6 +348,41 @@ namespace ProjectUnknown.Strategy
         private static int GetYield(StrategyResourceType resource)
         {
             return resource == StrategyResourceType.Berries ? 2 : 1;
+        }
+
+        private bool HasLocalForageRoom(Vector2Int cell)
+        {
+            return CountForageNodesNear(cell, LocalDensityRadius) < LocalDensityMaxNodes;
+        }
+
+        private int CountForageNodesNear(Vector2Int center, int radius)
+        {
+            int radiusSqr = radius * radius;
+            int count = 0;
+            for (int i = 0; i < nodes.Count; i++)
+            {
+                StrategyForageNode node = nodes[i];
+                if (node == null)
+                {
+                    continue;
+                }
+
+                Vector2Int delta = node.Cell - center;
+                if (delta.x * delta.x + delta.y * delta.y <= radiusSqr)
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
+        private bool TryGetForagerCampCenterCell(StrategyForagerCamp camp, out Vector2Int cell)
+        {
+            cell = default;
+            return camp != null
+                && map != null
+                && map.TryWorldToCell(camp.FootprintBounds.center, out cell);
         }
 
         private bool IsTooCloseToStarter(Vector2Int cell, int radius)

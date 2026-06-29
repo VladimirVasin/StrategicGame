@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace ProjectUnknown.Strategy
@@ -50,12 +51,15 @@ namespace ProjectUnknown.Strategy
             forageSource = null;
             eggSource = null;
             float bestDistance = float.MaxValue;
+            IReadOnlyList<StrategyPlacedBuilding> buildings = StrategyPlacedBuilding.ActiveBuildings;
 
-            StrategyHunterCamp[] camps = Object.FindObjectsByType<StrategyHunterCamp>();
-            for (int i = 0; i < camps.Length; i++)
+            for (int i = 0; i < buildings.Count; i++)
             {
-                StrategyHunterCamp camp = camps[i];
-                if (camp == null || camp.AvailableGame <= 0)
+                StrategyPlacedBuilding building = buildings[i];
+                if (building == null
+                    || !building.TryGetComponent(out StrategyHunterCamp camp)
+                    || camp == null
+                    || camp.AvailableGame <= 0)
                 {
                     continue;
                 }
@@ -71,11 +75,13 @@ namespace ProjectUnknown.Strategy
                 }
             }
 
-            StrategyFisherHut[] huts = Object.FindObjectsByType<StrategyFisherHut>();
-            for (int i = 0; i < huts.Length; i++)
+            for (int i = 0; i < buildings.Count; i++)
             {
-                StrategyFisherHut hut = huts[i];
-                if (hut == null || hut.AvailableFish <= 0)
+                StrategyPlacedBuilding building = buildings[i];
+                if (building == null
+                    || !building.TryGetComponent(out StrategyFisherHut hut)
+                    || hut == null
+                    || hut.AvailableFish <= 0)
                 {
                     continue;
                 }
@@ -91,11 +97,13 @@ namespace ProjectUnknown.Strategy
                 }
             }
 
-            StrategyForagerCamp[] foragerCamps = Object.FindObjectsByType<StrategyForagerCamp>();
-            for (int i = 0; i < foragerCamps.Length; i++)
+            for (int i = 0; i < buildings.Count; i++)
             {
-                StrategyForagerCamp camp = foragerCamps[i];
-                if (camp == null || camp.AvailableForage <= 0)
+                StrategyPlacedBuilding building = buildings[i];
+                if (building == null
+                    || !building.TryGetComponent(out StrategyForagerCamp camp)
+                    || camp == null
+                    || camp.AvailableForage <= 0)
                 {
                     continue;
                 }
@@ -111,11 +119,13 @@ namespace ProjectUnknown.Strategy
                 }
             }
 
-            StrategyChickenCoop[] coops = Object.FindObjectsByType<StrategyChickenCoop>();
-            for (int i = 0; i < coops.Length; i++)
+            for (int i = 0; i < buildings.Count; i++)
             {
-                StrategyChickenCoop coop = coops[i];
-                if (coop == null || coop.AvailableEggs <= 0)
+                StrategyPlacedBuilding building = buildings[i];
+                if (building == null
+                    || !building.TryGetComponent(out StrategyChickenCoop coop)
+                    || coop == null
+                    || coop.AvailableEggs <= 0)
                 {
                     continue;
                 }
@@ -307,10 +317,14 @@ namespace ProjectUnknown.Strategy
         private int CountAvailableForagerSources()
         {
             int count = 0;
-            StrategyForagerCamp[] camps = Object.FindObjectsByType<StrategyForagerCamp>();
-            for (int i = 0; i < camps.Length; i++)
+            IReadOnlyList<StrategyPlacedBuilding> buildings = StrategyPlacedBuilding.ActiveBuildings;
+            for (int i = 0; i < buildings.Count; i++)
             {
-                if (camps[i] != null && camps[i].AvailableForage > 0)
+                StrategyPlacedBuilding building = buildings[i];
+                if (building != null
+                    && building.TryGetComponent(out StrategyForagerCamp camp)
+                    && camp != null
+                    && camp.AvailableForage > 0)
                 {
                     count++;
                 }

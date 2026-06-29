@@ -5,6 +5,8 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyStonecutterCamp
     {
+        private static readonly List<StrategyStonecutterCamp> campQuery = new();
+        private static Vector3 campSortWorld;
 
         public bool TryTakeReservedConstructionResource(
             object owner,
@@ -236,33 +238,40 @@ namespace ProjectUnknown.Strategy
             return total;
         }
 
-        private static StrategyStonecutterCamp[] GetCampsSortedByDistance(Vector3 nearWorld)
+        private static List<StrategyStonecutterCamp> GetActiveCamps()
         {
-            StrategyStonecutterCamp[] camps = Object.FindObjectsByType<StrategyStonecutterCamp>();
-            System.Array.Sort(
-                camps,
-                (left, right) =>
-                {
-                    if (left == null && right == null)
-                    {
-                        return 0;
-                    }
+            StrategyPlacedBuilding.CopyActiveComponents(campQuery);
+            return campQuery;
+        }
 
-                    if (left == null)
-                    {
-                        return 1;
-                    }
+        private static List<StrategyStonecutterCamp> GetCampsSortedByDistance(Vector3 nearWorld)
+        {
+            StrategyPlacedBuilding.CopyActiveComponents(campQuery);
+            campSortWorld = nearWorld;
+            campQuery.Sort(CompareCampsByDistance);
+            return campQuery;
+        }
 
-                    if (right == null)
-                    {
-                        return -1;
-                    }
+        private static int CompareCampsByDistance(StrategyStonecutterCamp left, StrategyStonecutterCamp right)
+        {
+            if (left == null && right == null)
+            {
+                return 0;
+            }
 
-                    float leftDistance = (left.FootprintBounds.center - nearWorld).sqrMagnitude;
-                    float rightDistance = (right.FootprintBounds.center - nearWorld).sqrMagnitude;
-                    return leftDistance.CompareTo(rightDistance);
-                });
-            return camps;
+            if (left == null)
+            {
+                return 1;
+            }
+
+            if (right == null)
+            {
+                return -1;
+            }
+
+            float leftDistance = (left.FootprintBounds.center - campSortWorld).sqrMagnitude;
+            float rightDistance = (right.FootprintBounds.center - campSortWorld).sqrMagnitude;
+            return leftDistance.CompareTo(rightDistance);
         }
 
         private void EnsureStockRenderer()

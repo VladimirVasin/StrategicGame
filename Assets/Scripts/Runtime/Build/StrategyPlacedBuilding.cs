@@ -39,6 +39,27 @@ namespace ProjectUnknown.Strategy
         public StrategyResidentAgent Householder => householder;
         public static IReadOnlyList<StrategyPlacedBuilding> ActiveBuildings => activeBuildings;
 
+        public static int CopyActiveComponents<T>(List<T> components)
+            where T : Component
+        {
+            if (components == null)
+            {
+                return 0;
+            }
+
+            components.Clear();
+            for (int i = 0; i < activeBuildings.Count; i++)
+            {
+                StrategyPlacedBuilding building = activeBuildings[i];
+                if (building != null && building.TryGetComponent(out T component) && component != null)
+                {
+                    components.Add(component);
+                }
+            }
+
+            return components.Count;
+        }
+
         public void Configure(
             StrategyBuildTool tool,
             Vector2Int origin,

@@ -4,8 +4,8 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyWolfAgent
     {
-        private const float WolfPathLogCooldownSeconds = 10f;
-        private const float WolfStateLogCooldownSeconds = 6f;
+        private const float WolfPathLogCooldownSeconds = 24f;
+        private const float WolfStateLogCooldownSeconds = 18f;
         private const float WolfStallLogCooldownSeconds = 3.5f;
         private const float WolfStallSeconds = 1.35f;
         private const float WolfStallProgressSqr = 0.000004f;

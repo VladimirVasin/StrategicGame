@@ -94,13 +94,17 @@ namespace ProjectUnknown.Strategy
             blockedWalkCounts = new int[width, height];
             blockedBuildCounts = new int[width, height];
             bridgeWalkableCells = new bool[width, height];
+            System.Diagnostics.Stopwatch generationTimer = System.Diagnostics.Stopwatch.StartNew();
             BuildCells();
+            long buildCellsMs = generationTimer.ElapsedMilliseconds;
             BuildTexture();
+            long buildTextureMs = generationTimer.ElapsedMilliseconds - buildCellsMs;
 
             WorldBounds = new Bounds(
                 Vector3.zero,
                 new Vector3(width * cellSize, height * cellSize, 0f));
 
+            long countStartedMs = generationTimer.ElapsedMilliseconds;
             CountTerrain(
                 out int grass,
                 out int meadow,
@@ -112,7 +116,10 @@ namespace ProjectUnknown.Strategy
                 out int riverShore,
                 out int lakeWater,
                 out int lakeShore);
+            long countTerrainMs = generationTimer.ElapsedMilliseconds - countStartedMs;
+            countStartedMs = generationTimer.ElapsedMilliseconds;
             CountRelief(out int hillCells, out int mountainCells);
+            long countReliefMs = generationTimer.ElapsedMilliseconds - countStartedMs;
             StrategyDebugLogger.Info(
                 "Map",
                 "Generated",
@@ -132,7 +139,12 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("lakeShore", lakeShore),
                 StrategyDebugLogger.F("hillCells", hillCells),
                 StrategyDebugLogger.F("mountainCells", mountainCells),
-                StrategyDebugLogger.F("riverFlow", RiverFlowDirection));
+                StrategyDebugLogger.F("riverFlow", RiverFlowDirection),
+                StrategyDebugLogger.F("durationMs", generationTimer.ElapsedMilliseconds),
+                StrategyDebugLogger.F("buildCellsMs", buildCellsMs),
+                StrategyDebugLogger.F("buildTextureMs", buildTextureMs),
+                StrategyDebugLogger.F("countTerrainMs", countTerrainMs),
+                StrategyDebugLogger.F("countReliefMs", countReliefMs));
         }
 
         public bool TryGetCell(int x, int y, out CityMapCell cell)

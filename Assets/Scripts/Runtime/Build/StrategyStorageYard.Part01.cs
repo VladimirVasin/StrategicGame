@@ -293,13 +293,15 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            StrategyLumberjackCamp[] camps = Object.FindObjectsByType<StrategyLumberjackCamp>();
             StrategyLumberjackCamp bestCamp = null;
             float bestDistance = float.MaxValue;
-            for (int i = 0; i < camps.Length; i++)
+            IReadOnlyList<StrategyPlacedBuilding> buildings = StrategyPlacedBuilding.ActiveBuildings;
+            for (int i = 0; i < buildings.Count; i++)
             {
-                StrategyLumberjackCamp camp = camps[i];
-                if (camp == null || camp.AvailableLogs <= 0)
+                StrategyPlacedBuilding building = buildings[i];
+                if (building == null
+                    || !building.TryGetComponent(out StrategyLumberjackCamp camp)
+                    || camp.AvailableLogs <= 0)
                 {
                     continue;
                 }
@@ -329,13 +331,15 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            StrategyStonecutterCamp[] camps = Object.FindObjectsByType<StrategyStonecutterCamp>();
             StrategyStonecutterCamp bestCamp = null;
             float bestDistance = float.MaxValue;
-            for (int i = 0; i < camps.Length; i++)
+            IReadOnlyList<StrategyPlacedBuilding> buildings = StrategyPlacedBuilding.ActiveBuildings;
+            for (int i = 0; i < buildings.Count; i++)
             {
-                StrategyStonecutterCamp camp = camps[i];
-                if (camp == null || camp.AvailableStone <= 0)
+                StrategyPlacedBuilding building = buildings[i];
+                if (building == null
+                    || !building.TryGetComponent(out StrategyStonecutterCamp camp)
+                    || camp.AvailableStone <= 0)
                 {
                     continue;
                 }

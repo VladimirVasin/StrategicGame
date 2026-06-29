@@ -58,8 +58,8 @@ namespace ProjectUnknown.Strategy
         public static int GetTotalAvailableConstructionStone()
         {
             int total = 0;
-            StrategyStonecutterCamp[] camps = Object.FindObjectsByType<StrategyStonecutterCamp>();
-            for (int i = 0; i < camps.Length; i++)
+            List<StrategyStonecutterCamp> camps = GetActiveCamps();
+            for (int i = 0; i < camps.Count; i++)
             {
                 StrategyStonecutterCamp camp = camps[i];
                 if (camp != null)
@@ -79,8 +79,8 @@ namespace ProjectUnknown.Strategy
             }
 
             int remaining = requested;
-            StrategyStonecutterCamp[] camps = GetCampsSortedByDistance(nearWorld);
-            for (int i = 0; i < camps.Length && remaining > 0; i++)
+            List<StrategyStonecutterCamp> camps = GetCampsSortedByDistance(nearWorld);
+            for (int i = 0; i < camps.Count && remaining > 0; i++)
             {
                 StrategyStonecutterCamp camp = camps[i];
                 if (camp == null)
@@ -102,8 +102,8 @@ namespace ProjectUnknown.Strategy
             }
 
             int remaining = requested;
-            StrategyStonecutterCamp[] camps = GetCampsSortedByDistance(nearWorld);
-            for (int i = 0; i < camps.Length && remaining > 0; i++)
+            List<StrategyStonecutterCamp> camps = GetCampsSortedByDistance(nearWorld);
+            for (int i = 0; i < camps.Count && remaining > 0; i++)
             {
                 StrategyStonecutterCamp camp = camps[i];
                 if (camp == null)
@@ -130,8 +130,8 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            StrategyStonecutterCamp[] camps = GetCampsSortedByDistance(nearWorld);
-            for (int i = 0; i < camps.Length; i++)
+            List<StrategyStonecutterCamp> camps = GetCampsSortedByDistance(nearWorld);
+            for (int i = 0; i < camps.Count; i++)
             {
                 StrategyStonecutterCamp candidate = camps[i];
                 if (candidate == null || !candidate.HasAvailableConstructionReservation(owner))
@@ -156,8 +156,8 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            StrategyStonecutterCamp[] camps = Object.FindObjectsByType<StrategyStonecutterCamp>();
-            for (int i = 0; i < camps.Length; i++)
+            List<StrategyStonecutterCamp> camps = GetActiveCamps();
+            for (int i = 0; i < camps.Count; i++)
             {
                 camps[i]?.ReleaseConstructionReservation(owner);
             }

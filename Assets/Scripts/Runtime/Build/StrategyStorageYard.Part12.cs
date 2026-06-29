@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace ProjectUnknown.Strategy
@@ -49,9 +50,9 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            StrategyStorageYard[] yards = GetYardsSortedByDistance(nearWorld);
+            List<StrategyStorageYard> yards = GetYardsSortedByDistance(nearWorld);
             int remaining = amount;
-            for (int i = 0; i < yards.Length && remaining > 0; i++)
+            for (int i = 0; i < yards.Count && remaining > 0; i++)
             {
                 StrategyStorageYard yard = yards[i];
                 if (yard == null)

@@ -8,6 +8,7 @@ namespace ProjectUnknown.Strategy
     {
         private readonly List<StrategyResidentAgent> workers = new();
         private readonly List<StrategyResidentAgent> builders = new();
+        private static readonly List<StrategyStorageYard> yardQuery = new();
         private StrategyPlacedBuilding building;
         private CityMapController map;
         private StrategyPopulationController population;
@@ -35,6 +36,7 @@ namespace ProjectUnknown.Strategy
         private int potteryStored;
         private int planksStored;
         private int toolsStored;
+        private static Vector3 yardSortWorld;
 
         public IReadOnlyList<StrategyResidentAgent> Workers => workers;
         public IReadOnlyList<StrategyResidentAgent> Builders => builders;
@@ -96,8 +98,8 @@ namespace ProjectUnknown.Strategy
             int logs = 0;
             int stone = 0;
             int planks = 0;
-            StrategyStorageYard[] yards = Object.FindObjectsByType<StrategyStorageYard>();
-            for (int i = 0; i < yards.Length; i++)
+            List<StrategyStorageYard> yards = GetActiveYards();
+            for (int i = 0; i < yards.Count; i++)
             {
                 StrategyStorageYard yard = yards[i];
                 if (yard == null)
@@ -148,13 +150,13 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            StrategyStorageYard[] yards = GetYardsSortedByDistance(nearWorld);
+            List<StrategyStorageYard> yards = GetYardsSortedByDistance(nearWorld);
             int remainingLogs = cost.Logs;
             remainingLogs -= StrategyLooseConstructionResourcePile.SpendAvailableResources(
                 StrategyConstructionResourceKind.Logs,
                 remainingLogs,
                 nearWorld);
-            for (int i = 0; i < yards.Length && remainingLogs > 0; i++)
+            for (int i = 0; i < yards.Count && remainingLogs > 0; i++)
             {
                 remainingLogs -= yards[i].SpendAvailableLogs(remainingLogs);
             }
@@ -164,7 +166,7 @@ namespace ProjectUnknown.Strategy
                 StrategyConstructionResourceKind.Stone,
                 remainingStone,
                 nearWorld);
-            for (int i = 0; i < yards.Length && remainingStone > 0; i++)
+            for (int i = 0; i < yards.Count && remainingStone > 0; i++)
             {
                 remainingStone -= yards[i].SpendAvailableStone(remainingStone);
             }
@@ -174,7 +176,7 @@ namespace ProjectUnknown.Strategy
                 StrategyConstructionResourceKind.Planks,
                 remainingPlanks,
                 nearWorld);
-            for (int i = 0; i < yards.Length && remainingPlanks > 0; i++)
+            for (int i = 0; i < yards.Count && remainingPlanks > 0; i++)
             {
                 remainingPlanks -= yards[i].SpendAvailablePlanks(remainingPlanks);
             }
@@ -228,8 +230,8 @@ namespace ProjectUnknown.Strategy
                 StrategyConstructionResourceKind.Logs,
                 remainingLogs,
                 nearWorld);
-            StrategyStorageYard[] yards = GetYardsSortedByDistance(nearWorld);
-            for (int i = 0; i < yards.Length && remainingLogs > 0; i++)
+            List<StrategyStorageYard> yards = GetYardsSortedByDistance(nearWorld);
+            for (int i = 0; i < yards.Count && remainingLogs > 0; i++)
             {
                 int reserved = yards[i].ReserveConstructionLogs(owner, remainingLogs);
                 remainingLogs -= reserved;
@@ -241,7 +243,7 @@ namespace ProjectUnknown.Strategy
                 StrategyConstructionResourceKind.Stone,
                 remainingStone,
                 nearWorld);
-            for (int i = 0; i < yards.Length && remainingStone > 0; i++)
+            for (int i = 0; i < yards.Count && remainingStone > 0; i++)
             {
                 int reserved = yards[i].ReserveConstructionStone(owner, remainingStone);
                 remainingStone -= reserved;
@@ -253,7 +255,7 @@ namespace ProjectUnknown.Strategy
                 StrategyConstructionResourceKind.Planks,
                 remainingPlanks,
                 nearWorld);
-            for (int i = 0; i < yards.Length && remainingPlanks > 0; i++)
+            for (int i = 0; i < yards.Count && remainingPlanks > 0; i++)
             {
                 int reserved = yards[i].ReserveConstructionPlanks(owner, remainingPlanks);
                 remainingPlanks -= reserved;
@@ -282,8 +284,8 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            StrategyStorageYard[] yards = Object.FindObjectsByType<StrategyStorageYard>();
-            for (int i = 0; i < yards.Length; i++)
+            List<StrategyStorageYard> yards = GetActiveYards();
+            for (int i = 0; i < yards.Count; i++)
             {
                 StrategyStorageYard yard = yards[i];
                 if (yard != null)
@@ -318,8 +320,8 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
-            StrategyStorageYard[] yards = GetYardsSortedByDistance(nearWorld);
-            for (int i = 0; i < yards.Length; i++)
+            List<StrategyStorageYard> yards = GetYardsSortedByDistance(nearWorld);
+            for (int i = 0; i < yards.Count; i++)
             {
                 StrategyStorageYard yard = yards[i];
                 int available = yard != null ? yard.GetAvailableReservationAmount(owner, kind) : 0;
@@ -347,8 +349,8 @@ namespace ProjectUnknown.Strategy
 
         public static bool TryFindNearestStorageYard(Vector3 nearWorld, out StrategyStorageYard yard)
         {
-            StrategyStorageYard[] yards = GetYardsSortedByDistance(nearWorld);
-            for (int i = 0; i < yards.Length; i++)
+            List<StrategyStorageYard> yards = GetYardsSortedByDistance(nearWorld);
+            for (int i = 0; i < yards.Count; i++)
             {
                 if (yards[i] != null)
                 {
@@ -366,8 +368,8 @@ namespace ProjectUnknown.Strategy
             out StrategyStorageYard yard,
             out Vector2Int dropoffCell)
         {
-            StrategyStorageYard[] yards = GetYardsSortedByDistance(nearWorld);
-            for (int i = 0; i < yards.Length; i++)
+            List<StrategyStorageYard> yards = GetYardsSortedByDistance(nearWorld);
+            for (int i = 0; i < yards.Count; i++)
             {
                 yard = yards[i];
                 if (yard != null && yard.TryFindDropoffCell(out dropoffCell))

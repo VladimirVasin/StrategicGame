@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace ProjectUnknown.Strategy
@@ -21,11 +22,11 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            StrategyStorageYard[] yards = GetYardsSortedByDistance(targetHouse.FootprintBounds.center);
+            List<StrategyStorageYard> yards = GetYardsSortedByDistance(targetHouse.FootprintBounds.center);
             int requestedDemand = targetHouse.Resources != null
                 ? targetHouse.Resources.GetPotteryDemandForCooking(CalculateHouseDailyRationNeed(targetHouse))
                 : 0;
-            for (int i = 0; i < yards.Length; i++)
+            for (int i = 0; i < yards.Count; i++)
             {
                 if (yards[i] != null
                     && yards[i].TryReserveHouseholdPotteryForHouse(owner, targetHouse, out amount, out pickupCell))
@@ -137,8 +138,8 @@ namespace ProjectUnknown.Strategy
         public static int CountAvailableHouseholdPottery()
         {
             int available = 0;
-            StrategyStorageYard[] yards = Object.FindObjectsByType<StrategyStorageYard>();
-            for (int i = 0; i < yards.Length; i++)
+            List<StrategyStorageYard> yards = GetActiveYards();
+            for (int i = 0; i < yards.Count; i++)
             {
                 available += yards[i] != null ? yards[i].GetAvailableLogisticsAmount(StrategyResourceType.Pottery) : 0;
             }
@@ -150,8 +151,8 @@ namespace ProjectUnknown.Strategy
         {
             focus = Vector3.zero;
             int available = 0;
-            StrategyStorageYard[] yards = Object.FindObjectsByType<StrategyStorageYard>();
-            for (int i = 0; i < yards.Length; i++)
+            List<StrategyStorageYard> yards = GetActiveYards();
+            for (int i = 0; i < yards.Count; i++)
             {
                 available += yards[i] != null ? yards[i].GetAvailableLogisticsAmount(StrategyResourceType.Pottery) : 0;
             }
@@ -163,8 +164,8 @@ namespace ProjectUnknown.Strategy
 
             int demand = 0;
             Vector3 weighted = Vector3.zero;
-            StrategyPlacedBuilding[] buildings = Object.FindObjectsByType<StrategyPlacedBuilding>();
-            for (int i = 0; i < buildings.Length; i++)
+            IReadOnlyList<StrategyPlacedBuilding> buildings = StrategyPlacedBuilding.ActiveBuildings;
+            for (int i = 0; i < buildings.Count; i++)
             {
                 StrategyPlacedBuilding house = buildings[i];
                 if (house == null || house.Tool != StrategyBuildTool.House || house.Resources == null)
@@ -193,8 +194,8 @@ namespace ProjectUnknown.Strategy
         public static int CountRawHouseholdPotteryDemand()
         {
             int demand = 0;
-            StrategyPlacedBuilding[] buildings = Object.FindObjectsByType<StrategyPlacedBuilding>();
-            for (int i = 0; i < buildings.Length; i++)
+            IReadOnlyList<StrategyPlacedBuilding> buildings = StrategyPlacedBuilding.ActiveBuildings;
+            for (int i = 0; i < buildings.Count; i++)
             {
                 StrategyPlacedBuilding house = buildings[i];
                 if (house != null && house.Tool == StrategyBuildTool.House && house.Resources != null)
@@ -245,7 +246,7 @@ namespace ProjectUnknown.Strategy
 
         private static void LogHouseholdPotteryReserveFailed(
             StrategyPlacedBuilding house,
-            StrategyStorageYard[] yards,
+            IReadOnlyList<StrategyStorageYard> yards,
             int requestedDemand)
         {
             int yardsChecked = 0;
@@ -255,7 +256,7 @@ namespace ProjectUnknown.Strategy
             bool anyDropoff = false;
             if (yards != null)
             {
-                for (int i = 0; i < yards.Length; i++)
+                for (int i = 0; i < yards.Count; i++)
                 {
                     StrategyStorageYard yard = yards[i];
                     if (yard == null)

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace ProjectUnknown.Strategy
@@ -51,9 +52,9 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            StrategyGranary[] granaries = GetGranariesSortedByDistance(nearWorld);
+            List<StrategyGranary> granaries = GetGranariesSortedByDistance(nearWorld);
             int available = 0;
-            for (int i = 0; i < granaries.Length; i++)
+            for (int i = 0; i < granaries.Count; i++)
             {
                 StrategyGranary granary = granaries[i];
                 available += granary != null ? granary.GetAvailableTradeFood(resource) : 0;
@@ -65,7 +66,7 @@ namespace ProjectUnknown.Strategy
             }
 
             int remaining = amount;
-            for (int i = 0; i < granaries.Length && remaining > 0; i++)
+            for (int i = 0; i < granaries.Count && remaining > 0; i++)
             {
                 StrategyGranary granary = granaries[i];
                 if (granary == null)
@@ -101,8 +102,8 @@ namespace ProjectUnknown.Strategy
             }
 
             int total = 0;
-            StrategyGranary[] granaries = Object.FindObjectsByType<StrategyGranary>();
-            for (int i = 0; i < granaries.Length; i++)
+            List<StrategyGranary> granaries = GetActiveGranaries();
+            for (int i = 0; i < granaries.Count; i++)
             {
                 total += granaries[i] != null ? granaries[i].GetAvailableTradeFood(resource) : 0;
             }

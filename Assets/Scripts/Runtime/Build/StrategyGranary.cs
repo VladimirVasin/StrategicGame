@@ -9,6 +9,7 @@ namespace ProjectUnknown.Strategy
         public const int MaxWorkers = 2;
 
         private readonly List<StrategyResidentAgent> workers = new();
+        private static readonly List<StrategyGranary> granaryQuery = new();
         private StrategyPlacedBuilding building;
         private CityMapController map;
         private StrategyPopulationController population;
@@ -21,6 +22,7 @@ namespace ProjectUnknown.Strategy
         private int gameStored;
         private int fishStored;
         private int eggsStored;
+        private static Vector3 granarySortWorld;
 
         public IReadOnlyList<StrategyResidentAgent> Workers => workers;
         public int WorkerCount => workers.Count;
@@ -42,8 +44,8 @@ namespace ProjectUnknown.Strategy
         public static int GetTotalSettlementFood()
         {
             int total = 0;
-            StrategyGranary[] granaries = Object.FindObjectsByType<StrategyGranary>();
-            for (int i = 0; i < granaries.Length; i++)
+            List<StrategyGranary> granaries = GetActiveGranaries();
+            for (int i = 0; i < granaries.Count; i++)
             {
                 StrategyGranary granary = granaries[i];
                 if (granary != null)
@@ -58,8 +60,8 @@ namespace ProjectUnknown.Strategy
         public static float GetTotalSettlementFoodRations()
         {
             float total = 0f;
-            StrategyGranary[] granaries = Object.FindObjectsByType<StrategyGranary>();
-            for (int i = 0; i < granaries.Length; i++)
+            List<StrategyGranary> granaries = GetActiveGranaries();
+            for (int i = 0; i < granaries.Count; i++)
             {
                 StrategyGranary granary = granaries[i];
                 if (granary != null)
@@ -85,27 +87,16 @@ namespace ProjectUnknown.Strategy
                 return 0;
             }
 
-            List<StrategyGranary> granaries = new();
-            StrategyGranary[] foundGranaries = Object.FindObjectsByType<StrategyGranary>();
-            for (int i = 0; i < foundGranaries.Length; i++)
-            {
-                StrategyGranary granary = foundGranaries[i];
-                if (granary != null && granary.TotalFoodStored > 0)
-                {
-                    granaries.Add(granary);
-                }
-            }
-
-            granaries.Sort((left, right) =>
-            {
-                float leftDistance = (left.FootprintBounds.center - requesterWorld).sqrMagnitude;
-                float rightDistance = (right.FootprintBounds.center - requesterWorld).sqrMagnitude;
-                return leftDistance.CompareTo(rightDistance);
-            });
-
+            List<StrategyGranary> granaries = GetGranariesSortedByDistance(requesterWorld);
             for (int i = 0; i < granaries.Count && remaining > 0; i++)
             {
-                int consumed = granaries[i].ConsumeFood(remaining, out int granaryGame, out int granaryFish);
+                StrategyGranary granary = granaries[i];
+                if (granary == null || granary.TotalFoodStored <= 0)
+                {
+                    continue;
+                }
+
+                int consumed = granary.ConsumeFood(remaining, out int granaryGame, out int granaryFish);
                 remaining -= consumed;
                 gameTaken += granaryGame;
                 fishTaken += granaryFish;
@@ -131,8 +122,8 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            StrategyGranary[] granaries = GetGranariesSortedByDistance(requesterWorld);
-            for (int i = 0; i < granaries.Length; i++)
+            List<StrategyGranary> granaries = GetGranariesSortedByDistance(requesterWorld);
+            for (int i = 0; i < granaries.Count; i++)
             {
                 StrategyGranary candidate = granaries[i];
                 if (candidate == null
@@ -168,27 +159,16 @@ namespace ProjectUnknown.Strategy
             }
 
             float suppliedRations = 0f;
-            List<StrategyGranary> granaries = new();
-            StrategyGranary[] foundGranaries = Object.FindObjectsByType<StrategyGranary>();
-            for (int i = 0; i < foundGranaries.Length; i++)
-            {
-                StrategyGranary granary = foundGranaries[i];
-                if (granary != null && granary.AvailableHouseholdRationValue > 0f)
-                {
-                    granaries.Add(granary);
-                }
-            }
-
-            granaries.Sort((left, right) =>
-            {
-                float leftDistance = (left.FootprintBounds.center - requesterWorld).sqrMagnitude;
-                float rightDistance = (right.FootprintBounds.center - requesterWorld).sqrMagnitude;
-                return leftDistance.CompareTo(rightDistance);
-            });
-
+            List<StrategyGranary> granaries = GetGranariesSortedByDistance(requesterWorld);
             for (int i = 0; i < granaries.Count && remaining > 0.01f; i++)
             {
-                float supplied = granaries[i].ConsumeFoodRations(remaining, out int granaryGame, out int granaryFish);
+                StrategyGranary granary = granaries[i];
+                if (granary == null || granary.AvailableHouseholdRationValue <= 0f)
+                {
+                    continue;
+                }
+
+                float supplied = granary.ConsumeFoodRations(remaining, out int granaryGame, out int granaryFish);
                 remaining = Mathf.Max(0f, remaining - supplied);
                 suppliedRations += supplied;
                 gameTaken += granaryGame;
@@ -200,8 +180,8 @@ namespace ProjectUnknown.Strategy
 
         public static bool TryFindNearestGranary(Vector3 nearWorld, out StrategyGranary granary)
         {
-            StrategyGranary[] granaries = GetGranariesSortedByDistance(nearWorld);
-            for (int i = 0; i < granaries.Length; i++)
+            List<StrategyGranary> granaries = GetGranariesSortedByDistance(nearWorld);
+            for (int i = 0; i < granaries.Count; i++)
             {
                 if (granaries[i] != null)
                 {
@@ -219,8 +199,8 @@ namespace ProjectUnknown.Strategy
             out StrategyGranary granary,
             out Vector2Int dropoffCell)
         {
-            StrategyGranary[] granaries = GetGranariesSortedByDistance(nearWorld);
-            for (int i = 0; i < granaries.Length; i++)
+            List<StrategyGranary> granaries = GetGranariesSortedByDistance(nearWorld);
+            for (int i = 0; i < granaries.Count; i++)
             {
                 granary = granaries[i];
                 if (granary != null && granary.TryFindDropoffCell(out dropoffCell))

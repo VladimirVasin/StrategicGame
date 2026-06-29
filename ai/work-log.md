@@ -8,6 +8,36 @@ Last updated: 2026-06-29
 
 ## Done
 
+### 2026-06-29 - Active-registry logistics optimization pass
+
+- Added `StrategyPlacedBuilding.CopyActiveComponents<T>()` and replaced performance-sensitive scene-wide component searches in Storage Yard, Granary, Stonecutter Camp, Forage respawn, household food fallback, Hauler construction fallback, and Hunter Camp wildlife support spawn paths with active-building or active-construction-site registry queries.
+- Replaced Storage Yard production-node discovery from `FindObjectsByType<MonoBehaviour>()` with active placed-building component checks for Sawmill, Kiln, and Forge logistics nodes.
+- Kept behavior invariant: nearest-source sorting, stock/reservation logic, construction-site priority, forage support caps, and hunter support spawn validation stay unchanged.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; no C# files under `Assets/Scripts/Runtime` exceed 500 lines.
+
+### 2026-06-29 - Runtime optimization pass from debug log
+
+- Replaced AutoWorkforce scene-wide worksite cache refreshes with active-building and active-construction-site cache rebuilds, refreshing on active-count changes or a longer fallback interval.
+- Added active construction-site registration so AutoWorkforce can avoid repeated `FindObjectsByType` scans while still seeing started/completed sites.
+- Added `cacheRefreshMs` to `AutoWorkforceTick` diagnostics and added map generation subphase timings to `Map/Generated`.
+- Added short cooldowns for failed wildlife migration target cells and reduced routine wolf path/state debug-log frequency.
+- Split oversized Build menu driver HUD/animation code into partial files while preserving behavior, so the runtime C# files stay within the 500-line project limit.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-06-29 - Hunter Camp-local wildlife support spawn
+
+- Added periodic Hunter Camp-local wildlife support spawns so under-supplied camps can seed huntable animals in a controlled 7-11 cell ring around the camp.
+- Rabbit support spawns stay under local target/soft caps, respect global rabbit caps, normal hidden wildlife spawn checks, structure buffers, and local density checks.
+- Deer support spawns only for Hunter Camps with the Deer Hunting Kit upgrade, with stricter local target/soft caps and the same hidden/density validation.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-06-29 - Forage camp-local respawn tuning
+
+- Increased the active forage resource pool from a 280 hard-filled map cap to a 310 initial target with 380 total capacity, leaving headroom for later Forager Camp-local growth.
+- Shortened gathered forage respawn delays and added periodic support spawns for Forager Camps that have too few forage nodes in their work radius.
+- Respawn candidates now require both a mature-tree anchor and an active Forager Camp work-radius match, with local cell-density and per-camp soft caps to prevent too many forage nodes clustering in the same area.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
 ### 2026-06-29 - Hauler construction material fallback
 
 - Storage Yard Haulers now try a fallback construction-material delivery job only after normal storage hauling, production input delivery, production output hauling, and Granary food hauling have no available orders.

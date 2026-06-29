@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace ProjectUnknown.Strategy
@@ -63,10 +64,10 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            IStrategyProductionLogisticsNode[] nodes = GetProductionNodesSortedByDistance(FootprintBounds.center);
+            List<IStrategyProductionLogisticsNode> nodes = GetProductionNodesSortedByDistance(FootprintBounds.center);
             IStrategyProductionLogisticsNode best = null;
             float bestDistance = float.MaxValue;
-            for (int i = 0; i < nodes.Length; i++)
+            for (int i = 0; i < nodes.Count; i++)
             {
                 IStrategyProductionLogisticsNode node = nodes[i];
                 if (node == null
@@ -157,8 +158,8 @@ namespace ProjectUnknown.Strategy
         private static int CountAvailablePlankSources()
         {
             int count = 0;
-            IStrategyProductionLogisticsNode[] nodes = GetProductionNodesSortedByDistance(Vector3.zero);
-            for (int i = 0; i < nodes.Length; i++)
+            List<IStrategyProductionLogisticsNode> nodes = GetProductionNodesSortedByDistance(Vector3.zero);
+            for (int i = 0; i < nodes.Count; i++)
             {
                 IStrategyProductionLogisticsNode node = nodes[i];
                 if (node != null

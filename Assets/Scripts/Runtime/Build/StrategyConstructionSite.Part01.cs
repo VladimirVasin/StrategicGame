@@ -120,6 +120,7 @@ namespace ProjectUnknown.Strategy
 
         private void OnDestroy()
         {
+            UnregisterActiveSite();
             StrategyStorageYard.ReleaseConstructionReservations(this);
             for (int i = builders.Count - 1; i >= 0; i--)
             {

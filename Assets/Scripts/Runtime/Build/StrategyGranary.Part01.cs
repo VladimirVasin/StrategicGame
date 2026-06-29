@@ -359,61 +359,78 @@ namespace ProjectUnknown.Strategy
             gameSources = 0;
             fishSources = 0;
             eggSources = 0;
-            StrategyHunterCamp[] camps = Object.FindObjectsByType<StrategyHunterCamp>();
-            for (int i = 0; i < camps.Length; i++)
+            IReadOnlyList<StrategyPlacedBuilding> buildings = StrategyPlacedBuilding.ActiveBuildings;
+            for (int i = 0; i < buildings.Count; i++)
             {
-                if (camps[i] != null && camps[i].AvailableGame > 0)
+                StrategyPlacedBuilding building = buildings[i];
+                if (building != null
+                    && building.TryGetComponent(out StrategyHunterCamp camp)
+                    && camp != null
+                    && camp.AvailableGame > 0)
                 {
                     gameSources++;
                 }
             }
 
-            StrategyFisherHut[] huts = Object.FindObjectsByType<StrategyFisherHut>();
-            for (int i = 0; i < huts.Length; i++)
+            for (int i = 0; i < buildings.Count; i++)
             {
-                if (huts[i] != null && huts[i].AvailableFish > 0)
+                StrategyPlacedBuilding building = buildings[i];
+                if (building != null
+                    && building.TryGetComponent(out StrategyFisherHut hut)
+                    && hut != null
+                    && hut.AvailableFish > 0)
                 {
                     fishSources++;
                 }
             }
 
-            StrategyChickenCoop[] coops = Object.FindObjectsByType<StrategyChickenCoop>();
-            for (int i = 0; i < coops.Length; i++)
+            for (int i = 0; i < buildings.Count; i++)
             {
-                if (coops[i] != null && coops[i].AvailableEggs > 0)
+                StrategyPlacedBuilding building = buildings[i];
+                if (building != null
+                    && building.TryGetComponent(out StrategyChickenCoop coop)
+                    && coop != null
+                    && coop.AvailableEggs > 0)
                 {
                     eggSources++;
                 }
             }
         }
 
-        private static StrategyGranary[] GetGranariesSortedByDistance(Vector3 nearWorld)
+        private static List<StrategyGranary> GetActiveGranaries()
         {
-            StrategyGranary[] granaries = Object.FindObjectsByType<StrategyGranary>();
-            System.Array.Sort(
-                granaries,
-                (left, right) =>
-                {
-                    if (left == null && right == null)
-                    {
-                        return 0;
-                    }
+            StrategyPlacedBuilding.CopyActiveComponents(granaryQuery);
+            return granaryQuery;
+        }
 
-                    if (left == null)
-                    {
-                        return 1;
-                    }
+        private static List<StrategyGranary> GetGranariesSortedByDistance(Vector3 nearWorld)
+        {
+            StrategyPlacedBuilding.CopyActiveComponents(granaryQuery);
+            granarySortWorld = nearWorld;
+            granaryQuery.Sort(CompareGranariesByDistance);
+            return granaryQuery;
+        }
 
-                    if (right == null)
-                    {
-                        return -1;
-                    }
+        private static int CompareGranariesByDistance(StrategyGranary left, StrategyGranary right)
+        {
+            if (left == null && right == null)
+            {
+                return 0;
+            }
 
-                    float leftDistance = (left.FootprintBounds.center - nearWorld).sqrMagnitude;
-                    float rightDistance = (right.FootprintBounds.center - nearWorld).sqrMagnitude;
-                    return leftDistance.CompareTo(rightDistance);
-                });
-            return granaries;
+            if (left == null)
+            {
+                return 1;
+            }
+
+            if (right == null)
+            {
+                return -1;
+            }
+
+            float leftDistance = (left.FootprintBounds.center - granarySortWorld).sqrMagnitude;
+            float rightDistance = (right.FootprintBounds.center - granarySortWorld).sqrMagnitude;
+            return leftDistance.CompareTo(rightDistance);
         }
 
         private void OnDestroy()

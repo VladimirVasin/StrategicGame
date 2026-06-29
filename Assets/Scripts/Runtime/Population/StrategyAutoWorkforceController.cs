@@ -7,7 +7,7 @@ namespace ProjectUnknown.Strategy
     public sealed partial class StrategyAutoWorkforceController : MonoBehaviour
     {
         private const float TickInterval = 3f;
-        private const float WorksiteCacheRefreshInterval = 8f;
+        private const float WorksiteCacheRefreshInterval = 24f;
         private const float DemandLogInterval = 12f;
         private const float ManualOverrideSeconds = 45f;
         private const float NoFreeAdultFullScanRetrySeconds = 45f;
@@ -43,6 +43,9 @@ namespace ProjectUnknown.Strategy
         private float nextWorksiteCacheRefreshTime;
         private float nextNoFreeAdultFullScanTime;
         private float nextAutoWorkforceStatusLogTime;
+        private int cachedBuildingCount = -1;
+        private int cachedConstructionSiteCount = -1;
+        private int lastWorksiteCacheRefreshMs;
         private string lastStatus = "Auto workforce ready";
         private string lastLoggedTickStatus = string.Empty;
         private string lastLoggedTickReason = string.Empty;
@@ -227,6 +230,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("fallbackAssigned", fallbackAssigned),
                 StrategyDebugLogger.F("assigned", assigned),
                 StrategyDebugLogger.F("durationMs", durationMs),
+                StrategyDebugLogger.F("cacheRefreshMs", lastWorksiteCacheRefreshMs),
                 StrategyDebugLogger.F("status", lastStatus),
                 StrategyDebugLogger.F("reason", reason));
         }
@@ -277,39 +281,26 @@ namespace ProjectUnknown.Strategy
 
         private void RefreshWorksiteCache()
         {
-            cachedConstructionSites = FindSceneObjects<StrategyConstructionSite>();
-            cachedStorageYards = FindSceneObjects<StrategyStorageYard>();
-            cachedLumberjackCamps = FindSceneObjects<StrategyLumberjackCamp>();
-            cachedStonecutterCamps = FindSceneObjects<StrategyStonecutterCamp>();
-            cachedMines = FindSceneObjects<StrategyMine>();
-            cachedCoalPits = FindSceneObjects<StrategyCoalPit>();
-            cachedClayPits = FindSceneObjects<StrategyClayPit>();
-            cachedSawmills = FindSceneObjects<StrategySawmill>();
-            cachedKilns = FindSceneObjects<StrategyKiln>();
-            cachedForges = FindSceneObjects<StrategyForge>();
-            cachedHunterCamps = FindSceneObjects<StrategyHunterCamp>();
-            cachedFisherHuts = FindSceneObjects<StrategyFisherHut>();
-            cachedForagerCamps = FindSceneObjects<StrategyForagerCamp>();
-            cachedChickenCoops = FindSceneObjects<StrategyChickenCoop>();
-            cachedGranaries = FindSceneObjects<StrategyGranary>();
-            cachedPlacedBuildings = FindSceneObjects<StrategyPlacedBuilding>();
-        }
-
-        private static T[] FindSceneObjects<T>()
-            where T : UnityEngine.Object
-        {
-            return UnityEngine.Object.FindObjectsByType<T>(FindObjectsInactive.Exclude);
+            float startedAt = Time.realtimeSinceStartup;
+            RefreshWorksiteCacheFromActiveObjects();
+            lastWorksiteCacheRefreshMs = Mathf.RoundToInt((Time.realtimeSinceStartup - startedAt) * 1000f);
         }
 
         private void RefreshWorksiteCacheIfDue(bool force)
         {
             float now = Time.unscaledTime;
-            if (!force && now < nextWorksiteCacheRefreshTime)
+            int buildingCount = StrategyPlacedBuilding.ActiveBuildings.Count;
+            int constructionSiteCount = StrategyConstructionSite.ActiveSites.Count;
+            bool changed = buildingCount != cachedBuildingCount
+                || constructionSiteCount != cachedConstructionSiteCount;
+            if (!force && !changed && now < nextWorksiteCacheRefreshTime)
             {
                 return;
             }
 
             RefreshWorksiteCache();
+            cachedBuildingCount = buildingCount;
+            cachedConstructionSiteCount = constructionSiteCount;
             nextWorksiteCacheRefreshTime = now + WorksiteCacheRefreshInterval;
         }
 

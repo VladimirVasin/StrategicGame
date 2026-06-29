@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace ProjectUnknown.Strategy
@@ -51,12 +52,16 @@ namespace ProjectUnknown.Strategy
             StrategyForagerCamp forageSource = null;
             StrategyChickenCoop eggSource = null;
             float bestDistance = float.MaxValue;
+            IReadOnlyList<StrategyPlacedBuilding> buildings = StrategyPlacedBuilding.ActiveBuildings;
 
-            StrategyHunterCamp[] hunterCamps = Object.FindObjectsByType<StrategyHunterCamp>();
-            for (int i = 0; i < hunterCamps.Length; i++)
+            for (int i = 0; i < buildings.Count; i++)
             {
-                StrategyHunterCamp camp = hunterCamps[i];
-                if (camp == null || camp.AvailableGame <= 0 || !camp.TryFindDropoffCell(out Vector2Int cell))
+                StrategyPlacedBuilding building = buildings[i];
+                if (building == null
+                    || !building.TryGetComponent(out StrategyHunterCamp camp)
+                    || camp == null
+                    || camp.AvailableGame <= 0
+                    || !camp.TryFindDropoffCell(out Vector2Int cell))
                 {
                     continue;
                 }
@@ -73,11 +78,14 @@ namespace ProjectUnknown.Strategy
                 }
             }
 
-            StrategyFisherHut[] fisherHuts = Object.FindObjectsByType<StrategyFisherHut>();
-            for (int i = 0; i < fisherHuts.Length; i++)
+            for (int i = 0; i < buildings.Count; i++)
             {
-                StrategyFisherHut hut = fisherHuts[i];
-                if (hut == null || hut.AvailableFish <= 0 || !hut.TryFindDropoffCell(out Vector2Int cell))
+                StrategyPlacedBuilding building = buildings[i];
+                if (building == null
+                    || !building.TryGetComponent(out StrategyFisherHut hut)
+                    || hut == null
+                    || hut.AvailableFish <= 0
+                    || !hut.TryFindDropoffCell(out Vector2Int cell))
                 {
                     continue;
                 }
@@ -94,11 +102,14 @@ namespace ProjectUnknown.Strategy
                 }
             }
 
-            StrategyForagerCamp[] foragerCamps = Object.FindObjectsByType<StrategyForagerCamp>();
-            for (int i = 0; i < foragerCamps.Length; i++)
+            for (int i = 0; i < buildings.Count; i++)
             {
-                StrategyForagerCamp camp = foragerCamps[i];
-                if (camp == null || camp.AvailableForage <= 0 || !camp.TryFindDropoffCell(out Vector2Int cell))
+                StrategyPlacedBuilding building = buildings[i];
+                if (building == null
+                    || !building.TryGetComponent(out StrategyForagerCamp camp)
+                    || camp == null
+                    || camp.AvailableForage <= 0
+                    || !camp.TryFindDropoffCell(out Vector2Int cell))
                 {
                     continue;
                 }
@@ -115,11 +126,14 @@ namespace ProjectUnknown.Strategy
                 }
             }
 
-            StrategyChickenCoop[] chickenCoops = Object.FindObjectsByType<StrategyChickenCoop>();
-            for (int i = 0; i < chickenCoops.Length; i++)
+            for (int i = 0; i < buildings.Count; i++)
             {
-                StrategyChickenCoop coop = chickenCoops[i];
-                if (coop == null || coop.AvailableEggs <= 0 || !coop.TryFindDropoffCell(out Vector2Int cell))
+                StrategyPlacedBuilding building = buildings[i];
+                if (building == null
+                    || !building.TryGetComponent(out StrategyChickenCoop coop)
+                    || coop == null
+                    || coop.AvailableEggs <= 0
+                    || !coop.TryFindDropoffCell(out Vector2Int cell))
                 {
                     continue;
                 }

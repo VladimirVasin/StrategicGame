@@ -179,33 +179,40 @@ namespace ProjectUnknown.Strategy
             return total;
         }
 
-        private static StrategyStorageYard[] GetYardsSortedByDistance(Vector3 nearWorld)
+        private static List<StrategyStorageYard> GetActiveYards()
         {
-            StrategyStorageYard[] yards = Object.FindObjectsByType<StrategyStorageYard>();
-            System.Array.Sort(
-                yards,
-                (left, right) =>
-                {
-                    if (left == null && right == null)
-                    {
-                        return 0;
-                    }
+            StrategyPlacedBuilding.CopyActiveComponents(yardQuery);
+            return yardQuery;
+        }
 
-                    if (left == null)
-                    {
-                        return 1;
-                    }
+        private static List<StrategyStorageYard> GetYardsSortedByDistance(Vector3 nearWorld)
+        {
+            StrategyPlacedBuilding.CopyActiveComponents(yardQuery);
+            yardSortWorld = nearWorld;
+            yardQuery.Sort(CompareYardsByDistance);
+            return yardQuery;
+        }
 
-                    if (right == null)
-                    {
-                        return -1;
-                    }
+        private static int CompareYardsByDistance(StrategyStorageYard left, StrategyStorageYard right)
+        {
+            if (left == null && right == null)
+            {
+                return 0;
+            }
 
-                    float leftDistance = (left.FootprintBounds.center - nearWorld).sqrMagnitude;
-                    float rightDistance = (right.FootprintBounds.center - nearWorld).sqrMagnitude;
-                    return leftDistance.CompareTo(rightDistance);
-                });
-            return yards;
+            if (left == null)
+            {
+                return 1;
+            }
+
+            if (right == null)
+            {
+                return -1;
+            }
+
+            float leftDistance = (left.FootprintBounds.center - yardSortWorld).sqrMagnitude;
+            float rightDistance = (right.FootprintBounds.center - yardSortWorld).sqrMagnitude;
+            return leftDistance.CompareTo(rightDistance);
         }
 
         public string GetHudStatusText()
@@ -255,21 +262,26 @@ namespace ProjectUnknown.Strategy
         private int CountAvailableSources()
         {
             int count = 0;
-            StrategyLumberjackCamp[] camps = Object.FindObjectsByType<StrategyLumberjackCamp>();
-            for (int i = 0; i < camps.Length; i++)
+            IReadOnlyList<StrategyPlacedBuilding> buildings = StrategyPlacedBuilding.ActiveBuildings;
+            for (int i = 0; i < buildings.Count; i++)
             {
-                StrategyLumberjackCamp camp = camps[i];
-                if (camp != null && camp.AvailableLogs > 0)
+                StrategyPlacedBuilding building = buildings[i];
+                if (building != null
+                    && building.TryGetComponent(out StrategyLumberjackCamp camp)
+                    && camp != null
+                    && camp.AvailableLogs > 0)
                 {
                     count++;
                 }
             }
 
-            StrategyStonecutterCamp[] stoneCamps = Object.FindObjectsByType<StrategyStonecutterCamp>();
-            for (int i = 0; i < stoneCamps.Length; i++)
+            for (int i = 0; i < buildings.Count; i++)
             {
-                StrategyStonecutterCamp camp = stoneCamps[i];
-                if (camp != null && camp.AvailableStone > 0)
+                StrategyPlacedBuilding building = buildings[i];
+                if (building != null
+                    && building.TryGetComponent(out StrategyStonecutterCamp camp)
+                    && camp != null
+                    && camp.AvailableStone > 0)
                 {
                     count++;
                 }
@@ -292,11 +304,14 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
-            StrategyLumberjackCamp[] camps = Object.FindObjectsByType<StrategyLumberjackCamp>();
-            for (int i = 0; i < camps.Length; i++)
+            IReadOnlyList<StrategyPlacedBuilding> buildings = StrategyPlacedBuilding.ActiveBuildings;
+            for (int i = 0; i < buildings.Count; i++)
             {
-                StrategyLumberjackCamp camp = camps[i];
-                if (camp != null && camp.AvailableLogs > 0)
+                StrategyPlacedBuilding building = buildings[i];
+                if (building != null
+                    && building.TryGetComponent(out StrategyLumberjackCamp camp)
+                    && camp != null
+                    && camp.AvailableLogs > 0)
                 {
                     return true;
                 }
@@ -313,11 +328,14 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
-            StrategyStonecutterCamp[] camps = Object.FindObjectsByType<StrategyStonecutterCamp>();
-            for (int i = 0; i < camps.Length; i++)
+            IReadOnlyList<StrategyPlacedBuilding> buildings = StrategyPlacedBuilding.ActiveBuildings;
+            for (int i = 0; i < buildings.Count; i++)
             {
-                StrategyStonecutterCamp camp = camps[i];
-                if (camp != null && camp.AvailableStone > 0)
+                StrategyPlacedBuilding building = buildings[i];
+                if (building != null
+                    && building.TryGetComponent(out StrategyStonecutterCamp camp)
+                    && camp != null
+                    && camp.AvailableStone > 0)
                 {
                     return true;
                 }
@@ -328,8 +346,8 @@ namespace ProjectUnknown.Strategy
 
         private static bool HasWaitingConstructionNeeding(StrategyConstructionResourceKind kind)
         {
-            StrategyConstructionSite[] sites = Object.FindObjectsByType<StrategyConstructionSite>();
-            for (int i = 0; i < sites.Length; i++)
+            IReadOnlyList<StrategyConstructionSite> sites = StrategyConstructionSite.ActiveSites;
+            for (int i = 0; i < sites.Count; i++)
             {
                 StrategyConstructionSite site = sites[i];
                 if (site == null || site.IsCompleted || site.ResourcesComplete)

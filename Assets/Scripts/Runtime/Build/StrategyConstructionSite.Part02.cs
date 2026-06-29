@@ -90,6 +90,7 @@ namespace ProjectUnknown.Strategy
             }
 
             completed = true;
+            UnregisterActiveSite();
             ClearBuildWorkReservations();
             StrategyStorageYard.ReleaseConstructionReservations(this);
             StrategyDebugLogger.Info(

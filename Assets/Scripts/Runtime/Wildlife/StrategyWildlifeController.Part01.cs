@@ -444,6 +444,7 @@ namespace ProjectUnknown.Strategy
                         StrategyDebugLogger.F("target", state.Target));
                 }
 
+                RegisterMigrationTargetFailure(state.Target);
                 state.HasTarget = false;
                 state.Cooldown = Random.Range(12f, 28f);
                 state.FailedSteps = 0;
@@ -467,7 +468,7 @@ namespace ProjectUnknown.Strategy
             {
                 Vector2Int candidate = new Vector2Int(Random.Range(0, map.Width), Random.Range(0, map.Height));
                 float distance = Vector2Int.Distance(candidate, currentCenter);
-                if (distance < minDistance || !isCandidate(candidate))
+                if (distance < minDistance || IsMigrationTargetCoolingDown(candidate) || !isCandidate(candidate))
                 {
                     continue;
                 }

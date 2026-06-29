@@ -167,7 +167,8 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Spawns Berries, Roots, and Mushrooms as small non-blocking resource nodes on suitable walkable land cells through the shared seeded shuffled whole-map pass
       - Uses macro cluster weighting so forage appears in natural patches instead of filling only the first scanned map area
       - Guarantees a small starter ring of forage resources around the settlement outside the campfire clear radius
-      - Forage nodes can be reserved by one resident, disappear after a successful gather, and queue a timed replacement spawn near mature standing trees
+      - Forage nodes can be reserved by one resident, disappear after a successful gather, and queue a faster timed replacement spawn near mature standing trees inside active Forager Camp work radii
+      - Under-supplied Forager Camps periodically get controlled support spawn attempts, while local cell-density and per-camp soft caps prevent excessive clustering
       - Procedural forage sprites include ready node visuals plus carried basket sprites
       - Foragers use dedicated crouch/reach animation frames, node pulse feedback, and small leaves/spores/dust effects on gather impact frames
     - Strategy wind
@@ -185,6 +186,8 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Spawns 20-32 decorative birds only on currently hidden species-appropriate land/water cells near settlement anchors
       - Spawns 3-4 compact wolf packs only on currently hidden safe land cells in a wider near-settlement ring, preferring alternating river sides when a generated river route exists
       - Uses completed buildings and active construction sites as wildlife spawn anchors, falling back to the startup camp only if no building anchor exists
+      - Under-supplied Hunter Camps periodically seed huntable rabbits in a controlled 7-11 cell ring around the camp, with hidden-spawn, structure-buffer, global-cap, and local-density checks
+      - Hunter Camps with Deer Hunting Kit can also seed rare adult deer in the same controlled ring when nearby huntable deer are below target
       - Wildlife agents do not block walkability and do not act as fog reveal sources
       - Two procedural 2.5D deer models exist: antlered male buck and smaller female doe
       - Two procedural 2.5D rabbit models exist: male buck and female doe variants, with smaller kits using scaled visuals
@@ -205,6 +208,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Birds fly between nearby habitat cells inside a loose home range and react to noisy residents by taking off
       - Deer herds, rabbit groups, wolf packs, bird homes, and lake fish shoals periodically migrate by retargeting their loose home centers across currently hidden near-settlement suitable habitat
       - Land wildlife migration avoids dense settlement pressure and only advances through short connected land-or-river steps so groups do not jump through blockers or lakes
+      - Failed wildlife migration targets are temporarily cooled down so groups avoid repeatedly selecting cells that already caused migration aborts
       - Wolves use walkable-cell paths, roam near their current pack migration center, avoid high settlement pressure, and only hunt rabbits/deer when current population surplus is above high control thresholds
       - Wolf attacks use normal stalking first, then a faster pounce/chase phase only once close to the selected prey
       - Wolves no longer use ordinary resident targeting; they idle/roam when no surplus rabbit/deer prey is available
@@ -276,6 +280,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Mine, Coal Pit, and Clay Pit construction require at least one matching available resource deposit under the tool footprint
     - Construction sites are accepted without an immediately free builder if resources can be reserved
     - Construction sites periodically request hired builders from Storage Yards through balanced dispatch across active construction sites instead of using a per-site builder cap
+    - Active construction sites maintain a lightweight runtime registry used by systems that need cheap current-site lookups
     - Construction progress is capped by the fraction of Logs/Stone/Planks physically delivered to the site, so builders can start partial work before all reserved materials arrive
     - Completed houses try to populate after construction instead of using their builders as future residents
     - Creates lumberjack camp components when the camp tool is placed
@@ -508,7 +513,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Residents assigned as Haulers also haul `Game`/`Fish`/`Eggs`/forage food from production food stock or loose food piles into the nearest Granary
     - Residents assigned as Haulers can fallback-deliver construction Logs/Stone/Planks to active construction sites only when normal Hauler orders are unavailable
     - Residents hired as Storage Yard builders fetch reserved Logs/Stone/Planks, deliver them to construction sites, then reserve individual unlocked build-hit units and build with hammer animations up to the currently delivered-material progress cap
-    - Auto workforce assignment scans eligible free adults every few seconds, uses one per-tick worksite snapshot for demand/rebalance/fallback calculations, treats nonzero player values as desired profession targets plus a one-worker coverage floor, releases surplus workers from overstaffed auto-managed professions, can pull limited donors from roles above their floor for higher-scored shortages, protects Food workers from non-food donor steals during household food emergencies or active food demand, uses `0` as the explicit opt-out that permits a role/category to have no workers, caps successful assignments per tick to avoid frame spikes, throttles deep no-free-adult full scans, and assigns remaining free adults through existing worksite APIs across later ticks while shortages/backlog/readiness affect scoring
+    - Auto workforce assignment scans eligible free adults every few seconds, uses one per-tick worksite snapshot refreshed from active placed buildings and active construction sites on active-count changes plus a longer fallback interval for demand/rebalance/fallback calculations, treats nonzero player values as desired profession targets plus a one-worker coverage floor, releases surplus workers from overstaffed auto-managed professions, can pull limited donors from roles above their floor for higher-scored shortages, protects Food workers from non-food donor steals during household food emergencies or active food demand, uses `0` as the explicit opt-out that permits a role/category to have no workers, caps successful assignments per tick to avoid frame spikes, throttles deep no-free-adult full scans, and assigns remaining free adults through existing worksite APIs across later ticks while shortages/backlog/readiness affect scoring
     - Residents removed from a role while carrying Logs, Stone, Iron, Coal, Clay, Planks, Pottery, `Game`, or `Fish` first return the carried resource to the appropriate Storage Yard or Granary; hard interruption fallbacks preserve materials instead of deleting carried stock
     - Resident death drops all carried resources: construction Logs/Stone/Planks as loose construction piles, and generic Iron, Coal, Clay, Planks, Pottery, `Game`, `Fish`, `Eggs`, Berries, Roots, and Mushrooms as loose carried-resource piles
     - Completed houses first try to pull a homeless adult male/female pair, including residents who already have workplaces or construction assignments, then fall back to adult-child migration and partner lookup

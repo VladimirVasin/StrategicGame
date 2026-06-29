@@ -208,6 +208,7 @@ namespace ProjectUnknown.Strategy
 
             UpdateRiverFishSpawning(Time.deltaTime);
             UpdateWildlifeMigration(Time.deltaTime);
+            UpdateHunterCampSupportSpawning(Time.deltaTime);
         }
 
         public void Configure(
@@ -238,6 +239,7 @@ namespace ProjectUnknown.Strategy
             fishBreedingTimer = Random.Range(6f, 16f);
             riverFishSpawnTimer = Random.Range(2.0f, 5.5f);
             nextRiverShoalId = RiverFishShoalIdBase + (Hash(map.ActiveSeed, 347, 563, 719, 887) % 997);
+            ResetHunterCampSupportSpawning();
             BuildFishWaterRegions();
 
             int targetDeer = MinDeer + (Hash(map.ActiveSeed, 17, 31, 43, 59) % (MaxDeer - MinDeer + 1));

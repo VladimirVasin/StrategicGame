@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace ProjectUnknown.Strategy
@@ -12,13 +13,16 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            StrategyMine[] mines = Object.FindObjectsByType<StrategyMine>();
             StrategyMine bestMine = null;
             float bestDistance = float.MaxValue;
-            for (int i = 0; i < mines.Length; i++)
+            IReadOnlyList<StrategyPlacedBuilding> buildings = StrategyPlacedBuilding.ActiveBuildings;
+            for (int i = 0; i < buildings.Count; i++)
             {
-                StrategyMine mine = mines[i];
-                if (mine == null || mine.AvailableIron <= 0)
+                StrategyPlacedBuilding building = buildings[i];
+                if (building == null
+                    || !building.TryGetComponent(out StrategyMine mine)
+                    || mine == null
+                    || mine.AvailableIron <= 0)
                 {
                     continue;
                 }
@@ -48,13 +52,16 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            StrategyCoalPit[] pits = Object.FindObjectsByType<StrategyCoalPit>();
             StrategyCoalPit bestPit = null;
             float bestDistance = float.MaxValue;
-            for (int i = 0; i < pits.Length; i++)
+            IReadOnlyList<StrategyPlacedBuilding> buildings = StrategyPlacedBuilding.ActiveBuildings;
+            for (int i = 0; i < buildings.Count; i++)
             {
-                StrategyCoalPit pit = pits[i];
-                if (pit == null || pit.AvailableCoal <= 0)
+                StrategyPlacedBuilding building = buildings[i];
+                if (building == null
+                    || !building.TryGetComponent(out StrategyCoalPit pit)
+                    || pit == null
+                    || pit.AvailableCoal <= 0)
                 {
                     continue;
                 }
@@ -84,13 +91,16 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            StrategyClayPit[] pits = Object.FindObjectsByType<StrategyClayPit>();
             StrategyClayPit bestPit = null;
             float bestDistance = float.MaxValue;
-            for (int i = 0; i < pits.Length; i++)
+            IReadOnlyList<StrategyPlacedBuilding> buildings = StrategyPlacedBuilding.ActiveBuildings;
+            for (int i = 0; i < buildings.Count; i++)
             {
-                StrategyClayPit pit = pits[i];
-                if (pit == null || pit.AvailableClay <= 0)
+                StrategyPlacedBuilding building = buildings[i];
+                if (building == null
+                    || !building.TryGetComponent(out StrategyClayPit pit)
+                    || pit == null
+                    || pit.AvailableClay <= 0)
                 {
                     continue;
                 }
@@ -188,11 +198,14 @@ namespace ProjectUnknown.Strategy
         private static int CountAvailableIronSources()
         {
             int count = 0;
-            StrategyMine[] mines = Object.FindObjectsByType<StrategyMine>();
-            for (int i = 0; i < mines.Length; i++)
+            IReadOnlyList<StrategyPlacedBuilding> buildings = StrategyPlacedBuilding.ActiveBuildings;
+            for (int i = 0; i < buildings.Count; i++)
             {
-                StrategyMine mine = mines[i];
-                if (mine != null && mine.AvailableIron > 0)
+                StrategyPlacedBuilding building = buildings[i];
+                if (building != null
+                    && building.TryGetComponent(out StrategyMine mine)
+                    && mine != null
+                    && mine.AvailableIron > 0)
                 {
                     count++;
                 }
@@ -204,11 +217,14 @@ namespace ProjectUnknown.Strategy
         private static int CountAvailableCoalSources()
         {
             int count = 0;
-            StrategyCoalPit[] pits = Object.FindObjectsByType<StrategyCoalPit>();
-            for (int i = 0; i < pits.Length; i++)
+            IReadOnlyList<StrategyPlacedBuilding> buildings = StrategyPlacedBuilding.ActiveBuildings;
+            for (int i = 0; i < buildings.Count; i++)
             {
-                StrategyCoalPit pit = pits[i];
-                if (pit != null && pit.AvailableCoal > 0)
+                StrategyPlacedBuilding building = buildings[i];
+                if (building != null
+                    && building.TryGetComponent(out StrategyCoalPit pit)
+                    && pit != null
+                    && pit.AvailableCoal > 0)
                 {
                     count++;
                 }
@@ -220,11 +236,14 @@ namespace ProjectUnknown.Strategy
         private static int CountAvailableClaySources()
         {
             int count = 0;
-            StrategyClayPit[] pits = Object.FindObjectsByType<StrategyClayPit>();
-            for (int i = 0; i < pits.Length; i++)
+            IReadOnlyList<StrategyPlacedBuilding> buildings = StrategyPlacedBuilding.ActiveBuildings;
+            for (int i = 0; i < buildings.Count; i++)
             {
-                StrategyClayPit pit = pits[i];
-                if (pit != null && pit.AvailableClay > 0)
+                StrategyPlacedBuilding building = buildings[i];
+                if (building != null
+                    && building.TryGetComponent(out StrategyClayPit pit)
+                    && pit != null
+                    && pit.AvailableClay > 0)
                 {
                     count++;
                 }
