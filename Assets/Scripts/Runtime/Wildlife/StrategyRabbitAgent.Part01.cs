@@ -96,9 +96,18 @@ namespace ProjectUnknown.Strategy
             stateTimer -= Time.deltaTime;
             if (!hasTarget || pathIndex >= path.Count)
             {
-                if (stateTimer > 0f && TryPickFleeTarget(lastThreatWorld))
+                if (stateTimer > 0f)
                 {
-                    hasTarget = true;
+                    if (TryPickFleeTarget(lastThreatWorld))
+                    {
+                        hasTarget = true;
+                    }
+                    else
+                    {
+                        FaceWorldPoint(lastThreatWorld);
+                        AnimateAlert();
+                        return;
+                    }
                 }
                 else
                 {

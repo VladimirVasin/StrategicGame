@@ -1,6 +1,6 @@
 # Systems Map
 
-Last updated: 2026-06-29
+Last updated: 2026-06-30
 
 Use this file as the first navigation pass before broad searches. Owner cards are starting points, not hard boundaries.
 
@@ -560,6 +560,7 @@ Responsibilities:
 - Keep river fish non-reproductive and controlled by the active river-fish cap.
 - Let fisher huts reserve adult fish, choose valid land/shore stand cells with adjacent water, abandon casts when fish leave cast range before hooking, and yield local `Fish` after reeling.
 - Let wolves hunt rabbit/deer surplus with normal stalking plus a short fast pounce phase, then direct final-position chase fallback after reaching the target cell, and threaten adult residents only when the target is outside the settlement safety pressure.
+- Let wolf roam recover from stale pack centers by falling back to the wolf's current reachable area and retargeting the pack center when settlement pressure makes the old center unusable.
 
 Primary files/assets:
 
@@ -571,6 +572,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.Part11.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.Part12.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.Part13.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.Part14.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeRiverCrossing.cs`
 - `Assets/Scripts/Runtime/Wildlife/IStrategyHuntTarget.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyDeerAgent.cs`
@@ -1277,11 +1279,11 @@ Primary files/assets:
 Impact hints:
 
 - Current resources are house-local runtime counts, not global economy inventory.
-- Current normal house-local ingredient source is Householder delivery of raw `Fish`/`Game`/`Eggs`/forage food from Granaries, then the starter Caravan Cart while stocked, with direct Hunter Camp/Fisher Hut/Forager Camp/Chicken Coop fallback only when no stored food is available.
+- Current normal house-local ingredient source is raw `Fish`/`Game`/`Eggs`/forage food delivery from Granaries, then the starter Caravan Cart while stocked, with direct Hunter Camp/Fisher Hut/Forager Camp/Chicken Coop fallback only when no stored food is available; Householders and displayed-age-6+ children can carry raw food to their own home.
 - Household foraging from Houses and Garden Beds/House Chicken Coop upgrade paths are inactive legacy paths; Forager Camps are the active external source for forage food and standalone Chicken Coops are the active external source for Eggs.
 - Eggs, crops, forage, `Game`, and `Fish` are raw ingredients that can be stored at home and cooked into recipe-based prepared dishes; Eggs now come from standalone Chicken Coops, while crop ingredients still have no normal active production path.
 - Current dish recipes span Poor/Common/Hearty/Fine/Feast quality tiers; quality currently affects ration value and HUD/debug context, not morale.
-- `Game`, `Fish`, `Eggs`, Berries, Roots, and Mushrooms are local production-building/Granary stock resources with shared HUD icons, and Householders can move Granary stock, or production stock as a Granary-empty fallback, into house-local ingredient storage.
+- `Game`, `Fish`, `Eggs`, Berries, Roots, and Mushrooms are local production-building/Granary stock resources with shared HUD icons, and Householders plus displayed-age-6+ children can move Granary stock, or production stock as a Granary-empty fallback, into their own house-local ingredient storage.
 - Future trade, taxes, storage caps, spoilage, and needs should decide whether house stores remain local or feed into a settlement-level resource service.
 
 ### Sawmill Production
@@ -1703,7 +1705,7 @@ Responsibilities:
 - Bind assigned residents to their home building.
 - Spawn children for valid adult male/female house pairs after randomized household cooldowns when house capacity allows.
 - Keep children younger than 3 years old inside their assigned home by hiding their world sprite/collider and skipping outdoor idle/funeral movement until they age out.
-- Give older children daytime ambient play activities near home/camp, including solo play, pair play with siblings or nearby children, and tag.
+- Give older children daytime ambient play activities near home/camp, including solo play, pair play with siblings or nearby children, and tag; children with displayed age 6+ can instead help carry raw household food to their own home when reserves are low.
 - Send housed idle residents home to sleep inside during the `Night` phase by hiding their world sprite/collider until morning, while leaving homeless residents outside with a visible `Zzz...` sleep indicator.
 - Resolve one nightly household dinner from prepared house `Dish`, using resident age-based ration needs after eligible residents return home for `Night`.
 - Send Householders to fetch reserved raw `Fish`/`Game`/forage food from reachable Granaries into their own house when ingredient reserves are low, then from the starter Caravan Cart while it has food, or from reachable Hunter/Fisher/Forager production stock when no stored food is available.
@@ -1898,7 +1900,7 @@ Impact hints:
 - `StrategyHouseholdState` lives on occupied houses and owns the randomized birth timer.
 - `StrategyHouseholdState` blocks births while the same house has sustained ration shortages or birth-blocked residents.
 - `StrategyHouseholdFoodState` lives on occupied houses, resolves one nightly dinner per day after a one-day settling grace, waits for eligible residents to enter home for `Night` with a fallback deadline, consumes prepared house recipe dishes first, falls back to house-local ingredients for missing rations, applies short rations to resident nutrition debt, and exposes aggregate food status for HUDs.
-- Householder home duty can reserve one raw `Fish`/`Game`/`Eggs`/forage-food unit from a Granary, then the starter Caravan Cart while it has food, or from Hunter Camp/Fisher Hut/Forager Camp/Chicken Coop stock when no stored food is available, plus Pottery from a Storage Yard, path to pickup, carry it home, store it in the house, and cook stored ingredients plus 1 Pottery per prepared recipe dish during `Dusk`.
+- Household final-mile food duty can reserve one raw `Fish`/`Game`/`Eggs`/forage-food unit from a Granary, then the starter Caravan Cart while it has food, or from Hunter Camp/Fisher Hut/Forager Camp/Chicken Coop stock when no stored food is available, path to pickup, carry it home, and store it in the house; Householders and children with displayed age 6+ can do raw-food pickup for their own home, while only Householders fetch Pottery from a Storage Yard and cook stored ingredients plus 1 Pottery per prepared recipe dish during `Dusk`.
 - `StrategyHouseholdForagingState` is compiled as inactive legacy code; placed Houses no longer attach it, and resident start guards return false so house-driven foraging cannot dispatch.
 - Generated forage reach/crouch sprites and node pulse effects are used by Forager Camp workers and are not started by Houses.
 - `StrategyPlacedBuilding` owns the current Householder reference for houses, preferring the oldest adult female resident and refreshing on home changes, death/unregister, and resident adulthood.
@@ -1930,7 +1932,7 @@ Impact hints:
 - Construction assignment is a temporary exclusive task for hired Storage Yard builders or starter-cart temporary builders; there is no construction-site builder cap, balanced dispatch spreads free builders across active sites first, and workplace assignment skips residents already attached to a construction site. Construction assignment does not block home/family assignment.
 - Construction hammer work must reserve an individual unlocked build-hit unit on `StrategyConstructionSite` before the resident enters the hammer animation; reset, assignment clear, site completion, and site destruction paths must release those reservations.
 - Builder construction pickup path failures include start/pickup walkability details in `debug.log`; repeated pickup path failures drop that builder's current site assignment so another builder can retry.
-- Worker and builder assignment must check `StrategyResidentAgent.CanWork`; children under age 3 remain inside assigned homes, and older children can play but cannot work.
+- Worker and builder assignment must check `StrategyResidentAgent.CanWork`; children under age 3 remain inside assigned homes, and older children can play or carry raw household food home at displayed age 6+, but cannot work/build.
 - Resident construction sprites are generated for every male/female visual variant and should stay in sync with readability outline mirroring.
 - Resident crying sprites are generated for adult and child funeral mourning/waiting states and should stay in sync with readability outline mirroring.
 - Chickens use the same local path style as before; their animation and standalone coop night sheltering are visual-only.

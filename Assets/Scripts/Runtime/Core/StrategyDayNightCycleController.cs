@@ -46,12 +46,18 @@ namespace ProjectUnknown.Strategy
     public sealed class StrategyDayNightCycleController : MonoBehaviour
     {
         private const float CycleSeconds = 300f;
-        private const float DawnEnd = 0.18f;
-        private const float MorningEnd = 0.32f;
-        private const float NoonEnd = 0.50f;
-        private const float AfternoonEnd = 0.62f;
-        private const float DuskEnd = 0.78f;
-        private const float ClockStartHour = 4f;
+        private const float HoursPerDay = 24f;
+        private const float ClockStartHour = 5f;
+        private const float DawnEndHour = 7f;
+        private const float MorningEndHour = 11f;
+        private const float NoonEndHour = 15f;
+        private const float AfternoonEndHour = 19f;
+        private const float DuskEndHour = 22f;
+        private const float DawnEnd = (DawnEndHour - ClockStartHour) / HoursPerDay;
+        private const float MorningEnd = (MorningEndHour - ClockStartHour) / HoursPerDay;
+        private const float NoonEnd = (NoonEndHour - ClockStartHour) / HoursPerDay;
+        private const float AfternoonEnd = (AfternoonEndHour - ClockStartHour) / HoursPerDay;
+        private const float DuskEnd = (DuskEndHour - ClockStartHour) / HoursPerDay;
 
         private static Sprite overlaySprite;
 

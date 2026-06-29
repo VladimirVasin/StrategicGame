@@ -1,6 +1,6 @@
 # System Tree
 
-Last updated: 2026-06-29
+Last updated: 2026-06-30
 
 This is a conceptual map of the current project. Keep concrete file ownership in `ai/systems-map.md`.
 
@@ -351,7 +351,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Runtime house-local resource store
     - Current house-local ingredients: Eggs, Turnip, Cabbage, Onion, Carrot, Potato, Berries, Roots, Mushrooms, `Fish`, and `Game`
     - Prepared `Dish` is stored as recipe stacks with aggregate amount/ration APIs for older dinner, HUD, and logistics callers
-    - Householders fetch raw food from Granaries, then the starter Caravan Cart while it has food, or from Hunter Camps/Fisher Huts/Forager Camps/Chicken Coops when no stored food is available, fetch Pottery from Storage Yards, and cook raw ingredients plus 1 Pottery per prepared recipe dish during `Dusk`; nightly household dinner consumes prepared dishes first and falls back to house-local ingredients
+    - Householders and children with displayed age 6+ fetch raw food to their own house from Granaries, then the starter Caravan Cart while it has food, or from Hunter Camps/Fisher Huts/Forager Camps/Chicken Coops when no stored food is available; Householders fetch Pottery from Storage Yards and cook raw ingredients plus 1 Pottery per prepared recipe dish during `Dusk`; nightly household dinner consumes prepared dishes first and falls back to house-local ingredients
     - Dish recipes span Poor, Common, Hearty, Fine, and Feast quality tiers with different ingredient combinations, ingredient counts, and ration values
     - Shared resource identity/icon layer also includes `Dish`, Stone, `Game`, `Fish`, and `Tools` for production/storage-style HUDs and future economy work
     - Loose carried-resource piles preserve dropped `Game`, `Fish`, `Eggs`, Berries, Roots, and Mushrooms after resident death
@@ -619,7 +619,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Trade depends on completed Trading Posts, map-edge caravan pathing, settlement Coins, Storage Yard non-food stock, Granary food stock, generated trade/caravan sprites, and the world-selection HUD.
 - Loose construction resource piles bridge construction cancellation, build affordability, storage logistics, and builder pickup.
 - Loose carried-resource piles bridge resident death cleanup and Granary food logistics; legacy household forage recovery is currently inactive.
-- Granary, starter-cart food, and household cooking logistics depend on hunter camp stock, fisher hut stock, forager camp stock, chicken coop stock, Storage Yard Pottery stock, Storage Yard Haulers, Householder final-mile pickup with direct production-source fallback when stored food is empty, resident work states, placed-building records, map walkability, and the world-selection HUD.
+- Granary, starter-cart food, and household cooking logistics depend on hunter camp stock, fisher hut stock, forager camp stock, chicken coop stock, Storage Yard Pottery stock, Storage Yard Haulers, Householder and age-6+ child final-mile raw-food pickup with direct production-source fallback when stored food is empty, resident work states, placed-building records, map walkability, and the world-selection HUD.
 - Construction depends on Storage Yard resource reservations, loose construction pile reservations, idle Hauler construction-material fallback delivery, hired Storage Yard builder assignments, construction-site blockers, placed-building finalization, F9 instant-construction debug options, and the world-selection HUD.
 - Population uses placed-building records, construction sites, the generated map walkability/trail layers, and workplace assignments; home/family assignment is independent from work/construction assignment.
 - Resident footsteps depend on population agents and the non-generated grass footstep clip set.

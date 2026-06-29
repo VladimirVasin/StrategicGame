@@ -34,6 +34,11 @@ namespace ProjectUnknown.Strategy
             }
 
             bool urgentEscape = preferSafety && IsWolfUrgentEscapeCell(currentCell);
+            if (!urgentEscape && ShouldSkipWolfRoamPathAttempt(preferSafety))
+            {
+                return false;
+            }
+
             if (urgentEscape && TryBuildNearbyEscapePath(out Vector2Int escapeCell))
             {
                 LogWolfPathReady("nearby_escape", escapeCell, escapeCell);
@@ -217,8 +222,14 @@ namespace ProjectUnknown.Strategy
 
         private bool TryPathNearTarget(Vector2Int targetCell)
         {
+            if (ShouldSkipWolfTargetPathAttempt(targetCell))
+            {
+                return false;
+            }
+
             if (TryBuildPathTo(targetCell))
             {
+                MarkWolfTargetPathSuccess();
                 LogWolfPathReady("target_direct", targetCell, targetCell);
                 return true;
             }
@@ -228,11 +239,13 @@ namespace ProjectUnknown.Strategy
                 Vector2Int candidate = targetCell + CardinalDirections[i];
                 if (IsWolfTargetCell(candidate) && TryBuildPathTo(candidate))
                 {
+                    MarkWolfTargetPathSuccess();
                     LogWolfPathReady("target_adjacent", targetCell, candidate);
                     return true;
                 }
             }
 
+            MarkWolfTargetPathFailure(targetCell);
             return LogWolfPathFailed("target_path_failed", targetCell);
         }
 

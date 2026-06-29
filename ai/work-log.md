@@ -1,12 +1,32 @@
 # Work Log
 
-Last updated: 2026-06-29
+Last updated: 2026-06-30
 
 ## Active
 
 - None.
 
 ## Done
+
+### 2026-06-30 - Older child household food helpers
+
+- Let children with displayed age 6+ start the existing household raw-food pickup task for their own home when house ingredient reserves are below the household reserve target.
+- Kept Pottery pickup, Dish cooking, ordinary work assignments, and builder assignments adult/Householder-only; food helper priority runs before child play, while failed/no-source attempts fall back to the normal household-food cooldown.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-06-30 - Wildlife retry throttling from debug log
+
+- Analyzed the latest `debug.log` tail: after startup map generation, the noisiest runtime hotspots were repeated wildlife state/path attempts, especially `RabbitAlert`/`RabbitFleeing` loops for blocked rabbits and repeated wolf roam/target path retries.
+- Kept rabbits in `Fleeing` briefly when no escape target is currently available instead of immediately toggling back to `Alert`, reducing repeated threat-state churn and duplicate log spam.
+- Fixed the wolf roam root cause by falling back from stale pack centers to the wolf's current reachable area, then retargeting the whole pack when settlement pressure makes the old center unusable.
+- Added short wolf cooldowns after failed roam-path and target-path attempts so remaining unreachable roam/prey cases do not keep rerunning path searches every refresh tick while still allowing urgent settlement-escape attempts.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-06-29 - Medieval day clock phase timing
+
+- Retuned `StrategyDayNightCycleController` phase thresholds to match the HUD clock: Dawn 05:00-07:00, Morning 07:00-11:00, Noon 11:00-15:00, Afternoon 15:00-19:00, Dusk 19:00-22:00, and Night 22:00-05:00.
+- Kept the full day length at 300 scaled seconds; the Dawn-through-Dusk work window is now 212.5 seconds and Night is 87.5 seconds at x1 speed.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; `StrategyDayNightCycleController.cs` is at or below 500 lines.
 
 ### 2026-06-29 - Production stock construction availability
 

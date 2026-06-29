@@ -89,10 +89,7 @@ namespace ProjectUnknown.Strategy
             if (!CanStartGardenDuty()
                 || home == null
                 || home.Resources == null
-                || !IsHouseholder
-                || constructionSite != null
-                || !CanWork
-                || HasExternalWorkplace
+                || !CanStartHouseholdFoodPickupAsHomeCarrier()
                 || householdFoodWorkCooldown > 0f
                 || !StrategyDayNightCycleController.IsHouseholdOutdoorWorkTime
                 || carriedGameAmount > 0

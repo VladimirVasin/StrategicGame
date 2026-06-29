@@ -349,6 +349,7 @@ namespace ProjectUnknown.Strategy
                 && !returningHomeToSleep
                 && !IsFuneralDutyActive
                 && StrategyDayNightCycleController.IsSettlementWorkTime
+                && !ShouldPrioritizeHouseholdFoodHelpOverChildPlay()
                 && activity == ResidentActivity.Idle
                 && !hasTarget
                 && waitTimer <= 0f;
@@ -369,6 +370,7 @@ namespace ProjectUnknown.Strategy
                 && !returningHomeToSleep
                 && !IsFuneralDutyActive
                 && StrategyDayNightCycleController.IsSettlementWorkTime
+                && !ShouldPrioritizeHouseholdFoodHelpOverChildPlay()
                 && activity == ResidentActivity.Idle
                 && !hasTarget
                 && childPlayKind == ChildPlayKind.None

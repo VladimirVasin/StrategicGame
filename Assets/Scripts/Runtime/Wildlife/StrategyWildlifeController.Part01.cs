@@ -80,62 +80,29 @@ namespace ProjectUnknown.Strategy
             StrategyWolfPack pack = FindPackForWolf(wolf);
             Vector2Int center = pack != null ? pack.RoamCenterCell : currentCell;
             int radiusLimit = pack != null ? pack.HomeRadius : WolfHomeRadius;
-            float bestScore = float.MinValue;
-            bool found = false;
-            for (int radius = preferSafety ? 5 : 2; radius <= radiusLimit + 6; radius++)
+            bool found = TryFindWolfRoamCellAround(wolf, currentCell, center, radiusLimit, preferSafety, preferSafety ? 5 : 2, out cell);
+            bool usedCurrentFallback = false;
+            if (!found && center != currentCell)
             {
-                for (int y = -radius; y <= radius; y++)
-                {
-                    for (int x = -radius; x <= radius; x++)
-                    {
-                        if (Mathf.Max(Mathf.Abs(x), Mathf.Abs(y)) != radius)
-                        {
-                            continue;
-                        }
-
-                        Vector2Int candidate = center + new Vector2Int(x, y);
-                        if (candidate == currentCell
-                            || wolf.IsWolfRoamTargetBlocked(candidate)
-                            || !IsWolfRoamCandidate(candidate)
-                            || !HasWalkableMigrationConnection(currentCell, candidate, Mathf.Max(64, radiusLimit * radiusLimit + 48)))
-                        {
-                            continue;
-                        }
-
-                        float settlementPressure = GetSettlementPressure(candidate);
-                        if (preferSafety && settlementPressure >= WolfSettlementPressureLimit * 0.55f)
-                        {
-                            continue;
-                        }
-
-                        float score = GetWolfTerrainScore(candidate)
-                            + CountWalkableNeighbors(candidate, 2) * 0.12f
-                            - settlementPressure * 3.5f
-                            - Vector2Int.Distance(candidate, currentCell) * (preferSafety ? -0.08f : 0.04f)
-                            + Hash01(map.ActiveSeed, candidate.x, candidate.y, wolf.PackId + 211) * 0.25f;
-                        if (score <= bestScore)
-                        {
-                            continue;
-                        }
-
-                        bestScore = score;
-                        cell = candidate;
-                        found = true;
-                    }
-                }
-
-                if (found && !preferSafety)
-                {
-                    break;
-                }
+                usedCurrentFallback = TryFindWolfRoamCellAround(wolf, currentCell, currentCell, radiusLimit, preferSafety, 1, out cell);
+                found = usedCurrentFallback;
             }
 
-            if (found && pack != null && Random.value < 0.22f)
+            if (!found)
+            {
+                return false;
+            }
+
+            if (pack != null && (usedCurrentFallback || preferSafety || IsWolfUnsafeSettlementCell(center)))
+            {
+                ApplyWolfPackCenter(pack, cell);
+            }
+            else if (pack != null && Random.value < 0.22f)
             {
                 pack.SetRoamCenter(cell);
             }
 
-            return found;
+            return true;
         }
 
         public bool IsWolfUnsafeSettlementCell(Vector2Int cell)
