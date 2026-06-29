@@ -136,7 +136,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            refreshTimer -= Time.deltaTime;
+            refreshTimer -= Time.unscaledDeltaTime;
             if (refreshTimer > 0f)
             {
                 return;

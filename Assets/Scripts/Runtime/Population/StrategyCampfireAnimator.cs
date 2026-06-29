@@ -28,6 +28,7 @@ namespace ProjectUnknown.Strategy
         private bool burnoutStartedLogged;
         private bool extinguished;
         private bool relighting;
+        private int daylightExtinguishedDayIndex = -1;
 
         public bool IsLit => !extinguished && !relighting;
         public bool IsRelighting => relighting;
@@ -65,15 +66,27 @@ namespace ProjectUnknown.Strategy
             burnAge = 0f;
             relightTimer = 0f;
             relightDuration = 0f;
-            walkabilityReleased = false;
+            walkabilityReleased = !IsNightFireTime();
             burnoutStartedLogged = false;
-            extinguished = false;
+            daylightExtinguishedDayIndex = -1;
+            extinguished = walkabilityReleased;
             relighting = false;
-            BlockCampCell();
+            if (!extinguished)
+            {
+                BlockCampCell();
+            }
+
             EnsureAmbientRenderer();
-            ApplyFrame();
-            ApplyAmbientFrame();
-            ApplyBurnoutVisuals();
+            if (extinguished)
+            {
+                ApplyExtinguishedVisuals();
+            }
+            else
+            {
+                ApplyFrame();
+                ApplyAmbientFrame();
+                ApplyBurnoutVisuals();
+            }
         }
 
         private void Awake()
@@ -88,6 +101,13 @@ namespace ProjectUnknown.Strategy
         {
             if (spriteRenderer == null)
             {
+                return;
+            }
+
+            if (!IsNightFireTime())
+            {
+                ExtinguishForDaylight();
+                UpdateExtinguishedEmbers();
                 return;
             }
 
@@ -263,7 +283,7 @@ namespace ProjectUnknown.Strategy
 
         public bool BeginRelight(float seconds)
         {
-            if (!NeedsRelight)
+            if (!NeedsRelight || !IsNightFireTime())
             {
                 return false;
             }
@@ -292,6 +312,12 @@ namespace ProjectUnknown.Strategy
         {
             if (!relighting && !extinguished)
             {
+                return;
+            }
+
+            if (!IsNightFireTime())
+            {
+                ExtinguishForDaylight();
                 return;
             }
 
@@ -343,6 +369,12 @@ namespace ProjectUnknown.Strategy
 
         private void UpdateRelight()
         {
+            if (!IsNightFireTime())
+            {
+                ExtinguishForDaylight();
+                return;
+            }
+
             relightTimer += Time.deltaTime;
             frameTimer += Time.deltaTime;
             while (frameTimer >= FrameDuration)
@@ -410,6 +442,36 @@ namespace ProjectUnknown.Strategy
             {
                 ambientRenderer.enabled = false;
             }
+        }
+
+        private void ExtinguishForDaylight()
+        {
+            StrategyCalendarSnapshot snapshot = StrategyDayNightCycleController.CurrentCalendarSnapshot;
+            bool changed = !extinguished || relighting || !walkabilityReleased;
+            relighting = false;
+            extinguished = true;
+            burnAge = BurnoutDelaySeconds + BurnoutDurationSeconds;
+            relightTimer = 0f;
+            relightDuration = 0f;
+            ReleaseCampCell();
+            ApplyExtinguishedVisuals();
+
+            if (changed && daylightExtinguishedDayIndex != snapshot.DayIndex)
+            {
+                daylightExtinguishedDayIndex = snapshot.DayIndex;
+                StrategyDebugLogger.Info(
+                    "Campfire",
+                    "CampfireExtinguishedForDaylight",
+                    StrategyDebugLogger.F("cell", blockedCell),
+                    StrategyDebugLogger.F("day", snapshot.DisplayDay),
+                    StrategyDebugLogger.F("phase", snapshot.PhaseLabel));
+            }
+        }
+
+        private static bool IsNightFireTime()
+        {
+            return StrategyDayNightCycleController.CurrentCalendarSnapshot.Phase
+                == StrategyTimeOfDayPhase.Night;
         }
     }
 }

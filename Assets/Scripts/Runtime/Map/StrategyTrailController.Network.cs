@@ -5,6 +5,8 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyTrailController
     {
+        private static readonly bool RouteNetworkEnabled = false;
+
         private const float RouteNetworkTickSeconds = 1.0f;
         private const float RouteNetworkScanSeconds = 8.0f;
         private const float RouteNetworkRetrySeconds = 12.0f;
@@ -29,6 +31,12 @@ namespace ProjectUnknown.Strategy
 
         public void ConfigureRouteNetwork(StrategyBuildPlacementController placementController)
         {
+            if (!RouteNetworkEnabled)
+            {
+                UnsubscribeRouteNetworkPlacement();
+                return;
+            }
+
             if (routeNetworkPlacement == placementController)
             {
                 routeNetworkNeedsScan = true;
@@ -62,7 +70,7 @@ namespace ProjectUnknown.Strategy
 
         private void UpdateRouteNetwork(float elapsed)
         {
-            if (map == null)
+            if (!RouteNetworkEnabled || map == null)
             {
                 return;
             }
@@ -91,6 +99,11 @@ namespace ProjectUnknown.Strategy
 
         private void RequestRouteNetworkScan()
         {
+            if (!RouteNetworkEnabled)
+            {
+                return;
+            }
+
             routeNetworkNeedsScan = true;
         }
 

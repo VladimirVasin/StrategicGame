@@ -62,7 +62,6 @@
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part09.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part43.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part60.cs" />
-    <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part61.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyChickenCoop.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyBuildMenuController.Driver.Part03.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyHunterCamp.Part01.cs" />
@@ -94,6 +93,7 @@
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingSpriteFactory.Part06.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part07.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyProfessionType.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part61.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part28.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\CityMapController.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part52.cs" />
@@ -116,7 +116,6 @@
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part12.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part21.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWildlifeController.Part13.cs" />
-    <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWildlifeController.Part14.cs" />
     <Compile Include="Assets\Scripts\Runtime\Selection\StrategyWorldSelectionController.Part02.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part36.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyKinshipUtility.cs" />
@@ -258,6 +257,7 @@
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyTradeCaravanSpriteFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyIronResourceController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyGranary.Part02.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWildlifeController.Part14.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyStorageYard.Part08.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyStorageYard.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\Selection\StrategyWorldSelectionController.Part10.cs" />

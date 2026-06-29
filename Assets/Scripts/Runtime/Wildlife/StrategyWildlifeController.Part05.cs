@@ -150,7 +150,7 @@ namespace ProjectUnknown.Strategy
 
         private bool ShouldLogFishLakeBirthBlocked(int regionId)
         {
-            float now = Time.time;
+            float now = Time.realtimeSinceStartup;
             if (fishLakeBirthBlockedLogTimes.TryGetValue(regionId, out float nextLogTime)
                 && now < nextLogTime)
             {

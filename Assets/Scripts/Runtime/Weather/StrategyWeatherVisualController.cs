@@ -64,16 +64,17 @@ namespace ProjectUnknown.Strategy
             EnsureRenderers();
             ResizeRenderers();
             ApplyWetOverlay();
-            UpdateRainDrops(Time.deltaTime);
+            float dt = Mathf.Max(0f, Time.unscaledDeltaTime);
+            UpdateRainDrops(dt);
 
-            cloudTimer += Time.deltaTime;
+            cloudTimer += dt;
             if (cloudTimer >= CloudFrameSeconds)
             {
                 cloudTimer -= CloudFrameSeconds;
                 PaintCloudFrame();
             }
 
-            mistTimer += Time.deltaTime;
+            mistTimer += dt;
             if (mistTimer >= MistFrameSeconds)
             {
                 mistTimer -= MistFrameSeconds;
@@ -336,7 +337,7 @@ namespace ProjectUnknown.Strategy
             }
 
             Vector2 windDirection = wind != null ? wind.PlanarDirection : Vector2.right;
-            float time = Time.timeSinceLevelLoad;
+            float time = Time.unscaledTime;
             int width = cloudTexture.width;
             int height = cloudTexture.height;
             for (int y = 0; y < height; y++)
@@ -392,7 +393,7 @@ namespace ProjectUnknown.Strategy
             }
 
             Vector2 windDirection = wind != null ? wind.PlanarDirection : Vector2.right;
-            float time = Time.timeSinceLevelLoad;
+            float time = Time.unscaledTime;
             int width = mistTexture.width;
             int height = mistTexture.height;
             for (int y = 0; y < height; y++)

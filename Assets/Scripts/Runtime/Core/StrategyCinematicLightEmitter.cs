@@ -76,7 +76,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            float dt = Mathf.Max(0f, Time.deltaTime);
+            float dt = Mathf.Max(0f, Time.unscaledDeltaTime);
             visualElapsed += dt;
             if (!lodVisible)
             {
@@ -282,7 +282,7 @@ namespace ProjectUnknown.Strategy
             }
 
             bool occupied = building != null && building.ResidentCount > 0;
-            float pulse = Mathf.Sin(Time.timeSinceLevelLoad * 0.85f + flickerSeed) * 0.5f + 0.5f;
+            float pulse = Mathf.Sin(Time.unscaledTime * 0.85f + flickerSeed) * 0.5f + 0.5f;
             float alpha = occupied ? activity * night * pulse * 0.34f : 0f;
             interiorRenderer.enabled = alpha > 0.025f;
             interiorRenderer.color = new Color(0.05f, 0.025f, 0.01f, alpha);
@@ -395,7 +395,7 @@ namespace ProjectUnknown.Strategy
                 return Vector3.zero;
             }
 
-            float x = Mathf.Sin(Time.timeSinceLevelLoad * 0.55f + flickerSeed) * 0.18f;
+            float x = Mathf.Sin(Time.unscaledTime * 0.55f + flickerSeed) * 0.18f;
             return new Vector3(x, -0.01f, 0f);
         }
 
@@ -424,7 +424,7 @@ namespace ProjectUnknown.Strategy
 
         private float GetFlicker()
         {
-            float t = Time.timeSinceLevelLoad;
+            float t = Time.unscaledTime;
             float fast = Mathf.PerlinNoise(flickerSeed, t * 3.4f);
             float slow = Mathf.PerlinNoise(flickerSeed + 31.7f, t * 0.72f);
             return Mathf.Lerp(0.82f, 1.16f, fast * 0.72f + slow * 0.28f);

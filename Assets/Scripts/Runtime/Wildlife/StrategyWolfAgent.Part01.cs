@@ -211,7 +211,7 @@ namespace ProjectUnknown.Strategy
 
         private bool ShouldAvoidSettlementNow()
         {
-            return Time.time >= NextWolfEscapeAttemptTime
+            return Time.realtimeSinceStartup >= NextWolfEscapeAttemptTime
                 && state != StrategyWolfBehaviorState.AvoidingSettlement
                 && state != StrategyWolfBehaviorState.Attacking
                 && state != StrategyWolfBehaviorState.Feeding

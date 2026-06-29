@@ -49,7 +49,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            int frame = Mathf.FloorToInt(Time.timeSinceLevelLoad * GetTorchFrameSpeed() + flickerSeed)
+            int frame = Mathf.FloorToInt(Time.unscaledTime * GetTorchFrameSpeed() + flickerSeed)
                 % StrategyBuildingLightSpriteFactory.FrameCount;
             torchRenderer.sprite = StrategyBuildingLightSpriteFactory.GetSprite(GetTorchSpriteKind(), frame);
             torchRenderer.enabled = true;

@@ -92,7 +92,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            float dt = Mathf.Max(0f, Time.deltaTime);
+            float dt = Mathf.Max(0f, Time.unscaledDeltaTime);
             scanTimer -= dt;
             if (scanTimer <= 0f)
             {
@@ -366,7 +366,7 @@ namespace ProjectUnknown.Strategy
                 float y = Mathf.Lerp(view.yMin, view.yMax, puddle.Normalized.y);
                 renderer.transform.position = new Vector3(x, y, -0.18f);
                 renderer.transform.localScale = new Vector3(puddle.Scale, puddle.Scale * RandomizedPuddleSquash(i), 1f);
-                float glint = Mathf.Sin(Time.timeSinceLevelLoad * 1.7f + puddle.Phase) * 0.5f + 0.5f;
+                float glint = Mathf.Sin(Time.unscaledTime * 1.7f + puddle.Phase) * 0.5f + 0.5f;
                 float alpha = Mathf.Clamp01(wet * 0.11f + rain * 0.045f) * Mathf.Lerp(0.55f, 1.25f, glint);
                 renderer.color = new Color(0.54f, 0.70f, 0.78f, Mathf.Clamp01(alpha));
             }
@@ -414,7 +414,7 @@ namespace ProjectUnknown.Strategy
                 }
 
                 Vector3 position = GetForegroundPosition(view, visual.Anchor);
-                float sway = Mathf.Sin(Time.timeSinceLevelLoad * 0.65f + visual.Phase) * 0.18f;
+                float sway = Mathf.Sin(Time.unscaledTime * 0.65f + visual.Phase) * 0.18f;
                 position += new Vector3(windDirection.x * sway, windDirection.y * sway * 0.22f, 0f);
                 renderer.transform.position = position;
                 renderer.transform.rotation = Quaternion.Euler(0f, 0f, GetForegroundRotation(visual.Anchor) + sway * 6f);

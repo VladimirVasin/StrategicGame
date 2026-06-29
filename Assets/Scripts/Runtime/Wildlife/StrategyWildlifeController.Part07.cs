@@ -468,12 +468,13 @@ namespace ProjectUnknown.Strategy
 
         private void RefreshSettlementBuildingsIfNeeded()
         {
-            if (Time.time < nextSettlementCacheRefreshTime)
+            float now = Time.realtimeSinceStartup;
+            if (now < nextSettlementCacheRefreshTime)
             {
                 return;
             }
 
-            nextSettlementCacheRefreshTime = Time.time + WolfSettlementCacheInterval;
+            nextSettlementCacheRefreshTime = now + WolfSettlementCacheInterval;
             settlementBuildings = Object.FindObjectsByType<StrategyPlacedBuilding>(FindObjectsInactive.Exclude);
             settlementConstructionSites = Object.FindObjectsByType<StrategyConstructionSite>(FindObjectsInactive.Exclude);
         }

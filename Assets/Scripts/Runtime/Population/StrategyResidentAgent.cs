@@ -63,7 +63,7 @@ namespace ProjectUnknown.Strategy
         private const float ButcherAnimationFrameRate = 10.5f;
         private const float FishingAnimationFrameRate = 10.5f;
         private const float CryingAnimationFrameRate = 6.5f;
-        private const float SecondsPerYear = 100f;
+        private const float SecondsPerYear = 80f;
         private const int AdultAgeYears = 16;
         private const int HomeboundChildAgeYears = 3;
         private const float AdultDailyRationNeed = 1.0f;

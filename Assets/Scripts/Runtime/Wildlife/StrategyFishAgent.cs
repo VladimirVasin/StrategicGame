@@ -177,6 +177,7 @@ namespace ProjectUnknown.Strategy
             isCaught = false;
             waitTimer = Random.Range(0.4f, 1.4f);
             stateTimer = waitTimer;
+            threatCheckTimer = Random.Range(0f, ThreatCheckInterval);
             ApplySprite(StrategyFishSpritePose.Idle, Random.Range(0, StrategyFishSpriteFactory.IdleFrameCount));
             EnsureRippleRenderer();
             UpdateWorldSorting();
@@ -418,7 +419,7 @@ namespace ProjectUnknown.Strategy
 
         private void UpdateThreatAwareness()
         {
-            threatCheckTimer -= Time.deltaTime;
+            threatCheckTimer -= Time.unscaledDeltaTime;
             if (threatCheckTimer > 0f)
             {
                 return;

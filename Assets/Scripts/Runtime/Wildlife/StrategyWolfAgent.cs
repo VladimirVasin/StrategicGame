@@ -194,9 +194,10 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            huntSearchTimer -= Time.deltaTime;
-            roamRefreshTimer -= Time.deltaTime;
-            targetRefreshTimer -= Time.deltaTime;
+            float decisionDt = Time.unscaledDeltaTime;
+            huntSearchTimer -= decisionDt;
+            roamRefreshTimer -= decisionDt;
+            targetRefreshTimer -= decisionDt;
             if (ShouldAvoidSettlementNow())
             {
                 StartAvoidingSettlement();

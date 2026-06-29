@@ -8,6 +8,35 @@ Last updated: 2026-06-30
 
 ## Done
 
+### 2026-06-30 - Faster resident aging
+
+- Changed resident aging from 100 to 80 scaled seconds per year, so a newborn reaches the adult age threshold of 16 in 1280 scaled seconds, about 3.88 current game days.
+- Kept adult age, homebound-child age, older-child household food helper age, and household birth timers unchanged.
+
+### 2026-06-30 - Time-scale performance cadence pass
+
+- Kept core simulation timers scaled while moving expensive visual/service cadences to real time: fog refresh, cinematic visual scan/LOD/atmosphere updates, weather visuals, water animation, nature overlay frames, trail service ticks, population household fallback checks, wildlife cache/log cooldowns, animal threat scans, and wolf decision/path retry cadence.
+- Spread wildlife migration processing across species over successive frames and added randomized initial threat-check offsets for rabbits, deer, birds, and fish so x2/x3 no longer synchronizes large resident-threat scans.
+- Added a per-frame resident trail-aware A* build budget so mass state changes under time acceleration defer excess path builds instead of doing all path searches in one frame.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-06-30 - Instant building-route roads
+
+- Changed completed resident movement between two different buildings so the captured raw route immediately becomes a stable visible road at maximum route level after one successful traversal.
+- Disabled resident footfall accumulation as a trail source and disabled automatic route-network convergence, so roads now appear from real completed building-to-building travel instead of gradual trampling or background network reinforcement.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-06-30 - Daytime campfire extinguish
+
+- Changed `StrategyCampfireAnimator` so the startup campfire is never lit outside the `Night` phase: it starts as embers during daytime phases, cancels/blocks relight attempts outside Night, releases its blocked camp cell when daylight extinguishes it, and still supports resident-triggered nighttime relight for homeless camp sleep.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; `StrategyCampfireAnimator.cs` is at or below 500 lines.
+
+### 2026-06-30 - Longer day cycle duration
+
+- Increased `StrategyDayNightCycleController` from 300 to 330 scaled seconds per full day, adding 30 real seconds at x1 speed.
+- Kept the same HUD clock phase boundaries, so phase durations scale proportionally: Dawn 27.5s, Morning/Noon/Afternoon 55s each, Dusk 41.25s, Night 96.25s, and Dawn-through-Dusk work time 233.75s.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; `StrategyDayNightCycleController.cs` is at or below 500 lines.
+
 ### 2026-06-30 - Older child household food helpers
 
 - Let children with displayed age 6+ start the existing household raw-food pickup task for their own home when house ingredient reserves are below the household reserve target.

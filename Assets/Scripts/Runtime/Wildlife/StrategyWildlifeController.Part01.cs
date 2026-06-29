@@ -113,17 +113,49 @@ namespace ProjectUnknown.Strategy
         private void UpdateWildlifeMigration(float elapsedSeconds)
         {
             migrationTimer -= elapsedSeconds;
-            if (migrationTimer > 0f)
+            if (migrationTimer <= 0f)
+            {
+                migrationTimer += MigrationUpdateInterval;
+                pendingMigrationPasses = Mathf.Min(pendingMigrationPasses + 1, 3);
+            }
+
+            if (pendingMigrationPasses <= 0)
             {
                 return;
             }
 
-            migrationTimer = MigrationUpdateInterval;
-            UpdateDeerMigration(MigrationUpdateInterval);
-            UpdateRabbitMigration(MigrationUpdateInterval);
-            UpdateWolfMigration(MigrationUpdateInterval);
-            UpdateBirdMigration(MigrationUpdateInterval);
-            UpdateFishMigration(MigrationUpdateInterval);
+            UpdateNextMigrationCategory(MigrationUpdateInterval);
+        }
+
+        private void UpdateNextMigrationCategory(float elapsedSeconds)
+        {
+            switch (migrationSpeciesCursor)
+            {
+                case 0:
+                    UpdateDeerMigration(elapsedSeconds);
+                    break;
+                case 1:
+                    UpdateRabbitMigration(elapsedSeconds);
+                    break;
+                case 2:
+                    UpdateWolfMigration(elapsedSeconds);
+                    break;
+                case 3:
+                    UpdateBirdMigration(elapsedSeconds);
+                    break;
+                default:
+                    UpdateFishMigration(elapsedSeconds);
+                    break;
+            }
+
+            migrationSpeciesCursor++;
+            if (migrationSpeciesCursor < 5)
+            {
+                return;
+            }
+
+            migrationSpeciesCursor = 0;
+            pendingMigrationPasses = Mathf.Max(0, pendingMigrationPasses - 1);
         }
 
         private void UpdateDeerMigration(float elapsedSeconds)

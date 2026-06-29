@@ -136,6 +136,8 @@ namespace ProjectUnknown.Strategy
         private float riverFishSpawnTimer;
         private float migrationTimer;
         private float nextSettlementCacheRefreshTime;
+        private int pendingMigrationPasses;
+        private int migrationSpeciesCursor;
         private int nextRiverShoalId = RiverFishShoalIdBase;
         private bool hasCampCell;
         private StrategyPlacedBuilding[] settlementBuildings;
@@ -176,9 +178,10 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            float scaledDt = Mathf.Max(0f, Time.deltaTime);
             if (deer.Count > 0)
             {
-                breedingTimer -= Time.deltaTime;
+                breedingTimer -= scaledDt;
                 if (breedingTimer <= 0f)
                 {
                     breedingTimer = BreedingCheckInterval;
@@ -188,7 +191,7 @@ namespace ProjectUnknown.Strategy
 
             if (rabbits.Count > 0)
             {
-                rabbitBreedingTimer -= Time.deltaTime;
+                rabbitBreedingTimer -= scaledDt;
                 if (rabbitBreedingTimer <= 0f)
                 {
                     rabbitBreedingTimer = BreedingCheckInterval;
@@ -198,7 +201,7 @@ namespace ProjectUnknown.Strategy
 
             if (fish.Count > 0)
             {
-                fishBreedingTimer -= Time.deltaTime;
+                fishBreedingTimer -= scaledDt;
                 if (fishBreedingTimer <= 0f)
                 {
                     fishBreedingTimer = BreedingCheckInterval;
@@ -206,9 +209,9 @@ namespace ProjectUnknown.Strategy
                 }
             }
 
-            UpdateRiverFishSpawning(Time.deltaTime);
-            UpdateWildlifeMigration(Time.deltaTime);
-            UpdateHunterCampSupportSpawning(Time.deltaTime);
+            UpdateRiverFishSpawning(scaledDt);
+            UpdateWildlifeMigration(scaledDt);
+            UpdateHunterCampSupportSpawning(scaledDt);
         }
 
         public void Configure(

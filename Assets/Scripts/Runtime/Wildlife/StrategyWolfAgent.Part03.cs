@@ -49,19 +49,20 @@ namespace ProjectUnknown.Strategy
 
         private bool ShouldLogWolfStateChanged(StrategyWolfBehaviorState nextState)
         {
+            float now = Time.realtimeSinceStartup;
             if (nextState == StrategyWolfBehaviorState.Attacking
                 || nextState == StrategyWolfBehaviorState.Feeding)
             {
-                nextStateLogTime = Time.time + WolfStateLogCooldownSeconds;
+                nextStateLogTime = now + WolfStateLogCooldownSeconds;
                 return true;
             }
 
-            if (Time.time < nextStateLogTime)
+            if (now < nextStateLogTime)
             {
                 return false;
             }
 
-            nextStateLogTime = Time.time + WolfStateLogCooldownSeconds;
+            nextStateLogTime = now + WolfStateLogCooldownSeconds;
             return true;
         }
 
@@ -84,13 +85,14 @@ namespace ProjectUnknown.Strategy
                 movementStallTimer = 0f;
             }
 
-            movementStallTimer += Time.deltaTime;
-            if (movementStallTimer < WolfStallSeconds || Time.time < nextMovementStallLogTime)
+            movementStallTimer += Time.unscaledDeltaTime;
+            float now = Time.realtimeSinceStartup;
+            if (movementStallTimer < WolfStallSeconds || now < nextMovementStallLogTime)
             {
                 return;
             }
 
-            nextMovementStallLogTime = Time.time + WolfStallLogCooldownSeconds;
+            nextMovementStallLogTime = now + WolfStallLogCooldownSeconds;
             StrategyDebugLogger.Warn(
                 "Wildlife",
                 "WolfMovementStalled",
@@ -156,12 +158,13 @@ namespace ProjectUnknown.Strategy
 
         private bool LogWolfPathFailed(string reason, Vector2Int targetCell)
         {
-            if (Time.time < nextPathLogTime)
+            float now = Time.realtimeSinceStartup;
+            if (now < nextPathLogTime)
             {
                 return false;
             }
 
-            nextPathLogTime = Time.time + WolfPathLogCooldownSeconds;
+            nextPathLogTime = now + WolfPathLogCooldownSeconds;
             bool hasCurrentCell = TryGetCurrentCell(out Vector2Int currentCell);
             bool currentWalkable = hasCurrentCell
                 && StrategyWildlifeRiverCrossing.IsLandOrRiverCell(map, currentCell);
@@ -187,12 +190,13 @@ namespace ProjectUnknown.Strategy
 
         private bool LogWolfRoamFailed(string reason, Vector2Int currentCell, bool preferSafety)
         {
-            if (Time.time < nextPathLogTime)
+            float now = Time.realtimeSinceStartup;
+            if (now < nextPathLogTime)
             {
                 return false;
             }
 
-            nextPathLogTime = Time.time + WolfPathLogCooldownSeconds;
+            nextPathLogTime = now + WolfPathLogCooldownSeconds;
             StrategyDebugLogger.Warn(
                 "Wildlife",
                 "WolfRoamFailed",
@@ -209,12 +213,13 @@ namespace ProjectUnknown.Strategy
 
         private void LogWolfPathReady(string reason, Vector2Int requestedCell, Vector2Int pathCell)
         {
-            if (Time.time < nextPathLogTime)
+            float now = Time.realtimeSinceStartup;
+            if (now < nextPathLogTime)
             {
                 return;
             }
 
-            nextPathLogTime = Time.time + WolfPathLogCooldownSeconds;
+            nextPathLogTime = now + WolfPathLogCooldownSeconds;
             StrategyDebugLogger.Info(
                 "Wildlife",
                 "WolfPathReady",

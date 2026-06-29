@@ -13,14 +13,14 @@ namespace ProjectUnknown.Strategy
         private bool ShouldSkipThreatReaction(StrategyRabbitBehaviorState reactionState, Vector3 threatWorld)
         {
             return state == reactionState
-                && Time.time < nextThreatReactionRefreshTime
+                && Time.realtimeSinceStartup < nextThreatReactionRefreshTime
                 && (threatWorld - lastReactionThreatWorld).sqrMagnitude <= ThreatReactionRefreshDistanceSqr;
         }
 
         private void MarkThreatReaction(Vector3 threatWorld)
         {
             lastReactionThreatWorld = threatWorld;
-            nextThreatReactionRefreshTime = Time.time + ThreatReactionRefreshSeconds;
+            nextThreatReactionRefreshTime = Time.realtimeSinceStartup + ThreatReactionRefreshSeconds;
         }
     }
 }

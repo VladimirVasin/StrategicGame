@@ -21,7 +21,7 @@ namespace ProjectUnknown.Strategy
         private bool ShouldLogMigrationAbort(string kind, int id)
         {
             string key = kind + ":" + id;
-            float now = Time.time;
+            float now = Time.realtimeSinceStartup;
             if (migrationAbortLogTimes.TryGetValue(key, out float nextTime) && now < nextTime)
             {
                 return false;
@@ -33,7 +33,7 @@ namespace ProjectUnknown.Strategy
 
         private bool IsMigrationTargetCoolingDown(Vector2Int target)
         {
-            float now = Time.time;
+            float now = Time.realtimeSinceStartup;
             if (!migrationFailedTargetTimes.TryGetValue(target, out float nextTime))
             {
                 return false;
@@ -50,7 +50,7 @@ namespace ProjectUnknown.Strategy
 
         private void RegisterMigrationTargetFailure(Vector2Int target)
         {
-            migrationFailedTargetTimes[target] = Time.time + MigrationFailedTargetCooldownSeconds;
+            migrationFailedTargetTimes[target] = Time.realtimeSinceStartup + MigrationFailedTargetCooldownSeconds;
         }
     }
 }

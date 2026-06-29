@@ -79,12 +79,13 @@ namespace ProjectUnknown.Strategy
             int deerCount,
             int deerSurplus)
         {
-            if (Time.time < nextWolfPreySearchSkipLogTime)
+            float now = Time.realtimeSinceStartup;
+            if (now < nextWolfPreySearchSkipLogTime)
             {
                 return;
             }
 
-            nextWolfPreySearchSkipLogTime = Time.time + WolfPreySearchSkipLogInterval;
+            nextWolfPreySearchSkipLogTime = now + WolfPreySearchSkipLogInterval;
             StrategyDebugLogger.Info(
                 "Wildlife",
                 "WolfPreySearchSkipped",

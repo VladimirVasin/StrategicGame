@@ -45,7 +45,7 @@ namespace ProjectUnknown.Strategy
     [DisallowMultipleComponent]
     public sealed class StrategyDayNightCycleController : MonoBehaviour
     {
-        private const float CycleSeconds = 300f;
+        private const float CycleSeconds = 330f;
         private const float HoursPerDay = 24f;
         private const float ClockStartHour = 5f;
         private const float DawnEndHour = 7f;

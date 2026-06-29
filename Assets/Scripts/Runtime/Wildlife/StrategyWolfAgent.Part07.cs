@@ -24,7 +24,7 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            if (until > Time.time)
+            if (until > Time.realtimeSinceStartup)
             {
                 return true;
             }
@@ -59,7 +59,7 @@ namespace ProjectUnknown.Strategy
                     return true;
                 }
 
-                blockedRoamTargets[roamCell] = Time.time + WolfRoamPathFailureCooldownSeconds;
+                blockedRoamTargets[roamCell] = Time.realtimeSinceStartup + WolfRoamPathFailureCooldownSeconds;
             }
 
             MarkWolfRoamPathFailure(preferSafety);
@@ -68,14 +68,15 @@ namespace ProjectUnknown.Strategy
 
         private bool ShouldSkipWolfRoamPathAttempt(bool preferSafety)
         {
-            return Time.time < nextRoamPathAttemptTime
-                && (!preferSafety || nextRoamPathAttemptTime - Time.time <= WolfSafetyRoamRetryCooldownSeconds);
+            float now = Time.realtimeSinceStartup;
+            return now < nextRoamPathAttemptTime
+                && (!preferSafety || nextRoamPathAttemptTime - now <= WolfSafetyRoamRetryCooldownSeconds);
         }
 
         private void MarkWolfRoamPathFailure(bool preferSafety)
         {
             float cooldown = preferSafety ? WolfSafetyRoamRetryCooldownSeconds : WolfNormalRoamRetryCooldownSeconds;
-            nextRoamPathAttemptTime = Time.time + cooldown;
+            nextRoamPathAttemptTime = Time.realtimeSinceStartup + cooldown;
         }
 
         private void MarkWolfRoamPathSuccess()
@@ -87,14 +88,14 @@ namespace ProjectUnknown.Strategy
         {
             return hasLastTargetPathFailureCell
                 && targetCell == lastTargetPathFailureCell
-                && Time.time < nextTargetPathAttemptTime;
+                && Time.realtimeSinceStartup < nextTargetPathAttemptTime;
         }
 
         private void MarkWolfTargetPathFailure(Vector2Int targetCell)
         {
             hasLastTargetPathFailureCell = true;
             lastTargetPathFailureCell = targetCell;
-            nextTargetPathAttemptTime = Time.time + WolfTargetPathFailureCooldownSeconds;
+            nextTargetPathAttemptTime = Time.realtimeSinceStartup + WolfTargetPathFailureCooldownSeconds;
         }
 
         private void MarkWolfTargetPathSuccess()

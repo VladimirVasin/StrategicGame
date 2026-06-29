@@ -49,7 +49,7 @@ namespace ProjectUnknown.Strategy
             bool foundTarget = TryPickFleeTarget(threatWorld);
             if (!foundTarget)
             {
-                nextFailedFleeRetryTime = Time.time + FailedFleeRetrySeconds;
+                nextFailedFleeRetryTime = Time.realtimeSinceStartup + FailedFleeRetrySeconds;
                 if (state != StrategyDeerBehaviorState.Alert)
                 {
                     StartAlert(threatWorld, noisyThreat);
@@ -63,27 +63,27 @@ namespace ProjectUnknown.Strategy
 
         private void StartFailedFleeAlert(Vector3 threatWorld, bool noisyThreat)
         {
-            nextFailedFleeRetryTime = Time.time + FailedFleeRetrySeconds;
+            nextFailedFleeRetryTime = Time.realtimeSinceStartup + FailedFleeRetrySeconds;
             StartAlert(threatWorld, noisyThreat);
         }
 
         private bool ShouldSkipThreatReaction(StrategyDeerBehaviorState reactionState, Vector3 threatWorld)
         {
             return state == reactionState
-                && Time.time < nextThreatReactionRefreshTime
+                && Time.realtimeSinceStartup < nextThreatReactionRefreshTime
                 && (threatWorld - lastReactionThreatWorld).sqrMagnitude <= ThreatReactionRefreshDistanceSqr;
         }
 
         private bool ShouldDeferFailedFleeRetry(Vector3 threatWorld)
         {
-            return Time.time < nextFailedFleeRetryTime
+            return Time.realtimeSinceStartup < nextFailedFleeRetryTime
                 && (threatWorld - lastReactionThreatWorld).sqrMagnitude <= ThreatReactionRefreshDistanceSqr;
         }
 
         private void MarkThreatReaction(Vector3 threatWorld)
         {
             lastReactionThreatWorld = threatWorld;
-            nextThreatReactionRefreshTime = Time.time + ThreatReactionRefreshSeconds;
+            nextThreatReactionRefreshTime = Time.realtimeSinceStartup + ThreatReactionRefreshSeconds;
         }
     }
 }

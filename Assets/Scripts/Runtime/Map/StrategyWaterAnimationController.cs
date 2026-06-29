@@ -38,7 +38,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            frameTimer += Time.deltaTime;
+            frameTimer += Time.unscaledDeltaTime;
             if (frameTimer < FrameDuration)
             {
                 return;

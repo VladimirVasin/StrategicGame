@@ -109,7 +109,7 @@ Responsibilities:
 - Configure runtime ambience audio after camera setup.
 - Focus the initial camera view on the startup campfire after population creates it.
 - Configure water/shore animation after map generation.
-- Create/configure runtime footfall trail wear, building-route trail wear, building route-network convergence, and trail visuals after map generation.
+- Create/configure runtime building-route road capture and road visuals after map generation.
 - Create/configure the Stone resource registry before nature generation.
 - Configure nature props after the starter camp exists so generated props can avoid the campfire clear radius.
 - Create/configure forage resource nodes after nature generation so they use current walkability.
@@ -295,10 +295,10 @@ Responsibilities:
 - Expose `RiverFlowDirection` for systems that need to move or animate along the generated river current.
 - Paint procedural pixel-art terrain textures for generated map cells.
 - Render animated water waves, sparkles, shoreline foam, and weather-driven rain ripple hits as a transparent overlay.
-- Track weighted resident footfall wear on walkable/buildable land cells for functional movement/path-cost preference.
-- Track completed resident movement between different placed buildings as building-route wear, attach new routes to existing stable route-trail cells, decay stale route wear, and render visible formed trails from route wear as connected procedural sprites.
-- Maintain a budgeted route-network convergence queue so reachable non-Bridge buildings are gradually reinforced into one shared trail network through the same pathfinding and route-wear rules used by resident travel.
-- Expose formed functional trails from route or footfall wear as a 15% resident movement-speed bonus and a reduced resident pathfinding cost.
+- Track completed resident movement between different non-Bridge placed buildings as immediate stable road cells after one real traversal.
+- Keep resident footfalls from creating functional or visible roads, and keep automatic route-network convergence disabled.
+- Prune road cells only when map walkability or cell validity invalidates them; roads do not decay from disuse.
+- Expose formed roads as a 15% resident movement-speed bonus and a reduced resident pathfinding cost.
 - Feed generated cell kinds and active seed into the visual nature-props layer.
 - Feed generated land cells and active seed into Stone deposit generation.
 - Feed generated walkable land cells and active seed into underground Iron field generation.
@@ -376,9 +376,9 @@ Impact hints:
 - Future movement/pathfinding should use `IsCellWalkable` rather than terrain kind alone.
 - Rendering is currently a generated point-filtered texture on a `SpriteRenderer`, not a Tilemap.
 - Water and shore animation is a separate transparent `SpriteRenderer` overlay above the static map and below world props; it reads active weather intensity for rain ripple hits and repaints only cached water/shore cells after setup.
-- Trail visuals use one `SpriteRenderer` per visible route-trail cell under a `Trail Visuals` root, sorted above terrain/water overlays and below world props, with cardinal N/E/S/W right-angle masks, narrow line/brush sprites, supported weak-cell filtering, and route attachment to existing stable trails; visual trail formation comes from completed building-to-building traversals and budgeted route-network reinforcement rather than per-step footfall squares.
-- Trail wear is runtime-only and should be refreshed when walkability/buildability changes so blocked cells do not keep visible or functional trails.
-- Resident pathfinding and trail-network reinforcement should continue to use the shared trail-aware pathfinder, reading functional trail wear as a cost preference rather than required connectivity; do not tie movement bonuses to visual-only route filtering.
+- Trail visuals use one `SpriteRenderer` per visible route-road cell under a `Trail Visuals` root, sorted above terrain/water overlays and below world props, with cardinal N/E/S/W right-angle masks and narrow line/brush sprites; visual road formation comes from completed building-to-building traversals rather than per-step footfall squares or background network convergence.
+- Road cells are runtime-only and should be refreshed when map walkability or cell validity changes so blocked cells do not keep visible or functional roads.
+- Resident pathfinding should continue to use the shared road-aware pathfinder, reading functional road cells as a cost preference rather than required connectivity.
 
 ### Forestry MVP
 
@@ -425,6 +425,7 @@ Responsibilities:
 - Further reduce visibility source radii during dense Fog weather.
 - Render dense weather Fog inside explored-but-not-visible cells while leaving current visible cells clear.
 - Keep a daylight-range visibility mask for spawn systems that should not react to temporary nighttime sight loss.
+- Refresh visibility and texture painting on an unscaled real-time cadence so time acceleration does not multiply fog repaint work.
 - Provide exploration checks to placement and world selection.
 - Expose a player-fog enabled setter for debug controls without clearing explored state.
 
@@ -544,6 +545,7 @@ Responsibilities:
 - Keep river fish on the generated river route until they despawn at the route end.
 - Keep birds on local habitat choices inside loose home ranges without blocking map cells.
 - Periodically migrate deer herds, rabbit groups, wolf packs, decorative bird homes, and lake fish shoals by retargeting their loose home centers toward new suitable habitat.
+- Split migration processing by species across successive frames so migration spikes stay bounded under time acceleration.
 - Keep land wildlife migration away from dense settlement pressure and choose/advance land targets only through connected walkable routes so herds/packs do not jump through water or blockers.
 - Temporarily cool down failed migration target cells so groups do not repeatedly choose cells that already aborted.
 - React to nearby residents and noisy work by switching to alert/flee states.
@@ -624,6 +626,7 @@ Impact hints:
 - Wolves no longer use ordinary resident target acquisition when no surplus prey is available.
 - Wolf pack placement uses the generated river route to prefer alternating river sides, but falls back to any valid safe side and logs `WolfPackRiverSideFallback` if one side has no candidate.
 - Wolf movement diagnostics are owned by `StrategyWolfAgent` and log state changes, target acquisition/release, path readiness/failures, roam failures, and movement stalls under the `Wildlife` log category.
+- Threat checks, settlement caches, retry cooldowns, and wildlife diagnostics use real-time cadences where they are service/diagnostic work rather than core movement or growth.
 - `FishLakeBirthBlocked` debug logging is throttled per lake region; keep cap checks cheap and avoid per-fish spam when a lake is full.
 - Fisher Hut fish reservation can pass a requester reachability filter into wildlife selection; keep this pre-reservation filter so fishers do not reserve fish whose shore stand cell is unreachable.
 - Future deer hunting, leather, broader predator ecology, wolf HUD, or animal saving should extend this subsystem instead of adding animal behavior into population or nature-prop code.
@@ -809,7 +812,7 @@ Impact hints:
 
 - Current controls read direct Input System keyboard state, not generated input actions.
 - The Build HUD also calls this controller from x1/x2/x3 buttons under the top-left construction resource panel.
-- Time scale affects gameplay timers using scaled `Time.deltaTime`; UI using `Time.unscaledDeltaTime` should remain visually stable.
+- Time scale affects gameplay timers using scaled `Time.deltaTime`; UI, visual overlays, service caches, diagnostics throttles, and expensive maintenance loops should use unscaled time/realtime when their cadence should remain stable at x2/x3.
 - Future pause, speed HUD, or settings should extend this controller instead of adding separate `Time.timeScale` writes.
 - Modal systems should use pause locks instead of writing `Time.timeScale = 0` directly.
 
@@ -1685,7 +1688,7 @@ Responsibilities:
 
 - Create the starter camp with an animated campfire.
 - Select the starter camp cell on walkable land at least 6 cells from generated water/shore when possible.
-- Block the campfire cell while the fire is burning, then release it after the campfire burns out and disappears.
+- Keep the campfire lit only during `Night`, block the campfire cell while burning, then release it after burnout or daylight extinguish.
 - Expose the starter camp world position for the initial camera focus.
 - Spawn 3 initial families at startup, each with a father, a mother, and 1-2 adult children.
 - Assign random Germanic/Nordic-style full names and age-appropriate adult ages to startup family members.
@@ -1781,7 +1784,7 @@ Responsibilities:
 - Add synced resident readability renderers: silhouette outline and ground shadow.
 - Generate resident campfire kindling and ground-sleep sprites for homeless night sleep.
 - Generate and animate procedural campfire flame, smoke/spark, ember, and relight frames at runtime.
-- Drive campfire burnout into persistent embers, restore campfire-cell walkability while extinguished, and support resident-triggered relight.
+- Drive campfire burnout/daylight extinguish into persistent embers, restore campfire-cell walkability while extinguished, and support resident-triggered nighttime relight.
 - Drive simple chicken idle movement around standalone or legacy linked Chicken Coops with walk and peck sprite animations, plus standalone coop night shelter/release visuals.
 - Drive standalone Chicken Coop egg production from a cycle timer synchronized with the coop's nest/egg animation frames.
 - Expose runtime residents as read-only visibility sources for fog of war.
@@ -1909,7 +1912,8 @@ Impact hints:
 - `StrategyKinshipUtility` treats close parent/ancestor graph distance as a block for future couple/family rules, including ancestors whose resident GameObjects were destroyed after death.
 - Resident readability helpers are visual-only child `SpriteRenderer`s and should stay synced when changing resident animation frames.
 - Residents use the shared trail-aware 8-direction A* grid pathfinder with no diagonal corner cutting and post-path smoothing for idle, home, workplace, construction, logistics, and funeral travel while keeping frame-based sprite walk cycles.
-- Resident movement records activity-weighted trail footfall per entered visible resident cell for functional trail preference, records completed building-to-building route traversals for visible trail formation, and formed trails apply a 15% speed bonus.
+- Resident trail-aware path creation has a per-frame budget to avoid x2/x3 mass state-change spikes; excess attempts retry through normal task flow.
+- Resident movement records completed building-to-building route traversals as immediate stable roads after real arrivals, while ordinary footfalls no longer create functional or visible roads; formed roads apply a 15% speed bonus.
 - Resident pathfinding can recover a blocked start cell by snapping to a nearby walkable cell and logging `PathStartRecovered`.
 - Resident scheduled work starts only during `StrategyDayNightCycleController.IsSettlementWorkTime`, which now covers Dawn through Dusk on every day. Keep carried-resource returns, deposits, and cleanup paths schedule-safe so nightfall cannot strand stock reservations.
 - Resident night sleep is separate from homebound young-child hiding: housed residents only enter the hidden home interior during `Night` when they are not carrying resources, in funeral duty, or underground, notify household food state for dinner readiness, then reappear at the home exit after night ends. Homeless residents instead reserve reachable campfire sleep spots, relight embers if needed, and sleep visibly around the startup campfire with a small `Zzz...` indicator.

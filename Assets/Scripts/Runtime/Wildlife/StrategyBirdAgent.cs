@@ -100,6 +100,7 @@ namespace ProjectUnknown.Strategy
                 : StrategyBirdBehaviorState.Idle;
             waitTimer = Random.Range(0.45f, 1.6f);
             stateTimer = waitTimer;
+            threatCheckTimer = Random.Range(0f, ThreatCheckInterval);
             ApplySprite(state == StrategyBirdBehaviorState.Swimming ? StrategyBirdSpritePose.Swim : StrategyBirdSpritePose.Idle, Random.Range(0, StrategyBirdSpriteFactory.IdleFrameCount));
             EnsureShadowRenderer();
             UpdateWorldSorting();
@@ -170,7 +171,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            threatCheckTimer -= Time.deltaTime;
+            threatCheckTimer -= Time.unscaledDeltaTime;
             if (threatCheckTimer > 0f)
             {
                 return;

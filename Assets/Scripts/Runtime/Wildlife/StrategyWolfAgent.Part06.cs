@@ -15,7 +15,7 @@ namespace ProjectUnknown.Strategy
         private bool TryStartRiverEscape()
         {
             if (!StrategyWildlifeRiverCrossing.IsRiverCell(map, transform.position)
-                || Time.time < nextWolfEscapeAttemptTime)
+                || Time.realtimeSinceStartup < nextWolfEscapeAttemptTime)
             {
                 return false;
             }
@@ -31,7 +31,7 @@ namespace ProjectUnknown.Strategy
 
         private void ScheduleWolfEscapeRetry()
         {
-            nextWolfEscapeAttemptTime = Time.time + Random.Range(WolfEscapeRetryCooldownMin, WolfEscapeRetryCooldownMax);
+            nextWolfEscapeAttemptTime = Time.realtimeSinceStartup + Random.Range(WolfEscapeRetryCooldownMin, WolfEscapeRetryCooldownMax);
         }
 
         private bool IsWolfUrgentEscapeCell(Vector2Int cell)

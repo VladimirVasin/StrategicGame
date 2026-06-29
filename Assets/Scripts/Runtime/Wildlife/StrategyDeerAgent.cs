@@ -143,6 +143,7 @@ namespace ProjectUnknown.Strategy
             state = StrategyDeerBehaviorState.Idle;
             waitTimer = Random.Range(0.35f, 1.4f);
             stateTimer = waitTimer;
+            threatCheckTimer = Random.Range(0f, ThreatCheckInterval);
             ApplySprite(StrategyDeerSpritePose.Idle, Random.Range(0, StrategyDeerSpriteFactory.IdleFrameCount));
             EnsureReadabilityRenderers();
             UpdateWorldSorting();
@@ -316,7 +317,7 @@ namespace ProjectUnknown.Strategy
 
         private void UpdateThreatAwareness()
         {
-            threatCheckTimer -= Time.deltaTime;
+            threatCheckTimer -= Time.unscaledDeltaTime;
             if (threatCheckTimer > 0f)
             {
                 return;

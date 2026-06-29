@@ -6,7 +6,6 @@ namespace ProjectUnknown.Strategy
     [DisallowMultipleComponent]
     public sealed partial class StrategyTrailController : MonoBehaviour
     {
-        private const float FootfallWear = 1f;
         private const float MaxWear = 100f;
         private const float FaintThreshold = 14f;
         private const float ClearThreshold = 34f;
@@ -46,6 +45,7 @@ namespace ProjectUnknown.Strategy
         public static StrategyTrailController Active { get; private set; }
         public float SpeedMultiplier => TrailSpeedMultiplier;
         public float PathCostMultiplier => TrailPathCostMultiplier;
+        public bool RecordsFootfalls => false;
 
         public void Configure(CityMapController mapController)
         {
@@ -70,7 +70,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            decayTimer += Time.deltaTime;
+            decayTimer += Time.unscaledDeltaTime;
             if (decayTimer < DecayTickSeconds)
             {
                 return;
@@ -79,7 +79,7 @@ namespace ProjectUnknown.Strategy
             float elapsed = decayTimer;
             decayTimer = 0f;
             DecayOldTrails(elapsed);
-            DecayOldRouteTrails(elapsed);
+            PruneInvalidRouteRoads();
             UpdateRouteNetwork(elapsed);
             LogTrailStatsIfDue(elapsed);
         }
@@ -91,37 +91,8 @@ namespace ProjectUnknown.Strategy
 
         public void RecordFootfall(Vector2Int cell, float weight)
         {
-            if (weight <= 0f)
-            {
-                RecordRejectedFootfall(cell, weight, "non_positive_weight");
-                return;
-            }
-
-            string rejectReason = GetWearRejectReason(cell);
-            if (rejectReason != null)
-            {
-                RecordRejectedFootfall(cell, weight, rejectReason);
-                return;
-            }
-
-            EnsureStorage();
-            byte oldLevel = levels[cell.x, cell.y];
-            float oldWear = wear[cell.x, cell.y];
-            float newWear = Mathf.Min(MaxWear, oldWear + FootfallWear * Mathf.Clamp(weight, 0.05f, 2.0f));
-            wear[cell.x, cell.y] = newWear;
-            lastFootfallTimes[cell.x, cell.y] = Time.time;
-            activeWearCells.Add(GetKey(cell));
-
-            byte newLevel = GetLevelForWear(newWear);
-            RecordAcceptedFootfall();
-            if (newLevel == oldLevel)
-            {
-                return;
-            }
-
-            levels[cell.x, cell.y] = newLevel;
-            RecordTrailLevelChange(cell, oldLevel, newLevel, oldWear, newWear, "footfall");
-            RefreshCellAndNeighbors(cell);
+            _ = cell;
+            _ = weight;
         }
 
         private void DecayOldTrails(float elapsed)

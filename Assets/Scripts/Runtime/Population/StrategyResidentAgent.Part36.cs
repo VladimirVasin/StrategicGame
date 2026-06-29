@@ -5,6 +5,14 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyResidentAgent
     {
+        private const int TrailPathBuildBudgetPerFrame = 32;
+        private const float TrailPathBudgetLogIntervalSeconds = 6f;
+
+        private static int trailPathBudgetFrame = -1;
+        private static int trailPathBuildsThisFrame;
+        private static int trailPathBudgetDeferralsSinceLog;
+        private static float nextTrailPathBudgetLogTime;
+
         private readonly StrategyTrailPathfinder trailPathfinder = new();
         private bool hasLastTrailFootfallCell;
         private Vector2Int lastTrailFootfallCell;
@@ -56,6 +64,7 @@ namespace ProjectUnknown.Strategy
         {
             StrategyTrailController trails = StrategyTrailController.Active;
             if (trails == null
+                || !trails.RecordsFootfalls
                 || map == null
                 || deathRequested
                 || hiddenInsideHome
@@ -114,6 +123,11 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
+            if (!TryConsumeTrailPathBuildBudget())
+            {
+                return false;
+            }
+
             if (!trailPathfinder.TryBuildPath(map, startCell, targetCell))
             {
                 return false;
@@ -121,6 +135,37 @@ namespace ProjectUnknown.Strategy
 
             BuildTrailWorldPath(startCell, targetCell, trailPathfinder.RawCells, trailPathfinder.SmoothedCells);
             return path.Count > 0;
+        }
+
+        private static bool TryConsumeTrailPathBuildBudget()
+        {
+            int frame = Time.frameCount;
+            if (trailPathBudgetFrame != frame)
+            {
+                trailPathBudgetFrame = frame;
+                trailPathBuildsThisFrame = 0;
+            }
+
+            if (trailPathBuildsThisFrame < TrailPathBuildBudgetPerFrame)
+            {
+                trailPathBuildsThisFrame++;
+                return true;
+            }
+
+            trailPathBudgetDeferralsSinceLog++;
+            float now = Time.realtimeSinceStartup;
+            if (now >= nextTrailPathBudgetLogTime)
+            {
+                StrategyDebugLogger.Info(
+                    "Population",
+                    "ResidentPathBuildBudgetDeferred",
+                    StrategyDebugLogger.F("deferred", trailPathBudgetDeferralsSinceLog),
+                    StrategyDebugLogger.F("budgetPerFrame", TrailPathBuildBudgetPerFrame));
+                trailPathBudgetDeferralsSinceLog = 0;
+                nextTrailPathBudgetLogTime = now + TrailPathBudgetLogIntervalSeconds;
+            }
+
+            return false;
         }
 
         private void BuildTrailWorldPath(

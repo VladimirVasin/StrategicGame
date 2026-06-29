@@ -146,7 +146,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            householdMigrationTimer -= Time.deltaTime;
+            householdMigrationTimer -= Time.unscaledDeltaTime;
             if (householdMigrationTimer > 0f)
             {
                 return;

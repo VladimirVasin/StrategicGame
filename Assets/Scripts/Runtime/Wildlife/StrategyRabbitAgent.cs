@@ -160,6 +160,7 @@ namespace ProjectUnknown.Strategy
             state = StrategyRabbitBehaviorState.Idle;
             waitTimer = Random.Range(0.25f, 1.05f);
             stateTimer = waitTimer;
+            threatCheckTimer = Random.Range(0f, ThreatCheckInterval);
             ApplySprite(StrategyRabbitSpritePose.Idle, Random.Range(0, StrategyRabbitSpriteFactory.IdleFrameCount));
             EnsureReadabilityRenderers();
             UpdateWorldSorting();
