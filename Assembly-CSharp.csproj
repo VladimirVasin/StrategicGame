@@ -143,6 +143,7 @@
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyDeerAgent.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyCoalPit.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyTrailController.Diagnostics.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Map\StrategyTrailPathfinder.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyNatureFrameAnimator.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part19.cs" />
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyLooseCarriedResourcePile.cs" />
@@ -207,6 +208,7 @@
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part35.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyFishAgent.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyTrailController.Visibility.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Map\StrategyTrailRouteCellBuilder.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyHouseAmbientAnimator.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildPlacementController.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\Selection\StrategyWorldInspectInfo.cs" />
@@ -332,6 +334,7 @@
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part11.cs" />
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyResourceType.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyTrailController.Routes.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Map\StrategyTrailController.Network.cs" />
     <Compile Include="Assets\Scripts\Runtime\Selection\StrategyWorldSelectionController.Part13.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyFamilyTreeHudController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part47.cs" />

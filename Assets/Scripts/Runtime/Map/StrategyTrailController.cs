@@ -53,6 +53,7 @@ namespace ProjectUnknown.Strategy
             Active = this;
             EnsureStorage();
             EnsureVisualRoot();
+            ResetRouteNetwork();
             RefreshArea(Vector2Int.zero, map != null ? new Vector2Int(map.Width, map.Height) : Vector2Int.zero);
             StrategyDebugLogger.Info(
                 "Map",
@@ -79,6 +80,7 @@ namespace ProjectUnknown.Strategy
             decayTimer = 0f;
             DecayOldTrails(elapsed);
             DecayOldRouteTrails(elapsed);
+            UpdateRouteNetwork(elapsed);
             LogTrailStatsIfDue(elapsed);
         }
 
@@ -213,6 +215,8 @@ namespace ProjectUnknown.Strategy
                     RefreshCell(new Vector2Int(x, y));
                 }
             }
+
+            RequestRouteNetworkScan();
         }
 
         private byte GetTrailLevel(Vector2Int cell)
@@ -375,6 +379,7 @@ namespace ProjectUnknown.Strategy
 
         private void OnDestroy()
         {
+            UnsubscribeRouteNetworkPlacement();
             if (Active == this)
             {
                 Active = null;

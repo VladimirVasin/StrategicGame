@@ -104,6 +104,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Runtime water/shore overlay animates shallow/deep tint, river-flow streaks, lake sparkles, broken shoreline foam, wet shore edges, and weather-driven rain ripple hits over the static map texture
     - Runtime trail layer records weighted resident footfall wear for functional movement/path-cost preference
     - Completed resident movement between two different placed buildings records building-route wear for visible trail formation, with new routes attaching to existing stable route-trail cells instead of always drawing full parallel A-B paths
+    - A budgeted trail route-network queue listens for completed buildings and gradually reinforces reachable non-Bridge buildings into one shared network using the same walkable pathfinding and route-wear rules as resident travel
     - Trail wear decays after cells go unused long enough, letting stale trails fade back out of view
     - Route trail cells render connected procedural sprites using cardinal N/E/S/W right-angle masks, wear levels, deterministic variants, and weak-cell support filtering
     - Formed functional trails give residents a 15% movement-speed bonus and reduce resident pathfinding cost without becoming required routes
@@ -622,7 +623,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Construction depends on Storage Yard resource reservations, loose construction pile reservations, idle Hauler construction-material fallback delivery, hired Storage Yard builder assignments, construction-site blockers, placed-building finalization, F9 instant-construction debug options, and the world-selection HUD.
 - Population uses placed-building records, construction sites, the generated map walkability/trail layers, and workplace assignments; home/family assignment is independent from work/construction assignment.
 - Resident footsteps depend on population agents and the non-generated grass footstep clip set.
-- Resident movement records activity-weighted footfall into the trail layer for functional preference, records completed building-to-building route traversals for visible trail formation, and reads formed trails for 8-direction A* path-cost preference plus a 15% movement-speed bonus.
+- Resident movement records activity-weighted footfall into the trail layer for functional preference, records completed building-to-building route traversals for visible trail formation, shares trail-aware 8-direction A* pathfinding with route-network reinforcement, and reads formed trails for path-cost preference plus a 15% movement-speed bonus.
 - World selection uses placed-building/resident/construction-site colliders, inspectable world-object sprite bounds, generated map cell data, fog state, the strategy camera, house resource state, and production-building upgrade state.
 - Profession HUD depends on population adults and current worksite components; it owns player-facing worker assignment/removal while existing worksite components still own role state and work loops, with Storage Yard Haulers/builders treated as uncapped roles.
 - Refugee arrival demand depends on accepted adult counts plus finite worksite/construction slot counts, while intentionally ignoring uncapped Storage Yard Hauler/builder capacity.

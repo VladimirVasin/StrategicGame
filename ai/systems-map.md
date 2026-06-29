@@ -109,7 +109,7 @@ Responsibilities:
 - Configure runtime ambience audio after camera setup.
 - Focus the initial camera view on the startup campfire after population creates it.
 - Configure water/shore animation after map generation.
-- Create/configure runtime footfall trail wear, building-route trail wear, and trail visuals after map generation.
+- Create/configure runtime footfall trail wear, building-route trail wear, building route-network convergence, and trail visuals after map generation.
 - Create/configure the Stone resource registry before nature generation.
 - Configure nature props after the starter camp exists so generated props can avoid the campfire clear radius.
 - Create/configure forage resource nodes after nature generation so they use current walkability.
@@ -153,8 +153,11 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Map/StrategyWaterAnimationController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.Diagnostics.cs`
+- `Assets/Scripts/Runtime/Map/StrategyTrailController.Network.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.Routes.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.Visibility.cs`
+- `Assets/Scripts/Runtime/Map/StrategyTrailPathfinder.cs`
+- `Assets/Scripts/Runtime/Map/StrategyTrailRouteCellBuilder.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Map/StrategyStoneResourceController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyForageResourceController.cs`
@@ -294,6 +297,7 @@ Responsibilities:
 - Render animated water waves, sparkles, shoreline foam, and weather-driven rain ripple hits as a transparent overlay.
 - Track weighted resident footfall wear on walkable/buildable land cells for functional movement/path-cost preference.
 - Track completed resident movement between different placed buildings as building-route wear, attach new routes to existing stable route-trail cells, decay stale route wear, and render visible formed trails from route wear as connected procedural sprites.
+- Maintain a budgeted route-network convergence queue so reachable non-Bridge buildings are gradually reinforced into one shared trail network through the same pathfinding and route-wear rules used by resident travel.
 - Expose formed functional trails from route or footfall wear as a 15% resident movement-speed bonus and a reduced resident pathfinding cost.
 - Feed generated cell kinds and active seed into the visual nature-props layer.
 - Feed generated land cells and active seed into Stone deposit generation.
@@ -318,8 +322,11 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Map/StrategyWaterAnimationController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.Diagnostics.cs`
+- `Assets/Scripts/Runtime/Map/StrategyTrailController.Network.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.Routes.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.Visibility.cs`
+- `Assets/Scripts/Runtime/Map/StrategyTrailPathfinder.cs`
+- `Assets/Scripts/Runtime/Map/StrategyTrailRouteCellBuilder.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Map/StrategyMapDistributionUtility.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTerrainTexturePainter.cs`
@@ -369,9 +376,9 @@ Impact hints:
 - Future movement/pathfinding should use `IsCellWalkable` rather than terrain kind alone.
 - Rendering is currently a generated point-filtered texture on a `SpriteRenderer`, not a Tilemap.
 - Water and shore animation is a separate transparent `SpriteRenderer` overlay above the static map and below world props; it reads active weather intensity for rain ripple hits and repaints only cached water/shore cells after setup.
-- Trail visuals use one `SpriteRenderer` per visible route-trail cell under a `Trail Visuals` root, sorted above terrain/water overlays and below world props, with cardinal N/E/S/W right-angle masks, narrow line/brush sprites, supported weak-cell filtering, and route attachment to existing stable trails; visual trail formation comes from completed building-to-building traversals rather than per-step footfall squares.
+- Trail visuals use one `SpriteRenderer` per visible route-trail cell under a `Trail Visuals` root, sorted above terrain/water overlays and below world props, with cardinal N/E/S/W right-angle masks, narrow line/brush sprites, supported weak-cell filtering, and route attachment to existing stable trails; visual trail formation comes from completed building-to-building traversals and budgeted route-network reinforcement rather than per-step footfall squares.
 - Trail wear is runtime-only and should be refreshed when walkability/buildability changes so blocked cells do not keep visible or functional trails.
-- Resident pathfinding should continue to read functional trail wear as a cost preference, not as required connectivity; do not tie movement bonuses to visual-only route filtering.
+- Resident pathfinding and trail-network reinforcement should continue to use the shared trail-aware pathfinder, reading functional trail wear as a cost preference rather than required connectivity; do not tie movement bonuses to visual-only route filtering.
 
 ### Forestry MVP
 
@@ -1887,7 +1894,7 @@ Impact hints:
 - Householder assignment clears external worksite/builder roles through their owning worksite APIs and uses `TendingHousehold` instead of `Idle` for home duty.
 - `StrategyKinshipUtility` treats close parent/ancestor graph distance as a block for future couple/family rules, including ancestors whose resident GameObjects were destroyed after death.
 - Resident readability helpers are visual-only child `SpriteRenderer`s and should stay synced when changing resident animation frames.
-- Residents use trail-aware 8-direction A* grid paths with no diagonal corner cutting and post-path smoothing for idle, home, workplace, construction, logistics, and funeral travel while keeping frame-based sprite walk cycles.
+- Residents use the shared trail-aware 8-direction A* grid pathfinder with no diagonal corner cutting and post-path smoothing for idle, home, workplace, construction, logistics, and funeral travel while keeping frame-based sprite walk cycles.
 - Resident movement records activity-weighted trail footfall per entered visible resident cell for functional trail preference, records completed building-to-building route traversals for visible trail formation, and formed trails apply a 15% speed bonus.
 - Resident pathfinding can recover a blocked start cell by snapping to a nearby walkable cell and logging `PathStartRecovered`.
 - Resident scheduled work starts only during `StrategyDayNightCycleController.IsSettlementWorkTime`, which now covers Dawn through Dusk on every day. Keep carried-resource returns, deposits, and cleanup paths schedule-safe so nightfall cannot strand stock reservations.

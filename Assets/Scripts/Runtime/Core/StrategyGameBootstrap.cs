@@ -308,6 +308,7 @@ namespace ProjectUnknown.Strategy
 
             fog.Configure(map, population, placement, weather);
             placement.Configure(map, buildMenu, mainCamera, population, fog, forestry, stone, upgrades);
+            trails.ConfigureRouteNetwork(placement);
             if (population.TryGetCampCell(out Vector2Int starterStorageCampCell))
             {
                 placement.TryPlaceStarterStorageYard(starterStorageCampCell, InitialStorageLogs, InitialStorageStone);

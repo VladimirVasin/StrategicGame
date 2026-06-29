@@ -8,6 +8,13 @@ Last updated: 2026-06-29
 
 ## Done
 
+### 2026-06-29 - Trail route network convergence
+
+- Extracted resident trail-aware A* pathfinding into shared `StrategyTrailPathfinder` and shared cardinal route-cell expansion into `StrategyTrailRouteCellBuilder`.
+- Added a budgeted `StrategyTrailController` route-network queue that listens to completed buildings, connects non-Bridge buildings to the existing route network through real walkable paths, and reinforces those paths through the existing `RecordBuildingRouteTraversal` route-wear rules.
+- Kept trail invariants intact: endpoints still use route wear multipliers, stable-route attachment still owns recorded ranges, water/Bridge/non-walkable cells are rejected by the existing wear filter, and resident movement still treats trails as a path-cost preference plus speed bonus.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
 ### 2026-06-29 - Active-registry logistics optimization pass
 
 - Added `StrategyPlacedBuilding.CopyActiveComponents<T>()` and replaced performance-sensitive scene-wide component searches in Storage Yard, Granary, Stonecutter Camp, Forage respawn, household food fallback, Hauler construction fallback, and Hunter Camp wildlife support spawn paths with active-building or active-construction-site registry queries.
