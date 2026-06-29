@@ -116,7 +116,7 @@ Responsibilities:
 - Configure fog of war after population, placement, and map controllers exist.
 - Create/configure the F9 runtime debug panel after fog/weather are ready.
 - Provide shared debug options such as instant free construction for runtime test workflows.
-- Place the starter Storage Yard near the campfire with initial Logs and Stone after placement is configured.
+- Place the temporary starter Caravan Cart near the campfire with initial Logs, Stone, and randomized food after placement is configured.
 - Create/configure runtime wildlife after starter placement so deer/rabbits use valid land and fish use valid water cells.
 - Create/configure visual day/night cycle after camera setup.
 - Create/configure runtime post-processing after weather/day-night setup.
@@ -873,7 +873,7 @@ Primary files/assets:
 
 Impact hints:
 
-- The public `StrategyBuildMenuController` component is a thin wrapper; `StrategyBuildMenuControllerDriver` owns selected active build tool data and reads `StrategyStorageYard.GetTotalConstructionResources()` for affordability, including Storage Yard stock and loose piles, unless F9 instant construction debug mode is enabled.
+- The public `StrategyBuildMenuController` component is a thin wrapper; `StrategyBuildMenuControllerDriver` owns selected active build tool data and reads `StrategyStorageYard.GetTotalConstructionResources()` for affordability, including Storage Yard stock, production-local construction stock, loose piles, and the starter cart unless F9 instant construction debug mode is enabled.
 - Placement reads `StrategyBuildMenuController.ActiveTool` / active tool info.
 - Starter goals call `StrategyBuildMenuController.SetAllowedTools()` and `ClearAllowedTools()`; keep lock checks shared by mouse clicks, hotkeys, active tool info, subcategory visibility, and affordability/selection visuals.
 - Current catalog has user-requested buildings only: `House`, `Lumberjack Camp`, `Stonecutter Camp`, `Sawmill`, `Kiln`, `Forge`, `Hunter Camp`, `Fisher Hut`, `Forager Camp`, `Mine`, `Coal Pit`, `Clay Pit`, `Storage Yard`, `Granary`, `Trading Post`, and `Bridge`; do not add more without a user request.
@@ -1103,7 +1103,7 @@ Responsibilities:
 - Choose random granary visual variants for placed granaries while keeping menu/preview art stable.
 - Choose random trading post visual variants for placed trading posts while keeping menu/preview art stable.
 - Add ambient smoke/window-light overlays to placed houses.
-- Reserve construction Logs/Stone/Planks from Storage Yards before accepting a construction site, with loose construction piles as fallback sources.
+- Reserve construction Logs/Stone/Planks through the shared storage facade before accepting a construction site, including loose piles, Storage Yards, production-local construction stock, and the low-priority starter Caravan Cart.
 - Mark occupied cells when construction sites are accepted.
 - Support Bridge as a special two-click placement tool: select one valid river bank, highlight opposite-bank candidates across contiguous River water, then create a construction site from the selected span.
 - Create runtime placed-building records with selected visual variant data after construction completes.
@@ -1116,6 +1116,7 @@ Responsibilities:
 - Sawmill places a `StrategySawmill` worksite component, blocks its technical 3x2 footprint plus one visual row above, and hosts local visual Logs/Planks stockpiles plus active sawing overlay art.
 - Kiln places a `StrategyKiln` worksite component, blocks its technical 2x2 footprint plus one visual row above, and hosts local visual Clay/Coal/Pottery stockpiles plus active firing overlay art.
 - Storage yard places a `StrategyStorageYard` worksite component, blocks its technical 3x2 footprint plus one visual row above, and hosts local visual Logs/Stone/Iron/Coal/Clay/Planks/Pottery stockpiles.
+- Starter Caravan Cart places a `StrategyStarterCaravanCart` temporary stock component, blocks its technical 3x2 footprint plus one visual row above, transfers available construction stock into completed Storage Yards, and despawns when empty.
 - Hunter camp places a `StrategyHunterCamp` worksite component, blocks its technical 2x2 footprint plus one visual row above, and hosts a local visual `Game` stockpile.
 - Fisher hut places a `StrategyFisherHut` worksite component, blocks its technical 2x2 footprint plus one visual row above, requires nearby water/shore access, and hosts a local visual `Fish` stockpile.
 - Forager Camp places a `StrategyForagerCamp` worksite component, blocks its technical 2x2 footprint plus one visual row above, and hosts local visual Berries/Roots/Mushrooms stock.
@@ -1124,7 +1125,7 @@ Responsibilities:
 - Clay Pit places a `StrategyClayPit` worksite component, blocks its technical 2x2 footprint plus one visual row above, requires an available near-water Clay field under its footprint, and hosts a local visual Clay stockpile.
 - Granary places a `StrategyGranary` food-storage component, blocks its technical 3x2 footprint plus one visual row above, and hosts local visual `Game`/`Fish` stockpiles.
 - Trading Post places a `StrategyTradingPost` trade endpoint component, blocks its technical 3x2 footprint plus one visual row above, and exposes nearby walkable stop cells for caravan visits.
-- Accepted construction sites request active builders from the uncapped hired Storage Yard builder pool through balanced dispatch across all active sites, show material-drop and hammer-hit effects, let builders hammer up to the progress cap allowed by physically delivered materials, and can wait if none are free yet.
+- Accepted construction sites request active builders from the uncapped hired Storage Yard builder pool or the small starter-cart temporary builder pool through balanced dispatch across all active sites, show material-drop and hammer-hit effects, let builders hammer up to the progress cap allowed by physically delivered materials, and can wait if none are free yet.
 - Bridge creates no worksite component, stores its selected span cells/endpoints on the placed-building record, and exposes bank endpoint cells as construction work/dropoff candidates so builders choose a reachable shore and do not stand in water.
 - Completed house sites ask population to populate the finished house separately from the construction crew.
 - Completed construction emits a placed-building completion event used by starter goals and future onboarding/progression systems.
@@ -1276,7 +1277,7 @@ Primary files/assets:
 Impact hints:
 
 - Current resources are house-local runtime counts, not global economy inventory.
-- Current normal house-local ingredient source is Householder delivery of raw `Fish`/`Game`/`Eggs`/forage food from Granaries, with direct Hunter Camp/Fisher Hut/Forager Camp/Chicken Coop fallback only when no Granary food is available.
+- Current normal house-local ingredient source is Householder delivery of raw `Fish`/`Game`/`Eggs`/forage food from Granaries, then the starter Caravan Cart while stocked, with direct Hunter Camp/Fisher Hut/Forager Camp/Chicken Coop fallback only when no stored food is available.
 - Household foraging from Houses and Garden Beds/House Chicken Coop upgrade paths are inactive legacy paths; Forager Camps are the active external source for forage food and standalone Chicken Coops are the active external source for Eggs.
 - Eggs, crops, forage, `Game`, and `Fish` are raw ingredients that can be stored at home and cooked into recipe-based prepared dishes; Eggs now come from standalone Chicken Coops, while crop ingredients still have no normal active production path.
 - Current dish recipes span Poor/Common/Hearty/Fine/Feast quality tiers; quality currently affects ration value and HUD/debug context, not morale.
@@ -1406,7 +1407,7 @@ Responsibilities:
 
 - Add `Storage Yard` as a placed storage building with local Logs, Stone, Iron, Coal, Clay, Planks, Pottery, and Tools stock.
 - Keep Storage Yard stock uncapped.
-- Spawn a starter Storage Yard near the campfire with 20 Logs and 20 Stone.
+- Starter storage now begins in a temporary Caravan Cart near the campfire rather than a prebuilt Storage Yard.
 - Assign uncapped residents as Haulers, constrained by available adult residents and exclusive workplace state.
 - Hire uncapped additional residents as dedicated construction builders, constrained by available adult residents and exclusive workplace/construction state.
 - Find lumberjack camps with available stored Logs and reserve stock for haulers.
@@ -1422,8 +1423,10 @@ Responsibilities:
 - Find loose construction resource piles and reserve Logs/Stone/Planks for haulers after construction cancellation.
 - Reserve Logs/Stone/Planks for accepted construction sites.
 - Include loose construction resource piles in construction affordability and reservations.
+- Include production-local Lumberjack Camp Logs, Stonecutter Camp Stone, and Sawmill Planks in construction affordability and reservations while the stock is physically present.
+- Include low-priority starter Caravan Cart Logs/Stone/Planks in construction affordability and reservations while it has stock.
 - Provide reserved construction resource pickup cells for builders.
-- Provide a shared construction resource source path so builders can pick up from Storage Yards or loose construction resource piles.
+- Provide a shared construction resource source path so builders can pick up from Storage Yards, loose construction resource piles, production-local construction stock, or the low-priority starter Caravan Cart.
 - Dispatch hired builders across waiting construction sites, favoring empty and lower-builder-count sites before stacking extras.
 - Route Haulers to source camps, pick up Logs, carry them to storage, and deposit them.
 - Route Haulers to stonecutter camps, pick up Stone, carry it to storage, and deposit it.
@@ -1443,6 +1446,12 @@ Responsibilities:
 Primary files/assets:
 
 - `Assets/Scripts/Runtime/Build/StrategyStorageYard.cs`
+- `Assets/Scripts/Runtime/Build/StrategyStorageYard.ConstructionPriority.cs`
+- `Assets/Scripts/Runtime/Build/StrategyProductionConstructionResources.cs`
+- `Assets/Scripts/Runtime/Build/StrategyStarterCaravanCart.cs`
+- `Assets/Scripts/Runtime/Build/StrategyStarterCaravanCart.Construction.cs`
+- `Assets/Scripts/Runtime/Build/StrategyStarterCaravanCart.Food.cs`
+- `Assets/Scripts/Runtime/Build/StrategyStarterCaravanCart.Builders.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStorageYard.Part07.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStorageYard.Part05.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStorageYard.Part08.cs`
@@ -1454,12 +1463,15 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Build/StrategyProductionBuildingUpgrade.cs`
 - `Assets/Scripts/Runtime/Build/StrategyProductionBuildingUpgradeCatalog.cs`
 - `Assets/Scripts/Runtime/Build/StrategyLooseConstructionResourcePile.cs`
+- `Assets/Scripts/Runtime/Build/StrategyLooseConstructionResourcePile.Part01.cs`
 - `Assets/Scripts/Runtime/Build/StrategyLooseConstructionResourcePile.Part02.cs`
 - `Assets/Scripts/Runtime/Build/IStrategyConstructionResourceSource.cs`
 - `Assets/Scripts/Runtime/Build/IStrategyProductionLogisticsNode.cs`
 - `Assets/Scripts/Runtime/Build/StrategyLumberjackCamp.cs`
+- `Assets/Scripts/Runtime/Build/StrategyLumberjackCamp.Construction.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStonecutterCamp.cs`
 - `Assets/Scripts/Runtime/Build/StrategySawmill.cs`
+- `Assets/Scripts/Runtime/Build/StrategySawmill.Construction.cs`
 - `Assets/Scripts/Runtime/Build/StrategyKiln.cs`
 - `Assets/Scripts/Runtime/Build/StrategyForge.cs`
 - `Assets/Scripts/Runtime/Build/StrategyForge.Part02.cs`
@@ -1490,8 +1502,8 @@ Impact hints:
 - Haulers run Granary food hauling after normal storage-resource hauling checks, using the shared food reservation cleanup paths.
 - Hauler construction-material fallback runs after normal storage, production, and Granary hauling checks; it reuses construction pickup/deposit states with a temporary delivery site and does not create a hired-builder assignment or hammer-work reservation.
 - Hauler and builder staffing has no per-yard slot limit; construction sites no longer cap their active visible builder crew at 2.
-- Construction resources are normally reserved against Storage Yard stock and loose construction resource piles at site creation, then physically removed when builders pick them up; F9 instant construction debug mode bypasses this reservation path for player-placed buildings.
-- Stonecutter Camp haul reservations are separate from Storage Yard construction reservations so production stock must be moved into storage before construction can claim it.
+- Construction resources are normally reserved against physically present loose construction piles, Storage Yard stock, production-local Lumberjack/Stonecutter/Sawmill stock, and the low-priority starter Caravan Cart at site creation, then physically removed when builders or construction-delivery Haulers pick them up; F9 instant construction debug mode bypasses this reservation path for player-placed buildings.
+- Non-carried logistics reservations do not hide physical stock from construction affordability; when construction claims that stock, matching not-yet-picked logistics reservations are cleared, while already-carried resources stay excluded because pickup removed them from source stock.
 - Builders also create a per-builder pickup claim after a path to the pickup cell is found; cancelled work releases that claim while the construction-site reservation remains intact.
 - If a builder dies while carrying a construction resource, the dropped loose construction pile restores the original site's reservation when that site still needs the resource.
 - Residents currently support one active workplace: lumberjack camp, stonecutter camp, sawmill, kiln, hunter camp, fisher hut, forager camp, mine, coal pit, clay pit, storage logistics, granary food logistics, or storage builder crew.
@@ -1511,7 +1523,7 @@ Responsibilities:
 - Find Forager Camps with available stored Berries/Roots/Mushrooms and reserve stock for Haulers.
 - Find Chicken Coops with available stored `Eggs` and reserve stock for Haulers.
 - Route Haulers to source camps/huts, pick up reserved food, carry it to the granary, and deposit it.
-- Provide settlement-level raw food availability and reservation APIs for preferred Householder Granary pickup, with resident-side direct production-source fallback when Granary food is unavailable.
+- Provide settlement-level raw food availability and reservation APIs for preferred Householder Granary pickup, starter-cart fallback while it has food, and resident-side direct production-source fallback when no stored food is available.
 - Provide raw food spend/receive helpers for Trading Post caravan transactions.
 - Update Hunter Camp/Fisher Hut/Forager Camp/Chicken Coop stock visuals as food is picked up.
 - Update Granary `Game`/`Fish`/`Eggs`/forage stock visuals and food drop effects as food is deposited.
@@ -1545,7 +1557,7 @@ Impact hints:
 
 - Haulers reserve food before walking so multiple haulers do not target the same local stock.
 - Food source reservations prevent multiple Haulers from double-claiming the same `Game`/`Fish`/`Eggs`/forage food.
-- `Game`, `Fish`, `Eggs`, Berries, Roots, and Mushrooms remain runtime-local raw food stock; completed houses can receive them from Householder Granary pickups or direct production-source fallback when Granaries are empty, nightly dinner consumes prepared house `Dish` before falling back to house-local ingredients, and each cooked Dish requires house-local Pottery.
+- `Game`, `Fish`, `Eggs`, Berries, Roots, and Mushrooms remain runtime-local raw food stock; completed houses can receive them from Householder Granary pickups, starter-cart pickup while it has food, or direct production-source fallback when stored food is empty, nightly dinner consumes prepared house `Dish` before falling back to house-local ingredients, and each cooked Dish requires house-local Pottery.
 - Residents currently support one active workplace: lumberjack camp, stonecutter camp, hunter camp, fisher hut, forager camp, mine, storage logistics, or storage builder crew.
 - Future spoilage, food needs, recipe balancing, market logistics, or settlement-level food services should extend this subsystem rather than folding food into construction Storage Yards.
 
@@ -1592,7 +1604,7 @@ Responsibilities:
 - Use an enlarged standalone coop sprite on a `4x4` placement footprint; final walk blocking extends to `4x5` through the shared 2.5D blocker rule.
 - Produce `Eggs` autonomously on a cycle timer into capped local production stock.
 - Spawn slightly larger idle chickens around the placed building without creating a new profession, send them inside at `Night`, and release them outside after `Night`.
-- Expose Chicken Coop `Eggs` stock to Granary Haulers and to Householder direct fallback pickup when Granaries have no available food.
+- Expose Chicken Coop `Eggs` stock to Granary Haulers and to Householder direct fallback pickup when no stored food is available.
 - Show Chicken Coop egg stock, reservation count, no-worker state, and next-egg timer in the selection HUD.
 
 Primary files/assets:
@@ -1694,7 +1706,7 @@ Responsibilities:
 - Give older children daytime ambient play activities near home/camp, including solo play, pair play with siblings or nearby children, and tag.
 - Send housed idle residents home to sleep inside during the `Night` phase by hiding their world sprite/collider until morning, while leaving homeless residents outside with a visible `Zzz...` sleep indicator.
 - Resolve one nightly household dinner from prepared house `Dish`, using resident age-based ration needs after eligible residents return home for `Night`.
-- Send Householders to fetch reserved raw `Fish`/`Game`/forage food from reachable Granaries into their own house when ingredient reserves are low, or from reachable Hunter/Fisher/Forager production stock when no Granary food is available.
+- Send Householders to fetch reserved raw `Fish`/`Game`/forage food from reachable Granaries into their own house when ingredient reserves are low, then from the starter Caravan Cart while it has food, or from reachable Hunter/Fisher/Forager production stock when no stored food is available.
 - Send Householders to fetch Pottery from Storage Yards and cook stored ingredients plus 1 Pottery per prepared `Dish` during `Dusk` when dinner coverage is low.
 - Track per-resident nutrition debt, days hungry, hungry/starving status, and recovery when nightly dinner needs are met.
 - Grow children into adults after scaled game time.
@@ -1752,7 +1764,7 @@ Responsibilities:
 - Route assigned Haulers to Hunter Camp/Fisher Hut/Forager Camp/Chicken Coop stock, stored-food pickup, granary delivery, and deposit.
 - Route assigned Haulers to reserved construction Logs/Stone/Planks sources for direct construction-site delivery when normal Hauler orders are unavailable.
 - Assign residents to Storage Yards as dedicated builders.
-- Route hired builders to reserved Storage Yard stock, construction resource pickup, site delivery, and hammer/build work up to the currently delivered-material progress cap.
+- Route hired builders to reserved construction stock, construction resource pickup, site delivery, and hammer/build work up to the currently delivered-material progress cap; before a Storage Yard exists, the starter cart can assign a small temporary builder pool.
 - Drive frame-based axe swing animation and hit timing for lumberjacks.
 - Drive frame-based pickaxe swing animation and hit timing for stonecutters.
 - Drive frame-based bow shot and butchering animation/timing for hunters.
@@ -1886,7 +1898,7 @@ Impact hints:
 - `StrategyHouseholdState` lives on occupied houses and owns the randomized birth timer.
 - `StrategyHouseholdState` blocks births while the same house has sustained ration shortages or birth-blocked residents.
 - `StrategyHouseholdFoodState` lives on occupied houses, resolves one nightly dinner per day after a one-day settling grace, waits for eligible residents to enter home for `Night` with a fallback deadline, consumes prepared house recipe dishes first, falls back to house-local ingredients for missing rations, applies short rations to resident nutrition debt, and exposes aggregate food status for HUDs.
-- Householder home duty can reserve one raw `Fish`/`Game`/`Eggs`/forage-food unit from a Granary, or from Hunter Camp/Fisher Hut/Forager Camp/Chicken Coop stock when Granaries have no available food, plus Pottery from a Storage Yard, path to pickup, carry it home, store it in the house, and cook stored ingredients plus 1 Pottery per prepared recipe dish during `Dusk`.
+- Householder home duty can reserve one raw `Fish`/`Game`/`Eggs`/forage-food unit from a Granary, then the starter Caravan Cart while it has food, or from Hunter Camp/Fisher Hut/Forager Camp/Chicken Coop stock when no stored food is available, plus Pottery from a Storage Yard, path to pickup, carry it home, store it in the house, and cook stored ingredients plus 1 Pottery per prepared recipe dish during `Dusk`.
 - `StrategyHouseholdForagingState` is compiled as inactive legacy code; placed Houses no longer attach it, and resident start guards return false so house-driven foraging cannot dispatch.
 - Generated forage reach/crouch sprites and node pulse effects are used by Forager Camp workers and are not started by Houses.
 - `StrategyPlacedBuilding` owns the current Householder reference for houses, preferring the oldest adult female resident and refreshing on home changes, death/unregister, and resident adulthood.
@@ -1915,7 +1927,7 @@ Impact hints:
 - Resident fishing sprites are generated for every male/female visual variant and should stay in sync with readability outline mirroring.
 - Granary food logistics is serviced by shared Haulers, moving food from production buildings into food storage after normal storage-resource hauling checks.
 - Storage Yard Haulers move Logs, Stone, Iron, Coal, Clay, Planks, Pottery, and Tools outputs from production worksites into Storage Yard stock and deliver non-food production inputs from Storage Yard stock into production nodes; Householders deliver Pottery from Storage Yards into houses for Dish cooking. Coal, Clay, Planks, Pottery, and Tools use their own carried sprite and return/drop cleanup paths.
-- Construction assignment is a temporary exclusive task for hired Storage Yard builders; there is no hired-builder pool cap or construction-site builder cap, balanced dispatch spreads free builders across active sites first, and workplace assignment skips residents already attached to a construction site. Construction assignment does not block home/family assignment.
+- Construction assignment is a temporary exclusive task for hired Storage Yard builders or starter-cart temporary builders; there is no construction-site builder cap, balanced dispatch spreads free builders across active sites first, and workplace assignment skips residents already attached to a construction site. Construction assignment does not block home/family assignment.
 - Construction hammer work must reserve an individual unlocked build-hit unit on `StrategyConstructionSite` before the resident enters the hammer animation; reset, assignment clear, site completion, and site destruction paths must release those reservations.
 - Builder construction pickup path failures include start/pickup walkability details in `debug.log`; repeated pickup path failures drop that builder's current site assignment so another builder can retry.
 - Worker and builder assignment must check `StrategyResidentAgent.CanWork`; children under age 3 remain inside assigned homes, and older children can play but cannot work.
@@ -1951,6 +1963,7 @@ Responsibilities:
 - Show selected-house resident portraits/names/age/life stage/statuses up to house capacity, including the Householder marker, prepared dish recipe summaries, Pottery, ingredient rations, and resource icons/counts.
 - Show selected worksite status/resource context without worker assignment controls.
 - Show selected Storage Yards with a dedicated icon-led logistics dashboard for Haulers, builders, available sources, resource stock, and readiness status.
+- Show selected starter Caravan Carts with compact temporary construction and food stock context.
 - Show selected Trading Posts with settlement Coins, caravan status/ETA, and active buy/sell offer buttons.
 - Show selected lumberjack/stonecutter/sawmill/kiln/forge/hunter/fisher/mine/coal pit/clay pit/granary/storage stock and nearby source/target counts.
 - Show selected-construction-site cost, delivered resources, builder count, and progress/status context.

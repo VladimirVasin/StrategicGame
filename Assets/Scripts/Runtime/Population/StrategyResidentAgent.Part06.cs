@@ -225,7 +225,7 @@ namespace ProjectUnknown.Strategy
 
         private bool TryStartConstructionTask()
         {
-            if (activity != ResidentActivity.Idle || constructionSite == null || builderWorkplace == null || !CanWork)
+            if (activity != ResidentActivity.Idle || constructionSite == null || (builderWorkplace == null && !temporaryConstructionAssignment) || !CanWork)
             {
                 return false;
             }

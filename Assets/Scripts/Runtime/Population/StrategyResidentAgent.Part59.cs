@@ -9,6 +9,7 @@ namespace ProjectUnknown.Strategy
         private StrategyFisherHut activeHouseholdFoodFisherHut;
         private StrategyForagerCamp activeHouseholdFoodForagerCamp;
         private StrategyChickenCoop activeHouseholdFoodChickenCoop;
+        private StrategyStarterCaravanCart activeHouseholdFoodCaravanCart;
 
         private bool TryReserveHouseholdFoodPickupSource(
             Vector3 requesterWorld,
@@ -33,7 +34,20 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
+            if (StrategyStarterCaravanCart.TryReserveNearestHouseholdFood(
+                    requesterWorld,
+                    this,
+                    out StrategyStarterCaravanCart cart,
+                    out resource,
+                    out amount,
+                    out pickupCell))
+            {
+                activeHouseholdFoodCaravanCart = cart;
+                return true;
+            }
+
             return StrategyGranary.GetTotalSettlementFoodRations() <= 0.01f
+                && StrategyStarterCaravanCart.GetTotalAvailableHouseholdRations() <= 0.01f
                 && TryReserveNearestProductionHouseholdFood(requesterWorld, out resource, out amount, out pickupCell);
         }
 
@@ -187,7 +201,8 @@ namespace ProjectUnknown.Strategy
                 || activeHouseholdFoodHunterCamp != null
                 || activeHouseholdFoodFisherHut != null
                 || activeHouseholdFoodForagerCamp != null
-                || activeHouseholdFoodChickenCoop != null;
+                || activeHouseholdFoodChickenCoop != null
+                || activeHouseholdFoodCaravanCart != null;
         }
 
         private Bounds GetActiveHouseholdFoodSourceBounds()
@@ -210,6 +225,11 @@ namespace ProjectUnknown.Strategy
             if (activeHouseholdFoodChickenCoop != null)
             {
                 return activeHouseholdFoodChickenCoop.FootprintBounds;
+            }
+
+            if (activeHouseholdFoodCaravanCart != null)
+            {
+                return activeHouseholdFoodCaravanCart.FootprintBounds;
             }
 
             return activeHouseholdFoodForagerCamp != null
@@ -239,6 +259,11 @@ namespace ProjectUnknown.Strategy
                 return activeHouseholdFoodChickenCoop.Origin;
             }
 
+            if (activeHouseholdFoodCaravanCart != null)
+            {
+                return activeHouseholdFoodCaravanCart.Origin;
+            }
+
             return activeHouseholdFoodForagerCamp != null ? activeHouseholdFoodForagerCamp.Origin : Vector2Int.zero;
         }
 
@@ -262,6 +287,11 @@ namespace ProjectUnknown.Strategy
             if (activeHouseholdFoodChickenCoop != null)
             {
                 return "ChickenCoop";
+            }
+
+            if (activeHouseholdFoodCaravanCart != null)
+            {
+                return "CaravanCart";
             }
 
             return activeHouseholdFoodForagerCamp != null ? "ForagerCamp" : "None";
@@ -339,6 +369,18 @@ namespace ProjectUnknown.Strategy
                 return taken;
             }
 
+            if (activeHouseholdFoodCaravanCart != null)
+            {
+                bool taken = activeHouseholdFoodCaravanCart.TryTakeReservedHouseholdFood(this, out resource, out amount);
+                if (!taken)
+                {
+                    activeHouseholdFoodCaravanCart.ReleaseHouseholdFoodReservation(this);
+                }
+
+                activeHouseholdFoodCaravanCart = null;
+                return taken;
+            }
+
             return false;
         }
 
@@ -397,6 +439,12 @@ namespace ProjectUnknown.Strategy
             {
                 activeHouseholdFoodChickenCoop.ReleaseStoredEggsReservation(this);
                 activeHouseholdFoodChickenCoop = null;
+            }
+
+            if (activeHouseholdFoodCaravanCart != null)
+            {
+                activeHouseholdFoodCaravanCart.ReleaseHouseholdFoodReservation(this);
+                activeHouseholdFoodCaravanCart = null;
             }
         }
     }

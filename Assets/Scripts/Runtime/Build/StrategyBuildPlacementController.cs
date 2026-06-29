@@ -112,7 +112,11 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("hasUpgrades", upgrades != null));
         }
 
-        public bool TryPlaceStarterStorageYard(Vector2Int nearCell, int initialLogs, int initialStone)
+        public bool TryPlaceStarterCaravanCart(
+            Vector2Int nearCell,
+            int initialLogs,
+            int initialStone,
+            float starterFoodRations)
         {
             if (map == null)
             {
@@ -122,57 +126,50 @@ namespace ProjectUnknown.Strategy
             for (int i = 0; i < placedBuildings.Count; i++)
             {
                 StrategyPlacedBuilding placed = placedBuildings[i];
-                if (placed != null && placed.Tool == StrategyBuildTool.StorageYard)
+                if (placed != null && placed.Tool == StrategyBuildTool.StarterCaravanCart)
                 {
-                    StrategyStorageYard existingYard = placed.GetComponent<StrategyStorageYard>();
-                    if (existingYard != null)
-                    {
-                        existingYard.AddLogs(initialLogs);
-                        existingYard.AddResource(StrategyResourceType.Stone, initialStone);
-                    }
-
                     return true;
                 }
             }
 
             StrategyBuildToolInfo toolInfo = new StrategyBuildToolInfo(
-                StrategyBuildTool.StorageYard,
-                "Storage Yard",
+                StrategyBuildTool.StarterCaravanCart,
+                "Caravan Cart",
                 new StrategyConstructionResourceCost(0, 0),
-                new Color(0.61f, 0.50f, 0.38f),
+                new Color(0.72f, 0.54f, 0.30f),
                 new Vector2Int(3, 2));
 
-            if (!TryFindStarterStorageOrigin(nearCell, toolInfo, out Vector2Int origin))
+            if (!TryFindStarterSupplyOrigin(nearCell, toolInfo, out Vector2Int origin))
             {
                 StrategyDebugLogger.Warn(
                     "Build",
-                    "StarterStorageRejected",
+                    "StarterCaravanCartRejected",
                     StrategyDebugLogger.F("nearCell", nearCell),
                     StrategyDebugLogger.F("reason", "no_valid_origin"));
                 return false;
             }
 
             StrategyPlacedBuilding building = PlaceTool(toolInfo, origin);
-            StrategyStorageYard yard = building != null ? building.GetComponent<StrategyStorageYard>() : null;
-            if (yard == null)
+            StrategyStarterCaravanCart cart = building != null ? building.GetComponent<StrategyStarterCaravanCart>() : null;
+            if (cart == null)
             {
                 StrategyDebugLogger.Warn(
                     "Build",
-                    "StarterStorageRejected",
+                    "StarterCaravanCartRejected",
                     StrategyDebugLogger.F("origin", origin),
-                    StrategyDebugLogger.F("reason", "yard_missing"));
+                    StrategyDebugLogger.F("reason", "cart_missing"));
                 return false;
             }
 
-            yard.AddLogs(initialLogs);
-            yard.AddResource(StrategyResourceType.Stone, initialStone);
+            cart.InitializeStarterStock(initialLogs, initialStone, starterFoodRations);
             StrategyDebugLogger.Info(
                 "Build",
-                "StarterStoragePlaced",
+                "StarterCaravanCartPlaced",
                 StrategyDebugLogger.F("origin", origin),
                 StrategyDebugLogger.F("nearCell", nearCell),
                 StrategyDebugLogger.F("initialLogs", initialLogs),
-                StrategyDebugLogger.F("initialStone", initialStone));
+                StrategyDebugLogger.F("initialStone", initialStone),
+                StrategyDebugLogger.F("targetFoodRations", starterFoodRations));
             return true;
         }
 

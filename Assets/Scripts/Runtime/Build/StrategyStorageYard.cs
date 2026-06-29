@@ -50,10 +50,12 @@ namespace ProjectUnknown.Strategy
         public int PotteryStored => potteryStored;
         public int PlanksStored => planksStored;
         public int ToolsStored => toolsStored;
-        public int AvailableConstructionLogs => Mathf.Max(0, logsStored - CountReservations(constructionLogReservations) - reservedLogisticsLogs - CountProductionInputReservations(StrategyResourceType.Logs));
+        public int AvailableConstructionLogs => Mathf.Max(0, logsStored - CountReservations(constructionLogReservations));
         public int AvailableLogisticsLogs => Mathf.Max(0, logsStored - CountReservations(constructionLogReservations) - reservedLogisticsLogs - CountProductionInputReservations(StrategyResourceType.Logs));
-        public int AvailableConstructionStone => Mathf.Max(0, stoneStored - CountReservations(constructionStoneReservations) - CountProductionInputReservations(StrategyResourceType.Stone));
-        public int AvailableConstructionPlanks => Mathf.Max(0, planksStored - CountReservations(constructionPlankReservations) - CountProductionInputReservations(StrategyResourceType.Planks));
+        public int AvailableConstructionStone => Mathf.Max(0, stoneStored - CountReservations(constructionStoneReservations));
+        public int AvailableLogisticsStone => Mathf.Max(0, stoneStored - CountReservations(constructionStoneReservations) - CountProductionInputReservations(StrategyResourceType.Stone));
+        public int AvailableConstructionPlanks => Mathf.Max(0, planksStored - CountReservations(constructionPlankReservations));
+        public int AvailableLogisticsPlanks => Mathf.Max(0, planksStored - CountReservations(constructionPlankReservations) - CountProductionInputReservations(StrategyResourceType.Planks));
         public Vector2Int Origin => building != null ? building.Origin : Vector2Int.zero;
         public Bounds FootprintBounds => building != null ? building.FootprintBounds : new Bounds(transform.position, Vector3.one);
 
@@ -90,7 +92,8 @@ namespace ProjectUnknown.Strategy
 
         public static bool TryAssignBuildersToSite(StrategyConstructionSite site)
         {
-            return TryAssignBuildersAcrossSites(site);
+            return TryAssignBuildersAcrossSites(site)
+                || StrategyStarterCaravanCart.TryAssignBuildersToSite(site);
         }
 
         public static StrategyConstructionResourceCost GetTotalConstructionResources()
@@ -113,10 +116,12 @@ namespace ProjectUnknown.Strategy
             }
 
             StrategyConstructionResourceCost loose = StrategyLooseConstructionResourcePile.GetTotalAvailableResources();
+            StrategyConstructionResourceCost production = StrategyProductionConstructionResources.GetTotalConstructionResources();
+            StrategyConstructionResourceCost starter = StrategyStarterCaravanCart.GetTotalConstructionResources();
             return new StrategyConstructionResourceCost(
-                logs + loose.Logs,
-                stone + loose.Stone,
-                planks + loose.Planks);
+                logs + loose.Logs + production.Logs + starter.Logs,
+                stone + loose.Stone + production.Stone + starter.Stone,
+                planks + loose.Planks + production.Planks + starter.Planks);
         }
 
         public static bool CanAffordConstruction(StrategyConstructionResourceCost cost)
@@ -161,6 +166,12 @@ namespace ProjectUnknown.Strategy
                 remainingLogs -= yards[i].SpendAvailableLogs(remainingLogs);
             }
 
+            remainingLogs -= StrategyProductionConstructionResources.SpendAvailableResources(StrategyConstructionResourceKind.Logs, remainingLogs, nearWorld);
+            remainingLogs -= StrategyStarterCaravanCart.SpendAvailableResources(
+                StrategyConstructionResourceKind.Logs,
+                remainingLogs,
+                nearWorld);
+
             int remainingStone = cost.Stone;
             remainingStone -= StrategyLooseConstructionResourcePile.SpendAvailableResources(
                 StrategyConstructionResourceKind.Stone,
@@ -171,6 +182,12 @@ namespace ProjectUnknown.Strategy
                 remainingStone -= yards[i].SpendAvailableStone(remainingStone);
             }
 
+            remainingStone -= StrategyProductionConstructionResources.SpendAvailableResources(StrategyConstructionResourceKind.Stone, remainingStone, nearWorld);
+            remainingStone -= StrategyStarterCaravanCart.SpendAvailableResources(
+                StrategyConstructionResourceKind.Stone,
+                remainingStone,
+                nearWorld);
+
             int remainingPlanks = cost.Planks;
             remainingPlanks -= StrategyLooseConstructionResourcePile.SpendAvailableResources(
                 StrategyConstructionResourceKind.Planks,
@@ -180,6 +197,12 @@ namespace ProjectUnknown.Strategy
             {
                 remainingPlanks -= yards[i].SpendAvailablePlanks(remainingPlanks);
             }
+
+            remainingPlanks -= StrategyProductionConstructionResources.SpendAvailableResources(StrategyConstructionResourceKind.Planks, remainingPlanks, nearWorld);
+            remainingPlanks -= StrategyStarterCaravanCart.SpendAvailableResources(
+                StrategyConstructionResourceKind.Planks,
+                remainingPlanks,
+                nearWorld);
 
             if (remainingLogs > 0 || remainingStone > 0 || remainingPlanks > 0)
             {
@@ -237,6 +260,13 @@ namespace ProjectUnknown.Strategy
                 remainingLogs -= reserved;
             }
 
+            remainingLogs -= StrategyProductionConstructionResources.ReserveConstructionResources(owner, StrategyConstructionResourceKind.Logs, remainingLogs, nearWorld);
+            remainingLogs -= StrategyStarterCaravanCart.ReserveConstructionResources(
+                owner,
+                StrategyConstructionResourceKind.Logs,
+                remainingLogs,
+                nearWorld);
+
             int remainingStone = cost.Stone;
             remainingStone -= StrategyLooseConstructionResourcePile.ReserveConstructionResources(
                 owner,
@@ -249,6 +279,13 @@ namespace ProjectUnknown.Strategy
                 remainingStone -= reserved;
             }
 
+            remainingStone -= StrategyProductionConstructionResources.ReserveConstructionResources(owner, StrategyConstructionResourceKind.Stone, remainingStone, nearWorld);
+            remainingStone -= StrategyStarterCaravanCart.ReserveConstructionResources(
+                owner,
+                StrategyConstructionResourceKind.Stone,
+                remainingStone,
+                nearWorld);
+
             int remainingPlanks = cost.Planks;
             remainingPlanks -= StrategyLooseConstructionResourcePile.ReserveConstructionResources(
                 owner,
@@ -260,6 +297,13 @@ namespace ProjectUnknown.Strategy
                 int reserved = yards[i].ReserveConstructionPlanks(owner, remainingPlanks);
                 remainingPlanks -= reserved;
             }
+
+            remainingPlanks -= StrategyProductionConstructionResources.ReserveConstructionResources(owner, StrategyConstructionResourceKind.Planks, remainingPlanks, nearWorld);
+            remainingPlanks -= StrategyStarterCaravanCart.ReserveConstructionResources(
+                owner,
+                StrategyConstructionResourceKind.Planks,
+                remainingPlanks,
+                nearWorld);
 
             if (remainingLogs > 0 || remainingStone > 0 || remainingPlanks > 0)
             {
@@ -295,6 +339,8 @@ namespace ProjectUnknown.Strategy
             }
 
             StrategyLooseConstructionResourcePile.ReleaseConstructionReservations(owner);
+            StrategyProductionConstructionResources.ReleaseConstructionReservations(owner);
+            StrategyStarterCaravanCart.ReleaseConstructionReservations(owner);
         }
 
         public static bool TryFindConstructionPickup(
@@ -336,6 +382,17 @@ namespace ProjectUnknown.Strategy
                     amount = Mathf.Min(maxAmount, available);
                     return true;
                 }
+            }
+
+            if (StrategyProductionConstructionResources.TryFindConstructionPickup(owner, kind, nearWorld, maxAmount, out source, out pickupCell, out amount))
+            {
+                return true;
+            }
+
+            if (StrategyStarterCaravanCart.TryFindConstructionPickup(owner, kind, nearWorld, maxAmount, out StrategyStarterCaravanCart cart, out pickupCell, out amount))
+            {
+                source = cart;
+                return true;
             }
 
             if (StrategyLooseConstructionResourcePile.TryReserveNearestAvailableForConstruction(owner, kind, nearWorld, maxAmount, out StrategyLooseConstructionResourcePile availablePile, out pickupCell, out amount))

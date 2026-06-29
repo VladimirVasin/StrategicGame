@@ -49,7 +49,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Creates forage resources after nature generation so forage nodes avoid occupied/non-walkable cells
     - Creates and wires the runtime fog-of-war layer after population and placement controllers exist
     - Creates the F9 runtime debug panel after fog/weather are ready so testing can bypass player fog, force weather states, and enable instant free construction
-    - Places a starter Storage Yard near the campfire with initial Logs and Stone after placement is configured
+    - Places a temporary starter Caravan Cart near the campfire with initial Logs, Stone, and 3 days of randomized raw food after placement is configured
     - Creates and wires runtime wildlife after starter placement so deer, rabbits, fish, and birds spawn in valid terrain/water/habitat areas
     - Creates runtime time-scale controls for simulation speed hotkeys
     - Creates the refugee-arrival event controller and modal refugee decision HUD
@@ -260,7 +260,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Direct active-tool selection for placement/economy systems
     - Fully closes category/tool UI after a successful placement
     - Exposes selected tool info, footprint, color, and cost
-    - Reads construction stock availability through `StrategyStorageYard.GetTotalConstructionResources()`, including Storage Yard stock and loose piles
+    - Reads construction stock availability through `StrategyStorageYard.GetTotalConstructionResources()`, including loose piles, Storage Yard stock, production-local construction stock, and the low-priority starter Caravan Cart
     - Shows x1/x2/x3 simulation speed buttons under the top-left resource panel, reusing `StrategyTimeScaleController`
     - Current catalog contains `Housing` / `House`, `Extraction` grouped into `Camps`, `Deposits`, and `Food`, `Production` / `Sawmill`, `Kiln`, and `Forge`, `Storage` / `Storage Yard` and `Granary`, `Trade` / `Trading Post`, and `Infrastructure` / `Bridge`
     - Single-item categories directly activate their only build tool on click
@@ -277,7 +277,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Construction sites mark only their technical foundation as not walkable while reserving the future final blocker for placement collision
     - Completed buildings mark their full final walk-blocker cells as not walkable
     - House uses an expanded 2.5D visual/navigation blocker around and above the technical footprint
-    - Reserves construction resources from Storage Yards before the site is accepted, with loose piles included in the same availability path
+    - Reserves construction resources through the shared storage facade before a site is accepted, including loose piles, Storage Yards, production-local construction stock, and the low-priority starter Caravan Cart
     - Mine, Coal Pit, and Clay Pit construction require at least one matching available resource deposit under the tool footprint
     - Construction sites are accepted without an immediately free builder if resources can be reserved
     - Construction sites periodically request hired builders from Storage Yards through balanced dispatch across active construction sites instead of using a per-site builder cap
@@ -351,7 +351,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Runtime house-local resource store
     - Current house-local ingredients: Eggs, Turnip, Cabbage, Onion, Carrot, Potato, Berries, Roots, Mushrooms, `Fish`, and `Game`
     - Prepared `Dish` is stored as recipe stacks with aggregate amount/ration APIs for older dinner, HUD, and logistics callers
-    - Householders fetch raw food from Granaries, or from Hunter Camps/Fisher Huts/Forager Camps/Chicken Coops when no Granary food is available, fetch Pottery from Storage Yards, and cook raw ingredients plus 1 Pottery per prepared recipe dish during `Dusk`; nightly household dinner consumes prepared dishes first and falls back to house-local ingredients
+    - Householders fetch raw food from Granaries, then the starter Caravan Cart while it has food, or from Hunter Camps/Fisher Huts/Forager Camps/Chicken Coops when no stored food is available, fetch Pottery from Storage Yards, and cook raw ingredients plus 1 Pottery per prepared recipe dish during `Dusk`; nightly household dinner consumes prepared dishes first and falls back to house-local ingredients
     - Dish recipes span Poor, Common, Hearty, Fine, and Feast quality tiers with different ingredient combinations, ingredient counts, and ration values
     - Shared resource identity/icon layer also includes `Dish`, Stone, `Game`, `Fish`, and `Tools` for production/storage-style HUDs and future economy work
     - Loose carried-resource piles preserve dropped `Game`, `Fish`, `Eggs`, Berries, Roots, and Mushrooms after resident death
@@ -360,7 +360,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Storage yard logistics MVP
     - Storage Yard is a placed stockpile building with uncapped Haulers and uncapped hired builders
     - Storage Yard stock capacity is uncapped
-    - A starter Storage Yard appears near the campfire with 20 Logs and 20 Stone
+    - A temporary starter Caravan Cart appears near the campfire with 20 Logs, 20 Stone, and 3 days of randomized raw food
     - Haulers reserve available Logs from lumberjack camps
     - Haulers reserve available Stone from stonecutter camps
     - Haulers reserve available Iron from Mines
@@ -368,10 +368,10 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Haulers reserve available Clay from Clay Pits
     - Haulers reserve available Pottery from Kilns
     - Haulers reserve available Tools from Forges
-    - Storage Yards reserve Logs/Stone/Planks for accepted construction sites; production stock must be hauled into Storage Yards before construction can reserve it
+    - Construction can reserve physically present Logs/Stone/Planks from Storage Yards, loose construction piles, Lumberjack Camps, Stonecutter Camps, Sawmills, and the starter Caravan Cart; resources already carried by residents are excluded because they have left source stock
     - Storage Yards reserve non-food production inputs from local stock and route Haulers to deliver them into production buildings through the shared production logistics contract
     - Storage Yards expose trade helpers that spend/receive Logs, Stone, Iron, Coal, Clay, Planks, Pottery, and Tools for caravan transactions
-    - Loose construction resource piles from cancelled sites count as available construction resources and can be reserved by future sites
+    - Loose construction resource piles from cancelled sites count as available construction resources and can be reserved by future sites even when a storage pickup claim exists but has not yet been carried away
     - Storage Yards dispatch available hired builders across active construction sites, favoring empty and lower-builder-count sites before stacking extras
     - Hired builders can pick up reserved construction Logs/Stone/Planks from Storage Yards
     - Hired builders can also pick up reserved construction Logs/Stone/Planks from loose construction resource piles
@@ -460,7 +460,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - The Householder role counts as home work and can block normal worker assignment
     - Houses attach household food state that resolves nightly dinner after eligible residents return home for `Night`, using age-based resident needs
     - Ingredients and prepared dish recipe stacks contribute different ration values, so physical food units and supplied ration value are tracked separately
-    - Householders can fetch reserved `Fish`/`Game`/`Eggs`/forage food from Granaries into their own house when household ingredient reserves are low, with direct production-food fallback only when Granaries have no available food
+    - Householders can fetch reserved `Fish`/`Game`/`Eggs`/forage food from Granaries, then the starter Caravan Cart while it has food, into their own house when household ingredient reserves are low, with direct production-food fallback only when no stored food is available
     - Householders can fetch Pottery from Storage Yards and cook stored ingredients plus 1 Pottery per prepared recipe dish during `Dusk`
     - Houses do not attach household foraging state; house-driven resident foraging is inactive because Forager Camps own external forage work
     - Household food uses a one-day settling grace, waits for family presence with a fallback deadline, and consumes prepared house-local dishes before direct ingredients
@@ -619,7 +619,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Trade depends on completed Trading Posts, map-edge caravan pathing, settlement Coins, Storage Yard non-food stock, Granary food stock, generated trade/caravan sprites, and the world-selection HUD.
 - Loose construction resource piles bridge construction cancellation, build affordability, storage logistics, and builder pickup.
 - Loose carried-resource piles bridge resident death cleanup and Granary food logistics; legacy household forage recovery is currently inactive.
-- Granary food and household cooking logistics depend on hunter camp stock, fisher hut stock, forager camp stock, chicken coop stock, Storage Yard Pottery stock, Storage Yard Haulers, Householder final-mile pickup with direct production-source fallback when Granaries are empty, resident work states, placed-building records, map walkability, and the world-selection HUD.
+- Granary, starter-cart food, and household cooking logistics depend on hunter camp stock, fisher hut stock, forager camp stock, chicken coop stock, Storage Yard Pottery stock, Storage Yard Haulers, Householder final-mile pickup with direct production-source fallback when stored food is empty, resident work states, placed-building records, map walkability, and the world-selection HUD.
 - Construction depends on Storage Yard resource reservations, loose construction pile reservations, idle Hauler construction-material fallback delivery, hired Storage Yard builder assignments, construction-site blockers, placed-building finalization, F9 instant-construction debug options, and the world-selection HUD.
 - Population uses placed-building records, construction sites, the generated map walkability/trail layers, and workplace assignments; home/family assignment is independent from work/construction assignment.
 - Resident footsteps depend on population agents and the non-generated grass footstep clip set.

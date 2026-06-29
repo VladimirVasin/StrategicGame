@@ -8,6 +8,16 @@ namespace ProjectUnknown.Strategy
                 || cost.CanAfford(StrategyStorageYard.GetTotalConstructionResources());
         }
 
+        private static string FormatConstructionResourceCounter(StrategyConstructionResourceCost resources)
+        {
+            return "Logs "
+                + resources.Logs
+                + "  Stone "
+                + resources.Stone
+                + "  Planks "
+                + resources.Planks;
+        }
+
         private static string GetBuildItemBadgeText(
             StrategyConstructionResourceCost cost,
             bool allowed,

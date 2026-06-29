@@ -280,7 +280,7 @@ namespace ProjectUnknown.Strategy
             badge.anchorMax = new Vector2(1f, 1f);
             badge.pivot = new Vector2(1f, 1f);
             badge.anchoredPosition = new Vector2(-6f, -6f);
-            badge.sizeDelta = new Vector2(70f, 22f);
+            badge.sizeDelta = new Vector2(82f, 22f);
             Image badgeBackground = badge.gameObject.AddComponent<Image>();
             badgeBackground.color = new Color(0.18f, 0.13f, 0.06f, 0.98f);
             badgeBackground.raycastTarget = false;
@@ -318,12 +318,7 @@ namespace ProjectUnknown.Strategy
         {
             if (treasuryText != null)
             {
-                StrategyConstructionResourceCost available = StrategyStorageYard.GetTotalConstructionResources();
-                treasuryText.text = "Logs "
-                    + available.Logs
-                    + "  Stone "
-                    + available.Stone
-                    + (available.Planks > 0 ? "  Planks " + available.Planks : string.Empty);
+                treasuryText.text = FormatConstructionResourceCounter(StrategyStorageYard.GetTotalConstructionResources());
             }
 
             RefreshSpeedControls();

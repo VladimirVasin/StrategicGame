@@ -61,6 +61,7 @@ namespace ProjectUnknown.Strategy
                 return 0;
             }
 
+            ReleaseStorageReservations(kind);
             TakeStored(kind, amount);
             UpdateOrDestroy();
             return amount;
@@ -110,6 +111,25 @@ namespace ProjectUnknown.Strategy
                 if (pair.Key != null
                     && reservation != null
                     && ReferenceEquals(reservation.Owner, owner)
+                    && reservation.Kind == kind
+                    && reservation.Amount > 0)
+                {
+                    total += reservation.Amount;
+                }
+            }
+
+            return total;
+        }
+
+        private int CountStoragePickupReservations(StrategyConstructionResourceKind kind)
+        {
+            int total = 0;
+            foreach (KeyValuePair<StrategyResidentAgent, PickupReservation> pair in pickupReservations)
+            {
+                PickupReservation reservation = pair.Value;
+                if (pair.Key != null
+                    && reservation != null
+                    && reservation.Owner == null
                     && reservation.Kind == kind
                     && reservation.Amount > 0)
                 {
@@ -294,6 +314,11 @@ namespace ProjectUnknown.Strategy
             };
         }
 
+        private int GetAvailableForStorage(StrategyConstructionResourceKind kind)
+        {
+            return Mathf.Max(0, GetAvailable(kind) - CountStoragePickupReservations(kind));
+        }
+
         private int GetStored(StrategyConstructionResourceKind kind)
         {
             return kind switch
@@ -318,6 +343,26 @@ namespace ProjectUnknown.Strategy
             else if (kind == StrategyConstructionResourceKind.Planks)
             {
                 planks -= amount;
+            }
+        }
+
+        private void ReleaseStorageReservations(StrategyConstructionResourceKind kind)
+        {
+            List<StrategyResidentAgent> workers = new();
+            foreach (KeyValuePair<StrategyResidentAgent, PickupReservation> pair in pickupReservations)
+            {
+                PickupReservation reservation = pair.Value;
+                if (reservation != null
+                    && reservation.Owner == null
+                    && reservation.Kind == kind)
+                {
+                    workers.Add(pair.Key);
+                }
+            }
+
+            for (int i = 0; i < workers.Count; i++)
+            {
+                pickupReservations.Remove(workers[i]);
             }
         }
     }

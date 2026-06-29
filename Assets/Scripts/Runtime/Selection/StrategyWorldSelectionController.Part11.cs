@@ -58,6 +58,11 @@ namespace ProjectUnknown.Strategy
                     + food.NightMealExpectedResidentCount;
             }
 
+            if (store != null && store.LeftoverRations > 0.01f)
+            {
+                return "Next: Leftovers";
+            }
+
             if (store != null
                 && store.TryGetNextPreparedDish(out StrategyDishRecipe preparedRecipe, out _))
             {
@@ -174,6 +179,9 @@ namespace ProjectUnknown.Strategy
 
             return "Stock: Dishes "
                 + store.GetPreparedDishAmount()
+                + " | Leftovers "
+                + FormatRations(store.LeftoverRations)
+                + "r"
                 + " | Pottery "
                 + store.GetPotteryAmount()
                 + " | Raw "

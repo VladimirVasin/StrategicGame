@@ -40,11 +40,19 @@ namespace ProjectUnknown.Strategy
 
         private readonly Dictionary<StrategyResourceType, int> amounts = new();
         private readonly Dictionary<string, int> preparedDishAmounts = new();
+        private float leftoverRations;
+
+        public float LeftoverRations => leftoverRations;
 
         public bool HasAny
         {
             get
             {
+                if (leftoverRations > 0.01f)
+                {
+                    return true;
+                }
+
                 for (int i = 0; i < DisplayOrder.Length; i++)
                 {
                     if (GetAmount(DisplayOrder[i]) > 0)
@@ -135,7 +143,7 @@ namespace ProjectUnknown.Strategy
 
         public float GetPreparedDishRations()
         {
-            float total = 0f;
+            float total = leftoverRations;
             foreach (KeyValuePair<string, int> stack in preparedDishAmounts)
             {
                 StrategyDishRecipe recipe = StrategyDishRecipeCatalog.FindById(stack.Key);
@@ -213,6 +221,7 @@ namespace ProjectUnknown.Strategy
         {
             suppliedRations = 0f;
             float remaining = Mathf.Max(0f, requestedRations);
+            ConsumeLeftoverRations(ref remaining, ref suppliedRations);
             if (remaining <= 0.01f)
             {
                 return 0;
@@ -243,8 +252,10 @@ namespace ProjectUnknown.Strategy
 
                 consumedUnits += taken;
                 float supplied = taken * rationValue;
-                suppliedRations += supplied;
-                remaining = Mathf.Max(0f, remaining - supplied);
+                float used = Mathf.Min(remaining, supplied);
+                suppliedRations += used;
+                AddLeftoverRations(supplied - used);
+                remaining = Mathf.Max(0f, remaining - used);
 
                 int nextAmount = available - taken;
                 if (nextAmount > 0)
@@ -268,6 +279,29 @@ namespace ProjectUnknown.Strategy
             }
 
             return amounts.TryGetValue(type, out int amount) ? amount : 0;
+        }
+
+        private void ConsumeLeftoverRations(ref float remainingRations, ref float suppliedRations)
+        {
+            if (leftoverRations <= 0.01f || remainingRations <= 0.01f)
+            {
+                return;
+            }
+
+            float taken = Mathf.Min(leftoverRations, remainingRations);
+            leftoverRations = Mathf.Max(0f, leftoverRations - taken);
+            suppliedRations += taken;
+            remainingRations = Mathf.Max(0f, remainingRations - taken);
+        }
+
+        private void AddLeftoverRations(float rations)
+        {
+            if (rations <= 0.01f)
+            {
+                return;
+            }
+
+            leftoverRations += rations;
         }
     }
 }

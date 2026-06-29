@@ -24,7 +24,8 @@ namespace ProjectUnknown.Strategy
         public IReadOnlyList<StrategyResidentAgent> Workers => workers;
         public int WorkerCount => workers.Count;
         public int StoneStored => stoneStored;
-        public int AvailableStone => Mathf.Max(0, stoneStored - reservedStone - CountReservations(constructionStoneReservations));
+        public int AvailableStone => Mathf.Max(0, AvailableConstructionStone - reservedStone);
+        public int AvailableConstructionStone => Mathf.Max(0, stoneStored - CountReservations(constructionStoneReservations));
         public bool HasStorageSpace => HasStorageSpaceFor(1);
         public Vector2Int Origin => building != null ? building.Origin : Vector2Int.zero;
         public Bounds FootprintBounds => building != null ? building.FootprintBounds : new Bounds(transform.position, Vector3.one);
@@ -64,7 +65,7 @@ namespace ProjectUnknown.Strategy
                 StrategyStonecutterCamp camp = camps[i];
                 if (camp != null)
                 {
-                    total += camp.AvailableStone;
+                    total += camp.AvailableConstructionStone;
                 }
             }
 

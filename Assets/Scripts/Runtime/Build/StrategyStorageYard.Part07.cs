@@ -211,12 +211,12 @@ namespace ProjectUnknown.Strategy
             return resource switch
             {
                 StrategyResourceType.Logs => AvailableLogisticsLogs,
-                StrategyResourceType.Stone => AvailableConstructionStone,
+                StrategyResourceType.Stone => AvailableLogisticsStone,
                 StrategyResourceType.Iron => Mathf.Max(0, ironStored - CountProductionInputReservations(resource)),
                 StrategyResourceType.Coal => Mathf.Max(0, coalStored - CountProductionInputReservations(resource)),
                 StrategyResourceType.Clay => Mathf.Max(0, clayStored - CountProductionInputReservations(resource)),
                 StrategyResourceType.Pottery => Mathf.Max(0, potteryStored - CountProductionInputReservations(resource) - CountHouseholdPotteryReservations()),
-                StrategyResourceType.Planks => AvailableConstructionPlanks,
+                StrategyResourceType.Planks => AvailableLogisticsPlanks,
                 StrategyResourceType.Tools => Mathf.Max(0, toolsStored - CountProductionInputReservations(resource)),
                 _ => 0
             };

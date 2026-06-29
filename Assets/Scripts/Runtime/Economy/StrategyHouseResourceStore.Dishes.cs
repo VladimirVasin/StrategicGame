@@ -9,14 +9,14 @@ namespace ProjectUnknown.Strategy
         public int ConsumePreparedDishes(float requestedRations, out float suppliedRations)
         {
             suppliedRations = 0f;
-            float dishRation = StrategyFoodNutrition.GetRationValue(StrategyResourceType.Dish);
-            if (dishRation <= 0f || requestedRations <= 0.01f)
+            if (requestedRations <= 0.01f)
             {
                 return 0;
             }
 
             float remaining = Mathf.Max(0f, requestedRations);
             int consumed = 0;
+            ConsumeLeftoverRations(ref remaining, ref suppliedRations);
             while (remaining > 0.01f)
             {
                 string stackId = FindBestPreparedDishStackId();
@@ -42,8 +42,11 @@ namespace ProjectUnknown.Strategy
                 }
 
                 consumed += taken;
-                suppliedRations += taken * recipe.RationValue;
-                remaining = Mathf.Max(0f, remaining - taken * recipe.RationValue);
+                float supplied = taken * recipe.RationValue;
+                float used = Mathf.Min(remaining, supplied);
+                suppliedRations += used;
+                AddLeftoverRations(supplied - used);
+                remaining = Mathf.Max(0f, remaining - used);
                 SetPreparedDishAmount(stackId, available - taken);
             }
 
@@ -144,7 +147,9 @@ namespace ProjectUnknown.Strategy
             CopyPreparedDishStacks(stacks);
             if (stacks.Count <= 0)
             {
-                return "none";
+                return leftoverRations > 0.01f
+                    ? "Leftovers " + FormatRations(leftoverRations) + "r"
+                    : "none";
             }
 
             int limit = Mathf.Clamp(maxStacks, 1, stacks.Count);
@@ -166,6 +171,13 @@ namespace ProjectUnknown.Strategy
             {
                 builder.Append(", +");
                 builder.Append(stacks.Count - limit);
+            }
+
+            if (leftoverRations > 0.01f)
+            {
+                builder.Append(", Leftovers ");
+                builder.Append(FormatRations(leftoverRations));
+                builder.Append("r");
             }
 
             return builder.ToString();
@@ -379,6 +391,11 @@ namespace ProjectUnknown.Strategy
             }
 
             return builder.ToString();
+        }
+
+        private static string FormatRations(float rations)
+        {
+            return rations.ToString("0.#");
         }
     }
 }

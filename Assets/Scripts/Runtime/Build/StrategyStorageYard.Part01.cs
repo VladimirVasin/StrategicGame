@@ -469,7 +469,7 @@ namespace ProjectUnknown.Strategy
                 return 0;
             }
 
-            AddReservation(constructionLogReservations, owner, amount);
+            ClearNonConstructionReservationsForConstruction(StrategyConstructionResourceKind.Logs); AddReservation(constructionLogReservations, owner, amount);
             return amount;
         }
 
@@ -481,7 +481,7 @@ namespace ProjectUnknown.Strategy
                 return 0;
             }
 
-            AddReservation(constructionStoneReservations, owner, amount);
+            ClearNonConstructionReservationsForConstruction(StrategyConstructionResourceKind.Stone); AddReservation(constructionStoneReservations, owner, amount);
             return amount;
         }
 
@@ -493,7 +493,7 @@ namespace ProjectUnknown.Strategy
                 return 0;
             }
 
-            AddReservation(constructionPlankReservations, owner, amount);
+            ClearNonConstructionReservationsForConstruction(StrategyConstructionResourceKind.Planks); AddReservation(constructionPlankReservations, owner, amount);
             return amount;
         }
     }

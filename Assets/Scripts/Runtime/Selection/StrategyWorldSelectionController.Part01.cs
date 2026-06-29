@@ -218,6 +218,7 @@ namespace ProjectUnknown.Strategy
                 StrategyForagerCamp foragerCamp = building.GetComponent<StrategyForagerCamp>();
                 StrategyChickenCoop chickenCoop = building.GetComponent<StrategyChickenCoop>();
                 StrategyTradingPost tradingPost = building.GetComponent<StrategyTradingPost>();
+                StrategyStarterCaravanCart starterCart = building.GetComponent<StrategyStarterCaravanCart>();
                 StrategyStorageYard yard = building.GetComponent<StrategyStorageYard>();
                 StrategyGranary granary = building.GetComponent<StrategyGranary>();
                 bool isLumberjackCamp = camp != null;
@@ -233,6 +234,7 @@ namespace ProjectUnknown.Strategy
                 bool isForagerCamp = foragerCamp != null;
                 bool isChickenCoop = chickenCoop != null;
                 bool isTradingPost = tradingPost != null;
+                bool isStarterCart = starterCart != null;
                 bool isStorageYard = yard != null;
                 bool isGranary = granary != null;
                 SetResidentsSectionVisible(isHouse);
@@ -242,7 +244,7 @@ namespace ProjectUnknown.Strategy
                 }
 
                 SetWorkersSectionVisible(false);
-                if (isLumberjackCamp || isStonecutterCamp || isSawmill || isMine || isCoalPit || isClayPit || isKiln || isForge || isHunterCamp || isFisherHut || isForagerCamp || isChickenCoop || isGranary)
+                if (isLumberjackCamp || isStonecutterCamp || isSawmill || isMine || isCoalPit || isClayPit || isKiln || isForge || isHunterCamp || isFisherHut || isForagerCamp || isChickenCoop || isStarterCart || isGranary)
                 {
                     LayoutContextSection(128f, 214f);
                 }
@@ -322,6 +324,12 @@ namespace ProjectUnknown.Strategy
                 else if (isTradingPost)
                 {
                     RefreshTradingPostHud(tradingPost);
+                }
+                else if (isStarterCart)
+                {
+                    hudContextTitleText.text = "Starter Supplies";
+                    hudContextBodyText.text = starterCart.GetHudStatusText();
+                    SetContextSectionVisible(true);
                 }
                 else if (isStorageYard)
                 {

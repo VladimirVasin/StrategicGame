@@ -112,12 +112,13 @@ namespace ProjectUnknown.Strategy
 
         private int ReserveConstructionStone(object owner, int requested)
         {
-            int amount = Mathf.Min(Mathf.Max(0, requested), AvailableStone);
+            int amount = Mathf.Min(Mathf.Max(0, requested), AvailableConstructionStone);
             if (owner == null || amount <= 0)
             {
                 return 0;
             }
 
+            ClearStoredStoneReservationForConstruction();
             AddReservation(constructionStoneReservations, owner, amount);
             StrategyDebugLogger.Info(
                 "StonecutterCamp",
@@ -126,18 +127,19 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("owner", owner),
                 StrategyDebugLogger.F("amount", amount),
                 StrategyDebugLogger.F("stock", stoneStored),
-                StrategyDebugLogger.F("available", AvailableStone));
+                StrategyDebugLogger.F("available", AvailableConstructionStone));
             return amount;
         }
 
         private int SpendAvailableStone(int requested)
         {
-            int amount = Mathf.Min(Mathf.Max(0, requested), AvailableStone);
+            int amount = Mathf.Min(Mathf.Max(0, requested), AvailableConstructionStone);
             if (amount <= 0)
             {
                 return 0;
             }
 
+            ClearStoredStoneReservationForConstruction();
             stoneStored -= amount;
             UpdateStockVisual();
             StrategyDebugLogger.Info(
@@ -152,6 +154,40 @@ namespace ProjectUnknown.Strategy
         private bool HasAvailableConstructionReservation(object owner)
         {
             return GetAvailableConstructionReservationAmount(owner) > 0;
+        }
+
+        public static bool TryFindConstructionPickup(
+            object owner,
+            Vector3 nearWorld,
+            int maxAmount,
+            out StrategyStonecutterCamp camp,
+            out Vector2Int pickupCell,
+            out int amount)
+        {
+            camp = null;
+            pickupCell = default;
+            amount = 0;
+            if (owner == null || maxAmount <= 0)
+            {
+                return false;
+            }
+
+            List<StrategyStonecutterCamp> camps = GetCampsSortedByDistance(nearWorld);
+            for (int i = 0; i < camps.Count; i++)
+            {
+                StrategyStonecutterCamp candidate = camps[i];
+                int available = candidate != null ? candidate.GetAvailableConstructionReservationAmount(owner) : 0;
+                if (available <= 0 || !candidate.TryFindDropoffCell(out pickupCell))
+                {
+                    continue;
+                }
+
+                camp = candidate;
+                amount = Mathf.Min(maxAmount, available);
+                return true;
+            }
+
+            return false;
         }
 
         private int GetAvailableConstructionReservationAmount(object owner)
@@ -192,6 +228,12 @@ namespace ProjectUnknown.Strategy
             {
                 constructionPickupReservations.Remove(buildersToRelease[i]);
             }
+        }
+
+        private void ClearStoredStoneReservationForConstruction()
+        {
+            stoneReservationOwner = null;
+            reservedStone = 0;
         }
 
         private int CountPickupReservations(object owner)

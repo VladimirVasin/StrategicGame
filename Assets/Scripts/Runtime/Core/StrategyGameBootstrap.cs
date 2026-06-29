@@ -7,8 +7,9 @@ namespace ProjectUnknown.Strategy
         private const float InitialCameraSize = 18f;
         private const float InitialCampCameraSize = 11f;
         private const int CampNatureClearRadius = 3;
-        private const int InitialStorageLogs = 20;
-        private const int InitialStorageStone = 20;
+        private const int InitialStarterLogs = 20;
+        private const int InitialStarterStone = 20;
+        private const float StarterFoodReserveDays = 3f;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void BootstrapScene()
@@ -309,9 +310,14 @@ namespace ProjectUnknown.Strategy
             fog.Configure(map, population, placement, weather);
             placement.Configure(map, buildMenu, mainCamera, population, fog, forestry, stone, upgrades);
             trails.ConfigureRouteNetwork(placement);
-            if (population.TryGetCampCell(out Vector2Int starterStorageCampCell))
+            if (population.TryGetCampCell(out Vector2Int starterCartCampCell))
             {
-                placement.TryPlaceStarterStorageYard(starterStorageCampCell, InitialStorageLogs, InitialStorageStone);
+                float starterFoodRations = CalculateStarterFoodRations(population, StarterFoodReserveDays);
+                placement.TryPlaceStarterCaravanCart(
+                    starterCartCampCell,
+                    InitialStarterLogs,
+                    InitialStarterStone,
+                    starterFoodRations);
             }
 
             cinematicVisuals.RefreshSceneLightingNow();
@@ -472,6 +478,21 @@ namespace ProjectUnknown.Strategy
             refugees.Configure(map, population, timeScale, refugeeDialog, fog);
             debugPanel.Configure(fog, weather, refugees);
             StrategyDebugLogger.Info("Bootstrap", "RefugeesReady");
+        }
+
+        private static float CalculateStarterFoodRations(StrategyPopulationController population, float reserveDays)
+        {
+            if (population == null || reserveDays <= 0f)
+            { return 0f; }
+
+            float dailyNeed = 0f;
+            foreach (StrategyResidentAgent resident in population.Residents)
+            {
+                if (resident != null && !resident.IsPendingRefugee)
+                { dailyNeed += resident.DailyRationNeed; }
+            }
+
+            return dailyNeed * reserveDays;
         }
     }
 }

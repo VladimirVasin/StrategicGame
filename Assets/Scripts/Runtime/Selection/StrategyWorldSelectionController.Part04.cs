@@ -383,6 +383,16 @@ namespace ProjectUnknown.Strategy
                         stack.Rations);
                 }
 
+                if (store.LeftoverRations > 0.01f && visibleResourceIndex < resourceSlots.Length)
+                {
+                    ShowDinnerFoodRow(
+                        visibleResourceIndex++,
+                        StrategyResourceType.Dish,
+                        "Leftovers",
+                        0,
+                        store.LeftoverRations);
+                }
+
                 for (int i = 0; i < StrategyHouseResourceStore.DisplayOrder.Length && visibleResourceIndex < resourceSlots.Length; i++)
                 {
                     StrategyResourceType type = StrategyHouseResourceStore.DisplayOrder[i];
@@ -449,7 +459,7 @@ namespace ProjectUnknown.Strategy
 
             if (resourceQuantityTexts[rowIndex] != null)
             {
-                resourceQuantityTexts[rowIndex].text = amount.ToString();
+                resourceQuantityTexts[rowIndex].text = amount > 0 ? amount.ToString() : "--";
                 resourceQuantityTexts[rowIndex].color = new Color(0.88f, 0.93f, 0.90f);
             }
 

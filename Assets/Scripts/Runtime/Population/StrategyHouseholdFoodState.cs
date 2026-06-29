@@ -124,6 +124,7 @@ namespace ProjectUnknown.Strategy
             string preparedDishSummary = house.Resources != null ? house.Resources.GetPreparedDishSummary(3) : string.Empty;
             int ingredientFood = house.Resources != null ? house.Resources.GetTotalIngredientAmount() : 0;
             float ingredientRations = house.Resources != null ? house.Resources.GetTotalIngredientRationValue() : 0f;
+            float leftoverRationsBefore = house.Resources != null ? house.Resources.LeftoverRations : 0f;
             int granaryFood = StrategyGranary.GetTotalSettlementFood();
             float granaryFoodRations = StrategyGranary.GetTotalSettlementFoodRations();
             lastHouseRationsSupplied = 0f;
@@ -144,6 +145,7 @@ namespace ProjectUnknown.Strategy
                 lastRequiredRations,
                 lastHouseRationsSupplied + lastIngredientRationsSupplied + lastGranaryRationsSupplied);
             lastMissingRations = Mathf.Max(0f, lastRequiredRations - lastSuppliedRations);
+            float leftoverRationsAfter = house.Resources != null ? house.Resources.LeftoverRations : 0f;
             ApplyRationToResidents(dayIndex);
             RefreshNutritionCounts();
 
@@ -168,6 +170,8 @@ namespace ProjectUnknown.Strategy
                     StrategyDebugLogger.F("dishesBefore", preparedDishes),
                     StrategyDebugLogger.F("dishRationsBefore", preparedDishRations),
                     StrategyDebugLogger.F("dishSummaryBefore", preparedDishSummary),
+                    StrategyDebugLogger.F("leftoverRationsBefore", leftoverRationsBefore),
+                    StrategyDebugLogger.F("leftoverRationsAfter", leftoverRationsAfter),
                     StrategyDebugLogger.F("ingredientsBefore", ingredientFood),
                     StrategyDebugLogger.F("ingredientRationsBefore", ingredientRations),
                     StrategyDebugLogger.F("granaryFoodBefore", granaryFood),
@@ -197,6 +201,8 @@ namespace ProjectUnknown.Strategy
                     StrategyDebugLogger.F("dishesBefore", preparedDishes),
                     StrategyDebugLogger.F("dishRationsBefore", preparedDishRations),
                     StrategyDebugLogger.F("dishSummaryBefore", preparedDishSummary),
+                    StrategyDebugLogger.F("leftoverRationsBefore", leftoverRationsBefore),
+                    StrategyDebugLogger.F("leftoverRationsAfter", leftoverRationsAfter),
                     StrategyDebugLogger.F("ingredientsBefore", ingredientFood),
                     StrategyDebugLogger.F("ingredientRationsBefore", ingredientRations),
                     StrategyDebugLogger.F("granaryFoodBefore", granaryFood),

@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ProjectUnknown.Strategy
 {
     [DisallowMultipleComponent]
-    public sealed partial class StrategySawmill : MonoBehaviour
+    public sealed partial class StrategySawmill : MonoBehaviour, IStrategyConstructionResourceSource
     {
         public const int MaxWorkers = 1;
         private const int MaxInputLogs = 4;
@@ -33,7 +33,7 @@ namespace ProjectUnknown.Strategy
         public int WorkerCount => workers.Count;
         public int LogsStored => logsStored;
         public int PlanksStored => planksStored;
-        public int AvailablePlanks => Mathf.Max(0, planksStored - reservedPlanks);
+        public int AvailablePlanks => Mathf.Max(0, AvailableConstructionPlanks - reservedPlanks);
         public int StorageUsed => logsStored + planksStored;
         public int ReservedStorageUsed => logsStored + planksStored + pendingPlanks + reservedInputLogs;
         public bool HasInputLogs => logsStored >= LogsPerWorkCycle;

@@ -191,6 +191,12 @@ namespace ProjectUnknown.Strategy
             {
                 StrategyStorageYard yard = placed.AddComponent<StrategyStorageYard>();
                 yard.Configure(building, map, population);
+                StrategyStarterCaravanCart.TransferConstructionResourcesToStorageYard(yard);
+            }
+            else if (toolInfo.Tool == StrategyBuildTool.StarterCaravanCart)
+            {
+                StrategyStarterCaravanCart cart = placed.AddComponent<StrategyStarterCaravanCart>();
+                cart.Configure(building, map, population, this);
             }
             else if (toolInfo.Tool == StrategyBuildTool.Granary)
             {

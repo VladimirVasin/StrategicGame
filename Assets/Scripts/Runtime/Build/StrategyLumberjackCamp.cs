@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ProjectUnknown.Strategy
 {
     [DisallowMultipleComponent]
-    public sealed class StrategyLumberjackCamp : MonoBehaviour
+    public sealed partial class StrategyLumberjackCamp : MonoBehaviour, IStrategyConstructionResourceSource
     {
         public const int MaxWorkers = 2;
         public const int WorkRadius = 9;
@@ -22,7 +22,7 @@ namespace ProjectUnknown.Strategy
         public IReadOnlyList<StrategyResidentAgent> Workers => workers;
         public int WorkerCount => workers.Count;
         public int LogsStored => logsStored;
-        public int AvailableLogs => Mathf.Max(0, logsStored - reservedLogs);
+        public int AvailableLogs => Mathf.Max(0, AvailableConstructionLogs - reservedLogs);
         public bool HasStorageSpace => HasStorageSpaceFor(1);
         public Vector2Int Origin => building != null ? building.Origin : Vector2Int.zero;
         public Bounds FootprintBounds => building != null ? building.FootprintBounds : new Bounds(transform.position, Vector3.one);

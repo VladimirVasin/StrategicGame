@@ -156,7 +156,7 @@ namespace ProjectUnknown.Strategy
             CancelForageWork(true);
             CancelHouseholdFoodWork(true);
             constructionSite = site;
-            constructionFutureHome = willLiveThere;
+            constructionFutureHome = willLiveThere; temporaryConstructionAssignment = false;
             ClearCarriedConstructionReturnReservation();
             activeConstructionSource = null;
             activeConstructionResource = StrategyConstructionResourceKind.None;
@@ -210,7 +210,7 @@ namespace ProjectUnknown.Strategy
             activeConstructionSource = null;
             activeConstructionResource = StrategyConstructionResourceKind.None;
             constructionPickupPathFailures = 0;
-            constructionFutureHome = false;
+            constructionFutureHome = false; temporaryConstructionAssignment = false;
             carriedLogAmount = 0;
             carriedStoneAmount = 0;
             carriedIronAmount = 0;
@@ -281,7 +281,7 @@ namespace ProjectUnknown.Strategy
             activeConstructionDeliverySite = null;
             activeConstructionResource = StrategyConstructionResourceKind.None;
             constructionPickupPathFailures = 0;
-            constructionFutureHome = false;
+            constructionFutureHome = false; temporaryConstructionAssignment = false;
             if (hadCarriedResources
                 && allowCarriedResourceReturn
                 && TryStartCarriedResourceReturn("construction_assignment_cleared"))

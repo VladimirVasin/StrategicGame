@@ -20,6 +20,7 @@ namespace ProjectUnknown.Strategy
         public const int ForagerCampVariantCount = 3;
         public const int ChickenCoopVariantCount = StrategyBuildingUpgradeSpriteFactory.AnimationFrameCount;
         public const int TradingPostVariantCount = 3;
+        public const int StarterCaravanCartVariantCount = 1;
         public const int StorageYardVariantCount = 3;
         public const int GranaryVariantCount = 3;
         public const int BridgeVariantCount = 1;
@@ -44,6 +45,7 @@ namespace ProjectUnknown.Strategy
                 StrategyBuildTool.ForagerCamp => ForagerCampVariantCount,
                 StrategyBuildTool.ChickenCoop => ChickenCoopVariantCount,
                 StrategyBuildTool.TradingPost => TradingPostVariantCount,
+                StrategyBuildTool.StarterCaravanCart => StarterCaravanCartVariantCount,
                 StrategyBuildTool.StorageYard => StorageYardVariantCount,
                 StrategyBuildTool.Granary => GranaryVariantCount,
                 StrategyBuildTool.Bridge => BridgeVariantCount,
@@ -73,6 +75,7 @@ namespace ProjectUnknown.Strategy
                 && tool != StrategyBuildTool.ForagerCamp
                 && tool != StrategyBuildTool.ChickenCoop
                 && tool != StrategyBuildTool.TradingPost
+                && tool != StrategyBuildTool.StarterCaravanCart
                 && tool != StrategyBuildTool.StorageYard
                 && tool != StrategyBuildTool.Granary
                 && tool != StrategyBuildTool.Bridge)
@@ -100,6 +103,7 @@ namespace ProjectUnknown.Strategy
                     StrategyBuildTool.ForagerCamp => CreateForagerCampSprite(normalizedVariant),
                     StrategyBuildTool.ChickenCoop => CreateChickenCoopSprite(normalizedVariant),
                     StrategyBuildTool.TradingPost => CreateTradingPostSprite(normalizedVariant),
+                    StrategyBuildTool.StarterCaravanCart => StrategyTradeCaravanSpriteFactory.GetSprite(),
                     StrategyBuildTool.StorageYard => CreateStorageYardSprite(normalizedVariant),
                     StrategyBuildTool.Granary => CreateGranarySprite(normalizedVariant),
                     StrategyBuildTool.Bridge => CreateBridgeSprite(new Vector2Int(3, 1)),

@@ -91,6 +91,10 @@ namespace ProjectUnknown.Strategy
             {
                 blockFootprint = new Vector2Int(footprint.x, footprint.y + 1);
             }
+            else if (tool == StrategyBuildTool.StarterCaravanCart)
+            {
+                blockFootprint = new Vector2Int(footprint.x, footprint.y + 1);
+            }
             else if (tool == StrategyBuildTool.Granary)
             {
                 blockFootprint = new Vector2Int(footprint.x, footprint.y + 1);
@@ -315,6 +319,7 @@ namespace ProjectUnknown.Strategy
                 StrategyBuildTool.FisherHut => "FH",
                 StrategyBuildTool.ForagerCamp => "FC",
                 StrategyBuildTool.ChickenCoop => "CC",
+                StrategyBuildTool.StarterCaravanCart => "CV",
                 StrategyBuildTool.StorageYard => "ST",
                 StrategyBuildTool.Granary => "GR",
                 StrategyBuildTool.Bridge => "BR",

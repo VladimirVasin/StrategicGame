@@ -14,6 +14,7 @@ namespace ProjectUnknown.Strategy
                 return 0;
             }
 
+            ClearNonConstructionReservationsForConstruction(StrategyConstructionResourceKind.Logs);
             logsStored -= amount;
             UpdateStockVisual();
             return amount;
@@ -27,6 +28,7 @@ namespace ProjectUnknown.Strategy
                 return 0;
             }
 
+            ClearNonConstructionReservationsForConstruction(StrategyConstructionResourceKind.Stone);
             stoneStored -= amount;
             UpdateStockVisual();
             return amount;
@@ -40,6 +42,7 @@ namespace ProjectUnknown.Strategy
                 return 0;
             }
 
+            ClearNonConstructionReservationsForConstruction(StrategyConstructionResourceKind.Planks);
             planksStored -= amount;
             UpdateStockVisual();
             return amount;

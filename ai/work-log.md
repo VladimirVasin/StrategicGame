@@ -8,6 +8,30 @@ Last updated: 2026-06-29
 
 ## Done
 
+### 2026-06-29 - Production stock construction availability
+
+- Construction affordability and reservations now count physical Logs, Stone, and Planks in Lumberjack Camps, Stonecutter Camps, and Sawmills, not only Storage Yards, loose piles, and the starter cart.
+- Added production-local construction resource sources for Lumberjack Camp Logs and Sawmill Planks, reconnected Stonecutter Camp Stone, and routed them through `StrategyProductionConstructionResources`.
+- Construction availability now ignores non-carried logistics reservations; when construction claims physical stock, matching not-yet-picked logistics reservations are cleared, while resources already carried remain excluded because they were removed from source stock at pickup.
+- Build HUD construction counters and build-card affordability/cost checks read the same all-source construction total, and the counter now always shows Logs, Stone, and Planks.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-06-29 - Starter caravan cart opening stock
+
+- Replaced the initial prebuilt Storage Yard with a non-build-menu `StarterCaravanCart` placed near the campfire through the normal placed-building path.
+- The cart starts with 20 Logs, 20 Stone, and randomized supported raw food (`Fish`, `Game`, `Eggs`, Berries, Roots, Mushrooms) whose ration value covers 3 days for the actual initial population.
+- Construction affordability and reservations now include the cart as a low-priority temporary source after Storage Yards; available cart Logs/Stone/Planks transfer into a completed Storage Yard, and the cart never accepts new deliveries.
+- Householders can use cart food after Granaries and before direct production fallback; the cart despawns through building demolition cleanup once all construction and food stock/reservations are gone.
+- Added temporary starter builder dispatch from the cart so early construction can proceed before a Storage Yard exists.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-06-29 - Household dinner ration leftovers
+
+- Added household leftover rations so surplus ration value from whole prepared dishes or ingredient units remains in the house instead of being lost during nightly meal consumption.
+- Night meals now consume leftover rations before prepared dishes and raw ingredients, while ready-ration calculations and house selection dinner status include the leftover supply.
+- Dinner diagnostics now log leftover rations before and after the meal resolution.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
 ### 2026-06-29 - Trail route network convergence
 
 - Extracted resident trail-aware A* pathfinding into shared `StrategyTrailPathfinder` and shared cardinal route-cell expansion into `StrategyTrailRouteCellBuilder`.

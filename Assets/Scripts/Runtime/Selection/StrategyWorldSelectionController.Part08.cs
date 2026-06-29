@@ -41,6 +41,7 @@ namespace ProjectUnknown.Strategy
                 StrategyBuildTool.ForagerCamp => "Forager Camp",
                 StrategyBuildTool.ChickenCoop => "Chicken Coop",
                 StrategyBuildTool.TradingPost => "Trading Post",
+                StrategyBuildTool.StarterCaravanCart => "Caravan Cart",
                 StrategyBuildTool.StorageYard => "Storage Yard",
                 StrategyBuildTool.Granary => "Granary",
                 StrategyBuildTool.Bridge => "Bridge",

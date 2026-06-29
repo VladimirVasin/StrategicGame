@@ -25,9 +25,9 @@ namespace ProjectUnknown.Strategy
         public int Logs => logs;
         public int Stone => stone;
         public int Planks => planks;
-        public int AvailableLogs => Mathf.Max(0, logs - CountReservations(logReservations) - CountPickupReservations(StrategyConstructionResourceKind.Logs));
-        public int AvailableStone => Mathf.Max(0, stone - CountReservations(stoneReservations) - CountPickupReservations(StrategyConstructionResourceKind.Stone));
-        public int AvailablePlanks => Mathf.Max(0, planks - CountReservations(plankReservations) - CountPickupReservations(StrategyConstructionResourceKind.Planks));
+        public int AvailableLogs => Mathf.Max(0, logs - CountReservations(logReservations));
+        public int AvailableStone => Mathf.Max(0, stone - CountReservations(stoneReservations));
+        public int AvailablePlanks => Mathf.Max(0, planks - CountReservations(plankReservations));
         public Vector2Int Origin => origin;
         public Bounds FootprintBounds => footprintBounds;
 
@@ -121,7 +121,7 @@ namespace ProjectUnknown.Strategy
             {
                 StrategyLooseConstructionResourcePile candidate = piles[i];
                 int amount = candidate != null
-                    ? Mathf.Min(StrategyProductionStorage.HaulerCarryLimit, candidate.GetAvailable(kind))
+                    ? Mathf.Min(StrategyProductionStorage.HaulerCarryLimit, candidate.GetAvailableForStorage(kind))
                     : 0;
                 if (candidate == null || amount <= 0 || !candidate.TryReserveForStorage(worker, kind, amount))
                 {
@@ -355,7 +355,7 @@ namespace ProjectUnknown.Strategy
             }
 
             ReleaseStorageReservation(worker);
-            int available = GetAvailable(kind);
+            int available = GetAvailableForStorage(kind);
             if (available < amount)
             {
                 return false;

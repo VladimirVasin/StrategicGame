@@ -19,6 +19,7 @@ namespace ProjectUnknown.Strategy
         ForagerCamp,
         ChickenCoop,
         TradingPost,
+        StarterCaravanCart,
         StorageYard,
         Granary,
         Bridge

@@ -1,6 +1,6 @@
 # Tutorial Scenario
 
-Last updated: 2026-06-24
+Last updated: 2026-06-29
 
 ## Current State
 
@@ -20,6 +20,7 @@ When a real tutorial or onboarding flow is implemented:
 ## Current Scenario
 
 - On normal strategy startup, the left-side Goals HUD shows `Build 3 Houses (0/3)`.
+- Normal startup places a temporary Caravan Cart near the campfire instead of a prebuilt Storage Yard; it starts with 20 Logs, 20 Stone, and randomized raw food covering 3 days for the initial families.
 - Dawn counts as settlement work time on every day, so auto-assigned builders and haulers can begin starter construction immediately.
 - While this goal is active, the Build menu allows only `House`; all other building categories/items are locked.
 - Completed construction, not placed construction sites, advances goal progress.

@@ -41,7 +41,7 @@ namespace ProjectUnknown.Strategy
             outline.effectColor = new Color(0f, 0f, 0f, 0.38f);
             outline.effectDistance = new Vector2(1.4f, -1.4f);
 
-            treasuryText = CreateText("TreasuryText", panel, "Logs 0  Stone 0", 16, TextAnchor.MiddleCenter, new Color(0.95f, 0.88f, 0.62f));
+            treasuryText = CreateText("TreasuryText", panel, "Logs 0  Stone 0  Planks 0", 16, TextAnchor.MiddleCenter, new Color(0.95f, 0.88f, 0.62f));
             treasuryText.fontStyle = FontStyle.Bold;
             Stretch(treasuryText.rectTransform, 8f, 0f, 8f, 0f);
         }

@@ -28,6 +28,7 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
+            ReleaseStorageReservations(kind);
             AddReservation(reservations, owner, reservedAmount);
             StrategyDebugLogger.Info(
                 "Build",
@@ -54,6 +55,7 @@ namespace ProjectUnknown.Strategy
                 return 0;
             }
 
+            ReleaseStorageReservations(kind);
             AddReservation(reservations, owner, amount);
             return amount;
         }

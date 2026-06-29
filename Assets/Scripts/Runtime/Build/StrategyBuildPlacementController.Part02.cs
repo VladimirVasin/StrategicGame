@@ -302,7 +302,7 @@ namespace ProjectUnknown.Strategy
             return false;
         }
 
-        private bool TryFindStarterStorageOrigin(Vector2Int nearCell, StrategyBuildToolInfo toolInfo, out Vector2Int origin)
+        private bool TryFindStarterSupplyOrigin(Vector2Int nearCell, StrategyBuildToolInfo toolInfo, out Vector2Int origin)
         {
             Vector2Int[] preferredOffsets =
             {
@@ -319,7 +319,7 @@ namespace ProjectUnknown.Strategy
             for (int i = 0; i < preferredOffsets.Length; i++)
             {
                 Vector2Int candidate = ClampOriginToMap(nearCell + preferredOffsets[i], toolInfo.Footprint);
-                if (CanPlaceStarterStorageOrigin(candidate, nearCell, toolInfo))
+                if (CanPlaceStarterSupplyOrigin(candidate, nearCell, toolInfo))
                 {
                     origin = candidate;
                     return true;
@@ -338,7 +338,7 @@ namespace ProjectUnknown.Strategy
                         }
 
                         Vector2Int candidate = ClampOriginToMap(nearCell + new Vector2Int(x, y), toolInfo.Footprint);
-                        if (CanPlaceStarterStorageOrigin(candidate, nearCell, toolInfo))
+                        if (CanPlaceStarterSupplyOrigin(candidate, nearCell, toolInfo))
                         {
                             origin = candidate;
                             return true;
@@ -351,7 +351,7 @@ namespace ProjectUnknown.Strategy
             return false;
         }
 
-        private bool CanPlaceStarterStorageOrigin(Vector2Int origin, Vector2Int avoidCell, StrategyBuildToolInfo toolInfo)
+        private bool CanPlaceStarterSupplyOrigin(Vector2Int origin, Vector2Int avoidCell, StrategyBuildToolInfo toolInfo)
         {
             GetWalkBlockFootprint(toolInfo.Tool, origin, toolInfo.Footprint, out Vector2Int blockOrigin, out Vector2Int blockFootprint);
             return !ContainsCell(blockOrigin, blockFootprint, avoidCell) && CanPlaceFootprint(blockOrigin, blockFootprint);

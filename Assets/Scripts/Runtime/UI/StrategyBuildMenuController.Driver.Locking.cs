@@ -167,12 +167,7 @@ namespace ProjectUnknown.Strategy
         {
             if (treasuryText != null)
             {
-                StrategyConstructionResourceCost available = StrategyStorageYard.GetTotalConstructionResources();
-                treasuryText.text = "Logs "
-                    + available.Logs
-                    + "  Stone "
-                    + available.Stone
-                    + (available.Planks > 0 ? "  Planks " + available.Planks : string.Empty);
+                treasuryText.text = FormatConstructionResourceCounter(StrategyStorageYard.GetTotalConstructionResources());
             }
 
             RefreshSpeedControls();
