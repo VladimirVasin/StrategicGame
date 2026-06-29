@@ -102,7 +102,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Multiple deterministic variants per terrain kind
     - Neighbor-aware side and corner overlays for terrain transitions
     - Runtime water/shore overlay animates shallow/deep tint, river-flow streaks, lake sparkles, broken shoreline foam, wet shore edges, and weather-driven rain ripple hits over the static map texture
-    - Runtime road layer records completed resident movement between two different non-Bridge buildings as immediate stable roads after one real traversal
+    - Runtime road layer records completed resident movement between two different non-Bridge buildings as immediate stable roads after one real traversal, using straightened smoothed route cells instead of raw A* detours
     - Resident footfalls no longer create functional or visible roads, and automatic route-network convergence is disabled
     - Road cells stay until invalidated by map walkability or cell validity changes instead of decaying from disuse
     - Route road cells render connected procedural sprites using cardinal N/E/S/W right-angle masks, wear levels, and deterministic variants
@@ -443,7 +443,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Runtime-created population controller
     - Startup camp creates an animated procedural campfire
       - Camp placement keeps at least 6 cells of clearance from generated water/shore when possible
-    - Campfire can stay lit only during `Night`; while lit it blocks its own cell, then burns down or daylight-extinguishes into persistent embers, releases the cell while extinguished, and can be relit by homeless residents at night
+    - Campfire can stay lit only during `Night`; while lit it blocks its own cell, then burns down or daylight-extinguishes into morning embers that become fully cold by `Noon`, releases the cell while extinguished, and can be relit by homeless residents at night
       - Startup camp spawns 3 initial families
       - Each initial family has a father, a mother, and 1-2 adult children with parent/child links
       - Startup parents and adult children receive random Germanic/Nordic-style full names and age-appropriate adult ages
@@ -622,7 +622,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Construction depends on Storage Yard resource reservations, loose construction pile reservations, idle Hauler construction-material fallback delivery, hired Storage Yard builder assignments, construction-site blockers, placed-building finalization, F9 instant-construction debug options, and the world-selection HUD.
 - Population uses placed-building records, construction sites, the generated map walkability/trail layers, and workplace assignments; home/family assignment is independent from work/construction assignment.
 - Resident footsteps depend on population agents and the non-generated grass footstep clip set.
-- Resident movement records completed building-to-building route traversals as immediate stable roads after real arrivals, shares road-aware 8-direction A* pathfinding with the road layer, and reads formed roads for path-cost preference plus a 15% movement-speed bonus; ordinary footfalls and automatic route-network reinforcement no longer create roads.
+- Resident movement records completed building-to-building route traversals as immediate stable roads after real arrivals, shares road-aware 8-direction A* pathfinding with the road layer, straightens captured road cells from smoothed travel waypoints, and reads formed roads for path-cost preference plus a 15% movement-speed bonus; ordinary footfalls and automatic route-network reinforcement no longer create roads.
 - Time scale accelerates core simulation timers, while expensive visual/service systems use unscaled real-time cadences for fog, cinematic/weather/water/nature overlays, wildlife caches/threat scans, population housekeeping, and resident path-build budgeting.
 - World selection uses placed-building/resident/construction-site colliders, inspectable world-object sprite bounds, generated map cell data, fog state, the strategy camera, house resource state, and production-building upgrade state.
 - Profession HUD depends on population adults and current worksite components; it owns player-facing worker assignment/removal while existing worksite components still own role state and work loops, with Storage Yard Haulers/builders treated as uncapped roles.

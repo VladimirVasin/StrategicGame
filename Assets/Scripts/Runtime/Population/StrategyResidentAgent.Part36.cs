@@ -182,7 +182,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            PrepareTrailRouteForBuiltPath(startCell, targetCell, rawCells);
+            PrepareTrailRouteForBuiltPath(startCell, targetCell, smoothedCells);
             path.Clear();
             for (int i = 0; i < smoothedCells.Count; i++)
             {

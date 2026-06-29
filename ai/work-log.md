@@ -8,6 +8,19 @@ Last updated: 2026-06-30
 
 ## Done
 
+### 2026-06-30 - Straightened building-route road capture
+
+- Changed completed building-to-building road capture to use the resident's smoothed travel waypoints instead of raw A* cells, then rasterize straight route segments between those waypoints.
+- Updated route-cell building to avoid completing small 2x2 square pockets while bridging diagonal grid steps and to remove repeated-cell loops before roads are recorded.
+- Added a per-building-pair canonical route cache so later traversals reinforce the first still-valid route instead of widening roads with nearby route variants.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-06-30 - Noon-cold campfire daylight state
+
+- Changed the extinguished startup campfire so daylight leaves animated embers only through Dawn/Morning, then renders the campfire as a cold non-animated state from `Noon` until nighttime relight.
+- Kept the fire lit only during `Night`, kept daytime relight blocked, and kept the campfire cell walkable while extinguished.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; `StrategyCampfireAnimator.cs` is at or below 500 lines.
+
 ### 2026-06-30 - Faster resident aging
 
 - Changed resident aging from 100 to 80 scaled seconds per year, so a newborn reaches the adult age threshold of 16 in 1280 scaled seconds, about 3.88 current game days.

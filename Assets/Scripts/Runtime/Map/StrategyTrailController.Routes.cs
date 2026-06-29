@@ -6,6 +6,7 @@ namespace ProjectUnknown.Strategy
     public sealed partial class StrategyTrailController
     {
         private readonly Dictionary<string, int> routeTraversalCounts = new();
+        private readonly Dictionary<string, List<Vector2Int>> canonicalRouteCells = new();
         private readonly HashSet<int> activeRouteCells = new();
         private readonly List<int> routeDecayClearCells = new();
         private float[,] routeWear;
@@ -37,11 +38,12 @@ namespace ProjectUnknown.Strategy
             routeTraversalCounts.TryGetValue(routeKey, out int oldCount);
             int newCount = oldCount + 1;
             routeTraversalCounts[routeKey] = newCount;
+            IReadOnlyList<Vector2Int> cellsToRecord = GetCanonicalRouteCells(routeKey, routeCells);
 
             int acceptedCells = 0;
-            for (int i = 0; i < routeCells.Count; i++)
+            for (int i = 0; i < cellsToRecord.Count; i++)
             {
-                if (AddRouteRoad(routeCells[i]))
+                if (AddRouteRoad(cellsToRecord[i]))
                 {
                     acceptedCells++;
                 }
@@ -64,10 +66,53 @@ namespace ProjectUnknown.Strategy
                     StrategyDebugLogger.F("toOrigin", toBuilding.Origin),
                     StrategyDebugLogger.F("count", newCount),
                     StrategyDebugLogger.F("cells", acceptedCells),
-                    StrategyDebugLogger.F("fullCells", routeCells.Count),
+                    StrategyDebugLogger.F("fullCells", cellsToRecord.Count),
+                    StrategyDebugLogger.F("canonicalRoute", cellsToRecord != routeCells),
                     StrategyDebugLogger.F("roadLevel", 3),
                     StrategyDebugLogger.F("instantRoad", true));
             }
+        }
+
+        private IReadOnlyList<Vector2Int> GetCanonicalRouteCells(string routeKey, IReadOnlyList<Vector2Int> routeCells)
+        {
+            if (canonicalRouteCells.TryGetValue(routeKey, out List<Vector2Int> canonical)
+                && AreRouteCellsStillWearable(canonical))
+            {
+                return canonical;
+            }
+
+            if (routeCells == null || routeCells.Count < 2 || !AreRouteCellsStillWearable(routeCells))
+            {
+                canonicalRouteCells.Remove(routeKey);
+                return routeCells;
+            }
+
+            List<Vector2Int> copy = new(routeCells.Count);
+            for (int i = 0; i < routeCells.Count; i++)
+            {
+                copy.Add(routeCells[i]);
+            }
+
+            canonicalRouteCells[routeKey] = copy;
+            return copy;
+        }
+
+        private bool AreRouteCellsStillWearable(IReadOnlyList<Vector2Int> routeCells)
+        {
+            if (routeCells == null)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < routeCells.Count; i++)
+            {
+                if (GetWearRejectReason(routeCells[i]) != null)
+                {
+                    return false;
+                }
+            }
+
+            return routeCells.Count >= 2;
         }
 
         private bool AddRouteRoad(Vector2Int cell)
@@ -172,6 +217,7 @@ namespace ProjectUnknown.Strategy
             activeRouteCells.Clear();
             routeDecayClearCells.Clear();
             routeTraversalCounts.Clear();
+            canonicalRouteCells.Clear();
             routeWear = new float[map.Width, map.Height];
             routeLastTraversalTimes = new float[map.Width, map.Height];
             routeLevels = new byte[map.Width, map.Height];

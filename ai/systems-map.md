@@ -376,7 +376,7 @@ Impact hints:
 - Future movement/pathfinding should use `IsCellWalkable` rather than terrain kind alone.
 - Rendering is currently a generated point-filtered texture on a `SpriteRenderer`, not a Tilemap.
 - Water and shore animation is a separate transparent `SpriteRenderer` overlay above the static map and below world props; it reads active weather intensity for rain ripple hits and repaints only cached water/shore cells after setup.
-- Trail visuals use one `SpriteRenderer` per visible route-road cell under a `Trail Visuals` root, sorted above terrain/water overlays and below world props, with cardinal N/E/S/W right-angle masks and narrow line/brush sprites; visual road formation comes from completed building-to-building traversals rather than per-step footfall squares or background network convergence.
+- Trail visuals use one `SpriteRenderer` per visible route-road cell under a `Trail Visuals` root, sorted above terrain/water overlays and below world props, with cardinal N/E/S/W right-angle masks and narrow line/brush sprites; visual road formation comes from straightened completed building-to-building traversals rather than per-step footfall squares, raw A* detours, or background network convergence.
 - Road cells are runtime-only and should be refreshed when map walkability or cell validity changes so blocked cells do not keep visible or functional roads.
 - Resident pathfinding should continue to use the shared road-aware pathfinder, reading functional road cells as a cost preference rather than required connectivity.
 
@@ -1784,7 +1784,7 @@ Responsibilities:
 - Add synced resident readability renderers: silhouette outline and ground shadow.
 - Generate resident campfire kindling and ground-sleep sprites for homeless night sleep.
 - Generate and animate procedural campfire flame, smoke/spark, ember, and relight frames at runtime.
-- Drive campfire burnout/daylight extinguish into persistent embers, restore campfire-cell walkability while extinguished, and support resident-triggered nighttime relight.
+- Drive campfire burnout/daylight extinguish into morning embers that become fully cold by `Noon`, restore campfire-cell walkability while extinguished, and support resident-triggered nighttime relight.
 - Drive simple chicken idle movement around standalone or legacy linked Chicken Coops with walk and peck sprite animations, plus standalone coop night shelter/release visuals.
 - Drive standalone Chicken Coop egg production from a cycle timer synchronized with the coop's nest/egg animation frames.
 - Expose runtime residents as read-only visibility sources for fog of war.
@@ -1913,7 +1913,7 @@ Impact hints:
 - Resident readability helpers are visual-only child `SpriteRenderer`s and should stay synced when changing resident animation frames.
 - Residents use the shared trail-aware 8-direction A* grid pathfinder with no diagonal corner cutting and post-path smoothing for idle, home, workplace, construction, logistics, and funeral travel while keeping frame-based sprite walk cycles.
 - Resident trail-aware path creation has a per-frame budget to avoid x2/x3 mass state-change spikes; excess attempts retry through normal task flow.
-- Resident movement records completed building-to-building route traversals as immediate stable roads after real arrivals, while ordinary footfalls no longer create functional or visible roads; formed roads apply a 15% speed bonus.
+- Resident movement records completed building-to-building route traversals as immediate stable roads after real arrivals, using smoothed route waypoints plus canonical per-building-pair reinforcement so raw A* detours do not create square road pockets; ordinary footfalls no longer create functional or visible roads, and formed roads apply a 15% speed bonus.
 - Resident pathfinding can recover a blocked start cell by snapping to a nearby walkable cell and logging `PathStartRecovered`.
 - Resident scheduled work starts only during `StrategyDayNightCycleController.IsSettlementWorkTime`, which now covers Dawn through Dusk on every day. Keep carried-resource returns, deposits, and cleanup paths schedule-safe so nightfall cannot strand stock reservations.
 - Resident night sleep is separate from homebound young-child hiding: housed residents only enter the hidden home interior during `Night` when they are not carrying resources, in funeral duty, or underground, notify household food state for dinner readiness, then reappear at the home exit after night ends. Homeless residents instead reserve reachable campfire sleep spots, relight embers if needed, and sleep visibly around the startup campfire with a small `Zzz...` indicator.

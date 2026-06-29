@@ -400,11 +400,14 @@ namespace ProjectUnknown.Strategy
 
         private void UpdateExtinguishedEmbers()
         {
-            frameTimer += Time.deltaTime;
-            while (frameTimer >= AmbientFrameDuration)
+            if (!IsFullyDaylightExtinguishedTime())
             {
-                frameTimer -= AmbientFrameDuration;
-                frameIndex = (frameIndex + 1) % StrategyCampfireRelightSpriteFactory.EmberFrameCount;
+                frameTimer += Time.deltaTime;
+                while (frameTimer >= AmbientFrameDuration)
+                {
+                    frameTimer -= AmbientFrameDuration;
+                    frameIndex = (frameIndex + 1) % StrategyCampfireRelightSpriteFactory.EmberFrameCount;
+                }
             }
 
             ApplyExtinguishedVisuals();
@@ -430,14 +433,17 @@ namespace ProjectUnknown.Strategy
 
         private void ApplyExtinguishedVisuals()
         {
+            bool fullyOut = IsFullyDaylightExtinguishedTime();
             if (spriteRenderer != null)
             {
                 spriteRenderer.enabled = true;
-                spriteRenderer.sprite = StrategyCampfireRelightSpriteFactory.GetEmberFrame(frameIndex);
-                spriteRenderer.color = new Color(0.72f, 0.64f, 0.58f, 0.82f);
+                spriteRenderer.sprite = StrategyCampfireRelightSpriteFactory.GetEmberFrame(fullyOut ? 0 : frameIndex);
+                spriteRenderer.color = fullyOut
+                    ? new Color(0.42f, 0.40f, 0.36f, 0.50f)
+                    : new Color(0.72f, 0.64f, 0.58f, 0.82f);
             }
 
-            transform.localScale = baseScale * 0.72f;
+            transform.localScale = baseScale * (fullyOut ? 0.52f : 0.72f);
             if (ambientRenderer != null)
             {
                 ambientRenderer.enabled = false;
@@ -472,6 +478,14 @@ namespace ProjectUnknown.Strategy
         {
             return StrategyDayNightCycleController.CurrentCalendarSnapshot.Phase
                 == StrategyTimeOfDayPhase.Night;
+        }
+
+        private static bool IsFullyDaylightExtinguishedTime()
+        {
+            StrategyTimeOfDayPhase phase = StrategyDayNightCycleController.CurrentCalendarSnapshot.Phase;
+            return phase == StrategyTimeOfDayPhase.Noon
+                || phase == StrategyTimeOfDayPhase.Afternoon
+                || phase == StrategyTimeOfDayPhase.Dusk;
         }
     }
 }
