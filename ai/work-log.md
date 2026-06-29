@@ -8,6 +8,12 @@ Last updated: 2026-06-30
 
 ## Done
 
+### 2026-06-30 - Direct-first road route capture
+
+- Analyzed `debug.log`: square-looking road segments came from first-time building routes whose captured paths already contained long orthogonal detours, such as House-to-Caravan and Forager-to-House routes with 14-25 route cells.
+- Changed `StrategyTrailRouteCellBuilder` to try one direct walkable route line from the captured start cell to the final target cell before falling back to smoothed waypoint segments, preventing open-space routes from preserving resident pathfinding bends as permanent road geometry.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
 ### 2026-06-30 - Straightened building-route road capture
 
 - Changed completed building-to-building road capture to use the resident's smoothed travel waypoints instead of raw A* cells, then rasterize straight route segments between those waypoints.

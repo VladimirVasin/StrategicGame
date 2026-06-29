@@ -12,8 +12,15 @@ namespace ProjectUnknown.Strategy
             List<Vector2Int> routeCells)
         {
             routeCells.Clear();
-            if (map == null || pathCells == null)
+            if (map == null || pathCells == null || pathCells.Count <= 0)
             {
+                return;
+            }
+
+            Vector2Int targetCell = pathCells[pathCells.Count - 1];
+            if (TryBuildDirectRouteLine(map, startCell, targetCell, routeCells))
+            {
+                RemoveRepeatedLoops(routeCells);
                 return;
             }
 
@@ -22,15 +29,36 @@ namespace ProjectUnknown.Strategy
             for (int i = 0; i < pathCells.Count; i++)
             {
                 Vector2Int next = pathCells[i];
-                AddRouteLine(map, routeCells, previous, next);
+                if (!TryAppendRouteLine(map, routeCells, previous, next) && map.IsCellWalkable(next))
+                {
+                    AddRouteCell(routeCells, next);
+                }
+
                 previous = next;
             }
 
             RemoveRepeatedLoops(routeCells);
         }
 
-        private static void AddRouteLine(CityMapController map, List<Vector2Int> routeCells, Vector2Int from, Vector2Int to)
+        private static bool TryBuildDirectRouteLine(
+            CityMapController map,
+            Vector2Int startCell,
+            Vector2Int targetCell,
+            List<Vector2Int> routeCells)
         {
+            routeCells.Clear();
+            if (!map.IsCellWalkable(startCell) || !map.IsCellWalkable(targetCell))
+            {
+                return false;
+            }
+
+            AddRouteCell(routeCells, startCell);
+            return TryAppendRouteLine(map, routeCells, startCell, targetCell);
+        }
+
+        private static bool TryAppendRouteLine(CityMapController map, List<Vector2Int> routeCells, Vector2Int from, Vector2Int to)
+        {
+            int originalCount = routeCells.Count;
             Vector2Int current = from;
             int dx = Mathf.Abs(to.x - from.x);
             int dy = Mathf.Abs(to.y - from.y);
@@ -54,55 +82,83 @@ namespace ProjectUnknown.Strategy
                     next.y += stepY;
                 }
 
-                AddRouteStep(map, routeCells, current, next);
+                if (!TryAddRouteStep(map, routeCells, current, next))
+                {
+                    routeCells.RemoveRange(originalCount, routeCells.Count - originalCount);
+                    return false;
+                }
+
                 current = next;
             }
+
+            return true;
         }
 
-        private static void AddRouteStep(CityMapController map, List<Vector2Int> routeCells, Vector2Int from, Vector2Int to)
+        private static bool TryAddRouteStep(CityMapController map, List<Vector2Int> routeCells, Vector2Int from, Vector2Int to)
         {
+            if (!map.IsCellWalkable(to))
+            {
+                return false;
+            }
+
             Vector2Int delta = to - from;
             if (Mathf.Abs(delta.x) == 1 && Mathf.Abs(delta.y) == 1)
             {
-                Vector2Int first = ChooseDiagonalBridgeCell(map, routeCells, from, to);
+                if (!TryChooseDiagonalBridgeCell(map, routeCells, from, to, out Vector2Int first))
+                {
+                    return false;
+                }
+
                 AddRouteCell(routeCells, first);
                 AddRouteCell(routeCells, to);
-                return;
+                return true;
             }
 
             AddRouteCell(routeCells, to);
+            return true;
         }
 
-        private static Vector2Int ChooseDiagonalBridgeCell(
+        private static bool TryChooseDiagonalBridgeCell(
             CityMapController map,
             List<Vector2Int> routeCells,
             Vector2Int from,
-            Vector2Int to)
+            Vector2Int to,
+            out Vector2Int cell)
         {
             Vector2Int horizontal = new Vector2Int(to.x, from.y);
             Vector2Int vertical = new Vector2Int(from.x, to.y);
             bool horizontalWalkable = map.IsCellWalkable(horizontal);
             bool verticalWalkable = map.IsCellWalkable(vertical);
+            if (!horizontalWalkable && !verticalWalkable)
+            {
+                cell = default;
+                return false;
+            }
+
             if (!horizontalWalkable)
             {
-                return vertical;
+                cell = vertical;
+                return true;
             }
 
             if (!verticalWalkable)
             {
-                return horizontal;
+                cell = horizontal;
+                return true;
             }
 
             bool horizontalCompletesSquare = WouldCompleteSquare(routeCells, horizontal);
             bool verticalCompletesSquare = WouldCompleteSquare(routeCells, vertical);
             if (horizontalCompletesSquare != verticalCompletesSquare)
             {
-                return horizontalCompletesSquare ? vertical : horizontal;
+                cell = horizontalCompletesSquare ? vertical : horizontal;
+                return true;
             }
 
-            return ((from.x + from.y + to.x + to.y) & 1) == 0
+            cell = ((from.x + from.y + to.x + to.y) & 1) == 0
                 ? horizontal
                 : vertical;
+            return true;
         }
 
         private static void AddRouteCell(List<Vector2Int> routeCells, Vector2Int cell)
