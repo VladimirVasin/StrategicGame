@@ -9,7 +9,7 @@ namespace ProjectUnknown.Strategy
     {
         private const int PixelsPerCell = 4;
         private const int FrameCount = 8;
-        private const float FrameDuration = 0.22f;
+        private const float FrameDuration = 0.32f;
 
         private CityMapController map;
         private readonly List<Vector2Int> animatedCells = new();

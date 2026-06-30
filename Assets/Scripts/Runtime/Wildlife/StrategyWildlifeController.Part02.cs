@@ -78,8 +78,10 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            Queue<Vector2Int> frontier = new();
-            HashSet<Vector2Int> visited = new();
+            Queue<Vector2Int> frontier = migrationConnectionFrontier;
+            HashSet<Vector2Int> visited = migrationConnectionVisited;
+            frontier.Clear();
+            visited.Clear();
             bool allowStructureBuffer = IsLandWildlifeStructureBufferCell(start);
             frontier.Enqueue(start);
             visited.Add(start);

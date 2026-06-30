@@ -8,6 +8,19 @@ Last updated: 2026-06-30
 
 ## Done
 
+### 2026-06-30 - Resident/wildlife performance budget refactor
+
+- Added a resident scheduled-work decision budget: large settlements now cap expensive per-frame task-start scans, so idle residents spread household cooking/pottery/food pickup, worksite, logistics, construction, hunting, fishing, and child-play decisions across frames instead of all probing every frame.
+- Smoothed wildlife migration cost by moving migration cadence to unscaled real time, increasing the interval, allowing only one pending migration pass, reducing random target attempts, and reusing migration BFS scratch collections.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-06-30 - Weather visual performance tuning
+
+- Reduced active weather visual cost by lowering cloud-shadow and heavy-rain mist overlay texture density from 2 pixels per cell to 1 pixel per cell and slowing their repaint cadence.
+- Lowered the rain streak pool from 170 to 96 active-cap sprites and reduced the light-rain baseline count while keeping camera-area rain movement.
+- Slowed water animation repaint cadence and fog-of-war refresh cadence so rain/storm ripple and dense Fog weather overlays do less repeated texture work.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
 ### 2026-06-30 - Dusk hand-torch performance fix
 
 - Investigated the fresh performance drop around late `Dusk`/`Night` and kept the fix inside resident hand-torch visuals.

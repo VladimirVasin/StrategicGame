@@ -9,7 +9,7 @@ namespace ProjectUnknown.Strategy
     {
         private const int FogPixelsPerCell = 4;
         private const int FogSortingOrder = StrategyWorldSorting.FogOrder;
-        private const float RefreshInterval = 0.18f;
+        private const float RefreshInterval = 0.24f;
         private const float RevealEdgeSoftness = 1.75f;
         private const float VisibleThreshold = 0.08f;
         private const float CampRevealRadius = 12.5f;

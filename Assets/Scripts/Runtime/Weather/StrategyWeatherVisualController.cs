@@ -6,11 +6,11 @@ namespace ProjectUnknown.Strategy
     [DisallowMultipleComponent]
     public sealed partial class StrategyWeatherVisualController : MonoBehaviour
     {
-        private const int CloudPixelsPerCell = 2;
-        private const int MistPixelsPerCell = 2;
-        private const float CloudFrameSeconds = 0.28f;
-        private const float MistFrameSeconds = 0.22f;
-        private const int MaxRainDrops = 170;
+        private const int CloudPixelsPerCell = 1;
+        private const int MistPixelsPerCell = 1;
+        private const float CloudFrameSeconds = 0.44f;
+        private const float MistFrameSeconds = 0.38f;
+        private const int MaxRainDrops = 96;
         private const float RainViewPadding = 3.5f;
 
         private readonly List<RainDropVisual> rainDrops = new();
@@ -256,7 +256,7 @@ namespace ProjectUnknown.Strategy
             Rect view = GetCameraRainBounds();
             Vector2 move = GetRainMoveDirection();
             Quaternion rotation = GetRainRotation(move);
-            int activeCount = Mathf.Clamp(Mathf.RoundToInt(Mathf.Lerp(34f, MaxRainDrops, rain)), 0, MaxRainDrops);
+            int activeCount = Mathf.Clamp(Mathf.RoundToInt(Mathf.Lerp(22f, MaxRainDrops, rain)), 0, MaxRainDrops);
             float alpha = Mathf.Lerp(0.13f, 0.30f, rain);
             float speedBoost = Mathf.Lerp(0.82f, 1.35f, rain + weather.StormIntensity * 0.35f);
 

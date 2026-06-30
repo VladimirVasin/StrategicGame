@@ -4,6 +4,18 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyResidentAgent
     {
+        private const int ScheduledDecisionBudgetPerFrameSmallSettlement = 8;
+        private const int ScheduledDecisionBudgetPerFrameLargeSettlement = 4;
+        private const int LargeSettlementResidentThreshold = 14;
+        private const float ScheduledDecisionDeferredWaitMin = 0.06f;
+        private const float ScheduledDecisionDeferredWaitMax = 0.18f;
+        private const float ScheduledDecisionBudgetLogIntervalSeconds = 6f;
+
+        private static int scheduledDecisionBudgetFrame = -1;
+        private static int scheduledDecisionsThisFrame;
+        private static int scheduledDecisionDeferralsSinceLog;
+        private static float nextScheduledDecisionBudgetLogTime;
+
         public bool IsOffDutyForNight
         {
             get
@@ -20,6 +32,12 @@ namespace ProjectUnknown.Strategy
             {
                 waitTimer = Random.Range(0.55f, 1.25f);
                 return false;
+            }
+
+            if (!TryConsumeScheduledDecisionBudget())
+            {
+                waitTimer = Random.Range(ScheduledDecisionDeferredWaitMin, ScheduledDecisionDeferredWaitMax);
+                return true;
             }
 
             if (TryStartHouseholdCookingTask())
@@ -103,6 +121,42 @@ namespace ProjectUnknown.Strategy
             }
 
             return TryStartFisherTask();
+        }
+
+        private bool TryConsumeScheduledDecisionBudget()
+        {
+            int frame = Time.frameCount;
+            if (scheduledDecisionBudgetFrame != frame)
+            {
+                scheduledDecisionBudgetFrame = frame;
+                scheduledDecisionsThisFrame = 0;
+            }
+
+            int residentCount = population != null && population.Residents != null ? population.Residents.Count : 0;
+            int budget = residentCount >= LargeSettlementResidentThreshold
+                ? ScheduledDecisionBudgetPerFrameLargeSettlement
+                : ScheduledDecisionBudgetPerFrameSmallSettlement;
+            if (scheduledDecisionsThisFrame < budget)
+            {
+                scheduledDecisionsThisFrame++;
+                return true;
+            }
+
+            scheduledDecisionDeferralsSinceLog++;
+            float now = Time.realtimeSinceStartup;
+            if (now >= nextScheduledDecisionBudgetLogTime)
+            {
+                StrategyDebugLogger.Info(
+                    "Population",
+                    "ResidentScheduledDecisionBudgetDeferred",
+                    StrategyDebugLogger.F("deferred", scheduledDecisionDeferralsSinceLog),
+                    StrategyDebugLogger.F("budgetPerFrame", budget),
+                    StrategyDebugLogger.F("residents", residentCount));
+                scheduledDecisionDeferralsSinceLog = 0;
+                nextScheduledDecisionBudgetLogTime = now + ScheduledDecisionBudgetLogIntervalSeconds;
+            }
+
+            return false;
         }
 
         private bool TryPauseActiveWorkForNight()

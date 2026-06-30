@@ -84,10 +84,7 @@ namespace ProjectUnknown.Strategy
 
         private static void ClearPixels(Color[] pixels)
         {
-            for (int i = 0; i < pixels.Length; i++)
-            {
-                pixels[i] = Color.clear;
-            }
+            System.Array.Clear(pixels, 0, pixels.Length);
         }
 
         private static void ApplyTexture(Texture2D texture, Color[] pixels)

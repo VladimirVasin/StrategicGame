@@ -288,6 +288,7 @@ Primary files/assets:
 Impact hints:
 
 - Weather visual overlays must stay below placement preview and fog-of-war UI-facing layers.
+- Weather visual overlays are performance-budgeted: cloud/mist textures are 1 pixel per cell, rain uses a capped camera-area sprite pool, and visual repaint cadences should stay unscaled and low-frequency.
 - Dense weather Fog rendering is owned by Fog of War so visible cells can stay clear; do not reintroduce a uniform `FogIntensity` mist overlay over the whole map.
 - Rain/wind audio should continue reading `StrategyWeatherController.Active` instead of adding independent rain timers.
 - Weather currently has visual/audio/wind/water effects only; future gameplay effects should extend this system rather than duplicating weather rolls in crops, illness, movement, or fire logic.
@@ -561,7 +562,7 @@ Responsibilities:
 - Keep birds on local habitat choices inside loose home ranges without blocking map cells.
 - Periodically migrate deer herds, rabbit groups, wolf packs, decorative bird homes, and lake fish shoals by retargeting their loose home centers toward new suitable habitat.
 - Split migration processing by species across successive frames so migration spikes stay bounded under time acceleration.
-- Keep land wildlife migration away from dense settlement pressure and choose/advance land targets only through connected walkable routes so herds/packs do not jump through water or blockers.
+- Keep land wildlife migration away from dense settlement pressure and choose/advance land targets only through connected walkable routes so herds/packs do not jump through water or blockers; migration cadence should stay unscaled and bounded so time acceleration does not multiply route checks.
 - Temporarily cool down failed migration target cells so groups do not repeatedly choose cells that already aborted.
 - React to nearby residents and noisy work by switching to alert/flee states.
 - Let adult does reproduce when an adult buck is nearby in the same herd.
@@ -1939,6 +1940,7 @@ Impact hints:
 - Resident readability helpers are visual-only child `SpriteRenderer`s and should stay synced when changing resident animation frames.
 - Residents use the shared trail-aware 8-direction A* grid pathfinder with no diagonal corner cutting and post-path smoothing for idle, home, workplace, construction, logistics, and funeral travel while keeping frame-based sprite walk cycles.
 - Resident trail-aware path creation has a per-frame budget to avoid x2/x3 mass state-change spikes; excess attempts retry through normal task flow.
+- Resident scheduled-work task-start decisions have a per-frame budget in larger settlements; expensive household, logistics, construction, worksite, hunting, fishing, and child-play probes should remain behind this budget unless they are active-task continuation or carried-resource cleanup.
 - Resident movement records completed building-to-building route traversals as immediate stable roads after real arrivals, using a direct route-line attempt, smoothed route waypoint fallback, and canonical per-building-pair reinforcement so raw A* detours do not create square road pockets; ordinary footfalls no longer create functional or visible roads, and formed roads apply a 15% speed bonus.
 - Resident pathfinding can recover a blocked start cell by snapping to a nearby walkable cell and logging `PathStartRecovered`.
 - Resident scheduled work starts only during `StrategyDayNightCycleController.IsSettlementWorkTime`, which now covers Dawn through Dusk on every day. Keep carried-resource returns, deposits, and cleanup paths schedule-safe so nightfall cannot strand stock reservations.

@@ -72,7 +72,7 @@ namespace ProjectUnknown.Strategy
         private const float FishMateSearchRadius = 5.5f;
         private const int FishBirthCellSearchRadius = 4;
         private const float FishLakeBirthBlockedLogIntervalSeconds = 20f;
-        private const float MigrationUpdateInterval = 5.0f;
+        private const float MigrationUpdateInterval = 8.0f;
         private const float MigrationInitialDelay = 38f;
         private const int DeerMigrationStep = 4;
         private const int RabbitMigrationStep = 3;
@@ -118,6 +118,9 @@ namespace ProjectUnknown.Strategy
         private readonly List<StrategyWolfAgent> wolves = new();
         private readonly Dictionary<int, MigrationState> wolfMigrations = new();
         private readonly Dictionary<StrategyResidentAgent, StrategyWolfAgent> wolfResidentTargets = new();
+        private readonly Queue<Vector2Int> migrationConnectionFrontier = new();
+        private readonly HashSet<Vector2Int> migrationConnectionVisited = new();
+        private readonly HashSet<int> migrationProcessedIds = new();
         private static readonly Vector2Int[] CardinalDirections =
         {
             new Vector2Int(1, 0),
@@ -179,6 +182,7 @@ namespace ProjectUnknown.Strategy
             }
 
             float scaledDt = Mathf.Max(0f, Time.deltaTime);
+            float unscaledDt = Mathf.Max(0f, Time.unscaledDeltaTime);
             if (deer.Count > 0)
             {
                 breedingTimer -= scaledDt;
@@ -210,7 +214,7 @@ namespace ProjectUnknown.Strategy
             }
 
             UpdateRiverFishSpawning(scaledDt);
-            UpdateWildlifeMigration(scaledDt);
+            UpdateWildlifeMigration(unscaledDt);
             UpdateHunterCampSupportSpawning(scaledDt);
             UpdateWildlifeFogVisibility();
         }

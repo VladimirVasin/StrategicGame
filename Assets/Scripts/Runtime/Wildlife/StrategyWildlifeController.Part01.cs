@@ -116,7 +116,7 @@ namespace ProjectUnknown.Strategy
             if (migrationTimer <= 0f)
             {
                 migrationTimer += MigrationUpdateInterval;
-                pendingMigrationPasses = Mathf.Min(pendingMigrationPasses + 1, 3);
+                pendingMigrationPasses = 1;
             }
 
             if (pendingMigrationPasses <= 0)
@@ -161,7 +161,8 @@ namespace ProjectUnknown.Strategy
         private void UpdateDeerMigration(float elapsedSeconds)
         {
             RemoveMissingDeer();
-            HashSet<int> processed = new();
+            HashSet<int> processed = migrationProcessedIds;
+            processed.Clear();
             for (int i = 0; i < deer.Count; i++)
             {
                 StrategyDeerAgent representative = deer[i];
@@ -194,7 +195,8 @@ namespace ProjectUnknown.Strategy
         private void UpdateRabbitMigration(float elapsedSeconds)
         {
             RemoveMissingRabbits();
-            HashSet<int> processed = new();
+            HashSet<int> processed = migrationProcessedIds;
+            processed.Clear();
             for (int i = 0; i < rabbits.Count; i++)
             {
                 StrategyRabbitAgent representative = rabbits[i];
@@ -301,7 +303,8 @@ namespace ProjectUnknown.Strategy
         private void UpdateFishMigration(float elapsedSeconds)
         {
             RemoveMissingFish();
-            HashSet<int> processed = new();
+            HashSet<int> processed = migrationProcessedIds;
+            processed.Clear();
             for (int i = 0; i < fish.Count; i++)
             {
                 StrategyFishAgent representative = fish[i];
@@ -459,7 +462,7 @@ namespace ProjectUnknown.Strategy
             target = default;
             float bestScore = float.NegativeInfinity;
             bool found = false;
-            for (int attempt = 0; attempt < 180; attempt++)
+            for (int attempt = 0; attempt < 72; attempt++)
             {
                 Vector2Int candidate = new Vector2Int(Random.Range(0, map.Width), Random.Range(0, map.Height));
                 float distance = Vector2Int.Distance(candidate, currentCenter);
