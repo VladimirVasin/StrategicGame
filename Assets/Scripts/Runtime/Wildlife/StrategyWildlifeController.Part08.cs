@@ -218,6 +218,26 @@ namespace ProjectUnknown.Strategy
             }
         }
 
+        private void RemoveMissingBirds()
+        {
+            for (int i = birds.Count - 1; i >= 0; i--)
+            {
+                if (birds[i] == null)
+                {
+                    birds.RemoveAt(i);
+                }
+            }
+        }
+
+        private void RemoveMissingWildlifeForFogVisibility()
+        {
+            RemoveMissingDeer();
+            RemoveMissingRabbits();
+            RemoveMissingFish();
+            RemoveMissingBirds();
+            RemoveMissingWolves();
+        }
+
         private void OnDestroy()
         {
             if (Active == this)

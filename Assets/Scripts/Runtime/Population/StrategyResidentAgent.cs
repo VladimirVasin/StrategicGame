@@ -256,7 +256,11 @@ namespace ProjectUnknown.Strategy
         public bool IsFuneralDutyActive => IsFuneralActivity(activity);
         public bool IsHouseholdForaging => IsForagingActivity(activity);
         public bool IsHouseholdFoodDuty => IsHouseholdFoodActivity(activity);
-        public bool CanAcceptWorkAssignment => CanWork && !IsFuneralDutyActive && !IsHouseholdForaging && !IsHouseholdFoodDuty;
+        public bool CanAcceptWorkAssignment => CanWork
+            && !IsFuneralDutyActive
+            && !IsHouseholdForaging
+            && !IsHouseholdFoodDuty
+            && !IsNightLightActivity(activity);
         public bool IsHomeboundYoungChild => lifeStage == StrategyResidentLifeStage.Child
             && ageYears < HomeboundChildAgeYears
             && home != null

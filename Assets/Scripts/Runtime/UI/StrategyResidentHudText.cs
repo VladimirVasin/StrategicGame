@@ -277,6 +277,8 @@ namespace ProjectUnknown.Strategy
                 StrategyResidentAgent.ResidentActivity.ReturningGameToGranary => "returning Game to granary",
                 StrategyResidentAgent.ResidentActivity.ReturningFishToGranary => "returning Fish to granary",
                 StrategyResidentAgent.ResidentActivity.ReturningForageToGranary => "returning forage to granary",
+                StrategyResidentAgent.ResidentActivity.MovingToNightLight => "going to light a lamp",
+                StrategyResidentAgent.ResidentActivity.LightingNightLight => "lighting a lamp",
                 StrategyResidentAgent.ResidentActivity.MovingToFuneral => "going to funeral",
                 StrategyResidentAgent.ResidentActivity.MourningCorpse => "mourning",
                 StrategyResidentAgent.ResidentActivity.CarryingCorpseToCemetery => "carrying the dead",

@@ -8,6 +8,58 @@ Last updated: 2026-06-30
 
 ## Done
 
+### 2026-06-30 - Roadside night-light task registration
+
+- Hardened `StrategyNightLightSource` active registration so configured building and roadside sources re-register themselves even if Unity enable timing or a late configure pass missed the static active list.
+- Added a night-assignment prepass that explicitly scans `StrategyRoadsideLightSource` props, ensures each has a cinematic emitter plus night-light source, and configures it before workers receive lamp-lighting queues.
+- Extended night-light assignment logs with building, roadside, and skipped source counts so missing roadside task sources are visible immediately.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-06-30 - Opaque torch and campfire bodies
+
+- Split generated building/roadside light sprites into base and flame layers, so torch/lantern/brazier/bridge-lamp bodies stay opaque while manual lighting and Dawn-to-Noon extinguish shrink only the flame layer and reduce light strength.
+- Split startup campfire runtime visuals into persistent base/charred-base and separate flame/ember layers, so burnout, first-morning daylight extinguish, and resident relight scale the flame/ember layer instead of fading or shrinking the whole campfire object.
+- Verification: `git diff --check` passed with only the existing CRLF warning for `Assembly-CSharp.csproj`; `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-06-30 - Full darkness by 22:00
+
+- Changed visual dusk/night curves so global overlay, camera tint, shadow multipliers, cinematic darkness mask, torch dark-time factor, and post-processing reach full night strength at the 22:00 `Night` phase boundary instead of continuing to darken after 22:00.
+- Kept HUD clock and resident scheduling boundaries unchanged: `Dusk` remains 19:00-22:00 and `Night` remains 22:00-05:00.
+- Verification: `git diff --check` passed with only the existing CRLF warning for `Assembly-CSharp.csproj`; affected C# files are at or below 500 lines; `dotnet build Assembly-CSharp.csproj -v:minimal` could not run because no compatible .NET SDK/MSBuild is installed in the current shell.
+
+### 2026-06-30 - 360-second day cycle
+
+- Increased `StrategyDayNightCycleController` from 330 to 360 scaled seconds per full day, adding another 30 real seconds at x1 speed.
+- Kept the same HUD clock phase boundaries, so phase durations scale proportionally: Dawn 30s, Morning/Noon/Afternoon 60s each, Dusk 45s, Night 105s, and Dawn-through-Dusk work time 255s.
+- Verification: `git diff --check` passed with only the existing CRLF warning for `Assembly-CSharp.csproj`; `StrategyDayNightCycleController.cs` is at or below 500 lines; `dotnet build Assembly-CSharp.csproj -v:minimal` could not run because no compatible .NET SDK/MSBuild is installed in the current shell.
+
+### 2026-06-30 - Starter campfire first-morning burn
+
+- Changed the startup campfire so it begins the game as a real lit fire during Day 1 Dawn/Morning, then fades down through the existing Dawn-to-Noon daylight curve and extinguishes at `Noon`.
+- Split daylight campfire behavior into `StrategyCampfireAnimator.Daylight.cs`, keeping `StrategyCampfireAnimator.cs` below the 500-line source limit and preserving normal Night-only relight after the first morning.
+- Verification: `git diff --check` passed with only the existing CRLF warning for `Assembly-CSharp.csproj`; affected C# files are at or below 500 lines; `dotnet build Assembly-CSharp.csproj -v:minimal` could not run because no compatible .NET SDK/MSBuild is installed in the current shell.
+
+### 2026-06-30 - Wildlife fog destroyed-agent guard
+
+- Fixed a `MissingReferenceException` during wildlife fog visibility refresh by removing destroyed deer/rabbit/fish/bird/wolf agents from controller lists before visibility updates and replacing null-conditional calls with explicit Unity-null checks.
+- Hardened deer, rabbit, fish, and wolf `TryGetCurrentCell` helpers so destroyed Unity objects fail before accessing `transform`.
+- Verification: `git diff --check` passed with only the existing CRLF warning for `Assembly-CSharp.csproj`; affected C# files are at or below 500 lines; `dotnet build Assembly-CSharp.csproj -v:minimal` could not run because no compatible .NET SDK/MSBuild is installed in the current shell.
+
+### 2026-06-30 - Resident-lit night lamps
+
+- Added `StrategyNightLightSource` as the manual lit/reserved state for building and roadside torch/lantern emitters; cinematic light strength, flame sprites, glow, point lights, and darkness-mask cutouts now depend on that lit state instead of automatically switching on at `Night`.
+- Added `StrategyNightLightTaskController`, which resets lights at `Night`, selects random eligible housed adults, assigns all reachable building/roadside lights into nearest-to-home queues, and retries idle workers without auto-lighting when no worker is available.
+- Added resident night-light activities so selected adults can leave homes, walk to assigned lights, play a kindling animation, ignite each source, continue through their queue, then return to normal night sleep.
+- Split starter resource helper code into `StrategyGameBootstrap.StarterResources.cs` so the bootstrap source file stays under the 500-line project limit.
+- Verification: affected C# files are at or below 500 lines; `dotnet build Assembly-CSharp.csproj -v:minimal` could not run in the current shell because only the .NET host is installed and no compatible SDK/MSBuild was available.
+
+### 2026-06-30 - Dawn-to-Noon fire fade
+
+- Added a shared Dawn-to-Noon fade-out factor for fire visuals, reaching full daylight extinction at the start of `Noon`.
+- Roadside/building torch and lantern light strength plus source sprite alpha now use the longer Dawn-to-Noon fade instead of cutting off around Dawn/Morning.
+- Campfire daylight extinguish now keeps fading ember visuals and residual cinematic light through Dawn/Morning, while still treating the campfire as gameplay-extinguished and walkable outside `Night`.
+- Verification: `git diff --check` passed; `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
 ### 2026-06-30 - Wildlife current-visibility rendering
 
 - Wildlife controller now refreshes deer, rabbits, fish, birds, and wolves against Fog of War current `IsCellVisible` state, hiding their body/readability/shadow/ripple renderers outside currently visible cells while leaving simulation, spawning, migration, hunting, and reproduction rules unchanged.

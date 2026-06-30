@@ -333,7 +333,7 @@ namespace ProjectUnknown.Strategy
             campObject.transform.position = new Vector3(campWorld.x, campWorld.y, -0.12f);
 
             SpriteRenderer renderer = campObject.AddComponent<SpriteRenderer>();
-            renderer.sprite = StrategyCampfireSpriteFactory.GetFrame(0);
+            renderer.sprite = StrategyCampfireSpriteFactory.GetBaseFrame(0);
             StrategyWorldSorting.Apply(renderer, campObject.transform.position);
 
             StrategyCampfireAnimator animator = campObject.AddComponent<StrategyCampfireAnimator>();

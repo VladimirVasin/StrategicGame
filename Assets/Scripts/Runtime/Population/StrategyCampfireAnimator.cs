@@ -3,16 +3,17 @@ using UnityEngine;
 namespace ProjectUnknown.Strategy
 {
     [DisallowMultipleComponent]
-    public sealed class StrategyCampfireAnimator : MonoBehaviour
+    public sealed partial class StrategyCampfireAnimator : MonoBehaviour
     {
         private const float FrameDuration = 0.12f;
         private const float AmbientFrameDuration = 0.16f;
         private const float BurnoutDelaySeconds = 120f;
         private const float BurnoutDurationSeconds = 90f;
-        private const float ExtinguishedScale = 0.12f;
+        private const float ExtinguishedFlameScale = 0.12f;
 
         private CityMapController map;
         private SpriteRenderer spriteRenderer;
+        private SpriteRenderer flameRenderer;
         private SpriteRenderer ambientRenderer;
         private Vector2Int blockedCell;
         private Vector3 baseScale = Vector3.one;
@@ -28,6 +29,7 @@ namespace ProjectUnknown.Strategy
         private bool burnoutStartedLogged;
         private bool extinguished;
         private bool relighting;
+        private bool initialDaylightFireActive;
         private int daylightExtinguishedDayIndex = -1;
 
         public bool IsLit => !extinguished && !relighting;
@@ -44,11 +46,17 @@ namespace ProjectUnknown.Strategy
 
                 if (extinguished)
                 {
-                    return 0f;
+                    StrategyCalendarSnapshot snapshot = StrategyDayNightCycleController.CurrentCalendarSnapshot;
+                    return daylightExtinguishedDayIndex == snapshot.DayIndex
+                        ? StrategyCinematicVisualMath.DawnToNoonFadeOutFactor(snapshot.DayPhase) * 0.42f
+                        : 0f;
                 }
 
                 float burnoutT = Mathf.InverseLerp(BurnoutDelaySeconds, BurnoutDelaySeconds + BurnoutDurationSeconds, burnAge);
-                return Mathf.Lerp(1f, 0.22f, Mathf.Clamp01(burnoutT));
+                float intensity = Mathf.Lerp(1f, 0.22f, Mathf.Clamp01(burnoutT));
+                return initialDaylightFireActive
+                    ? intensity * StrategyCinematicVisualMath.DawnToNoonFadeOutFactor(StrategyDayNightCycleController.CurrentDayPhase)
+                    : intensity;
             }
         }
 
@@ -66,7 +74,8 @@ namespace ProjectUnknown.Strategy
             burnAge = 0f;
             relightTimer = 0f;
             relightDuration = 0f;
-            walkabilityReleased = !IsNightFireTime();
+            initialDaylightFireActive = IsInitialDaylightFireTime();
+            walkabilityReleased = !IsNightFireTime() && !initialDaylightFireActive;
             burnoutStartedLogged = false;
             daylightExtinguishedDayIndex = -1;
             extinguished = walkabilityReleased;
@@ -106,6 +115,12 @@ namespace ProjectUnknown.Strategy
 
             if (!IsNightFireTime())
             {
+                if (initialDaylightFireActive && IsInitialDaylightFireTime())
+                {
+                    UpdateInitialDaylightFire();
+                    return;
+                }
+
                 ExtinguishForDaylight();
                 UpdateExtinguishedEmbers();
                 return;
@@ -153,10 +168,37 @@ namespace ProjectUnknown.Strategy
         {
             if (spriteRenderer != null)
             {
-                spriteRenderer.sprite = StrategyCampfireSpriteFactory.GetFrame(frameIndex);
+                spriteRenderer.enabled = true;
+                spriteRenderer.sprite = StrategyCampfireSpriteFactory.GetBaseFrame(frameIndex);
+                spriteRenderer.color = Color.white;
             }
+
+            EnsureFlameRenderer();
+            if (flameRenderer != null)
+            {
+                flameRenderer.enabled = true;
+                flameRenderer.sprite = StrategyCampfireSpriteFactory.GetFlameFrame(frameIndex);
+                flameRenderer.color = Color.white;
+                flameRenderer.transform.localScale = Vector3.one;
+            }
+            transform.localScale = baseScale;
         }
 
+        private void EnsureFlameRenderer()
+        {
+            if (flameRenderer != null || spriteRenderer == null)
+            {
+                return;
+            }
+
+            GameObject flame = new GameObject("Campfire Flame");
+            flame.transform.SetParent(transform, false);
+            flame.transform.localPosition = Vector3.zero;
+            flame.transform.localScale = Vector3.one;
+            flameRenderer = flame.AddComponent<SpriteRenderer>();
+            flameRenderer.sortingOrder = spriteRenderer.sortingOrder + 1;
+            flameRenderer.color = Color.white;
+        }
         private void EnsureAmbientRenderer()
         {
             if (ambientRenderer != null)
@@ -169,7 +211,7 @@ namespace ProjectUnknown.Strategy
             ambient.transform.localPosition = Vector3.zero;
             ambient.transform.localScale = Vector3.one;
             ambientRenderer = ambient.AddComponent<SpriteRenderer>();
-            ambientRenderer.sortingOrder = spriteRenderer != null ? spriteRenderer.sortingOrder + 1 : 7;
+            ambientRenderer.sortingOrder = spriteRenderer != null ? spriteRenderer.sortingOrder + 2 : 7;
             ambientRenderer.color = Color.white;
         }
 
@@ -213,6 +255,10 @@ namespace ProjectUnknown.Strategy
                 ambientRenderer.enabled = false;
             }
 
+            if (flameRenderer != null)
+            {
+                flameRenderer.enabled = false;
+            }
             spriteRenderer.enabled = true;
             ApplyExtinguishedVisuals();
             StrategyDebugLogger.Info(
@@ -268,12 +314,20 @@ namespace ProjectUnknown.Strategy
                     StrategyDebugLogger.F("elapsedSeconds", burnAge));
             }
 
-            float alpha = 1f - burnoutT;
             float warmGreen = Mathf.Lerp(1f, 0.58f, burnoutT);
             float warmBlue = Mathf.Lerp(1f, 0.30f, burnoutT);
-            spriteRenderer.color = new Color(1f, warmGreen, warmBlue, alpha);
-            transform.localScale = baseScale * Mathf.Lerp(1f, ExtinguishedScale, burnoutT);
-
+            spriteRenderer.color = Color.white;
+            spriteRenderer.sprite = StrategyCampfireSpriteFactory.GetBaseFrame(frameIndex);
+            transform.localScale = baseScale;
+            EnsureFlameRenderer();
+            if (flameRenderer != null)
+            {
+                float flameScale = Mathf.Lerp(1f, ExtinguishedFlameScale, burnoutT);
+                flameRenderer.enabled = burnoutT < 0.995f;
+                flameRenderer.sprite = StrategyCampfireSpriteFactory.GetFlameFrame(frameIndex);
+                flameRenderer.color = new Color(1f, warmGreen, warmBlue, 1f);
+                flameRenderer.transform.localScale = Vector3.one * flameScale;
+            }
             if (ambientRenderer != null)
             {
                 float ambientAlpha = Mathf.Lerp(1f, 0f, burnoutT);
@@ -323,6 +377,7 @@ namespace ProjectUnknown.Strategy
 
             relighting = false;
             extinguished = false;
+            initialDaylightFireActive = false;
             burnAge = 0f;
             relightTimer = 0f;
             burnoutStartedLogged = false;
@@ -339,7 +394,6 @@ namespace ProjectUnknown.Strategy
             {
                 ambientRenderer.enabled = true;
             }
-
             transform.localScale = baseScale;
             ApplyFrame();
             ApplyAmbientFrame();
@@ -419,11 +473,19 @@ namespace ProjectUnknown.Strategy
             if (spriteRenderer != null)
             {
                 spriteRenderer.enabled = true;
-                spriteRenderer.sprite = StrategyCampfireRelightSpriteFactory.GetRelightFrame(frameIndex);
-                spriteRenderer.color = new Color(1f, Mathf.Lerp(0.58f, 1f, t), Mathf.Lerp(0.38f, 1f, t), Mathf.Lerp(0.72f, 1f, t));
+                spriteRenderer.sprite = StrategyCampfireRelightSpriteFactory.GetBaseFrame(frameIndex);
+                spriteRenderer.color = Color.white;
             }
 
-            transform.localScale = baseScale * Mathf.Lerp(0.58f, 1f, t);
+            transform.localScale = baseScale;
+            EnsureFlameRenderer();
+            if (flameRenderer != null)
+            {
+                flameRenderer.enabled = true;
+                flameRenderer.sprite = StrategyCampfireRelightSpriteFactory.GetRelightFlameFrame(frameIndex);
+                flameRenderer.color = new Color(1f, Mathf.Lerp(0.58f, 1f, t), Mathf.Lerp(0.38f, 1f, t), 1f);
+                flameRenderer.transform.localScale = Vector3.one * Mathf.Lerp(0.20f, 1f, t);
+            }
             if (ambientRenderer != null)
             {
                 ambientRenderer.sprite = StrategyCampfireAmbientSpriteFactory.GetFrame(ambientFrameIndex);
@@ -431,61 +493,5 @@ namespace ProjectUnknown.Strategy
             }
         }
 
-        private void ApplyExtinguishedVisuals()
-        {
-            bool fullyOut = IsFullyDaylightExtinguishedTime();
-            if (spriteRenderer != null)
-            {
-                spriteRenderer.enabled = true;
-                spriteRenderer.sprite = StrategyCampfireRelightSpriteFactory.GetEmberFrame(fullyOut ? 0 : frameIndex);
-                spriteRenderer.color = fullyOut
-                    ? new Color(0.42f, 0.40f, 0.36f, 0.50f)
-                    : new Color(0.72f, 0.64f, 0.58f, 0.82f);
-            }
-
-            transform.localScale = baseScale * (fullyOut ? 0.52f : 0.72f);
-            if (ambientRenderer != null)
-            {
-                ambientRenderer.enabled = false;
-            }
-        }
-
-        private void ExtinguishForDaylight()
-        {
-            StrategyCalendarSnapshot snapshot = StrategyDayNightCycleController.CurrentCalendarSnapshot;
-            bool changed = !extinguished || relighting || !walkabilityReleased;
-            relighting = false;
-            extinguished = true;
-            burnAge = BurnoutDelaySeconds + BurnoutDurationSeconds;
-            relightTimer = 0f;
-            relightDuration = 0f;
-            ReleaseCampCell();
-            ApplyExtinguishedVisuals();
-
-            if (changed && daylightExtinguishedDayIndex != snapshot.DayIndex)
-            {
-                daylightExtinguishedDayIndex = snapshot.DayIndex;
-                StrategyDebugLogger.Info(
-                    "Campfire",
-                    "CampfireExtinguishedForDaylight",
-                    StrategyDebugLogger.F("cell", blockedCell),
-                    StrategyDebugLogger.F("day", snapshot.DisplayDay),
-                    StrategyDebugLogger.F("phase", snapshot.PhaseLabel));
-            }
-        }
-
-        private static bool IsNightFireTime()
-        {
-            return StrategyDayNightCycleController.CurrentCalendarSnapshot.Phase
-                == StrategyTimeOfDayPhase.Night;
-        }
-
-        private static bool IsFullyDaylightExtinguishedTime()
-        {
-            StrategyTimeOfDayPhase phase = StrategyDayNightCycleController.CurrentCalendarSnapshot.Phase;
-            return phase == StrategyTimeOfDayPhase.Noon
-                || phase == StrategyTimeOfDayPhase.Afternoon
-                || phase == StrategyTimeOfDayPhase.Dusk;
-        }
     }
 }

@@ -142,6 +142,8 @@ namespace ProjectUnknown.Strategy
             ReturningGameToGranary,
             ReturningFishToGranary,
             ReturningForageToGranary,
+            MovingToNightLight,
+            LightingNightLight,
             MovingToFuneral,
             MourningCorpse,
             CarryingCorpseToCemetery,

@@ -24,6 +24,7 @@ namespace ProjectUnknown.Strategy
             }
 
             configured = owner != null;
+            RefreshNightLightSource();
             EnsureVisuals();
         }
 

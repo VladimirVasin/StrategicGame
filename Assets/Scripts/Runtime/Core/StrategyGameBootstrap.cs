@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace ProjectUnknown.Strategy
 {
-    public static class StrategyGameBootstrap
+    public static partial class StrategyGameBootstrap
     {
         private const float InitialCameraSize = 18f;
         private const float InitialCampCameraSize = 11f;
@@ -244,6 +244,17 @@ namespace ProjectUnknown.Strategy
             }
 
             population.Configure(map);
+
+            StrategyNightLightTaskController nightLights = Object.FindAnyObjectByType<StrategyNightLightTaskController>();
+            if (nightLights == null)
+            {
+                GameObject nightLightsObject = new GameObject("Strategy Night Light Tasks");
+                nightLights = nightLightsObject.AddComponent<StrategyNightLightTaskController>();
+            }
+
+            nightLights.Configure(map, population);
+            StrategyDebugLogger.Info("Bootstrap", "NightLightTasksReady");
+
             if (population.TryGetCampWorld(out Vector3 campWorld))
             {
                 cameraController.FocusOn(campWorld, InitialCampCameraSize);
@@ -480,19 +491,5 @@ namespace ProjectUnknown.Strategy
             StrategyDebugLogger.Info("Bootstrap", "RefugeesReady");
         }
 
-        private static float CalculateStarterFoodRations(StrategyPopulationController population, float reserveDays)
-        {
-            if (population == null || reserveDays <= 0f)
-            { return 0f; }
-
-            float dailyNeed = 0f;
-            foreach (StrategyResidentAgent resident in population.Residents)
-            {
-                if (resident != null && !resident.IsPendingRefugee)
-                { dailyNeed += resident.DailyRationNeed; }
-            }
-
-            return dailyNeed * reserveDays;
-        }
     }
 }

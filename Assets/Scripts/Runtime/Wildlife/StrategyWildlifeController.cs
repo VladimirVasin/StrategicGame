@@ -422,29 +422,50 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            RemoveMissingWildlifeForFogVisibility();
             for (int i = 0; i < deer.Count; i++)
             {
-                deer[i]?.RefreshFogVisibility(fog);
+                StrategyDeerAgent agent = deer[i];
+                if (agent != null)
+                {
+                    agent.RefreshFogVisibility(fog);
+                }
             }
 
             for (int i = 0; i < rabbits.Count; i++)
             {
-                rabbits[i]?.RefreshFogVisibility(fog);
+                StrategyRabbitAgent agent = rabbits[i];
+                if (agent != null)
+                {
+                    agent.RefreshFogVisibility(fog);
+                }
             }
 
             for (int i = 0; i < fish.Count; i++)
             {
-                fish[i]?.RefreshFogVisibility(fog);
+                StrategyFishAgent agent = fish[i];
+                if (agent != null)
+                {
+                    agent.RefreshFogVisibility(fog);
+                }
             }
 
             for (int i = 0; i < birds.Count; i++)
             {
-                birds[i]?.RefreshFogVisibility(fog);
+                StrategyBirdAgent agent = birds[i];
+                if (agent != null)
+                {
+                    agent.RefreshFogVisibility(fog);
+                }
             }
 
             for (int i = 0; i < wolves.Count; i++)
             {
-                wolves[i]?.RefreshFogVisibility(fog);
+                StrategyWolfAgent agent = wolves[i];
+                if (agent != null)
+                {
+                    agent.RefreshFogVisibility(fog);
+                }
             }
         }
 

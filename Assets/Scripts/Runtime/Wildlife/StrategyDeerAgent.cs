@@ -163,7 +163,7 @@ namespace ProjectUnknown.Strategy
         public bool TryGetCurrentCell(out Vector2Int cell)
         {
             cell = default;
-            return map != null && map.TryWorldToCell(transform.position, out cell);
+            return this != null && map != null && map.TryWorldToCell(transform.position, out cell);
         }
 
         public void RetargetHerdCenter(Vector2Int center, int radius)

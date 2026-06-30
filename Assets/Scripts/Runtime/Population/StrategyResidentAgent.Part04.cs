@@ -63,7 +63,13 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            if (UpdateNightHomeState())
+            if (activity == ResidentActivity.LightingNightLight)
+            {
+                UpdateLightingNightLight();
+                return;
+            }
+
+            if (!IsNightLightActivity(activity) && UpdateNightHomeState())
             {
                 return;
             }

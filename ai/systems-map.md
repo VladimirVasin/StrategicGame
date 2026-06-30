@@ -41,7 +41,7 @@ Responsibilities:
 - Runtime world tint overlay and calendar snapshot source for the visual day/night cycle.
 - Runtime weather overlay sorting bands for wet ground, cloud shadows, mist, and rain.
 - Runtime URP post-processing for soft color grading, bloom, and vignette driven by day/night and weather state.
-- Runtime cinematic visuals for 2D global/local lights, emissive masks, animated building torch/lantern source sprites, light-aware nighttime darkness over unlit cells, wet puddle glints, lightning flashes, and foreground depth accents.
+- Runtime cinematic visuals for 2D global/local lights, emissive masks, animated building torch/lantern source sprites with manual night-light state, light-aware nighttime darkness over unlit cells, wet puddle glints, lightning flashes, and foreground depth accents.
 
 Primary files/assets:
 
@@ -59,6 +59,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Core/StrategyCinematicLightEmitter.cs`
 - `Assets/Scripts/Runtime/Core/StrategyCinematicLightEmitter.Profile.cs`
 - `Assets/Scripts/Runtime/Core/StrategyCinematicLightEmitter.Torch.cs`
+- `Assets/Scripts/Runtime/Core/StrategyNightLightSource.cs`
 - `Assets/Scripts/Runtime/Core/StrategyCinematicVisualMath.cs`
 - `Assets/Scripts/Runtime/Core/StrategyCinematicVisualSprites.cs`
 - `Assets/Scripts/Runtime/Core/StrategyDayNightCycleController.cs`
@@ -74,7 +75,7 @@ Impact hints:
 - The day/night and weather overlays sort around world sprites while staying below placement preview/fog/UI; keep that ordering when adding more world overlays.
 - Day/night owns the canonical display day, 24-hour clock, time-of-day phase labels, phase accent colors, and dawn/nightfall event-log triggers; HUDs should read that snapshot instead of inventing separate clocks.
 - Post-process tuning should stay subtle and pixel-readable; avoid blur, heavy chromatic aberration, or aggressive grain for normal strategy view.
-- Cinematic visual effects should stay bounded to reusable emitters/controllers rather than adding per-building one-off light scripts; building torch/lantern source sprites and the night darkness mask are cheap overlays, while real `Light2D` point lights should stay LOD-capped and lazily created because many simultaneous 2D lights can cause visible frame spikes.
+- Cinematic visual effects should stay bounded to reusable emitters/controllers rather than adding per-building one-off light scripts; building torch/lantern source sprites and the night darkness mask are cheap overlays, while real `Light2D` point lights should stay LOD-capped and lazily created because many simultaneous 2D lights can cause visible frame spikes. Non-campfire torch/lantern emitters read `StrategyNightLightSource` manual lit state, so avoid reintroducing automatic night-on behavior. Fire-source daylight fade uses the shared Dawn-to-start-of-`Noon` factor rather than a hard Dawn cutoff, and should shrink/disable only flame layers instead of making torch/campfire bodies transparent.
 - `StrategyShadowCaster2D` is the shared runtime shadow path for world sprites; tune shape/scale/offset per object type and let day/night control opacity/length globally.
 - Verify scenes visually in Unity after meaningful changes.
 
@@ -122,6 +123,7 @@ Responsibilities:
 - Create/configure visual day/night cycle after camera setup.
 - Create/configure runtime post-processing after weather/day-night setup.
 - Create/configure runtime cinematic visuals after post-processing setup.
+- Create/configure the night-light task controller after population exists.
 - Create the runtime time-scale controller for F1/F2/F3 speed controls.
 - Create/configure the top status HUD with population counts, the larger resident roster HUD, the family tree modal scene, and the compact event log with birth/death/adoption messages.
 - Create/configure the runtime goals controller and starter goal sequence that gates early Build menu tools.
@@ -133,6 +135,7 @@ Responsibilities:
 Primary files/assets:
 
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.cs`
+- `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.StarterResources.cs`
 - `Assets/Scripts/Runtime/Core/StrategyDebugLogger.cs`
 - `Assets/Scripts/Runtime/Core/StrategyDebugOptions.cs`
 - `Assets/Scripts/Runtime/Core/StrategyRuntimeObjectCreationGuard.cs`
@@ -143,6 +146,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Core/StrategyCinematicVisualController.Part01.cs`
 - `Assets/Scripts/Runtime/Core/StrategyCinematicLightEmitter.cs`
 - `Assets/Scripts/Runtime/Core/StrategyCinematicLightEmitter.Profile.cs`
+- `Assets/Scripts/Runtime/Population/StrategyNightLightTaskController.cs`
 - `Assets/Scripts/Runtime/Weather/StrategyWeatherKind.cs`
 - `Assets/Scripts/Runtime/Weather/StrategyWeatherController.cs`
 - `Assets/Scripts/Runtime/Weather/StrategyWeatherVisualController.cs`
@@ -1700,7 +1704,7 @@ Responsibilities:
 
 - Create the starter camp with an animated campfire.
 - Select the starter camp cell on walkable land at least 6 cells from generated water/shore when possible.
-- Keep the campfire lit only during `Night`, block the campfire cell while burning, then release it after burnout or daylight extinguish.
+- Start the campfire as a lit central fire on Day 1 Dawn/Morning, fade it out by `Noon`, then keep later campfire relight/lit behavior limited to `Night`.
 - Expose the starter camp world position for the initial camera focus.
 - Spawn 3 initial families at startup, each with a father, a mother, and 1-2 adult children.
 - Assign random Germanic/Nordic-style full names and age-appropriate adult ages to startup family members.
@@ -1722,6 +1726,7 @@ Responsibilities:
 - Keep children younger than 3 years old inside their assigned home by hiding their world sprite/collider and skipping outdoor idle/funeral movement until they age out.
 - Give older children daytime ambient play activities near home/camp, including solo play, pair play with siblings or nearby children, and tag; children with displayed age 6+ can instead help carry raw household food to their own home when reserves are low.
 - Send housed idle residents home to sleep inside during the `Night` phase by hiding their world sprite/collider until morning, while leaving homeless residents outside with a visible `Zzz...` sleep indicator.
+- Assign eligible housed adults to light building and roadside lamps at `Night`, using nearest-to-home light queues and resident kindling animation before they return to sleep.
 - Resolve one nightly household dinner from prepared house `Dish`, using resident age-based ration needs after eligible residents return home for `Night`.
 - Send Householders to fetch reserved raw `Fish`/`Game`/forage food from reachable Granaries into their own house when ingredient reserves are low, then from the starter Caravan Cart while it has food, or from reachable Hunter/Fisher/Forager production stock when no stored food is available.
 - Send Householders to fetch Pottery from active Storage Yards and cook stored ingredients plus 1 Pottery per prepared `Dish` during `Dusk` when dinner coverage is low; keep Pottery retry cooldown separate from raw-food pickup.
@@ -1797,7 +1802,7 @@ Responsibilities:
 - Add synced resident readability renderers: silhouette outline and ground shadow.
 - Generate resident campfire kindling and ground-sleep sprites for homeless night sleep.
 - Generate and animate procedural campfire flame, smoke/spark, ember, and relight frames at runtime.
-- Drive campfire burnout/daylight extinguish into morning embers that become fully cold by `Noon`, restore campfire-cell walkability while extinguished, and support resident-triggered nighttime relight.
+- Drive the first-morning campfire flame fade plus later burnout/daylight extinguish into embers and residual light that fade from `Dawn` to fully cold at the start of `Noon`, restore campfire-cell walkability while extinguished, and support resident-triggered nighttime relight.
 - Drive simple chicken idle movement around standalone or legacy linked Chicken Coops with walk and peck sprite animations, plus standalone coop night shelter/release visuals.
 - Drive standalone Chicken Coop egg production from a cycle timer synchronized with the coop's nest/egg animation frames.
 - Expose runtime residents as read-only visibility sources for fog of war.
@@ -1826,8 +1831,10 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyHouseholdFoodState.NightMeal.cs`
 - `Assets/Scripts/Runtime/Population/StrategyHouseholdForagingState.cs`
 - `Assets/Scripts/Runtime/Population/StrategyHomelessCampController.cs`
+- `Assets/Scripts/Runtime/Population/StrategyNightLightTaskController.cs`
 - `Assets/Scripts/Runtime/Population/StrategyKinshipUtility.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.NightLights.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part36.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.TrailRoutes.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part37.cs`
@@ -1881,6 +1888,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyResidentSpriteFactory.Part06.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part54.cs`
 - `Assets/Scripts/Runtime/Population/StrategyCampfireAnimator.cs`
+- `Assets/Scripts/Runtime/Population/StrategyCampfireAnimator.Daylight.cs`
 - `Assets/Scripts/Runtime/Population/StrategyCampfireAmbientSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Population/StrategyCampfireSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Population/StrategyChickenAgent.cs`
@@ -1929,7 +1937,8 @@ Impact hints:
 - Resident movement records completed building-to-building route traversals as immediate stable roads after real arrivals, using a direct route-line attempt, smoothed route waypoint fallback, and canonical per-building-pair reinforcement so raw A* detours do not create square road pockets; ordinary footfalls no longer create functional or visible roads, and formed roads apply a 15% speed bonus.
 - Resident pathfinding can recover a blocked start cell by snapping to a nearby walkable cell and logging `PathStartRecovered`.
 - Resident scheduled work starts only during `StrategyDayNightCycleController.IsSettlementWorkTime`, which now covers Dawn through Dusk on every day. Keep carried-resource returns, deposits, and cleanup paths schedule-safe so nightfall cannot strand stock reservations.
-- Resident night sleep is separate from homebound young-child hiding: housed residents only enter the hidden home interior during `Night` when they are not carrying resources, in funeral duty, or underground, notify household food state for dinner readiness, then reappear at the home exit after night ends. Homeless residents instead reserve reachable campfire sleep spots, relight embers if needed, and sleep visibly around the startup campfire with a small `Zzz...` indicator.
+- Resident night sleep is separate from homebound young-child hiding: housed residents only enter the hidden home interior during `Night` when they are not carrying resources, in funeral duty, underground, or assigned to night lamp lighting, notify household food state for dinner readiness, then reappear at the home exit after night ends. Homeless residents instead reserve reachable campfire sleep spots, relight embers if needed, and sleep visibly around the startup campfire with a small `Zzz...` indicator.
+- Night lamp lighting is owned by `StrategyNightLightTaskController` plus `StrategyResidentAgent.NightLights.cs`; it should stay separate from worksite jobs and should not automatically light sources when no eligible resident can reach them.
 - Resident footstep audio is attached by `StrategyResidentAgent` and plays grass clips on selected walk frames; keep it low-volume/spatial when adding more residents or faster simulation speeds.
 - Lumberjack work keeps the same camp worksite component but chooses the nearest available tree/processable wood on the map; it tests nearby work cells for real path reachability before starting tree/log/plant movement, and includes tree chopping, trunk bucking, Logs delivery, and sapling planting.
 - Resident woodcut sprites are generated for every male/female visual variant and should stay in sync with readability outline mirroring.
@@ -1959,7 +1968,7 @@ Impact hints:
 - If no free pair exists, the completed house is available for adult-child migration and partner lookup.
 - House occupation consumes the finite free-resident pool from the starter camp while it exists; later household births and adult-child migration are the first internal population growth path.
 - Resident death must continue to go through the centralized population cleanup path; direct `Destroy` on accepted residents risks stale worksite, construction, home, HUD, or kinship state.
-- Resident helper methods for carried-resource return, construction work, hauler construction delivery fallback, workplace clearing, readability sync, refugee path following, tree movement, fishing cast/reel flow, production-input delivery, trail movement, building-route trail capture, ranged hunt stand selection, reachable forestry work-cell selection, reachable construction dropoff selection, worker-triggered visual effects, day/night work scheduling, night home sleep, Clay work/logistics, Kiln/Pottery work/logistics, household Pottery delivery, Forge/Tools work/logistics, production-upgrade speed helpers, homeless campfire sleep, forager work, and child play are split across `StrategyResidentAgent` partial files to keep source files below the 500-line limit.
+- Resident helper methods for carried-resource return, construction work, hauler construction delivery fallback, workplace clearing, readability sync, refugee path following, tree movement, fishing cast/reel flow, production-input delivery, trail movement, building-route trail capture, ranged hunt stand selection, reachable forestry work-cell selection, reachable construction dropoff selection, worker-triggered visual effects, day/night work scheduling, night home sleep, night lamp lighting, Clay work/logistics, Kiln/Pottery work/logistics, household Pottery delivery, Forge/Tools work/logistics, production-upgrade speed helpers, homeless campfire sleep, forager work, and child play are split across `StrategyResidentAgent` partial files to keep source files below the 500-line limit.
 - Future jobs/families/economy should extend resident state rather than replacing the home/free-camp assignment model.
 
 ### World Selection

@@ -4,8 +4,10 @@ namespace ProjectUnknown.Strategy
 {
     internal sealed partial class StrategyCinematicLightEmitter
     {
-        private const int TorchSortingOffset = 23;
-        private SpriteRenderer torchRenderer;
+        private const int TorchBaseSortingOffset = 23;
+        private const int TorchFlameSortingOffset = 24;
+        private SpriteRenderer torchBaseRenderer;
+        private SpriteRenderer torchFlameRenderer;
         private SpriteRenderer buildingRenderer;
 
         private void EnsureTorchVisuals()
@@ -15,59 +17,104 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            torchRenderer ??= CreateRenderer(
-                "Cinematic Torch",
-                StrategyBuildingLightSpriteFactory.GetSprite(GetTorchSpriteKind(), 0),
-                TorchSortingOffset);
+            if (building != null)
+            {
+                torchBaseRenderer ??= CreateRenderer(
+                    "Cinematic Torch Base",
+                    StrategyBuildingLightSpriteFactory.GetBaseSprite(GetTorchSpriteKind()),
+                    TorchBaseSortingOffset);
+            }
+
+            torchFlameRenderer ??= CreateRenderer(
+                "Cinematic Torch Flame",
+                StrategyBuildingLightSpriteFactory.GetFlameSprite(GetTorchSpriteKind(), 0),
+                TorchFlameSortingOffset);
         }
 
         private void UpdateTorchAnchor()
         {
-            if (torchRenderer == null)
+            if (torchBaseRenderer == null && torchFlameRenderer == null)
             {
                 return;
             }
 
-            torchRenderer.transform.position = GetTorchAnchorWorld();
-            torchRenderer.sortingOrder = GetTorchSortingOrder();
+            Vector3 anchor = GetTorchAnchorWorld();
+            PositionTorchRenderer(torchBaseRenderer, anchor, TorchBaseSortingOffset);
+            PositionTorchRenderer(torchFlameRenderer, anchor, TorchFlameSortingOffset);
         }
 
         private void ApplyTorchLighting(Color lightColor, float activity, float flicker)
         {
-            if (torchRenderer == null || !CanRenderTorch())
+            if (!CanRenderTorch())
             {
                 return;
             }
 
-            float lit = GetDarkTimeLightFactor();
+            ApplyTorchBase();
+            if (torchFlameRenderer == null)
+            {
+                return;
+            }
+
+            float lit = GetDarkTimeLightFactor() * GetLightStateFactor();
             float visibility = Mathf.Clamp01(
                 lit * Mathf.Lerp(0.82f, 1.06f, activity) * flicker * LocalLightStrengthMultiplier);
 
             if (visibility <= 0.035f)
             {
-                torchRenderer.enabled = false;
+                torchFlameRenderer.enabled = false;
                 return;
             }
 
             int frame = Mathf.FloorToInt(Time.unscaledTime * GetTorchFrameSpeed() + flickerSeed)
                 % StrategyBuildingLightSpriteFactory.FrameCount;
-            torchRenderer.sprite = StrategyBuildingLightSpriteFactory.GetSprite(GetTorchSpriteKind(), frame);
-            torchRenderer.enabled = true;
-            torchRenderer.color = new Color(
+            torchFlameRenderer.sprite = StrategyBuildingLightSpriteFactory.GetFlameSprite(GetTorchSpriteKind(), frame);
+            torchFlameRenderer.enabled = true;
+            torchFlameRenderer.color = new Color(
                 Mathf.Lerp(1f, lightColor.r, 0.22f),
                 Mathf.Lerp(1f, lightColor.g, 0.22f),
                 Mathf.Lerp(1f, lightColor.b, 0.22f),
                 1f);
             float pulse = Mathf.Lerp(0.92f, 1.09f, flicker);
-            torchRenderer.transform.localScale = new Vector3(pulse, pulse, 1f);
+            float flameScale = Mathf.Lerp(0.20f, 1f, Mathf.Clamp01(visibility));
+            torchFlameRenderer.transform.localScale = new Vector3(pulse * flameScale, pulse * flameScale, 1f);
         }
 
         private void DisableTorchVisuals()
         {
-            if (torchRenderer != null)
+            if (torchBaseRenderer != null)
             {
-                torchRenderer.enabled = false;
+                torchBaseRenderer.enabled = false;
             }
+
+            if (torchFlameRenderer != null)
+            {
+                torchFlameRenderer.enabled = false;
+            }
+        }
+
+        private void ApplyTorchBase()
+        {
+            if (torchBaseRenderer == null)
+            {
+                return;
+            }
+
+            torchBaseRenderer.sprite = StrategyBuildingLightSpriteFactory.GetBaseSprite(GetTorchSpriteKind());
+            torchBaseRenderer.enabled = true;
+            torchBaseRenderer.color = Color.white;
+            torchBaseRenderer.transform.localScale = Vector3.one;
+        }
+
+        private void PositionTorchRenderer(SpriteRenderer renderer, Vector3 anchor, int offset)
+        {
+            if (renderer == null)
+            {
+                return;
+            }
+
+            renderer.transform.position = anchor;
+            renderer.sortingOrder = GetTorchSortingOrder(offset);
         }
 
         private bool CanRenderTorch()
@@ -77,21 +124,61 @@ namespace ProjectUnknown.Strategy
 
         private float GetLightStateFactor()
         {
-            return kind == StrategyCinematicLightKind.Campfire && campfire != null
-                ? campfire.LightIntensityFactor
+            if (kind == StrategyCinematicLightKind.Campfire && campfire != null)
+            {
+                return campfire.LightIntensityFactor;
+            }
+
+            return CanRenderTorch()
+                ? nightLightSource != null ? nightLightSource.LitVisibilityFactor : 0f
                 : 1f;
         }
 
         private float GetDarkTimeLightFactor()
         {
-            return kind == StrategyCinematicLightKind.Campfire
-                ? 1f
-                : StrategyCinematicVisualMath.NightFactor(StrategyDayNightCycleController.CurrentDayPhase);
+            if (kind == StrategyCinematicLightKind.Campfire)
+            {
+                return 1f;
+            }
+
+            float phase = StrategyDayNightCycleController.CurrentDayPhase;
+            float night = StrategyCinematicVisualMath.NightFactor(phase);
+            return CanRenderTorch()
+                ? Mathf.Max(night, StrategyCinematicVisualMath.DawnToNoonFadeOutFactor(phase))
+                : night;
         }
 
         private Vector3 GetLightSourceWorld()
         {
             return CanRenderTorch() ? GetTorchAnchorWorld() : GetAnchorWorld();
+        }
+
+        private void RefreshNightLightSource()
+        {
+            if (!CanRenderTorch())
+            {
+                nightLightSource = null;
+                return;
+            }
+
+            if (nightLightSource == null && !TryGetComponent(out nightLightSource))
+            {
+                nightLightSource = gameObject.AddComponent<StrategyNightLightSource>();
+            }
+
+            if (nightLightSource == null)
+            {
+                return;
+            }
+
+            if (building != null)
+            {
+                nightLightSource.ConfigureForBuilding(building, GetTorchAnchorWorld());
+            }
+            else if (roadsideLight != null)
+            {
+                nightLightSource.ConfigureForRoadside(roadsideLight);
+            }
         }
 
         private Vector3 GetCoreVisualWorld(Vector3 defaultWorld)
@@ -134,15 +221,15 @@ namespace ProjectUnknown.Strategy
             return radius > 0.2f;
         }
 
-        private int GetTorchSortingOrder()
+        private int GetTorchSortingOrder(int offset)
         {
             buildingRenderer ??= building != null ? building.GetComponent<SpriteRenderer>() : null;
             if (buildingRenderer != null)
             {
-                return buildingRenderer.sortingOrder + TorchSortingOffset;
+                return buildingRenderer.sortingOrder + offset;
             }
 
-            return StrategyWorldSorting.ForPosition(transform.position, TorchSortingOffset);
+            return StrategyWorldSorting.ForPosition(transform.position, offset);
         }
 
         private StrategyBuildingLightSpriteKind GetTorchSpriteKind()

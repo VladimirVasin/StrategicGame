@@ -10,13 +10,21 @@ namespace ProjectUnknown.Strategy
 
         private static readonly Sprite[] RelightFrames = new Sprite[RelightFrameCount];
         private static readonly Sprite[] EmberFrames = new Sprite[EmberFrameCount];
+        private static readonly Sprite[] BaseFrames = new Sprite[EmberFrameCount];
+        private static readonly Sprite[] RelightFlameFrames = new Sprite[RelightFrameCount];
+        private static readonly Sprite[] EmberFlameFrames = new Sprite[EmberFrameCount];
 
         public static Sprite GetRelightFrame(int frame)
         {
             int normalized = Normalize(frame, RelightFrameCount);
             if (RelightFrames[normalized] == null)
             {
-                RelightFrames[normalized] = CreateFrame(normalized, true);
+                RelightFrames[normalized] = CreateFrame(
+                    normalized,
+                    true,
+                    true,
+                    true,
+                    $"Campfire Relight {normalized + 1}");
             }
 
             return RelightFrames[normalized];
@@ -27,17 +35,70 @@ namespace ProjectUnknown.Strategy
             int normalized = Normalize(frame, EmberFrameCount);
             if (EmberFrames[normalized] == null)
             {
-                EmberFrames[normalized] = CreateFrame(normalized, false);
+                EmberFrames[normalized] = CreateFrame(
+                    normalized,
+                    false,
+                    true,
+                    true,
+                    $"Campfire Embers {normalized + 1}");
             }
 
             return EmberFrames[normalized];
         }
 
-        private static Sprite CreateFrame(int frame, bool relighting)
+        public static Sprite GetBaseFrame(int frame)
+        {
+            int normalized = Normalize(frame, EmberFrameCount);
+            if (BaseFrames[normalized] == null)
+            {
+                BaseFrames[normalized] = CreateFrame(
+                    normalized,
+                    false,
+                    true,
+                    false,
+                    $"Campfire Charred Base {normalized + 1}");
+            }
+
+            return BaseFrames[normalized];
+        }
+
+        public static Sprite GetRelightFlameFrame(int frame)
+        {
+            int normalized = Normalize(frame, RelightFrameCount);
+            if (RelightFlameFrames[normalized] == null)
+            {
+                RelightFlameFrames[normalized] = CreateFrame(
+                    normalized,
+                    true,
+                    false,
+                    true,
+                    $"Campfire Relight Flame {normalized + 1}");
+            }
+
+            return RelightFlameFrames[normalized];
+        }
+
+        public static Sprite GetEmberFlameFrame(int frame)
+        {
+            int normalized = Normalize(frame, EmberFrameCount);
+            if (EmberFlameFrames[normalized] == null)
+            {
+                EmberFlameFrames[normalized] = CreateFrame(
+                    normalized,
+                    false,
+                    false,
+                    true,
+                    $"Campfire Ember Flame {normalized + 1}");
+            }
+
+            return EmberFlameFrames[normalized];
+        }
+
+        private static Sprite CreateFrame(int frame, bool relighting, bool drawBase, bool drawEffect, string spriteName)
         {
             Texture2D texture = new Texture2D(36, 34, TextureFormat.RGBA32, false)
             {
-                name = relighting ? $"Campfire Relight {frame + 1}" : $"Campfire Embers {frame + 1}",
+                name = spriteName,
                 filterMode = FilterMode.Point,
                 wrapMode = TextureWrapMode.Clamp
             };
@@ -53,14 +114,18 @@ namespace ProjectUnknown.Strategy
             Color flame = Rgb(226, 91, 26);
             Color flameHot = Rgb(255, 207, 82);
 
-            FillEllipse(texture, 18, 6, 13, 4, shadow);
-            DrawStoneRing(texture, frame, stone, stoneLight, stoneDark);
-            DrawCharredLogs(texture, coal, ember, frame);
-            if (relighting)
+            if (drawBase)
+            {
+                FillEllipse(texture, 18, 6, 13, 4, shadow);
+                DrawStoneRing(texture, frame, stone, stoneLight, stoneDark);
+                DrawCharredLogs(texture, coal, ember, frame, drawEffect);
+            }
+
+            if (drawEffect && relighting)
             {
                 DrawRelightFlame(texture, frame, flame, flameHot);
             }
-            else
+            else if (drawEffect)
             {
                 DrawEmbers(texture, frame, ember, emberHot);
             }
@@ -90,12 +155,12 @@ namespace ProjectUnknown.Strategy
             SetPixelSafe(texture, x, y + 1, light);
         }
 
-        private static void DrawCharredLogs(Texture2D texture, Color coal, Color ember, int frame)
+        private static void DrawCharredLogs(Texture2D texture, Color coal, Color ember, int frame, bool drawEmbers)
         {
             DrawThickLine(texture, P(9, 9), P(26, 13), coal, 1);
             DrawThickLine(texture, P(26, 9), P(10, 13), coal, 1);
             FillRect(texture, 15, 9, 7, 2, coal);
-            if (frame % 2 == 0)
+            if (drawEmbers && frame % 2 == 0)
             {
                 SetPixelSafe(texture, 16, 10, ember);
                 SetPixelSafe(texture, 20, 11, ember);

@@ -21,7 +21,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Runtime day/night overlay tints the world above sprites and below preview/fog/UI, exposes day/clock/phase calendar snapshots, and drives dawn/nightfall player messages
   - Runtime weather overlays add wet ground, cloud shadows, mist, and rain in dedicated sorting bands around day/night and fog-of-war
   - Runtime URP post-process volume adds soft day/night/weather color grading, bloom, and vignette
-  - Runtime cinematic visual layer adds 2D global/local light, emissive pixel masks, animated building torch/lantern source sprites, light-aware nighttime darkness over unlit cells, wet puddle glints, lightning flashes, and subtle foreground depth props
+  - Runtime cinematic visual layer adds 2D global/local light, emissive pixel masks, animated building torch/lantern source sprites with manual lit state for building/roadside lights, light-aware nighttime darkness over unlit cells, wet puddle glints, lightning flashes, and subtle foreground depth props
   - Runtime procedural 2D shadow caster supplies soft ground/cast shadows below world sprites
   - Runtime short-lived world effect layer supplies reusable dust, sawdust, chip, spark, splash, and resource pop/fade effects
 
@@ -42,6 +42,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Creates and configures runtime post-processing after weather setup so color grading follows day/night and weather intensities
     - Creates and configures runtime cinematic visuals after post-processing so lights and atmosphere follow day/night/weather state
     - Creates and configures runtime ambience audio after camera setup
+    - Creates and configures the night-light task controller so housed adults can light building and roadside lamps at `Night`
     - Focuses the initial camera view on the startup campfire after population startup
     - Creates runtime water/shore animation overlay after map generation
     - Creates the Stone resource registry before nature generation
@@ -340,7 +341,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Reuses a stable default sprite for Build menu icon and ghost preview
     - Chooses a random building visual variant for each successfully placed supported building
     - Placed houses add ambient smoke/window-light overlay animation without changing colliders
-    - Completed buildings get animated torch, lantern, brazier, or bridge-lamp source sprites that fade in at dusk/night through the cinematic light emitter layer
+    - Completed buildings get animated torch, lantern, brazier, or bridge-lamp source sprites with opaque base bodies and separate flame layers that are manually lit at night and shrink out from `Dawn` to the start of `Noon` through the cinematic light emitter layer
     - Completed buildings, construction sites, and loose construction resource piles attach shared procedural ground/cast shadows
   - House visual upgrades (legacy inactive)
     - Runtime-created building-upgrade controller and generated Garden Beds/Chicken Coop sprites still exist in code
@@ -445,7 +446,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Runtime-created population controller
     - Startup camp creates an animated procedural campfire
       - Camp placement keeps at least 6 cells of clearance from generated water/shore when possible
-    - Campfire can stay lit only during `Night`; while lit it blocks its own cell, then burns down or daylight-extinguishes into morning embers that become fully cold by `Noon`, releases the cell while extinguished, and can be relit by homeless residents at night
+    - Campfire starts the first morning as a lit central fire, then shrinks only its flame/ember layer out by `Noon` while the campfire body remains opaque; after that it can stay lit only during `Night`, blocks its own cell while lit, releases the cell while extinguished, and can be relit by homeless residents at night
       - Startup camp spawns 3 initial families
       - Each initial family has a father, a mother, and 1-2 adult children with parent/child links
       - Startup parents and adult children receive random Germanic/Nordic-style full names and age-appropriate adult ages
@@ -493,6 +494,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Resident pathing can recover a blocked start cell by moving the resident to a nearby walkable cell and logging the recovery
     - Resident work normally starts during the shared Dawn-through-Dusk work window; nightfall defers new production, construction, logistics, hunting, fishing, household-food pickup, and household cooking while allowing carried resources and deposits/returns to finish
     - During `Night`, housed idle residents path to their home, hide inside the house, and wake at the home exit after night ends
+    - At the start of `Night`, random eligible housed adults can be assigned building and roadside light sources; they leave home, walk to nearest queued lights, kindle them with animation, and return to night sleep
     - During `Night`, homeless idle residents reserve reachable spots around the startup campfire; one resident can relight embers with a visible kindling animation before sleeping on the ground by the fire, and sleeping residents show a small `Zzz...` indicator
     - Householders fetch raw `Fish`/`Game`/`Eggs`/forage ingredients from Granaries or production-food fallback sources, fetch Pottery from Storage Yards, or cook prepared `Dish` from ingredients and Pottery during `TendingHousehold` home duty
     - Non-householder residents no longer forage directly for their own house; generated forage nodes are consumed by assigned Forager Camp workers instead
@@ -528,7 +530,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Hunter work uses cached frame-based bow and butchering sprites for all male/female visual variants
     - Manual and automatic worker/builder assignment only accepts adult residents
     - Residents render with a synced silhouette outline and ground shadow for readability over busy terrain
-    - Runtime-generated campfire sprites include flame, smoke, spark, ember, relight, and runtime burnout/daylight-extinguish/relight behavior
+    - Runtime-generated campfire sprites include separate base, flame, smoke, spark, ember, relight, and runtime burnout/daylight-extinguish/relight behavior
     - Chicken agents drive slightly enlarged local idle movement around either a standalone Chicken Coop or a legacy linked Chicken Coop with walk and peck sprite animations; standalone coop chickens path inside at `Night` and reappear outside after `Night`
   - World selection
     - Runtime-created world selection controller
@@ -604,7 +606,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Fog of war uses population, residents, placed-building records, the shared day/night phase, and weather Fog intensity as visibility inputs; placement and world selection consult fog exploration state, refugee arrivals use daylight-range visible boundaries for in-map entry staging, while the F9 debug panel can bypass player fog for testing.
 - Terrain rendering uses generated map cell kinds, visual relief height, seeded tile variants, neighbor transition overlays, a runtime water/shore animation overlay, and weather visual overlays.
 - Weather depends on generated map bounds, the strategy camera, day/night/fog sorting bands, the strategy wind source, water animation, and ambience audio.
-- Resident work/rest scheduling depends on the shared day/night phase so production, construction, logistics, hunting, fishing, and household-food tasks only start during settlement work time, while housed idle residents sleep inside homes, homeless idle residents sleep around the startup campfire, and standalone Chicken Coop chickens visually shelter inside during `Night`.
+- Resident work/rest scheduling depends on the shared day/night phase so production, construction, logistics, hunting, fishing, and household-food tasks only start during settlement work time, while night-light tasks depend on day/night, cinematic light sources, roads/buildings, and housed adult resident scheduling, housed idle residents sleep inside homes, homeless idle residents sleep around the startup campfire, and standalone Chicken Coop chickens visually shelter inside during `Night`.
 - House resources depend on placed-building records, resident home duty, Granary food pickup, production-food fallback pickup, Storage Yard Pottery pickup, and the world-selection HUD.
 - Generated forage nodes remain inspectable map resources and are consumed by Forager Camp workers instead of House-driven household foraging.
 - Forestry depends on generated tree props, map walkability, placed lumberjack camps, resident work states, and the world-selection HUD.

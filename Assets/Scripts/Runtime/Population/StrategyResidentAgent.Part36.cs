@@ -92,6 +92,8 @@ namespace ProjectUnknown.Strategy
                 ResidentActivity.Idle => 0.12f,
                 ResidentActivity.TendingHousehold => 0.18f,
                 ResidentActivity.MovingHome => 0.45f,
+                ResidentActivity.MovingToNightLight => 0.60f,
+                ResidentActivity.LightingNightLight => 0f,
                 ResidentActivity.MovingToFuneral => 0.45f,
                 ResidentActivity.MovingToBurial => 0.45f,
                 ResidentActivity.MourningCorpse => 0f,

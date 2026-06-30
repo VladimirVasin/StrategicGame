@@ -8,23 +8,55 @@ namespace ProjectUnknown.Strategy
         public const int FrameCount = 6;
 
         private static readonly Sprite[] CachedFrames = new Sprite[FrameCount];
+        private static readonly Sprite[] CachedBaseFrames = new Sprite[FrameCount];
+        private static readonly Sprite[] CachedFlameFrames = new Sprite[FrameCount];
 
         public static Sprite GetFrame(int frame)
         {
             int normalizedFrame = NormalizeFrame(frame);
             if (CachedFrames[normalizedFrame] == null)
             {
-                CachedFrames[normalizedFrame] = CreateFrame(normalizedFrame);
+                CachedFrames[normalizedFrame] = CreateFrame(normalizedFrame, true, true, $"Campfire Frame {normalizedFrame + 1}");
             }
 
             return CachedFrames[normalizedFrame];
         }
 
-        private static Sprite CreateFrame(int frame)
+        public static Sprite GetBaseFrame(int frame)
+        {
+            int normalizedFrame = NormalizeFrame(frame);
+            if (CachedBaseFrames[normalizedFrame] == null)
+            {
+                CachedBaseFrames[normalizedFrame] = CreateFrame(
+                    normalizedFrame,
+                    true,
+                    false,
+                    $"Campfire Base {normalizedFrame + 1}");
+            }
+
+            return CachedBaseFrames[normalizedFrame];
+        }
+
+        public static Sprite GetFlameFrame(int frame)
+        {
+            int normalizedFrame = NormalizeFrame(frame);
+            if (CachedFlameFrames[normalizedFrame] == null)
+            {
+                CachedFlameFrames[normalizedFrame] = CreateFrame(
+                    normalizedFrame,
+                    false,
+                    true,
+                    $"Campfire Flame {normalizedFrame + 1}");
+            }
+
+            return CachedFlameFrames[normalizedFrame];
+        }
+
+        private static Sprite CreateFrame(int frame, bool drawBase, bool drawFlame, string spriteName)
         {
             Texture2D texture = new Texture2D(36, 34, TextureFormat.RGBA32, false)
             {
-                name = $"Campfire Frame {frame + 1}",
+                name = spriteName,
                 filterMode = FilterMode.Point,
                 wrapMode = TextureWrapMode.Clamp
             };
@@ -42,10 +74,17 @@ namespace ProjectUnknown.Strategy
             Color flameInner = Rgb(255, 223, 96);
             Color flameCore = Rgb(255, 244, 178);
 
-            FillEllipse(texture, 18, 6, 13, 4, shadow);
-            DrawStoneRing(texture, frame, stone, stoneLight, stoneDark);
-            DrawLogs(texture, log, logLight, stoneDark, ember);
-            DrawFlame(texture, frame, flameOuter, flameMid, flameInner, flameCore);
+            if (drawBase)
+            {
+                FillEllipse(texture, 18, 6, 13, 4, shadow);
+                DrawStoneRing(texture, frame, stone, stoneLight, stoneDark);
+                DrawLogs(texture, log, logLight, stoneDark, ember);
+            }
+
+            if (drawFlame)
+            {
+                DrawFlame(texture, frame, flameOuter, flameMid, flameInner, flameCore);
+            }
 
             texture.Apply(false, false);
             return Sprite.Create(texture, new Rect(0f, 0f, 36f, 34f), new Vector2(0.5f, 0.08f), PixelsPerUnit);

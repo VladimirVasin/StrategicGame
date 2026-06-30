@@ -165,10 +165,8 @@ namespace ProjectUnknown.Strategy
             propRoot.transform.position = placement.WorldPosition;
 
             SpriteRenderer baseRenderer = propRoot.AddComponent<SpriteRenderer>();
-            baseRenderer.sprite = StrategyBuildingLightSpriteFactory.GetSprite(
-                StrategyBuildingLightSpriteKind.Lantern,
-                placement.Variant);
-            baseRenderer.color = new Color(0.46f, 0.38f, 0.28f, 0.58f);
+            baseRenderer.sprite = StrategyBuildingLightSpriteFactory.GetBaseSprite(StrategyBuildingLightSpriteKind.Lantern);
+            baseRenderer.color = new Color(0.78f, 0.70f, 0.56f, 1f);
             baseRenderer.sortingOrder = StrategyWorldSorting.ForPosition(placement.WorldPosition, 21);
 
             StrategyRoadsideLightSource lightSource = propRoot.AddComponent<StrategyRoadsideLightSource>();

@@ -192,6 +192,7 @@ namespace ProjectUnknown.Strategy
             }
 
             returningHomeToSleep = false;
+            CancelNightLightTask("death");
             CancelChildPlay(false);
             DropCarriedResourcesOnDeath();
             ClearConstructionSite(null);
@@ -279,6 +280,7 @@ namespace ProjectUnknown.Strategy
             }
 
             returnCarriedResourcesImmediately = true;
+            CancelNightLightTask("funeral");
             CancelChildPlay(true);
             ClearConstructionSite(null);
             CancelLumberWork();

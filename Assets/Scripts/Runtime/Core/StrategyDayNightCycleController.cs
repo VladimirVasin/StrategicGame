@@ -45,7 +45,7 @@ namespace ProjectUnknown.Strategy
     [DisallowMultipleComponent]
     public sealed class StrategyDayNightCycleController : MonoBehaviour
     {
-        private const float CycleSeconds = 330f;
+        private const float CycleSeconds = 360f;
         private const float HoursPerDay = 24f;
         private const float ClockStartHour = 5f;
         private const float DawnEndHour = 7f;
@@ -208,10 +208,10 @@ namespace ProjectUnknown.Strategy
 
             if (phase < DuskEnd)
             {
-                return Color.Lerp(day, dusk, Smooth01((phase - AfternoonEnd) / (DuskEnd - AfternoonEnd)));
+                return EvaluateDuskColor(day, dusk, night, phase);
             }
 
-            return Color.Lerp(dusk, night, Smooth01((phase - DuskEnd) / (1f - DuskEnd)));
+            return night;
         }
 
         private static float EvaluateShadowOpacity(float phase)
@@ -233,10 +233,10 @@ namespace ProjectUnknown.Strategy
 
             if (phase < DuskEnd)
             {
-                return Mathf.Lerp(1f, 0.70f, Smooth01((phase - AfternoonEnd) / (DuskEnd - AfternoonEnd)));
+                return Mathf.Lerp(1f, 0.32f, Smooth01((phase - AfternoonEnd) / (DuskEnd - AfternoonEnd)));
             }
 
-            return Mathf.Lerp(0.70f, 0.32f, Smooth01((phase - DuskEnd) / (1f - DuskEnd)));
+            return 0.32f;
         }
 
         private static float EvaluateShadowLength(float phase)
@@ -258,10 +258,10 @@ namespace ProjectUnknown.Strategy
 
             if (phase < DuskEnd)
             {
-                return Mathf.Lerp(0.92f, 1.58f, Smooth01((phase - AfternoonEnd) / (DuskEnd - AfternoonEnd)));
+                return Mathf.Lerp(0.92f, 0.78f, Smooth01((phase - AfternoonEnd) / (DuskEnd - AfternoonEnd)));
             }
 
-            return Mathf.Lerp(1.58f, 0.78f, Smooth01((phase - DuskEnd) / (1f - DuskEnd)));
+            return 0.78f;
         }
 
         private Color EvaluateCameraColor(float phase)
@@ -287,10 +287,18 @@ namespace ProjectUnknown.Strategy
 
             if (phase < DuskEnd)
             {
-                return Color.Lerp(baseCameraColor, duskCamera, Smooth01((phase - AfternoonEnd) / (DuskEnd - AfternoonEnd)));
+                return EvaluateDuskColor(baseCameraColor, duskCamera, nightCamera, phase);
             }
 
-            return Color.Lerp(duskCamera, nightCamera, Smooth01((phase - DuskEnd) / (1f - DuskEnd)));
+            return nightCamera;
+        }
+
+        private static Color EvaluateDuskColor(Color day, Color dusk, Color night, float phase)
+        {
+            float t = Smooth01((phase - AfternoonEnd) / (DuskEnd - AfternoonEnd));
+            return t < 0.5f
+                ? Color.Lerp(day, dusk, Smooth01(t * 2f))
+                : Color.Lerp(dusk, night, Smooth01((t - 0.5f) * 2f));
         }
 
         public static string GetPhaseLabel(StrategyTimeOfDayPhase phase)

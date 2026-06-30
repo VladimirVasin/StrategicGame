@@ -12,6 +12,7 @@ namespace ProjectUnknown.Strategy
 
         private StrategyPlacedBuilding building;
         private StrategyCampfireAnimator campfire;
+        private StrategyNightLightSource nightLightSource;
         private StrategyCinematicLightKind kind;
         private Light2D pointLight;
         private SpriteRenderer glowRenderer;
@@ -46,6 +47,7 @@ namespace ProjectUnknown.Strategy
             }
 
             configured = owner != null;
+            RefreshNightLightSource();
             EnsureVisuals();
         }
 
@@ -58,6 +60,7 @@ namespace ProjectUnknown.Strategy
 
             campfire = owner;
             building = null;
+            nightLightSource = null;
             kind = StrategyCinematicLightKind.Campfire;
             if (flickerSeed <= 0.001f)
             {
@@ -195,6 +198,7 @@ namespace ProjectUnknown.Strategy
             PositionRenderer(coreRenderer, GetCoreVisualWorld(world), 19);
             PositionRenderer(interiorRenderer, world + GetInteriorOffset(), 20);
             UpdateTorchAnchor();
+            RefreshNightLightSource();
         }
 
         private void PositionRenderer(SpriteRenderer renderer, Vector3 world, int offset)
@@ -316,7 +320,8 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            if (kind != StrategyCinematicLightKind.Campfire && GetDarkTimeLightFactor() <= 0.08f)
+            if (kind != StrategyCinematicLightKind.Campfire
+                && GetDarkTimeLightFactor() * GetLightStateFactor() <= 0.08f)
             {
                 return;
             }

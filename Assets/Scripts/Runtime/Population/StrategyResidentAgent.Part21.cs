@@ -255,6 +255,10 @@ namespace ProjectUnknown.Strategy
             {
                 EnterHomelessCampSleepSpot();
             }
+            else if (activity == ResidentActivity.MovingToNightLight)
+            {
+                StartLightingNightLight();
+            }
             else if (IsMovingChildPlayActivity(activity))
             {
                 StartReachedChildPlay();

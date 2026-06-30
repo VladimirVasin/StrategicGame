@@ -147,8 +147,8 @@ namespace ProjectUnknown.Strategy
             }
 
             float phase = dayNight != null ? dayNight.DayPhase : StrategyDayNightCycleController.CurrentDayPhase;
-            float night = EvaluateNightFactor(phase);
-            float warm = EvaluateWarmFactor(phase);
+            float night = StrategyCinematicVisualMath.NightFactor(phase);
+            float warm = StrategyCinematicVisualMath.WarmFactor(phase);
             float rain = weather != null ? weather.RainIntensity : 0f;
             float cloud = weather != null ? weather.CloudIntensity : 0f;
             float fog = weather != null ? weather.FogIntensity : 0f;
@@ -189,48 +189,9 @@ namespace ProjectUnknown.Strategy
                 0.25f);
         }
 
-        private static float EvaluateNightFactor(float phase)
-        {
-            if (phase < 0.18f)
-            {
-                return 1f - Smooth01(phase / 0.18f);
-            }
-
-            if (phase >= 0.78f)
-            {
-                return Smooth01((phase - 0.78f) / 0.22f);
-            }
-
-            return 0f;
-        }
-
-        private static float EvaluateWarmFactor(float phase)
-        {
-            float dawn = Pulse01(phase, 0.08f, 0.34f);
-            float dusk = Pulse01(phase, 0.58f, 0.86f);
-            return Mathf.Clamp01(dawn * 0.58f + dusk * 0.82f);
-        }
-
-        private static float Pulse01(float value, float start, float end)
-        {
-            if (value <= start || value >= end)
-            {
-                return 0f;
-            }
-
-            float t = Mathf.InverseLerp(start, end, value);
-            return Mathf.Sin(t * Mathf.PI);
-        }
-
         private static Color BlendTint(Color from, Color to, float amount)
         {
             return Color.Lerp(from, to, Mathf.Clamp01(amount));
-        }
-
-        private static float Smooth01(float value)
-        {
-            float t = Mathf.Clamp01(value);
-            return t * t * (3f - 2f * t);
         }
     }
 }

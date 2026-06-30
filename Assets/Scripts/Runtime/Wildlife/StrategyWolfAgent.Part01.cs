@@ -416,7 +416,7 @@ namespace ProjectUnknown.Strategy
         private bool TryGetCurrentCell(out Vector2Int cell)
         {
             cell = default;
-            return map != null && map.TryWorldToCell(transform.position, out cell);
+            return this != null && map != null && map.TryWorldToCell(transform.position, out cell);
         }
 
         private Vector2Int GetCurrentCellOrHome()
