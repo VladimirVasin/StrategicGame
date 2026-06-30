@@ -378,13 +378,8 @@ namespace ProjectUnknown.Strategy
                     return false;
                 }
 
-                if (!TryPickMigrationTarget(
-                    currentCenter,
-                    targetMinDistance,
-                    isCandidate,
-                    scoreCandidate,
-                    requireWalkableConnection,
-                    out state.Target))
+                if (!TryPickMigrationTarget(currentCenter, step, targetMinDistance, isCandidate,
+                    scoreCandidate, requireWalkableConnection, out state.Target))
                 {
                     state.Cooldown = Random.Range(18f, 34f);
                     return false;
@@ -454,6 +449,7 @@ namespace ProjectUnknown.Strategy
 
         private bool TryPickMigrationTarget(
             Vector2Int currentCenter,
+            int step,
             int minDistance,
             System.Func<Vector2Int, bool> isCandidate,
             System.Func<Vector2Int, float> scoreCandidate,
@@ -472,8 +468,13 @@ namespace ProjectUnknown.Strategy
                     continue;
                 }
 
-                if (requireWalkableConnection
-                    && !HasWalkableMigrationConnection(currentCenter, candidate, GetMigrationTargetMaxVisited(currentCenter, candidate)))
+                if (!IsViableMigrationTarget(
+                    currentCenter,
+                    candidate,
+                    step,
+                    requireWalkableConnection,
+                    isCandidate,
+                    scoreCandidate))
                 {
                     continue;
                 }

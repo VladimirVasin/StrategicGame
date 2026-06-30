@@ -106,6 +106,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Resident footfalls no longer create functional or visible roads, and automatic route-network convergence is disabled
     - Road cells stay until invalidated by map walkability or cell validity changes instead of decaying from disuse
     - Route road cells render connected procedural sprites using cardinal N/E/S/W right-angle masks, wear levels, and deterministic variants
+    - Route roads own a derived roadside-prop layer that places sparse non-blocking torches/lanterns on eligible straight road segments and refreshes them when roads or adjacent buildability change
     - Formed roads give residents a 15% movement-speed bonus and reduce resident pathfinding cost without becoming required routes
     - Runtime nature-props layer
       - Generated after map terrain cells are built
@@ -188,6 +189,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Uses completed buildings and active construction sites as wildlife spawn anchors, falling back to the startup camp only if no building anchor exists
       - Under-supplied Hunter Camps periodically seed huntable rabbits in a controlled 7-11 cell ring around the camp, with hidden-spawn, structure-buffer, global-cap, and local-density checks
       - Hunter Camps with Deer Hunting Kit can also seed rare adult deer in the same controlled ring when nearby huntable deer are below target
+      - Renders deer, rabbits, fish, birds, and wolves only while their current cell is in Fog of War current visibility, not merely explored gray fog
       - Wildlife agents do not block walkability and do not act as fog reveal sources
       - Two procedural 2.5D deer models exist: antlered male buck and smaller female doe
       - Two procedural 2.5D rabbit models exist: male buck and female doe variants, with smaller kits using scaled visuals
@@ -350,7 +352,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Runtime house-local resource store
     - Current house-local ingredients: Eggs, Turnip, Cabbage, Onion, Carrot, Potato, Berries, Roots, Mushrooms, `Fish`, and `Game`
     - Prepared `Dish` is stored as recipe stacks with aggregate amount/ration APIs for older dinner, HUD, and logistics callers
-    - Householders and children with displayed age 6+ fetch raw food to their own house from Granaries, then the starter Caravan Cart while it has food, or from Hunter Camps/Fisher Huts/Forager Camps/Chicken Coops when no stored food is available; Householders fetch Pottery from Storage Yards and cook raw ingredients plus 1 Pottery per prepared recipe dish during `Dusk`; nightly household dinner consumes prepared dishes first and falls back to house-local ingredients
+    - Householders and children with displayed age 6+ fetch raw food to their own house from Granaries, then the starter Caravan Cart while it has food, or from Hunter Camps/Fisher Huts/Forager Camps/Chicken Coops when no stored food is available; Householders fetch Pottery from active Storage Yards and cook raw ingredients plus 1 Pottery per prepared recipe dish during `Dusk`; no-yard Pottery retries do not block raw-food pickup; nightly household dinner consumes prepared dishes first and falls back to house-local ingredients
     - Dish recipes span Poor, Common, Hearty, Fine, and Feast quality tiers with different ingredient combinations, ingredient counts, and ration values
     - Shared resource identity/icon layer also includes `Dish`, Stone, `Game`, `Fish`, and `Tools` for production/storage-style HUDs and future economy work
     - Loose carried-resource piles preserve dropped `Game`, `Fish`, `Eggs`, Berries, Roots, and Mushrooms after resident death
@@ -386,7 +388,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Haulers walk to Sawmills, pick up Planks, carry them to the Storage Yard, and deposit them
     - Haulers walk to Kilns, pick up Pottery, carry it to the Storage Yard, and deposit it
     - Haulers walk to Forges, pick up Tools, carry them to the Storage Yard, and deposit them
-    - Householders reserve and carry Pottery from Storage Yard stock into their own houses when cooking needs it
+    - Householders reserve and carry Pottery from active Storage Yard stock into their own houses when cooking needs it; if no Storage Yard exists they skip reservation attempts on a Pottery-only cooldown
     - Haulers can also reserve `Game`/`Fish`/`Eggs`/forage food from Hunter Camps/Fisher Huts/Forager Camps/Chicken Coops or loose food piles and deliver that food to the nearest Granary
     - If normal storage, production, and Granary orders are unavailable, Haulers can fallback-deliver reserved construction Logs/Stone/Planks directly to active construction sites without becoming builders
     - Lumberjack camp local Logs stock decreases when haulers pick up reserved Logs
@@ -472,9 +474,9 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Resident death centrally removes them from homes, population counts, worksite roles, construction assignments, active reservations, and selection targets
     - Resident death creates an animated corpse snapshot that remains in the world until burial
     - Minor children with no living parents can be adopted into eligible adult households without rewriting biological parent IDs
-    - Funeral flow immediately recalls close family/household participants with reachable movement targets, runs crying/mourning, drags the corpse by rope behind a carrier to a spontaneous reachable cemetery, waits for reachable attendees near the grave, and completes burial
+    - Funeral flow can run multiple simultaneous processes, recalls only available close family/household participants with reachable movement targets, runs crying/mourning, drags the corpse by rope behind a carrier to a reserved spontaneous reachable cemetery grave, treats non-carrier mourners as optional at burial, and completes burial once carriers deliver the body
     - Deaths with no living family/household participants use a silent service burial with one nearby adult carrier and no crying animation
-    - Spontaneous cemetery placement prefers a moderate distance from the settlement, penalizes extreme map edges, and filters graves by carrier-reachable walkable stand cells
+    - Spontaneous cemetery placement prefers a moderate distance from the settlement, penalizes extreme map edges, filters graves by carrier-reachable walkable stand cells, and reserves pending grave cells for parallel funeral processes
     - Completed burials create runtime-generated clickable grave sprites with epitaph HUD data and mark grave cells as not walkable
     - Funeral activities temporarily interrupt active resident tasks without permanently removing workplace roles
     - The first refugee family arrives no earlier than `Dusk` on Day 2; later families periodically spawn inside the map about 4 cells beyond a random side of the daylight-visible fog boundary, route only to the reachable camp-side arrival area, walk to the startup campfire, and ask for settlement acceptance through a modal paused decision
@@ -622,7 +624,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Construction depends on Storage Yard resource reservations, loose construction pile reservations, idle Hauler construction-material fallback delivery, hired Storage Yard builder assignments, construction-site blockers, placed-building finalization, F9 instant-construction debug options, and the world-selection HUD.
 - Population uses placed-building records, construction sites, the generated map walkability/trail layers, and workplace assignments; home/family assignment is independent from work/construction assignment.
 - Resident footsteps depend on population agents and the non-generated grass footstep clip set.
-- Resident movement records completed building-to-building route traversals as immediate stable roads after real arrivals, shares road-aware 8-direction A* pathfinding with the road layer, tries direct road capture before falling back to smoothed travel waypoints, and reads formed roads for path-cost preference plus a 15% movement-speed bonus; ordinary footfalls and automatic route-network reinforcement no longer create roads.
+- Resident movement records completed building-to-building route traversals as immediate stable roads after real arrivals, shares road-aware 8-direction A* pathfinding with the road layer, tries direct road capture before falling back to smoothed travel waypoints, and reads formed roads for path-cost preference plus a 15% movement-speed bonus; ordinary footfalls and automatic route-network reinforcement no longer create roads, while roadside torch props are visual-only derivatives of existing road cells.
 - Time scale accelerates core simulation timers, while expensive visual/service systems use unscaled real-time cadences for fog, cinematic/weather/water/nature overlays, wildlife caches/threat scans, population housekeeping, and resident path-build budgeting.
 - World selection uses placed-building/resident/construction-site colliders, inspectable world-object sprite bounds, generated map cell data, fog state, the strategy camera, house resource state, and production-building upgrade state.
 - Profession HUD depends on population adults and current worksite components; it owns player-facing worker assignment/removal while existing worksite components still own role state and work loops, with Storage Yard Haulers/builders treated as uncapped roles.

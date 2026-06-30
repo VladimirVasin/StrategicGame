@@ -17,6 +17,7 @@ namespace ProjectUnknown.Strategy
             }
 
             cemetery.CreateGrave(funeral.Snapshot, funeral.GraveCell);
+            ReleaseReservedGrave(funeral);
             funeral.Corpse.CompleteBurial();
             EndFuneralDuties(funeral.Participants);
             EndFuneralDuties(funeral.Carriers);
@@ -27,7 +28,41 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("resident", funeral.Snapshot.FullName),
                 StrategyDebugLogger.F("residentId", funeral.Snapshot.ResidentId),
                 StrategyDebugLogger.F("graveCell", funeral.GraveCell));
-            activeFuneral = null;
+            funeral.Completed = true;
+        }
+
+        private void BeginBurial(FuneralProcess funeral, string reason)
+        {
+            if (!IsCorpseNearGrave(funeral))
+            {
+                StrategyDebugLogger.Warn(
+                    "Funeral",
+                    "BurialRejected",
+                    StrategyDebugLogger.F("resident", funeral.Snapshot.FullName),
+                    StrategyDebugLogger.F("residentId", funeral.Snapshot.ResidentId),
+                    StrategyDebugLogger.F("reason", "corpse_not_delivered"),
+                    StrategyDebugLogger.F("corpseDistance", GetCorpseDistanceToGrave(funeral)),
+                    StrategyDebugLogger.F("graveCell", funeral.GraveCell));
+                funeral.Stage = FuneralStage.Procession;
+                funeral.Timer = CarrierRetrySeconds;
+                return;
+            }
+
+            funeral.Corpse.SetBurialWorld(funeral.GraveWorld);
+            funeral.Corpse.StartBurial();
+            funeral.Stage = FuneralStage.Burial;
+            funeral.Timer = BurialSeconds;
+
+            StartBurialPoses(funeral);
+
+            StrategyDebugLogger.Info(
+                "Funeral",
+                "BurialStarted",
+                StrategyDebugLogger.F("resident", funeral.Snapshot.FullName),
+                StrategyDebugLogger.F("reason", reason),
+                StrategyDebugLogger.F("arrived", CountResidentsNear(funeral.ExpectedBurialAttendees, funeral.GraveWorld, ArrivalDistance)),
+                StrategyDebugLogger.F("expectedBurialAttendees", funeral.ExpectedBurialAttendees.Count),
+                StrategyDebugLogger.F("graveCell", funeral.GraveCell));
         }
 
         private void StartBurialPoses(FuneralProcess funeral)
@@ -67,6 +102,7 @@ namespace ProjectUnknown.Strategy
                 StrategyResidentAgent resident = residents[i];
                 if (resident != null
                     && resident.CanWork
+                    && !resident.IsFuneralDutyActive
                     && !funeral.Carriers.Contains(resident)
                     && resident.ResidentId != funeral.Snapshot.ResidentId)
                 {
@@ -203,10 +239,22 @@ namespace ProjectUnknown.Strategy
 
         private void CompleteFuneralWithoutGrave(FuneralProcess funeral)
         {
+            ReleaseReservedGrave(funeral);
             funeral.Corpse.CompleteBurial();
             EndFuneralDuties(funeral.Participants);
             EndFuneralDuties(funeral.Carriers);
-            activeFuneral = null;
+            funeral.Completed = true;
+        }
+
+        private void ReleaseReservedGrave(FuneralProcess funeral)
+        {
+            if (funeral == null || !funeral.HasReservedGrave || cemetery == null)
+            {
+                return;
+            }
+
+            cemetery.ReleaseGraveReservation(funeral.GraveCell);
+            funeral.HasReservedGrave = false;
         }
 
         private static void FilterLiveResidents(List<StrategyResidentAgent> residents)

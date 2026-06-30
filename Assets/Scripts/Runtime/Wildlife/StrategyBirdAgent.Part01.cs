@@ -317,6 +317,24 @@ namespace ProjectUnknown.Strategy
             SyncShadowRenderer();
         }
 
+        internal void RefreshFogVisibility(StrategyFogOfWarController visibilityFog)
+        {
+            bool visible = visibilityFog == null
+                || (map != null
+                    && map.TryWorldToCell(groundWorld, out Vector2Int cell)
+                    && visibilityFog.IsCellVisible(cell));
+            SetRendererEnabled(spriteRenderer, visible);
+            SetRendererEnabled(shadowRenderer, visible);
+        }
+
+        private static void SetRendererEnabled(SpriteRenderer renderer, bool enabled)
+        {
+            if (renderer != null)
+            {
+                renderer.enabled = enabled;
+            }
+        }
+
         private Vector3 GetJitteredCellWorld(Vector2Int cell, int salt, float amount)
         {
             Vector3 world = map.GetCellCenterWorld(cell.x, cell.y);

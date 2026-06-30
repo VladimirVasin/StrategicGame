@@ -22,7 +22,9 @@ namespace ProjectUnknown.Strategy
             for (int i = 0; i < participants.Count; i++)
             {
                 StrategyResidentAgent participant = participants[i];
-                if (participant == null)
+                if (participant == null
+                    || participant.IsFuneralDutyActive
+                    || participant.ResidentId == funeral.Snapshot.ResidentId)
                 {
                     continue;
                 }

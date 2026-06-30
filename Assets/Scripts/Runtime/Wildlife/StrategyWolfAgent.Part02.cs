@@ -128,6 +128,30 @@ namespace ProjectUnknown.Strategy
             UpdateSwimmingVisual();
         }
 
+        internal void RefreshFogVisibility(StrategyFogOfWarController visibilityFog)
+        {
+            bool visible = visibilityFog == null
+                || (TryGetCurrentCell(out Vector2Int cell) && visibilityFog.IsCellVisible(cell));
+            SetRendererEnabled(spriteRenderer, visible);
+            SetRendererEnabled(outlineRenderer, visible);
+            SetRendererEnabled(shadowRenderer, visible);
+            SetRendererEnabled(swimRippleRenderer, visible);
+
+            CircleCollider2D collider = GetComponent<CircleCollider2D>();
+            if (collider != null)
+            {
+                collider.enabled = visible;
+            }
+        }
+
+        private static void SetRendererEnabled(SpriteRenderer renderer, bool enabled)
+        {
+            if (renderer != null)
+            {
+                renderer.enabled = enabled;
+            }
+        }
+
         private static Sprite CreateReadabilityShadowSprite()
         {
             const int width = 42;

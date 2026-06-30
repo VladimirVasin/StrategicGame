@@ -25,6 +25,7 @@ namespace ProjectUnknown.Strategy
         };
 
         private readonly List<Vector2Int> graves = new();
+        private readonly HashSet<Vector2Int> reservedGraves = new();
         private CityMapController map;
         private StrategyPopulationController population;
         private Transform graveRoot;
@@ -70,8 +71,14 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
+            reservedGraves.Add(cell);
             world = map.GetCellCenterWorld(cell.x, cell.y);
             return true;
+        }
+
+        public void ReleaseGraveReservation(Vector2Int cell)
+        {
+            reservedGraves.Remove(cell);
         }
 
         public void CreateGrave(StrategyResidentDeathSnapshot snapshot, Vector2Int cell)
@@ -82,6 +89,7 @@ namespace ProjectUnknown.Strategy
             }
 
             EnsureGraveRoot();
+            reservedGraves.Remove(cell);
             graves.Add(cell);
             map.SetCellsWalkable(cell, Vector2Int.one, false);
 
@@ -193,6 +201,7 @@ namespace ProjectUnknown.Strategy
         {
             if (IsValidGraveCell(centerCell)
                 && !graves.Contains(centerCell)
+                && !reservedGraves.Contains(centerCell)
                 && HasReachableStandCells(centerCell, reachableCells, requiredStandCells))
             {
                 cell = centerCell;
@@ -214,6 +223,7 @@ namespace ProjectUnknown.Strategy
                         Vector2Int candidate = centerCell + new Vector2Int(x, y);
                         if (IsValidGraveCell(candidate)
                             && !graves.Contains(candidate)
+                            && !reservedGraves.Contains(candidate)
                             && HasReachableStandCells(candidate, reachableCells, requiredStandCells))
                         {
                             candidates.Add(candidate);

@@ -223,6 +223,24 @@ namespace ProjectUnknown.Strategy
                 emitter.ConfigureForCampfire(campfire);
                 emitters.Add(emitter);
             }
+
+            StrategyRoadsideLightSource[] roadsideLights = Object.FindObjectsByType<StrategyRoadsideLightSource>();
+            for (int i = 0; i < roadsideLights.Length; i++)
+            {
+                StrategyRoadsideLightSource roadsideLight = roadsideLights[i];
+                if (roadsideLight == null)
+                {
+                    continue;
+                }
+
+                if (!roadsideLight.TryGetComponent(out StrategyCinematicLightEmitter emitter))
+                {
+                    emitter = roadsideLight.gameObject.AddComponent<StrategyCinematicLightEmitter>();
+                }
+
+                emitter.ConfigureForRoadsideLight(roadsideLight);
+                emitters.Add(emitter);
+            }
         }
 
         private void RefreshEmitterLods(Rect view)

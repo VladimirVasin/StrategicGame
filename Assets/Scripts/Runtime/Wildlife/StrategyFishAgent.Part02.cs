@@ -282,6 +282,22 @@ namespace ProjectUnknown.Strategy
             SyncRippleRenderer();
         }
 
+        internal void RefreshFogVisibility(StrategyFogOfWarController visibilityFog)
+        {
+            bool visible = visibilityFog == null
+                || (TryGetCurrentCell(out Vector2Int cell) && visibilityFog.IsCellVisible(cell));
+            SetRendererEnabled(spriteRenderer, visible);
+            SetRendererEnabled(rippleRenderer, visible);
+        }
+
+        private static void SetRendererEnabled(SpriteRenderer renderer, bool enabled)
+        {
+            if (renderer != null)
+            {
+                renderer.enabled = enabled;
+            }
+        }
+
         private static Sprite CreateRippleSprite()
         {
             const int width = 40;

@@ -123,6 +123,11 @@ namespace ProjectUnknown.Strategy
             }
 
             byte oldLevel = routeLevels[cell.x, cell.y];
+            if (oldLevel <= 0 && WouldCompleteRouteSquare(cell))
+            {
+                return false;
+            }
+
             float oldWear = routeWear[cell.x, cell.y];
             routeWear[cell.x, cell.y] = MaxWear;
             routeLastTraversalTimes[cell.x, cell.y] = Time.time;
@@ -137,7 +142,33 @@ namespace ProjectUnknown.Strategy
             routeLevels[cell.x, cell.y] = newLevel;
             RecordRouteLevelChange(cell, oldLevel, newLevel, oldWear, MaxWear, "route_completed");
             RefreshCellAndNeighbors(cell);
+            QueueRoadsideRefreshAround(cell);
             return true;
+        }
+
+        private bool WouldCompleteRouteSquare(Vector2Int cell)
+        {
+            for (int dx = -1; dx <= 0; dx++)
+            {
+                for (int dy = -1; dy <= 0; dy++)
+                {
+                    Vector2Int corner = new Vector2Int(cell.x + dx, cell.y + dy);
+                    if (HasRouteSquareCell(corner, cell)
+                        && HasRouteSquareCell(corner + Vector2Int.right, cell)
+                        && HasRouteSquareCell(corner + Vector2Int.up, cell)
+                        && HasRouteSquareCell(corner + Vector2Int.one, cell))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private bool HasRouteSquareCell(Vector2Int squareCell, Vector2Int candidate)
+        {
+            return squareCell == candidate || GetRawRouteTrailLevel(squareCell) > 0;
         }
 
         private void PruneInvalidRouteRoads()
@@ -162,6 +193,7 @@ namespace ProjectUnknown.Strategy
                     routeDecayClearCells.Add(key);
                     RecordRouteInvalidated(cell, oldInvalidLevel, currentWear);
                     RefreshCellAndNeighbors(cell);
+                    QueueRoadsideRefreshAround(cell);
                     continue;
                 }
             }
@@ -216,6 +248,7 @@ namespace ProjectUnknown.Strategy
 
             activeRouteCells.Clear();
             routeDecayClearCells.Clear();
+            ClearRoadsideProps();
             routeTraversalCounts.Clear();
             canonicalRouteCells.Clear();
             routeWear = new float[map.Width, map.Height];

@@ -8,6 +8,40 @@ Last updated: 2026-06-30
 
 ## Done
 
+### 2026-06-30 - Wildlife current-visibility rendering
+
+- Wildlife controller now refreshes deer, rabbits, fish, birds, and wolves against Fog of War current `IsCellVisible` state, hiding their body/readability/shadow/ripple renderers outside currently visible cells while leaving simulation, spawning, migration, hunting, and reproduction rules unchanged.
+- Bird visibility is checked against the current ground-projection cell, and the wolf click collider is disabled while the wolf is hidden so invisible wolves are not inspectable in explored fog.
+- Verification: `git diff --check` passed with only the existing CRLF warning for `Assembly-CSharp.csproj`; `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-06-30 - Wildlife migration and no-storage Pottery guards
+
+- Wildlife migration target selection now prevalidates land-region connectivity plus an immediately viable first step before committing a target, so groups avoid starting routes that would abort on the next migration tick.
+- Failed wildlife migration targets now cool down a small nearby-cell radius instead of only the exact target cell, reducing repeated retarget attempts around the same blocked pocket.
+- Household Pottery pickup now skips Storage Yard reservation attempts while no active Storage Yard exists, uses a separate Pottery cooldown, and clears the no-yard wait as soon as a Storage Yard appears so raw household food pickup remains available.
+- Verification: `git diff --check` passed with only the existing CRLF warning for `Assembly-CSharp.csproj`; `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-06-30 - Parallel funeral processions
+
+- Replaced the single active funeral plus queue with multiple simultaneously updated funeral processes, so a second death no longer leaves mourners visually waiting for another burial to finish.
+- Kept funeral participation exclusive per resident by skipping residents already in active funeral duty when recalling family, picking fallback carriers, or choosing service carriers.
+- Added cemetery grave reservations so parallel funerals cannot choose the same grave cell before a grave sprite is created, and release reservations on retry/failure cleanup.
+- Changed grave-side burial gating so delivered bodies can be buried once carriers are ready; non-carrier mourners may still attend and pose, but no longer block burial until timeout.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-06-30 - Route-road square block rejection
+
+- Analyzed the latest `debug.log`: the remaining visible road squares came from a later Caravan Cart-to-House route adding the fourth cell of two existing 2x2 road blocks at `95,94` and `96,94`.
+- Added a route-road recording guard that rejects new route cells when they would complete a full 2x2 block against the active route network, so diagonal route bridges can reuse existing neighboring roads without creating square pockets.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-06-30 - Roadside torch props for route roads
+
+- Added a derived roadside-prop layer for completed route roads: straight road cells can spawn sparse non-blocking roadside torch/lantern objects, using deterministic cadence and side selection while avoiding occupied/build-blocked side cells.
+- Connected roadside light sources to the existing cinematic light emitter scan, with a `RoadsideTorch` light profile, LOD-capped local lights, night darkness mask cutouts, and animated lantern sprites while leaving road pathfinding and road cells unchanged.
+- Split cinematic light profile helpers into `StrategyCinematicLightEmitter.Profile.cs` so the existing emitter stayed below the 500-line C# limit.
+- Verification: `git diff --check` passed except the existing CRLF normalization warning for `Assembly-CSharp.csproj`; `dotnet build` and direct Visual Studio MSBuild could not run because this machine has no .NET SDK / `Microsoft.NET.Sdk` installed.
+
 ### 2026-06-30 - Direct-first road route capture
 
 - Analyzed `debug.log`: square-looking road segments came from first-time building routes whose captured paths already contained long orthogonal detours, such as House-to-Caravan and Forager-to-House routes with 14-25 route cells.

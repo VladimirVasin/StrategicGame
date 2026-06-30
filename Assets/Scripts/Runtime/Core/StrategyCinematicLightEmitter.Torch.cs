@@ -72,7 +72,7 @@ namespace ProjectUnknown.Strategy
 
         private bool CanRenderTorch()
         {
-            return building != null && kind != StrategyCinematicLightKind.Campfire;
+            return (building != null || roadsideLight != null) && kind != StrategyCinematicLightKind.Campfire;
         }
 
         private float GetLightStateFactor()
@@ -156,6 +156,7 @@ namespace ProjectUnknown.Strategy
                 StrategyCinematicLightKind.Storage => StrategyBuildingLightSpriteKind.Lantern,
                 StrategyCinematicLightKind.Granary => StrategyBuildingLightSpriteKind.Lantern,
                 StrategyCinematicLightKind.Bridge => StrategyBuildingLightSpriteKind.BridgeLamp,
+                StrategyCinematicLightKind.RoadsideTorch => StrategyBuildingLightSpriteKind.Lantern,
                 _ => StrategyBuildingLightSpriteKind.WallTorch
             };
         }

@@ -212,6 +212,7 @@ namespace ProjectUnknown.Strategy
             UpdateRiverFishSpawning(scaledDt);
             UpdateWildlifeMigration(scaledDt);
             UpdateHunterCampSupportSpawning(scaledDt);
+            UpdateWildlifeFogVisibility();
         }
 
         public void Configure(
@@ -292,6 +293,7 @@ namespace ProjectUnknown.Strategy
             int spawnedFishShoals = GenerateFish(targetFish);
             int spawnedBirds = GenerateBirds(targetBirds);
             int lakeFishCapacity = GetTotalLakeFishCapacity();
+            UpdateWildlifeFogVisibility();
 
             StrategyDebugLogger.Info(
                 "Wildlife",
@@ -411,6 +413,39 @@ namespace ProjectUnknown.Strategy
             }
 
             return count;
+        }
+
+        private void UpdateWildlifeFogVisibility()
+        {
+            if (fog == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < deer.Count; i++)
+            {
+                deer[i]?.RefreshFogVisibility(fog);
+            }
+
+            for (int i = 0; i < rabbits.Count; i++)
+            {
+                rabbits[i]?.RefreshFogVisibility(fog);
+            }
+
+            for (int i = 0; i < fish.Count; i++)
+            {
+                fish[i]?.RefreshFogVisibility(fog);
+            }
+
+            for (int i = 0; i < birds.Count; i++)
+            {
+                birds[i]?.RefreshFogVisibility(fog);
+            }
+
+            for (int i = 0; i < wolves.Count; i++)
+            {
+                wolves[i]?.RefreshFogVisibility(fog);
+            }
         }
 
     }

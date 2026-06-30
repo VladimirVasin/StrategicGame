@@ -9,6 +9,7 @@ namespace ProjectUnknown.Strategy
         Kiln,
         Forge,
         Bridge,
+        RoadsideTorch,
         Worksite,
         Storage,
         Granary

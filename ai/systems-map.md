@@ -57,6 +57,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Core/StrategyCinematicVisualController.Part03.cs`
 - `Assets/Scripts/Runtime/Core/StrategyBuildingLightSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Core/StrategyCinematicLightEmitter.cs`
+- `Assets/Scripts/Runtime/Core/StrategyCinematicLightEmitter.Profile.cs`
 - `Assets/Scripts/Runtime/Core/StrategyCinematicLightEmitter.Torch.cs`
 - `Assets/Scripts/Runtime/Core/StrategyCinematicVisualMath.cs`
 - `Assets/Scripts/Runtime/Core/StrategyCinematicVisualSprites.cs`
@@ -141,6 +142,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Core/StrategyCinematicVisualController.cs`
 - `Assets/Scripts/Runtime/Core/StrategyCinematicVisualController.Part01.cs`
 - `Assets/Scripts/Runtime/Core/StrategyCinematicLightEmitter.cs`
+- `Assets/Scripts/Runtime/Core/StrategyCinematicLightEmitter.Profile.cs`
 - `Assets/Scripts/Runtime/Weather/StrategyWeatherKind.cs`
 - `Assets/Scripts/Runtime/Weather/StrategyWeatherController.cs`
 - `Assets/Scripts/Runtime/Weather/StrategyWeatherVisualController.cs`
@@ -154,11 +156,15 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.Diagnostics.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.Network.cs`
+- `Assets/Scripts/Runtime/Map/StrategyTrailController.Roadside.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.Routes.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.Visibility.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailPathfinder.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailRouteCellBuilder.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailSpriteFactory.cs`
+- `Assets/Scripts/Runtime/Map/StrategyRoadsideLightSource.cs`
+- `Assets/Scripts/Runtime/Map/StrategyRoadsidePropController.cs`
+- `Assets/Scripts/Runtime/Map/StrategyRoadsidePropPlanner.cs`
 - `Assets/Scripts/Runtime/Map/StrategyStoneResourceController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyForageResourceController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyWindController.cs`
@@ -298,6 +304,7 @@ Responsibilities:
 - Track completed resident movement between different non-Bridge placed buildings as immediate stable road cells after one real traversal.
 - Keep resident footfalls from creating functional or visible roads, and keep automatic route-network convergence disabled.
 - Prune road cells only when map walkability or cell validity invalidates them; roads do not decay from disuse.
+- Spawn sparse non-blocking roadside torch props from eligible straight route-road cells, refreshing the derived prop layer when roads or adjacent buildability change.
 - Expose formed roads as a 15% resident movement-speed bonus and a reduced resident pathfinding cost.
 - Feed generated cell kinds and active seed into the visual nature-props layer.
 - Feed generated land cells and active seed into Stone deposit generation.
@@ -323,11 +330,15 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.Diagnostics.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.Network.cs`
+- `Assets/Scripts/Runtime/Map/StrategyTrailController.Roadside.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.Routes.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.Visibility.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailPathfinder.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailRouteCellBuilder.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailSpriteFactory.cs`
+- `Assets/Scripts/Runtime/Map/StrategyRoadsideLightSource.cs`
+- `Assets/Scripts/Runtime/Map/StrategyRoadsidePropController.cs`
+- `Assets/Scripts/Runtime/Map/StrategyRoadsidePropPlanner.cs`
 - `Assets/Scripts/Runtime/Map/StrategyMapDistributionUtility.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTerrainTexturePainter.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTerrainTexturePainter.Relief.cs`
@@ -376,7 +387,7 @@ Impact hints:
 - Future movement/pathfinding should use `IsCellWalkable` rather than terrain kind alone.
 - Rendering is currently a generated point-filtered texture on a `SpriteRenderer`, not a Tilemap.
 - Water and shore animation is a separate transparent `SpriteRenderer` overlay above the static map and below world props; it reads active weather intensity for rain ripple hits and repaints only cached water/shore cells after setup.
-- Trail visuals use one `SpriteRenderer` per visible route-road cell under a `Trail Visuals` root, sorted above terrain/water overlays and below world props, with cardinal N/E/S/W right-angle masks and narrow line/brush sprites; visual road formation comes from direct-first completed building-to-building traversals rather than per-step footfall squares, raw A* detours, or background network convergence.
+- Trail visuals use one `SpriteRenderer` per visible route-road cell under a `Trail Visuals` root, sorted above terrain/water overlays and below world props, with cardinal N/E/S/W right-angle masks and narrow line/brush sprites; visual road formation comes from direct-first completed building-to-building traversals rather than per-step footfall squares, raw A* detours, or background network convergence. Roadside torch props are generated under a separate `Roadside Props` root and should remain visual-only, non-blocking derivatives of route-road cells.
 - Road cells are runtime-only and should be refreshed when map walkability or cell validity changes so blocked cells do not keep visible or functional roads.
 - Resident pathfinding should continue to use the shared road-aware pathfinder, reading functional road cells as a cost preference rather than required connectivity.
 
@@ -613,13 +624,14 @@ Impact hints:
 - Deer and birds do not reveal fog or block walkability; adult deer can yield `Game` only after the Hunter Camp upgrade, rabbits can yield `Game` through the base hunter-camp work loop, fish can yield `Fish` through the fisher-hut work loop, and wolves are predators rather than player-harvestable resources.
 - Initial rabbit spawn, deer herds, fish shoals, birds, and wolf packs depend on hidden near-settlement candidate cells instead of map-wide placement; if no hidden candidate exists for a species, that species should skip spawning rather than appearing far from buildings or inside visible fog.
 - Wildlife hidden checks use fog daylight-range visibility, not reduced nighttime current visibility, so animals do not spawn closer to the settlement just because night lowered player sight radius.
+- Wildlife rendering uses fog current visibility: animal bodies, readability overlays, shadows, ripples, and wolf click colliders are hidden outside cells visible right now, even if those cells are already explored.
 - Hunter Camp support spawns must remain hidden/daylight-valid, outside the near-building inner ring, inside `StrategyHunterCamp.WorkRadius`, and below local density plus global population caps.
 - Deer pathing depends on the wildlife land-travel predicate plus a separate land-target predicate, which wraps `CityMapController.IsCellWalkable`, River transit allowance, and the 4-cell structure buffer.
 - Rabbit pathing uses the same local wildlife land-travel and land-target approach and should stay cheap until a shared pathfinding service exists; repeated same-threat alert/flee reactions are throttled so rabbits do not rebuild flee paths every threat check.
 - Land wildlife river crossing is intentionally scoped to wildlife path helpers through `StrategyWildlifeRiverCrossing`; River cells are transit-only for deer/rabbit/wolf paths and should not become final wildlife targets. Do not change global `CityMapController` walkability to make River water walkable for residents, buildings, or construction.
 - Fish pathing uses `CityMapCellKind.Water` plus `CityMapWaterKind` instead of `IsCellWalkable`, because water is intentionally not walkable for land agents and lake/river fish now have separate movement rules.
-- Migration state is owned by `StrategyWildlifeController`; agents only expose small retarget methods for their current home/roam center, and migration targets must stay in currently hidden near-settlement candidate cells connected to the current land-wildlife travel region.
-- Failed wildlife migration targets enter a short cooldown before they can be selected again; keep this guard before committing targets so repeated abort loops do not spam logs or pathfinding.
+- Migration state is owned by `StrategyWildlifeController`; agents only expose small retarget methods for their current home/roam center, and migration targets must stay in currently hidden near-settlement candidate cells connected to the current land-wildlife travel region with an immediately viable first step.
+- Failed wildlife migration targets enter a short nearby-cell cooldown before the area can be selected again; keep this guard before committing targets so repeated abort loops do not spam logs or pathfinding.
 - Reproduction is owned by `StrategyWildlifeController`; deer/rabbit/fish birth cells must be currently hidden and near settlement anchors, while agents own species or sex, life stage, growth, movement, and animation state. Birds are decorative and do not reproduce yet; wolves do not reproduce yet and use pack spawn only.
 - Wolf settlement avoidance is pressure-based and reads camp position, placed buildings, active construction sites, and nearby residents; land wildlife pathing also uses the cached structure buffer, so keep it cheaper than per-frame global scans.
 - Wolf prey lookup is population-control logic, not continuous hunting: rabbit hunting only starts above the rabbit control threshold after subtracting predator and hunter reservations, and deer hunting only starts above the deer control threshold after subtracting predator reservations.
@@ -1423,7 +1435,7 @@ Responsibilities:
 - Find Sawmills with available stored Planks and reserve stock for haulers.
 - Find Kilns with available stored Pottery and reserve stock for haulers.
 - Find Forges with available stored Tools and reserve stock for haulers.
-- Reserve Pottery from Storage Yard stock for householder pickup by houses that need it for Dish cooking.
+- Check for at least one active Storage Yard before householder Pottery reservation attempts, then reserve Pottery from Storage Yard stock for houses that need it for Dish cooking.
 - Find Hunter Camps/Fisher Huts/Forager Camps or loose food piles with available `Game`/`Fish`/forage food and reserve food for delivery to the nearest Granary.
 - Find loose construction resource piles and reserve Logs/Stone/Planks for haulers after construction cancellation.
 - Reserve Logs/Stone/Planks for accepted construction sites.
@@ -1712,7 +1724,7 @@ Responsibilities:
 - Send housed idle residents home to sleep inside during the `Night` phase by hiding their world sprite/collider until morning, while leaving homeless residents outside with a visible `Zzz...` sleep indicator.
 - Resolve one nightly household dinner from prepared house `Dish`, using resident age-based ration needs after eligible residents return home for `Night`.
 - Send Householders to fetch reserved raw `Fish`/`Game`/forage food from reachable Granaries into their own house when ingredient reserves are low, then from the starter Caravan Cart while it has food, or from reachable Hunter/Fisher/Forager production stock when no stored food is available.
-- Send Householders to fetch Pottery from Storage Yards and cook stored ingredients plus 1 Pottery per prepared `Dish` during `Dusk` when dinner coverage is low.
+- Send Householders to fetch Pottery from active Storage Yards and cook stored ingredients plus 1 Pottery per prepared `Dish` during `Dusk` when dinner coverage is low; keep Pottery retry cooldown separate from raw-food pickup.
 - Track per-resident nutrition debt, days hungry, hungry/starving status, and recovery when nightly dinner needs are met.
 - Grow children into adults after scaled game time.
 - Continue resident aging after adulthood.
@@ -1721,9 +1733,10 @@ Responsibilities:
 - Block resident death attempts while the resident is in active funeral duty, preventing carrier/attendee death from freezing the funeral controller.
 - Remove dead residents from homes, work assignments, construction assignments, active reservations, live population counts, and selected-HUD targets.
 - Create resident death snapshots and animated corpses when residents die.
-- Gather close family/household funeral participants for mourning, procession, and burial.
+- Run multiple funeral processes at the same time while keeping each resident in at most one active funeral duty.
+- Gather available close family/household funeral participants for mourning, procession, and optional burial attendance.
 - Run silent service burials with one nearby adult carrier when no living family/household funeral participants exist.
-- Create a spontaneous cemetery away from the settlement and reserve carrier-reachable grave cells for burials.
+- Create a spontaneous cemetery away from the settlement and reserve carrier-reachable grave cells for parallel burials.
 - Create clickable grave sprites after burial and mark grave cells as not walkable.
 - Temporarily interrupt resident tasks for funeral activities without permanently removing workplace roles.
 - Move the oldest adult child still living with parents into empty houses.
@@ -1886,14 +1899,14 @@ Impact hints:
 - Resident names are assigned at runtime from built-in first-name and family-name pools.
 - Startup residents spawn as family-linked adults; children born during play start at age 0, stay inside assigned homes until age 3, become adults at age 16 through scaled game time, and continue aging after adulthood.
 - `StrategyPopulationController` owns the live resident ID registry plus persistent family records used by kinship lookup after deaths.
-- Resident death should continue to flow through `StrategyPopulationController` so death snapshots, assignment cleanup, selection cleanup, funeral queuing, and family records stay in one path.
+- Resident death should continue to flow through `StrategyPopulationController` so death snapshots, assignment cleanup, selection cleanup, funeral startup, and family records stay in one path.
 - Active funeral duty is a hard death guard in the central population death path; future funeral recovery work can replace this only after carrier/attendee death is safely handled.
-- `StrategyFuneralController` owns the runtime funeral state machine; it should stay separate from normal workplace AI and should only use public resident funeral hooks.
-- Service burials are selected when a funeral has no living family/household participants; they use one silent adult carrier chosen from the nearest eligible adults and should not start crying/mourning poses.
-- `StrategyFuneralController` keeps only movers with started funeral paths in family/attendee lists, tries nearby corpse/grave stand positions before rejection, and builds a carrier reachable-cell set before reserving a grave; funeral resident movement must fail rather than fall back to direct world movement when no walkable path exists.
+- `StrategyFuneralController` owns the runtime funeral state machines; parallel funeral processes should stay separate from normal workplace AI and should only use public resident funeral hooks.
+- Service burials are selected when a funeral has no living available family/household participants; they use one silent adult carrier chosen from the nearest eligible non-funeral-duty adults and should not start crying/mourning poses.
+- `StrategyFuneralController` keeps only movers with started funeral paths in family/attendee lists, tries nearby corpse/grave stand positions before rejection, skips residents already in other active funeral duties, and builds a carrier reachable-cell set before reserving a grave; funeral resident movement must fail rather than fall back to direct world movement when no walkable path exists.
 - Funeral processions drag the corpse behind a primary carrier with a visible rope and clamp the corpse within one map-cell distance from that carrier.
-- Burial starts after reachable expected attendees gather around the reserved grave or after the grave-gather timeout prevents a deadlock.
-- `StrategyCemeteryController` owns spontaneous cemetery placement and grave reservation; graves are world blockers and clickable markers, so map walkability and grave HUD data must be updated when grave cells are created.
+- Burial starts once the corpse and carriers are ready at the reserved grave; non-carrier mourners can attend and pose but no longer block burial until timeout.
+- `StrategyCemeteryController` owns spontaneous cemetery placement plus pending grave reservations; graves are world blockers and clickable markers, so map walkability and grave HUD data must be updated when grave cells are created.
 - Cemetery placement should remain away from active settlement space without drifting to extreme map edges; current scoring favors a moderate camp distance, penalizes edge cells, and rejects grave candidates without enough carrier-reachable stand cells.
 - `StrategyPopulationController` also owns the runtime house registry used for free-house migration and partner retry checks.
 - Pending refugee families are rendered as resident agents but are not counted as residents, workers, or fog sources until accepted.

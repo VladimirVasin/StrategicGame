@@ -26,12 +26,11 @@ namespace ProjectUnknown.Strategy
             new Vector2Int(0, -1)
         };
 
-        private readonly Queue<FuneralProcess> queuedFunerals = new();
+        private readonly List<FuneralProcess> activeFunerals = new();
         private CityMapController map;
         private StrategyPopulationController population;
         private StrategyCemeteryController cemetery;
         private Transform corpseRoot;
-        private FuneralProcess activeFuneral;
 
         private enum FuneralStage
         {
@@ -56,6 +55,8 @@ namespace ProjectUnknown.Strategy
             public Vector3 GraveWorld;
             public float Timer;
             public bool Dispatched;
+            public bool HasReservedGrave;
+            public bool Completed;
         }
 
         public void Configure(CityMapController mapController, StrategyPopulationController populationController)
@@ -89,42 +90,46 @@ namespace ProjectUnknown.Strategy
                 Corpse = corpse,
                 Stage = FuneralStage.WaitingForCorpse
             };
-            RecallFamilyForFuneral(process, "death");
-            queuedFunerals.Enqueue(process);
+            activeFunerals.Add(process);
 
             StrategyDebugLogger.Info(
                 "Funeral",
-                "FuneralQueued",
+                "FuneralStarted",
                 StrategyDebugLogger.F("resident", snapshot.FullName),
                 StrategyDebugLogger.F("residentId", snapshot.ResidentId),
-                StrategyDebugLogger.F("queued", queuedFunerals.Count));
+                StrategyDebugLogger.F("activeFunerals", activeFunerals.Count));
+            RecallFamilyForFuneral(process, "death");
         }
 
         private void Update()
         {
-            if (activeFuneral == null)
+            for (int i = activeFunerals.Count - 1; i >= 0; i--)
             {
-                if (queuedFunerals.Count <= 0)
+                FuneralProcess funeral = activeFunerals[i];
+                if (funeral == null)
                 {
-                    return;
+                    activeFunerals.RemoveAt(i);
+                    continue;
                 }
 
-                activeFuneral = queuedFunerals.Dequeue();
-                StrategyDebugLogger.Info(
-                    "Funeral",
-                    "FuneralStarted",
-                    StrategyDebugLogger.F("resident", activeFuneral.Snapshot.FullName),
-                    StrategyDebugLogger.F("residentId", activeFuneral.Snapshot.ResidentId));
+                UpdateActiveFuneral(funeral);
+                if (funeral.Completed)
+                {
+                    activeFunerals.RemoveAt(i);
+                }
             }
-
-            UpdateActiveFuneral(activeFuneral);
         }
 
         private void UpdateActiveFuneral(FuneralProcess funeral)
         {
             if (funeral == null || funeral.Corpse == null)
             {
-                activeFuneral = null;
+                if (funeral != null)
+                {
+                    ReleaseReservedGrave(funeral);
+                    funeral.Completed = true;
+                }
+
                 return;
             }
 
@@ -235,6 +240,7 @@ namespace ProjectUnknown.Strategy
 
             funeral.GraveCell = graveCell;
             funeral.GraveWorld = new Vector3(graveWorld.x, graveWorld.y, -0.09f);
+            funeral.HasReservedGrave = true;
             DispatchProcession(funeral);
         }
 
@@ -242,6 +248,10 @@ namespace ProjectUnknown.Strategy
         {
             if (funeral.Carriers.Count <= 0)
             {
+                ReleaseReservedGrave(funeral);
+                EndFuneralDuties(funeral.ExpectedBurialAttendees);
+                funeral.ExpectedBurialAttendees.Clear();
+                funeral.PrimaryCarrier = null;
                 funeral.Stage = FuneralStage.Mourning;
                 funeral.Timer = CarrierRetrySeconds;
                 StrategyDebugLogger.Warn(
@@ -292,6 +302,7 @@ namespace ProjectUnknown.Strategy
             funeral.Carriers.AddRange(startedCarriers);
             if (funeral.Carriers.Count <= 0)
             {
+                ReleaseReservedGrave(funeral);
                 funeral.Stage = FuneralStage.Mourning;
                 funeral.Timer = CarrierRetrySeconds;
                 StrategyDebugLogger.Warn(
@@ -349,6 +360,7 @@ namespace ProjectUnknown.Strategy
         {
             if (funeral.Carriers.Count <= 0)
             {
+                ReleaseReservedGrave(funeral);
                 funeral.Stage = FuneralStage.Mourning;
                 funeral.Timer = CarrierRetrySeconds;
                 StrategyDebugLogger.Warn(
@@ -381,6 +393,11 @@ namespace ProjectUnknown.Strategy
                     StrategyDebugLogger.F("corpseDistance", GetCorpseDistanceToGrave(funeral)),
                     StrategyDebugLogger.F("graveCell", funeral.GraveCell));
 
+                ReleaseReservedGrave(funeral);
+                EndFuneralDuties(funeral.ExpectedBurialAttendees);
+                funeral.Carriers.Clear();
+                funeral.ExpectedBurialAttendees.Clear();
+                funeral.PrimaryCarrier = null;
                 funeral.Stage = FuneralStage.Mourning;
                 funeral.Timer = CarrierRetrySeconds;
                 funeral.Dispatched = false;
@@ -407,8 +424,25 @@ namespace ProjectUnknown.Strategy
             int arrived = CountResidentsNear(funeral.ExpectedBurialAttendees, funeral.GraveWorld, ArrivalDistance);
             bool allArrived = funeral.ExpectedBurialAttendees.Count <= 0
                 || arrived >= funeral.ExpectedBurialAttendees.Count;
-            if (!allArrived && funeral.Timer > 0f)
+            bool carriersReady = funeral.Carriers.Count <= 0
+                || AreResidentsNear(funeral.Carriers, funeral.GraveWorld, ArrivalDistance);
+            if (!carriersReady && funeral.Timer > 0f)
             {
+                return;
+            }
+
+            if (!carriersReady)
+            {
+                StrategyDebugLogger.Warn(
+                    "Funeral",
+                    "BurialDelayed",
+                    StrategyDebugLogger.F("resident", funeral.Snapshot.FullName),
+                    StrategyDebugLogger.F("residentId", funeral.Snapshot.ResidentId),
+                    StrategyDebugLogger.F("reason", "carriers_not_ready"),
+                    StrategyDebugLogger.F("graveCell", funeral.GraveCell));
+
+                funeral.Stage = FuneralStage.Procession;
+                funeral.Timer = CarrierRetrySeconds;
                 return;
             }
 
@@ -428,41 +462,8 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            BeginBurial(funeral, allArrived ? "family_gathered" : "gather_timeout");
+            BeginBurial(funeral, allArrived ? "family_gathered" : "carriers_ready");
         }
 
-        private void BeginBurial(FuneralProcess funeral, string reason)
-        {
-            if (!IsCorpseNearGrave(funeral))
-            {
-                StrategyDebugLogger.Warn(
-                    "Funeral",
-                    "BurialRejected",
-                    StrategyDebugLogger.F("resident", funeral.Snapshot.FullName),
-                    StrategyDebugLogger.F("residentId", funeral.Snapshot.ResidentId),
-                    StrategyDebugLogger.F("reason", "corpse_not_delivered"),
-                    StrategyDebugLogger.F("corpseDistance", GetCorpseDistanceToGrave(funeral)),
-                    StrategyDebugLogger.F("graveCell", funeral.GraveCell));
-                funeral.Stage = FuneralStage.Procession;
-                funeral.Timer = CarrierRetrySeconds;
-                return;
-            }
-
-            funeral.Corpse.SetBurialWorld(funeral.GraveWorld);
-            funeral.Corpse.StartBurial();
-            funeral.Stage = FuneralStage.Burial;
-            funeral.Timer = BurialSeconds;
-
-            StartBurialPoses(funeral);
-
-            StrategyDebugLogger.Info(
-                "Funeral",
-                "BurialStarted",
-                StrategyDebugLogger.F("resident", funeral.Snapshot.FullName),
-                StrategyDebugLogger.F("reason", reason),
-                StrategyDebugLogger.F("arrived", CountResidentsNear(funeral.ExpectedBurialAttendees, funeral.GraveWorld, ArrivalDistance)),
-                StrategyDebugLogger.F("expectedBurialAttendees", funeral.ExpectedBurialAttendees.Count),
-                StrategyDebugLogger.F("graveCell", funeral.GraveCell));
-        }
     }
 }

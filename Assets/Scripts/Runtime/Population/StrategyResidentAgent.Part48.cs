@@ -5,10 +5,14 @@ namespace ProjectUnknown.Strategy
     public sealed partial class StrategyResidentAgent
     {
         private const float HouseholdPotteryDebugLogCooldownSeconds = 6f;
+        private const float HouseholdPotteryNoStorageRetryCooldownMin = 26f;
+        private const float HouseholdPotteryNoStorageRetryCooldownMax = 44f;
 
         private StrategyStorageYard activeHouseholdPotteryYard;
         private StrategyPlacedBuilding activeHouseholdPotteryHome;
+        private float householdPotteryWorkCooldown;
         private float nextHouseholdPotteryDebugLogTime;
+        private bool householdPotteryWaitingForStorageYard;
 
         private bool TryStartHouseholdPotteryDelivery()
         {
@@ -30,6 +34,22 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
+            if (!StrategyStorageYard.HasAnyActiveYard())
+            {
+                householdPotteryWaitingForStorageYard = true;
+                householdPotteryWorkCooldown = Mathf.Max(
+                    householdPotteryWorkCooldown,
+                    Random.Range(HouseholdPotteryNoStorageRetryCooldownMin, HouseholdPotteryNoStorageRetryCooldownMax));
+                LogHouseholderPotteryPickupSkipped("no_storage_yards", demand, dailyNeed);
+                return false;
+            }
+
+            if (householdPotteryWaitingForStorageYard)
+            {
+                householdPotteryWaitingForStorageYard = false;
+                householdPotteryWorkCooldown = 0f;
+            }
+
             if (constructionSite != null)
             {
                 LogHouseholderPotteryPickupSkipped("construction_assignment", demand, dailyNeed);
@@ -48,7 +68,7 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            if (householdFoodWorkCooldown > 0f)
+            if (householdPotteryWorkCooldown > 0f)
             {
                 LogHouseholderPotteryPickupSkipped("cooldown", demand, dailyNeed);
                 return false;
@@ -73,7 +93,7 @@ namespace ProjectUnknown.Strategy
                     out int amount,
                     out Vector2Int pickupCell))
             {
-                householdFoodWorkCooldown = Random.Range(
+                householdPotteryWorkCooldown = Random.Range(
                     HouseholdFoodPickupRetryCooldownMin,
                     HouseholdFoodPickupRetryCooldownMax);
                 LogHouseholderPotteryPickupSkipped("no_reservable_pottery", demand, dailyNeed);
@@ -83,7 +103,7 @@ namespace ProjectUnknown.Strategy
             if (!TryBuildPathTo(pickupCell))
             {
                 yard.ReleaseHouseholdPotteryReservation(this);
-                householdFoodWorkCooldown = Random.Range(
+                householdPotteryWorkCooldown = Random.Range(
                     HouseholdFoodPickupRetryCooldownMin,
                     HouseholdFoodPickupRetryCooldownMax);
                 StrategyDebugLogger.Warn(
@@ -101,7 +121,7 @@ namespace ProjectUnknown.Strategy
             activity = ResidentActivity.MovingToHouseholdPotteryPickup;
             hasTarget = true;
             waitTimer = Random.Range(0.03f, 0.12f);
-            householdFoodWorkCooldown = Random.Range(
+            householdPotteryWorkCooldown = Random.Range(
                 HouseholdFoodPickupCooldownMin,
                 HouseholdFoodPickupCooldownMax);
             StrategyDebugLogger.Info(
@@ -235,7 +255,7 @@ namespace ProjectUnknown.Strategy
             transform.localRotation = Quaternion.identity;
             transform.localScale = Vector3.one;
             UseIdleSprite();
-            householdFoodWorkCooldown = Random.Range(
+            householdPotteryWorkCooldown = Random.Range(
                 HouseholdFoodPickupRetryCooldownMin,
                 HouseholdFoodPickupRetryCooldownMax);
             waitTimer = Random.Range(0.35f, 0.9f);
@@ -281,7 +301,7 @@ namespace ProjectUnknown.Strategy
             transform.localRotation = Quaternion.identity;
             transform.localScale = Vector3.one;
             UseIdleSprite();
-            householdFoodWorkCooldown = Random.Range(
+            householdPotteryWorkCooldown = Random.Range(
                 HouseholdFoodPickupRetryCooldownMin,
                 HouseholdFoodPickupRetryCooldownMax);
             waitTimer = Random.Range(0.35f, 0.9f);
@@ -329,7 +349,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("preparedRations", home.Resources.GetPreparedDishRations()),
                 StrategyDebugLogger.F("ingredientRations", home.Resources.GetTotalIngredientRationValue()),
                 StrategyDebugLogger.F("storageAvailable", StrategyStorageYard.CountAvailableHouseholdPottery()),
-                StrategyDebugLogger.F("cooldown", householdFoodWorkCooldown));
+                StrategyDebugLogger.F("cooldown", householdPotteryWorkCooldown));
         }
 
         private void LogHouseholderPotteryPickupCancelled(string reason, bool storeCarried)

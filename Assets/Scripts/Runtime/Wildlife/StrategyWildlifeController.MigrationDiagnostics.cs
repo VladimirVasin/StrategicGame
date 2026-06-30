@@ -7,6 +7,7 @@ namespace ProjectUnknown.Strategy
     {
         private const float MigrationAbortLogCooldownSeconds = 30f;
         private const float MigrationFailedTargetCooldownSeconds = 90f;
+        private const int MigrationFailedTargetCooldownRadius = 6;
 
         private readonly Dictionary<string, float> migrationAbortLogTimes = new();
         private readonly Dictionary<Vector2Int, float> migrationFailedTargetTimes = new();
@@ -50,7 +51,51 @@ namespace ProjectUnknown.Strategy
 
         private void RegisterMigrationTargetFailure(Vector2Int target)
         {
-            migrationFailedTargetTimes[target] = Time.realtimeSinceStartup + MigrationFailedTargetCooldownSeconds;
+            float nextTime = Time.realtimeSinceStartup + MigrationFailedTargetCooldownSeconds;
+            int radiusSqr = MigrationFailedTargetCooldownRadius * MigrationFailedTargetCooldownRadius;
+            for (int y = -MigrationFailedTargetCooldownRadius; y <= MigrationFailedTargetCooldownRadius; y++)
+            {
+                for (int x = -MigrationFailedTargetCooldownRadius; x <= MigrationFailedTargetCooldownRadius; x++)
+                {
+                    if (x * x + y * y > radiusSqr)
+                    {
+                        continue;
+                    }
+
+                    Vector2Int cell = target + new Vector2Int(x, y);
+                    if (map != null
+                        && (cell.x < 0 || cell.x >= map.Width || cell.y < 0 || cell.y >= map.Height))
+                    {
+                        continue;
+                    }
+
+                    migrationFailedTargetTimes[cell] = nextTime;
+                }
+            }
+        }
+
+        private bool IsViableMigrationTarget(
+            Vector2Int currentCenter,
+            Vector2Int candidate,
+            int step,
+            bool requireWalkableConnection,
+            System.Func<Vector2Int, bool> isCandidate,
+            System.Func<Vector2Int, float> scoreCandidate)
+        {
+            if (requireWalkableConnection
+                && !HasWalkableMigrationConnection(currentCenter, candidate, GetMigrationTargetMaxVisited(currentCenter, candidate)))
+            {
+                return false;
+            }
+
+            return TryPickMigrationStep(
+                currentCenter,
+                candidate,
+                step,
+                isCandidate,
+                scoreCandidate,
+                requireWalkableConnection,
+                out _);
         }
     }
 }

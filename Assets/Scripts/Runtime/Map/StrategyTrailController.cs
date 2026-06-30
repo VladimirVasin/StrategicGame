@@ -53,6 +53,7 @@ namespace ProjectUnknown.Strategy
             Active = this;
             EnsureStorage();
             EnsureVisualRoot();
+            EnsureRoadsideProps();
             ResetRouteNetwork();
             RefreshArea(Vector2Int.zero, map != null ? new Vector2Int(map.Width, map.Height) : Vector2Int.zero);
             StrategyDebugLogger.Info(
@@ -71,6 +72,7 @@ namespace ProjectUnknown.Strategy
             }
 
             decayTimer += Time.unscaledDeltaTime;
+            FlushRoadsideRefreshes();
             if (decayTimer < DecayTickSeconds)
             {
                 return;
@@ -188,6 +190,10 @@ namespace ProjectUnknown.Strategy
             }
 
             RequestRouteNetworkScan();
+            if (activeRouteCells.Count > 0)
+            {
+                QueueRoadsideRefreshArea(origin, size);
+            }
         }
 
         private byte GetTrailLevel(Vector2Int cell)
@@ -317,6 +323,7 @@ namespace ProjectUnknown.Strategy
             }
 
             ClearVisuals();
+            ClearRoadsideProps();
             activeWearCells.Clear();
             wear = new float[map.Width, map.Height];
             lastFootfallTimes = new float[map.Width, map.Height];
@@ -351,6 +358,7 @@ namespace ProjectUnknown.Strategy
         private void OnDestroy()
         {
             UnsubscribeRouteNetworkPlacement();
+            ClearRoadsideProps();
             if (Active == this)
             {
                 Active = null;

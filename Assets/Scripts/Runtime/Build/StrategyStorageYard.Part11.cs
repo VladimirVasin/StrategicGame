@@ -147,6 +147,11 @@ namespace ProjectUnknown.Strategy
             return available;
         }
 
+        public static bool HasAnyActiveYard()
+        {
+            return GetActiveYards().Count > 0;
+        }
+
         public static int CountHouseholdPotteryDemand(out Vector3 focus)
         {
             focus = Vector3.zero;
