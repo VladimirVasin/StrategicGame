@@ -260,7 +260,7 @@ namespace ProjectUnknown.Strategy
         private bool TryStartStorageTask()
         {
             if (activity != ResidentActivity.Idle
-                || storageWorkplace == null
+                || !HasStorageHaulerRole
                 || workplace != null
                 || stoneWorkplace != null
                 || hunterWorkplace != null
@@ -273,6 +273,13 @@ namespace ProjectUnknown.Strategy
                 || !CanWork
                 || logisticsWorkCooldown > 0f)
             {
+                return false;
+            }
+
+            if (!TrySelectStorageHaulerYard())
+            {
+                if (TryStartGranaryTask() || TryStartHaulerConstructionDeliveryTask()) return true;
+                logisticsWorkCooldown = Random.Range(2.5f, 5.5f);
                 return false;
             }
 

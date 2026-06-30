@@ -203,6 +203,8 @@ namespace ProjectUnknown.Strategy
             CancelClayPitWork();
             CancelStorageWork(true);
             CancelGranaryWork(true);
+            ClearSettlementHaulerRole();
+            ClearSettlementBuilderRole();
             CancelHunterWork(true);
             CancelFisherWork(true);
             CancelSawmillWork(true);
@@ -293,6 +295,8 @@ namespace ProjectUnknown.Strategy
             CancelForgeWork(true);
             CancelStorageWork(true);
             CancelGranaryWork(true);
+            ClearSettlementHaulerRole();
+            ClearSettlementBuilderRole();
             CancelHunterWork(true);
             CancelFisherWork(true);
             CancelForageWork(true);

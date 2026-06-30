@@ -69,6 +69,14 @@ namespace ProjectUnknown.Strategy
 
         private void AnimateIdle()
         {
+            if (ShouldUsePersonalNightTorch())
+            {
+                UseNightTorchCarrySprite();
+                footstepAudio?.ResetStepPhase();
+                SyncReadabilityRenderers();
+                return;
+            }
+
             UseIdleSprite();
             footstepAudio?.ResetStepPhase();
             SyncReadabilityRenderers();

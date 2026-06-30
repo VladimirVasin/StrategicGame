@@ -10,19 +10,22 @@ namespace ProjectUnknown.Strategy
         private const int LightsPerExtraWorker = 5;
         private const int MaxWorkerCount = 8;
         private const float AssignmentRetryInterval = 1.25f;
+        private const float DuskTorchStartProgress = 1f / 3f, DuskTorchDispatchEndProgress = 0.92f;
 
         private readonly List<StrategyNightLightSource> sources = new();
         private readonly List<StrategyNightLightSource> availableSources = new();
         private readonly List<StrategyResidentAgent> eligibleResidents = new();
         private readonly List<StrategyResidentAgent> selectedWorkers = new();
         private readonly Dictionary<StrategyResidentAgent, Queue<StrategyNightLightSource>> queues = new();
+        private readonly Dictionary<StrategyResidentAgent, float> workerStartProgress = new();
         private CityMapController map;
         private StrategyPopulationController population;
         private int availableBuildingSourceCount;
         private int availableRoadsideSourceCount;
         private int skippedSourceCount;
         private StrategyTimeOfDayPhase lastPhase = (StrategyTimeOfDayPhase)(-1);
-        private int lastNightDayIndex = -1;
+        private int lastEveningDayIndex = -1, lastNightDayIndex = -1;
+        private int lastSkippedAssignmentDayIndex = -1;
         private float retryTimer;
 
         public static StrategyNightLightTaskController Active { get; private set; }
@@ -56,6 +59,8 @@ namespace ProjectUnknown.Strategy
             }
 
             queues.Remove(resident);
+            workerStartProgress.Remove(resident);
+            resident.SetEveningNightTorchActive(false);
             return false;
         }
 
@@ -70,19 +75,61 @@ namespace ProjectUnknown.Strategy
             if (snapshot.Phase != lastPhase)
             {
                 lastPhase = snapshot.Phase;
-                if (snapshot.Phase == StrategyTimeOfDayPhase.Night
-                    && snapshot.DayIndex != lastNightDayIndex)
+                if (snapshot.Phase != StrategyTimeOfDayPhase.Dusk
+                    && snapshot.Phase != StrategyTimeOfDayPhase.Night)
                 {
-                    lastNightDayIndex = snapshot.DayIndex;
-                    BeginNight(snapshot);
-                }
-                else if (snapshot.Phase != StrategyTimeOfDayPhase.Night)
-                {
-                    queues.Clear();
+                    ClearAssignments();
                 }
             }
 
-            if (snapshot.Phase != StrategyTimeOfDayPhase.Night || queues.Count == 0)
+            if (snapshot.Phase == StrategyTimeOfDayPhase.Dusk)
+            {
+                UpdateDuskTorchDuty(snapshot);
+                return;
+            }
+
+            if (snapshot.Phase != StrategyTimeOfDayPhase.Night)
+            {
+                return;
+            }
+
+            if (snapshot.DayIndex != lastNightDayIndex)
+            {
+                lastNightDayIndex = snapshot.DayIndex;
+                if (snapshot.DayIndex != lastEveningDayIndex)
+                {
+                    BeginTorchDuty(snapshot, true);
+                }
+            }
+
+            RetryQueuedWorkers(snapshot);
+        }
+
+        private void UpdateDuskTorchDuty(StrategyCalendarSnapshot snapshot)
+        {
+            if (snapshot.PhaseProgress < DuskTorchStartProgress)
+            {
+                return;
+            }
+
+            if (snapshot.DayIndex != lastEveningDayIndex)
+            {
+                retryTimer -= Time.unscaledDeltaTime;
+                if (retryTimer > 0f)
+                {
+                    return;
+                }
+
+                retryTimer = AssignmentRetryInterval;
+                BeginTorchDuty(snapshot, false);
+            }
+
+            UpdateEveningTorchCarriers(snapshot);
+        }
+
+        private void RetryQueuedWorkers(StrategyCalendarSnapshot snapshot)
+        {
+            if (queues.Count == 0)
             {
                 return;
             }
@@ -94,46 +141,51 @@ namespace ProjectUnknown.Strategy
             }
 
             retryTimer = AssignmentRetryInterval;
-            RetryIdleWorkers();
+            RetryReadyWorkers(snapshot);
         }
 
-        private void BeginNight(StrategyCalendarSnapshot snapshot)
+        private void BeginTorchDuty(StrategyCalendarSnapshot snapshot, bool immediateDispatch)
         {
             RefreshCinematicSources();
             CollectAvailableSources();
             CollectEligibleResidents();
-            queues.Clear();
+            ClearAssignments();
 
             if (availableSources.Count == 0 || eligibleResidents.Count == 0)
             {
-                StrategyDebugLogger.Info(
-                    "NightLights",
-                    "NightLightAssignmentSkipped",
-                    StrategyDebugLogger.F("day", snapshot.DisplayDay),
-                    StrategyDebugLogger.F("sources", availableSources.Count),
-                    StrategyDebugLogger.F("buildingSources", availableBuildingSourceCount),
-                    StrategyDebugLogger.F("roadsideSources", availableRoadsideSourceCount),
-                    StrategyDebugLogger.F("skippedSources", skippedSourceCount),
-                    StrategyDebugLogger.F("eligibleAdults", eligibleResidents.Count));
+                LogAssignmentSkipped(snapshot);
                 return;
             }
 
+            lastEveningDayIndex = snapshot.DayIndex;
             int assignedSourceCount = availableSources.Count;
             int eligibleAdultCount = eligibleResidents.Count;
             SelectWorkers();
             int workerCount = selectedWorkers.Count;
             BuildAssignments();
-            RetryIdleWorkers();
+            BuildWorkerStartProgress(snapshot, immediateDispatch);
+            if (immediateDispatch)
+            {
+                RetryReadyWorkers(snapshot);
+            }
+            else
+            {
+                UpdateEveningTorchCarriers(snapshot);
+            }
+
             StrategyDebugLogger.Info(
                 "NightLights",
                 "NightLightAssignmentsCreated",
                 StrategyDebugLogger.F("day", snapshot.DisplayDay),
+                StrategyDebugLogger.F("phase", snapshot.PhaseLabel),
+                StrategyDebugLogger.F("phaseProgress", snapshot.PhaseProgress),
                 StrategyDebugLogger.F("sources", assignedSourceCount),
                 StrategyDebugLogger.F("buildingSources", availableBuildingSourceCount),
                 StrategyDebugLogger.F("roadsideSources", availableRoadsideSourceCount),
                 StrategyDebugLogger.F("skippedSources", skippedSourceCount),
                 StrategyDebugLogger.F("eligibleAdults", eligibleAdultCount),
-                StrategyDebugLogger.F("workers", workerCount));
+                StrategyDebugLogger.F("workers", workerCount),
+                StrategyDebugLogger.F("staggered", !immediateDispatch));
         }
 
         private void CollectAvailableSources()
@@ -218,6 +270,30 @@ namespace ProjectUnknown.Strategy
             }
         }
 
+        private void BuildWorkerStartProgress(StrategyCalendarSnapshot snapshot, bool immediateDispatch)
+        {
+            workerStartProgress.Clear();
+            if (immediateDispatch
+                || snapshot.Phase != StrategyTimeOfDayPhase.Dusk
+                || selectedWorkers.Count <= 0)
+            {
+                return;
+            }
+
+            float start = Mathf.Clamp(
+                Mathf.Max(DuskTorchStartProgress, snapshot.PhaseProgress),
+                DuskTorchStartProgress,
+                DuskTorchDispatchEndProgress);
+            float end = Mathf.Max(start, DuskTorchDispatchEndProgress);
+            for (int i = 0; i < selectedWorkers.Count; i++)
+            {
+                StrategyResidentAgent worker = selectedWorkers[i];
+                float t = selectedWorkers.Count <= 1 ? 0f : i / (float)(selectedWorkers.Count - 1);
+                float jitter = selectedWorkers.Count <= 1 ? 0f : Random.Range(-0.035f, 0.035f);
+                workerStartProgress[worker] = Mathf.Clamp(Mathf.Lerp(start, end, t) + jitter, start, 0.985f);
+            }
+        }
+
         private bool TryTakeNearestSource(
             StrategyResidentAgent worker,
             out StrategyNightLightSource source)
@@ -260,12 +336,14 @@ namespace ProjectUnknown.Strategy
             return true;
         }
 
-        private void RetryIdleWorkers()
+        private void RetryReadyWorkers(StrategyCalendarSnapshot snapshot)
         {
             selectedWorkers.Clear();
             foreach (StrategyResidentAgent resident in queues.Keys)
             {
-                if (resident != null && resident.CanAcceptNightLightTask)
+                if (resident != null
+                    && resident.CanAcceptNightLightTask
+                    && IsWorkerStartReady(resident, snapshot))
                 {
                     selectedWorkers.Add(resident);
                 }
@@ -275,6 +353,40 @@ namespace ProjectUnknown.Strategy
             {
                 TryStartNextTaskForResident(selectedWorkers[i]);
             }
+        }
+
+        private void UpdateEveningTorchCarriers(StrategyCalendarSnapshot snapshot)
+        {
+            if (snapshot.Phase != StrategyTimeOfDayPhase.Dusk)
+            {
+                return;
+            }
+
+            selectedWorkers.Clear();
+            foreach (StrategyResidentAgent resident in queues.Keys)
+            {
+                if (resident != null && IsWorkerStartReady(resident, snapshot))
+                {
+                    selectedWorkers.Add(resident);
+                }
+            }
+
+            for (int i = 0; i < selectedWorkers.Count; i++)
+            {
+                selectedWorkers[i].SetEveningNightTorchActive(true);
+            }
+        }
+
+        private bool IsWorkerStartReady(StrategyResidentAgent resident, StrategyCalendarSnapshot snapshot)
+        {
+            if (snapshot.Phase == StrategyTimeOfDayPhase.Night)
+            {
+                return true;
+            }
+
+            return snapshot.Phase == StrategyTimeOfDayPhase.Dusk
+                && (!workerStartProgress.TryGetValue(resident, out float progress)
+                    || snapshot.PhaseProgress >= progress);
         }
 
         private bool TryStartTask(StrategyResidentAgent resident, StrategyNightLightSource source)
@@ -290,11 +402,44 @@ namespace ProjectUnknown.Strategy
 
             if (resident.TryStartNightLightTask(source, source.WorkCell))
             {
+                resident.SetEveningNightTorchActive(false);
                 return true;
             }
 
             source.ReleaseReservation(resident);
             return false;
+        }
+
+        private void ClearAssignments()
+        {
+            foreach (StrategyResidentAgent resident in queues.Keys)
+            {
+                resident?.SetEveningNightTorchActive(false);
+            }
+
+            queues.Clear();
+            workerStartProgress.Clear();
+        }
+
+        private void LogAssignmentSkipped(StrategyCalendarSnapshot snapshot)
+        {
+            if (lastSkippedAssignmentDayIndex == snapshot.DayIndex)
+            {
+                return;
+            }
+
+            lastSkippedAssignmentDayIndex = snapshot.DayIndex;
+            StrategyDebugLogger.Info(
+                "NightLights",
+                "NightLightAssignmentSkipped",
+                StrategyDebugLogger.F("day", snapshot.DisplayDay),
+                StrategyDebugLogger.F("phase", snapshot.PhaseLabel),
+                StrategyDebugLogger.F("phaseProgress", snapshot.PhaseProgress),
+                StrategyDebugLogger.F("sources", availableSources.Count),
+                StrategyDebugLogger.F("buildingSources", availableBuildingSourceCount),
+                StrategyDebugLogger.F("roadsideSources", availableRoadsideSourceCount),
+                StrategyDebugLogger.F("skippedSources", skippedSourceCount),
+                StrategyDebugLogger.F("eligibleAdults", eligibleResidents.Count));
         }
 
         private static void RefreshCinematicSources()

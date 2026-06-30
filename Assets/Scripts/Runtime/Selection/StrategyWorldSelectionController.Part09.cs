@@ -260,7 +260,7 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            if (resident.BuilderWorkplace != null || resident.ConstructionSite != null)
+            if (resident.IsSettlementBuilder || resident.BuilderWorkplace != null || resident.ConstructionSite != null)
             {
                 type = StrategyProfessionType.Builder;
             }
@@ -308,7 +308,7 @@ namespace ProjectUnknown.Strategy
             {
                 type = StrategyProfessionType.Forager;
             }
-            else if (resident.StorageWorkplace != null || resident.GranaryWorkplace != null)
+            else if (resident.IsSettlementHauler || resident.StorageWorkplace != null || resident.GranaryWorkplace != null)
             {
                 type = StrategyProfessionType.StorageWorker;
             }

@@ -35,6 +35,7 @@ namespace ProjectUnknown.Strategy
             int activeSites = 0;
             int readySites = 0;
             Vector3 focus = transform.position;
+            StrategyConstructionSite bestSite = null;
             float bestScore = float.MinValue;
             for (int i = 0; i < sites.Length; i++)
             {
@@ -58,6 +59,7 @@ namespace ProjectUnknown.Strategy
                 {
                     bestScore = siteScore;
                     focus = site.FootprintBounds.center;
+                    bestSite = site;
                 }
             }
 
@@ -70,7 +72,7 @@ namespace ProjectUnknown.Strategy
             SetDesiredProfessionTarget(StrategyProfessionType.Builder, desiredBuilders);
             int currentBuilders = CountAssignedProfession(StrategyProfessionType.Builder);
             int needed = Mathf.Max(0, desiredBuilders - currentBuilders);
-            if (needed <= 0 || !TryFindStorageTarget(focus, out StrategyStorageYard yard))
+            if (needed <= 0)
             {
                 return;
             }
@@ -78,7 +80,7 @@ namespace ProjectUnknown.Strategy
             AddDemand(
                 StrategyProfessionType.Builder,
                 StrategyAutoWorkforceCategory.Construction,
-                yard,
+                bestSite != null ? bestSite : this,
                 focus,
                 needed,
                 35f + activeSites * 12f + readySites * 18f,
@@ -95,7 +97,7 @@ namespace ProjectUnknown.Strategy
 
             int backlog = CountLogisticsBacklog(out Vector3 focus);
             int activeConstructionNeeds = CountConstructionMaterialNeeds();
-            if (!TryFindStorageTarget(focus, out StrategyStorageYard yard))
+            if (backlog <= 0 && activeConstructionNeeds <= 0)
             {
                 return;
             }
@@ -104,7 +106,22 @@ namespace ProjectUnknown.Strategy
             SetDesiredProfessionTarget(StrategyProfessionType.StorageWorker, desired);
             int current = CountAssignedProfession(StrategyProfessionType.StorageWorker);
             int needed = Mathf.Max(0, desired - current);
-            if (needed <= 0)
+            Component target = null;
+            Vector3 demandWorld = focus;
+            if (!TryFindStorageTarget(focus, out StrategyStorageYard yard))
+            {
+                if (!TryFindConstructionAnchor(out target, out demandWorld)
+                    && !TryFindGranaryAnchor(out target, out demandWorld))
+                {
+                    return;
+                }
+            }
+            else
+            {
+                target = yard;
+            }
+
+            if (needed <= 0 || target == null)
             {
                 return;
             }
@@ -112,8 +129,8 @@ namespace ProjectUnknown.Strategy
             AddDemand(
                 StrategyProfessionType.StorageWorker,
                 StrategyAutoWorkforceCategory.Logistics,
-                yard,
-                focus,
+                target,
+                demandWorld,
                 needed,
                 20f + backlog * 4f + activeConstructionNeeds * 10f,
                 "resource_backlog");

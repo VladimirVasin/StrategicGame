@@ -6,11 +6,12 @@ namespace ProjectUnknown.Strategy
     {
         private const float NightLightActionSecondsMin = 2.15f;
         private const float NightLightActionSecondsMax = 3.65f;
-        private const float NightLightKindleFrameRate = 7.0f;
+        private const float NightLightTorchFrameRate = 7.0f;
 
         private StrategyNightLightSource activeNightLightSource;
         private Vector2Int activeNightLightWorkCell;
         private float nightLightActionTimer;
+        private bool eveningNightTorchActive;
 
         public bool CanAcceptNightLightTask
         {
@@ -58,7 +59,8 @@ namespace ProjectUnknown.Strategy
             waitTimer = 0f;
             transform.localRotation = Quaternion.identity;
             transform.localScale = Vector3.one;
-            UseIdleSprite();
+            UseNightTorchCarrySprite();
+            EnableNightTorchLight();
             StrategyDebugLogger.Info(
                 "NightLights",
                 "ResidentNightLightTaskStarted",
@@ -73,6 +75,86 @@ namespace ProjectUnknown.Strategy
         {
             return residentActivity == ResidentActivity.MovingToNightLight
                 || residentActivity == ResidentActivity.LightingNightLight;
+        }
+
+        internal void SetEveningNightTorchActive(bool active)
+        {
+            if (eveningNightTorchActive == active)
+            {
+                if (active && !nightTorchLightActive && ShouldUsePersonalNightTorch() && !hiddenInsideHome)
+                {
+                    RefreshEveningNightTorch();
+                }
+
+                return;
+            }
+
+            eveningNightTorchActive = active;
+            if (!eveningNightTorchActive)
+            {
+                if (!IsNightLightActivity(activity))
+                {
+                    DisableNightTorchLight();
+                }
+
+                return;
+            }
+
+            RefreshEveningNightTorch();
+        }
+
+        private void RefreshEveningNightTorch()
+        {
+            if (!ShouldUsePersonalNightTorch())
+            {
+                if (!IsNightLightActivity(activity))
+                {
+                    DisableNightTorchLight();
+                }
+
+                return;
+            }
+
+            EnableNightTorchLight();
+        }
+
+        private bool ShouldUseNightTorchCarryVisual()
+        {
+            return activity == ResidentActivity.MovingToNightLight || ShouldUsePersonalNightTorch();
+        }
+
+        private bool ShouldKeepNightTorchLightActive()
+        {
+            return IsNightLightActivity(activity) || ShouldUsePersonalNightTorch();
+        }
+
+        private bool ShouldUsePersonalNightTorch()
+        {
+            return eveningNightTorchActive
+                && IsEveningNightTorchTime()
+                && CanCarryPersonalNightTorch();
+        }
+
+        private bool CanCarryPersonalNightTorch()
+        {
+            return IsAdult
+                && !hiddenInsideHome
+                && !hiddenUnderground
+                && !deathRequested
+                && !IsPendingRefugee
+                && !IsHomeboundYoungChild
+                && !IsFuneralActivity(activity)
+                && !HasAnyCarriedResource()
+                && (activity == ResidentActivity.Idle
+                    || activity == ResidentActivity.TendingHousehold
+                    || activity == ResidentActivity.MovingHome);
+        }
+
+        private static bool IsEveningNightTorchTime()
+        {
+            StrategyCalendarSnapshot snapshot = StrategyDayNightCycleController.CurrentCalendarSnapshot;
+            return (snapshot.Phase == StrategyTimeOfDayPhase.Dusk && snapshot.PhaseProgress >= 1f / 3f)
+                || snapshot.Phase == StrategyTimeOfDayPhase.Night;
         }
 
         private void StartLightingNightLight()
@@ -94,9 +176,11 @@ namespace ProjectUnknown.Strategy
             usingWalkSprite = false;
             usingWorkSprite = false;
             appliedWorkFrame = -1;
-            workFrame = Mathf.Abs(residentId) % StrategyResidentSpriteFactory.CampfireKindleFrameCount;
+            workFrame = Mathf.Abs(residentId) % StrategyResidentSpriteFactory.NightTorchLightFrameCount;
             workFrameTimer = 0f;
             FaceWorldPoint(activeNightLightSource.WorldPosition);
+            EnableNightTorchLight();
+            UpdateNightTorchLight();
             footstepAudio?.ResetStepPhase();
             StrategyDebugLogger.Info(
                 "NightLights",
@@ -121,8 +205,9 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            AnimateCampfireKindlingForNightLight();
+            AnimateNightTorchLighting();
             FaceWorldPoint(activeNightLightSource.WorldPosition);
+            UpdateNightTorchLight();
             nightLightActionTimer -= Time.deltaTime;
             if (nightLightActionTimer > 0f)
             {
@@ -161,11 +246,13 @@ namespace ProjectUnknown.Strategy
             }
 
             activeNightLightSource = null;
+            DisableNightTorchLight();
         }
 
         private void FinishNightLightDuty()
         {
             activeNightLightSource = null;
+            DisableNightTorchLight();
             activity = GetRestingActivity();
             hasTarget = false;
             path.Clear();
@@ -186,6 +273,7 @@ namespace ProjectUnknown.Strategy
 
         private void PrepareForNextNightLightTask()
         {
+            DisableNightTorchLight();
             activity = GetRestingActivity();
             hasTarget = false;
             path.Clear();
@@ -222,7 +310,85 @@ namespace ProjectUnknown.Strategy
             UpdateWorldSorting();
         }
 
-        private void AnimateCampfireKindlingForNightLight()
+        private void UseNightTorchCarrySprite()
+        {
+            if (spriteRenderer == null)
+            {
+                return;
+            }
+
+            transform.localRotation = Quaternion.identity;
+            transform.localScale = Vector3.one;
+            usingWalkSprite = true;
+            usingWorkSprite = false;
+            appliedWorkFrame = -1;
+            appliedWalkFrame = -1;
+            walkFrame = 0;
+            walkFrameTimer = 0f;
+            ApplyNightTorchWalkFrame(false);
+            EnableNightTorchLight();
+            UpdateNightTorchLight();
+        }
+
+        private void AnimateNightTorchWalk()
+        {
+            if (spriteRenderer == null)
+            {
+                return;
+            }
+
+            transform.localRotation = Quaternion.identity;
+            transform.localScale = Vector3.one;
+            usingWorkSprite = false;
+            appliedWorkFrame = -1;
+
+            if (!usingWalkSprite)
+            {
+                usingWalkSprite = true;
+                walkFrame = 0;
+                walkFrameTimer = 0f;
+                appliedWalkFrame = -1;
+            }
+
+            walkFrameTimer += Time.deltaTime * WalkAnimationFrameRate;
+            int frameSteps = Mathf.FloorToInt(walkFrameTimer);
+            if (frameSteps > 0)
+            {
+                walkFrame = (walkFrame + frameSteps) % StrategyResidentSpriteFactory.NightTorchWalkFrameCount;
+                walkFrameTimer -= frameSteps;
+            }
+
+            ApplyNightTorchWalkFrame(true);
+            UpdateNightTorchLight();
+        }
+
+        private void ApplyNightTorchWalkFrame(bool playFootstep)
+        {
+            if (spriteRenderer == null)
+            {
+                return;
+            }
+
+            if (appliedWalkFrame == walkFrame && usingWalkSprite)
+            {
+                return;
+            }
+
+            spriteRenderer.sprite = StrategyResidentSpriteFactory.GetNightTorchWalkSprite(
+                gender,
+                VisualVariant,
+                lifeStage,
+                walkFrame);
+            appliedWalkFrame = walkFrame;
+            if (playFootstep)
+            {
+                footstepAudio?.PlayWalkFrame(walkFrame, lifeStage);
+            }
+
+            SyncReadabilityRenderers();
+        }
+
+        private void AnimateNightTorchLighting()
         {
             if (spriteRenderer == null)
             {
@@ -233,15 +399,15 @@ namespace ProjectUnknown.Strategy
             transform.localScale = Vector3.one;
             usingWalkSprite = false;
             usingWorkSprite = true;
-            workFrameTimer += Time.deltaTime * NightLightKindleFrameRate;
+            workFrameTimer += Time.deltaTime * NightLightTorchFrameRate;
             int frameSteps = Mathf.FloorToInt(workFrameTimer);
             if (frameSteps > 0)
             {
-                workFrame = (workFrame + frameSteps) % StrategyResidentSpriteFactory.CampfireKindleFrameCount;
+                workFrame = (workFrame + frameSteps) % StrategyResidentSpriteFactory.NightTorchLightFrameCount;
                 workFrameTimer -= frameSteps;
             }
 
-            Sprite sprite = StrategyResidentSpriteFactory.GetCampfireKindleSprite(
+            Sprite sprite = StrategyResidentSpriteFactory.GetNightTorchLightSprite(
                 gender,
                 VisualVariant,
                 lifeStage,
@@ -252,6 +418,8 @@ namespace ProjectUnknown.Strategy
                 appliedWorkFrame = workFrame;
                 SyncReadabilityRenderers();
             }
+
+            UpdateNightTorchLight();
         }
     }
 }

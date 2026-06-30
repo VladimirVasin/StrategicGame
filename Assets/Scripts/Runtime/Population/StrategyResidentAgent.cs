@@ -215,6 +215,8 @@ namespace ProjectUnknown.Strategy
         private bool bowShotReleased;
         private bool fishingLineCast;
         private bool deathRequested;
+        private bool settlementHaulerRole;
+        private bool settlementBuilderRole;
         private bool hiddenInsideHome;
         private bool sleepingInsideHome;
         private bool returningHomeToSleep;
@@ -233,6 +235,8 @@ namespace ProjectUnknown.Strategy
         public StrategyStorageYard BuilderWorkplace => builderWorkplace;
         public StrategyGranary GranaryWorkplace => granaryWorkplace;
         public StrategyConstructionSite ConstructionSite => constructionSite;
+        public bool IsSettlementHauler => settlementHaulerRole;
+        public bool IsSettlementBuilder => settlementBuilderRole;
         public bool ConstructionWillBecomeHome => constructionFutureHome;
         public bool IsHouseholder => home != null && home.Householder == this;
         public bool HasExternalWorkplace => workplace != null
@@ -248,6 +252,8 @@ namespace ProjectUnknown.Strategy
             || forgeWorkplace != null
             || storageWorkplace != null
             || builderWorkplace != null
+            || settlementHaulerRole
+            || settlementBuilderRole
             || granaryWorkplace != null;
         public bool HasWorkplace => HasExternalWorkplace || IsHouseholder;
         public bool HasConstructionAssignment => constructionSite != null;

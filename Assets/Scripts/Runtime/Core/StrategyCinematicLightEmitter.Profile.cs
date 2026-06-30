@@ -44,7 +44,7 @@ namespace ProjectUnknown.Strategy
 
             if (kind == StrategyCinematicLightKind.RoadsideTorch)
             {
-                return Mathf.Clamp01(night * 0.58f + warm * 0.12f + weatherBoost);
+                return Mathf.Clamp01(night * 0.76f + warm * 0.18f + weatherBoost);
             }
 
             float worksiteBase = kind == StrategyCinematicLightKind.Mine
@@ -90,7 +90,7 @@ namespace ProjectUnknown.Strategy
             StrategyCinematicLightKind.Forge => 0.78f,
             StrategyCinematicLightKind.House => 0.54f,
             StrategyCinematicLightKind.Bridge => 0.44f,
-            StrategyCinematicLightKind.RoadsideTorch => 0.27f,
+            StrategyCinematicLightKind.RoadsideTorch => 0.36f,
             StrategyCinematicLightKind.Storage => 0.34f,
             StrategyCinematicLightKind.Granary => 0.40f,
             _ => 0.42f
@@ -105,7 +105,7 @@ namespace ProjectUnknown.Strategy
             StrategyCinematicLightKind.Forge => 3.5f,
             StrategyCinematicLightKind.House => 3.0f,
             StrategyCinematicLightKind.Bridge => 2.8f,
-            StrategyCinematicLightKind.RoadsideTorch => 1.85f,
+            StrategyCinematicLightKind.RoadsideTorch => 2.25f,
             StrategyCinematicLightKind.Storage => 2.4f,
             StrategyCinematicLightKind.Granary => 2.8f,
             _ => 2.7f
@@ -114,16 +114,36 @@ namespace ProjectUnknown.Strategy
         private float GetGlowAlpha() => kind switch
         {
             StrategyCinematicLightKind.Campfire => 0.28f,
-            StrategyCinematicLightKind.RoadsideTorch => 0.12f,
+            StrategyCinematicLightKind.RoadsideTorch => 0.20f,
             _ => 0.18f
         };
 
         private float GetCoreAlpha() => kind switch
         {
             StrategyCinematicLightKind.House => 0.70f,
-            StrategyCinematicLightKind.RoadsideTorch => 0.38f,
+            StrategyCinematicLightKind.RoadsideTorch => 0.55f,
             _ => 0.52f
         };
+
+        private float GetTorchIntensityBoost()
+        {
+            if (!CanRenderTorch())
+            {
+                return 1f;
+            }
+
+            return kind == StrategyCinematicLightKind.RoadsideTorch ? 1.65f : 1.35f;
+        }
+
+        private float GetTorchRadiusBoost()
+        {
+            if (!CanRenderTorch())
+            {
+                return 1f;
+            }
+
+            return kind == StrategyCinematicLightKind.RoadsideTorch ? 1.24f : 1.18f;
+        }
 
         private Vector2 GetGlowScale(float radius) => kind == StrategyCinematicLightKind.RoadsideTorch
             ? new Vector2(radius * 0.56f, radius * 0.30f)

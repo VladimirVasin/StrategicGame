@@ -8,6 +8,8 @@ namespace ProjectUnknown.Strategy
         private const int NightMaskHeight = 72;
         private const float NightMaskUpdateInterval = 0.16f;
         private const float NightMaskViewMoveThreshold = 0.35f;
+        private const float NightMaskMaxAlpha = 1f;
+        private const float NightMaskLightCutoutBoost = 1.65f;
 
         private SpriteRenderer nightDarknessRenderer;
         private Texture2D nightDarknessTexture;
@@ -81,7 +83,7 @@ namespace ProjectUnknown.Strategy
                     float u = (x + 0.5f) / NightMaskWidth;
                     float worldX = Mathf.Lerp(view.xMin, view.xMax, u);
                     float light = EvaluateNightMaskLight(worldX, worldY);
-                    float alpha = baseAlpha * (1f - Mathf.Clamp01(light * 1.08f));
+                    float alpha = baseAlpha * (1f - Mathf.Clamp01(light * NightMaskLightCutoutBoost));
                     nightDarknessPixels[y * NightMaskWidth + x] = new Color(0f, 0.006f, 0.028f, alpha);
                 }
             }
@@ -120,6 +122,33 @@ namespace ProjectUnknown.Strategy
                 }
             }
 
+            for (int i = 0; i < StrategyResidentAgent.ActiveNightTorchLightCount; i++)
+            {
+                if (!StrategyResidentAgent.TryGetActiveNightTorchLight(
+                        i,
+                        out Vector3 center,
+                        out float radius,
+                        out float strength))
+                {
+                    continue;
+                }
+
+                float dx = worldX - center.x;
+                float dy = worldY - center.y;
+                float distance = Mathf.Sqrt(dx * dx + dy * dy);
+                if (distance >= radius)
+                {
+                    continue;
+                }
+
+                float falloff = StrategyCinematicVisualMath.Smooth01(1f - distance / Mathf.Max(0.01f, radius));
+                light = Mathf.Max(light, strength * falloff);
+                if (light >= 0.96f)
+                {
+                    return light;
+                }
+            }
+
             return Mathf.Clamp01(light);
         }
 
@@ -131,7 +160,7 @@ namespace ProjectUnknown.Strategy
             float rain = weather != null ? weather.RainIntensity : 0f;
             float storm = weather != null ? weather.StormIntensity : 0f;
             float weatherBoost = Mathf.Max(rain * 0.035f, storm * 0.055f);
-            return Mathf.Clamp01(night * 0.34f + warm * 0.055f + weatherBoost);
+            return Mathf.Clamp01(night * NightMaskMaxAlpha + warm * 0.055f + weatherBoost);
         }
 
         private bool HasNightMaskViewChanged(Rect view)

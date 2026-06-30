@@ -73,17 +73,19 @@ namespace ProjectUnknown.Strategy
             SetUpgradeActionsVisible(false);
             SetStorageYardHudVisible(true);
 
+            int haulerCount = StrategyPopulationController.CountActiveSettlementHaulers();
+            int builderCount = StrategyPopulationController.CountActiveSettlementBuilders();
             int sourceCount = yard != null ? yard.GetAvailableSourceCount() : 0;
             SetStorageChip(
                 StorageChipHaulers,
-                "Haulers " + (yard != null ? yard.WorkerCount : 0),
+                "Haulers " + haulerCount,
                 StrategyProfessionIconFactory.GetIcon(StrategyProfessionType.StorageWorker),
-                GetStorageLaborColor(yard != null ? yard.WorkerCount : 0));
+                GetStorageLaborColor(haulerCount));
             SetStorageChip(
                 StorageChipBuilders,
-                "Builders " + (yard != null ? yard.BuilderCount : 0),
+                "Builders " + builderCount,
                 StrategyProfessionIconFactory.GetIcon(StrategyProfessionType.Builder),
-                GetStorageLaborColor(yard != null ? yard.BuilderCount : 0));
+                GetStorageLaborColor(builderCount));
             SetStorageChip(
                 StorageChipSources,
                 "Sources " + sourceCount,
@@ -97,9 +99,9 @@ namespace ProjectUnknown.Strategy
                 SetStorageResourceCard(i, type, amount, GetStorageResourceDetail(yard, type));
             }
 
-            storageStatusTitleText.text = GetStorageStatusTitle(yard, sourceCount);
-            storageStatusBodyText.text = GetStorageStatusBody(yard, sourceCount);
-            storageStatusBackground.color = GetStorageStatusColor(yard, sourceCount);
+            storageStatusTitleText.text = GetStorageStatusTitle(yard, sourceCount, haulerCount);
+            storageStatusBodyText.text = GetStorageStatusBody(yard, sourceCount, haulerCount, builderCount);
+            storageStatusBackground.color = GetStorageStatusColor(yard, sourceCount, haulerCount);
         }
 
         private void SetStorageYardHudVisible(bool visible)
@@ -250,9 +252,9 @@ namespace ProjectUnknown.Strategy
             };
         }
 
-        private static string GetStorageStatusTitle(StrategyStorageYard yard, int sourceCount)
+        private static string GetStorageStatusTitle(StrategyStorageYard yard, int sourceCount, int haulerCount)
         {
-            if (yard == null || yard.WorkerCount <= 0)
+            if (yard == null || haulerCount <= 0)
             {
                 return "No haulers assigned";
             }
@@ -260,14 +262,14 @@ namespace ProjectUnknown.Strategy
             return sourceCount > 0 ? "Ready for hauling" : "Idle logistics";
         }
 
-        private static string GetStorageStatusBody(StrategyStorageYard yard, int sourceCount)
+        private static string GetStorageStatusBody(StrategyStorageYard yard, int sourceCount, int haulerCount, int builderCount)
         {
             if (yard == null)
             {
                 return "Storage data unavailable.";
             }
 
-            if (yard.WorkerCount <= 0)
+            if (haulerCount <= 0)
             {
                 return "Assign Haulers in the Professions HUD to move resources.";
             }
@@ -277,14 +279,14 @@ namespace ProjectUnknown.Strategy
                 return sourceCount + " source" + (sourceCount == 1 ? " has" : "s have") + " stock waiting for pickup.";
             }
 
-            return yard.BuilderCount > 0
+            return builderCount > 0
                 ? "No source stock is waiting. Builders are ready for construction jobs."
                 : "No source stock is waiting. Builders can be assigned separately.";
         }
 
-        private static Color GetStorageStatusColor(StrategyStorageYard yard, int sourceCount)
+        private static Color GetStorageStatusColor(StrategyStorageYard yard, int sourceCount, int haulerCount)
         {
-            if (yard == null || yard.WorkerCount <= 0)
+            if (yard == null || haulerCount <= 0)
             {
                 return new Color(0.25f, 0.13f, 0.08f, 0.94f);
             }

@@ -24,6 +24,8 @@ namespace ProjectUnknown.Strategy
         private const int FocusHoldFrameCount = 4;
         private const float FocusInputSuppressSeconds = 0.35f;
 
+        private CityMapController map;
+        private StrategyPopulationController population;
         private Camera strategyCamera;
         private Bounds? movementBounds;
         private Vector3 heldFocusCenter;
@@ -51,6 +53,12 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            if (HandleCampFocusShortcut())
+            {
+                ClampToBounds();
+                return;
+            }
+
             HandleZoom();
             HandlePan();
             ClampToBounds();
@@ -72,6 +80,14 @@ namespace ProjectUnknown.Strategy
             EnsureCameraReference();
             movementBounds = bounds;
             ClampToBounds();
+        }
+
+        public void SetCampFocusSource(
+            CityMapController mapController,
+            StrategyPopulationController populationController)
+        {
+            map = mapController;
+            population = populationController;
         }
 
         public void FocusOn(Vector3 worldCenter, float orthographicSize)
@@ -140,6 +156,32 @@ namespace ProjectUnknown.Strategy
             {
                 transform.position += movement;
             }
+        }
+
+        private bool HandleCampFocusShortcut()
+        {
+            Keyboard keyboard = Keyboard.current;
+            if (keyboard == null || !keyboard.spaceKey.wasPressedThisFrame)
+            {
+                return false;
+            }
+
+            if (map == null
+                || population == null
+                || !population.TryGetCampCell(out Vector2Int campCell))
+            {
+                StrategyDebugLogger.Warn("Camera", "CampFocusRejected");
+                return false;
+            }
+
+            Vector3 campWorld = map.GetCellCenterWorld(campCell.x, campCell.y);
+            FocusOn(campWorld, strategyCamera.orthographicSize);
+            StrategyDebugLogger.Info(
+                "Camera",
+                "CampFocusShortcut",
+                StrategyDebugLogger.F("campCell", campCell),
+                StrategyDebugLogger.F("world", campWorld));
+            return true;
         }
 
         private Vector2 ReadKeyboardPan()

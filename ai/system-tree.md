@@ -21,7 +21,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Runtime day/night overlay tints the world above sprites and below preview/fog/UI, exposes day/clock/phase calendar snapshots, and drives dawn/nightfall player messages
   - Runtime weather overlays add wet ground, cloud shadows, mist, and rain in dedicated sorting bands around day/night and fog-of-war
   - Runtime URP post-process volume adds soft day/night/weather color grading, bloom, and vignette
-  - Runtime cinematic visual layer adds 2D global/local light, emissive pixel masks, animated building torch/lantern source sprites with manual lit state for building/roadside lights, light-aware nighttime darkness over unlit cells, wet puddle glints, lightning flashes, and subtle foreground depth props
+  - Runtime cinematic visual layer adds 2D global/local light, emissive pixel masks, animated building torch/lantern source sprites with manual lit state for building/roadside lights, active hand-carried resident torch lights, light-aware nighttime darkness over unlit cells, wet puddle glints, lightning flashes, and subtle foreground depth props
   - Runtime procedural 2D shadow caster supplies soft ground/cast shadows below world sprites
   - Runtime short-lived world effect layer supplies reusable dust, sawdust, chip, spark, splash, and resource pop/fade effects
 
@@ -42,7 +42,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Creates and configures runtime post-processing after weather setup so color grading follows day/night and weather intensities
     - Creates and configures runtime cinematic visuals after post-processing so lights and atmosphere follow day/night/weather state
     - Creates and configures runtime ambience audio after camera setup
-    - Creates and configures the night-light task controller so housed adults can light building and roadside lamps at `Night`
+    - Creates and configures the night-light task controller so future lamp workers can light personal hand torches during late `Dusk`, then light building and roadside lamps at `Night`
     - Focuses the initial camera view on the startup campfire after population startup
     - Creates runtime water/shore animation overlay after map generation
     - Creates the Stone resource registry before nature generation
@@ -246,6 +246,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Strategy camera
     - Orthographic view
     - Initial medium-close focus on the startup campfire
+    - `Space` recenters on the startup campfire cell without changing current zoom
     - Mouse-wheel zoom
     - Max zoom-out is 54 orthographic units, proportional to the 192-cell map width for a 16:9 viewport
     - WASD/arrow pan
@@ -282,7 +283,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Reserves construction resources through the shared storage facade before a site is accepted, including loose piles, Storage Yards, production-local construction stock, and the low-priority starter Caravan Cart
     - Mine, Coal Pit, and Clay Pit construction require at least one matching available resource deposit under the tool footprint
     - Construction sites are accepted without an immediately free builder if resources can be reserved
-    - Construction sites periodically request hired builders from Storage Yards through balanced dispatch across active construction sites instead of using a per-site builder cap
+    - Construction sites periodically request settlement Builders through population-level balanced dispatch across active construction sites instead of using a per-site builder cap
     - Active construction sites maintain a lightweight runtime registry used by systems that need cheap current-site lookups
     - Construction progress is capped by the fraction of Logs/Stone/Planks physically delivered to the site, so builders can start partial work before all reserved materials arrive
     - Completed houses try to populate after construction instead of using their builders as future residents
@@ -360,7 +361,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Resource amounts live on placed house objects, not in a global economy yet
     - Runtime-generated pixel-art resource icons for the selected-house HUD
   - Storage yard logistics MVP
-    - Storage Yard is a placed stockpile building with uncapped Haulers and uncapped hired builders
+    - Storage Yard is a placed stockpile building and logistics target; Haulers and Builders are settlement-level population roles rather than Storage Yard-owned staff
     - Storage Yard stock capacity is uncapped
     - A temporary starter Caravan Cart appears near the campfire with 20 Logs, 20 Stone, and 3 days of randomized raw food
     - Haulers reserve available Logs from lumberjack camps
@@ -374,7 +375,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Storage Yards reserve non-food production inputs from local stock and route Haulers to deliver them into production buildings through the shared production logistics contract
     - Storage Yards expose trade helpers that spend/receive Logs, Stone, Iron, Coal, Clay, Planks, Pottery, and Tools for caravan transactions
     - Loose construction resource piles from cancelled sites count as available construction resources and can be reserved by future sites even when a storage pickup claim exists but has not yet been carried away
-    - Storage Yards dispatch available hired builders across active construction sites, favoring empty and lower-builder-count sites before stacking extras
+    - Population-level builder dispatch sends available settlement Builders across active construction sites, favoring empty and lower-builder-count sites before stacking extras
     - Hired builders can pick up reserved construction Logs/Stone/Planks from Storage Yards
     - Hired builders can also pick up reserved construction Logs/Stone/Planks from loose construction resource piles
     - Hired builders can pick up reserved construction Stone directly from Stonecutter Camps when the site reserved camp stock
@@ -516,12 +517,12 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Residents assigned as Haulers also deliver Storage Yard Logs into Sawmills, path to Sawmill stock, carry Planks to storage, deliver Storage Yard Clay/Coal into Kilns, path to Kiln stock, carry Pottery to storage, and deposit it; house-demanded Pottery is picked up from Storage Yards by Householders
     - Residents assigned as Haulers also haul `Game`/`Fish`/`Eggs`/forage food from production food stock or loose food piles into the nearest Granary
     - Residents assigned as Haulers can fallback-deliver construction Logs/Stone/Planks to active construction sites only when normal Hauler orders are unavailable
-    - Residents hired as Storage Yard builders fetch reserved Logs/Stone/Planks, deliver them to construction sites, then reserve individual unlocked build-hit units and build with hammer animations up to the currently delivered-material progress cap
+    - Residents assigned as settlement Builders fetch reserved Logs/Stone/Planks, deliver them to construction sites, then reserve individual unlocked build-hit units and build with hammer animations up to the currently delivered-material progress cap
     - Auto workforce assignment scans eligible free adults every few seconds, uses one per-tick worksite snapshot refreshed from active placed buildings and active construction sites on active-count changes plus a longer fallback interval for demand/rebalance/fallback calculations, treats nonzero player values as desired profession targets plus a one-worker coverage floor, releases surplus workers from overstaffed auto-managed professions, can pull limited donors from roles above their floor for higher-scored shortages, protects Food workers from non-food donor steals during household food emergencies or active food demand, uses `0` as the explicit opt-out that permits a role/category to have no workers, caps successful assignments per tick to avoid frame spikes, throttles deep no-free-adult full scans, and assigns remaining free adults through existing worksite APIs across later ticks while shortages/backlog/readiness affect scoring
     - Residents removed from a role while carrying Logs, Stone, Iron, Coal, Clay, Planks, Pottery, `Game`, or `Fish` first return the carried resource to the appropriate Storage Yard or Granary; hard interruption fallbacks preserve materials instead of deleting carried stock
     - Resident death drops all carried resources: construction Logs/Stone/Planks as loose construction piles, and generic Iron, Coal, Clay, Planks, Pottery, `Game`, `Fish`, `Eggs`, Berries, Roots, and Mushrooms as loose carried-resource piles
     - Completed houses first try to pull a homeless adult male/female pair, including residents who already have workplaces or construction assignments, then fall back to adult-child migration and partner lookup
-    - Runtime-generated resident sprites include 5 male variants, 5 female variants, child sprites, and matching portrait sprites
+    - Runtime-generated resident sprites include 5 male variants, 5 female variants, child sprites, matching portrait sprites, and hand-carried torch walk/light frames for night lamp duty, with temporary carried torch light during night-light tasks
     - Resident movement uses cached 8-frame procedural walk cycles for adult and child variants
     - Lumberjack work uses cached frame-based axe swing sprites for all male/female visual variants
     - Stonecutter work uses cached frame-based pickaxe swing sprites for all male/female visual variants
@@ -580,7 +581,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Dynamic profession rows for built worksites
     - Generated profession icons
     - `-` / `+` assignment controls for lumberjacks, stonecutters, sawyers, potters, blacksmiths, miners, coal miners, clay diggers, hunters, fishers, Haulers, and builders
-    - Haulers and builders use unlimited settlement-level assignment capacity when at least one Storage Yard exists; Haulers haul both storage resources and food to Granaries, while other production roles still use worksite slot caps
+    - Haulers and Builders use unlimited settlement-level assignment capacity independent of any one building; Haulers use Storage Yards only as dynamic dropoff targets when storage work exists, while other production roles still use worksite slot caps
     - `Auto Assign` toggle plus compact priority steppers for Construction, Food, Logistics, Wood, Stone, Planks, Iron, Coal, Clay, Pottery, and Tools
   - Custom modal refugee decision HUD pauses the simulation and asks whether to accept or reject arriving families
   - Custom reusable confirmation dialog for destructive actions such as cancelling construction or demolishing buildings
@@ -606,7 +607,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Fog of war uses population, residents, placed-building records, the shared day/night phase, and weather Fog intensity as visibility inputs; placement and world selection consult fog exploration state, refugee arrivals use daylight-range visible boundaries for in-map entry staging, while the F9 debug panel can bypass player fog for testing.
 - Terrain rendering uses generated map cell kinds, visual relief height, seeded tile variants, neighbor transition overlays, a runtime water/shore animation overlay, and weather visual overlays.
 - Weather depends on generated map bounds, the strategy camera, day/night/fog sorting bands, the strategy wind source, water animation, and ambience audio.
-- Resident work/rest scheduling depends on the shared day/night phase so production, construction, logistics, hunting, fishing, and household-food tasks only start during settlement work time, while night-light tasks depend on day/night, cinematic light sources, roads/buildings, and housed adult resident scheduling, housed idle residents sleep inside homes, homeless idle residents sleep around the startup campfire, and standalone Chicken Coop chickens visually shelter inside during `Night`.
+- Resident work/rest scheduling depends on the shared day/night phase so production, construction, logistics, hunting, fishing, and household-food tasks only start during settlement work time, while night-light tasks depend on day/night, cinematic light sources, roads/buildings, housed adult resident scheduling, late-Dusk personal hand-torch activation, and hand-carried torch animations/lights, housed idle residents sleep inside homes, homeless idle residents sleep around the startup campfire, and standalone Chicken Coop chickens visually shelter inside during `Night`.
 - House resources depend on placed-building records, resident home duty, Granary food pickup, production-food fallback pickup, Storage Yard Pottery pickup, and the world-selection HUD.
 - Generated forage nodes remain inspectable map resources and are consumed by Forager Camp workers instead of House-driven household foraging.
 - Forestry depends on generated tree props, map walkability, placed lumberjack camps, resident work states, and the world-selection HUD.
@@ -622,16 +623,16 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Trade depends on completed Trading Posts, map-edge caravan pathing, settlement Coins, Storage Yard non-food stock, Granary food stock, generated trade/caravan sprites, and the world-selection HUD.
 - Loose construction resource piles bridge construction cancellation, build affordability, storage logistics, and builder pickup.
 - Loose carried-resource piles bridge resident death cleanup and Granary food logistics; legacy household forage recovery is currently inactive.
-- Granary, starter-cart food, and household cooking logistics depend on hunter camp stock, fisher hut stock, forager camp stock, chicken coop stock, Storage Yard Pottery stock, Storage Yard Haulers, Householder and age-6+ child final-mile raw-food pickup with direct production-source fallback when stored food is empty, resident work states, placed-building records, map walkability, and the world-selection HUD.
-- Construction depends on Storage Yard resource reservations, loose construction pile reservations, idle Hauler construction-material fallback delivery, hired Storage Yard builder assignments, construction-site blockers, placed-building finalization, F9 instant-construction debug options, and the world-selection HUD.
+- Granary, starter-cart food, and household cooking logistics depend on hunter camp stock, fisher hut stock, forager camp stock, chicken coop stock, Storage Yard Pottery stock, settlement Haulers, Householder and age-6+ child final-mile raw-food pickup with direct production-source fallback when stored food is empty, resident work states, placed-building records, map walkability, and the world-selection HUD.
+- Construction depends on Storage Yard resource reservations, loose construction pile reservations, idle Hauler construction-material fallback delivery, settlement Builder assignments, construction-site blockers, placed-building finalization, F9 instant-construction debug options, and the world-selection HUD.
 - Population uses placed-building records, construction sites, the generated map walkability/trail layers, and workplace assignments; home/family assignment is independent from work/construction assignment.
 - Resident footsteps depend on population agents and the non-generated grass footstep clip set.
 - Resident movement records completed building-to-building route traversals as immediate stable roads after real arrivals, shares road-aware 8-direction A* pathfinding with the road layer, tries direct road capture before falling back to smoothed travel waypoints, and reads formed roads for path-cost preference plus a 15% movement-speed bonus; ordinary footfalls and automatic route-network reinforcement no longer create roads, while roadside torch props are visual-only derivatives of existing road cells.
 - Time scale accelerates core simulation timers, while expensive visual/service systems use unscaled real-time cadences for fog, cinematic/weather/water/nature overlays, wildlife caches/threat scans, population housekeeping, and resident path-build budgeting.
 - World selection uses placed-building/resident/construction-site colliders, inspectable world-object sprite bounds, generated map cell data, fog state, the strategy camera, house resource state, and production-building upgrade state.
-- Profession HUD depends on population adults and current worksite components; it owns player-facing worker assignment/removal while existing worksite components still own role state and work loops, with Storage Yard Haulers/builders treated as uncapped roles.
-- Refugee arrival demand depends on accepted adult counts plus finite worksite/construction slot counts, while intentionally ignoring uncapped Storage Yard Hauler/builder capacity.
-- Auto workforce depends on population availability, Profession HUD priority settings, construction sites, Storage Yard builder/hauler APIs, production worksite stock/capacity, Forge/Tools demand, household food emergency state, and Granary raw food ingredient availability.
+- Profession HUD depends on population adults and current worksite components; it owns player-facing worker assignment/removal while existing worksite components still own capped role state and work loops, with settlement Haulers/Builders treated as uncapped population roles.
+- Refugee arrival demand depends on accepted adult counts plus finite worksite/construction slot counts, while intentionally ignoring uncapped settlement Hauler/Builder capacity.
+- Auto workforce depends on population availability, Profession HUD priority settings, construction sites, settlement Hauler/Builder role APIs, production worksite stock/capacity, Forge/Tools demand, household food emergency state, and Granary raw food ingredient availability.
 - Strategy camera checks UI pointer state so bottom HUD interaction does not pan/zoom the map.
 - New gameplay systems should be added here and mapped to concrete files/assets in `systems-map.md`.
 

@@ -19,7 +19,7 @@ namespace ProjectUnknown.Strategy
                 return "Householder";
             }
 
-            if (resident.BuilderWorkplace != null || resident.ConstructionSite != null)
+            if (resident.IsSettlementBuilder || resident.BuilderWorkplace != null || resident.ConstructionSite != null)
             {
                 return "Builder";
             }
@@ -79,7 +79,7 @@ namespace ProjectUnknown.Strategy
                 return "Forager";
             }
 
-            if (resident.StorageWorkplace != null || resident.GranaryWorkplace != null)
+            if (resident.IsSettlementHauler || resident.StorageWorkplace != null || resident.GranaryWorkplace != null)
             {
                 return "Hauler";
             }
@@ -298,7 +298,7 @@ namespace ProjectUnknown.Strategy
                 return AppendNutritionStatus(resident, "off duty for the night");
             }
 
-            if (resident.BuilderWorkplace != null && resident.Activity == StrategyResidentAgent.ResidentActivity.Idle)
+            if ((resident.IsSettlementBuilder || resident.BuilderWorkplace != null) && resident.Activity == StrategyResidentAgent.ResidentActivity.Idle)
             {
                 return AppendNutritionStatus(resident, "waiting for construction");
             }
@@ -348,7 +348,7 @@ namespace ProjectUnknown.Strategy
                 return AppendNutritionStatus(resident, "waiting for Iron, Coal and Logs");
             }
 
-            if (resident.StorageWorkplace != null && resident.Activity == StrategyResidentAgent.ResidentActivity.Idle)
+            if ((resident.IsSettlementHauler || resident.StorageWorkplace != null) && resident.Activity == StrategyResidentAgent.ResidentActivity.Idle)
             {
                 return AppendNutritionStatus(resident, "waiting for hauling");
             }

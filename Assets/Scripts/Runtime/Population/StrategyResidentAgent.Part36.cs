@@ -33,11 +33,25 @@ namespace ProjectUnknown.Strategy
             if (delta.sqrMagnitude > MovingThresholdSqr)
             {
                 RecordTrailFootfallAtPosition(transform.position);
-                AnimateWalk();
+                if (ShouldUseNightTorchCarryVisual())
+                {
+                    AnimateNightTorchWalk();
+                }
+                else
+                {
+                    AnimateWalk();
+                }
             }
             else
             {
-                AnimateIdle();
+                if (ShouldUseNightTorchCarryVisual())
+                {
+                    UseNightTorchCarrySprite();
+                }
+                else
+                {
+                    AnimateIdle();
+                }
             }
         }
 

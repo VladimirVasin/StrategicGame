@@ -221,12 +221,14 @@ namespace ProjectUnknown.Strategy
         public string GetHudStatusText()
         {
             int sourceCount = CountAvailableSources();
+            int haulerCount = StrategyPopulationController.CountActiveSettlementHaulers();
+            int builderCount = StrategyPopulationController.CountActiveSettlementBuilders();
             return "Haulers: "
-                + workers.Count
+                + haulerCount
                 + "/\u221e"
                 + "\n"
                 + "Builders: "
-                + builders.Count
+                + builderCount
                 + "/\u221e"
                 + "\n"
                 + "Logs: "

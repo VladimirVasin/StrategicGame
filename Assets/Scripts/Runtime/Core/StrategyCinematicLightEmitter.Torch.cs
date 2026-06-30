@@ -208,6 +208,7 @@ namespace ProjectUnknown.Strategy
             float activity = GetActivityFactor(night, warm, rain, fog, storm);
             strength = Mathf.Clamp01(
                 GetBaseIntensity()
+                * GetTorchIntensityBoost()
                 * LocalLightStrengthMultiplier
                 * activity
                 * GetLightStateFactor()
@@ -217,7 +218,10 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            radius = GetBaseRadius() * LocalLightRadiusMultiplier * Mathf.Lerp(1.06f, 1.36f, strength);
+            radius = GetBaseRadius()
+                * GetTorchRadiusBoost()
+                * LocalLightRadiusMultiplier
+                * Mathf.Lerp(1.06f, 1.36f, strength);
             return radius > 0.2f;
         }
 

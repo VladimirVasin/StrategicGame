@@ -52,6 +52,8 @@ namespace ProjectUnknown.Strategy
             UnassignFromFisherHut(resident);
             UnassignFromStorageWorkerRole(resident);
             UnassignFromStorageBuilderRole(resident);
+            resident.ClearSettlementHaulerRole();
+            resident.ClearSettlementBuilderRole();
             UnassignFromGranary(resident);
             resident.ClearConstructionSite(null);
         }

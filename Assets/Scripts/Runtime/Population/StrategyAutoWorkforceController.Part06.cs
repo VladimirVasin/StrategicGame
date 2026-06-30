@@ -134,14 +134,8 @@ namespace ProjectUnknown.Strategy
                     cachedForagerCamps,
                     camp => camp.WorkerCount,
                     (StrategyForagerCamp camp, int index, out StrategyResidentAgent found) => camp.TryGetWorker(index, out found)),
-                StrategyProfessionType.StorageWorker => CountReleasableFromSites(
-                    cachedStorageYards,
-                    yard => yard.WorkerCount,
-                    (StrategyStorageYard yard, int index, out StrategyResidentAgent found) => yard.TryGetWorker(index, out found)),
-                StrategyProfessionType.Builder => CountReleasableFromSites(
-                    cachedStorageYards,
-                    yard => yard.BuilderCount,
-                    (StrategyStorageYard yard, int index, out StrategyResidentAgent found) => yard.TryGetBuilder(index, out found)),
+                StrategyProfessionType.StorageWorker => CountReleasableSettlementHaulers(false),
+                StrategyProfessionType.Builder => CountReleasableSettlementBuilders(false),
                 _ => 0
             };
         }
@@ -231,20 +225,8 @@ namespace ProjectUnknown.Strategy
                     (camp, index) => camp.UnassignWorkerAt(index),
                     out worker,
                     allowActiveRelease),
-                StrategyProfessionType.StorageWorker => TryReleaseFromSites(
-                    cachedStorageYards,
-                    yard => yard.WorkerCount,
-                    (StrategyStorageYard yard, int index, out StrategyResidentAgent found) => yard.TryGetWorker(index, out found),
-                    (yard, index) => yard.UnassignWorkerAt(index),
-                    out worker,
-                    allowActiveRelease),
-                StrategyProfessionType.Builder => TryReleaseFromSites(
-                    cachedStorageYards,
-                    yard => yard.BuilderCount,
-                    (StrategyStorageYard yard, int index, out StrategyResidentAgent found) => yard.TryGetBuilder(index, out found),
-                    (yard, index) => yard.UnassignBuilderAt(index),
-                    out worker,
-                    allowActiveRelease),
+                StrategyProfessionType.StorageWorker => TryReleaseSettlementHauler(out worker, allowActiveRelease),
+                StrategyProfessionType.Builder => TryReleaseSettlementBuilder(out worker, allowActiveRelease),
                 _ => false
             };
         }

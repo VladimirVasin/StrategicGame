@@ -18,7 +18,7 @@ namespace ProjectUnknown.Strategy
 
         private bool TryStartHaulerConstructionDeliveryTask()
         {
-            if (storageWorkplace == null || constructionSite != null)
+            if (!CanStartHaulerConstructionDelivery())
             {
                 return false;
             }

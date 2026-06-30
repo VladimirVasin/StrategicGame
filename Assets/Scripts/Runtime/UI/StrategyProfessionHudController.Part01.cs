@@ -73,16 +73,14 @@ namespace ProjectUnknown.Strategy
                     snapshot.Capacity = foragerCamps.Length * StrategyForagerCamp.MaxWorkers;
                     break;
                 case StrategyProfessionType.StorageWorker:
-                    StrategyStorageYard[] storageYards = FindSorted<StrategyStorageYard>();
-                    snapshot.Assigned = CountAssigned(storageYards, yard => yard.WorkerCount);
-                    snapshot.Capacity = storageYards.Length > 0 ? int.MaxValue : 0;
-                    snapshot.IsUnlimited = storageYards.Length > 0;
+                    snapshot.Assigned = population != null ? population.CountSettlementHaulers() : 0;
+                    snapshot.Capacity = int.MaxValue;
+                    snapshot.IsUnlimited = true;
                     break;
                 case StrategyProfessionType.Builder:
-                    StrategyStorageYard[] builderYards = FindSorted<StrategyStorageYard>();
-                    snapshot.Assigned = CountAssigned(builderYards, yard => yard.BuilderCount);
-                    snapshot.Capacity = builderYards.Length > 0 ? int.MaxValue : 0;
-                    snapshot.IsUnlimited = builderYards.Length > 0;
+                    snapshot.Assigned = population != null ? population.CountSettlementBuilders() : 0;
+                    snapshot.Capacity = int.MaxValue;
+                    snapshot.IsUnlimited = true;
                     break;
             }
 
@@ -245,22 +243,12 @@ namespace ProjectUnknown.Strategy
 
                     return false;
                 case StrategyProfessionType.StorageWorker:
-                    foreach (StrategyStorageYard yard in FindSorted<StrategyStorageYard>())
-                    {
-                        if (yard != null && yard.TryAssignNextAvailableWorker(out worker))
-                        {
-                            return true;
-                        }
-                    }
-
-                    return false;
+                    return population != null && population.TryAssignSettlementHauler(out worker);
                 case StrategyProfessionType.Builder:
-                    foreach (StrategyStorageYard yard in FindSorted<StrategyStorageYard>())
+                    if (population != null && population.TryAssignSettlementBuilder(out worker))
                     {
-                        if (yard != null && yard.TryAssignNextAvailableBuilder(out worker))
-                        {
-                            return true;
-                        }
+                        population.TryDispatchSettlementBuildersToSite(null, false);
+                        return true;
                     }
 
                     return false;
@@ -396,27 +384,9 @@ namespace ProjectUnknown.Strategy
 
                     return false;
                 case StrategyProfessionType.StorageWorker:
-                    StrategyStorageYard[] storageYards = FindSorted<StrategyStorageYard>();
-                    for (int i = storageYards.Length - 1; i >= 0; i--)
-                    {
-                        if (TryRemoveWorker(storageYards[i], storageYards[i].WorkerCount, out worker, index => storageYards[i].UnassignWorkerAt(index)))
-                        {
-                            return true;
-                        }
-                    }
-
-                    return false;
+                    return population != null && population.TryRemoveSettlementHauler(out worker);
                 case StrategyProfessionType.Builder:
-                    StrategyStorageYard[] builderYards = FindSorted<StrategyStorageYard>();
-                    for (int i = builderYards.Length - 1; i >= 0; i--)
-                    {
-                        if (TryRemoveBuilder(builderYards[i], out worker))
-                        {
-                            return true;
-                        }
-                    }
-
-                    return false;
+                    return population != null && population.TryRemoveSettlementBuilder(out worker);
                 default:
                     return false;
             }

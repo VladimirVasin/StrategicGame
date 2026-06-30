@@ -309,8 +309,13 @@ namespace ProjectUnknown.Strategy
                 StrategyHunterCamp camp => camp.AssignWorker(resident),
                 StrategyFisherHut hut => hut.AssignWorker(resident),
                 StrategyForagerCamp camp => camp.AssignWorker(resident),
-                StrategyStorageYard yard when demand.Profession == StrategyProfessionType.Builder => yard.AssignBuilder(resident),
-                StrategyStorageYard yard => yard.AssignWorker(resident),
+                StrategyConstructionSite _ when demand.Profession == StrategyProfessionType.Builder => population != null && population.TryAssignSettlementBuilder(resident),
+                StrategyConstructionSite _ when demand.Profession == StrategyProfessionType.StorageWorker => population != null && population.TryAssignSettlementHauler(resident),
+                StrategyStorageYard _ when demand.Profession == StrategyProfessionType.Builder => population != null && population.TryAssignSettlementBuilder(resident),
+                StrategyStorageYard _ when demand.Profession == StrategyProfessionType.StorageWorker => population != null && population.TryAssignSettlementHauler(resident),
+                StrategyGranary _ when demand.Profession == StrategyProfessionType.StorageWorker => population != null && population.TryAssignSettlementHauler(resident),
+                StrategyAutoWorkforceController _ when demand.Profession == StrategyProfessionType.Builder => population != null && population.TryAssignSettlementBuilder(resident),
+                StrategyAutoWorkforceController _ when demand.Profession == StrategyProfessionType.StorageWorker => population != null && population.TryAssignSettlementHauler(resident),
                 _ => false
             };
 
@@ -355,7 +360,7 @@ namespace ProjectUnknown.Strategy
 
             if (nearest != null)
             {
-                StrategyStorageYard.TryAssignBuildersToSite(nearest);
+                population?.TryDispatchSettlementBuildersToSite(nearest, false);
             }
         }
 
@@ -399,8 +404,8 @@ namespace ProjectUnknown.Strategy
                 StrategyProfessionType.Hunter => CountSiteWorkers<StrategyHunterCamp>(camp => camp.WorkerCount),
                 StrategyProfessionType.Fisher => CountSiteWorkers<StrategyFisherHut>(hut => hut.WorkerCount),
                 StrategyProfessionType.Forager => CountSiteWorkers<StrategyForagerCamp>(camp => camp.WorkerCount),
-                StrategyProfessionType.StorageWorker => CountSiteWorkers<StrategyStorageYard>(yard => yard.WorkerCount),
-                StrategyProfessionType.Builder => CountSiteWorkers<StrategyStorageYard>(yard => yard.BuilderCount),
+                StrategyProfessionType.StorageWorker => population != null ? population.CountSettlementHaulers() : 0,
+                StrategyProfessionType.Builder => population != null ? population.CountSettlementBuilders() : 0,
                 _ => 0
             };
         }

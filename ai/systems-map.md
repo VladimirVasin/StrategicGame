@@ -41,7 +41,7 @@ Responsibilities:
 - Runtime world tint overlay and calendar snapshot source for the visual day/night cycle.
 - Runtime weather overlay sorting bands for wet ground, cloud shadows, mist, and rain.
 - Runtime URP post-processing for soft color grading, bloom, and vignette driven by day/night and weather state.
-- Runtime cinematic visuals for 2D global/local lights, emissive masks, animated building torch/lantern source sprites with manual night-light state, light-aware nighttime darkness over unlit cells, wet puddle glints, lightning flashes, and foreground depth accents.
+- Runtime cinematic visuals for 2D global/local lights, emissive masks, animated building torch/lantern source sprites with manual night-light state, active hand-carried resident torch lights, light-aware nighttime darkness over unlit cells, wet puddle glints, lightning flashes, and foreground depth accents.
 
 Primary files/assets:
 
@@ -75,7 +75,7 @@ Impact hints:
 - The day/night and weather overlays sort around world sprites while staying below placement preview/fog/UI; keep that ordering when adding more world overlays.
 - Day/night owns the canonical display day, 24-hour clock, time-of-day phase labels, phase accent colors, and dawn/nightfall event-log triggers; HUDs should read that snapshot instead of inventing separate clocks.
 - Post-process tuning should stay subtle and pixel-readable; avoid blur, heavy chromatic aberration, or aggressive grain for normal strategy view.
-- Cinematic visual effects should stay bounded to reusable emitters/controllers rather than adding per-building one-off light scripts; building torch/lantern source sprites and the night darkness mask are cheap overlays, while real `Light2D` point lights should stay LOD-capped and lazily created because many simultaneous 2D lights can cause visible frame spikes. Non-campfire torch/lantern emitters read `StrategyNightLightSource` manual lit state, so avoid reintroducing automatic night-on behavior. Fire-source daylight fade uses the shared Dawn-to-start-of-`Noon` factor rather than a hard Dawn cutoff, and should shrink/disable only flame layers instead of making torch/campfire bodies transparent.
+- Cinematic visual effects should stay bounded to reusable emitters/controllers rather than adding per-building one-off light scripts; building torch/lantern source sprites and the night darkness mask are cheap overlays, while real `Light2D` point lights should stay LOD-capped and lazily created because many simultaneous 2D lights can cause visible frame spikes. Non-campfire torch/lantern emitters read `StrategyNightLightSource` manual lit state; resident personal `Dusk` hand torches should use cheap sprite/mask lighting, with resident `Light2D` reserved for actual `Night` lamp-lighting duty. Fire-source daylight fade uses the shared Dawn-to-start-of-`Noon` factor rather than a hard Dawn cutoff, and should shrink/disable only flame layers instead of making torch/campfire bodies transparent.
 - `StrategyShadowCaster2D` is the shared runtime shadow path for world sprites; tune shape/scale/offset per object type and let day/night control opacity/length globally.
 - Verify scenes visually in Unity after meaningful changes.
 
@@ -792,6 +792,7 @@ Responsibilities:
 
 - Orthographic map navigation.
 - Initial medium-close campfire focus from runtime bootstrap.
+- `Space` key recentering on the startup campfire cell while preserving current zoom.
 - Mouse-wheel and keyboard zoom.
 - Maximum zoom-out is 54 orthographic units for the current 192x192 default map.
 - WASD/arrow/edge/drag panning.
@@ -1005,7 +1006,7 @@ Responsibilities:
 - Show generated pixel-art profession icons, role labels, short role descriptions, assigned/capacity counts, and `-`/`+` controls.
 - Show the `Auto Assign` toggle and compact priority steppers for Construction, Food, Logistics, Wood, Stone, Planks, Iron, Coal, Clay, Pottery, and Tools.
 - Aggregate assignment capacity/counts across all current lumberjack camps, stonecutter camps, sawmills, kilns, hunter camps, fisher huts, forager camps, mines, coal pits, clay pits, and storage yards.
-- Treat Storage Yard Haulers and hired builders as unlimited-capacity roles once at least one Storage Yard exists; other worksite roles keep their own slot caps.
+- Treat Haulers and Builders as unlimited-capacity settlement-level population roles independent from any specific Storage Yard; other worksite roles keep their own slot caps.
 - Assign the next free adult resident to the first available worksite slot for the requested profession.
 - Remove one currently assigned resident from the requested profession through the owning worksite API.
 - Log player assignment/removal attempts and results.
@@ -1065,8 +1066,8 @@ Responsibilities:
 - Ignore children, pending refugees, funeral duty, household foraging/food duty, householders, residents with external workplaces, and active construction assignees through resident availability flags.
 - Build work demands from active construction sites, Granary ration reserve, food-production worksite stock/capacity, production-worksite stock/capacity, Storage Yard/Granary logistics backlog, Tools demand, and construction material needs.
 - Score demands by priority, urgency, shortage, worksite need, construction readiness, storage backlog, and resident distance.
-- Assign nearest free adults through existing worksite APIs instead of mutating resident/worksite lists directly.
-- Hire builders through Storage Yards so existing balanced construction dispatch remains the owner of construction-site assignment.
+- Assign nearest free adults through existing worksite APIs or settlement role APIs instead of mutating resident/worksite lists directly.
+- Assign settlement Builder roles and use population-level balanced construction dispatch as the owner of construction-site assignment.
 - Treat Haulers as the single automated logistics profession for storage resources and Granary food movement.
 - Register a short manual-removal override per profession so auto-fill does not immediately undo player `-` clicks.
 - Log demand, assignment, skipped assignment, manual override, priority, and tick status events.
@@ -1084,6 +1085,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceController.Part04.cs`
 - `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceController.Part05.cs`
 - `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceController.Part06.cs`
+- `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceController.SettlementRoles.cs`
 - `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceDemand.cs`
 - `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceSettings.cs`
 - `Assets/Scripts/Runtime/UI/StrategyProfessionHudController.Part04.cs`
@@ -1096,9 +1098,9 @@ Impact hints:
 - Auto workforce can release surplus workers from overstaffed auto-managed professions, release limited lower-priority donors for higher-scored shortages, and use a stricter emergency margin to pull at-target donors for severe food/resource shortages; Hunter/Fisher/Forager donors are protected from non-food steals during household food emergencies or active food demand, coverage floors protect the last worker in nonzero-counter professions, worksite lookups should use the cached snapshot rebuilt from active placed buildings and active construction sites on active-count changes plus a longer fallback interval instead of scene-wide lookups every scaled tick, repeated no-free-adult full scans and donor-failure diagnostics should stay throttled/lightweight, successful assignments are capped per tick, and only residents who become idle are reused immediately while workers returning carried resources re-enter the free pool on later ticks.
 - Free adult fallback assignment runs after demand assignment so idle adults are placed into the best enabled available role when any nonzero managed profession can accept them.
 - Auto workforce does not force-reassign home duty, funeral duty, or residents still busy returning carried resources.
-- Demand scoring should continue to call public worksite APIs (`AssignWorker`, `AssignBuilder`, Storage Yard builder dispatch) so cancellation, carried-resource return, reservations, and resident state cleanup stay centralized.
+- Demand scoring should continue to call public worksite APIs for capped jobs and settlement role APIs for Haulers/Builders so cancellation, carried-resource return, reservations, and resident state cleanup stay centralized.
 - Food automation should keep using Hunter/Fisher/Forager production plus shared Haulers into Granaries; do not reintroduce a separate player-facing Granary Worker profession.
-- Builder automation should hire Storage Yard builders and let `StrategyStorageYard.TryAssignBuildersToSite` balance actual construction-site assignment.
+- Builder automation should assign settlement Builder roles and let population-level builder dispatch balance actual construction-site assignment.
 - Priority UI labels and debug event labels must stay in English.
 
 ### Build Placement
@@ -1146,7 +1148,7 @@ Responsibilities:
 - Clay Pit places a `StrategyClayPit` worksite component, blocks its technical 2x2 footprint plus one visual row above, requires an available near-water Clay field under its footprint, and hosts a local visual Clay stockpile.
 - Granary places a `StrategyGranary` food-storage component, blocks its technical 3x2 footprint plus one visual row above, and hosts local visual `Game`/`Fish` stockpiles.
 - Trading Post places a `StrategyTradingPost` trade endpoint component, blocks its technical 3x2 footprint plus one visual row above, and exposes nearby walkable stop cells for caravan visits.
-- Accepted construction sites request active builders from the uncapped hired Storage Yard builder pool or the small starter-cart temporary builder pool through balanced dispatch across all active sites, show material-drop and hammer-hit effects, let builders hammer up to the progress cap allowed by physically delivered materials, and can wait if none are free yet.
+- Accepted construction sites request active settlement Builders through balanced dispatch across all active sites, can promote early free adults into normal Builder roles when needed, show material-drop and hammer-hit effects, let builders hammer up to the progress cap allowed by physically delivered materials, and can wait if none are free yet.
 - Bridge creates no worksite component, stores its selected span cells/endpoints on the placed-building record, and exposes bank endpoint cells as construction work/dropoff candidates so builders choose a reachable shore and do not stand in water.
 - Completed house sites ask population to populate the finished house separately from the construction crew.
 - Completed construction emits a placed-building completion event used by starter goals and future onboarding/progression systems.
@@ -1377,7 +1379,7 @@ Impact hints:
 - Kiln input reservations are separate from construction and Sawmill reservations so Clay/Coal input delivery cannot double-claim Storage Yard stock.
 - Kiln counts Clay, Coal, Pottery, pending Pottery, and reservations against the shared production local stock cap of 6.
 - `Pottery` currently flows from Kilns to Storage Yards and is consumed by household `Dish` cooking; it is not consumed by construction, trade, or upkeep yet.
-- Potters are normal exclusive workplace residents and should remain distinct from Storage Yard Haulers; Potters do not move resources between buildings.
+- Potters are normal exclusive workplace residents and should remain distinct from settlement Haulers; Potters do not move resources between buildings.
 
 ### Forge Production
 
@@ -1420,7 +1422,7 @@ Impact hints:
 - Forge input reservations are separate from construction, Sawmill, and Kiln reservations so Iron/Coal/Logs input delivery cannot double-claim Storage Yard stock.
 - Forge counts Iron, Coal, Logs, Tools, pending Tools, and reservations against the shared production local stock cap of 6.
 - `Tools` currently flow from Forges to Storage Yards, are consumed by Tools-based production-building upgrades, and can be sold through Trading Post caravan offers; they are not consumed by construction or upkeep yet.
-- Blacksmiths are normal exclusive workplace residents and should remain distinct from Storage Yard Haulers; Blacksmiths do not move resources between buildings.
+- Blacksmiths are normal exclusive workplace residents and should remain distinct from settlement Haulers; Blacksmiths do not move resources between buildings.
 
 ### Storage Yard Logistics
 
@@ -1448,7 +1450,7 @@ Responsibilities:
 - Include low-priority starter Caravan Cart Logs/Stone/Planks in construction affordability and reservations while it has stock.
 - Provide reserved construction resource pickup cells for builders.
 - Provide a shared construction resource source path so builders can pick up from Storage Yards, loose construction resource piles, production-local construction stock, or the low-priority starter Caravan Cart.
-- Dispatch hired builders across waiting construction sites, favoring empty and lower-builder-count sites before stacking extras.
+- Dispatch settlement Builders across waiting construction sites, favoring empty and lower-builder-count sites before stacking extras.
 - Route Haulers to source camps, pick up Logs, carry them to storage, and deposit them.
 - Route Haulers to stonecutter camps, pick up Stone, carry it to storage, and deposit it.
 - Route Haulers to Mines, pick up Iron, carry it to storage, and deposit it.
@@ -1462,7 +1464,7 @@ Responsibilities:
 - Expose non-food stock spend/receive helpers for Trading Post caravan transactions.
 - Route Haulers to loose construction resource piles, pick up Logs/Stone/Planks, carry them to storage, and deposit them.
 - Update lumberjack/stonecutter camp, Mine, Coal Pit, Clay Pit, Sawmill, Kiln, Forge, and storage yard stock visuals as resources move, and show Stone/Iron/Coal/Clay/Planks/Pottery/Tools as separate storage piles.
-- Show Hauler/builder counts, Logs/Stone/Iron/Coal/Clay/Planks/Pottery/Tools stock, and available source count in the selection HUD; player assignment/removal lives in the Profession HUD.
+- Show settlement Hauler/Builder counts, Logs/Stone/Iron/Coal/Clay/Planks/Pottery/Tools stock, and available source count in the selection HUD; player assignment/removal lives in the Profession HUD.
 
 Primary files/assets:
 
@@ -1472,7 +1474,6 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Build/StrategyStarterCaravanCart.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStarterCaravanCart.Construction.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStarterCaravanCart.Food.cs`
-- `Assets/Scripts/Runtime/Build/StrategyStarterCaravanCart.Builders.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStorageYard.Part07.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStorageYard.Part05.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStorageYard.Part08.cs`
@@ -1538,7 +1539,7 @@ Responsibilities:
 
 - Add `Granary` as a placed food-storage building with local `Game`, `Fish`, `Eggs`, Berries, Roots, and Mushrooms stock.
 - Keep Granary food stock uncapped.
-- Use shared Storage Yard Haulers instead of a separate player-facing Granary Worker profession.
+- Use shared settlement Haulers instead of a separate player-facing Granary Worker profession.
 - Find Hunter Camps with available stored `Game` and reserve stock for Haulers.
 - Find Fisher Huts with available stored `Fish` and reserve stock for Haulers.
 - Find Forager Camps with available stored Berries/Roots/Mushrooms and reserve stock for Haulers.
@@ -1726,7 +1727,7 @@ Responsibilities:
 - Keep children younger than 3 years old inside their assigned home by hiding their world sprite/collider and skipping outdoor idle/funeral movement until they age out.
 - Give older children daytime ambient play activities near home/camp, including solo play, pair play with siblings or nearby children, and tag; children with displayed age 6+ can instead help carry raw household food to their own home when reserves are low.
 - Send housed idle residents home to sleep inside during the `Night` phase by hiding their world sprite/collider until morning, while leaving homeless residents outside with a visible `Zzz...` sleep indicator.
-- Assign eligible housed adults to light building and roadside lamps at `Night`, using nearest-to-home light queues and resident kindling animation before they return to sleep.
+- Prepare future lamp workers around 20:00 during `Dusk` so their personal hand torches activate gradually during ordinary movement, then assign them to light building and roadside lamps at `Night` using nearest-to-home light queues and hand-carried torch walk/light animations before they return to sleep.
 - Resolve one nightly household dinner from prepared house `Dish`, using resident age-based ration needs after eligible residents return home for `Night`.
 - Send Householders to fetch reserved raw `Fish`/`Game`/forage food from reachable Granaries into their own house when ingredient reserves are low, then from the starter Caravan Cart while it has food, or from reachable Hunter/Fisher/Forager production stock when no stored food is available.
 - Send Householders to fetch Pottery from active Storage Yards and cook stored ingredients plus 1 Pottery per prepared `Dish` during `Dusk` when dinner coverage is low; keep Pottery retry cooldown separate from raw-food pickup.
@@ -1748,7 +1749,7 @@ Responsibilities:
 - Move an eligible adult opposite-gender partner into single-resident adult-child houses while blocking close relatives.
 - Create temporary refugee families with 1-3 members, 1-2 adult parents, and optional children.
 - Gate the first refugee family on the scripted evening of Day 2; schedule later families with the repeat interval, fading arrival intensity after 40 accepted residents and stopping arrivals at 50 accepted residents.
-- Run one dynamic refugee roll per game day after the scripted first family; the chance rises when accepted adult count is below total finite worker slots from capped worksites plus one construction slot per active construction site, while uncapped Storage Yard Hauler/builder capacity is ignored.
+- Run one dynamic refugee roll per game day after the scripted first family; the chance rises when accepted adult count is below total finite worker slots from capped worksites plus one construction slot per active construction site, while uncapped settlement Hauler/Builder capacity is ignored.
 - Spawn refugee arrivals inside the map about 4 cells beyond a random side of the daylight-visible fog boundary, with a walkable in-map edge fallback for debug/no-fog cases.
 - Keep pending refugees outside the normal resident registry until accepted.
 - Accept refugee families into the normal resident registry or destroy rejected temporary families after they return to the hidden in-map arrival staging point.
@@ -1776,7 +1777,7 @@ Responsibilities:
 - Route assigned fishers to the nearest available fish with validated land/shore cells, line casting with cast-range revalidation, hooked-fish reeling, `Fish` carrying, and hut stock deposit.
 - Assign residents to Forager Camps as workplace targets.
 - Route assigned Foragers to generated Berries/Roots/Mushrooms nodes, forage gather timing, carried forage visuals, and camp stock deposit.
-- Assign residents to storage yards as Haulers.
+- Assign residents to settlement-level Hauler roles.
 - Route assigned Haulers to lumberjack camp stock, stored-Logs pickup, storage-yard delivery, and deposit.
 - Route assigned Haulers to stonecutter camp stock, stored-Stone pickup, storage-yard delivery, and deposit.
 - Route assigned Haulers to Mine stock, stored-Iron pickup, storage-yard delivery, and deposit.
@@ -1786,8 +1787,8 @@ Responsibilities:
 - Route Householders to Storage Yard Pottery stock, house delivery, and deposit when their own house needs Pottery for cooking.
 - Route assigned Haulers to Hunter Camp/Fisher Hut/Forager Camp/Chicken Coop stock, stored-food pickup, granary delivery, and deposit.
 - Route assigned Haulers to reserved construction Logs/Stone/Planks sources for direct construction-site delivery when normal Hauler orders are unavailable.
-- Assign residents to Storage Yards as dedicated builders.
-- Route hired builders to reserved construction stock, construction resource pickup, site delivery, and hammer/build work up to the currently delivered-material progress cap; before a Storage Yard exists, the starter cart can assign a small temporary builder pool.
+- Assign residents to settlement-level Builder roles.
+- Route settlement Builders to reserved construction stock, construction resource pickup, site delivery, and hammer/build work up to the currently delivered-material progress cap; before a Storage Yard exists, early construction can assign free adults into the same normal Builder role.
 - Drive frame-based axe swing animation and hit timing for lumberjacks.
 - Drive frame-based pickaxe swing animation and hit timing for stonecutters.
 - Drive frame-based bow shot and butchering animation/timing for hunters.
@@ -1800,7 +1801,7 @@ Responsibilities:
 - Generate corpse/death animation frames, dragged shroud/rope sprites, crying resident frames, and grave sprites for funeral flow.
 - Choose random resident visual variants at startup.
 - Add synced resident readability renderers: silhouette outline and ground shadow.
-- Generate resident campfire kindling and ground-sleep sprites for homeless night sleep.
+- Generate resident campfire kindling, ground-sleep, and hand-carried torch walk/light sprites for night sleep and night lamp duty.
 - Generate and animate procedural campfire flame, smoke/spark, ember, and relight frames at runtime.
 - Drive the first-morning campfire flame fade plus later burnout/daylight extinguish into embers and residual light that fade from `Dawn` to fully cold at the start of `Noon`, restore campfire-cell walkability while extinguished, and support resident-triggered nighttime relight.
 - Drive simple chicken idle movement around standalone or legacy linked Chicken Coops with walk and peck sprite animations, plus standalone coop night shelter/release visuals.
@@ -1815,6 +1816,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyPopulationController.Part08.cs`
 - `Assets/Scripts/Runtime/Population/StrategyPopulationController.Part06.cs`
 - `Assets/Scripts/Runtime/Population/StrategyPopulationController.Part07.cs`
+- `Assets/Scripts/Runtime/Population/StrategyPopulationController.SettlementRoles.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentDeathSnapshot.cs`
 - `Assets/Scripts/Runtime/Population/StrategyFuneralController.cs`
 - `Assets/Scripts/Runtime/Population/StrategyFuneralController.Part01.cs`
@@ -1834,7 +1836,9 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyNightLightTaskController.cs`
 - `Assets/Scripts/Runtime/Population/StrategyKinshipUtility.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.SettlementRoles.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.NightLights.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.NightTorchLight.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part36.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.TrailRoutes.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part37.cs`
@@ -1854,6 +1858,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part58.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part60.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentSpriteFactory.Part05.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentSpriteFactory.NightTorch.cs`
 - `Assets/Scripts/Runtime/Population/StrategyCampfireRelightSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Build/StrategyLumberjackCamp.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStonecutterCamp.cs`
@@ -1919,7 +1924,7 @@ Impact hints:
 - `StrategyPopulationController` also owns the runtime house registry used for free-house migration and partner retry checks.
 - Pending refugee families are rendered as resident agents but are not counted as residents, workers, or fog sources until accepted.
 - Refugee entry selection depends on `StrategyFogOfWarController.IsCellVisibleAtDaylightRange` so temporary night/fog visibility reductions do not move arrivals closer to the settlement.
-- Dynamic refugee demand rolls should compare accepted adults against finite worker capacity and should not treat Storage Yard Hauler/builder roles as infinite vacancies.
+- Dynamic refugee demand rolls should compare accepted adults against finite worker capacity and should not treat settlement Hauler/Builder roles as infinite vacancies.
 - Accepted refugee families join the normal registry as a preserved family block, stay near camp while homeless, and get priority to fill the first empty House as a whole household before normal single-adult migration or random pair assignment.
 - `StrategyHouseholdState` lives on occupied houses and owns the randomized birth timer.
 - `StrategyHouseholdState` blocks births while the same house has sustained ration shortages or birth-blocked residents.
@@ -1929,7 +1934,7 @@ Impact hints:
 - Generated forage reach/crouch sprites and node pulse effects are used by Forager Camp workers and are not started by Houses.
 - `StrategyPlacedBuilding` owns the current Householder reference for houses, preferring the oldest adult female resident and refreshing on home changes, death/unregister, and resident adulthood.
 - `StrategyResidentAgent.HasWorkplace` includes the Householder role, so profession assignment should treat householders as occupied home workers.
-- Householder assignment clears external worksite/builder roles through their owning worksite APIs and uses `TendingHousehold` instead of `Idle` for home duty.
+- Householder assignment clears external worksite roles plus settlement Hauler/Builder roles through their owning APIs and uses `TendingHousehold` instead of `Idle` for home duty.
 - `StrategyKinshipUtility` treats close parent/ancestor graph distance as a block for future couple/family rules, including ancestors whose resident GameObjects were destroyed after death.
 - Resident readability helpers are visual-only child `SpriteRenderer`s and should stay synced when changing resident animation frames.
 - Residents use the shared trail-aware 8-direction A* grid pathfinder with no diagonal corner cutting and post-path smoothing for idle, home, workplace, construction, logistics, and funeral travel while keeping frame-based sprite walk cycles.
@@ -1938,7 +1943,7 @@ Impact hints:
 - Resident pathfinding can recover a blocked start cell by snapping to a nearby walkable cell and logging `PathStartRecovered`.
 - Resident scheduled work starts only during `StrategyDayNightCycleController.IsSettlementWorkTime`, which now covers Dawn through Dusk on every day. Keep carried-resource returns, deposits, and cleanup paths schedule-safe so nightfall cannot strand stock reservations.
 - Resident night sleep is separate from homebound young-child hiding: housed residents only enter the hidden home interior during `Night` when they are not carrying resources, in funeral duty, underground, or assigned to night lamp lighting, notify household food state for dinner readiness, then reappear at the home exit after night ends. Homeless residents instead reserve reachable campfire sleep spots, relight embers if needed, and sleep visibly around the startup campfire with a small `Zzz...` indicator.
-- Night lamp lighting is owned by `StrategyNightLightTaskController` plus `StrategyResidentAgent.NightLights.cs`; it should stay separate from worksite jobs and should not automatically light sources when no eligible resident can reach them.
+- Night lamp lighting is owned by `StrategyNightLightTaskController` plus `StrategyResidentAgent.NightLights.cs`; carried torch light/glow/night-mask contribution is isolated in `StrategyResidentAgent.NightTorchLight.cs`; late-Dusk personal hand-torch activation should not start stationary-lamp routes before `Night`, personal Dusk torches should avoid real `Light2D` point lights, and lamp sources should not automatically light when no eligible resident can reach them.
 - Resident footstep audio is attached by `StrategyResidentAgent` and plays grass clips on selected walk frames; keep it low-volume/spatial when adding more residents or faster simulation speeds.
 - Lumberjack work keeps the same camp worksite component but chooses the nearest available tree/processable wood on the map; it tests nearby work cells for real path reachability before starting tree/log/plant movement, and includes tree chopping, trunk bucking, Logs delivery, and sapling planting.
 - Resident woodcut sprites are generated for every male/female visual variant and should stay in sync with readability outline mirroring.
@@ -1954,8 +1959,8 @@ Impact hints:
 - Fisher work keeps the same hut worksite component but reserves the nearest available fish through `StrategyWildlifeController`, requires a valid land/shore stand cell around the target, abandons casts when the fish leaves cast range during cast/wait/reel phases, and stores produced `Fish` locally at the fisher hut for now.
 - Resident fishing sprites are generated for every male/female visual variant and should stay in sync with readability outline mirroring.
 - Granary food logistics is serviced by shared Haulers, moving food from production buildings into food storage after normal storage-resource hauling checks.
-- Storage Yard Haulers move Logs, Stone, Iron, Coal, Clay, Planks, Pottery, and Tools outputs from production worksites into Storage Yard stock and deliver non-food production inputs from Storage Yard stock into production nodes; Householders deliver Pottery from Storage Yards into houses for Dish cooking. Coal, Clay, Planks, Pottery, and Tools use their own carried sprite and return/drop cleanup paths.
-- Construction assignment is a temporary exclusive task for hired Storage Yard builders or starter-cart temporary builders; there is no construction-site builder cap, balanced dispatch spreads free builders across active sites first, and workplace assignment skips residents already attached to a construction site. Construction assignment does not block home/family assignment.
+- Settlement Haulers move Logs, Stone, Iron, Coal, Clay, Planks, Pottery, and Tools outputs from production worksites into Storage Yard stock when a yard exists, deliver non-food production inputs from Storage Yard stock into production nodes, and can fallback-deliver construction materials before Storage Yard construction; Householders deliver Pottery from Storage Yards into houses for Dish cooking. Coal, Clay, Planks, Pottery, and Tools use their own carried sprite and return/drop cleanup paths.
+- Construction assignment is an exclusive active task for settlement Builders; there is no construction-site builder cap, balanced dispatch spreads free Builders across active sites first, and workplace assignment skips residents already attached to a construction site. Construction assignment does not block home/family assignment.
 - Construction hammer work must reserve an individual unlocked build-hit unit on `StrategyConstructionSite` before the resident enters the hammer animation; reset, assignment clear, site completion, and site destruction paths must release those reservations.
 - Builder construction pickup path failures include start/pickup walkability details in `debug.log`; repeated pickup path failures drop that builder's current site assignment so another builder can retry.
 - Worker and builder assignment must check `StrategyResidentAgent.CanWork`; children under age 3 remain inside assigned homes, and older children can play or carry raw household food home at displayed age 6+, but cannot work/build.
@@ -1968,7 +1973,7 @@ Impact hints:
 - If no free pair exists, the completed house is available for adult-child migration and partner lookup.
 - House occupation consumes the finite free-resident pool from the starter camp while it exists; later household births and adult-child migration are the first internal population growth path.
 - Resident death must continue to go through the centralized population cleanup path; direct `Destroy` on accepted residents risks stale worksite, construction, home, HUD, or kinship state.
-- Resident helper methods for carried-resource return, construction work, hauler construction delivery fallback, workplace clearing, readability sync, refugee path following, tree movement, fishing cast/reel flow, production-input delivery, trail movement, building-route trail capture, ranged hunt stand selection, reachable forestry work-cell selection, reachable construction dropoff selection, worker-triggered visual effects, day/night work scheduling, night home sleep, night lamp lighting, Clay work/logistics, Kiln/Pottery work/logistics, household Pottery delivery, Forge/Tools work/logistics, production-upgrade speed helpers, homeless campfire sleep, forager work, and child play are split across `StrategyResidentAgent` partial files to keep source files below the 500-line limit.
+- Resident helper methods for settlement role assignment, carried-resource return, construction work, hauler construction delivery fallback, workplace clearing, readability sync, refugee path following, tree movement, fishing cast/reel flow, production-input delivery, trail movement, building-route trail capture, ranged hunt stand selection, reachable forestry work-cell selection, reachable construction dropoff selection, worker-triggered visual effects, day/night work scheduling, night home sleep, night lamp lighting, Clay work/logistics, Kiln/Pottery work/logistics, household Pottery delivery, Forge/Tools work/logistics, production-upgrade speed helpers, homeless campfire sleep, forager work, and child play are split across `StrategyResidentAgent` partial files to keep source files below the 500-line limit.
 - Future jobs/families/economy should extend resident state rather than replacing the home/free-camp assignment model.
 
 ### World Selection
@@ -2053,7 +2058,7 @@ Impact hints:
 - Selection HUD is runtime-created in the world selection controller and slides in from the right.
 - World inspect microHUD is runtime-created by the selection controller, uses non-blocking Screen Space Overlay UI, shifts left while the right-side selected-object HUD is open, and intentionally excludes residents, placed buildings, construction sites, and house upgrades.
 - Non-selectable world objects should implement `IStrategyWorldInspectable`; do not add mass click-only physics colliders for inspect objects unless they are also truly selectable.
-- Building selection links are visual-only world overlays: Houses use `StrategyPlacedBuilding.Residents`; worksites use their assigned worker lists; Storage Yards include both Haulers and builders; selected construction sites link to their assigned builders.
+- Building selection links are visual-only world overlays: Houses use `StrategyPlacedBuilding.Residents`; worksites use their assigned worker lists; Storage Yards show stock/logistics context without owning Hauler/Builder links; selected construction sites link to their assigned builders.
 - House resident rows use the assigned resident references stored on `StrategyPlacedBuilding` and grow to the current house capacity.
 - Worksite context uses references/counts stored on the selected worksite component, but player assignment/removal is owned by the Profession HUD.
 - Construction site context uses cost/progress/builder data stored on `StrategyConstructionSite`.

@@ -346,7 +346,7 @@ namespace ProjectUnknown.Strategy
                 return "householder";
             }
 
-            if (resident.BuilderWorkplace != null || resident.ConstructionSite != null)
+            if (resident.IsSettlementBuilder || resident.BuilderWorkplace != null || resident.ConstructionSite != null)
             {
                 return "builder";
             }
@@ -386,7 +386,7 @@ namespace ProjectUnknown.Strategy
                 return "fisher";
             }
 
-            if (resident.StorageWorkplace != null)
+            if (resident.IsSettlementHauler || resident.StorageWorkplace != null)
             {
                 return "storekeeper";
             }

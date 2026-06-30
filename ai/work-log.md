@@ -8,6 +8,53 @@ Last updated: 2026-06-30
 
 ## Done
 
+### 2026-06-30 - Dusk hand-torch performance fix
+
+- Investigated the fresh performance drop around late `Dusk`/`Night` and kept the fix inside resident hand-torch visuals.
+- Made repeated evening personal torch activation idempotent so the night-light controller no longer refreshes already-lit personal torches every frame.
+- Kept personal `Dusk` hand torches on cheap glow/core sprites plus night-darkness mask contribution, while real resident `Light2D` point lights now activate only during actual `MovingToNightLight` / `LightingNightLight` duty.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-06-30 - Dusk personal hand torches
+
+- Changed night-light preparation so future torch carriers are chosen around 20:00 during `Dusk`, but they do not leave for building/roadside lamps until `Night`.
+- Staggered personal hand-torch activation across late Dusk, letting selected residents carry their own lit torches while they continue ordinary idle/household walking.
+- Kept actual `MovingToNightLight` / `LightingNightLight` routes and stationary lamp ignition as `Night`-only.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-06-30 - Spacebar campfire camera focus
+
+- Added a `Space` camera shortcut that recenters the strategy camera on the startup campfire cell while preserving the current zoom level.
+- Wired `StrategyCameraController` to the population camp source after starter population setup in runtime bootstrap.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-06-30 - Full-night visible-cell blackout
+
+- Raised the cinematic nighttime darkness mask to full opacity at maximum night, so unlit cells that are still current fog-of-war visible no longer reveal terrain/detail at full darkness.
+- Kept the underlying `StrategyFogOfWarController.IsCellVisible` state unchanged; this is a visual blackout only.
+- Increased the night-mask light cutout boost so active campfire, building, roadside, and hand-carried torch sources still carve readable light pools through the blackout.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-06-30 - Settlement-level Haulers and Builders
+
+- Moved Hauler and Builder assignment to population-level settlement roles instead of Storage Yard-owned worker lists; the Profession HUD now shows and assigns both roles even before a Storage Yard exists.
+- Replaced the starter-cart temporary builder path with normal Builder-role seeding and population-level balanced dispatch across active construction sites.
+- Updated auto workforce, resident role/status text, Storage Yard dashboard counts, construction builder requests, and cleanup paths to use settlement roles while Storage Yards remain resource dropoff/storage targets.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-06-30 - Stronger torch light pools
+
+- Boosted building and roadside torch light profiles so lit sources produce brighter local `Light2D`, glow/core sprites, and larger night-darkness mask cutouts.
+- Added `StrategyResidentAgent.NightTorchLight.cs` so residents carrying night-light torches emit their own local point light, glow/core sprites, and darkness-mask cutout while walking to or igniting lamps.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-06-30 - Hand-carried torch night-light animation
+
+- Added `StrategyResidentSpriteFactory.NightTorch.cs` with runtime-generated hand-torch walk frames and a separate multi-frame reach/ignite animation for lamp lighting.
+- Changed `MovingToNightLight` residents to walk while visibly carrying a lit hand torch, and changed `LightingNightLight` to use the new torch-to-lamp animation instead of reusing campfire kindling sprites.
+- Kept resident readability sync, footstep timing, and night-light task state flow intact; updated `Assembly-CSharp.csproj` for the new sprite factory partial.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
 ### 2026-06-30 - Roadside night-light task registration
 
 - Hardened `StrategyNightLightSource` active registration so configured building and roadside sources re-register themselves even if Unity enable timing or a late configure pass missed the static active list.

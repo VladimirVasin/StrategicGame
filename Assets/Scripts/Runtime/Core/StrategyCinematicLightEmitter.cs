@@ -226,8 +226,16 @@ namespace ProjectUnknown.Strategy
             float lightState = GetLightStateFactor() * GetDarkTimeLightFactor();
             float flicker = GetFlicker();
             Color color = GetColor(wet, storm);
-            float intensity = GetBaseIntensity() * LocalLightStrengthMultiplier * activity * lightState * flicker;
-            float radius = GetBaseRadius() * LocalLightRadiusMultiplier * Mathf.Lerp(0.92f, 1.12f, activity);
+            float intensity = GetBaseIntensity()
+                * GetTorchIntensityBoost()
+                * LocalLightStrengthMultiplier
+                * activity
+                * lightState
+                * flicker;
+            float radius = GetBaseRadius()
+                * GetTorchRadiusBoost()
+                * LocalLightRadiusMultiplier
+                * Mathf.Lerp(0.92f, 1.12f, activity);
 
             if (lodPointLight)
             {

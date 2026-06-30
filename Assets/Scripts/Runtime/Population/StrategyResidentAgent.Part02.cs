@@ -87,6 +87,8 @@ namespace ProjectUnknown.Strategy
             previousStorage?.UnassignWorker(this);
             previousBuilder?.UnassignBuilder(this);
             previousGranary?.UnassignWorker(this);
+            ClearSettlementHaulerRole();
+            ClearSettlementBuilderRole();
             ClearConstructionSite(null);
             CancelForageWork(true);
             CancelHouseholdFoodWork(true);
@@ -129,7 +131,7 @@ namespace ProjectUnknown.Strategy
         {
             if (site == null
                 || constructionSite == site
-                || builderWorkplace == null
+                || !HasBuilderWorkRole
                 || IsReturningCarriedResourceActivity(activity)
                 || activity == ResidentActivity.ReturningCoalToStorage
                 || activity == ResidentActivity.ReturningClayToStorage
@@ -156,7 +158,7 @@ namespace ProjectUnknown.Strategy
             CancelForageWork(true);
             CancelHouseholdFoodWork(true);
             constructionSite = site;
-            constructionFutureHome = willLiveThere; temporaryConstructionAssignment = false;
+            constructionFutureHome = willLiveThere;
             ClearCarriedConstructionReturnReservation();
             activeConstructionSource = null;
             activeConstructionResource = StrategyConstructionResourceKind.None;
@@ -210,7 +212,7 @@ namespace ProjectUnknown.Strategy
             activeConstructionSource = null;
             activeConstructionResource = StrategyConstructionResourceKind.None;
             constructionPickupPathFailures = 0;
-            constructionFutureHome = false; temporaryConstructionAssignment = false;
+            constructionFutureHome = false;
             carriedLogAmount = 0;
             carriedStoneAmount = 0;
             carriedIronAmount = 0;
@@ -281,7 +283,7 @@ namespace ProjectUnknown.Strategy
             activeConstructionDeliverySite = null;
             activeConstructionResource = StrategyConstructionResourceKind.None;
             constructionPickupPathFailures = 0;
-            constructionFutureHome = false; temporaryConstructionAssignment = false;
+            constructionFutureHome = false;
             if (hadCarriedResources
                 && allowCarriedResourceReturn
                 && TryStartCarriedResourceReturn("construction_assignment_cleared"))

@@ -11,8 +11,8 @@ namespace ProjectUnknown.Strategy
 
         private void AddCoverageFloorDemands()
         {
-            AddStorageCoverageFloor(StrategyProfessionType.Builder, StrategyAutoWorkforceCategory.Construction, yard => yard.BuilderCount);
-            AddStorageCoverageFloor(StrategyProfessionType.StorageWorker, StrategyAutoWorkforceCategory.Logistics, yard => yard.WorkerCount);
+            AddSettlementCoverageFloor(StrategyProfessionType.Builder, StrategyAutoWorkforceCategory.Construction);
+            AddSettlementCoverageFloor(StrategyProfessionType.StorageWorker, StrategyAutoWorkforceCategory.Logistics);
             AddSiteCoverageFloor<StrategyLumberjackCamp>(StrategyProfessionType.Lumberjack, StrategyAutoWorkforceCategory.Wood, camp => camp.WorkerCount, camp => StrategyLumberjackCamp.MaxWorkers, camp => camp.FootprintBounds.center);
             AddSiteCoverageFloor<StrategyStonecutterCamp>(StrategyProfessionType.Stonecutter, StrategyAutoWorkforceCategory.Stone, camp => camp.WorkerCount, camp => StrategyStonecutterCamp.MaxWorkers, camp => camp.FootprintBounds.center);
             AddSiteCoverageFloor<StrategySawmill>(StrategyProfessionType.Sawyer, StrategyAutoWorkforceCategory.Planks, sawmill => sawmill.WorkerCount, sawmill => StrategySawmill.MaxWorkers, sawmill => sawmill.FootprintBounds.center);
@@ -137,8 +137,8 @@ namespace ProjectUnknown.Strategy
                 }
             }
 
-            TryKeepBetterFallbackDemand(ref demand, TryCreateStorageFallbackDemand(StrategyProfessionType.Builder, StrategyAutoWorkforceCategory.Construction, yard => yard.BuilderCount, allowOverTarget));
-            TryKeepBetterFallbackDemand(ref demand, TryCreateStorageFallbackDemand(StrategyProfessionType.StorageWorker, StrategyAutoWorkforceCategory.Logistics, yard => yard.WorkerCount, allowOverTarget));
+            TryKeepBetterFallbackDemand(ref demand, TryCreateSettlementFallbackDemand(StrategyProfessionType.Builder, StrategyAutoWorkforceCategory.Construction, allowOverTarget));
+            TryKeepBetterFallbackDemand(ref demand, TryCreateSettlementFallbackDemand(StrategyProfessionType.StorageWorker, StrategyAutoWorkforceCategory.Logistics, allowOverTarget));
             TryKeepBetterFallbackDemand(ref demand, TryCreateSiteFallbackDemand<StrategyLumberjackCamp>(StrategyProfessionType.Lumberjack, StrategyAutoWorkforceCategory.Wood, camp => camp.WorkerCount, camp => StrategyLumberjackCamp.MaxWorkers, camp => camp.FootprintBounds.center, allowOverTarget));
             TryKeepBetterFallbackDemand(ref demand, TryCreateSiteFallbackDemand<StrategyStonecutterCamp>(StrategyProfessionType.Stonecutter, StrategyAutoWorkforceCategory.Stone, camp => camp.WorkerCount, camp => StrategyStonecutterCamp.MaxWorkers, camp => camp.FootprintBounds.center, allowOverTarget));
             TryKeepBetterFallbackDemand(ref demand, TryCreateSiteFallbackDemand<StrategySawmill>(StrategyProfessionType.Sawyer, StrategyAutoWorkforceCategory.Planks, sawmill => sawmill.WorkerCount, sawmill => StrategySawmill.MaxWorkers, sawmill => sawmill.FootprintBounds.center, allowOverTarget));

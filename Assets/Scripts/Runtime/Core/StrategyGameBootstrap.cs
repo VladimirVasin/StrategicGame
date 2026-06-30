@@ -244,6 +244,7 @@ namespace ProjectUnknown.Strategy
             }
 
             population.Configure(map);
+            cameraController.SetCampFocusSource(map, population);
 
             StrategyNightLightTaskController nightLights = Object.FindAnyObjectByType<StrategyNightLightTaskController>();
             if (nightLights == null)

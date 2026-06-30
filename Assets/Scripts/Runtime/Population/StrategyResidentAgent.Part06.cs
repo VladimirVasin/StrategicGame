@@ -8,9 +8,8 @@ namespace ProjectUnknown.Strategy
         private bool TryStartGranaryTask()
         {
             StrategyGranary targetGranary = granaryWorkplace;
-            if (targetGranary == null
-                && storageWorkplace != null
-                && !StrategyGranary.TryFindNearestGranary(storageWorkplace.FootprintBounds.center, out targetGranary))
+            Vector3 granarySearchWorld = storageWorkplace != null ? storageWorkplace.FootprintBounds.center : transform.position;
+            if (targetGranary == null && !StrategyGranary.TryFindNearestGranary(granarySearchWorld, out targetGranary))
             {
                 return false;
             }
@@ -225,7 +224,7 @@ namespace ProjectUnknown.Strategy
 
         private bool TryStartConstructionTask()
         {
-            if (activity != ResidentActivity.Idle || constructionSite == null || (builderWorkplace == null && !temporaryConstructionAssignment) || !CanWork)
+            if (activity != ResidentActivity.Idle || constructionSite == null || !HasBuilderWorkRole || !CanWork)
             {
                 return false;
             }

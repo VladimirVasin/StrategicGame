@@ -92,8 +92,8 @@ namespace ProjectUnknown.Strategy
 
         public static bool TryAssignBuildersToSite(StrategyConstructionSite site)
         {
-            return TryAssignBuildersAcrossSites(site)
-                || StrategyStarterCaravanCart.TryAssignBuildersToSite(site);
+            StrategyPopulationController population = Object.FindAnyObjectByType<StrategyPopulationController>();
+            return population != null && population.TryDispatchSettlementBuildersToSite(site, true);
         }
 
         public static StrategyConstructionResourceCost GetTotalConstructionResources()

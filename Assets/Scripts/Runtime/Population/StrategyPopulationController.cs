@@ -408,7 +408,7 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            bool assigned = StrategyStorageYard.TryAssignBuildersToSite(site);
+            bool assigned = TryDispatchSettlementBuildersToSite(site, true);
             if (!assigned)
             {
                 StrategyDebugLogger.Warn(
@@ -416,7 +416,7 @@ namespace ProjectUnknown.Strategy
                     "ConstructionBuildersRejected",
                     StrategyDebugLogger.F("tool", site.Tool),
                     StrategyDebugLogger.F("origin", site.Origin),
-                    StrategyDebugLogger.F("reason", "no_hired_storage_builders"));
+                    StrategyDebugLogger.F("reason", "no_settlement_builders"));
                 return false;
             }
 
