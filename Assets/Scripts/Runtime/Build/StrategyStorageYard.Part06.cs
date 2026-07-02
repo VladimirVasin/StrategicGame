@@ -87,12 +87,20 @@ namespace ProjectUnknown.Strategy
         private static List<StrategyConstructionSite> GetActiveConstructionSites()
         {
             constructionSiteQuery.Clear();
-            IReadOnlyList<StrategyConstructionSite> sites = StrategyConstructionSite.ActiveSites;
-            for (int i = 0; i < sites.Count; i++)
+            StrategyWorldChunkRegistry chunks = StrategyWorldChunkRegistry.Active;
+            if (chunks != null && chunks.IsConfigured)
             {
-                if (sites[i] != null)
+                chunks.CopyActiveConstructionSites(constructionSiteQuery);
+            }
+            else
+            {
+                IReadOnlyList<StrategyConstructionSite> sites = StrategyConstructionSite.ActiveSites;
+                for (int i = 0; i < sites.Count; i++)
                 {
-                    constructionSiteQuery.Add(sites[i]);
+                    if (sites[i] != null)
+                    {
+                        constructionSiteQuery.Add(sites[i]);
+                    }
                 }
             }
 

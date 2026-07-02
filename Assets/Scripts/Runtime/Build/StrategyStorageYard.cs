@@ -9,6 +9,14 @@ namespace ProjectUnknown.Strategy
         private readonly List<StrategyResidentAgent> workers = new();
         private readonly List<StrategyResidentAgent> builders = new();
         private static readonly List<StrategyStorageYard> yardQuery = new();
+        private static readonly List<StrategyLumberjackCamp> lumberjackCampQuery = new();
+        private static readonly List<StrategyStonecutterCamp> stonecutterCampQuery = new();
+        private static readonly List<StrategyMine> mineQuery = new();
+        private static readonly List<StrategyCoalPit> coalPitQuery = new();
+        private static readonly List<StrategyClayPit> clayPitQuery = new();
+        private static readonly List<StrategySawmill> sawmillQuery = new();
+        private static readonly List<StrategyKiln> kilnQuery = new();
+        private static readonly List<StrategyForge> forgeQuery = new();
         private StrategyPlacedBuilding building;
         private CityMapController map;
         private StrategyPopulationController population;

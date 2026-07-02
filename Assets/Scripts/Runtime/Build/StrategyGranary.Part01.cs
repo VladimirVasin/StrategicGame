@@ -359,38 +359,31 @@ namespace ProjectUnknown.Strategy
             gameSources = 0;
             fishSources = 0;
             eggSources = 0;
-            IReadOnlyList<StrategyPlacedBuilding> buildings = StrategyPlacedBuilding.ActiveBuildings;
-            for (int i = 0; i < buildings.Count; i++)
+            List<StrategyHunterCamp> hunterCamps = GetActiveBuildingComponents(hunterCampQuery);
+            for (int i = 0; i < hunterCamps.Count; i++)
             {
-                StrategyPlacedBuilding building = buildings[i];
-                if (building != null
-                    && building.TryGetComponent(out StrategyHunterCamp camp)
-                    && camp != null
-                    && camp.AvailableGame > 0)
+                StrategyHunterCamp camp = hunterCamps[i];
+                if (camp != null && camp.AvailableGame > 0)
                 {
                     gameSources++;
                 }
             }
 
-            for (int i = 0; i < buildings.Count; i++)
+            List<StrategyFisherHut> fisherHuts = GetActiveBuildingComponents(fisherHutQuery);
+            for (int i = 0; i < fisherHuts.Count; i++)
             {
-                StrategyPlacedBuilding building = buildings[i];
-                if (building != null
-                    && building.TryGetComponent(out StrategyFisherHut hut)
-                    && hut != null
-                    && hut.AvailableFish > 0)
+                StrategyFisherHut hut = fisherHuts[i];
+                if (hut != null && hut.AvailableFish > 0)
                 {
                     fishSources++;
                 }
             }
 
-            for (int i = 0; i < buildings.Count; i++)
+            List<StrategyChickenCoop> coops = GetActiveBuildingComponents(chickenCoopQuery);
+            for (int i = 0; i < coops.Count; i++)
             {
-                StrategyPlacedBuilding building = buildings[i];
-                if (building != null
-                    && building.TryGetComponent(out StrategyChickenCoop coop)
-                    && coop != null
-                    && coop.AvailableEggs > 0)
+                StrategyChickenCoop coop = coops[i];
+                if (coop != null && coop.AvailableEggs > 0)
                 {
                     eggSources++;
                 }
@@ -399,16 +392,50 @@ namespace ProjectUnknown.Strategy
 
         private static List<StrategyGranary> GetActiveGranaries()
         {
-            StrategyPlacedBuilding.CopyActiveComponents(granaryQuery);
+            StrategyWorldChunkRegistry chunks = StrategyWorldChunkRegistry.Active;
+            if (chunks != null && chunks.IsConfigured)
+            {
+                chunks.CopyActiveBuildingComponents(granaryQuery);
+            }
+            else
+            {
+                StrategyPlacedBuilding.CopyActiveComponents(granaryQuery);
+            }
+
             return granaryQuery;
         }
 
         private static List<StrategyGranary> GetGranariesSortedByDistance(Vector3 nearWorld)
         {
-            StrategyPlacedBuilding.CopyActiveComponents(granaryQuery);
+            StrategyWorldChunkRegistry chunks = StrategyWorldChunkRegistry.Active;
+            if (chunks != null && chunks.IsConfigured)
+            {
+                chunks.CopyActiveBuildingComponents(granaryQuery);
+            }
+            else
+            {
+                StrategyPlacedBuilding.CopyActiveComponents(granaryQuery);
+            }
+
             granarySortWorld = nearWorld;
             granaryQuery.Sort(CompareGranariesByDistance);
             return granaryQuery;
+        }
+
+        private static List<T> GetActiveBuildingComponents<T>(List<T> results)
+            where T : Component
+        {
+            StrategyWorldChunkRegistry chunks = StrategyWorldChunkRegistry.Active;
+            if (chunks != null && chunks.IsConfigured)
+            {
+                chunks.CopyActiveBuildingComponents(results);
+            }
+            else
+            {
+                StrategyPlacedBuilding.CopyActiveComponents(results);
+            }
+
+            return results;
         }
 
         private static int CompareGranariesByDistance(StrategyGranary left, StrategyGranary right)

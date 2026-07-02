@@ -7,41 +7,58 @@ namespace ProjectUnknown.Strategy
     {
         private void RefreshWorksiteCacheFromActiveObjects()
         {
-            IReadOnlyList<StrategyPlacedBuilding> buildings = StrategyPlacedBuilding.ActiveBuildings;
-            cachedConstructionSites = CopyActiveConstructionSites(StrategyConstructionSite.ActiveSites);
-            cachedStorageYards = FindBuildingComponents<StrategyStorageYard>(buildings);
-            cachedLumberjackCamps = FindBuildingComponents<StrategyLumberjackCamp>(buildings);
-            cachedStonecutterCamps = FindBuildingComponents<StrategyStonecutterCamp>(buildings);
-            cachedMines = FindBuildingComponents<StrategyMine>(buildings);
-            cachedCoalPits = FindBuildingComponents<StrategyCoalPit>(buildings);
-            cachedClayPits = FindBuildingComponents<StrategyClayPit>(buildings);
-            cachedSawmills = FindBuildingComponents<StrategySawmill>(buildings);
-            cachedKilns = FindBuildingComponents<StrategyKiln>(buildings);
-            cachedForges = FindBuildingComponents<StrategyForge>(buildings);
-            cachedHunterCamps = FindBuildingComponents<StrategyHunterCamp>(buildings);
-            cachedFisherHuts = FindBuildingComponents<StrategyFisherHut>(buildings);
-            cachedForagerCamps = FindBuildingComponents<StrategyForagerCamp>(buildings);
-            cachedChickenCoops = FindBuildingComponents<StrategyChickenCoop>(buildings);
-            cachedGranaries = FindBuildingComponents<StrategyGranary>(buildings);
-            cachedPlacedBuildings = CopyActiveBuildings(buildings);
+            cachedConstructionSites = CopyActiveConstructionSites(GetActiveConstructionSiteSnapshot());
+            cachedStorageYards = CopyActiveBuildingComponents<StrategyStorageYard>();
+            cachedLumberjackCamps = CopyActiveBuildingComponents<StrategyLumberjackCamp>();
+            cachedStonecutterCamps = CopyActiveBuildingComponents<StrategyStonecutterCamp>();
+            cachedMines = CopyActiveBuildingComponents<StrategyMine>();
+            cachedCoalPits = CopyActiveBuildingComponents<StrategyCoalPit>();
+            cachedClayPits = CopyActiveBuildingComponents<StrategyClayPit>();
+            cachedSawmills = CopyActiveBuildingComponents<StrategySawmill>();
+            cachedKilns = CopyActiveBuildingComponents<StrategyKiln>();
+            cachedForges = CopyActiveBuildingComponents<StrategyForge>();
+            cachedHunterCamps = CopyActiveBuildingComponents<StrategyHunterCamp>();
+            cachedFisherHuts = CopyActiveBuildingComponents<StrategyFisherHut>();
+            cachedForagerCamps = CopyActiveBuildingComponents<StrategyForagerCamp>();
+            cachedChickenCoops = CopyActiveBuildingComponents<StrategyChickenCoop>();
+            cachedGranaries = CopyActiveBuildingComponents<StrategyGranary>();
+            cachedPlacedBuildings = CopyActiveBuildings(GetActiveBuildingSnapshot());
         }
 
-        private static T[] FindBuildingComponents<T>(IReadOnlyList<StrategyPlacedBuilding> buildings)
-            where T : Component
+        private IReadOnlyList<StrategyPlacedBuilding> GetActiveBuildingSnapshot()
         {
-            if (buildings == null || buildings.Count <= 0)
+            StrategyWorldChunkRegistry chunks = StrategyWorldChunkRegistry.Active;
+            if (chunks != null && chunks.IsConfigured)
             {
-                return System.Array.Empty<T>();
+                return chunks.ActiveBuildingsView;
             }
 
-            List<T> found = new();
-            for (int i = 0; i < buildings.Count; i++)
+            return StrategyPlacedBuilding.ActiveBuildings;
+        }
+
+        private IReadOnlyList<StrategyConstructionSite> GetActiveConstructionSiteSnapshot()
+        {
+            StrategyWorldChunkRegistry chunks = StrategyWorldChunkRegistry.Active;
+            if (chunks != null && chunks.IsConfigured)
             {
-                StrategyPlacedBuilding building = buildings[i];
-                if (building != null && building.TryGetComponent(out T component))
-                {
-                    found.Add(component);
-                }
+                return chunks.ActiveConstructionSitesView;
+            }
+
+            return StrategyConstructionSite.ActiveSites;
+        }
+
+        private static T[] CopyActiveBuildingComponents<T>()
+            where T : Component
+        {
+            List<T> found = new();
+            StrategyWorldChunkRegistry chunks = StrategyWorldChunkRegistry.Active;
+            if (chunks != null && chunks.IsConfigured)
+            {
+                chunks.CopyActiveBuildingComponents(found);
+            }
+            else
+            {
+                StrategyPlacedBuilding.CopyActiveComponents(found);
             }
 
             return found.Count > 0 ? found.ToArray() : System.Array.Empty<T>();

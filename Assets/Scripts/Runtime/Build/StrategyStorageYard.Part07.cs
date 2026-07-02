@@ -374,26 +374,32 @@ namespace ProjectUnknown.Strategy
         private static List<IStrategyProductionLogisticsNode> GetProductionNodesSortedByDistance(Vector3 nearWorld)
         {
             productionNodeQuery.Clear();
-            IReadOnlyList<StrategyPlacedBuilding> buildings = StrategyPlacedBuilding.ActiveBuildings;
-            for (int i = 0; i < buildings.Count; i++)
-            {
-                StrategyPlacedBuilding building = buildings[i];
-                if (building == null)
-                {
-                    continue;
-                }
 
-                if (building.TryGetComponent(out StrategySawmill sawmill) && sawmill != null)
+            List<StrategySawmill> sawmills = GetActiveBuildingComponents(sawmillQuery);
+            for (int i = 0; i < sawmills.Count; i++)
+            {
+                StrategySawmill sawmill = sawmills[i];
+                if (sawmill != null)
                 {
                     productionNodeQuery.Add(sawmill);
                 }
+            }
 
-                if (building.TryGetComponent(out StrategyKiln kiln) && kiln != null)
+            List<StrategyKiln> kilns = GetActiveBuildingComponents(kilnQuery);
+            for (int i = 0; i < kilns.Count; i++)
+            {
+                StrategyKiln kiln = kilns[i];
+                if (kiln != null)
                 {
                     productionNodeQuery.Add(kiln);
                 }
+            }
 
-                if (building.TryGetComponent(out StrategyForge forge) && forge != null)
+            List<StrategyForge> forges = GetActiveBuildingComponents(forgeQuery);
+            for (int i = 0; i < forges.Count; i++)
+            {
+                StrategyForge forge = forges[i];
+                if (forge != null)
                 {
                     productionNodeQuery.Add(forge);
                 }

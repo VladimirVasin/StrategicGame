@@ -19,9 +19,9 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Default volume profile
   - URP global settings
   - Runtime day/night overlay tints the world above sprites and below preview/fog/UI, exposes day/clock/phase calendar snapshots, and drives dawn/nightfall player messages
-  - Runtime weather overlays add wet ground, cloud shadows, mist, and rain in dedicated sorting bands around day/night and fog-of-war
+  - Runtime weather overlays add wet ground, chunk-repainted cloud shadows, chunk-repainted mist, and rain in dedicated sorting bands around day/night and fog-of-war
   - Runtime URP post-process volume adds soft day/night/weather color grading, bloom, and vignette
-  - Runtime cinematic visual layer adds 2D global/local light, emissive pixel masks, animated building torch/lantern source sprites with manual lit state for building/roadside lights, active hand-carried resident torch lights, light-aware nighttime darkness over unlit cells, wet puddle glints, lightning flashes, and subtle foreground depth props
+  - Runtime cinematic visual layer adds 2D global/local light with chunk/active-registry emitter scans, LOD-capped point lights, emissive pixel masks, animated building torch/lantern source sprites with manual lit state for building/roadside lights, active hand-carried resident torch lights, cached camera-area night-mask light cutouts, wet puddle glints, lightning flashes, and subtle foreground depth props
   - Runtime procedural 2D shadow caster supplies soft ground/cast shadows below world sprites
   - Runtime short-lived world effect layer supplies reusable dust, sawdust, chip, spark, splash, and resource pop/fade effects
 
@@ -51,6 +51,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Creates and wires the runtime fog-of-war layer after population and placement controllers exist
     - Creates the F9 runtime debug panel after fog/weather are ready so testing can bypass player fog, force weather states, and enable instant free construction
     - Places a temporary starter Caravan Cart near the campfire with initial Logs, Stone, and 3 days of randomized raw food after placement is configured
+    - Creates and configures the 16x16 world chunk registry after starter placement so later systems can query camera-near, active-settlement, dirty, and spatially indexed world state
     - Creates and wires runtime wildlife after starter placement so deer, rabbits, fish, and birds spawn in valid terrain/water/habitat areas
     - Creates runtime time-scale controls for simulation speed hotkeys
     - Creates the refugee-arrival event controller and modal refugee decision HUD
@@ -104,6 +105,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Neighbor-aware side and corner overlays for terrain transitions
     - Runtime water/shore overlay animates shallow/deep tint, river-flow streaks, lake sparkles, broken shoreline foam, wet shore edges, and weather-driven rain ripple hits over the static map texture
     - Runtime road layer records completed resident movement between two different non-Bridge buildings as immediate stable roads after one real traversal, trying a direct walkable route line before falling back to smoothed route cells
+    - Runtime world chunk registry divides the generated map into 16x16 cell chunks, indexes buildings/construction sites/residents, and exposes camera-near, active-settlement, and dirty-chunk flags for incremental fog/weather visual repaint systems
     - Resident footfalls no longer create functional or visible roads, and automatic route-network convergence is disabled
     - Road cells stay until invalidated by map walkability or cell validity changes instead of decaying from disuse
     - Route road cells render connected procedural sprites using cardinal N/E/S/W right-angle masks, wear levels, and deterministic variants

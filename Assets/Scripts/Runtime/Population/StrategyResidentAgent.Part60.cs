@@ -24,12 +24,20 @@ namespace ProjectUnknown.Strategy
             }
 
             constructionDeliverySiteQuery.Clear();
-            IReadOnlyList<StrategyConstructionSite> sites = StrategyConstructionSite.ActiveSites;
-            for (int i = 0; i < sites.Count; i++)
+            StrategyWorldChunkRegistry chunks = StrategyWorldChunkRegistry.Active;
+            if (chunks != null && chunks.IsConfigured)
             {
-                if (sites[i] != null)
+                chunks.CopyActiveConstructionSites(constructionDeliverySiteQuery);
+            }
+            else
+            {
+                IReadOnlyList<StrategyConstructionSite> sites = StrategyConstructionSite.ActiveSites;
+                for (int i = 0; i < sites.Count; i++)
                 {
-                    constructionDeliverySiteQuery.Add(sites[i]);
+                    if (sites[i] != null)
+                    {
+                        constructionDeliverySiteQuery.Add(sites[i]);
+                    }
                 }
             }
 

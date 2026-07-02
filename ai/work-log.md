@@ -8,6 +8,34 @@ Last updated: 2026-06-30
 
 ## Done
 
+### 2026-06-30 - Resident/job spatial query refactor
+
+- Extended `StrategyWorldChunkRegistry` with read-only active building/site views, active construction-site copying, and cached active building-component queries so repeated worksite/resource scans do not repeatedly run `TryGetComponent` across every placed building.
+- Routed auto-workforce cache refresh, settlement builder site collection, hauler construction delivery fallback, Storage Yard source/production-node lookups, Granary food-source counts, and resident household production-food fallback through the registry-backed query path with the old global fallback preserved.
+- Changed active-chunk queries to refresh the spatial index only when observed object counts change, keeping camera/settlement chunk flags current without clearing component caches on every visual chunk request.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-06-30 - Cinematic light LOD chunk step
+
+- Split cinematic light scanning/LOD into `StrategyCinematicVisualController.LightLod.cs`, dropping the main controller below the 500-line limit.
+- Replaced scene-wide building scans with the world chunk registry / `StrategyPlacedBuilding.ActiveBuildings` fallback, and added an active registry for `StrategyRoadsideLightSource` so roadside lamp scans avoid `FindObjectsByType`.
+- Cached night-darkness mask emitter candidates during the LOD pass, so each mask pixel evaluates only sources intersecting the current camera area instead of every cinematic emitter on the map.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-06-30 - Chunk-aware fog/weather visual repaint
+
+- Moved Fog of War texture painting into `StrategyFogOfWarController.Chunks.cs`: the first paint remains full-map, then visual repaint uses chunk-local `Texture2D.SetPixels` blocks for camera-near, active-settlement, and dirty Fog chunks while gameplay visibility arrays still refresh globally.
+- Moved Weather cloud/mist texture painting into `StrategyWeatherVisualController.Chunks.cs`: cloud shadows and heavy-rain mist now repaint only active world chunks after their first full frame or inactive full-clear transition.
+- Extended `StrategyWorldChunkRegistry` with active/all chunk query APIs used by visual systems without changing storage, logistics, or fog gameplay semantics.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-06-30 - World chunk registry foundation
+
+- Added a runtime 16x16 `StrategyWorldChunkRegistry` that indexes placed buildings, active construction sites, and residents, tracks camera-near and active-settlement chunks, and exposes dirty flags for future fog/weather/road/prop/light/resource refreshes.
+- Wired the chunk registry through bootstrap after starter placement, keeping the main bootstrap under the 500-line source limit via a partial helper.
+- Routed Storage Yard and Granary active-building queries through the registry with old global-query fallback, preserving current logistics semantics while creating the first safe chunk-aware query path.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
 ### 2026-06-30 - Resident/wildlife performance budget refactor
 
 - Added a resident scheduled-work decision budget: large settlements now cap expensive per-frame task-start scans, so idle residents spread household cooking/pottery/food pickup, worksite, logistics, construction, hunting, fishing, and child-play decisions across frames instead of all probing every frame.

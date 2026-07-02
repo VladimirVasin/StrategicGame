@@ -10,6 +10,10 @@ namespace ProjectUnknown.Strategy
 
         private readonly List<StrategyResidentAgent> workers = new();
         private static readonly List<StrategyGranary> granaryQuery = new();
+        private static readonly List<StrategyHunterCamp> hunterCampQuery = new();
+        private static readonly List<StrategyFisherHut> fisherHutQuery = new();
+        private static readonly List<StrategyForagerCamp> foragerCampQuery = new();
+        private static readonly List<StrategyChickenCoop> chickenCoopQuery = new();
         private StrategyPlacedBuilding building;
         private CityMapController map;
         private StrategyPopulationController population;

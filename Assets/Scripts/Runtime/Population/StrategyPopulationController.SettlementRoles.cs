@@ -152,6 +152,13 @@ namespace ProjectUnknown.Strategy
         private List<StrategyConstructionSite> GetSettlementBuilderSites()
         {
             settlementBuilderSiteQuery.Clear();
+            StrategyWorldChunkRegistry chunks = StrategyWorldChunkRegistry.Active;
+            if (chunks != null && chunks.IsConfigured)
+            {
+                chunks.CopyActiveConstructionSites(settlementBuilderSiteQuery);
+                return settlementBuilderSiteQuery;
+            }
+
             IReadOnlyList<StrategyConstructionSite> sites = StrategyConstructionSite.ActiveSites;
             for (int i = 0; i < sites.Count; i++)
             {

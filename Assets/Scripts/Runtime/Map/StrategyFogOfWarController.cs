@@ -206,6 +206,7 @@ namespace ProjectUnknown.Strategy
                 };
 
                 fogPixels = new Color[textureWidth * textureHeight];
+                fogTextureNeedsFullPaint = true;
                 EnsureRenderer(textureWidth, textureHeight);
             }
         }
@@ -329,37 +330,6 @@ namespace ProjectUnknown.Strategy
                     }
                 }
             }
-        }
-
-        private void PaintFogTexture()
-        {
-            if (fogTexture == null || fogPixels == null)
-            {
-                return;
-            }
-
-            int textureWidth = fogTexture.width;
-            for (int y = 0; y < map.Height; y++)
-            {
-                for (int x = 0; x < map.Width; x++)
-                {
-                    Color color = GetFogCellColor(x, y);
-
-                    int pixelX = x * FogPixelsPerCell;
-                    int pixelY = y * FogPixelsPerCell;
-                    for (int py = 0; py < FogPixelsPerCell; py++)
-                    {
-                        int row = (pixelY + py) * textureWidth + pixelX;
-                        for (int px = 0; px < FogPixelsPerCell; px++)
-                        {
-                            fogPixels[row + px] = color;
-                        }
-                    }
-                }
-            }
-
-            fogTexture.SetPixels(fogPixels);
-            fogTexture.Apply(false, false);
         }
 
         private void AddRevealSource(Vector2Int cell, float radius, RevealSourceKind kind)

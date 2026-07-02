@@ -169,7 +169,7 @@ namespace ProjectUnknown.Strategy
 
             int demand = 0;
             Vector3 weighted = Vector3.zero;
-            IReadOnlyList<StrategyPlacedBuilding> buildings = StrategyPlacedBuilding.ActiveBuildings;
+            IReadOnlyList<StrategyPlacedBuilding> buildings = GetActiveBuildings();
             for (int i = 0; i < buildings.Count; i++)
             {
                 StrategyPlacedBuilding house = buildings[i];
@@ -199,7 +199,7 @@ namespace ProjectUnknown.Strategy
         public static int CountRawHouseholdPotteryDemand()
         {
             int demand = 0;
-            IReadOnlyList<StrategyPlacedBuilding> buildings = StrategyPlacedBuilding.ActiveBuildings;
+            IReadOnlyList<StrategyPlacedBuilding> buildings = GetActiveBuildings();
             for (int i = 0; i < buildings.Count; i++)
             {
                 StrategyPlacedBuilding house = buildings[i];

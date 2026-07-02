@@ -184,16 +184,61 @@ namespace ProjectUnknown.Strategy
 
         private static List<StrategyStorageYard> GetActiveYards()
         {
-            StrategyPlacedBuilding.CopyActiveComponents(yardQuery);
+            StrategyWorldChunkRegistry chunks = StrategyWorldChunkRegistry.Active;
+            if (chunks != null && chunks.IsConfigured)
+            {
+                chunks.CopyActiveBuildingComponents(yardQuery);
+            }
+            else
+            {
+                StrategyPlacedBuilding.CopyActiveComponents(yardQuery);
+            }
+
             return yardQuery;
         }
 
         private static List<StrategyStorageYard> GetYardsSortedByDistance(Vector3 nearWorld)
         {
-            StrategyPlacedBuilding.CopyActiveComponents(yardQuery);
+            StrategyWorldChunkRegistry chunks = StrategyWorldChunkRegistry.Active;
+            if (chunks != null && chunks.IsConfigured)
+            {
+                chunks.CopyActiveBuildingComponents(yardQuery);
+            }
+            else
+            {
+                StrategyPlacedBuilding.CopyActiveComponents(yardQuery);
+            }
+
             yardSortWorld = nearWorld;
             yardQuery.Sort(CompareYardsByDistance);
             return yardQuery;
+        }
+
+        private static IReadOnlyList<StrategyPlacedBuilding> GetActiveBuildings()
+        {
+            StrategyWorldChunkRegistry chunks = StrategyWorldChunkRegistry.Active;
+            if (chunks != null && chunks.IsConfigured)
+            {
+                return chunks.ActiveBuildingsView;
+            }
+
+            return StrategyPlacedBuilding.ActiveBuildings;
+        }
+
+        private static List<T> GetActiveBuildingComponents<T>(List<T> results)
+            where T : Component
+        {
+            StrategyWorldChunkRegistry chunks = StrategyWorldChunkRegistry.Active;
+            if (chunks != null && chunks.IsConfigured)
+            {
+                chunks.CopyActiveBuildingComponents(results);
+            }
+            else
+            {
+                StrategyPlacedBuilding.CopyActiveComponents(results);
+            }
+
+            return results;
         }
 
         private static int CompareYardsByDistance(StrategyStorageYard left, StrategyStorageYard right)
@@ -267,26 +312,21 @@ namespace ProjectUnknown.Strategy
         private int CountAvailableSources()
         {
             int count = 0;
-            IReadOnlyList<StrategyPlacedBuilding> buildings = StrategyPlacedBuilding.ActiveBuildings;
-            for (int i = 0; i < buildings.Count; i++)
+            List<StrategyLumberjackCamp> lumberCamps = GetActiveBuildingComponents(lumberjackCampQuery);
+            for (int i = 0; i < lumberCamps.Count; i++)
             {
-                StrategyPlacedBuilding building = buildings[i];
-                if (building != null
-                    && building.TryGetComponent(out StrategyLumberjackCamp camp)
-                    && camp != null
-                    && camp.AvailableLogs > 0)
+                StrategyLumberjackCamp camp = lumberCamps[i];
+                if (camp != null && camp.AvailableLogs > 0)
                 {
                     count++;
                 }
             }
 
-            for (int i = 0; i < buildings.Count; i++)
+            List<StrategyStonecutterCamp> stoneCamps = GetActiveBuildingComponents(stonecutterCampQuery);
+            for (int i = 0; i < stoneCamps.Count; i++)
             {
-                StrategyPlacedBuilding building = buildings[i];
-                if (building != null
-                    && building.TryGetComponent(out StrategyStonecutterCamp camp)
-                    && camp != null
-                    && camp.AvailableStone > 0)
+                StrategyStonecutterCamp camp = stoneCamps[i];
+                if (camp != null && camp.AvailableStone > 0)
                 {
                     count++;
                 }
@@ -309,14 +349,11 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
-            IReadOnlyList<StrategyPlacedBuilding> buildings = StrategyPlacedBuilding.ActiveBuildings;
-            for (int i = 0; i < buildings.Count; i++)
+            List<StrategyLumberjackCamp> camps = GetActiveBuildingComponents(lumberjackCampQuery);
+            for (int i = 0; i < camps.Count; i++)
             {
-                StrategyPlacedBuilding building = buildings[i];
-                if (building != null
-                    && building.TryGetComponent(out StrategyLumberjackCamp camp)
-                    && camp != null
-                    && camp.AvailableLogs > 0)
+                StrategyLumberjackCamp camp = camps[i];
+                if (camp != null && camp.AvailableLogs > 0)
                 {
                     return true;
                 }
@@ -333,14 +370,11 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
-            IReadOnlyList<StrategyPlacedBuilding> buildings = StrategyPlacedBuilding.ActiveBuildings;
-            for (int i = 0; i < buildings.Count; i++)
+            List<StrategyStonecutterCamp> camps = GetActiveBuildingComponents(stonecutterCampQuery);
+            for (int i = 0; i < camps.Count; i++)
             {
-                StrategyPlacedBuilding building = buildings[i];
-                if (building != null
-                    && building.TryGetComponent(out StrategyStonecutterCamp camp)
-                    && camp != null
-                    && camp.AvailableStone > 0)
+                StrategyStonecutterCamp camp = camps[i];
+                if (camp != null && camp.AvailableStone > 0)
                 {
                     return true;
                 }
@@ -351,7 +385,7 @@ namespace ProjectUnknown.Strategy
 
         private static bool HasWaitingConstructionNeeding(StrategyConstructionResourceKind kind)
         {
-            IReadOnlyList<StrategyConstructionSite> sites = StrategyConstructionSite.ActiveSites;
+            IReadOnlyList<StrategyConstructionSite> sites = GetActiveConstructionSites();
             for (int i = 0; i < sites.Count; i++)
             {
                 StrategyConstructionSite site = sites[i];

@@ -39,7 +39,7 @@ Responsibilities:
 - Shared Y-based sorting constants/helper for 2.5D world sprites.
 - Shared short-lived world-space visual effects for resource drops, construction hits, sawdust, dust, sparks, chips, and splashes.
 - Runtime world tint overlay and calendar snapshot source for the visual day/night cycle.
-- Runtime weather overlay sorting bands for wet ground, cloud shadows, mist, and rain.
+- Runtime weather overlay sorting bands for wet ground, chunk-repainted cloud shadows, chunk-repainted mist, and rain.
 - Runtime URP post-processing for soft color grading, bloom, and vignette driven by day/night and weather state.
 - Runtime cinematic visuals for 2D global/local lights, emissive masks, animated building torch/lantern source sprites with manual night-light state, active hand-carried resident torch lights, light-aware nighttime darkness over unlit cells, wet puddle glints, lightning flashes, and foreground depth accents.
 
@@ -53,6 +53,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Core/StrategyWorldEffectAnimator.cs`
 - `Assets/Scripts/Runtime/Core/StrategyPostProcessController.cs`
 - `Assets/Scripts/Runtime/Core/StrategyCinematicVisualController.cs`
+- `Assets/Scripts/Runtime/Core/StrategyCinematicVisualController.LightLod.cs`
 - `Assets/Scripts/Runtime/Core/StrategyCinematicVisualController.Part01.cs`
 - `Assets/Scripts/Runtime/Core/StrategyCinematicVisualController.Part03.cs`
 - `Assets/Scripts/Runtime/Core/StrategyBuildingLightSpriteFactory.cs`
@@ -66,6 +67,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Core/StrategyShadowCaster2D.cs`
 - `Assets/Scripts/Runtime/Core/StrategyShadowSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Weather/StrategyWeatherVisualController.cs`
+- `Assets/Scripts/Runtime/Weather/StrategyWeatherVisualController.Chunks.cs`
 
 Impact hints:
 
@@ -75,7 +77,7 @@ Impact hints:
 - The day/night and weather overlays sort around world sprites while staying below placement preview/fog/UI; keep that ordering when adding more world overlays.
 - Day/night owns the canonical display day, 24-hour clock, time-of-day phase labels, phase accent colors, and dawn/nightfall event-log triggers; HUDs should read that snapshot instead of inventing separate clocks.
 - Post-process tuning should stay subtle and pixel-readable; avoid blur, heavy chromatic aberration, or aggressive grain for normal strategy view.
-- Cinematic visual effects should stay bounded to reusable emitters/controllers rather than adding per-building one-off light scripts; building torch/lantern source sprites and the night darkness mask are cheap overlays, while real `Light2D` point lights should stay LOD-capped and lazily created because many simultaneous 2D lights can cause visible frame spikes. Non-campfire torch/lantern emitters read `StrategyNightLightSource` manual lit state; resident personal `Dusk` hand torches should use cheap sprite/mask lighting, with resident `Light2D` reserved for actual `Night` lamp-lighting duty. Fire-source daylight fade uses the shared Dawn-to-start-of-`Noon` factor rather than a hard Dawn cutoff, and should shrink/disable only flame layers instead of making torch/campfire bodies transparent.
+- Cinematic visual effects should stay bounded to reusable emitters/controllers rather than adding per-building one-off light scripts; building torch/lantern source sprites and the night darkness mask are cheap overlays, while real `Light2D` point lights should stay LOD-capped and lazily created because many simultaneous 2D lights can cause visible frame spikes. Non-campfire torch/lantern emitters read `StrategyNightLightSource` manual lit state; resident personal `Dusk` hand torches should use cheap sprite/mask lighting, with resident `Light2D` reserved for actual `Night` lamp-lighting duty. Fire-source daylight fade uses the shared Dawn-to-start-of-`Noon` factor rather than a hard Dawn cutoff, and should shrink/disable only flame layers instead of making torch/campfire bodies transparent. Night-mask work should keep using the cached camera-area emitter list from cinematic LOD instead of scanning every emitter per mask pixel.
 - `StrategyShadowCaster2D` is the shared runtime shadow path for world sprites; tune shape/scale/offset per object type and let day/night control opacity/length globally.
 - Verify scenes visually in Unity after meaningful changes.
 
@@ -119,6 +121,7 @@ Responsibilities:
 - Create/configure the F9 runtime debug panel after fog/weather are ready.
 - Provide shared debug options such as instant free construction for runtime test workflows.
 - Place the temporary starter Caravan Cart near the campfire with initial Logs, Stone, and randomized food after placement is configured.
+- Create/configure the world chunk registry after starter placement so runtime systems can share spatial indexing, camera-near/settlement-active chunk flags, and dirty chunk markers.
 - Create/configure runtime wildlife after starter placement so deer/rabbits use valid land and fish use valid water cells.
 - Create/configure visual day/night cycle after camera setup.
 - Create/configure runtime post-processing after weather/day-night setup.
@@ -136,6 +139,7 @@ Primary files/assets:
 
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.cs`
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.StarterResources.cs`
+- `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.WorldChunks.cs`
 - `Assets/Scripts/Runtime/Core/StrategyDebugLogger.cs`
 - `Assets/Scripts/Runtime/Core/StrategyDebugOptions.cs`
 - `Assets/Scripts/Runtime/Core/StrategyRuntimeObjectCreationGuard.cs`
@@ -143,6 +147,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Core/StrategyDayNightCycleController.cs`
 - `Assets/Scripts/Runtime/Core/StrategyPostProcessController.cs`
 - `Assets/Scripts/Runtime/Core/StrategyCinematicVisualController.cs`
+- `Assets/Scripts/Runtime/Core/StrategyCinematicVisualController.LightLod.cs`
 - `Assets/Scripts/Runtime/Core/StrategyCinematicVisualController.Part01.cs`
 - `Assets/Scripts/Runtime/Core/StrategyCinematicLightEmitter.cs`
 - `Assets/Scripts/Runtime/Core/StrategyCinematicLightEmitter.Profile.cs`
@@ -150,10 +155,12 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Weather/StrategyWeatherKind.cs`
 - `Assets/Scripts/Runtime/Weather/StrategyWeatherController.cs`
 - `Assets/Scripts/Runtime/Weather/StrategyWeatherVisualController.cs`
+- `Assets/Scripts/Runtime/Weather/StrategyWeatherVisualController.Chunks.cs`
 - `Assets/Scripts/Runtime/Audio/StrategyAmbientAudioController.cs`
 - `Assets/Scripts/Runtime/Audio/StrategyMusicController.cs`
 - `Assets/Scripts/Runtime/Audio/StrategyResidentFootstepAudio.cs`
 - `Assets/Scripts/Runtime/Map/StrategyFogOfWarController.cs`
+- `Assets/Scripts/Runtime/Map/StrategyFogOfWarController.Chunks.cs`
 - `Assets/Scripts/Runtime/Map/StrategyFogOfWarController.Visibility.cs`
 - `Assets/Scripts/Runtime/Map/StrategyFogOfWarController.WeatherFog.cs`
 - `Assets/Scripts/Runtime/Map/StrategyWaterAnimationController.cs`
@@ -166,6 +173,9 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Map/StrategyTrailPathfinder.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailRouteCellBuilder.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailSpriteFactory.cs`
+- `Assets/Scripts/Runtime/Map/StrategyWorldChunkRegistry.cs`
+- `Assets/Scripts/Runtime/Map/StrategyWorldChunkRegistry.Index.cs`
+- `Assets/Scripts/Runtime/Map/StrategyWorldChunkRegistry.Queries.cs`
 - `Assets/Scripts/Runtime/Map/StrategyRoadsideLightSource.cs`
 - `Assets/Scripts/Runtime/Map/StrategyRoadsidePropController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyRoadsidePropPlanner.cs`
@@ -310,6 +320,7 @@ Responsibilities:
 - Keep resident footfalls from creating functional or visible roads, and keep automatic route-network convergence disabled.
 - Prune road cells only when map walkability or cell validity invalidates them; roads do not decay from disuse.
 - Spawn sparse non-blocking roadside torch props from eligible straight route-road cells, refreshing the derived prop layer when roads or adjacent buildability change.
+- Maintain a runtime 16x16 world chunk registry for spatial indexing of placed buildings, active construction sites, and residents plus camera-near, settlement-active, and dirty-chunk flags.
 - Expose formed roads as a 15% resident movement-speed bonus and a reduced resident pathfinding cost.
 - Feed generated cell kinds and active seed into the visual nature-props layer.
 - Feed generated land cells and active seed into Stone deposit generation.
@@ -329,6 +340,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Map/CityMapController.cs`
 - `Assets/Scripts/Runtime/Map/CityMapController.Relief.cs`
 - `Assets/Scripts/Runtime/Map/StrategyFogOfWarController.cs`
+- `Assets/Scripts/Runtime/Map/StrategyFogOfWarController.Chunks.cs`
 - `Assets/Scripts/Runtime/Map/StrategyFogOfWarController.Visibility.cs`
 - `Assets/Scripts/Runtime/Map/StrategyFogOfWarController.WeatherFog.cs`
 - `Assets/Scripts/Runtime/Map/StrategyWaterAnimationController.cs`
@@ -341,6 +353,9 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Map/StrategyTrailPathfinder.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailRouteCellBuilder.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailSpriteFactory.cs`
+- `Assets/Scripts/Runtime/Map/StrategyWorldChunkRegistry.cs`
+- `Assets/Scripts/Runtime/Map/StrategyWorldChunkRegistry.Index.cs`
+- `Assets/Scripts/Runtime/Map/StrategyWorldChunkRegistry.Queries.cs`
 - `Assets/Scripts/Runtime/Map/StrategyRoadsideLightSource.cs`
 - `Assets/Scripts/Runtime/Map/StrategyRoadsidePropController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyRoadsidePropPlanner.cs`
@@ -395,6 +410,8 @@ Impact hints:
 - Trail visuals use one `SpriteRenderer` per visible route-road cell under a `Trail Visuals` root, sorted above terrain/water overlays and below world props, with cardinal N/E/S/W right-angle masks and narrow line/brush sprites; visual road formation comes from direct-first completed building-to-building traversals rather than per-step footfall squares, raw A* detours, or background network convergence. Roadside torch props are generated under a separate `Roadside Props` root and should remain visual-only, non-blocking derivatives of route-road cells.
 - Road cells are runtime-only and should be refreshed when map walkability or cell validity changes so blocked cells do not keep visible or functional roads.
 - Resident pathfinding should continue to use the shared road-aware pathfinder, reading functional road cells as a cost preference rather than required connectivity.
+- `StrategyWorldChunkRegistry` is the shared chunk foundation for future Minecraft-style incremental work; first migrate expensive scans behind its safe query APIs, then switch fog/weather/props/lights/resources to dirty or active chunks only.
+- Fog-of-war, cloud-shadow, and heavy-rain-mist texture repaint/upload paths are already chunk-aware for active camera/settlement/dirty chunks; gameplay fog visibility arrays still refresh globally for correctness.
 
 ### Forestry MVP
 

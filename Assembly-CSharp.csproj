@@ -86,6 +86,7 @@
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyLooseConstructionResourcePile.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\Selection\StrategyWorldSelectionController.Part12.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyFishSpriteFactory.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Map\StrategyFogOfWarController.Chunks.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyProfessionHudController.Part06.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyStorageYard.Part09.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingSpriteFactory.Part06.cs" />
@@ -121,6 +122,7 @@
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyKinshipUtility.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategySawmill.Part03.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyStorageYard.Part10.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Weather\StrategyWeatherVisualController.Chunks.cs" />
     <Compile Include="Assets\Scripts\Runtime\Selection\StrategyWorldSelectionController.Part08.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyCinematicVisualController.Part02.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part31.cs" />
@@ -135,6 +137,7 @@
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyAutoWorkforceController.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part27.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyForestryTree.Part01.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Core\StrategyGameBootstrap.WorldChunks.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyAutoWorkforceController.SettlementRoles.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyStorageYard.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWildlifeController.cs" />
@@ -175,8 +178,10 @@
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part41.cs" />
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyResourceIconFactory.Part03.cs" />
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyPreparedDishStack.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Map\StrategyWorldChunkRegistry.Queries.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyForge.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyIronDeposit.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Core\StrategyCinematicVisualController.LightLod.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyTimeScaleController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyTerrainTexturePainter.Relief.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyHouseAmbientSpriteFactory.cs" />
@@ -345,6 +350,7 @@
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyFuneralController.Part02.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentSpriteFactory.Part06.cs" />
     <Compile Include="Assets\Scripts\Runtime\Weather\StrategyWeatherKind.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Map\StrategyWorldChunkRegistry.Index.cs" />
     <Compile Include="Assets\Scripts\Runtime\Weather\StrategyWeatherVisualController.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingUpgradeAnimator.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyTopStatusHudController.cs" />
@@ -421,6 +427,7 @@
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyHouseResourceStore.Dishes.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyPopulationRosterRowView.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Map\StrategyWorldChunkRegistry.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWildlifeController.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyFamilyTreeHudController.Part04.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyProfessionHudController.Part01.cs" />

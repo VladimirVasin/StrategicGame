@@ -97,9 +97,9 @@ namespace ProjectUnknown.Strategy
         private float EvaluateNightMaskLight(float worldX, float worldY)
         {
             float light = 0f;
-            for (int i = 0; i < emitters.Count; i++)
+            for (int i = 0; i < nightMaskEmitters.Count; i++)
             {
-                StrategyCinematicLightEmitter emitter = emitters[i];
+                StrategyCinematicLightEmitter emitter = nightMaskEmitters[i];
                 if (emitter == null
                     || !emitter.TryGetNightMaskLight(out Vector3 center, out float radius, out float strength))
                 {

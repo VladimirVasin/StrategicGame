@@ -5,6 +5,10 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyResidentAgent
     {
+        private static readonly List<StrategyHunterCamp> householdFoodHunterCampQuery = new();
+        private static readonly List<StrategyFisherHut> householdFoodFisherHutQuery = new();
+        private static readonly List<StrategyForagerCamp> householdFoodForagerCampQuery = new();
+        private static readonly List<StrategyChickenCoop> householdFoodChickenCoopQuery = new();
         private StrategyHunterCamp activeHouseholdFoodHunterCamp;
         private StrategyFisherHut activeHouseholdFoodFisherHut;
         private StrategyForagerCamp activeHouseholdFoodForagerCamp;
@@ -66,14 +70,12 @@ namespace ProjectUnknown.Strategy
             StrategyForagerCamp forageSource = null;
             StrategyChickenCoop eggSource = null;
             float bestDistance = float.MaxValue;
-            IReadOnlyList<StrategyPlacedBuilding> buildings = StrategyPlacedBuilding.ActiveBuildings;
 
-            for (int i = 0; i < buildings.Count; i++)
+            List<StrategyHunterCamp> hunterCamps = GetActiveHouseholdFoodComponents(householdFoodHunterCampQuery);
+            for (int i = 0; i < hunterCamps.Count; i++)
             {
-                StrategyPlacedBuilding building = buildings[i];
-                if (building == null
-                    || !building.TryGetComponent(out StrategyHunterCamp camp)
-                    || camp == null
+                StrategyHunterCamp camp = hunterCamps[i];
+                if (camp == null
                     || camp.AvailableGame <= 0
                     || !camp.TryFindDropoffCell(out Vector2Int cell))
                 {
@@ -92,12 +94,11 @@ namespace ProjectUnknown.Strategy
                 }
             }
 
-            for (int i = 0; i < buildings.Count; i++)
+            List<StrategyFisherHut> fisherHuts = GetActiveHouseholdFoodComponents(householdFoodFisherHutQuery);
+            for (int i = 0; i < fisherHuts.Count; i++)
             {
-                StrategyPlacedBuilding building = buildings[i];
-                if (building == null
-                    || !building.TryGetComponent(out StrategyFisherHut hut)
-                    || hut == null
+                StrategyFisherHut hut = fisherHuts[i];
+                if (hut == null
                     || hut.AvailableFish <= 0
                     || !hut.TryFindDropoffCell(out Vector2Int cell))
                 {
@@ -116,12 +117,11 @@ namespace ProjectUnknown.Strategy
                 }
             }
 
-            for (int i = 0; i < buildings.Count; i++)
+            List<StrategyForagerCamp> foragerCamps = GetActiveHouseholdFoodComponents(householdFoodForagerCampQuery);
+            for (int i = 0; i < foragerCamps.Count; i++)
             {
-                StrategyPlacedBuilding building = buildings[i];
-                if (building == null
-                    || !building.TryGetComponent(out StrategyForagerCamp camp)
-                    || camp == null
+                StrategyForagerCamp camp = foragerCamps[i];
+                if (camp == null
                     || camp.AvailableForage <= 0
                     || !camp.TryFindDropoffCell(out Vector2Int cell))
                 {
@@ -140,12 +140,11 @@ namespace ProjectUnknown.Strategy
                 }
             }
 
-            for (int i = 0; i < buildings.Count; i++)
+            List<StrategyChickenCoop> coops = GetActiveHouseholdFoodComponents(householdFoodChickenCoopQuery);
+            for (int i = 0; i < coops.Count; i++)
             {
-                StrategyPlacedBuilding building = buildings[i];
-                if (building == null
-                    || !building.TryGetComponent(out StrategyChickenCoop coop)
-                    || coop == null
+                StrategyChickenCoop coop = coops[i];
+                if (coop == null
                     || coop.AvailableEggs <= 0
                     || !coop.TryFindDropoffCell(out Vector2Int cell))
                 {
@@ -193,6 +192,22 @@ namespace ProjectUnknown.Strategy
 
             pickupCell = default;
             return false;
+        }
+
+        private static List<T> GetActiveHouseholdFoodComponents<T>(List<T> results)
+            where T : Component
+        {
+            StrategyWorldChunkRegistry chunks = StrategyWorldChunkRegistry.Active;
+            if (chunks != null && chunks.IsConfigured)
+            {
+                chunks.CopyActiveBuildingComponents(results);
+            }
+            else
+            {
+                StrategyPlacedBuilding.CopyActiveComponents(results);
+            }
+
+            return results;
         }
 
         private bool HasActiveHouseholdFoodSource()

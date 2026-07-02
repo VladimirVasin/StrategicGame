@@ -51,15 +51,12 @@ namespace ProjectUnknown.Strategy
             forageSource = null;
             eggSource = null;
             float bestDistance = float.MaxValue;
-            IReadOnlyList<StrategyPlacedBuilding> buildings = StrategyPlacedBuilding.ActiveBuildings;
 
-            for (int i = 0; i < buildings.Count; i++)
+            List<StrategyHunterCamp> hunterCamps = GetActiveBuildingComponents(hunterCampQuery);
+            for (int i = 0; i < hunterCamps.Count; i++)
             {
-                StrategyPlacedBuilding building = buildings[i];
-                if (building == null
-                    || !building.TryGetComponent(out StrategyHunterCamp camp)
-                    || camp == null
-                    || camp.AvailableGame <= 0)
+                StrategyHunterCamp camp = hunterCamps[i];
+                if (camp == null || camp.AvailableGame <= 0)
                 {
                     continue;
                 }
@@ -75,13 +72,11 @@ namespace ProjectUnknown.Strategy
                 }
             }
 
-            for (int i = 0; i < buildings.Count; i++)
+            List<StrategyFisherHut> fisherHuts = GetActiveBuildingComponents(fisherHutQuery);
+            for (int i = 0; i < fisherHuts.Count; i++)
             {
-                StrategyPlacedBuilding building = buildings[i];
-                if (building == null
-                    || !building.TryGetComponent(out StrategyFisherHut hut)
-                    || hut == null
-                    || hut.AvailableFish <= 0)
+                StrategyFisherHut hut = fisherHuts[i];
+                if (hut == null || hut.AvailableFish <= 0)
                 {
                     continue;
                 }
@@ -97,13 +92,11 @@ namespace ProjectUnknown.Strategy
                 }
             }
 
-            for (int i = 0; i < buildings.Count; i++)
+            List<StrategyForagerCamp> foragerCamps = GetActiveBuildingComponents(foragerCampQuery);
+            for (int i = 0; i < foragerCamps.Count; i++)
             {
-                StrategyPlacedBuilding building = buildings[i];
-                if (building == null
-                    || !building.TryGetComponent(out StrategyForagerCamp camp)
-                    || camp == null
-                    || camp.AvailableForage <= 0)
+                StrategyForagerCamp camp = foragerCamps[i];
+                if (camp == null || camp.AvailableForage <= 0)
                 {
                     continue;
                 }
@@ -119,13 +112,11 @@ namespace ProjectUnknown.Strategy
                 }
             }
 
-            for (int i = 0; i < buildings.Count; i++)
+            List<StrategyChickenCoop> coops = GetActiveBuildingComponents(chickenCoopQuery);
+            for (int i = 0; i < coops.Count; i++)
             {
-                StrategyPlacedBuilding building = buildings[i];
-                if (building == null
-                    || !building.TryGetComponent(out StrategyChickenCoop coop)
-                    || coop == null
-                    || coop.AvailableEggs <= 0)
+                StrategyChickenCoop coop = coops[i];
+                if (coop == null || coop.AvailableEggs <= 0)
                 {
                     continue;
                 }
@@ -317,14 +308,11 @@ namespace ProjectUnknown.Strategy
         private int CountAvailableForagerSources()
         {
             int count = 0;
-            IReadOnlyList<StrategyPlacedBuilding> buildings = StrategyPlacedBuilding.ActiveBuildings;
-            for (int i = 0; i < buildings.Count; i++)
+            List<StrategyForagerCamp> camps = GetActiveBuildingComponents(foragerCampQuery);
+            for (int i = 0; i < camps.Count; i++)
             {
-                StrategyPlacedBuilding building = buildings[i];
-                if (building != null
-                    && building.TryGetComponent(out StrategyForagerCamp camp)
-                    && camp != null
-                    && camp.AvailableForage > 0)
+                StrategyForagerCamp camp = camps[i];
+                if (camp != null && camp.AvailableForage > 0)
                 {
                     count++;
                 }

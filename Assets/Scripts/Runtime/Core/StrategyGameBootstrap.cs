@@ -332,6 +332,7 @@ namespace ProjectUnknown.Strategy
                     starterFoodRations);
             }
 
+            ConfigureWorldChunks(map, population, mainCamera);
             cinematicVisuals.RefreshSceneLightingNow();
             StrategyDebugLogger.Info("Bootstrap", "FogAndPlacementReady");
 
