@@ -220,9 +220,11 @@ namespace ProjectUnknown.Strategy
         private bool hiddenInsideHome;
         private bool sleepingInsideHome;
         private bool returningHomeToSleep;
+        private bool returningHomeWithFuneralTorch;
         private bool hiddenUnderground;
         private bool returnCarriedResourcesImmediately;
         private bool silentFuneralDuty;
+        private bool funeralNightTorchActive;
 
         public StrategyPlacedBuilding Home => home;
         public StrategyLumberjackCamp Workplace => workplace;

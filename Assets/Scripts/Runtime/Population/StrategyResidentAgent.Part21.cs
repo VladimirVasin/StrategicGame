@@ -255,6 +255,10 @@ namespace ProjectUnknown.Strategy
             {
                 StartPlantingTree();
             }
+            else if (activity == ResidentActivity.MovingHome && returningHomeWithFuneralTorch)
+            {
+                CompleteFuneralTorchReturnHome();
+            }
             else if (activity == ResidentActivity.MovingHome && returningHomeToSleep)
             {
                 EnterNightSleep();

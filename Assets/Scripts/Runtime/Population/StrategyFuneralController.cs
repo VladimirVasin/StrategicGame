@@ -51,10 +51,12 @@ namespace ProjectUnknown.Strategy
             public readonly List<StrategyResidentAgent> Carriers = new();
             public readonly List<StrategyResidentAgent> ExpectedBurialAttendees = new();
             public StrategyResidentAgent PrimaryCarrier;
+            public StrategyResidentAgent TorchBearer;
             public Vector2Int GraveCell;
             public Vector3 GraveWorld;
             public float Timer;
             public bool Dispatched;
+            public bool StartedAtNight;
             public bool HasReservedGrave;
             public bool Completed;
         }
@@ -88,7 +90,8 @@ namespace ProjectUnknown.Strategy
             {
                 Snapshot = snapshot,
                 Corpse = corpse,
-                Stage = FuneralStage.WaitingForCorpse
+                Stage = FuneralStage.WaitingForCorpse,
+                StartedAtNight = IsNightFuneralTorchTime()
             };
             activeFunerals.Add(process);
 
@@ -97,6 +100,7 @@ namespace ProjectUnknown.Strategy
                 "FuneralStarted",
                 StrategyDebugLogger.F("resident", snapshot.FullName),
                 StrategyDebugLogger.F("residentId", snapshot.ResidentId),
+                StrategyDebugLogger.F("startedAtNight", process.StartedAtNight),
                 StrategyDebugLogger.F("activeFunerals", activeFunerals.Count));
             RecallFamilyForFuneral(process, "death");
         }
@@ -346,6 +350,7 @@ namespace ProjectUnknown.Strategy
 
             funeral.Stage = FuneralStage.Procession;
             funeral.Timer = ProcessionTimeoutSeconds;
+            AssignNightFuneralTorchBearer(funeral);
             StrategyDebugLogger.Info(
                 "Funeral",
                 "FuneralProcessionStarted",

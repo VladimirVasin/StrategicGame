@@ -133,12 +133,16 @@ namespace ProjectUnknown.Strategy
 
         private bool ShouldUseNightTorchCarryVisual()
         {
-            return activity == ResidentActivity.MovingToNightLight || ShouldUsePersonalNightTorch();
+            return activity == ResidentActivity.MovingToNightLight
+                || ShouldUsePersonalNightTorch()
+                || ShouldUseFuneralNightTorch();
         }
 
         private bool ShouldKeepNightTorchLightActive()
         {
-            return IsNightLightActivity(activity) || ShouldUsePersonalNightTorch();
+            return IsNightLightActivity(activity)
+                || ShouldUsePersonalNightTorch()
+                || ShouldUseFuneralNightTorch();
         }
 
         private bool ShouldUsePersonalNightTorch()

@@ -183,6 +183,8 @@ namespace ProjectUnknown.Strategy
         {
             activity = ResidentActivity.SleepingByCampfire;
             returningToHomelessCamp = false;
+            returningHomeWithFuneralTorch = false;
+            SetFuneralNightTorchActive(false);
             sleepingAtHomelessCamp = true;
             relightingCampfire = false;
             hasTarget = false;

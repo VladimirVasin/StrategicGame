@@ -79,6 +79,76 @@ namespace ProjectUnknown.Strategy
             return funeral != null && funeral.Participants.Count <= 0;
         }
 
+        private void AssignNightFuneralTorchBearer(FuneralProcess funeral)
+        {
+            if (funeral == null
+                || (!funeral.StartedAtNight && !IsNightFuneralTorchTime())
+                || funeral.ExpectedBurialAttendees.Count <= 0)
+            {
+                return;
+            }
+
+            StrategyResidentAgent torchBearer = SelectFuneralTorchBearer(funeral);
+            if (torchBearer == null)
+            {
+                StrategyDebugLogger.Warn(
+                    "Funeral",
+                    "FuneralTorchBearerUnavailable",
+                    StrategyDebugLogger.F("resident", funeral.Snapshot.FullName),
+                    StrategyDebugLogger.F("residentId", funeral.Snapshot.ResidentId),
+                    StrategyDebugLogger.F("expectedBurialAttendees", funeral.ExpectedBurialAttendees.Count));
+                return;
+            }
+
+            funeral.TorchBearer = torchBearer;
+            torchBearer.SetFuneralNightTorchActive(true);
+            StrategyDebugLogger.Info(
+                "Funeral",
+                "FuneralTorchBearerAssigned",
+                StrategyDebugLogger.F("resident", funeral.Snapshot.FullName),
+                StrategyDebugLogger.F("residentId", funeral.Snapshot.ResidentId),
+                StrategyDebugLogger.F("torchBearer", torchBearer.FullName),
+                StrategyDebugLogger.F("torchBearerId", torchBearer.ResidentId),
+                StrategyDebugLogger.F("startedAtNight", funeral.StartedAtNight),
+                StrategyDebugLogger.F("phase", StrategyDayNightCycleController.CurrentCalendarSnapshot.PhaseLabel));
+        }
+
+        private static StrategyResidentAgent SelectFuneralTorchBearer(FuneralProcess funeral)
+        {
+            StrategyResidentAgent fallback = null;
+            for (int i = 0; i < funeral.ExpectedBurialAttendees.Count; i++)
+            {
+                StrategyResidentAgent attendee = funeral.ExpectedBurialAttendees[i];
+                if (attendee == null)
+                {
+                    continue;
+                }
+
+                fallback ??= attendee;
+                if (attendee.IsAdult && !funeral.Carriers.Contains(attendee))
+                {
+                    return attendee;
+                }
+            }
+
+            for (int i = 0; i < funeral.ExpectedBurialAttendees.Count; i++)
+            {
+                StrategyResidentAgent attendee = funeral.ExpectedBurialAttendees[i];
+                if (attendee != null && attendee.IsAdult)
+                {
+                    return attendee;
+                }
+            }
+
+            return fallback;
+        }
+
+        private static bool IsNightFuneralTorchTime()
+        {
+            return StrategyDayNightCycleController.CurrentCalendarSnapshot.Phase
+                == StrategyTimeOfDayPhase.Night;
+        }
+
         private int GetRequiredCarrierCount(FuneralProcess funeral)
         {
             return IsServiceBurial(funeral) ? 1 : RequiredCarrierCount;

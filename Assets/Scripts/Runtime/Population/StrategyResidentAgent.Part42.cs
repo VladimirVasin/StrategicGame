@@ -79,6 +79,8 @@ namespace ProjectUnknown.Strategy
             }
 
             returningHomeToSleep = false;
+            returningHomeWithFuneralTorch = false;
+            SetFuneralNightTorchActive(false);
             sleepingInsideHome = true;
             hiddenInsideHome = true;
             hasTarget = false;

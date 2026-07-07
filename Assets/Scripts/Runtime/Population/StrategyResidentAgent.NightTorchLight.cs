@@ -97,7 +97,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            bool usePointLight = IsNightLightActivity(activity);
+            bool usePointLight = IsNightLightActivity(activity) || ShouldUseFuneralNightTorch();
             EnsureNightTorchLightObjects(usePointLight);
             Vector3 world = GetNightTorchLightWorld();
             float flicker = GetNightTorchFlicker();

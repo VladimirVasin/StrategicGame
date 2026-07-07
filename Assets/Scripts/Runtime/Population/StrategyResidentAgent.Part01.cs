@@ -361,6 +361,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            bool keepFuneralTorch = funeralNightTorchActive;
             activity = ResidentActivity.Idle;
             funeralTimer = 0f;
             hasTarget = false;
@@ -380,6 +381,16 @@ namespace ProjectUnknown.Strategy
                 "Funeral",
                 "ResidentFuneralDutyEnded",
                 StrategyDebugLogger.F("resident", FullName));
+
+            if (keepFuneralTorch && TryStartFuneralTorchReturnHome())
+            {
+                return;
+            }
+
+            if (keepFuneralTorch && !IsNightSleepTime())
+            {
+                SetFuneralNightTorchActive(false);
+            }
         }
 
         private void StartTimedFuneralActivity(ResidentActivity funeralActivity, float seconds, bool silent)

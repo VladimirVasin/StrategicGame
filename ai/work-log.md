@@ -8,6 +8,12 @@ Last updated: 2026-07-08
 
 ## Done
 
+### 2026-07-08 - Night funeral torchbearer
+
+- Night-started funeral processions now assign one attendee as a funeral torchbearer, preferring an adult non-carrier and falling back to other attendees when needed.
+- The funeral torch uses the existing resident hand-torch sprite/light/mask path and remains active through burial until the torchbearer returns home or back toward the homeless camp.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
 ### 2026-07-08 - Night performance spike cleanup
 
 - Optimized the cinematic night darkness mask so each light source only updates its own mask-space bounding box instead of evaluating every mask pixel against every stationary light and hand-carried torch.
