@@ -230,6 +230,12 @@ namespace ProjectUnknown.Strategy
 
         private bool IsFishingCastStillValid(string phase, bool requireFishInCastRange)
         {
+            if (StrategySeasonalSurfaceController.IsWaterFrozenForGameplay)
+            {
+                LogFishingCastInvalid(phase, "water_frozen");
+                return false;
+            }
+
             if (fisherWorkplace == null
                 || activeFishTarget == null
                 || activeFishTarget.IsCaught

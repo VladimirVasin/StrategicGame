@@ -7,6 +7,8 @@ namespace ProjectUnknown.Strategy
         LightRain,
         HeavyRain,
         Fog,
-        Storm
+        Storm,
+        Snow,
+        Blizzard
     }
 }

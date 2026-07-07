@@ -7,8 +7,8 @@ namespace ProjectUnknown.Strategy
     internal sealed partial class StrategyCinematicLightEmitter : MonoBehaviour
     {
         private const float VisualUpdateInterval = 0.105f;
-        private const float LocalLightStrengthMultiplier = 2f;
-        private const float LocalLightRadiusMultiplier = 2f;
+        private const float LocalLightStrengthMultiplier = 2.35f;
+        private const float LocalLightRadiusMultiplier = 2.18f;
 
         private StrategyPlacedBuilding building;
         private StrategyCampfireAnimator campfire;
@@ -19,6 +19,12 @@ namespace ProjectUnknown.Strategy
         private SpriteRenderer coreRenderer;
         private SpriteRenderer interiorRenderer;
         private float flickerSeed;
+        private float flickerTimeOffset;
+        private float flickerFastSpeed = 3.4f;
+        private float flickerSlowSpeed = 0.72f;
+        private float flickerDepth = 0.8f;
+        private float flickerFrameSpeedScale = 1f;
+        private int flickerProfileKey;
         private float effectTimer;
         private float visualTimer;
         private float visualElapsed;
@@ -40,11 +46,7 @@ namespace ProjectUnknown.Strategy
             building = owner;
             campfire = null;
             kind = GetKind(owner != null ? owner.Tool : StrategyBuildTool.None);
-            if (flickerSeed <= 0.001f)
-            {
-                flickerSeed = Random.Range(0f, 1000f);
-                visualTimer = Random.Range(0f, VisualUpdateInterval);
-            }
+            ConfigureFlickerProfile(GetBuildingFlickerKey(owner));
 
             configured = owner != null;
             RefreshNightLightSource();
@@ -62,11 +64,7 @@ namespace ProjectUnknown.Strategy
             building = null;
             nightLightSource = null;
             kind = StrategyCinematicLightKind.Campfire;
-            if (flickerSeed <= 0.001f)
-            {
-                flickerSeed = Random.Range(0f, 1000f);
-                visualTimer = Random.Range(0f, VisualUpdateInterval);
-            }
+            ConfigureFlickerProfile(GetTransformFlickerKey());
 
             configured = owner != null;
             EnsureVisuals();
@@ -127,6 +125,7 @@ namespace ProjectUnknown.Strategy
                 StrategyCinematicLightKind.Kiln => 84f,
                 StrategyCinematicLightKind.Forge => 88f,
                 StrategyCinematicLightKind.House => building != null && building.ResidentCount > 0 ? 82f : 48f,
+                StrategyCinematicLightKind.RoadsideTorch => 84f,
                 StrategyCinematicLightKind.Bridge => 68f,
                 StrategyCinematicLightKind.Granary => 66f,
                 StrategyCinematicLightKind.Storage => 58f,
@@ -230,8 +229,7 @@ namespace ProjectUnknown.Strategy
                 * GetTorchIntensityBoost()
                 * LocalLightStrengthMultiplier
                 * activity
-                * lightState
-                * flicker;
+                * lightState;
             float radius = GetBaseRadius()
                 * GetTorchRadiusBoost()
                 * LocalLightRadiusMultiplier

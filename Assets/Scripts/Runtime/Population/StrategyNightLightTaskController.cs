@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ProjectUnknown.Strategy
 {
     [DisallowMultipleComponent]
-    internal sealed class StrategyNightLightTaskController : MonoBehaviour
+    internal sealed partial class StrategyNightLightTaskController : MonoBehaviour
     {
         private const int BaseWorkerCount = 2;
         private const int LightsPerExtraWorker = 5;
@@ -26,6 +26,7 @@ namespace ProjectUnknown.Strategy
         private StrategyTimeOfDayPhase lastPhase = (StrategyTimeOfDayPhase)(-1);
         private int lastEveningDayIndex = -1, lastNightDayIndex = -1;
         private int lastSkippedAssignmentDayIndex = -1;
+        private int lastLightStateResetDayIndex = -1;
         private float retryTimer;
 
         public static StrategyNightLightTaskController Active { get; private set; }
@@ -79,6 +80,7 @@ namespace ProjectUnknown.Strategy
                     && snapshot.Phase != StrategyTimeOfDayPhase.Night)
                 {
                     ClearAssignments();
+                    ClearAmbientTorchCarriers();
                 }
             }
 
@@ -93,6 +95,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            UpdateAmbientTorchCarriers(snapshot);
             if (snapshot.DayIndex != lastNightDayIndex)
             {
                 lastNightDayIndex = snapshot.DayIndex;
@@ -112,6 +115,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            UpdateAmbientTorchCarriers(snapshot);
             if (snapshot.DayIndex != lastEveningDayIndex)
             {
                 retryTimer -= Time.unscaledDeltaTime;
@@ -147,6 +151,7 @@ namespace ProjectUnknown.Strategy
         private void BeginTorchDuty(StrategyCalendarSnapshot snapshot, bool immediateDispatch)
         {
             RefreshCinematicSources();
+            ResetSourcesForEvening(snapshot);
             CollectAvailableSources();
             CollectEligibleResidents();
             ClearAssignments();
@@ -188,6 +193,26 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("staggered", !immediateDispatch));
         }
 
+        private void ResetSourcesForEvening(StrategyCalendarSnapshot snapshot)
+        {
+            if (snapshot.DayIndex == lastLightStateResetDayIndex)
+            {
+                return;
+            }
+
+            StrategyNightLightSource.CopyActiveSources(sources);
+            for (int i = 0; i < sources.Count; i++)
+            {
+                StrategyNightLightSource source = sources[i];
+                if (source != null)
+                {
+                    source.ResetForNight();
+                }
+            }
+
+            lastLightStateResetDayIndex = snapshot.DayIndex;
+        }
+
         private void CollectAvailableSources()
         {
             availableSources.Clear();
@@ -203,7 +228,11 @@ namespace ProjectUnknown.Strategy
                     continue;
                 }
 
-                source.ResetForNight();
+                if (source.IsLit || source.IsReserved)
+                {
+                    continue;
+                }
+
                 if (!source.TryRefreshWorkCell(map))
                 {
                     skippedSourceCount++;

@@ -1,6 +1,6 @@
 # Systems Map
 
-Last updated: 2026-06-30
+Last updated: 2026-07-07
 
 Use this file as the first navigation pass before broad searches. Owner cards are starting points, not hard boundaries.
 
@@ -39,7 +39,8 @@ Responsibilities:
 - Shared Y-based sorting constants/helper for 2.5D world sprites.
 - Shared short-lived world-space visual effects for resource drops, construction hits, sawdust, dust, sparks, chips, and splashes.
 - Runtime world tint overlay and calendar snapshot source for the visual day/night cycle.
-- Runtime weather overlay sorting bands for wet ground, chunk-repainted cloud shadows, chunk-repainted mist, and rain.
+- Runtime weather overlay sorting bands for wet ground/cold wash, chunk-repainted cloud shadows, chunk-repainted mist, rain, and snow.
+- Runtime seasonal terrain/building surface overlays for snow cover and water ice.
 - Runtime URP post-processing for soft color grading, bloom, and vignette driven by day/night and weather state.
 - Runtime cinematic visuals for 2D global/local lights, emissive masks, animated building torch/lantern source sprites with manual night-light state, active hand-carried resident torch lights, light-aware nighttime darkness over unlit cells, wet puddle glints, lightning flashes, and foreground depth accents.
 
@@ -63,11 +64,16 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Core/StrategyNightLightSource.cs`
 - `Assets/Scripts/Runtime/Core/StrategyCinematicVisualMath.cs`
 - `Assets/Scripts/Runtime/Core/StrategyCinematicVisualSprites.cs`
+- `Assets/Scripts/Runtime/Core/StrategySeasonCalendar.cs`
+- `Assets/Scripts/Runtime/Core/StrategyDayNightCycleController.Calendar.cs`
 - `Assets/Scripts/Runtime/Core/StrategyDayNightCycleController.cs`
 - `Assets/Scripts/Runtime/Core/StrategyShadowCaster2D.cs`
 - `Assets/Scripts/Runtime/Core/StrategyShadowSpriteFactory.cs`
+- `Assets/Scripts/Runtime/Build/StrategyBuildingSnowSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Weather/StrategyWeatherVisualController.cs`
 - `Assets/Scripts/Runtime/Weather/StrategyWeatherVisualController.Chunks.cs`
+- `Assets/Scripts/Runtime/Weather/StrategyWeatherVisualController.Snow.cs`
+- `Assets/Scripts/Runtime/Weather/StrategySeasonalSurfaceController.cs`
 
 Impact hints:
 
@@ -75,7 +81,8 @@ Impact hints:
 - World sprites should use `StrategyWorldSorting` instead of fixed type-based `sortingOrder` values so farther objects do not render in front of nearer ones.
 - Short-lived world effects should use `StrategyWorldEffectAnimator` and `StrategyRuntimeObjectCreationGuard` instead of spawning one-off ad hoc particle objects.
 - The day/night and weather overlays sort around world sprites while staying below placement preview/fog/UI; keep that ordering when adding more world overlays.
-- Day/night owns the canonical display day, 24-hour clock, time-of-day phase labels, phase accent colors, and dawn/nightfall event-log triggers; HUDs should read that snapshot instead of inventing separate clocks.
+- Seasonal surface overlays sort above terrain/water and below roads/weather wash so snow and ice read as ground cover without hiding roads or world sprites.
+- Day/night owns the canonical display day, 24-hour clock, time-of-day phase labels, phase accent colors, derived 7-day season/year data, and dawn/nightfall/season-start event-log triggers; HUDs should read that snapshot instead of inventing separate clocks.
 - Post-process tuning should stay subtle and pixel-readable; avoid blur, heavy chromatic aberration, or aggressive grain for normal strategy view.
 - Cinematic visual effects should stay bounded to reusable emitters/controllers rather than adding per-building one-off light scripts; building torch/lantern source sprites and the night darkness mask are cheap overlays, while real `Light2D` point lights should stay LOD-capped and lazily created because many simultaneous 2D lights can cause visible frame spikes. Non-campfire torch/lantern emitters read `StrategyNightLightSource` manual lit state; resident personal `Dusk` hand torches should use cheap sprite/mask lighting, with resident `Light2D` reserved for actual `Night` lamp-lighting duty. Fire-source daylight fade uses the shared Dawn-to-start-of-`Noon` factor rather than a hard Dawn cutoff, and should shrink/disable only flame layers instead of making torch/campfire bodies transparent. Night-mask work should keep using the cached camera-area emitter list from cinematic LOD instead of scanning every emitter per mask pixel.
 - `StrategyShadowCaster2D` is the shared runtime shadow path for world sprites; tune shape/scale/offset per object type and let day/night control opacity/length globally.
@@ -110,6 +117,7 @@ Responsibilities:
 - Ensure a usable orthographic main camera exists.
 - Wire camera bounds to generated map bounds.
 - Configure runtime weather after camera/day-night setup and before ambience audio.
+- Configure seasonal surface visuals after weather setup so snow/ice coverage shares weather and temperature state.
 - Configure runtime ambience audio after camera setup.
 - Focus the initial camera view on the startup campfire after population creates it.
 - Configure water/shore animation after map generation.
@@ -144,6 +152,8 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Core/StrategyDebugOptions.cs`
 - `Assets/Scripts/Runtime/Core/StrategyRuntimeObjectCreationGuard.cs`
 - `Assets/Scripts/Runtime/Core/StrategyTimeScaleController.cs`
+- `Assets/Scripts/Runtime/Core/StrategySeasonCalendar.cs`
+- `Assets/Scripts/Runtime/Core/StrategyDayNightCycleController.Calendar.cs`
 - `Assets/Scripts/Runtime/Core/StrategyDayNightCycleController.cs`
 - `Assets/Scripts/Runtime/Core/StrategyPostProcessController.cs`
 - `Assets/Scripts/Runtime/Core/StrategyCinematicVisualController.cs`
@@ -152,10 +162,13 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Core/StrategyCinematicLightEmitter.cs`
 - `Assets/Scripts/Runtime/Core/StrategyCinematicLightEmitter.Profile.cs`
 - `Assets/Scripts/Runtime/Population/StrategyNightLightTaskController.cs`
+- `Assets/Scripts/Runtime/Population/StrategyNightLightTaskController.Ambient.cs`
 - `Assets/Scripts/Runtime/Weather/StrategyWeatherKind.cs`
 - `Assets/Scripts/Runtime/Weather/StrategyWeatherController.cs`
 - `Assets/Scripts/Runtime/Weather/StrategyWeatherVisualController.cs`
 - `Assets/Scripts/Runtime/Weather/StrategyWeatherVisualController.Chunks.cs`
+- `Assets/Scripts/Runtime/Weather/StrategyWeatherVisualController.Snow.cs`
+- `Assets/Scripts/Runtime/Weather/StrategySeasonalSurfaceController.cs`
 - `Assets/Scripts/Runtime/Audio/StrategyAmbientAudioController.cs`
 - `Assets/Scripts/Runtime/Audio/StrategyMusicController.cs`
 - `Assets/Scripts/Runtime/Audio/StrategyResidentFootstepAudio.cs`
@@ -168,6 +181,8 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.Diagnostics.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.Network.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.Roadside.cs`
+- `Assets/Scripts/Runtime/Map/StrategyTrailController.RouteConnectionRepair.cs`
+- `Assets/Scripts/Runtime/Map/StrategyTrailController.RouteConnections.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.Routes.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.Visibility.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailPathfinder.cs`
@@ -190,6 +205,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/UI/StrategyRefugeeDialogController.cs`
 - `Assets/Scripts/Runtime/UI/StrategyConfirmationDialogController.cs`
 - `Assets/Scripts/Runtime/UI/StrategyDebugPanelController.cs`
+- `Assets/Scripts/Runtime/UI/StrategyDebugPanelController.Weather.cs`
 - `Assets/Scripts/Runtime/UI/StrategyTopStatusHudController.cs`
 - `Assets/Scripts/Runtime/UI/StrategyPopulationRosterHudController.cs`
 - `Assets/Scripts/Runtime/UI/StrategyPopulationRosterHudController.Part01.cs`
@@ -276,8 +292,10 @@ Impact hints:
 Responsibilities:
 
 - Own the current runtime weather state and smooth atmospheric intensities.
-- Randomly transition between Clear, Cloudy, LightRain, HeavyRain, Fog, and Storm.
-- Drive procedural wet-ground, cloud-shadow, heavy-rain mist, and rain world overlays.
+- Randomly transition between Clear, Cloudy, LightRain, HeavyRain, Fog, Storm, Snow, and Blizzard with season-biased weights from the shared calendar.
+- Calculate informational outdoor temperature from season, time of day, stable daily variation, and current weather.
+- Drive procedural wet-ground/cold-wash, cloud-shadow, heavy-precipitation mist, rain, and snow world overlays.
+- Drive gradual seasonal snow/ice surface cover and expose frozen-water gameplay state for fish/fishing systems.
 - Feed dense Fog weather into fog-of-war visibility and masked weather-fog rendering.
 - Feed rain/wind ambience with a single weather source of truth.
 - Boost the strategy `WindZone` so nature sway reacts to rain and storms.
@@ -287,7 +305,13 @@ Primary files/assets:
 
 - `Assets/Scripts/Runtime/Weather/StrategyWeatherKind.cs`
 - `Assets/Scripts/Runtime/Weather/StrategyWeatherController.cs`
+- `Assets/Scripts/Runtime/Weather/StrategyTemperatureModel.cs`
 - `Assets/Scripts/Runtime/Weather/StrategyWeatherVisualController.cs`
+- `Assets/Scripts/Runtime/Weather/StrategyWeatherVisualController.Chunks.cs`
+- `Assets/Scripts/Runtime/Weather/StrategyWeatherVisualController.Snow.cs`
+- `Assets/Scripts/Runtime/Weather/StrategySeasonalSurfaceController.cs`
+- `Assets/Scripts/Runtime/Build/StrategyBuildingSnowSpriteFactory.cs`
+- `Assets/Scripts/Runtime/Core/StrategySeasonCalendar.cs`
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.cs`
 - `Assets/Scripts/Runtime/Core/StrategyWorldSorting.cs`
 - `Assets/Scripts/Runtime/Map/StrategyWindController.cs`
@@ -298,10 +322,10 @@ Primary files/assets:
 Impact hints:
 
 - Weather visual overlays must stay below placement preview and fog-of-war UI-facing layers.
-- Weather visual overlays are performance-budgeted: cloud/mist textures are 1 pixel per cell, rain uses a capped camera-area sprite pool, and visual repaint cadences should stay unscaled and low-frequency.
+- Weather visual overlays are performance-budgeted: cloud/mist textures are 1 pixel per cell, rain and snow use capped camera-area sprite pools, and visual repaint cadences should stay unscaled and low-frequency.
 - Dense weather Fog rendering is owned by Fog of War so visible cells can stay clear; do not reintroduce a uniform `FogIntensity` mist overlay over the whole map.
-- Rain/wind audio should continue reading `StrategyWeatherController.Active` instead of adding independent rain timers.
-- Weather currently has visual/audio/wind/water effects only; future gameplay effects should extend this system rather than duplicating weather rolls in crops, illness, movement, or fire logic.
+- Rain/wind audio should continue reading `StrategyWeatherController.Active` instead of adding independent rain timers; Snow/Blizzard expose separate snow intensity so they do not trigger rain audio or rain-driven water ripples.
+- Weather and seasons currently have visual/audio/wind/water/probability effects plus outdoor temperature used by winter house warmth, seasonal surface snow/ice visuals, and frozen-water fish/fishing blocking; future gameplay effects should extend this system rather than duplicating weather or season rolls in crops, illness, movement, or fire logic.
 
 ### Generated City Map
 
@@ -318,6 +342,7 @@ Responsibilities:
 - Render animated water waves, sparkles, shoreline foam, and weather-driven rain ripple hits as a transparent overlay.
 - Track completed resident movement between different non-Bridge placed buildings as immediate stable road cells after one real traversal.
 - Keep resident footfalls from creating functional or visible roads, and keep automatic route-network convergence disabled.
+- Keep route-road recording connected by rejecting route tails left behind after square-prone cells are skipped and using a bounded local repair search when a no-square obstacle detour exists.
 - Prune road cells only when map walkability or cell validity invalidates them; roads do not decay from disuse.
 - Spawn sparse non-blocking roadside torch props from eligible straight route-road cells, refreshing the derived prop layer when roads or adjacent buildability change.
 - Maintain a runtime 16x16 world chunk registry for spatial indexing of placed buildings, active construction sites, and residents plus camera-near, settlement-active, and dirty-chunk flags.
@@ -348,6 +373,8 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.Diagnostics.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.Network.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.Roadside.cs`
+- `Assets/Scripts/Runtime/Map/StrategyTrailController.RouteConnectionRepair.cs`
+- `Assets/Scripts/Runtime/Map/StrategyTrailController.RouteConnections.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.Routes.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.Visibility.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailPathfinder.cs`
@@ -396,7 +423,7 @@ Impact hints:
 - Iron field placement consumes the active seed, generated walkable land cells, and macro cluster score; Iron deposits are underground fields that do not block walkability but block normal buildability.
 - Coal field placement consumes the active seed, generated walkable land cells, and macro cluster score; Coal deposits are underground fields that do not block walkability but block normal buildability.
 - Clay field placement consumes the active seed, generated walkable near-water land/shore cells, and macro cluster score; Clay deposits do not block walkability but block normal buildability.
-- Forage placement consumes the active seed, generated cell kinds, current walkability, the shared shuffled full-map pass, and macro cluster score; forage nodes are non-blocking, support reservation, disappear after gathering, and use a faster timed respawn queue that places replacements near mature standing trees inside active Forager Camp work radii. The controller leaves capacity headroom after initial generation, periodically supports under-supplied Forager Camps, and applies local density/per-camp soft caps to avoid over-clustering.
+- Forage placement consumes the active seed, generated cell kinds, current walkability, the shared shuffled full-map pass, macro cluster score, and the current season gameplay profile; forage nodes are non-blocking, support reservation, disappear after gathering, and use a timed respawn queue that places replacements near mature standing trees inside active Forager Camp work radii. The controller leaves capacity headroom after initial generation, periodically supports under-supplied Forager Camps, applies local density/per-camp soft caps to avoid over-clustering, and uses season multipliers so Winter slows new forage without clearing existing nodes.
 - Generated standalone tree props register as mature forestry trees and block their cells.
 - Forest groups and bushes remain non-interactive but block their cells.
 - Generated Stone deposits register as Boulder, Rock Cluster, or Cliff resource deposits and block their cells.
@@ -407,7 +434,7 @@ Impact hints:
 - Future movement/pathfinding should use `IsCellWalkable` rather than terrain kind alone.
 - Rendering is currently a generated point-filtered texture on a `SpriteRenderer`, not a Tilemap.
 - Water and shore animation is a separate transparent `SpriteRenderer` overlay above the static map and below world props; it reads active weather intensity for rain ripple hits and repaints only cached water/shore cells after setup.
-- Trail visuals use one `SpriteRenderer` per visible route-road cell under a `Trail Visuals` root, sorted above terrain/water overlays and below world props, with cardinal N/E/S/W right-angle masks and narrow line/brush sprites; visual road formation comes from direct-first completed building-to-building traversals rather than per-step footfall squares, raw A* detours, or background network convergence. Roadside torch props are generated under a separate `Roadside Props` root and should remain visual-only, non-blocking derivatives of route-road cells.
+- Trail visuals use one `SpriteRenderer` per visible route-road cell under a `Trail Visuals` root, sorted above terrain/water overlays and below world props, with cardinal N/E/S/W right-angle masks and narrow line/brush sprites; visual road formation comes from direct-first completed building-to-building traversals rather than per-step footfall squares, raw A* detours, or background network convergence. Route recording can add single-sided connector cells with exactly one existing route-road neighbor or step onto adjacent existing route roads, must reject full 2x2 route-road blocks, must not record disconnected tail cells after a skipped square candidate, and can run a bounded local cardinal repair search for a connected no-square detour. Roadside torch props are generated under a separate `Roadside Props` root and should remain visual-only, non-blocking derivatives of route-road cells.
 - Road cells are runtime-only and should be refreshed when map walkability or cell validity changes so blocked cells do not keep visible or functional roads.
 - Resident pathfinding should continue to use the shared road-aware pathfinder, reading functional road cells as a cost preference rather than required connectivity.
 - `StrategyWorldChunkRegistry` is the shared chunk foundation for future Minecraft-style incremental work; first migrate expensive scans behind its safe query APIs, then switch fog/weather/props/lights/resources to dirty or active chunks only.
@@ -930,18 +957,23 @@ Impact hints:
 Responsibilities:
 
 - Runtime-created top status canvas.
-- Show total settlement population, adult count, child count, display day, 24-hour clock time, time-of-day phase, and day progress.
+- Show total settlement population, adult count, child count, display day, 24-hour clock time, outdoor temperature, season day, time-of-day phase, winter food/fuel readiness, and day progress.
 - Treat the compact population panel as a click target that toggles the larger resident roster HUD.
 - Show a larger residents roster HUD with settlement stats plus filterable rows for name, age, home/camp state, role, current status, and food status.
 - Expose a `Family Trees` button from the residents roster.
 - Show a fullscreen modal Family Trees HUD that pauses simulation, has permanent horizontal/vertical scrollbars, groups recorded members into connected same-surname family cards, lays those cards out as affinity-ordered left-to-right columns with compact generation rows, and draws parent-child portrait-card trees plus cross-family relationship lines with distinct deceased cards, gender symbols, and hover relationship labels.
 - Share resident role/status/home/food label formatting through `StrategyResidentHudText`.
-- Show compact birth, death, adoption, dawn, and nightfall messages through a separate event-log canvas.
+- Show compact birth, death, adoption, dawn, nightfall, season-start, and late-Autumn winter-warning messages through a separate event-log canvas.
 - Refresh counts from `StrategyPopulationController` without owning population state.
 
 Primary files/assets:
 
 - `Assets/Scripts/Runtime/UI/StrategyTopStatusHudController.cs`
+- `Assets/Scripts/Runtime/Weather/StrategyTemperatureModel.cs`
+- `Assets/Scripts/Runtime/Core/StrategySeasonCalendar.cs`
+- `Assets/Scripts/Runtime/Core/StrategySeasonReadiness.cs`
+- `Assets/Scripts/Runtime/Population/StrategyHouseWarmthState.cs`
+- `Assets/Scripts/Runtime/Population/StrategyPopulationController.SeasonReadiness.cs`
 - `Assets/Scripts/Runtime/UI/StrategyPopulationRosterHudController.cs`
 - `Assets/Scripts/Runtime/UI/StrategyPopulationRosterHudController.Part01.cs`
 - `Assets/Scripts/Runtime/UI/StrategyFamilyTreeHudController.cs`
@@ -961,7 +993,7 @@ Primary files/assets:
 Impact hints:
 
 - Population counts exclude pending refugee families until they are accepted into the settlement.
-- The calendar/time widget reads `StrategyDayNightCycleController.CurrentSnapshot`; keep it separate from the clickable population panel so the roster entry point remains obvious.
+- The calendar/time/season widget reads `StrategyDayNightCycleController.CurrentSnapshot`; its temperature readout comes from `StrategyTemperatureModel`, and its winter readiness line aggregates food rations plus household fuel Logs from Granaries, Storage Yards, starter cart, and house-local stores against accepted residents/occupied houses. Keep it separate from the clickable population panel so the roster entry point remains obvious.
 - Family Trees reads recorded family data, including deceased residents preserved by `StrategyResidentFamilyRecord`, and renders deceased relatives as muted monochrome cards with a skull marker.
 - Family Trees relationship labels, cross-family lines, and column affinity currently derive from recorded parent/child links plus co-parent inference through shared children; explicit marriage/birth-family links should extend this owner instead of overloading family-name grouping.
 - Keep top HUD click targets coordinated with Build/Profession HUD positioning and raycasts.
@@ -1082,7 +1114,7 @@ Responsibilities:
 - Maintain a coverage floor of 1 worker for available auto-managed professions whose player counter is above 0; a counter at 0 is the explicit opt-out that allows that role/category to fall to 0.
 - Let emergency food/resource shortages pull a limited donor from an at-target profession only when the shortage score strongly exceeds that profession's hold score, while never taking the last worker protected by a coverage floor.
 - Ignore children, pending refugees, funeral duty, household foraging/food duty, householders, residents with external workplaces, and active construction assignees through resident availability flags.
-- Build work demands from active construction sites, Granary ration reserve, food-production worksite stock/capacity, production-worksite stock/capacity, Storage Yard/Granary logistics backlog, Tools demand, and construction material needs.
+- Build work demands from active construction sites, Granary ration reserve, food-production worksite stock/capacity, production-worksite stock/capacity, Storage Yard/Granary logistics backlog, Tools demand, winter household Log reserve demand, and construction material needs.
 - Score demands by priority, urgency, shortage, worksite need, construction readiness, storage backlog, and resident distance.
 - Assign nearest free adults through existing worksite APIs or settlement role APIs instead of mutating resident/worksite lists directly.
 - Assign settlement Builder roles and use population-level balanced construction dispatch as the owner of construction-site assignment.
@@ -1106,6 +1138,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceController.SettlementRoles.cs`
 - `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceDemand.cs`
 - `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceSettings.cs`
+- `Assets/Scripts/Runtime/Population/StrategyHouseWarmthState.cs`
 - `Assets/Scripts/Runtime/UI/StrategyProfessionHudController.Part04.cs`
 - `Assets/Scripts/Runtime/UI/StrategyProfessionHudController.Part05.cs`
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.cs`
@@ -1460,6 +1493,8 @@ Responsibilities:
 - Find Kilns with available stored Pottery and reserve stock for haulers.
 - Find Forges with available stored Tools and reserve stock for haulers.
 - Check for at least one active Storage Yard before householder Pottery reservation attempts, then reserve Pottery from Storage Yard stock for houses that need it for Dish cooking.
+- Reserve winter household Logs from Storage Yard stock for Householders whose own houses are below the winter fuel target.
+- Expose the temporary starter Caravan Cart as the lower-priority fallback household Log source; the cart still never accepts new deposits and despawns once stock/reservations are gone.
 - Find Hunter Camps/Fisher Huts/Forager Camps or loose food piles with available `Game`/`Fish`/forage food and reserve food for delivery to the nearest Granary.
 - Find loose construction resource piles and reserve Logs/Stone/Planks for haulers after construction cancellation.
 - Reserve Logs/Stone/Planks for accepted construction sites.
@@ -1488,9 +1523,11 @@ Primary files/assets:
 
 - `Assets/Scripts/Runtime/Build/StrategyStorageYard.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStorageYard.ConstructionPriority.cs`
+- `Assets/Scripts/Runtime/Build/StrategyStorageYard.Part13.cs`
 - `Assets/Scripts/Runtime/Build/StrategyProductionConstructionResources.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStarterCaravanCart.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStarterCaravanCart.Construction.cs`
+- `Assets/Scripts/Runtime/Build/StrategyStarterCaravanCart.HouseholdLogs.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStarterCaravanCart.Food.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStorageYard.Part07.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStorageYard.Part05.cs`
@@ -1543,6 +1580,7 @@ Impact hints:
 - Hauler construction-material fallback runs after normal storage, production, and Granary hauling checks; it reuses construction pickup/deposit states with a temporary delivery site and does not create a hired-builder assignment or hammer-work reservation.
 - Hauler and builder staffing has no per-yard slot limit; construction sites no longer cap their active visible builder crew at 2.
 - Construction resources are normally reserved against physically present loose construction piles, Storage Yard stock, production-local Lumberjack/Stonecutter/Sawmill stock, and the low-priority starter Caravan Cart at site creation, then physically removed when builders or construction-delivery Haulers pick them up; F9 instant construction debug mode bypasses this reservation path for player-placed buildings.
+- Household Log reservations subtract from available construction/logistics Logs while pending so the same Log unit is not promised both to winter fuel and to construction/production input delivery.
 - Non-carried logistics reservations do not hide physical stock from construction affordability; when construction claims that stock, matching not-yet-picked logistics reservations are cleared, while already-carried resources stay excluded because pickup removed them from source stock.
 - Builders also create a per-builder pickup claim after a path to the pickup cell is found; cancelled work releases that claim while the construction-site reservation remains intact.
 - If a builder dies while carrying a construction resource, the dropped loose construction pile restores the original site's reservation when that site still needs the resource.
@@ -1745,7 +1783,7 @@ Responsibilities:
 - Keep children younger than 3 years old inside their assigned home by hiding their world sprite/collider and skipping outdoor idle/funeral movement until they age out.
 - Give older children daytime ambient play activities near home/camp, including solo play, pair play with siblings or nearby children, and tag; children with displayed age 6+ can instead help carry raw household food to their own home when reserves are low.
 - Send housed idle residents home to sleep inside during the `Night` phase by hiding their world sprite/collider until morning, while leaving homeless residents outside with a visible `Zzz...` sleep indicator.
-- Prepare future lamp workers around 20:00 during `Dusk` so their personal hand torches activate gradually during ordinary movement, then assign them to light building and roadside lamps at `Night` using nearest-to-home light queues and hand-carried torch walk/light animations before they return to sleep.
+- Prepare future lamp workers around 20:00 during `Dusk`, and separately stagger cheap personal hand torches for a capped majority of eligible housed adults so ordinary residents can carry light while moving toward night. Assign only the lamp-worker subset to light building and roadside lamps at `Night` using nearest-to-home light queues and hand-carried torch walk/light animations before they return to sleep.
 - Resolve one nightly household dinner from prepared house `Dish`, using resident age-based ration needs after eligible residents return home for `Night`.
 - Send Householders to fetch reserved raw `Fish`/`Game`/forage food from reachable Granaries into their own house when ingredient reserves are low, then from the starter Caravan Cart while it has food, or from reachable Hunter/Fisher/Forager production stock when no stored food is available.
 - Send Householders to fetch Pottery from active Storage Yards and cook stored ingredients plus 1 Pottery per prepared `Dish` during `Dusk` when dinner coverage is low; keep Pottery retry cooldown separate from raw-food pickup.
@@ -1849,9 +1887,11 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyHouseholdState.cs`
 - `Assets/Scripts/Runtime/Population/StrategyHouseholdFoodState.cs`
 - `Assets/Scripts/Runtime/Population/StrategyHouseholdFoodState.NightMeal.cs`
+- `Assets/Scripts/Runtime/Population/StrategyHouseWarmthState.cs`
 - `Assets/Scripts/Runtime/Population/StrategyHouseholdForagingState.cs`
 - `Assets/Scripts/Runtime/Population/StrategyHomelessCampController.cs`
 - `Assets/Scripts/Runtime/Population/StrategyNightLightTaskController.cs`
+- `Assets/Scripts/Runtime/Population/StrategyNightLightTaskController.Ambient.cs`
 - `Assets/Scripts/Runtime/Population/StrategyKinshipUtility.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.SettlementRoles.cs`
@@ -1875,6 +1915,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part57.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part58.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part60.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part62.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentSpriteFactory.Part05.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentSpriteFactory.NightTorch.cs`
 - `Assets/Scripts/Runtime/Population/StrategyCampfireRelightSpriteFactory.cs`
@@ -1890,6 +1931,8 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Build/StrategyHunterCamp.cs`
 - `Assets/Scripts/Runtime/Build/StrategyFisherHut.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStorageYard.cs`
+- `Assets/Scripts/Runtime/Build/StrategyStorageYard.Part13.cs`
+- `Assets/Scripts/Runtime/Build/StrategyStarterCaravanCart.HouseholdLogs.cs`
 - `Assets/Scripts/Runtime/Build/StrategyGranary.cs`
 - `Assets/Scripts/Runtime/Build/StrategyConstructionSite.cs`
 - `Assets/Scripts/Runtime/Map/StrategyForestryController.cs`
@@ -1947,7 +1990,8 @@ Impact hints:
 - `StrategyHouseholdState` lives on occupied houses and owns the randomized birth timer.
 - `StrategyHouseholdState` blocks births while the same house has sustained ration shortages or birth-blocked residents.
 - `StrategyHouseholdFoodState` lives on occupied houses, resolves one nightly dinner per day after a one-day settling grace, waits for eligible residents to enter home for `Night` with a fallback deadline, consumes prepared house recipe dishes first, falls back to house-local ingredients for missing rations, applies short rations to resident nutrition debt, and exposes aggregate food status for HUDs.
-- Household final-mile food duty can reserve one raw `Fish`/`Game`/`Eggs`/forage-food unit from a Granary, then the starter Caravan Cart while it has food, or from Hunter Camp/Fisher Hut/Forager Camp/Chicken Coop stock when no stored food is available, path to pickup, carry it home, and store it in the house; Householders and children with displayed age 6+ can do raw-food pickup for their own home, while only Householders fetch Pottery from a Storage Yard and cook stored ingredients plus 1 Pottery per prepared recipe dish during `Dusk`.
+- `StrategyHouseWarmthState` lives on occupied houses, reads outdoor temperature/weather, consumes one house-local `Logs` unit on winter nights when available, tracks indoor warmth status for HUDs, and reports winter Log reserve demand.
+- Household final-mile food duty can reserve one raw `Fish`/`Game`/`Eggs`/forage-food unit from a Granary, then the starter Caravan Cart while it has food, or from Hunter Camp/Fisher Hut/Forager Camp/Chicken Coop stock when no stored food is available, path to pickup, carry it home, and store it in the house; Householders and children with displayed age 6+ can do raw-food pickup for their own home, while only Householders fetch Pottery from a Storage Yard and cook stored ingredients plus 1 Pottery per prepared recipe dish during `Dusk`; Householders also fetch winter household `Logs` from Storage Yards, then the starter Caravan Cart, for their own house.
 - `StrategyHouseholdForagingState` is compiled as inactive legacy code; placed Houses no longer attach it, and resident start guards return false so house-driven foraging cannot dispatch.
 - Generated forage reach/crouch sprites and node pulse effects are used by Forager Camp workers and are not started by Houses.
 - `StrategyPlacedBuilding` owns the current Householder reference for houses, preferring the oldest adult female resident and refreshing on home changes, death/unregister, and resident adulthood.
@@ -1958,11 +2002,11 @@ Impact hints:
 - Residents use the shared trail-aware 8-direction A* grid pathfinder with no diagonal corner cutting and post-path smoothing for idle, home, workplace, construction, logistics, and funeral travel while keeping frame-based sprite walk cycles.
 - Resident trail-aware path creation has a per-frame budget to avoid x2/x3 mass state-change spikes; excess attempts retry through normal task flow.
 - Resident scheduled-work task-start decisions have a per-frame budget in larger settlements; expensive household, logistics, construction, worksite, hunting, fishing, and child-play probes should remain behind this budget unless they are active-task continuation or carried-resource cleanup.
-- Resident movement records completed building-to-building route traversals as immediate stable roads after real arrivals, using a direct route-line attempt, smoothed route waypoint fallback, and canonical per-building-pair reinforcement so raw A* detours do not create square road pockets; ordinary footfalls no longer create functional or visible roads, and formed roads apply a 15% speed bonus.
+- Resident movement records completed building-to-building route traversals as immediate stable roads after real arrivals, using a direct route-line attempt, smoothed route waypoint fallback, connected single-sided route-road connectors plus bounded local repair to the existing road network, and canonical per-building-pair reinforcement so raw A* detours do not create square road pockets or disconnected road tails; ordinary footfalls no longer create functional or visible roads, and formed roads apply a 15% speed bonus.
 - Resident pathfinding can recover a blocked start cell by snapping to a nearby walkable cell and logging `PathStartRecovered`.
 - Resident scheduled work starts only during `StrategyDayNightCycleController.IsSettlementWorkTime`, which now covers Dawn through Dusk on every day. Keep carried-resource returns, deposits, and cleanup paths schedule-safe so nightfall cannot strand stock reservations.
 - Resident night sleep is separate from homebound young-child hiding: housed residents only enter the hidden home interior during `Night` when they are not carrying resources, in funeral duty, underground, or assigned to night lamp lighting, notify household food state for dinner readiness, then reappear at the home exit after night ends. Homeless residents instead reserve reachable campfire sleep spots, relight embers if needed, and sleep visibly around the startup campfire with a small `Zzz...` indicator.
-- Night lamp lighting is owned by `StrategyNightLightTaskController` plus `StrategyResidentAgent.NightLights.cs`; carried torch light/glow/night-mask contribution is isolated in `StrategyResidentAgent.NightTorchLight.cs`; late-Dusk personal hand-torch activation should not start stationary-lamp routes before `Night`, personal Dusk torches should avoid real `Light2D` point lights, and lamp sources should not automatically light when no eligible resident can reach them.
+- Night lamp lighting is owned by `StrategyNightLightTaskController` plus `StrategyResidentAgent.NightLights.cs`; capped ambient evening torch selection lives in `StrategyNightLightTaskController.Ambient.cs`; carried torch light/glow/night-mask contribution is isolated in `StrategyResidentAgent.NightTorchLight.cs`; late-Dusk personal hand-torch activation should not start stationary-lamp routes before `Night`, personal Dusk torches should avoid real `Light2D` point lights, and lamp sources should not automatically light when no eligible resident can reach them.
 - Resident footstep audio is attached by `StrategyResidentAgent` and plays grass clips on selected walk frames; keep it low-volume/spatial when adding more residents or faster simulation speeds.
 - Lumberjack work keeps the same camp worksite component but chooses the nearest available tree/processable wood on the map; it tests nearby work cells for real path reachability before starting tree/log/plant movement, and includes tree chopping, trunk bucking, Logs delivery, and sapling planting.
 - Resident woodcut sprites are generated for every male/female visual variant and should stay in sync with readability outline mirroring.

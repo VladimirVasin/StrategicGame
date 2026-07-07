@@ -6,10 +6,10 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyResidentAgent
     {
-        private const float NightTorchLightIntensity = 1.05f;
-        private const float NightTorchLightRadius = 4.85f;
-        private const float NightTorchMaskRadius = 5.10f;
-        private const float NightTorchMaskStrength = 0.76f;
+        private const float NightTorchLightIntensity = 1.25f;
+        private const float NightTorchLightRadius = 5.45f;
+        private const float NightTorchMaskRadius = 5.85f;
+        private const float NightTorchMaskStrength = 0.88f;
 
         private static readonly List<StrategyResidentAgent> ActiveNightTorchLights = new();
 
@@ -17,6 +17,11 @@ namespace ProjectUnknown.Strategy
         private SpriteRenderer nightTorchGlowRenderer;
         private SpriteRenderer nightTorchCoreRenderer;
         private float nightTorchFlickerSeed;
+        private float nightTorchFlickerTimeOffset;
+        private float nightTorchFlickerFastSpeed = 5.2f;
+        private float nightTorchFlickerSlowSpeed = 1.15f;
+        private float nightTorchFlickerDepth = 0.8f;
+        private int nightTorchFlickerProfileKey;
         private bool nightTorchLightActive;
 
         internal static int ActiveNightTorchLightCount => ActiveNightTorchLights.Count;
@@ -25,18 +30,20 @@ namespace ProjectUnknown.Strategy
             int index,
             out Vector3 world,
             out float radius,
-            out float strength)
+            out float strength,
+            out float edgeFlicker)
         {
             world = Vector3.zero;
             radius = 0f;
             strength = 0f;
+            edgeFlicker = 1f;
             if (index < 0 || index >= ActiveNightTorchLights.Count)
             {
                 return false;
             }
 
             StrategyResidentAgent resident = ActiveNightTorchLights[index];
-            return resident != null && resident.TryGetNightTorchMaskLight(out world, out radius, out strength);
+            return resident != null && resident.TryGetNightTorchMaskLight(out world, out radius, out strength, out edgeFlicker);
         }
 
         private void EnableNightTorchLight()
@@ -53,11 +60,7 @@ namespace ProjectUnknown.Strategy
                 ActiveNightTorchLights.Add(this);
             }
 
-            if (nightTorchFlickerSeed <= 0.001f)
-            {
-                nightTorchFlickerSeed = Random.Range(0f, 1000f);
-            }
-
+            ConfigureNightTorchFlickerProfile();
             UpdateNightTorchLight();
         }
 
@@ -98,8 +101,8 @@ namespace ProjectUnknown.Strategy
             EnsureNightTorchLightObjects(usePointLight);
             Vector3 world = GetNightTorchLightWorld();
             float flicker = GetNightTorchFlicker();
-            float radius = NightTorchLightRadius * Mathf.Lerp(0.94f, 1.12f, flicker);
-            float intensity = NightTorchLightIntensity * Mathf.Lerp(0.92f, 1.18f, flicker);
+            float radius = NightTorchLightRadius;
+            float intensity = NightTorchLightIntensity;
             Color color = Color.Lerp(
                 new Color(1f, 0.50f, 0.18f, 1f),
                 new Color(1f, 0.78f, 0.34f, 1f),
@@ -118,26 +121,39 @@ namespace ProjectUnknown.Strategy
                 }
             }
 
-            float glowAlpha = usePointLight ? intensity * 0.22f : intensity * 0.18f;
+            float glowFlicker = Mathf.Lerp(0.94f, 1.08f, flicker);
+            float glowAlpha = (usePointLight ? intensity * 0.22f : intensity * 0.18f) * glowFlicker;
             float coreAlpha = usePointLight ? intensity * 0.55f : intensity * 0.48f;
             float glowScale = usePointLight ? 1f : 0.82f;
-            ApplyNightTorchRenderer(nightTorchGlowRenderer, world, color, glowAlpha, radius * 0.86f * glowScale, radius * 0.50f * glowScale, 20);
+            ApplyNightTorchRenderer(
+                nightTorchGlowRenderer,
+                world,
+                color,
+                glowAlpha,
+                radius * 0.86f * glowScale * Mathf.Lerp(0.97f, 1.05f, flicker),
+                radius * 0.50f * glowScale * Mathf.Lerp(0.97f, 1.05f, flicker),
+                20);
             ApplyNightTorchRenderer(nightTorchCoreRenderer, world, color, coreAlpha, 0.34f * glowScale, 0.26f * glowScale, 21);
         }
 
-        private bool TryGetNightTorchMaskLight(out Vector3 world, out float radius, out float strength)
+        private bool TryGetNightTorchMaskLight(
+            out Vector3 world,
+            out float radius,
+            out float strength,
+            out float edgeFlicker)
         {
             world = GetNightTorchLightWorld();
             radius = 0f;
             strength = 0f;
+            edgeFlicker = 1f;
             if (!nightTorchLightActive || !ShouldKeepNightTorchLightActive() || hiddenInsideHome)
             {
                 return false;
             }
 
-            float flicker = GetNightTorchFlicker();
-            radius = NightTorchMaskRadius * Mathf.Lerp(0.95f, 1.10f, flicker);
-            strength = Mathf.Clamp01(NightTorchMaskStrength * Mathf.Lerp(0.92f, 1.16f, flicker));
+            radius = NightTorchMaskRadius;
+            strength = NightTorchMaskStrength;
+            edgeFlicker = GetNightTorchFlicker();
             return true;
         }
 
@@ -210,10 +226,70 @@ namespace ProjectUnknown.Strategy
 
         private float GetNightTorchFlicker()
         {
-            float t = Time.unscaledTime;
-            float fast = Mathf.PerlinNoise(nightTorchFlickerSeed, t * 5.2f);
-            float slow = Mathf.PerlinNoise(nightTorchFlickerSeed + 53.1f, t * 1.15f);
-            return Mathf.Lerp(0.76f, 1.22f, fast * 0.70f + slow * 0.30f);
+            float t = Time.unscaledTime + nightTorchFlickerTimeOffset;
+            float fast = Mathf.PerlinNoise(
+                nightTorchFlickerSeed + t * nightTorchFlickerFastSpeed,
+                nightTorchFlickerSeed * 0.41f + t * 0.33f);
+            float slow = Mathf.PerlinNoise(
+                nightTorchFlickerSeed + 53.1f + t * 0.24f,
+                nightTorchFlickerSeed * 0.19f + t * nightTorchFlickerSlowSpeed);
+            float wave = fast * 0.64f + slow * 0.36f;
+            float softened = Mathf.Lerp(0.5f, wave, nightTorchFlickerDepth);
+            return Mathf.Lerp(0.88f, 1.14f, softened);
+        }
+
+        private void ConfigureNightTorchFlickerProfile()
+        {
+            int sourceKey = residentId > 0
+                ? residentId
+                : HashNightTorchFlickerInts(
+                    Mathf.RoundToInt(transform.position.x * 100f),
+                    Mathf.RoundToInt(transform.position.y * 100f),
+                    VisualVariant,
+                    (int)gender ^ ((int)lifeStage << 8));
+            int profileKey = HashNightTorchFlickerInts(sourceKey, VisualVariant, (int)gender, (int)lifeStage);
+            if (nightTorchFlickerProfileKey == profileKey && nightTorchFlickerSeed > 0.001f)
+            {
+                return;
+            }
+
+            nightTorchFlickerProfileKey = profileKey;
+            float a = GetNightTorchHashUnit(profileKey, 0x9E3779B9u);
+            float b = GetNightTorchHashUnit(profileKey, 0x85EBCA6Bu);
+            float c = GetNightTorchHashUnit(profileKey, 0xC2B2AE35u);
+            float d = GetNightTorchHashUnit(profileKey, 0x27D4EB2Fu);
+            float e = GetNightTorchHashUnit(profileKey, 0x165667B1u);
+
+            nightTorchFlickerSeed = 1f + a * 997f;
+            nightTorchFlickerTimeOffset = b * 47f;
+            nightTorchFlickerFastSpeed = Mathf.Lerp(3.25f, 6.20f, c);
+            nightTorchFlickerSlowSpeed = Mathf.Lerp(0.58f, 1.55f, d);
+            nightTorchFlickerDepth = Mathf.Lerp(0.48f, 0.78f, e);
+        }
+
+        private static int HashNightTorchFlickerInts(int a, int b, int c, int d)
+        {
+            unchecked
+            {
+                uint hash = 2166136261u;
+                hash = (hash ^ (uint)a) * 16777619u;
+                hash = (hash ^ (uint)b) * 16777619u;
+                hash = (hash ^ (uint)c) * 16777619u;
+                hash = (hash ^ (uint)d) * 16777619u;
+                return (int)(hash & 0x7FFFFFFFu);
+            }
+        }
+
+        private static float GetNightTorchHashUnit(int key, uint salt)
+        {
+            unchecked
+            {
+                uint hash = ((uint)key ^ salt) * 1664525u + 1013904223u;
+                hash ^= hash >> 16;
+                hash *= 2246822519u;
+                hash ^= hash >> 13;
+                return (hash & 0x00FFFFFFu) / 16777215f;
+            }
         }
 
         private void OnDisable()

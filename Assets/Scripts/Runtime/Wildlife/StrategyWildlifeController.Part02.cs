@@ -163,7 +163,7 @@ namespace ProjectUnknown.Strategy
 
         public int CountCatchableFish(Vector2Int center, int radius)
         {
-            if (map == null)
+            if (map == null || StrategySeasonalSurfaceController.IsWaterFrozenForGameplay)
             {
                 return 0;
             }

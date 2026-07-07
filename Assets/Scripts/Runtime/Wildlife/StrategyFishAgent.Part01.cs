@@ -49,6 +49,31 @@ namespace ProjectUnknown.Strategy
             }
         }
 
+        private void UpdateFrozenWaterIdle()
+        {
+            if (fishingReservationOwner != null)
+            {
+                fishingReservationOwner = null;
+                reelHits = 0;
+                reelProgress = 0f;
+            }
+
+            if (riverRouteActive)
+            {
+                hasTarget = pathIndex < path.Count;
+                if (state != StrategyFishBehaviorState.Swimming)
+                {
+                    SetState(StrategyFishBehaviorState.Swimming, false, false);
+                }
+            }
+            else if (state != StrategyFishBehaviorState.Idle || hasTarget || path.Count > 0)
+            {
+                StartIdle(Random.Range(0.6f, 1.4f));
+            }
+
+            ApplyFrozenIdleVisual();
+        }
+
         private void UpdateHooked()
         {
             Vector3 previous = transform.position;

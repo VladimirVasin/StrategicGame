@@ -65,7 +65,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            float mist = weather.HeavyRainIntensity * 0.20f;
+            float mist = Mathf.Max(weather.HeavyRainIntensity * 0.20f, weather.HeavySnowIntensity * 0.18f);
             if (mist <= 0.02f)
             {
                 ClearWeatherTextureOnce(mistRenderer, mistTexture, mistPixels);

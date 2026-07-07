@@ -20,7 +20,11 @@ namespace ProjectUnknown.Strategy
             int hour,
             int minute,
             StrategyTimeOfDayPhase phase,
-            float phaseProgress)
+            float phaseProgress,
+            StrategySeason season,
+            int seasonDay,
+            int year,
+            float seasonProgress)
         {
             DayIndex = dayIndex;
             DayPhase = dayPhase;
@@ -28,6 +32,10 @@ namespace ProjectUnknown.Strategy
             Minute = minute;
             Phase = phase;
             PhaseProgress = phaseProgress;
+            Season = season;
+            SeasonDay = seasonDay;
+            Year = year;
+            SeasonProgress = seasonProgress;
         }
 
         public int DayIndex { get; }
@@ -37,13 +45,18 @@ namespace ProjectUnknown.Strategy
         public int Minute { get; }
         public StrategyTimeOfDayPhase Phase { get; }
         public float PhaseProgress { get; }
+        public StrategySeason Season { get; }
+        public int SeasonDay { get; }
+        public int Year { get; }
+        public float SeasonProgress { get; }
         public bool IsNight => Phase == StrategyTimeOfDayPhase.Night;
         public string ClockText => Hour.ToString("00") + ":" + Minute.ToString("00");
         public string PhaseLabel => StrategyDayNightCycleController.GetPhaseLabel(Phase);
+        public string SeasonLabel => StrategySeasonCalendar.GetSeasonLabel(Season);
     }
 
     [DisallowMultipleComponent]
-    public sealed class StrategyDayNightCycleController : MonoBehaviour
+    public sealed partial class StrategyDayNightCycleController : MonoBehaviour
     {
         private const float CycleSeconds = 360f;
         private const float HoursPerDay = 24f;
@@ -66,8 +79,6 @@ namespace ProjectUnknown.Strategy
         private SpriteRenderer overlayRenderer;
         private Color baseCameraColor = new(0.09f, 0.12f, 0.14f);
         private StrategyTimeOfDayPhase loggedPhase = (StrategyTimeOfDayPhase)(-1);
-        private StrategyTimeOfDayPhase announcedPhase = (StrategyTimeOfDayPhase)(-1);
-        private int announcedDayIndex = -1;
 
         public float DayPhase => Mathf.Repeat(Time.timeSinceLevelLoad / CycleSeconds, 1f);
         public StrategyCalendarSnapshot CurrentSnapshot => CreateSnapshot(Time.timeSinceLevelLoad);
@@ -343,30 +354,6 @@ namespace ProjectUnknown.Strategy
             }
         }
 
-        private void AnnouncePlayerFacingPhase(StrategyCalendarSnapshot snapshot)
-        {
-            bool keyPhase = snapshot.Phase == StrategyTimeOfDayPhase.Dawn
-                || snapshot.Phase == StrategyTimeOfDayPhase.Night;
-            if (!keyPhase)
-            {
-                return;
-            }
-
-            bool alreadyAnnounced = announcedPhase == snapshot.Phase
-                && announcedDayIndex == snapshot.DayIndex;
-            if (alreadyAnnounced)
-            {
-                return;
-            }
-
-            announcedPhase = snapshot.Phase;
-            announcedDayIndex = snapshot.DayIndex;
-            string label = snapshot.Phase == StrategyTimeOfDayPhase.Night ? "Nightfall" : "Dawn";
-            StrategyEventLogHudController.Notify(
-                label + ", Day " + snapshot.DisplayDay,
-                GetPhaseAccentColor(snapshot.Phase));
-        }
-
         private static StrategyCalendarSnapshot CreateSnapshot(float elapsedSeconds)
         {
             int dayIndex = Mathf.FloorToInt(elapsedSeconds / CycleSeconds);
@@ -377,7 +364,21 @@ namespace ProjectUnknown.Strategy
             int minute = totalMinutes % 60;
             StrategyTimeOfDayPhase timePhase = EvaluateTimeOfDayPhase(phase);
             float progress = EvaluatePhaseProgress(phase, timePhase);
-            return new StrategyCalendarSnapshot(dayIndex, phase, hour, minute, timePhase, progress);
+            StrategySeason season = StrategySeasonCalendar.GetSeason(dayIndex);
+            int seasonDay = StrategySeasonCalendar.GetSeasonDay(dayIndex);
+            int year = StrategySeasonCalendar.GetYear(dayIndex);
+            float seasonProgress = StrategySeasonCalendar.GetSeasonProgress(dayIndex, phase);
+            return new StrategyCalendarSnapshot(
+                dayIndex,
+                phase,
+                hour,
+                minute,
+                timePhase,
+                progress,
+                season,
+                seasonDay,
+                year,
+                seasonProgress);
         }
 
         private static StrategyTimeOfDayPhase EvaluateTimeOfDayPhase(float phase)

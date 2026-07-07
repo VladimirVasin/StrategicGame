@@ -290,6 +290,9 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            if (activity == ResidentActivity.PickingUpHouseholdLogs) { UpdatePickingUpHouseholdLogs(); return; }
+            if (activity == ResidentActivity.DepositingHouseholdLogs) { UpdateDepositingHouseholdLogs(); return; }
+
             if (activity == ResidentActivity.PickingUpGranaryGame)
             {
                 UpdatePickingUpGranaryGame();

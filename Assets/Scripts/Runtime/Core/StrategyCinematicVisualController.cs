@@ -9,7 +9,7 @@ namespace ProjectUnknown.Strategy
     {
         private const int PuddleCount = 36;
         private const int ForegroundCount = 4;
-        private const int MaxActivePointLights = 6;
+        private const int MaxActivePointLights = 8;
         private const float ScanInterval = 7.0f;
         private const float LodInterval = 0.35f;
         private const float PuddleUpdateInterval = 0.18f;

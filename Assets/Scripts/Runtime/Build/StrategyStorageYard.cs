@@ -32,6 +32,7 @@ namespace ProjectUnknown.Strategy
         private readonly Dictionary<object, int> constructionStoneReservations = new();
         private readonly Dictionary<object, int> constructionPlankReservations = new();
         private readonly Dictionary<StrategyResourceType, Dictionary<object, int>> productionInputReservations = new();
+        private readonly Dictionary<object, HouseholdLogReservation> householdLogReservations = new();
         private readonly Dictionary<object, HouseholdPotteryReservation> householdPotteryReservations = new();
         private readonly Dictionary<StrategyResidentAgent, ConstructionPickupReservation> constructionPickupReservations = new();
         private object logisticsLogsReservationOwner;
@@ -58,8 +59,8 @@ namespace ProjectUnknown.Strategy
         public int PotteryStored => potteryStored;
         public int PlanksStored => planksStored;
         public int ToolsStored => toolsStored;
-        public int AvailableConstructionLogs => Mathf.Max(0, logsStored - CountReservations(constructionLogReservations));
-        public int AvailableLogisticsLogs => Mathf.Max(0, logsStored - CountReservations(constructionLogReservations) - reservedLogisticsLogs - CountProductionInputReservations(StrategyResourceType.Logs));
+        public int AvailableConstructionLogs => Mathf.Max(0, logsStored - CountReservations(constructionLogReservations) - CountHouseholdLogReservations());
+        public int AvailableLogisticsLogs => Mathf.Max(0, logsStored - CountReservations(constructionLogReservations) - reservedLogisticsLogs - CountProductionInputReservations(StrategyResourceType.Logs) - CountHouseholdLogReservations());
         public int AvailableConstructionStone => Mathf.Max(0, stoneStored - CountReservations(constructionStoneReservations));
         public int AvailableLogisticsStone => Mathf.Max(0, stoneStored - CountReservations(constructionStoneReservations) - CountProductionInputReservations(StrategyResourceType.Stone));
         public int AvailableConstructionPlanks => Mathf.Max(0, planksStored - CountReservations(constructionPlankReservations));
@@ -75,6 +76,12 @@ namespace ProjectUnknown.Strategy
         }
 
         private sealed class HouseholdPotteryReservation
+        {
+            public StrategyPlacedBuilding House;
+            public int Amount;
+        }
+
+        private sealed class HouseholdLogReservation
         {
             public StrategyPlacedBuilding House;
             public int Amount;

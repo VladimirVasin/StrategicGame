@@ -146,45 +146,78 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            float phase = dayNight != null ? dayNight.DayPhase : StrategyDayNightCycleController.CurrentDayPhase;
+            StrategyCalendarSnapshot snapshot = dayNight != null
+                ? dayNight.CurrentSnapshot
+                : StrategyDayNightCycleController.CurrentCalendarSnapshot;
+            float phase = snapshot.DayPhase;
             float night = StrategyCinematicVisualMath.NightFactor(phase);
             float warm = StrategyCinematicVisualMath.WarmFactor(phase);
             float rain = weather != null ? weather.RainIntensity : 0f;
+            float snow = weather != null ? weather.SnowIntensity : 0f;
             float cloud = weather != null ? weather.CloudIntensity : 0f;
             float fog = weather != null ? weather.FogIntensity : 0f;
             float storm = weather != null ? weather.StormIntensity : 0f;
             float wetness = weather != null ? weather.WetnessIntensity : 0f;
             float heavyRain = weather != null ? weather.HeavyRainIntensity : 0f;
+            float heavySnow = weather != null ? weather.HeavySnowIntensity : 0f;
+            StrategySeasonPostProcessProfile seasonProfile =
+                StrategySeasonCalendar.GetPostProcessProfile(snapshot.Season);
+            float seasonVisibility = Mathf.Lerp(1f, 0.42f, night);
 
             Color tint = Color.white;
             tint = BlendTint(tint, new Color(1f, 0.88f, 0.68f, 1f), warm * 0.50f);
             tint = BlendTint(tint, new Color(0.68f, 0.78f, 1f, 1f), night * 0.50f);
             tint = BlendTint(tint, new Color(0.86f, 0.92f, 0.98f, 1f), Mathf.Max(cloud * 0.12f, rain * 0.24f));
+            tint = BlendTint(tint, new Color(0.78f, 0.90f, 1f, 1f), snow * 0.26f + heavySnow * 0.12f);
             tint = BlendTint(tint, new Color(0.88f, 0.91f, 0.90f, 1f), fog * 0.35f);
             tint = BlendTint(tint, new Color(0.72f, 0.78f, 0.88f, 1f), storm * 0.30f);
+            tint = BlendTint(tint, seasonProfile.Tint, seasonProfile.TintStrength * seasonVisibility);
 
             colorAdjustments.colorFilter.value = tint;
             colorAdjustments.postExposure.value = Mathf.Clamp(
-                warm * 0.035f + fog * 0.018f - night * 0.105f - rain * 0.030f - storm * 0.055f,
+                warm * 0.035f
+                    + fog * 0.018f
+                    + seasonProfile.ExposureOffset * seasonVisibility
+                    - night * 0.105f
+                    - rain * 0.030f
+                    - snow * 0.018f
+                    - storm * 0.055f,
                 -0.18f,
                 0.04f);
             colorAdjustments.contrast.value = Mathf.Clamp(
-                2f + warm * 2f - cloud * 3f - rain * 7f - fog * 15f - storm * 7f - night * 6f,
+                2f
+                    + warm * 2f
+                    + seasonProfile.ContrastOffset * seasonVisibility
+                    - cloud * 3f
+                    - rain * 7f
+                    - snow * 5f
+                    - fog * 15f
+                    - storm * 7f
+                    - night * 6f,
                 -22f,
                 8f);
             colorAdjustments.saturation.value = Mathf.Clamp(
-                3f + warm * 4f - cloud * 4f - rain * 11f - fog * 18f - storm * 8f - night * 11f,
+                3f
+                    + warm * 4f
+                    + seasonProfile.SaturationOffset * seasonVisibility
+                    - cloud * 4f
+                    - rain * 11f
+                    - snow * 9f
+                    - fog * 18f
+                    - storm * 8f
+                    - night * 11f,
                 -24f,
                 9f);
 
             float bloomMood = Mathf.Max(night * 0.72f, wetness * 0.38f);
             bloomMood = Mathf.Max(bloomMood, warm * 0.28f);
             bloomMood = Mathf.Max(bloomMood, storm * 0.32f);
+            bloomMood = Mathf.Max(bloomMood, snow * 0.20f);
             bloom.threshold.value = Mathf.Lerp(0.94f, 0.86f, bloomMood);
             bloom.intensity.value = Mathf.Clamp(0.018f + bloomMood * 0.105f, 0f, 0.135f);
 
             vignette.intensity.value = Mathf.Clamp(
-                0.026f + night * 0.135f + heavyRain * 0.035f + fog * 0.035f + storm * 0.060f,
+                0.026f + night * 0.135f + heavyRain * 0.035f + heavySnow * 0.045f + fog * 0.035f + storm * 0.060f,
                 0f,
                 0.25f);
         }

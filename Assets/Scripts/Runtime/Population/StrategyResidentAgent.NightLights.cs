@@ -35,6 +35,19 @@ namespace ProjectUnknown.Strategy
             }
         }
 
+        internal bool CanReceiveEveningNightTorch
+        {
+            get
+            {
+                return IsAdult
+                    && home != null
+                    && !deathRequested
+                    && !IsPendingRefugee
+                    && !IsHomeboundYoungChild
+                    && !IsFuneralActivity(activity);
+            }
+        }
+
         internal bool TryStartNightLightTask(StrategyNightLightSource source, Vector2Int workCell)
         {
             if (source == null

@@ -330,6 +330,7 @@ namespace ProjectUnknown.Strategy
             }
 
             ReleaseActiveHouseholdFoodReservation();
+            StoreCarriedHouseholdLogsOnCancel(storeCarriedFood, reason);
 
             if (storeCarriedFood
                 && carriedHouseholdFoodResource != StrategyResourceType.None

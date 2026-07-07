@@ -161,6 +161,11 @@ namespace ProjectUnknown.Strategy
             return GetAmount(StrategyResourceType.Pottery);
         }
 
+        public int GetLogsAmount()
+        {
+            return GetAmount(StrategyResourceType.Logs);
+        }
+
         public int GetCookableDishCountByIngredients()
         {
             return CountCookableDishUnits(0f);
@@ -279,6 +284,33 @@ namespace ProjectUnknown.Strategy
             }
 
             return amounts.TryGetValue(type, out int amount) ? amount : 0;
+        }
+
+        public int ConsumeResource(StrategyResourceType type, int requested)
+        {
+            if (type == StrategyResourceType.None || type == StrategyResourceType.Dish || requested <= 0)
+            {
+                return 0;
+            }
+
+            int available = GetAmount(type);
+            int taken = Mathf.Min(available, requested);
+            if (taken <= 0)
+            {
+                return 0;
+            }
+
+            int nextAmount = available - taken;
+            if (nextAmount > 0)
+            {
+                amounts[type] = nextAmount;
+            }
+            else
+            {
+                amounts.Remove(type);
+            }
+
+            return taken;
         }
 
         private void ConsumeLeftoverRations(ref float remainingRations, ref float suppliedRations)

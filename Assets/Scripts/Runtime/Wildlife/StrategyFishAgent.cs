@@ -116,6 +116,7 @@ namespace ProjectUnknown.Strategy
         public float FishingReelProgress => reelProgress;
         public bool CanBeFished => IsAdult
             && !isCaught
+            && !StrategySeasonalSurfaceController.IsWaterFrozenForGameplay
             && fishingReservationOwner == null
             && state != StrategyFishBehaviorState.Fleeing
             && state != StrategyFishBehaviorState.Hooked
@@ -123,6 +124,7 @@ namespace ProjectUnknown.Strategy
         public bool CanBreed => IsLakeFish
             && IsAdult
             && !isCaught
+            && !StrategySeasonalSurfaceController.IsWaterFrozenForGameplay
             && fishingReservationOwner == null
             && state != StrategyFishBehaviorState.Fleeing
             && state != StrategyFishBehaviorState.Hooked
@@ -284,7 +286,10 @@ namespace ProjectUnknown.Strategy
 
         public bool ReceiveFishingHook(object owner, Vector3 hookPosition)
         {
-            if (owner == null || fishingReservationOwner != owner || isCaught)
+            if (owner == null
+                || fishingReservationOwner != owner
+                || isCaught
+                || StrategySeasonalSurfaceController.IsWaterFrozenForGameplay)
             {
                 return false;
             }
@@ -315,7 +320,11 @@ namespace ProjectUnknown.Strategy
         public bool ReceiveReelPull(object owner, Vector3 pullWorld, out int fishAmount)
         {
             fishAmount = 0;
-            if (owner == null || fishingReservationOwner != owner || isCaught || state != StrategyFishBehaviorState.Hooked)
+            if (owner == null
+                || fishingReservationOwner != owner
+                || isCaught
+                || state != StrategyFishBehaviorState.Hooked
+                || StrategySeasonalSurfaceController.IsWaterFrozenForGameplay)
             {
                 return false;
             }
@@ -361,6 +370,12 @@ namespace ProjectUnknown.Strategy
             }
 
             UpdateAge();
+            if (StrategySeasonalSurfaceController.IsWaterFrozenForGameplay)
+            {
+                UpdateFrozenWaterIdle();
+                return;
+            }
+
             if (state == StrategyFishBehaviorState.Hooked)
             {
                 UpdateHooked();

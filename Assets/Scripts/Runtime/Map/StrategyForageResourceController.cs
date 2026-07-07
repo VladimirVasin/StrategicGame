@@ -155,7 +155,7 @@ namespace ProjectUnknown.Strategy
             EnsureStarterForageNodes();
 
             int totalCells = map.Width * map.Height;
-            int initialTarget = Mathf.Min(InitialForageNodeTarget, MaxForageNodes);
+            int initialTarget = Mathf.Min(GetSeasonalInitialForageNodeTarget(), MaxForageNodes);
             for (int i = 0; i < totalCells && nodes.Count < initialTarget; i++)
             {
                 int cellIndex = StrategyMapDistributionUtility.GetShuffledIndex(map.ActiveSeed, i, totalCells, 6101);
@@ -183,6 +183,7 @@ namespace ProjectUnknown.Strategy
                 "Forage",
                 "Generated",
                 StrategyDebugLogger.F("nodes", nodes.Count),
+                StrategyDebugLogger.F("season", StrategyDayNightCycleController.CurrentCalendarSnapshot.SeasonLabel),
                 StrategyDebugLogger.F("max", MaxForageNodes),
                 StrategyDebugLogger.F("starterCell", hasStarterCell ? starterCell : Vector2Int.zero));
         }
@@ -282,7 +283,7 @@ namespace ProjectUnknown.Strategy
             resource = StrategyResourceType.None;
             float cluster = StrategyMapDistributionUtility.ClusterScore(map.ActiveSeed, x, y, 6203, 0.041f, 0.112f);
             float chance = StrategyMapDistributionUtility.ApplyClusterToChance(
-                GetForageChance(kind),
+                GetSeasonalForageChance(kind),
                 cluster,
                 0.22f,
                 2.35f);
@@ -292,26 +293,7 @@ namespace ProjectUnknown.Strategy
             }
 
             float pick = Hash01(map.ActiveSeed, x, y, 1423);
-            resource = kind switch
-            {
-                CityMapCellKind.Forest => pick < 0.56f
-                    ? StrategyResourceType.Mushrooms
-                    : pick < 0.82f
-                        ? StrategyResourceType.Berries
-                        : StrategyResourceType.Roots,
-                CityMapCellKind.Meadow => pick < 0.56f
-                    ? StrategyResourceType.Berries
-                    : pick < 0.82f
-                        ? StrategyResourceType.Roots
-                        : StrategyResourceType.Mushrooms,
-                CityMapCellKind.Grass => pick < 0.52f
-                    ? StrategyResourceType.Roots
-                    : pick < 0.82f
-                        ? StrategyResourceType.Berries
-                        : StrategyResourceType.Mushrooms,
-                CityMapCellKind.Dirt => pick < 0.75f ? StrategyResourceType.Roots : StrategyResourceType.Mushrooms,
-                _ => StrategyResourceType.None
-            };
+            resource = ChooseSeasonalForageResource(kind, pick);
             return resource != StrategyResourceType.None;
         }
 

@@ -219,6 +219,21 @@ namespace ProjectUnknown.Strategy
             return demand;
         }
 
+        private int CountCachedRawHouseholdLogDemand()
+        {
+            int demand = 0;
+            for (int i = 0; i < cachedPlacedBuildings.Length; i++)
+            {
+                StrategyPlacedBuilding house = cachedPlacedBuildings[i];
+                if (house != null && house.Tool == StrategyBuildTool.House)
+                {
+                    demand += StrategyHouseWarmthState.GetWinterLogDemandForHouse(house);
+                }
+            }
+
+            return demand;
+        }
+
         private static float CalculateCachedHouseDailyRationNeed(StrategyPlacedBuilding house)
         {
             float total = 0f;

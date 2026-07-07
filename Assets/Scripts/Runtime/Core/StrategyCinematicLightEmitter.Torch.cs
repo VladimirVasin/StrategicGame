@@ -66,7 +66,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            int frame = Mathf.FloorToInt(Time.unscaledTime * GetTorchFrameSpeed() + flickerSeed)
+            int frame = Mathf.FloorToInt((Time.unscaledTime + flickerTimeOffset) * GetTorchFrameSpeed() * flickerFrameSpeedScale + flickerSeed)
                 % StrategyBuildingLightSpriteFactory.FrameCount;
             torchFlameRenderer.sprite = StrategyBuildingLightSpriteFactory.GetFlameSprite(GetTorchSpriteKind(), frame);
             torchFlameRenderer.enabled = true;
@@ -188,11 +188,16 @@ namespace ProjectUnknown.Strategy
                 : defaultWorld;
         }
 
-        internal bool TryGetNightMaskLight(out Vector3 world, out float radius, out float strength)
+        internal bool TryGetNightMaskLight(
+            out Vector3 world,
+            out float radius,
+            out float strength,
+            out float edgeFlicker)
         {
             world = GetLightSourceWorld();
             radius = 0f;
             strength = 0f;
+            edgeFlicker = 1f;
             if (!configured)
             {
                 return false;
@@ -222,6 +227,7 @@ namespace ProjectUnknown.Strategy
                 * GetTorchRadiusBoost()
                 * LocalLightRadiusMultiplier
                 * Mathf.Lerp(1.06f, 1.36f, strength);
+            edgeFlicker = GetFlicker();
             return radius > 0.2f;
         }
 

@@ -22,6 +22,11 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
+            if (StrategySeasonalSurfaceController.IsWaterFrozenForGameplay)
+            {
+                return false;
+            }
+
             RemoveMissingFish();
             float bestSqr = float.MaxValue;
             float radiusSqr = radius * radius;

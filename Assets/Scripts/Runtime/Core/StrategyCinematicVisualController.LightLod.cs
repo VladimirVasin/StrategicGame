@@ -170,6 +170,7 @@ namespace ProjectUnknown.Strategy
             return emitter.TryGetNightMaskLight(
                     out Vector3 center,
                     out float radius,
+                    out _,
                     out _)
                 && CircleIntersectsRect(center, radius, view);
         }

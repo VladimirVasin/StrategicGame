@@ -219,7 +219,9 @@ namespace ProjectUnknown.Strategy
             }
 
             int totalLogs = CountTotalLogs();
-            int target = 10 + CountNeededConstruction(StrategyConstructionResourceKind.Logs);
+            int target = 10
+                + CountNeededConstruction(StrategyConstructionResourceKind.Logs)
+                + CountCachedRawHouseholdLogDemand();
             int shortage = Mathf.Max(0, target - totalLogs);
             float urgency = GetResourceShortageUrgency(shortage, totalLogs);
             AddCappedCampDemands<StrategyLumberjackCamp>(

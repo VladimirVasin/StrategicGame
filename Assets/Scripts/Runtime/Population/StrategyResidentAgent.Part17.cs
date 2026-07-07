@@ -132,6 +132,7 @@ namespace ProjectUnknown.Strategy
                 || residentActivity == ResidentActivity.PickingUpHouseholdPottery
                 || residentActivity == ResidentActivity.CarryingPotteryToHouse
                 || residentActivity == ResidentActivity.DepositingHouseholdPottery
+                || IsHouseholdLogsActivity(residentActivity)
                 || residentActivity == ResidentActivity.MovingToHouseCooking
                 || residentActivity == ResidentActivity.CookingHouseMeal;
         }

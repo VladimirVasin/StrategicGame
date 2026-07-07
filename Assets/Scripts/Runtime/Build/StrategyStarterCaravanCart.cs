@@ -14,6 +14,7 @@ namespace ProjectUnknown.Strategy
         private readonly Dictionary<object, int> constructionPlankReservations = new();
         private readonly Dictionary<StrategyResidentAgent, ConstructionPickupReservation> constructionPickupReservations = new();
         private readonly Dictionary<object, HouseholdFoodReservation> householdFoodReservations = new();
+        private readonly Dictionary<object, int> householdLogReservations = new();
 
         private StrategyPlacedBuilding building;
         private CityMapController map;
@@ -33,7 +34,7 @@ namespace ProjectUnknown.Strategy
         public int LogsStored => logsStored;
         public int StoneStored => stoneStored;
         public int PlanksStored => planksStored;
-        public int AvailableConstructionLogs => Mathf.Max(0, logsStored - CountReservations(constructionLogReservations));
+        public int AvailableConstructionLogs => Mathf.Max(0, logsStored - CountReservations(constructionLogReservations) - CountReservations(householdLogReservations));
         public int AvailableConstructionStone => Mathf.Max(0, stoneStored - CountReservations(constructionStoneReservations));
         public int AvailableConstructionPlanks => Mathf.Max(0, planksStored - CountReservations(constructionPlankReservations));
         public float TotalFoodRationValue => GetTotalFoodRations(false);
@@ -237,7 +238,8 @@ namespace ProjectUnknown.Strategy
                 || CountReservations(constructionStoneReservations) > 0
                 || CountReservations(constructionPlankReservations) > 0
                 || constructionPickupReservations.Count > 0
-                || householdFoodReservations.Count > 0;
+                || householdFoodReservations.Count > 0
+                || CountReservations(householdLogReservations) > 0;
         }
     }
 }

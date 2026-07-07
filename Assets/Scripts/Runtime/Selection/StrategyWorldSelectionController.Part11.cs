@@ -13,14 +13,18 @@ namespace ProjectUnknown.Strategy
             float dinnerNeed = CalculateHouseDinnerNeed(building);
             float availableRations = store != null ? store.GetTotalRationValue() : 0f;
             float fill = dinnerNeed > 0.01f ? availableRations / dinnerNeed : availableRations > 0f ? 1f : 0f;
+            StrategyHouseWarmthState warmth = building != null ? building.Warmth : null;
 
-            string summaryLabels = "Need\nAvailable\nMeal check";
+            string summaryLabels = "Need\nAvailable\nMeal check\nHeat";
             string summaryValues = FormatRations(dinnerNeed)
                 + "r\n"
                 + FormatRations(availableRations)
                 + "r\n"
-                + FormatMealCheckTimer(food);
+                + FormatMealCheckTimer(food)
+                + "\n"
+                + FormatHouseWarmthLine(warmth, store);
             GetDinnerColors(food, dinnerNeed, availableRations, out Color rowColor, out Color fillColor);
+            ApplyHouseWarmthColors(warmth, ref rowColor, ref fillColor);
 
             ApplyFoodStatus(
                 summaryLabels,
@@ -29,6 +33,47 @@ namespace ProjectUnknown.Strategy
                 fill,
                 rowColor,
                 fillColor);
+        }
+
+        private static string FormatHouseWarmthLine(StrategyHouseWarmthState warmth, StrategyHouseResourceStore store)
+        {
+            int logs = store != null ? store.GetLogsAmount() : 0;
+            if (warmth == null)
+            {
+                return logs + " Logs";
+            }
+
+            return warmth.StatusText + " / " + logs + " Logs";
+        }
+
+        private static void ApplyHouseWarmthColors(
+            StrategyHouseWarmthState warmth,
+            ref Color rowColor,
+            ref Color fillColor)
+        {
+            if (warmth == null
+                || StrategyDayNightCycleController.CurrentCalendarSnapshot.Season != StrategySeason.Winter
+                || warmth.WarmthLevel == StrategyHouseWarmthLevel.Warm)
+            {
+                return;
+            }
+
+            if (warmth.WarmthLevel == StrategyHouseWarmthLevel.Freezing)
+            {
+                rowColor = new Color(0.33f, 0.15f, 0.20f, 0.96f);
+                fillColor = new Color(0.80f, 0.31f, 0.42f, 0.95f);
+                return;
+            }
+
+            if (warmth.WarmthLevel == StrategyHouseWarmthLevel.Cold)
+            {
+                rowColor = new Color(0.27f, 0.22f, 0.32f, 0.96f);
+                fillColor = new Color(0.58f, 0.60f, 0.92f, 0.95f);
+                return;
+            }
+
+            rowColor = new Color(0.19f, 0.27f, 0.31f, 0.96f);
+            fillColor = new Color(0.58f, 0.78f, 0.95f, 0.95f);
         }
 
         private static string FormatMealCheckTimer(StrategyHouseholdFoodState food)

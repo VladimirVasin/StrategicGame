@@ -444,6 +444,12 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
+            if (StrategySeasonalSurfaceController.IsWaterFrozenForGameplay)
+            {
+                fishingWorkCooldown = Random.Range(4.0f, 7.5f);
+                return false;
+            }
+
             if (fisherWorkplace.TryReserveFishTarget(this, out StrategyFishAgent fish)
                 && TryMoveToFishingTarget(fish))
             {

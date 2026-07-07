@@ -28,7 +28,7 @@ namespace ProjectUnknown.Strategy
                 UnregisterNode(node);
             }
 
-            float delay = Random.Range(RespawnSecondsMin, RespawnSecondsMax);
+            float delay = GetSeasonalForageRespawnDelay(resource);
             pendingRespawns.Add(new ForageRespawnRequest(resource, delay, ++respawnSequence));
             return delay;
         }
@@ -80,7 +80,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            campSupportSpawnTimer = Random.Range(CampSupportSpawnSecondsMin, CampSupportSpawnSecondsMax);
+            campSupportSpawnTimer = GetSeasonalCampSupportSpawnDelay();
             if (TryFindCampNeedingForage(out StrategyForagerCamp camp, out int localNodes)
                 && TryRespawnNearForagerCamp(StrategyResourceType.None, ++respawnSequence, camp))
             {
@@ -89,7 +89,8 @@ namespace ProjectUnknown.Strategy
                     "CampSupportSpawned",
                     StrategyDebugLogger.F("campOrigin", camp.Origin),
                     StrategyDebugLogger.F("localNodesBefore", localNodes),
-                    StrategyDebugLogger.F("target", CampForageSupportTarget));
+                    StrategyDebugLogger.F("target", GetSeasonalCampSupportTarget()),
+                    StrategyDebugLogger.F("season", StrategyDayNightCycleController.CurrentCalendarSnapshot.SeasonLabel));
             }
         }
 
@@ -245,7 +246,7 @@ namespace ProjectUnknown.Strategy
                 }
 
                 int localNodes = CountForageNodesNear(center, StrategyForagerCamp.WorkRadius);
-                if (localNodes >= CampForageSoftCap)
+                if (localNodes >= GetSeasonalCampForageSoftCap())
                 {
                     continue;
                 }
@@ -282,7 +283,7 @@ namespace ProjectUnknown.Strategy
                 }
 
                 int count = CountForageNodesNear(center, StrategyForagerCamp.WorkRadius);
-                if (count >= CampForageSupportTarget)
+                if (count >= GetSeasonalCampSupportTarget())
                 {
                     continue;
                 }
@@ -345,7 +346,8 @@ namespace ProjectUnknown.Strategy
             }
 
             if (preferredResource != StrategyResourceType.None
-                && IsResourceAllowedOnTerrain(preferredResource, mapCell.Kind))
+                && IsResourceAllowedOnTerrain(preferredResource, mapCell.Kind)
+                && ShouldKeepPreferredRespawnResource(preferredResource, cell, salt))
             {
                 resource = preferredResource;
                 return true;
@@ -365,26 +367,7 @@ namespace ProjectUnknown.Strategy
         private bool TryChooseRespawnResource(CityMapCellKind kind, int x, int y, int salt, out StrategyResourceType resource)
         {
             float pick = Hash01(map.ActiveSeed, x, y, salt + 203);
-            resource = kind switch
-            {
-                CityMapCellKind.Forest => pick < 0.56f
-                    ? StrategyResourceType.Mushrooms
-                    : pick < 0.82f
-                        ? StrategyResourceType.Berries
-                        : StrategyResourceType.Roots,
-                CityMapCellKind.Meadow => pick < 0.56f
-                    ? StrategyResourceType.Berries
-                    : pick < 0.82f
-                        ? StrategyResourceType.Roots
-                        : StrategyResourceType.Mushrooms,
-                CityMapCellKind.Grass => pick < 0.52f
-                    ? StrategyResourceType.Roots
-                    : pick < 0.82f
-                        ? StrategyResourceType.Berries
-                        : StrategyResourceType.Mushrooms,
-                CityMapCellKind.Dirt => pick < 0.75f ? StrategyResourceType.Roots : StrategyResourceType.Mushrooms,
-                _ => StrategyResourceType.None
-            };
+            resource = ChooseSeasonalForageResource(kind, pick);
             return resource != StrategyResourceType.None
                 && IsResourceAllowedOnTerrain(resource, kind);
         }

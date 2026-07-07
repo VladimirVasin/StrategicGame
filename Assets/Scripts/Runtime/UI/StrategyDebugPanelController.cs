@@ -8,7 +8,7 @@ using UnityEngine.UI;
 namespace ProjectUnknown.Strategy
 {
     [DisallowMultipleComponent]
-    public sealed class StrategyDebugPanelController : MonoBehaviour
+    public sealed partial class StrategyDebugPanelController : MonoBehaviour
     {
         private const int CanvasSortingOrder = 33000;
         private const float PanelWidth = 660f;
@@ -183,7 +183,7 @@ namespace ProjectUnknown.Strategy
             SetTopRight(refugeeStatusText.rectTransform, 18f, 46f, 260f, 24f);
 
             RectTransform weatherSection = CreatePanel("WeatherSection", panel, SectionColor).GetComponent<RectTransform>();
-            SetTopLeft(weatherSection, 28f, 424f, PanelWidth - 56f, 152f);
+            SetTopLeft(weatherSection, 28f, 424f, PanelWidth - 56f, 202f);
             Text weatherTitle = CreateText("WeatherTitle", weatherSection, "Weather", 16, TextAnchor.MiddleLeft, Color.white);
             weatherTitle.fontStyle = FontStyle.Bold;
             SetTopLeft(weatherTitle.rectTransform, 18f, 10f, 180f, 24f);
@@ -196,45 +196,6 @@ namespace ProjectUnknown.Strategy
             rootGroup.interactable = false;
             rootGroup.blocksRaycasts = false;
             rootGroup.gameObject.SetActive(false);
-        }
-
-        private void BuildWeatherButtons(RectTransform parent)
-        {
-            StrategyWeatherKind[] kinds =
-            {
-                StrategyWeatherKind.Clear,
-                StrategyWeatherKind.Cloudy,
-                StrategyWeatherKind.LightRain,
-                StrategyWeatherKind.HeavyRain,
-                StrategyWeatherKind.Fog,
-                StrategyWeatherKind.Storm
-            };
-
-            const float startX = 18f;
-            const float startY = 48f;
-            const float buttonWidth = 148f;
-            const float buttonHeight = 38f;
-            const float gapX = 14f;
-            const float gapY = 12f;
-
-            for (int i = 0; i < kinds.Length; i++)
-            {
-                StrategyWeatherKind kind = kinds[i];
-                Button button = CreateButton("Weather_" + kind, parent, GetWeatherLabel(kind), 13, ButtonColor);
-                int col = i % 3;
-                int row = i / 3;
-                SetTopLeft(
-                    button.GetComponent<RectTransform>(),
-                    startX + col * (buttonWidth + gapX),
-                    startY + row * (buttonHeight + gapY),
-                    buttonWidth,
-                    buttonHeight);
-
-                Image image = button.GetComponent<Image>();
-                Text label = button.GetComponentInChildren<Text>();
-                button.onClick.AddListener(() => ForceWeatherSmooth(kind));
-                weatherButtons.Add(new WeatherButtonView(kind, image, label));
-            }
         }
 
         private void SetFogDisabled(bool disabled)
@@ -257,18 +218,6 @@ namespace ProjectUnknown.Strategy
             }
 
             RefreshControls();
-        }
-
-        private void ForceWeatherSmooth(StrategyWeatherKind kind)
-        {
-            if (weather == null)
-            {
-                weather = Object.FindAnyObjectByType<StrategyWeatherController>();
-            }
-
-            weather?.ForceWeatherSmooth(kind);
-            RefreshControls();
-            StrategyDebugLogger.Info("DebugPanel", "WeatherSmoothForced", StrategyDebugLogger.F("state", kind));
         }
 
         private void SummonRefugees()
@@ -325,27 +274,6 @@ namespace ProjectUnknown.Strategy
                 bool active = weather != null && view.Kind == current;
                 view.Image.color = active ? ActiveColor : ButtonColor;
                 view.Label.color = active ? Color.white : TextColor;
-            }
-        }
-
-        private static string GetWeatherLabel(StrategyWeatherKind kind)
-        {
-            switch (kind)
-            {
-                case StrategyWeatherKind.Clear:
-                    return "Clear";
-                case StrategyWeatherKind.Cloudy:
-                    return "Cloudy";
-                case StrategyWeatherKind.LightRain:
-                    return "Light Rain";
-                case StrategyWeatherKind.HeavyRain:
-                    return "Heavy Rain";
-                case StrategyWeatherKind.Fog:
-                    return "Fog";
-                case StrategyWeatherKind.Storm:
-                    return "Storm";
-                default:
-                    return kind.ToString();
             }
         }
 
@@ -478,18 +406,5 @@ namespace ProjectUnknown.Strategy
             rect.offsetMax = new Vector2(-right, -top);
         }
 
-        private readonly struct WeatherButtonView
-        {
-            public WeatherButtonView(StrategyWeatherKind kind, Image image, Text label)
-            {
-                Kind = kind;
-                Image = image;
-                Label = label;
-            }
-
-            public StrategyWeatherKind Kind { get; }
-            public Image Image { get; }
-            public Text Label { get; }
-        }
     }
 }

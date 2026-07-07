@@ -11,9 +11,12 @@ namespace ProjectUnknown.Strategy
         private const float CloudFrameSeconds = 0.44f;
         private const float MistFrameSeconds = 0.38f;
         private const int MaxRainDrops = 96;
+        private const int MaxSnowflakes = 128;
         private const float RainViewPadding = 3.5f;
+        private const float SnowViewPadding = 4.5f;
 
         private readonly List<RainDropVisual> rainDrops = new();
+        private readonly List<SnowflakeVisual> snowflakes = new();
         private CityMapController map;
         private Camera strategyCamera;
         private StrategyWeatherController weather;
@@ -28,8 +31,10 @@ namespace ProjectUnknown.Strategy
         private float cloudTimer;
         private float mistTimer;
         private bool rainWasActive;
+        private bool snowWasActive;
         private static Sprite whiteSprite;
         private static Sprite rainDropSprite;
+        private static Sprite snowflakeSprite;
 
         public void Configure(
             CityMapController mapController,
@@ -44,6 +49,7 @@ namespace ProjectUnknown.Strategy
             EnsureRenderers();
             ResizeRenderers();
             UpdateRainDrops(0f);
+            UpdateSnowflakes(0f);
             PaintCloudFrame();
             PaintMistFrame();
             ApplyWetOverlay();
@@ -66,6 +72,7 @@ namespace ProjectUnknown.Strategy
             ApplyWetOverlay();
             float dt = Mathf.Max(0f, Time.unscaledDeltaTime);
             UpdateRainDrops(dt);
+            UpdateSnowflakes(dt);
 
             cloudTimer += dt;
             if (cloudTimer >= CloudFrameSeconds)
@@ -205,9 +212,13 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            float alpha = weather.WetnessIntensity * 0.105f + weather.RainIntensity * 0.025f;
+            float wetAlpha = weather.WetnessIntensity * 0.105f + weather.RainIntensity * 0.025f;
+            float snowAlpha = weather.SnowIntensity * 0.060f + weather.HeavySnowIntensity * 0.050f;
+            float alpha = Mathf.Max(wetAlpha, snowAlpha);
             wetRenderer.enabled = alpha > 0.004f;
-            wetRenderer.color = new Color(0.02f, 0.055f, 0.055f, Mathf.Clamp01(alpha));
+            wetRenderer.color = snowAlpha > wetAlpha
+                ? new Color(0.78f, 0.88f, 0.96f, Mathf.Clamp01(alpha))
+                : new Color(0.02f, 0.055f, 0.055f, Mathf.Clamp01(alpha));
         }
 
         private void EnsureRainDrops()
@@ -310,6 +321,7 @@ namespace ProjectUnknown.Strategy
             DestroyTextureRenderer(cloudRenderer, cloudTexture);
             DestroyTextureRenderer(mistRenderer, mistTexture);
             rainDrops.Clear();
+            snowflakes.Clear();
         }
 
         private Rect GetCameraRainBounds()

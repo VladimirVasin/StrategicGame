@@ -1,12 +1,116 @@
 # Work Log
 
-Last updated: 2026-06-30
+Last updated: 2026-07-08
 
 ## Active
 
 - None.
 
 ## Done
+
+### 2026-07-08 - Night performance spike cleanup
+
+- Optimized the cinematic night darkness mask so each light source only updates its own mask-space bounding box instead of evaluating every mask pixel against every stationary light and hand-carried torch.
+- Added throttled `CinematicVisuals/NightMaskUpdated` diagnostics with update duration, applied light count, stationary emitter count, hand-torch count, and mask pixel count for future `debug.log` performance checks.
+- Added a per-frame wake budget for housed residents leaving night sleep, so Dawn no longer releases large settlements from `sleepingInsideHome` in a single frame.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-07-07 - Seasonal snow cover and frozen water MVP
+
+- Added `StrategySeasonalSurfaceController` to paint gradual snow cover over non-water terrain, gradual ice over water cells, and cached snow-cap overlays on placed building sprites.
+- Added `StrategyBuildingSnowSpriteFactory` for procedural building snow-cap sprites that reuse each building's current sprite silhouette.
+- Wired frozen-water gameplay state to fish and Fisher Huts: frozen water blocks new fish reservations, cancels active casts, stops fish movement/animation under the ice, reports 0 catchable fish, and resumes fish routes after thaw.
+- Verification: `git diff --check` passed with only the existing `Assembly-CSharp.csproj` CRLF warning; `C:\Program Files\dotnet\dotnet.exe build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-07-07 - Winter household warmth and Logs reserve
+
+- Added `StrategyHouseWarmthState` to occupied Houses so winter nights consume house-local `Logs`, track indoor temperature/status, and expose Heat context to the selected-house HUD.
+- Added winter-only Householder delivery of `Logs` from Storage Yards first and the starter Caravan Cart second; the cart still rejects new deposits and remains a low-priority temporary source.
+- Extended winter readiness and the top status HUD to compare both food days and household fuel days, and let auto workforce Wood demand account for winter household Log reserve shortages.
+- Verification: `C:\Program Files\dotnet\dotnet.exe build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-07-07 - Outdoor temperature HUD MVP
+
+- Added `StrategyTemperatureModel`, a pure calculated outdoor-temperature layer based on season, time of day, stable daily variation, and current weather/snow/blizzard intensity.
+- Added the current outdoor temperature to the top-right calendar/time HUD as a compact Celsius readout with temperature-colored text.
+- Initial temperature MVP had no resident health, movement, crop, storage spoilage, or visibility effects; later winter house warmth reads it for indoor temperature.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-07-05 - Winter snowfall visual states
+
+- Added `Snow` and `Blizzard` runtime weather states with winter-biased transition weights and a separate smooth `SnowIntensity`, so snowfall does not reuse rain audio or rain-driven water ripples.
+- Added a capped camera-area snowflake sprite pool plus a light cold ground wash and heavy-snow mist contribution to the existing weather visual controller.
+- Extended runtime post-process color grading for snowfall/blizzards and split the F9 debug weather controls into a partial file so Snow/Blizzard can be forced without exceeding the 500-line C# limit.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-07-05 - Seasonal forage and winter readiness
+
+- Added gameplay season profiles for forage density, forage resource mix, respawn timing, and Forager Camp support pressure.
+- Routed generated and respawned forage through seasonal rules: Summer/Spring are more abundant, Autumn favors Roots/Mushrooms, and Winter sharply reduces new forage without deleting existing nodes.
+- Added winter readiness helpers that aggregate Granary, starter-cart, and house-local food rations against accepted residents' daily ration needs.
+- Extended the top status calendar HUD with a winter/food-days line and added Dawn event-log warnings during the last 3 days before Winter.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-07-04 - Seasons MVP
+
+- Added a derived 7-day season calendar in the requested order: Summer, Spring, Autumn, Winter, with 28-day years.
+- Extended calendar snapshots, the top status HUD, and event log messages with season label/day/year data.
+- Added subtle season post-process color profiles and season-biased weather transition weights without adding snow, terrain repainting, resource changes, or gameplay penalties.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-07-03 - Roadside lamp full-light profile
+
+- Raised the cinematic point-light budget from 6 to 8 and gave `RoadsideTorch` its own LOD priority so nearby roadside lamps can receive real URP `Light2D` slots instead of usually losing to building emitters.
+- Strengthened the roadside lamp light profile with higher base intensity/radius, torch boost, glow/core alpha, and core scale so lit roadside lamps read as full light sources across point lights, glow sprites, and the night mask.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-07-03 - Stable light cores with edge flicker
+
+- Changed cinematic and resident torch lighting so flicker no longer modulates the core `Light2D` intensity/radius or the inner night-mask light pool.
+- Night darkness mask evaluation now keeps roughly the source cell plus one-cell radius stable, then applies source-specific flicker progressively toward the outer falloff edge.
+- Resident hand-torch glow still has a mild visual pulse, while its core sprite, point-light radius/intensity, and mask strength stay stable.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-07-03 - Brighter night light sources
+
+- Increased stationary cinematic light strength/radius for campfires, building torches, building lamps, and roadside lamps through shared light multipliers.
+- Increased resident hand-carried torch Light2D radius/intensity, cheap glow/mask radius, and night-darkness mask strength.
+- Increased night darkness mask light cutout boost so brighter sources carve clearer pools of visibility at maximum darkness.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-07-03 - Desynchronized torch flicker
+
+- Fixed synchronized settlement-wide light pulsing by replacing shared-speed torch flicker with per-source deterministic flicker profiles.
+- Building torches, roadside lamps, campfire emitters, and resident hand-carried torches now use source-specific time offsets, fast/slow noise speeds, softer flicker depth, and varied flame-frame speed for stationary flame sprites.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-07-03 - Connected route-road gap rejection
+
+- Analyzed the latest `debug.log`: a later House-to-Caravan Cart route repeatedly skipped `92,91` and `91,94` as `square_candidate`, then still recorded tail cells such as `91,95..91,97`, creating disconnected road fragments near the cart.
+- Split route-road connection staging into `StrategyTrailController.RouteConnections.cs` and bounded local repair search into `StrategyTrailController.RouteConnectionRepair.cs`.
+- Route recording can now join an adjacent existing route-road cell, still rejects 2x2 square candidates, rejects later disconnected candidates after a skipped connector, and tries a short cardinal no-square repair path around the skipped cell when the source route needs an obstacle detour.
+- Verification: `git diff --check` passed with only the existing CRLF warning for `Assembly-CSharp.csproj`; `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-07-02 - Single-sided route road connectors
+
+- Added a staged route-road connection pass in `StrategyTrailController.Routes.cs` before committing completed building-to-building route cells.
+- Route recording now tries to add one walkable connector cell with exactly one existing route-road neighbor when a new route reaches the old road network diagonally or a square-prone cell is rejected.
+- The existing 2x2 square guard remains active against both already committed route roads and staged route cells, and diagnostics now log `TrailRouteConnectorAdded` / `TrailRouteConnectorSkipped` for connector decisions.
+- Verification: `git diff --check` passed with only the existing CRLF warning for `Assembly-CSharp.csproj`; `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-07-02 - Wider evening personal torches
+
+- Added `StrategyNightLightTaskController.Ambient.cs` so late-Dusk personal torch activation is no longer limited to future stationary-lamp workers.
+- The night-light task controller now selects a capped majority of eligible housed adults for cheap personal hand torches between roughly 20:00 and `Night`, while only the lamp-worker subset starts actual stationary torch/lantern lighting routes during `Night`.
+- Added a resident eligibility split between receiving an evening personal torch and accepting a stationary night-light work task; personal Dusk torches still avoid resident `Light2D` point lights and use the cheap glow/core plus night-mask path.
+- Verification: `git diff --check` passed with only the existing CRLF warning for `Assembly-CSharp.csproj`; `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-07-02 - Roadside torch lit-state preservation
+
+- Fixed night-light assignment retries so building and roadside light sources reset their lit/reserved state only once per evening day instead of every assignment refresh.
+- Skipped already lit or reserved night-light sources when rebuilding assignment queues, preventing repeated dispatch from extinguishing in-progress or completed lamps.
+- Preserved existing roadside torch props when road refreshes keep the same road cell and side offset, so lit torch state and cinematic emitters are not destroyed/recreated by unchanged road-neighbor updates.
+- Verification: `git diff --check` passed with only the existing CRLF warning for `Assembly-CSharp.csproj`; `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
 
 ### 2026-06-30 - Resident/job spatial query refactor
 
@@ -672,7 +776,7 @@ Last updated: 2026-06-30
 
 ### 2026-06-22 - Unity package baseline refresh
 
-- Project package state now targets Unity `6000.5.0f1`, URP `17.5.0`, Test Framework `1.7.0`, and the matching Unity 2D package stack generated by the editor/package manager.
+- Project package state was refreshed to Unity `6000.5.0f1`, URP `17.5.0`, Test Framework `1.7.0`, and the matching Unity 2D package stack generated by the editor/package manager at that point.
 
 ### 2026-06-22 - Householder final-mile house resources
 

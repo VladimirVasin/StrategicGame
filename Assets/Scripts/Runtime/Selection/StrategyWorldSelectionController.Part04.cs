@@ -414,6 +414,17 @@ namespace ProjectUnknown.Strategy
                         amount,
                         amount * StrategyFoodNutrition.GetRationValue(type));
                 }
+
+                int logs = store.GetLogsAmount();
+                if (logs > 0 && visibleResourceIndex < resourceSlots.Length)
+                {
+                    ShowHouseStoreRow(
+                        visibleResourceIndex++,
+                        StrategyResourceType.Logs,
+                        "Logs",
+                        logs,
+                        "Fuel");
+                }
             }
 
             for (int i = visibleResourceIndex; i < resourceSlots.Length; i++)

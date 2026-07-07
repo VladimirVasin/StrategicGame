@@ -39,11 +39,16 @@ namespace ProjectUnknown.Strategy
             int newCount = oldCount + 1;
             routeTraversalCounts[routeKey] = newCount;
             IReadOnlyList<Vector2Int> cellsToRecord = GetCanonicalRouteCells(routeKey, routeCells);
+            BuildSingleSidedRouteCells(cellsToRecord, routeConnectionCells);
+            if (routeConnectionCells.Count < 2)
+            {
+                return;
+            }
 
             int acceptedCells = 0;
-            for (int i = 0; i < cellsToRecord.Count; i++)
+            for (int i = 0; i < routeConnectionCells.Count; i++)
             {
-                if (AddRouteRoad(cellsToRecord[i]))
+                if (AddRouteRoad(routeConnectionCells[i]))
                 {
                     acceptedCells++;
                 }
@@ -67,6 +72,7 @@ namespace ProjectUnknown.Strategy
                     StrategyDebugLogger.F("count", newCount),
                     StrategyDebugLogger.F("cells", acceptedCells),
                     StrategyDebugLogger.F("fullCells", cellsToRecord.Count),
+                    StrategyDebugLogger.F("connectedCells", routeConnectionCells.Count),
                     StrategyDebugLogger.F("canonicalRoute", cellsToRecord != routeCells),
                     StrategyDebugLogger.F("roadLevel", 3),
                     StrategyDebugLogger.F("instantRoad", true));

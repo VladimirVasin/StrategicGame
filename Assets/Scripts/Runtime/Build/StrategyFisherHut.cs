@@ -173,6 +173,11 @@ namespace ProjectUnknown.Strategy
         public bool TryReserveFishTarget(object owner, out StrategyFishAgent fish)
         {
             fish = null;
+            if (StrategySeasonalSurfaceController.IsWaterFrozenForGameplay)
+            {
+                return false;
+            }
+
             if (wildlife == null)
             {
                 wildlife = StrategyWildlifeController.Active;
@@ -395,6 +400,9 @@ namespace ProjectUnknown.Strategy
         public string GetHudStatusText()
         {
             int availableFish = wildlife != null ? wildlife.CountCatchableFish(Origin, WorkRadius) : 0;
+            string waterStatus = StrategySeasonalSurfaceController.IsWaterFrozenForGameplay
+                ? "\nWater: Frozen"
+                : string.Empty;
             return "Workers: "
                 + workers.Count
                 + "/"
@@ -405,7 +413,8 @@ namespace ProjectUnknown.Strategy
                 + (reservedFish > 0 ? " (reserved: " + reservedFish + ")" : string.Empty)
                 + "\n"
                 + "Fish nearby: "
-                + availableFish;
+                + availableFish
+                + waterStatus;
         }
 
         public bool IsValidFishingStandCell(Vector2Int cell)

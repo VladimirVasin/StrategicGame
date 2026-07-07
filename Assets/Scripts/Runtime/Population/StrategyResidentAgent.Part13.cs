@@ -395,7 +395,7 @@ namespace ProjectUnknown.Strategy
         private void ResetHouseholdFoodWorkToIdle(bool storeCarriedFood, string reason = "reset")
         {
             ReleaseActiveHouseholdFoodReservation();
-
+            StoreCarriedHouseholdLogsOnCancel(storeCarriedFood, reason);
             StoreCarriedHouseholdPotteryOnCancel(storeCarriedFood, reason);
 
             int carriedAmount = GetCarriedHouseholdFoodAmount();

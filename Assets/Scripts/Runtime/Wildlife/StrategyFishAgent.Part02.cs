@@ -141,6 +141,25 @@ namespace ProjectUnknown.Strategy
             SetAnimatedScale(1.05f, 0.92f);
         }
 
+        private void ApplyFrozenIdleVisual()
+        {
+            frame = 0;
+            frameTimer = 0f;
+            transform.localRotation = Quaternion.identity;
+            ApplySprite(StrategyFishSpritePose.Idle, frame);
+            SetAnimatedScale(1f, 1f);
+            if (rippleRenderer == null)
+            {
+                return;
+            }
+
+            rippleRenderer.transform.localScale = new Vector3(
+                SurfaceRippleScale,
+                0.72f * SurfaceRippleScale,
+                1f);
+            rippleRenderer.color = new Color(0.65f, 0.90f, 1f, 0.02f);
+        }
+
         private void AdvanceLoopingFrame(float frameRate, int frameCount)
         {
             frameTimer += Time.deltaTime * frameRate;

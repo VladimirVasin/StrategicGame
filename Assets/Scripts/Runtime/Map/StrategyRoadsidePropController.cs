@@ -11,6 +11,8 @@ namespace ProjectUnknown.Strategy
         private sealed class RoadsidePropEntry
         {
             public GameObject Root;
+            public Vector2Int RoadCell;
+            public Vector2Int SideOffset;
         }
 
         private static readonly Vector2Int[] RefreshOffsets =
@@ -125,9 +127,9 @@ namespace ProjectUnknown.Strategy
             }
 
             int key = GetKey(cell);
-            RemoveProp(key);
             if (!isRoadCell(cell))
             {
+                RemoveProp(key);
                 return;
             }
 
@@ -141,9 +143,19 @@ namespace ProjectUnknown.Strategy
                     SideDistance,
                     out StrategyRoadsidePropPlacement placement))
             {
+                RemoveProp(key);
                 return;
             }
 
+            if (props.TryGetValue(key, out RoadsidePropEntry existing)
+                && existing?.Root != null
+                && existing.RoadCell == placement.RoadCell
+                && existing.SideOffset == placement.SideOffset)
+            {
+                return;
+            }
+
+            RemoveProp(key);
             CreateProp(key, placement);
         }
 
@@ -173,7 +185,12 @@ namespace ProjectUnknown.Strategy
             lightSource.Configure(placement.RoadCell, placement.SideOffset);
             StrategyCinematicLightEmitter emitter = propRoot.AddComponent<StrategyCinematicLightEmitter>();
             emitter.ConfigureForRoadsideLight(lightSource);
-            props[key] = new RoadsidePropEntry { Root = propRoot };
+            props[key] = new RoadsidePropEntry
+            {
+                Root = propRoot,
+                RoadCell = placement.RoadCell,
+                SideOffset = placement.SideOffset
+            };
             needsLightingRefresh = true;
         }
 

@@ -4,6 +4,15 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyResidentAgent
     {
+        private const int NightWakeBudgetPerFrameSmallSettlement = 8;
+        private const int NightWakeBudgetPerFrameLargeSettlement = 4;
+        private const float NightWakeBudgetLogIntervalSeconds = 6f;
+
+        private static int nightWakeBudgetFrame = -1;
+        private static int nightWakeReleasesThisFrame;
+        private static int nightWakeDeferralsSinceLog;
+        private static float nextNightWakeBudgetLogTime;
+
         private bool UpdateNightHomeState()
         {
             if (sleepingInsideHome)
@@ -102,6 +111,11 @@ namespace ProjectUnknown.Strategy
         {
             if (home == null || !IsNightSleepTime())
             {
+                if (!TryConsumeNightWakeBudget())
+                {
+                    return;
+                }
+
                 ReleaseNightSleep(true);
                 return;
             }
@@ -159,6 +173,7 @@ namespace ProjectUnknown.Strategy
 
         private void ClearVisibleCarriedResourcesForHomeInterior()
         {
+            StoreCarriedHouseholdLogsOnCancel(true, "enter_home");
             carriedLogAmount = 0;
             carriedStoneAmount = 0;
             carriedIronAmount = 0;
@@ -188,6 +203,42 @@ namespace ProjectUnknown.Strategy
         {
             return StrategyDayNightCycleController.CurrentCalendarSnapshot.Phase
                 == StrategyTimeOfDayPhase.Night;
+        }
+
+        private bool TryConsumeNightWakeBudget()
+        {
+            int frame = Time.frameCount;
+            if (nightWakeBudgetFrame != frame)
+            {
+                nightWakeBudgetFrame = frame;
+                nightWakeReleasesThisFrame = 0;
+            }
+
+            int residentCount = population != null && population.Residents != null ? population.Residents.Count : 0;
+            int budget = residentCount >= LargeSettlementResidentThreshold
+                ? NightWakeBudgetPerFrameLargeSettlement
+                : NightWakeBudgetPerFrameSmallSettlement;
+            if (nightWakeReleasesThisFrame < budget)
+            {
+                nightWakeReleasesThisFrame++;
+                return true;
+            }
+
+            nightWakeDeferralsSinceLog++;
+            float now = Time.realtimeSinceStartup;
+            if (now >= nextNightWakeBudgetLogTime)
+            {
+                StrategyDebugLogger.Info(
+                    "Population",
+                    "ResidentWakeBudgetDeferred",
+                    StrategyDebugLogger.F("deferred", nightWakeDeferralsSinceLog),
+                    StrategyDebugLogger.F("budgetPerFrame", budget),
+                    StrategyDebugLogger.F("residents", residentCount));
+                nightWakeDeferralsSinceLog = 0;
+                nextNightWakeBudgetLogTime = now + NightWakeBudgetLogIntervalSeconds;
+            }
+
+            return false;
         }
     }
 }

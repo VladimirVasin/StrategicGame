@@ -17,11 +17,7 @@ namespace ProjectUnknown.Strategy
             campfire = null;
             roadsideLight = owner;
             kind = StrategyCinematicLightKind.RoadsideTorch;
-            if (flickerSeed <= 0.001f)
-            {
-                flickerSeed = Random.Range(0f, 1000f);
-                visualTimer = Random.Range(0f, VisualUpdateInterval);
-            }
+            ConfigureFlickerProfile(GetRoadsideFlickerKey(owner));
 
             configured = owner != null;
             RefreshNightLightSource();
@@ -58,10 +54,12 @@ namespace ProjectUnknown.Strategy
 
         private float GetFlicker()
         {
-            float t = Time.unscaledTime;
-            float fast = Mathf.PerlinNoise(flickerSeed, t * 3.4f);
-            float slow = Mathf.PerlinNoise(flickerSeed + 31.7f, t * 0.72f);
-            return Mathf.Lerp(0.82f, 1.16f, fast * 0.72f + slow * 0.28f);
+            float t = Time.unscaledTime + flickerTimeOffset;
+            float fast = Mathf.PerlinNoise(flickerSeed + t * flickerFastSpeed, flickerSeed * 0.37f + t * 0.29f);
+            float slow = Mathf.PerlinNoise(flickerSeed + 31.7f + t * 0.21f, flickerSeed * 0.11f + t * flickerSlowSpeed);
+            float wave = fast * 0.62f + slow * 0.38f;
+            float softened = Mathf.Lerp(0.5f, wave, flickerDepth);
+            return Mathf.Lerp(0.90f, 1.10f, softened);
         }
 
         private Color GetColor(float wet, float storm)
@@ -90,7 +88,7 @@ namespace ProjectUnknown.Strategy
             StrategyCinematicLightKind.Forge => 0.78f,
             StrategyCinematicLightKind.House => 0.54f,
             StrategyCinematicLightKind.Bridge => 0.44f,
-            StrategyCinematicLightKind.RoadsideTorch => 0.36f,
+            StrategyCinematicLightKind.RoadsideTorch => 0.52f,
             StrategyCinematicLightKind.Storage => 0.34f,
             StrategyCinematicLightKind.Granary => 0.40f,
             _ => 0.42f
@@ -105,7 +103,7 @@ namespace ProjectUnknown.Strategy
             StrategyCinematicLightKind.Forge => 3.5f,
             StrategyCinematicLightKind.House => 3.0f,
             StrategyCinematicLightKind.Bridge => 2.8f,
-            StrategyCinematicLightKind.RoadsideTorch => 2.25f,
+            StrategyCinematicLightKind.RoadsideTorch => 2.75f,
             StrategyCinematicLightKind.Storage => 2.4f,
             StrategyCinematicLightKind.Granary => 2.8f,
             _ => 2.7f
@@ -114,14 +112,14 @@ namespace ProjectUnknown.Strategy
         private float GetGlowAlpha() => kind switch
         {
             StrategyCinematicLightKind.Campfire => 0.28f,
-            StrategyCinematicLightKind.RoadsideTorch => 0.20f,
+            StrategyCinematicLightKind.RoadsideTorch => 0.28f,
             _ => 0.18f
         };
 
         private float GetCoreAlpha() => kind switch
         {
             StrategyCinematicLightKind.House => 0.70f,
-            StrategyCinematicLightKind.RoadsideTorch => 0.55f,
+            StrategyCinematicLightKind.RoadsideTorch => 0.68f,
             _ => 0.52f
         };
 
@@ -132,7 +130,7 @@ namespace ProjectUnknown.Strategy
                 return 1f;
             }
 
-            return kind == StrategyCinematicLightKind.RoadsideTorch ? 1.65f : 1.35f;
+            return kind == StrategyCinematicLightKind.RoadsideTorch ? 1.85f : 1.35f;
         }
 
         private float GetTorchRadiusBoost()
@@ -142,7 +140,7 @@ namespace ProjectUnknown.Strategy
                 return 1f;
             }
 
-            return kind == StrategyCinematicLightKind.RoadsideTorch ? 1.24f : 1.18f;
+            return kind == StrategyCinematicLightKind.RoadsideTorch ? 1.36f : 1.18f;
         }
 
         private Vector2 GetGlowScale(float radius) => kind == StrategyCinematicLightKind.RoadsideTorch
@@ -152,7 +150,7 @@ namespace ProjectUnknown.Strategy
         private Vector2 GetCoreScale() => kind switch
         {
             StrategyCinematicLightKind.House => new Vector2(0.78f, 0.34f),
-            StrategyCinematicLightKind.RoadsideTorch => new Vector2(0.22f, 0.20f),
+            StrategyCinematicLightKind.RoadsideTorch => new Vector2(0.30f, 0.26f),
             _ => new Vector2(0.32f, 0.26f)
         };
 
@@ -172,5 +170,122 @@ namespace ProjectUnknown.Strategy
             StrategyBuildTool.Granary => StrategyCinematicLightKind.Granary,
             _ => StrategyCinematicLightKind.Worksite
         };
+
+        private void ConfigureFlickerProfile(int sourceKey)
+        {
+            int profileKey = GetFlickerProfileKey(sourceKey);
+            if (flickerProfileKey == profileKey && flickerSeed > 0.001f)
+            {
+                return;
+            }
+
+            flickerProfileKey = profileKey;
+            float a = GetHashUnit(profileKey, 0x9E3779B9u);
+            float b = GetHashUnit(profileKey, 0x85EBCA6Bu);
+            float c = GetHashUnit(profileKey, 0xC2B2AE35u);
+            float d = GetHashUnit(profileKey, 0x27D4EB2Fu);
+            float e = GetHashUnit(profileKey, 0x165667B1u);
+
+            flickerSeed = 1f + a * 997f;
+            flickerTimeOffset = b * 43f;
+            flickerFastSpeed = Mathf.Lerp(2.15f, 4.85f, c);
+            flickerSlowSpeed = Mathf.Lerp(0.36f, 1.08f, d);
+            flickerDepth = Mathf.Lerp(0.46f, 0.78f, e);
+            flickerFrameSpeedScale = Mathf.Lerp(0.86f, 1.16f, GetHashUnit(profileKey, 0xA24BAED5u));
+            visualTimer = VisualUpdateInterval * GetHashUnit(profileKey, 0x9FB21C65u);
+        }
+
+        private int GetBuildingFlickerKey(StrategyPlacedBuilding owner)
+        {
+            if (owner == null)
+            {
+                return GetTransformFlickerKey();
+            }
+
+            return HashFlickerInts(
+                (int)kind,
+                (int)owner.Tool,
+                owner.Origin.x,
+                owner.Origin.y,
+                owner.Footprint.x,
+                owner.Footprint.y);
+        }
+
+        private int GetRoadsideFlickerKey(StrategyRoadsideLightSource owner)
+        {
+            if (owner == null)
+            {
+                return GetTransformFlickerKey();
+            }
+
+            return HashFlickerInts(
+                (int)kind,
+                owner.RoadCell.x,
+                owner.RoadCell.y,
+                owner.SideOffset.x,
+                owner.SideOffset.y,
+                17);
+        }
+
+        private int GetTransformFlickerKey()
+        {
+            Vector3 position = transform.position;
+            return HashFlickerInts(
+                (int)kind,
+                Mathf.RoundToInt(position.x * 100f),
+                Mathf.RoundToInt(position.y * 100f),
+                Mathf.RoundToInt(position.z * 100f),
+                GetStableTextHash(gameObject != null ? gameObject.name : string.Empty),
+                31);
+        }
+
+        private int GetFlickerProfileKey(int sourceKey)
+        {
+            return HashFlickerInts((int)kind, sourceKey, 53, 97, 193, 389);
+        }
+
+        private static int HashFlickerInts(int a, int b, int c, int d, int e, int f)
+        {
+            unchecked
+            {
+                uint hash = 2166136261u;
+                hash = (hash ^ (uint)a) * 16777619u;
+                hash = (hash ^ (uint)b) * 16777619u;
+                hash = (hash ^ (uint)c) * 16777619u;
+                hash = (hash ^ (uint)d) * 16777619u;
+                hash = (hash ^ (uint)e) * 16777619u;
+                hash = (hash ^ (uint)f) * 16777619u;
+                return (int)(hash & 0x7FFFFFFFu);
+            }
+        }
+
+        private static float GetHashUnit(int key, uint salt)
+        {
+            unchecked
+            {
+                uint hash = ((uint)key ^ salt) * 1664525u + 1013904223u;
+                hash ^= hash >> 16;
+                hash *= 2246822519u;
+                hash ^= hash >> 13;
+                return (hash & 0x00FFFFFFu) / 16777215f;
+            }
+        }
+
+        private static int GetStableTextHash(string text)
+        {
+            unchecked
+            {
+                uint hash = 2166136261u;
+                if (!string.IsNullOrEmpty(text))
+                {
+                    for (int i = 0; i < text.Length; i++)
+                    {
+                        hash = (hash ^ text[i]) * 16777619u;
+                    }
+                }
+
+                return (int)(hash & 0x7FFFFFFFu);
+            }
+        }
     }
 }

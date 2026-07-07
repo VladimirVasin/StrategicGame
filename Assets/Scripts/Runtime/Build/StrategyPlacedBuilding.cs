@@ -15,6 +15,7 @@ namespace ProjectUnknown.Strategy
         private static readonly List<StrategyPlacedBuilding> activeBuildings = new();
         private SpriteRenderer spriteRenderer;
         private StrategyHouseResourceStore resources;
+        private StrategyHouseWarmthState warmth;
         private StrategyResidentAgent householder;
         private bool registeredActiveBuilding;
 
@@ -36,6 +37,7 @@ namespace ProjectUnknown.Strategy
         public IReadOnlyList<StrategyResidentAgent> Residents => residents;
         public IReadOnlyList<Vector2Int> BridgeCells => bridgeCells;
         public StrategyHouseResourceStore Resources => resources;
+        public StrategyHouseWarmthState Warmth => warmth;
         public StrategyResidentAgent Householder => householder;
         public static IReadOnlyList<StrategyPlacedBuilding> ActiveBuildings => activeBuildings;
 
@@ -82,6 +84,7 @@ namespace ProjectUnknown.Strategy
             spriteRenderer = renderer;
             RegisterActiveBuilding();
             EnsureResourceStore();
+            EnsureHouseWarmthState();
             EnsureWorldShadow();
             EnsureClickCollider();
         }
@@ -290,6 +293,22 @@ namespace ProjectUnknown.Strategy
             {
                 resources = gameObject.AddComponent<StrategyHouseResourceStore>();
             }
+        }
+
+        private void EnsureHouseWarmthState()
+        {
+            warmth = Tool == StrategyBuildTool.House ? GetComponent<StrategyHouseWarmthState>() : null;
+            if (Tool != StrategyBuildTool.House)
+            {
+                return;
+            }
+
+            if (warmth == null)
+            {
+                warmth = gameObject.AddComponent<StrategyHouseWarmthState>();
+            }
+
+            warmth.Configure(this);
         }
 
         private void EnsureWorldShadow()

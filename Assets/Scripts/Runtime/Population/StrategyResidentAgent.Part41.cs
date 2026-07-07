@@ -45,6 +45,11 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
+            if (TryStartHouseholdLogsDelivery())
+            {
+                return true;
+            }
+
             if (TryStartHouseholdPotteryDelivery())
             {
                 return true;

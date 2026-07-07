@@ -177,6 +177,15 @@ namespace ProjectUnknown.Strategy
             }
 
             weatherVisuals.Configure(map, mainCamera, weather, wind);
+
+            StrategySeasonalSurfaceController seasonalSurfaces = Object.FindAnyObjectByType<StrategySeasonalSurfaceController>();
+            if (seasonalSurfaces == null)
+            {
+                GameObject seasonalSurfacesObject = new GameObject("Strategy Seasonal Surfaces");
+                seasonalSurfaces = seasonalSurfacesObject.AddComponent<StrategySeasonalSurfaceController>();
+            }
+
+            seasonalSurfaces.Configure(map, weather);
             StrategyDebugLogger.Info("Bootstrap", "WeatherReady");
 
             StrategyPostProcessController postProcess = Object.FindAnyObjectByType<StrategyPostProcessController>();
