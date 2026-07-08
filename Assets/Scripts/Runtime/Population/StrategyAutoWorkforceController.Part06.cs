@@ -56,7 +56,7 @@ namespace ProjectUnknown.Strategy
                     continue;
                 }
 
-                int target = desiredProfessionTargets.TryGetValue(profession, out int value) ? value : 0;
+                int target = GetSurplusReleaseTarget(profession);
                 int current = CountAssignedProfession(profession);
                 while (current > target && released < maxRelease)
                 {
@@ -84,6 +84,19 @@ namespace ProjectUnknown.Strategy
             }
 
             return released;
+        }
+
+        private int GetSurplusReleaseTarget(StrategyProfessionType profession)
+        {
+            int target = desiredProfessionTargets.TryGetValue(profession, out int value) ? value : 0;
+            if (profession == StrategyProfessionType.Builder
+                && settings.GetPriority(StrategyAutoWorkforceCategory.Construction) > 0
+                && TryFindConstructionAnchor(out _, out _))
+            {
+                target = Mathf.Max(target, 1);
+            }
+
+            return target;
         }
 
         private int CountReleasableProfessionWorkers(StrategyProfessionType profession)

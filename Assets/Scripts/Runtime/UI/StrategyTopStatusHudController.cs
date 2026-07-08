@@ -326,6 +326,7 @@ namespace ProjectUnknown.Strategy
 
             rosterHud.Configure(population);
             rosterHud.Toggle();
+            StrategyHudSfxAudio.Play(StrategyHudSfxKind.Click);
         }
 
         private static GameObject CreateUiObject(string name, Transform parent)

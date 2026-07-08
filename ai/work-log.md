@@ -8,6 +8,59 @@ Last updated: 2026-07-08
 
 ## Done
 
+### 2026-07-08 - Pickaxe stonecut SFX
+
+- Added five generated spatial pickaxe-on-stone WAV variants under `Assets/Resources/Audio/WorkSfx/PickaxeHitStone`.
+- Extended resident work SFX loading/playback with `PlayPickaxeHit()` and wired stonecut impact frames to play the new sound when stone deposits receive pick hits.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-07-08 - Lumberjack planting retry/fallback fix
+
+- Fixed lumberjacks repeatedly attempting unreachable planting cells after local camp Logs storage filled up.
+- Lumberjacks now start planting only when their camp can accept at least a small-tree Logs yield, try a bounded set of planting candidates before yielding, and avoid applying a long cooldown to each rejected candidate during that local search.
+- Forestry planting candidates now require a nearby walkable work cell, and planting diagnostics include `residentId` so duplicate resident names can be separated in `debug.log`.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-07-08 - Falling tree and split Logs SFX
+
+- Added generated spatial WAV variants under `Assets/Resources/Audio/WorkSfx/TreeFall` and `Assets/Resources/Audio/WorkSfx/TreeBreakLogs`.
+- Added `StrategyForestrySfxAudio`, a pooled world SFX service that loads those clips, applies the shared camera-aware audio mix, and plays them from tree positions.
+- Wired falling-tree audio to `StrategyForestryTree.StartFalling()` and split-Logs audio to `StrategyForestryTree.CompleteBucking()`.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-07-08 - Hard builder zero-coverage auto workforce rule
+
+- Added a `builder_zero_coverage` auto-workforce demand when active construction exists, Construction priority is enabled, and the settlement has 0 assigned Builders.
+- The hard one-builder coverage demand outranks ordinary profession shortages and can steal from protected Food professions if that is the only releasable donor; remaining desired Builders still use normal construction demand scoring.
+- Surplus release now keeps at least one Builder target while active construction exists and Construction priority is enabled.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-07-08 - AudioSource play-on-awake warning fix
+
+- Fixed runtime SFX source creation so AudioSources are added on inactive source-host child objects before `playOnAwake` is disabled, preventing Unity from trying to play empty resident sources on creation.
+- Moved resident footstep/work low-pass and reverb filters onto their matching source-host objects so multiple resident audio sources do not share filters on the resident root.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-07-08 - Central audio mix and camera-aware world SFX
+
+- Added `StrategyAudioMixController` as the runtime audio bus layer for Music, Ambience, Weather, Water, Resident Footsteps, Resident Work, and HUD sounds.
+- Routed ambience, music, HUD SFX, resident footsteps, and resident work SFX through the shared mix multipliers.
+- Added camera-focus and orthographic-zoom shaping for resident footstep/work one-shots: sources near/outside camera focus or at far zoom get quieter, lower-pass filtered, and slightly more reverberant.
+- Verification: `git diff --check` passed with only the existing `Assembly-CSharp.csproj` CRLF warning; `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-07-08 - HUD interaction SFX
+
+- Added generated non-spatial WAV one-shots under `Assets/Resources/Audio/HudSfx` for click, open, close, select, deny, confirm, cancel, step, and notify interactions.
+- Added `StrategyHudSfxAudio` as a lazy singleton HUD audio source with loaded clip variants, short cooldowns, random pitch, and no hover playback.
+- Wired HUD SFX into Build menu, speed controls, Profession HUD, population roster/family tree HUDs, reusable confirmation dialog, refugee decision dialog, and the top status population roster entry.
+- Verification: `git diff --check` passed with only the existing `Assembly-CSharp.csproj` CRLF warning; `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
+### 2026-07-08 - Resident work SFX
+
+- Added generated spatial WAV one-shots under `Assets/Resources/Audio/WorkSfx` for axe hits, construction hammer hits, fishing casts, fishing catches, and bow shots, with multiple variants per action.
+- Added `StrategyResidentWorkSfxAudio` plus resident work-SFX partial wiring so sounds trigger on existing animation impact/release frames and successful fish catches.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; affected C# files are at or below 500 lines.
+
 ### 2026-07-08 - Night funeral torchbearer
 
 - Night-started funeral processions now assign one attendee as a funeral torchbearer, preferring an adult non-carrier and falling back to other attendees when needed.

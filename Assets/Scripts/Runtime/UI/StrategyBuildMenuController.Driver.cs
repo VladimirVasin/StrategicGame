@@ -107,13 +107,15 @@ namespace ProjectUnknown.Strategy
 
         public void CloseAll()
         {
-            if (isOpen || selectedCategoryIndex >= 0 || ActiveTool != StrategyBuildTool.None)
+            bool hadOpenState = isOpen || selectedCategoryIndex >= 0 || ActiveTool != StrategyBuildTool.None;
+            if (hadOpenState)
             {
                 StrategyDebugLogger.Info(
                     "BuildMenu",
                     "Closed",
                     StrategyDebugLogger.F("activeTool", ActiveTool),
                     StrategyDebugLogger.F("selectedCategory", selectedCategoryIndex));
+                StrategyHudSfxAudio.Play(StrategyHudSfxKind.Close);
             }
 
             isOpen = false;
@@ -162,11 +164,17 @@ namespace ProjectUnknown.Strategy
             isOpen = !isOpen;
             if (!isOpen)
             {
+                if (selectedCategoryIndex < 0 && ActiveTool == StrategyBuildTool.None)
+                {
+                    StrategyHudSfxAudio.Play(StrategyHudSfxKind.Close);
+                }
+
                 CloseAll();
                 return;
             }
 
             isDirty = true;
+            StrategyHudSfxAudio.Play(StrategyHudSfxKind.Open);
         }
 
         private void HandlePointerDismissal()
@@ -213,6 +221,7 @@ namespace ProjectUnknown.Strategy
                 {
                     ActiveTool = StrategyBuildTool.None;
                     isDirty = true;
+                    StrategyHudSfxAudio.Play(StrategyHudSfxKind.Deny);
                     StrategyDebugLogger.Warn(
                         "BuildMenu",
                         "ToolSelectionRejected",
@@ -224,6 +233,7 @@ namespace ProjectUnknown.Strategy
                 }
 
                 ActiveTool = allowToggle && ActiveTool == item.Tool ? StrategyBuildTool.None : item.Tool;
+                StrategyHudSfxAudio.Play(ActiveTool == StrategyBuildTool.None ? StrategyHudSfxKind.Cancel : StrategyHudSfxKind.Select);
                 StrategyDebugLogger.Info(
                     "BuildMenu",
                     "ToolSelected",
@@ -239,6 +249,7 @@ namespace ProjectUnknown.Strategy
             bool closingCategory = allowToggle && sameCategory;
             selectedCategoryIndex = closingCategory ? -1 : category.Index;
             selectedSubcategoryIndex = -1;
+            StrategyHudSfxAudio.Play(closingCategory ? StrategyHudSfxKind.Cancel : StrategyHudSfxKind.Select);
             if (!sameCategory || closingCategory)
             {
                 subcategoryT = 0f;
@@ -257,6 +268,7 @@ namespace ProjectUnknown.Strategy
 
             if (!SubcategoryHasAllowedTool(category, subcategory))
             {
+                StrategyHudSfxAudio.Play(StrategyHudSfxKind.Deny);
                 return;
             }
 
@@ -265,6 +277,7 @@ namespace ProjectUnknown.Strategy
             selectedCategoryIndex = category.Index;
             selectedSubcategoryIndex = allowToggle && sameSubcategory ? -1 : subcategory.Index;
             trayT = 0f;
+            StrategyHudSfxAudio.Play(selectedSubcategoryIndex < 0 ? StrategyHudSfxKind.Cancel : StrategyHudSfxKind.Step);
             isDirty = true;
         }
 
@@ -284,6 +297,7 @@ namespace ProjectUnknown.Strategy
             if (!CanAffordBuildCost(item.Cost))
             {
                 ActiveTool = StrategyBuildTool.None;
+                StrategyHudSfxAudio.Play(StrategyHudSfxKind.Deny);
                 StrategyDebugLogger.Warn(
                     "BuildMenu",
                     "ToolSelectionRejected",
@@ -296,6 +310,7 @@ namespace ProjectUnknown.Strategy
             }
 
             ActiveTool = ActiveTool == item.Tool ? StrategyBuildTool.None : item.Tool;
+            StrategyHudSfxAudio.Play(ActiveTool == StrategyBuildTool.None ? StrategyHudSfxKind.Cancel : StrategyHudSfxKind.Select);
             StrategyDebugLogger.Info(
                 "BuildMenu",
                 "ToolSelected",
@@ -362,6 +377,7 @@ namespace ProjectUnknown.Strategy
             {
                 StrategyDebugLogger.Info("BuildMenu", "ToolCleared", StrategyDebugLogger.F("tool", ActiveTool));
                 ActiveTool = StrategyBuildTool.None;
+                StrategyHudSfxAudio.Play(StrategyHudSfxKind.Cancel);
                 isDirty = true;
                 return;
             }
@@ -372,11 +388,13 @@ namespace ProjectUnknown.Strategy
                 {
                     selectedSubcategoryIndex = -1;
                     trayT = 0f;
+                    StrategyHudSfxAudio.Play(StrategyHudSfxKind.Cancel);
                 }
                 else
                 {
                     selectedCategoryIndex = -1;
                     subcategoryT = 0f;
+                    StrategyHudSfxAudio.Play(StrategyHudSfxKind.Cancel);
                 }
 
                 isDirty = true;
@@ -384,6 +402,7 @@ namespace ProjectUnknown.Strategy
             }
 
             isOpen = false;
+            StrategyHudSfxAudio.Play(StrategyHudSfxKind.Close);
             isDirty = true;
         }
 

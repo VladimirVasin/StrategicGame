@@ -96,6 +96,7 @@ namespace ProjectUnknown.Strategy
                 professionScroll.verticalNormalizedPosition = 1f;
             }
 
+            StrategyHudSfxAudio.Play(isOpen ? StrategyHudSfxKind.Open : StrategyHudSfxKind.Close);
             StrategyDebugLogger.Info(
                 "ProfessionHud",
                 isOpen ? "Opened" : "Closed");
@@ -110,6 +111,7 @@ namespace ProjectUnknown.Strategy
 
             isOpen = false;
             isDirty = true;
+            StrategyHudSfxAudio.Play(StrategyHudSfxKind.Close);
             StrategyDebugLogger.Info("ProfessionHud", "Closed");
         }
 

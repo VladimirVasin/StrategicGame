@@ -55,6 +55,7 @@ namespace ProjectUnknown.Strategy
             rootGroup.alpha = 1f;
             rootGroup.interactable = true;
             rootGroup.blocksRaycasts = true;
+            StrategyHudSfxAudio.Play(StrategyHudSfxKind.Notify);
             StrategyDebugLogger.Info("UI", "ConfirmationOpened", StrategyDebugLogger.F("title", title));
         }
 
@@ -81,6 +82,7 @@ namespace ProjectUnknown.Strategy
             Action callback = confirmCallback;
             confirmCallback = null;
             Hide();
+            StrategyHudSfxAudio.Play(StrategyHudSfxKind.Confirm);
             StrategyDebugLogger.Info("UI", "ConfirmationAccepted");
             callback?.Invoke();
         }
@@ -95,6 +97,7 @@ namespace ProjectUnknown.Strategy
             locked = true;
             confirmCallback = null;
             Hide();
+            StrategyHudSfxAudio.Play(StrategyHudSfxKind.Cancel);
             StrategyDebugLogger.Info("UI", "ConfirmationCancelled");
         }
 

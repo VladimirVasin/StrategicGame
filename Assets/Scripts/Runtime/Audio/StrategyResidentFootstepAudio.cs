@@ -18,6 +18,7 @@ namespace ProjectUnknown.Strategy
         private StrategyResidentAgent resident;
         private AudioSource source;
         private AudioReverbFilter reverbFilter;
+        private AudioLowPassFilter lowPassFilter;
         private float nextStepTime;
         private int lastStepPhase = -1;
         private int clipCursor;
@@ -70,8 +71,16 @@ namespace ProjectUnknown.Strategy
             int clipIndex = Mathf.Abs(residentSeed * 31 + stepPhase * 7 + clipCursor) % grassClips.Length;
             clipCursor++;
 
-            source.pitch = UnityEngine.Random.Range(0.94f, 1.06f);
+            StrategyAudioWorldMix mix = StrategyAudioMixController.EvaluateWorld(transform.position, StrategyAudioBus.ResidentFootsteps);
             float volume = lifeStage == StrategyResidentLifeStage.Child ? ChildStepVolume : AdultStepVolume;
+            volume *= mix.VolumeMultiplier;
+            if (volume <= 0.004f)
+            {
+                return;
+            }
+
+            StrategyAudioMixController.ApplyWorldFilters(lowPassFilter, reverbFilter, mix, 0.72f);
+            source.pitch = UnityEngine.Random.Range(0.94f, 1.06f) * Mathf.Lerp(1f, 0.975f, mix.FarBlend);
             source.PlayOneShot(grassClips[clipIndex], volume);
         }
 
@@ -109,10 +118,11 @@ namespace ProjectUnknown.Strategy
             if (source != null)
             {
                 EnsureReverbFilter();
+                EnsureLowPassFilter();
                 return;
             }
 
-            source = gameObject.AddComponent<AudioSource>();
+            source = StrategyAudioMixController.CreateRuntimeSource(transform, "Resident Footstep Audio", StrategyAudioBus.ResidentFootsteps);
             source.loop = false;
             source.playOnAwake = false;
             source.spatialBlend = 0.45f;
@@ -122,18 +132,20 @@ namespace ProjectUnknown.Strategy
             source.maxDistance = 28f;
             source.priority = 128;
             EnsureReverbFilter();
+            EnsureLowPassFilter();
         }
 
         private void EnsureReverbFilter()
         {
+            GameObject filterHost = source != null ? source.gameObject : gameObject;
             if (reverbFilter == null)
             {
-                reverbFilter = GetComponent<AudioReverbFilter>();
+                reverbFilter = filterHost.GetComponent<AudioReverbFilter>();
             }
 
             if (reverbFilter == null)
             {
-                reverbFilter = gameObject.AddComponent<AudioReverbFilter>();
+                reverbFilter = filterHost.AddComponent<AudioReverbFilter>();
             }
 
             reverbFilter.reverbPreset = AudioReverbPreset.User;
@@ -151,6 +163,23 @@ namespace ProjectUnknown.Strategy
             reverbFilter.hfReference = 4200f;
             reverbFilter.roomLF = -850f;
             reverbFilter.lfReference = 250f;
+        }
+
+        private void EnsureLowPassFilter()
+        {
+            GameObject filterHost = source != null ? source.gameObject : gameObject;
+            if (lowPassFilter == null)
+            {
+                lowPassFilter = filterHost.GetComponent<AudioLowPassFilter>();
+            }
+
+            if (lowPassFilter == null)
+            {
+                lowPassFilter = filterHost.AddComponent<AudioLowPassFilter>();
+            }
+
+            lowPassFilter.cutoffFrequency = 22000f;
+            lowPassFilter.lowpassResonanceQ = 1f;
         }
     }
 }

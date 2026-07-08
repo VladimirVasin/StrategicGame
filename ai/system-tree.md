@@ -1,6 +1,6 @@
 # System Tree
 
-Last updated: 2026-07-07
+Last updated: 2026-07-08
 
 This is a conceptual map of the current project. Keep concrete file ownership in `ai/systems-map.md`.
 
@@ -74,13 +74,20 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Updates both `Time.timeScale` and `Time.fixedDeltaTime`
     - Supports pause locks for modal gameplay decisions while preserving the requested x1/x2/x3 speed
   - Strategy audio
+    - Runtime-created central audio mix controller owns bus-level volume profiles and camera-aware world-source acoustic attenuation
     - Runtime-created ambience controller
     - Loads non-generated nature loops and grass footsteps from `Assets/Resources/Audio`
     - Loads in-game music playlist clips from `Assets/Resources/Audio/Music`
+    - Loads generated resident work one-shot clips from `Assets/Resources/Audio/WorkSfx`
+    - Loads generated non-spatial HUD interaction one-shots from `Assets/Resources/Audio/HudSfx`
     - Plays forest birds, cicadas, night, rain, calm wind, and forest wind as global ambience layers
     - Rain and wind ambience follow the active runtime weather state
     - Plays river ambience through a spatial source positioned at the nearest water cell to the camera
     - Adds quiet spatial grass footsteps to resident walk animation step frames
+    - Adds spatial resident work SFX for axe hits, pickaxe hits, construction hammer hits, fishing casts/catches, and bow shots on their animation impact/release frames
+    - Adds pooled spatial forestry SFX for tree-fall and split-Logs completion events
+    - Adds subtle HUD SFX for menu open/close, selection, denials, confirmations, roster/sort/filter controls, profession controls, speed buttons, and modal/refugee dialogs
+    - Resident footstep and work SFX are shaped by camera focus and orthographic zoom, lowering volume, lowering high-frequency cutoff, and raising a subtle reverb tail when sources sit near/outside camera focus or when the camera is zoomed out
     - Plays one random music track at a time and avoids repeating the previous track when 2+ tracks exist
     - Pauses current in-game music on focus loss and resumes the same clip on focus return
   - Strategy weather
@@ -531,7 +538,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Residents assigned as Haulers also haul `Game`/`Fish`/`Eggs`/forage food from production food stock or loose food piles into the nearest Granary
     - Residents assigned as Haulers can fallback-deliver construction Logs/Stone/Planks to active construction sites only when normal Hauler orders are unavailable
     - Residents assigned as settlement Builders fetch reserved Logs/Stone/Planks, deliver them to construction sites, then reserve individual unlocked build-hit units and build with hammer animations up to the currently delivered-material progress cap
-    - Auto workforce assignment scans eligible free adults every few seconds, uses one per-tick worksite snapshot refreshed from active placed buildings and active construction sites on active-count changes plus a longer fallback interval for demand/rebalance/fallback calculations, treats nonzero player values as desired profession targets plus a one-worker coverage floor, releases surplus workers from overstaffed auto-managed professions, can pull limited donors from roles above their floor for higher-scored shortages, protects Food workers from non-food donor steals during household food emergencies or active food demand, includes winter household Log reserve demand in Wood pressure, uses `0` as the explicit opt-out that permits a role/category to have no workers, caps successful assignments per tick to avoid frame spikes, throttles deep no-free-adult full scans, and assigns remaining free adults through existing worksite APIs across later ticks while shortages/backlog/readiness affect scoring
+    - Auto workforce assignment scans eligible free adults every few seconds, uses one per-tick worksite snapshot refreshed from active placed buildings and active construction sites on active-count changes plus a longer fallback interval for demand/rebalance/fallback calculations, treats nonzero player values as desired profession targets plus a one-worker coverage floor, releases surplus workers from overstaffed auto-managed professions, can pull limited donors from roles above their floor for higher-scored shortages, gives active construction a hard one-Builder zero-coverage demand when Construction priority is enabled, protects Food workers from non-food donor steals during household food emergencies or active food demand except for that hard Builder coverage rescue, includes winter household Log reserve demand in Wood pressure, uses `0` as the explicit opt-out that permits a role/category to have no workers, caps successful assignments per tick to avoid frame spikes, throttles deep no-free-adult full scans, and assigns remaining free adults through existing worksite APIs across later ticks while shortages/backlog/readiness affect scoring
     - Residents removed from a role while carrying Logs, Stone, Iron, Coal, Clay, Planks, Pottery, `Game`, or `Fish` first return the carried resource to the appropriate Storage Yard or Granary; hard interruption fallbacks preserve materials instead of deleting carried stock
     - Resident death drops all carried resources: construction Logs/Stone/Planks as loose construction piles, and generic Iron, Coal, Clay, Planks, Pottery, `Game`, `Fish`, `Eggs`, Berries, Roots, and Mushrooms as loose carried-resource piles
     - Completed houses first try to pull a homeless adult male/female pair, including residents who already have workplaces or construction assignments, then fall back to adult-child migration and partner lookup
@@ -612,7 +619,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 
 - Rendering settings affect all scenes using the URP pipeline.
 - Runtime bootstrap depends on scene load order and the presence of a usable `Main Camera` or permission to create one.
-- Audio bootstrap depends on map generation, camera setup, strategy wind/weather values, `Resources/Audio` assets, the in-game music folder, and resident walk animation frames.
+- Audio bootstrap depends on map generation, camera setup/orthographic zoom, strategy wind/weather values, `Resources/Audio` assets, the in-game music/work/HUD-SFX folders, resident walk animation frames, resident work impact/release frames, and runtime HUD interaction events.
 - Strategy camera bounds depend on generated map dimensions.
 - Input action changes do not affect current camera controls yet because MVP controls read direct Input System devices.
 - Build menu active tool state drives the placement controller when catalog tools exist.

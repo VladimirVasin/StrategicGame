@@ -134,6 +134,7 @@ namespace ProjectUnknown.Strategy
         private SpriteRenderer fishingLineRenderer;
         private SpriteRenderer fishingBobberRenderer;
         private StrategyResidentFootstepAudio footstepAudio;
+        private StrategyResidentWorkSfxAudio workSfxAudio;
         private readonly List<Vector3> path = new();
         private readonly List<Vector2Int> constructionWorkCellCandidates = new();
         private ResidentActivity activity;

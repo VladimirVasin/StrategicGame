@@ -60,6 +60,7 @@ namespace ProjectUnknown.Strategy
 
             UpdateSortHeaderLabels();
             RefreshNow();
+            StrategyHudSfxAudio.Play(StrategyHudSfxKind.Step);
         }
 
         private void UpdateSortHeaderLabels()

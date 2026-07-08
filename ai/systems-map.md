@@ -1,6 +1,6 @@
 # Systems Map
 
-Last updated: 2026-07-07
+Last updated: 2026-07-08
 
 Use this file as the first navigation pass before broad searches. Owner cards are starting points, not hard boundaries.
 
@@ -118,6 +118,7 @@ Responsibilities:
 - Wire camera bounds to generated map bounds.
 - Configure runtime weather after camera/day-night setup and before ambience audio.
 - Configure seasonal surface visuals after weather setup so snow/ice coverage shares weather and temperature state.
+- Configure the central runtime audio mix controller after camera/weather setup and before ambience/music sources.
 - Configure runtime ambience audio after camera setup.
 - Focus the initial camera view on the startup campfire after population creates it.
 - Configure water/shore animation after map generation.
@@ -170,8 +171,11 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Weather/StrategyWeatherVisualController.Snow.cs`
 - `Assets/Scripts/Runtime/Weather/StrategySeasonalSurfaceController.cs`
 - `Assets/Scripts/Runtime/Audio/StrategyAmbientAudioController.cs`
+- `Assets/Scripts/Runtime/Audio/StrategyAudioMixController.cs`
 - `Assets/Scripts/Runtime/Audio/StrategyMusicController.cs`
 - `Assets/Scripts/Runtime/Audio/StrategyResidentFootstepAudio.cs`
+- `Assets/Scripts/Runtime/Audio/StrategyResidentWorkSfxAudio.cs`
+- `Assets/Scripts/Runtime/Audio/StrategyForestrySfxAudio.cs`
 - `Assets/Scripts/Runtime/Map/StrategyFogOfWarController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyFogOfWarController.Chunks.cs`
 - `Assets/Scripts/Runtime/Map/StrategyFogOfWarController.Visibility.cs`
@@ -258,6 +262,11 @@ Responsibilities:
 
 - Load non-generated ambience and footstep clips from `Assets/Resources/Audio`.
 - Load in-game music clips from `Assets/Resources/Audio/Music` as a playlist.
+- Load resident work one-shot clips from `Assets/Resources/Audio/WorkSfx`.
+- Load forestry tree-fall and split-Logs one-shot clips from `Assets/Resources/Audio/WorkSfx`.
+- Load HUD interaction one-shot clips from `Assets/Resources/Audio/HudSfx`.
+- Own runtime bus-level mix multipliers for music, ambience, weather, water, resident footsteps, resident work SFX, and HUD SFX.
+- Shape world resident SFX by camera focus and orthographic zoom through volume, low-pass cutoff, and subtle reverb tail changes.
 - Create runtime AudioSources without scene YAML wiring.
 - Play layered forest birds, cicadas, night, rain, calm wind, and forest wind ambience.
 - Follow the active runtime weather state for rain and weather wind ambience.
@@ -265,18 +274,28 @@ Responsibilities:
 - Play random in-game music tracks without repeating the previous track when 2+ tracks exist.
 - Pause current in-game music on application focus loss and resume the same clip on focus return.
 - Add quiet spatial grass footsteps to resident walk animation step frames.
+- Add spatial resident work SFX for axe, pickaxe, construction hammer, fishing, and bow actions on animation impact/release frames.
+- Add pooled spatial forestry SFX for `StrategyForestryTree` fall and split-Logs completion events.
+- Add non-spatial HUD SFX for accepted, rejected, modal, roster, profession, build-menu, and speed-control interactions.
 
 Primary files/assets:
 
 - `Assets/Scripts/Runtime/Audio/StrategyAmbientAudioController.cs`
+- `Assets/Scripts/Runtime/Audio/StrategyAudioMixController.cs`
 - `Assets/Scripts/Runtime/Audio/StrategyMusicController.cs`
+- `Assets/Scripts/Runtime/Audio/StrategyHudSfxAudio.cs`
 - `Assets/Scripts/Runtime/Audio/StrategyResidentFootstepAudio.cs`
+- `Assets/Scripts/Runtime/Audio/StrategyResidentWorkSfxAudio.cs`
+- `Assets/Scripts/Runtime/Audio/StrategyForestrySfxAudio.cs`
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.WorkSfx.cs`
 - `Assets/Scripts/Runtime/Audio/StrategyResidentFootstepAudio.cs`
 - `Assets/Resources/Audio/Nature/`
 - `Assets/Resources/Audio/Music/`
 - `Assets/Resources/Audio/Footsteps/GrassWalk/`
+- `Assets/Resources/Audio/WorkSfx/`
+- `Assets/Resources/Audio/HudSfx/`
 - `Assembly-CSharp.csproj`
 
 Impact hints:
@@ -285,7 +304,12 @@ Impact hints:
 - Music files can be named freely, but `Music_01.mp3`, `Music_02.mp3`, etc. are the recommended convention; all direct AudioClips in `Resources/Audio/Music` are part of the playlist.
 - Music focus handling must use `AudioSource.Pause`/`UnPause` so losing focus does not trigger playlist advancement.
 - Footsteps are tied to resident walk sprite frames 1 and 5; changing walk frame counts or animation pacing should retune footstep phases.
-- Keep imported ambience/footstep clips under `Resources/Audio` unless the loading path is updated at the same time.
+- Work SFX are tied to resident impact/release frames (`WoodcutImpactFrame`, `ConstructionImpactFrame`, `FishingHookFrame`, `FishingReelFrame`, and `BowReleaseFrame`); changing those animation timelines should retune SFX triggers.
+- Forestry SFX are tree-owned rather than resident-owned: `StartFalling()` plays tree-fall audio and `CompleteBucking()` plays split-Logs audio from the tree position.
+- HUD SFX are event-driven from runtime UI controllers and use a singleton non-spatial source with small cooldowns; avoid per-hover playback unless a future pass adds stronger throttling.
+- `StrategyAudioMixController` is the shared runtime mix layer; keep new audio systems on a named `StrategyAudioBus` and use `EvaluateWorld` for camera-dependent world one-shots instead of duplicating zoom/focus math.
+- Camera-dependent world SFX should stay cheap: prefer per-source low-pass/reverb parameter changes at play time over adding echo filters, extra sources, or per-frame scans.
+- Keep imported ambience/footstep/work/HUD clips under `Resources/Audio` unless the loading path is updated at the same time.
 
 ### Strategy Weather
 
@@ -471,6 +495,7 @@ Impact hints:
 - Current tree cells block walkability; fallen trunks stay blocked until their Logs are collected; residents path to nearby walkable cells when working.
 - Tree chopping and fallen-trunk bucking are hit-driven by resident axe animation frames; final tree hits start falling and final trunk hits create split Logs.
 - Small trees yield 3 Logs, while large generated trees and planted mature trees yield 6 Logs; lumberjacks carry the full yield in one trip.
+- Planting candidates require a nearby walkable work cell, and lumberjacks only start planting when their camp can accept at least the smallest future Logs yield.
 - Felled trees remain in the registry until Logs are collected, so planting does not overlap the fresh log.
 - Future wood resources, regrowth balance, and forest ownership should extend this subsystem instead of adding tree logic directly to residents or HUD.
 
@@ -1897,6 +1922,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.SettlementRoles.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.NightLights.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.NightTorchLight.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.WorkSfx.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part36.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.TrailRoutes.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part37.cs`
@@ -2007,8 +2033,8 @@ Impact hints:
 - Resident scheduled work starts only during `StrategyDayNightCycleController.IsSettlementWorkTime`, which now covers Dawn through Dusk on every day. Keep carried-resource returns, deposits, and cleanup paths schedule-safe so nightfall cannot strand stock reservations.
 - Resident night sleep is separate from homebound young-child hiding: housed residents only enter the hidden home interior during `Night` when they are not carrying resources, in funeral duty, underground, or assigned to night lamp lighting, notify household food state for dinner readiness, then reappear at the home exit after night ends. Homeless residents instead reserve reachable campfire sleep spots, relight embers if needed, and sleep visibly around the startup campfire with a small `Zzz...` indicator.
 - Night lamp lighting is owned by `StrategyNightLightTaskController` plus `StrategyResidentAgent.NightLights.cs`; capped ambient evening torch selection lives in `StrategyNightLightTaskController.Ambient.cs`; carried torch light/glow/night-mask contribution is isolated in `StrategyResidentAgent.NightTorchLight.cs`; late-Dusk personal hand-torch activation should not start stationary-lamp routes before `Night`, personal Dusk torches should avoid real `Light2D` point lights, and lamp sources should not automatically light when no eligible resident can reach them.
-- Resident footstep audio is attached by `StrategyResidentAgent` and plays grass clips on selected walk frames; keep it low-volume/spatial when adding more residents or faster simulation speeds.
-- Lumberjack work keeps the same camp worksite component but chooses the nearest available tree/processable wood on the map; it tests nearby work cells for real path reachability before starting tree/log/plant movement, and includes tree chopping, trunk bucking, Logs delivery, and sapling planting.
+- Resident footstep audio is attached by `StrategyResidentAgent` and plays grass clips on selected walk frames; resident work SFX plays axe/pickaxe/hammer/fishing/bow clips on selected work frames; both route through `StrategyAudioMixController` for bus volume, camera-focus/zoom attenuation, low-pass, and subtle far-source reverb, so keep them low-volume/spatial when adding more residents or faster simulation speeds.
+- Lumberjack work keeps the same camp worksite component but chooses the nearest available tree/processable wood on the map; it tests nearby work cells for real path reachability before starting tree/log/plant movement, only starts planting when the camp can accept future Logs, and includes tree chopping, trunk bucking, Logs delivery, and sapling planting.
 - Resident woodcut sprites are generated for every male/female visual variant and should stay in sync with readability outline mirroring.
 - Stonecutter work keeps the same camp worksite component but chooses the nearest available finite Stone deposit on the map and does not plant/regrow Stone.
 - Resident stonecut sprites are generated for every male/female visual variant and should stay in sync with readability outline mirroring.

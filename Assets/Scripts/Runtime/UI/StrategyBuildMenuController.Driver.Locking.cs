@@ -104,6 +104,7 @@ namespace ProjectUnknown.Strategy
         {
             ActiveTool = StrategyBuildTool.None;
             isDirty = true;
+            StrategyHudSfxAudio.Play(StrategyHudSfxKind.Deny);
             StrategyDebugLogger.Warn(
                 "BuildMenu",
                 "ToolSelectionRejected",

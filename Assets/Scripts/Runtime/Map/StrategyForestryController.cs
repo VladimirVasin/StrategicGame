@@ -288,7 +288,32 @@ namespace ProjectUnknown.Strategy
                 && map.TryGetCell(cell.x, cell.y, out CityMapCell mapCell)
                 && IsPlantableKind(mapCell.Kind)
                 && map.IsCellWalkable(cell)
+                && HasNearbyPlantingWorkCell(cell)
                 && !HasTreeAt(cell);
+        }
+
+        private bool HasNearbyPlantingWorkCell(Vector2Int cell)
+        {
+            for (int radius = 1; radius <= 2; radius++)
+            {
+                for (int y = -radius; y <= radius; y++)
+                {
+                    for (int x = -radius; x <= radius; x++)
+                    {
+                        if (Mathf.Abs(x) != radius && Mathf.Abs(y) != radius)
+                        {
+                            continue;
+                        }
+
+                        if (map.IsCellWalkable(cell + new Vector2Int(x, y)))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
         }
 
         private bool HasTreeAt(Vector2Int cell)

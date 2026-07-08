@@ -41,6 +41,7 @@ namespace ProjectUnknown.Strategy
                             return;
                         }
 
+                        PlayFishingCastSfx();
                         StrategyDebugLogger.Info(
                             "Fishing",
                             "LineCast",
@@ -58,6 +59,7 @@ namespace ProjectUnknown.Strategy
                         activeFishTarget.ReceiveReelPull(this, GetFishingReelTargetWorld(), out int fishAmount);
                         if (fishAmount > 0)
                         {
+                            PlayFishingCatchSfx();
                             ApplyFishingFrame(workFrame);
                             StartCarryingFish(fishAmount);
                             return;

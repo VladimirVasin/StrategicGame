@@ -119,11 +119,13 @@ namespace ProjectUnknown.Strategy
             SetAutoWorkforce(null);
             if (autoWorkforce == null)
             {
+                StrategyHudSfxAudio.Play(StrategyHudSfxKind.Deny);
                 return;
             }
 
             autoWorkforce.SetAutoAssignEnabled(!autoWorkforce.IsAutoAssignEnabled);
             actionStatusText.text = autoWorkforce.LastStatus;
+            StrategyHudSfxAudio.Play(StrategyHudSfxKind.Select);
             isDirty = true;
             RefreshAutoControls(CountFreeWorkers());
         }
@@ -133,11 +135,13 @@ namespace ProjectUnknown.Strategy
             SetAutoWorkforce(null);
             if (autoWorkforce == null)
             {
+                StrategyHudSfxAudio.Play(StrategyHudSfxKind.Deny);
                 return;
             }
 
             int value = autoWorkforce.AdjustPriority(category, delta);
             actionStatusText.text = StrategyAutoWorkforceSettings.GetLabel(category) + ": " + value;
+            StrategyHudSfxAudio.Play(StrategyHudSfxKind.Step);
             isDirty = true;
             RefreshAutoControls(CountFreeWorkers());
         }

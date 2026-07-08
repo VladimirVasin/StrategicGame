@@ -162,6 +162,7 @@ namespace ProjectUnknown.Strategy
             SyncReadabilityRenderers();
             EnsureClickCollider();
             EnsureFootstepAudio();
+            EnsureWorkSfxAudio();
             if (IsHomeboundYoungChild)
             {
                 EnterHomeboundChildState(false);

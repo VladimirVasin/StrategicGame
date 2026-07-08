@@ -50,16 +50,21 @@ namespace ProjectUnknown.Strategy
             return false;
         }
 
-        private bool TryMoveToPlantingCell(Vector2Int cell)
+        private bool TryMoveToPlantingCell(Vector2Int cell, bool applyFailureCooldown = true)
         {
             if (!TryFindPlantingWorkCell(cell, out Vector2Int workCell))
             {
                 workplace?.RegisterRejectedPlantingCell(cell, "no_work_cell");
-                lumberWorkCooldown = Random.Range(2.0f, 4.0f);
+                if (applyFailureCooldown)
+                {
+                    lumberWorkCooldown = Random.Range(2.0f, 4.0f);
+                }
+
                 StrategyDebugLogger.Warn(
                     "Population",
                     "PlantMoveRejected",
                     StrategyDebugLogger.F("resident", FullName),
+                    StrategyDebugLogger.F("residentId", residentId),
                     StrategyDebugLogger.F("plantCell", cell),
                     StrategyDebugLogger.F("reason", "no_work_cell"));
                 return false;
@@ -75,6 +80,7 @@ namespace ProjectUnknown.Strategy
                     "Population",
                     "PlantMoveStarted",
                     StrategyDebugLogger.F("resident", FullName),
+                    StrategyDebugLogger.F("residentId", residentId),
                     StrategyDebugLogger.F("plantCell", cell),
                     StrategyDebugLogger.F("workCell", workCell));
                 return true;
@@ -82,14 +88,42 @@ namespace ProjectUnknown.Strategy
 
             activity = ResidentActivity.Idle;
             workplace?.RegisterRejectedPlantingCell(cell, "no_path");
-            lumberWorkCooldown = Random.Range(2.0f, 4.0f);
+            if (applyFailureCooldown)
+            {
+                lumberWorkCooldown = Random.Range(2.0f, 4.0f);
+            }
+
             StrategyDebugLogger.Warn(
                 "Population",
                 "PlantMoveRejected",
                 StrategyDebugLogger.F("resident", FullName),
+                StrategyDebugLogger.F("residentId", residentId),
                 StrategyDebugLogger.F("plantCell", cell),
                 StrategyDebugLogger.F("workCell", workCell),
                 StrategyDebugLogger.F("reason", "no_path"));
+            return false;
+        }
+
+        private bool TryStartPlantingTask()
+        {
+            if (workplace == null || !workplace.HasStorageSpaceFor(StrategyForestryTree.SmallTreeLogs))
+            {
+                return false;
+            }
+
+            for (int attempt = 0; attempt < 8; attempt++)
+            {
+                if (!workplace.TryFindPlantingCell(out Vector2Int cell))
+                {
+                    return false;
+                }
+
+                if (TryMoveToPlantingCell(cell, false))
+                {
+                    return true;
+                }
+            }
+
             return false;
         }
 

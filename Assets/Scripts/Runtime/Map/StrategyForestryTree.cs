@@ -345,6 +345,7 @@ namespace ProjectUnknown.Strategy
             fallTimer = 0f;
             fallDirection = transform.position.x >= hitterWorld.x ? 1 : -1;
             StrategyWoodcutEffectAnimator.Spawn(GetChopEffectWorld(), spriteRenderer != null ? spriteRenderer.sortingOrder + 4 : 7, chopHitCount + 11);
+            StrategyForestrySfxAudio.PlayTreeFall(transform.position);
             StrategyDebugLogger.Info(
                 "Forestry",
                 "TreeFalling",
@@ -418,6 +419,7 @@ namespace ProjectUnknown.Strategy
             }
 
             StrategyWoodcutEffectAnimator.Spawn(GetBuckEffectWorld(), spriteRenderer != null ? spriteRenderer.sortingOrder + 4 : 7, buckHitCount + 50);
+            StrategyForestrySfxAudio.PlayTreeBreakLogs(transform.position);
             StrategyDebugLogger.Info(
                 "Forestry",
                 "LogsReady",

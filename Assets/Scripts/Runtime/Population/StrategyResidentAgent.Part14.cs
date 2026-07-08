@@ -51,6 +51,7 @@ namespace ProjectUnknown.Strategy
                 "Population",
                 "PlantingStarted",
                 StrategyDebugLogger.F("resident", FullName),
+                StrategyDebugLogger.F("residentId", residentId),
                 StrategyDebugLogger.F("plantCell", plantingCell),
                 StrategyDebugLogger.F("campOrigin", workplace != null ? workplace.Origin : Vector2Int.zero));
         }
@@ -69,6 +70,7 @@ namespace ProjectUnknown.Strategy
                 "Population",
                 planted ? "TreePlanted" : "TreePlantFailed",
                 StrategyDebugLogger.F("resident", FullName),
+                StrategyDebugLogger.F("residentId", residentId),
                 StrategyDebugLogger.F("plantCell", plantingCell),
                 StrategyDebugLogger.F("campOrigin", workplace != null ? workplace.Origin : Vector2Int.zero));
             activity = ResidentActivity.Idle;

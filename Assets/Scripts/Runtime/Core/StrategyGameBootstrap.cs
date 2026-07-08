@@ -208,6 +208,16 @@ namespace ProjectUnknown.Strategy
             cinematicVisuals.Configure(map, mainCamera, dayNight, weather, wind);
             StrategyDebugLogger.Info("Bootstrap", "CinematicVisualsReady");
 
+            StrategyAudioMixController audioMix = Object.FindAnyObjectByType<StrategyAudioMixController>();
+            if (audioMix == null)
+            {
+                GameObject audioMixObject = new GameObject("Strategy Audio Mix");
+                audioMix = audioMixObject.AddComponent<StrategyAudioMixController>();
+            }
+
+            audioMix.Configure(mainCamera);
+            StrategyDebugLogger.Info("Bootstrap", "AudioMixReady");
+
             StrategyAmbientAudioController ambientAudio = Object.FindAnyObjectByType<StrategyAmbientAudioController>();
             if (ambientAudio == null)
             {

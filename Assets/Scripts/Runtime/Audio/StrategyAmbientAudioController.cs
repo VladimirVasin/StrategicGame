@@ -73,19 +73,22 @@ namespace ProjectUnknown.Strategy
             float rainBlend = weather != null ? weather.RainIntensity : 0f;
             float strongRainBlend = weather != null ? Mathf.Max(weather.HeavyRainIntensity, weather.StormIntensity) : 0f;
             float weatherWindBlend = weather != null ? weather.WindIntensity : 0f;
+            float ambienceBus = StrategyAudioMixController.GetVolume(StrategyAudioBus.Ambience);
+            float weatherBus = StrategyAudioMixController.GetVolume(StrategyAudioBus.Weather);
+            float waterBus = StrategyAudioMixController.GetVolume(StrategyAudioBus.Water);
             float windPulse = StrategyWindController.Active != null && StrategyWindController.Active.WindZone != null
                 ? Mathf.Clamp01(StrategyWindController.Active.WindZone.windMain
                     + StrategyWindController.Active.WindZone.windPulseMagnitude * 0.5f)
                 : 0.55f;
 
-            FadeLoop(forestBirdsSource, forestBirdsClip, 0.17f * dayBlend * Mathf.Lerp(0.65f, 1f, forestBlend) * (1f - rainBlend * 0.55f), dt);
-            FadeLoop(cicadasSource, cicadasClip, 0.07f * eveningBlend * (1f - rainBlend * 0.7f), dt);
-            FadeLoop(nightSource, nightClip, 0.10f * nightBlend * (1f - rainBlend * 0.35f), dt);
-            FadeLoop(rainCalmSource, rainCalmClip, 0.085f * rainBlend * (1f - strongRainBlend * 0.35f), dt);
-            FadeLoop(rainStrongSource, rainStrongClip, 0.07f * strongRainBlend, dt);
-            FadeLoop(windCalmSource, windCalmClip, 0.08f + windPulse * 0.05f + weatherWindBlend * 0.025f, dt);
-            FadeLoop(windForestSource, windForestClip, forestBlend * (0.06f + windPulse * 0.05f + weatherWindBlend * 0.025f) * (1f - rainBlend * 0.25f), dt);
-            FadeLoop(riverSource, riverClip, RiverTargetVolume * riverDistanceBlend, dt);
+            FadeLoop(forestBirdsSource, forestBirdsClip, ambienceBus * 0.17f * dayBlend * Mathf.Lerp(0.65f, 1f, forestBlend) * (1f - rainBlend * 0.55f), dt);
+            FadeLoop(cicadasSource, cicadasClip, ambienceBus * 0.07f * eveningBlend * (1f - rainBlend * 0.7f), dt);
+            FadeLoop(nightSource, nightClip, ambienceBus * 0.10f * nightBlend * (1f - rainBlend * 0.35f), dt);
+            FadeLoop(rainCalmSource, rainCalmClip, weatherBus * 0.085f * rainBlend * (1f - strongRainBlend * 0.35f), dt);
+            FadeLoop(rainStrongSource, rainStrongClip, weatherBus * 0.07f * strongRainBlend, dt);
+            FadeLoop(windCalmSource, windCalmClip, weatherBus * (0.08f + windPulse * 0.05f + weatherWindBlend * 0.025f), dt);
+            FadeLoop(windForestSource, windForestClip, weatherBus * forestBlend * (0.06f + windPulse * 0.05f + weatherWindBlend * 0.025f) * (1f - rainBlend * 0.25f), dt);
+            FadeLoop(riverSource, riverClip, waterBus * RiverTargetVolume * riverDistanceBlend, dt);
         }
 
         private void LoadClips()
@@ -102,24 +105,24 @@ namespace ProjectUnknown.Strategy
 
         private void EnsureSources()
         {
-            EnsureFlatLoop(ref forestBirdsSource, "Ambience Forest Birds", forestBirdsClip, 170);
-            EnsureFlatLoop(ref cicadasSource, "Ambience Cicadas", cicadasClip, 175);
-            EnsureFlatLoop(ref nightSource, "Ambience Night", nightClip, 176);
-            EnsureFlatLoop(ref rainCalmSource, "Ambience Rain Calm", rainCalmClip, 178);
-            EnsureFlatLoop(ref rainStrongSource, "Ambience Rain Strong", rainStrongClip, 179);
-            EnsureFlatLoop(ref windCalmSource, "Ambience Wind Calm", windCalmClip, 180);
-            EnsureFlatLoop(ref windForestSource, "Ambience Wind Forest", windForestClip, 181);
+            EnsureFlatLoop(ref forestBirdsSource, "Ambience Forest Birds", forestBirdsClip, 170, StrategyAudioBus.Ambience);
+            EnsureFlatLoop(ref cicadasSource, "Ambience Cicadas", cicadasClip, 175, StrategyAudioBus.Ambience);
+            EnsureFlatLoop(ref nightSource, "Ambience Night", nightClip, 176, StrategyAudioBus.Ambience);
+            EnsureFlatLoop(ref rainCalmSource, "Ambience Rain Calm", rainCalmClip, 178, StrategyAudioBus.Weather);
+            EnsureFlatLoop(ref rainStrongSource, "Ambience Rain Strong", rainStrongClip, 179, StrategyAudioBus.Weather);
+            EnsureFlatLoop(ref windCalmSource, "Ambience Wind Calm", windCalmClip, 180, StrategyAudioBus.Weather);
+            EnsureFlatLoop(ref windForestSource, "Ambience Wind Forest", windForestClip, 181, StrategyAudioBus.Weather);
             EnsureRiverSource();
         }
 
-        private void EnsureFlatLoop(ref AudioSource source, string sourceName, AudioClip clip, int priority)
+        private void EnsureFlatLoop(ref AudioSource source, string sourceName, AudioClip clip, int priority, StrategyAudioBus bus)
         {
             if (source != null || clip == null)
             {
                 return;
             }
 
-            source = CreateSource(sourceName, true, 0f, 0f, priority);
+            source = CreateSource(sourceName, true, 0f, 0f, priority, bus);
             source.clip = clip;
             source.Play();
         }
@@ -131,7 +134,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            riverSource = CreateSource("Ambience River", true, 0f, 1f, 165);
+            riverSource = CreateSource("Ambience River", true, 0f, 1f, 165, StrategyAudioBus.Water);
             riverSource.clip = riverClip;
             riverSource.minDistance = 6f;
             riverSource.maxDistance = 42f;
@@ -170,11 +173,9 @@ namespace ProjectUnknown.Strategy
             reverb.lfReference = 260f;
         }
 
-        private AudioSource CreateSource(string sourceName, bool loop, float volume, float spatialBlend, int priority)
+        private AudioSource CreateSource(string sourceName, bool loop, float volume, float spatialBlend, int priority, StrategyAudioBus bus)
         {
-            GameObject sourceObject = new GameObject(sourceName);
-            sourceObject.transform.SetParent(transform, false);
-            AudioSource source = sourceObject.AddComponent<AudioSource>();
+            AudioSource source = StrategyAudioMixController.CreateRuntimeSource(transform, sourceName, bus);
             source.loop = loop;
             source.volume = volume;
             source.spatialBlend = spatialBlend;

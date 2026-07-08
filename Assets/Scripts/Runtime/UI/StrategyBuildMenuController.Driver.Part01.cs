@@ -420,6 +420,7 @@ namespace ProjectUnknown.Strategy
 
             timeScale?.SetRequestedScale(speed);
             RefreshSpeedControls();
+            StrategyHudSfxAudio.Play(StrategyHudSfxKind.Step);
             StrategyDebugLogger.Info(
                 "BuildMenu",
                 "SpeedButtonClicked",

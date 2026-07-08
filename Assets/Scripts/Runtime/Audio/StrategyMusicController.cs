@@ -73,7 +73,7 @@ namespace ProjectUnknown.Strategy
 
             musicSource.volume = Mathf.MoveTowards(
                 musicSource.volume,
-                TargetVolume,
+                TargetVolume * StrategyAudioMixController.GetVolume(StrategyAudioBus.Music),
                 FadeInSpeed * Time.unscaledDeltaTime);
         }
 
@@ -203,7 +203,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            musicSource = gameObject.AddComponent<AudioSource>();
+            musicSource = StrategyAudioMixController.CreateRuntimeSource(transform, "Music Source", StrategyAudioBus.Music);
             musicSource.loop = false;
             musicSource.playOnAwake = false;
             musicSource.spatialBlend = 0f;
@@ -215,14 +215,15 @@ namespace ProjectUnknown.Strategy
 
         private void EnsureReverbFilter()
         {
+            GameObject filterHost = musicSource != null ? musicSource.gameObject : gameObject;
             if (reverbFilter == null)
             {
-                reverbFilter = GetComponent<AudioReverbFilter>();
+                reverbFilter = filterHost.GetComponent<AudioReverbFilter>();
             }
 
             if (reverbFilter == null)
             {
-                reverbFilter = gameObject.AddComponent<AudioReverbFilter>();
+                reverbFilter = filterHost.AddComponent<AudioReverbFilter>();
             }
 
             reverbFilter.reverbPreset = AudioReverbPreset.User;

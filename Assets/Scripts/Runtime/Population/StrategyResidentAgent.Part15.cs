@@ -195,6 +195,8 @@ namespace ProjectUnknown.Strategy
                             {
                                 activeTree.ReceiveChopHit(transform.position);
                             }
+
+                            PlayAxeHitSfx();
                         }
                     }
                 }
@@ -270,6 +272,7 @@ namespace ProjectUnknown.Strategy
                         }
 
                         activeStoneDeposit.ReceivePickHit(this, transform.position, out int minedAmount);
+                        PlayPickaxeHitSfx();
                         if (minedAmount > 0)
                         {
                             ApplyStonecutFrame(workFrame);
@@ -337,6 +340,7 @@ namespace ProjectUnknown.Strategy
                             return;
                         }
 
+                        PlayHammerHitSfx();
                         if (constructionSite == null || constructionSite.IsCompleted)
                         {
                             return;
@@ -393,6 +397,7 @@ namespace ProjectUnknown.Strategy
                     {
                         bowShotReleased = true;
                         huntingWorkTimer = 0.28f;
+                        PlayBowShotSfx();
                         ReleaseHuntingArrow();
                     }
                 }

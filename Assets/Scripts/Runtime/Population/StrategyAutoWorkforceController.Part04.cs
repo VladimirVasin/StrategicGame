@@ -196,6 +196,7 @@ namespace ProjectUnknown.Strategy
         {
             holdScore = float.MaxValue;
             bool zeroCoverageRescue = IsZeroCoverageRescueDemand(demand);
+            bool hardBuilderCoverage = IsHardBuilderCoverageDemand(demand);
             if (profession == demand.Profession)
             {
                 return "target_profession";
@@ -230,7 +231,7 @@ namespace ProjectUnknown.Strategy
                 holdScore = demandHoldScore;
             }
 
-            if (ShouldProtectFoodDonor(profession, demand))
+            if (!hardBuilderCoverage && ShouldProtectFoodDonor(profession, demand))
             {
                 return "food_emergency";
             }
@@ -262,6 +263,14 @@ namespace ProjectUnknown.Strategy
                 && settings.GetPriority(demand.Category) > 0
                 && CountAssignedProfession(demand.Profession) <= 0
                 && GetDesiredOrCoverageTarget(demand.Profession) > 0;
+        }
+
+        private bool IsHardBuilderCoverageDemand(StrategyAutoWorkforceDemand demand)
+        {
+            return demand != null
+                && demand.Profession == StrategyProfessionType.Builder
+                && demand.Reason == HardBuilderCoverageReason
+                && CountAssignedProfession(StrategyProfessionType.Builder) <= 0;
         }
 
         private static bool CanUseZeroCoverageRescueDonor(
@@ -333,6 +342,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("targetReason", demand.Reason),
                 StrategyDebugLogger.F("reason", "no_donor"),
                 StrategyDebugLogger.F("zeroCoverageRescue", IsZeroCoverageRescueDemand(demand)),
+                StrategyDebugLogger.F("hardBuilderCoverage", IsHardBuilderCoverageDemand(demand)),
                 StrategyDebugLogger.F("emergencyDemand", IsEmergencyDemand(demand)),
                 StrategyDebugLogger.F("cooldownSeconds", NoDonorRetrySeconds));
         }

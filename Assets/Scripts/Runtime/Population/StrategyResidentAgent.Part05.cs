@@ -220,8 +220,7 @@ namespace ProjectUnknown.Strategy
 
             tree?.Release(this);
 
-            if (workplace.TryFindPlantingCell(out Vector2Int cell)
-                && TryMoveToPlantingCell(cell))
+            if (TryStartPlantingTask())
             {
                 return true;
             }

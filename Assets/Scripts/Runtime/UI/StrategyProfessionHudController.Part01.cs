@@ -116,6 +116,7 @@ namespace ProjectUnknown.Strategy
 
             RegisterManualProfessionChange(type, assign, success);
             actionStatusText.text = GetActionMessage(type, assign, success, worker);
+            StrategyHudSfxAudio.Play(success ? StrategyHudSfxKind.Step : StrategyHudSfxKind.Deny);
             StrategyDebugLogger.Info(
                 "ProfessionHud",
                 "ProfessionChanged",

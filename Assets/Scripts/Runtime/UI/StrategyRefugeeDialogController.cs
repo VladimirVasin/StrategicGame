@@ -54,6 +54,7 @@ namespace ProjectUnknown.Strategy
             rootGroup.alpha = 1f;
             rootGroup.interactable = true;
             rootGroup.blocksRaycasts = true;
+            StrategyHudSfxAudio.Play(StrategyHudSfxKind.Notify);
             StrategyDebugLogger.Info(
                 "Refugees",
                 "DialogOpened",
@@ -81,6 +82,7 @@ namespace ProjectUnknown.Strategy
 
             decisionLocked = true;
             Hide();
+            StrategyHudSfxAudio.Play(accepted ? StrategyHudSfxKind.Confirm : StrategyHudSfxKind.Cancel);
             StrategyDebugLogger.Info(
                 "Refugees",
                 accepted ? "DialogAccepted" : "DialogRejected");

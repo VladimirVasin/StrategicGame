@@ -74,6 +74,7 @@ namespace ProjectUnknown.Strategy
                 Configure(null, null);
             }
 
+            bool changed = isOpen != open;
             isOpen = open;
             panel.gameObject.SetActive(open);
 
@@ -85,6 +86,11 @@ namespace ProjectUnknown.Strategy
             else
             {
                 ReleasePause();
+            }
+
+            if (changed)
+            {
+                StrategyHudSfxAudio.Play(open ? StrategyHudSfxKind.Open : StrategyHudSfxKind.Close);
             }
         }
 

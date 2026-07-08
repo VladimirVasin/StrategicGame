@@ -297,9 +297,7 @@ namespace ProjectUnknown.Strategy
             transform.localScale = Vector3.one;
             UseIdleSprite();
 
-            if (workplace != null
-                && workplace.TryFindPlantingCell(out Vector2Int cell)
-                && TryMoveToPlantingCell(cell))
+            if (TryStartPlantingTask())
             {
                 return;
             }

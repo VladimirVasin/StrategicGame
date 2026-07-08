@@ -62,6 +62,7 @@ namespace ProjectUnknown.Strategy
                 Configure(null);
             }
 
+            bool changed = isOpen != open;
             isOpen = open;
             if (panel != null)
             {
@@ -72,6 +73,11 @@ namespace ProjectUnknown.Strategy
             if (open)
             {
                 RefreshNow();
+            }
+
+            if (changed)
+            {
+                StrategyHudSfxAudio.Play(open ? StrategyHudSfxKind.Open : StrategyHudSfxKind.Close);
             }
         }
 
@@ -334,9 +340,11 @@ namespace ProjectUnknown.Strategy
 
         private void SetFilter(ResidentFilter filter)
         {
+            bool changed = activeFilter != filter;
             activeFilter = filter;
             UpdateFilterButtons();
             RefreshNow();
+            StrategyHudSfxAudio.Play(changed ? StrategyHudSfxKind.Step : StrategyHudSfxKind.Click);
         }
 
         private void CreateFilterButton(RectTransform root, string label, ResidentFilter filter, int index)

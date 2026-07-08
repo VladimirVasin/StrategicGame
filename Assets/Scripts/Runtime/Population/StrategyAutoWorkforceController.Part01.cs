@@ -10,6 +10,8 @@ namespace ProjectUnknown.Strategy
         private const float ResourceShortagePriorityBonus = 360f;
         private const float ResourceShortageUrgencyPerUnit = 14f;
         private const float EmptyResourceUrgencyBonus = 80f;
+        private const float HardBuilderCoverageUrgencyBonus = 10000f;
+        private const string HardBuilderCoverageReason = "builder_zero_coverage";
 
         private void CollectDemands()
         {
@@ -77,13 +79,33 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            Component target = bestSite != null ? bestSite : this;
+            float urgency = 35f + activeSites * 12f + readySites * 18f;
+            if (currentBuilders <= 0)
+            {
+                AddDemand(
+                    StrategyProfessionType.Builder,
+                    StrategyAutoWorkforceCategory.Construction,
+                    target,
+                    focus,
+                    1,
+                    urgency + HardBuilderCoverageUrgencyBonus,
+                    HardBuilderCoverageReason);
+                needed--;
+            }
+
+            if (needed <= 0)
+            {
+                return;
+            }
+
             AddDemand(
                 StrategyProfessionType.Builder,
                 StrategyAutoWorkforceCategory.Construction,
-                bestSite != null ? bestSite : this,
+                target,
                 focus,
                 needed,
-                35f + activeSites * 12f + readySites * 18f,
+                urgency,
                 "construction_sites");
         }
 
