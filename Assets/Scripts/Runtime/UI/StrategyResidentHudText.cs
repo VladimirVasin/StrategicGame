@@ -382,12 +382,22 @@ namespace ProjectUnknown.Strategy
 
         private static string AppendNutritionStatus(StrategyResidentAgent resident, string status)
         {
-            if (resident == null || !resident.IsHungry)
+            if (resident == null)
             {
                 return status;
             }
 
-            return status + " | " + resident.NutritionStatusText + " " + resident.DaysHungry + "d";
+            if (resident.IsHungry)
+            {
+                status += " | " + resident.NutritionStatusText + " " + resident.DaysHungry + "d";
+            }
+
+            if (resident.IsColdAffected)
+            {
+                status += " | " + resident.ColdStatusText;
+            }
+
+            return status;
         }
     }
 }

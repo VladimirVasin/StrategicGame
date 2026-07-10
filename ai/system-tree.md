@@ -1,6 +1,6 @@
 # System Tree
 
-Last updated: 2026-07-08
+Last updated: 2026-07-10
 
 This is a conceptual map of the current project. Keep concrete file ownership in `ai/systems-map.md`.
 
@@ -27,14 +27,26 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Runtime short-lived world effect layer supplies reusable dust, sawdust, chip, spark, splash, and resource pop/fade effects
 
 - Scene foundation
-  - Default `SampleScene`
+  - Build-index-0 `MainMenu` intro scene
+  - `SampleScene` gameplay scene
   - URP 2D scene template assets
-  - Runtime bootstrap attaches MVP strategy systems at scene load
+  - Scene-role catalog separates menu and gameplay bootstrap
+  - Persistent scene-loaded hook starts gameplay after runtime menu transitions
+
+- Intro menu and preload foundation
+  - Full-screen in-engine settlement backdrop built from current pixel-art terrain, buildings, residents, nature, caravan, and campfire sprites
+  - Continue reads and validates the current save before launch; New Settlement keeps a separate candidate seed
+  - Master, music, effects, and fullscreen settings persist through `PlayerPrefs`
+  - Exactly one candidate map is prepared to cap memory usage
+  - Cell generation is incremental; terrain pixels are painted in a cancellable parallel worker; Unity texture upload stays on the main thread
+  - Starter building/resident/nature sprites and audio folders warm while the menu remains interactive
+  - Real preload stage/progress is shown before the gameplay scene opens
 
 - MVP strategy foundation
   - Runtime bootstrap
     - Creates and configures the strategy debug logger before other strategy systems
     - Creates `City Map` if none exists
+    - Creates the shared budgeted navigation service after map/trail setup so residents and land agents reuse one path engine and walkability-version cache
     - Creates `Strategy Wind` with a Unity `WindZone` if none exists
     - Finds or creates `Main Camera`
     - Wires camera bounds to the generated map
@@ -56,6 +68,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Creates and wires runtime wildlife after starter placement so deer, rabbits, fish, and birds spawn in valid terrain/water/habitat areas
     - Creates runtime time-scale controls for simulation speed hotkeys
     - Creates the refugee-arrival event controller and modal refugee decision HUD
+    - Creates performance diagnostics after population, weather, wildlife, and time-scale setup so stable 15/30/50-resident benchmark windows include frame, memory, path/decision, world, and light counts
     - Creates the top status HUD with settlement population counts, a compact calendar/time/season widget, a clickable population roster HUD, family tree scene entry point, and a compact event log for births, deaths, adoptions, dawn, nightfall, and season starts
     - Creates the runtime goals controller and starter goal sequence that gates early Build menu tools
     - Creates the auto workforce controller before the Profession HUD so worker automation and priority controls share one runtime state
@@ -65,6 +78,16 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Uses the project root path in the Unity Editor and persistent data in player builds
     - Mirrors Unity logs, warnings, errors, and exceptions
     - Logs bootstrap, audio, map, nature, Stone, build menu, placement, population, forestry, lumberjack camp, selection, trade, and time-scale events
+  - Strategy performance diagnostics
+    - Records 10-second windows only while simulation is unpaused and resets windows when population band, time phase, weather, or speed changes
+    - Logs average and 1%-low FPS, p95/p99/max frame time, hitch counts, memory/GC, residents/workforce, buildings/sites, wildlife/lights, and resident path/decision counters
+    - Uses startup plus 15/30/50-resident population bands and supports deterministic benchmark map seeds through `-strategyBenchmarkSeed`
+  - Strategy navigation
+    - Reuses array-backed A* working memory instead of allocating BFS collections per agent route
+    - Preserves resident trail weighting, diagonal corner rules, and route smoothing
+    - Preserves land-wildlife River transit and settlement structure buffers
+    - Coalesces deferred duplicate requests under a per-frame count/time budget
+    - Invalidates short path/reachability caches whenever map walkability changes
   - Strategy time scale
     - Runtime-created time control component
     - F1 sets x1 simulation speed
@@ -586,6 +609,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - UI foundation
   - Unity UI package installed
   - UI Toolkit module available through Unity modules
+  - Full-screen runtime intro menu with Continue, New Settlement, Settings, Quit, disabled/no-save Continue state, and loading progress
   - Custom runtime F9 debug panel with player fog-of-war, instant construction, refugee arrival summon, and forced Clear/Cloudy/Rain/Fog/Storm/Snow/Blizzard weather-state controls
   - Custom runtime Build menu HUD
     - Early starter goals can lock Build menu categories/items to Houses first, then Forager Camp, then Lumberjack/Stonecutter camps, before unlocking the full catalog
@@ -608,7 +632,15 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 
 - Testing foundation
   - Unity Test Framework package installed
-  - No custom tests documented yet
+  - `StrategyVerificationRunner` executes six deterministic Edit Mode checks for calendar, resource reservations, cold, save-data serialization, refugee balance, and build-scene order
+  - Separate Play Mode checks cover menu isolation, menu-to-prepared-gameplay launch, and direct gameplay bootstrap
+  - Main menu layout can be rendered to a deterministic 1600x900 inspection image
+
+- Persistence
+  - Versioned JSON save data with atomic file replacement
+  - F5 saves the current settlement; F8 loads it by restarting and restoring the runtime scene
+  - Stable IDs reconnect placed buildings, residents, homes, parents, and children without serializing Unity object references
+  - Snapshot coverage includes map seed/time/weather, first-winter milestones, buildings, construction sites, resource and dish stock, residents and cold state, loose resources, explored fog, and route-road cells
 
 - AI collaboration memory
   - Root entry point: `AI.md`
@@ -619,6 +651,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 
 - Rendering settings affect all scenes using the URP pipeline.
 - Runtime bootstrap depends on scene load order and the presence of a usable `Main Camera` or permission to create one.
+- Intro menu launch depends on save validation, one persistent preload coordinator, deterministic map seed handling, and the gameplay scene-loaded bootstrap hook; prepared terrain keeps Unity object creation/upload on the main thread.
 - Audio bootstrap depends on map generation, camera setup/orthographic zoom, strategy wind/weather values, `Resources/Audio` assets, the in-game music/work/HUD-SFX folders, resident walk animation frames, resident work impact/release frames, and runtime HUD interaction events.
 - Strategy camera bounds depend on generated map dimensions.
 - Input action changes do not affect current camera controls yet because MVP controls read direct Input System devices.
@@ -660,13 +693,10 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 
 - Economy simulation
 - Zoning
-- Durable building/economy state beyond runtime construction and placement records
-- Predators, non-hunting wildlife mortality, broader wildlife resources, and save/load
-- Durable road/path saving, explicit player-built roads, and non-resident trail preference
-- Core gameplay loop beyond map/camera
+- Complete persistence for generated resource depletion, wildlife state, trade visits, upgrades, and every transient work assignment
+- Predators beyond wolves, non-hunting wildlife mortality, and broader wildlife resources
+- Explicit player-built roads and non-resident road preference
+- Gameplay progression beyond the First Winter preparation/endurance slice
+- Victory and defeat outcomes; deliberately deferred at the current stage
 - Player/controller system
-- Game state/save system
-- Progression systems
-- Tutorial/onboarding flow
 - Full custom UI shell beyond the Build HUD
-- Custom tests

@@ -11,28 +11,10 @@ namespace ProjectUnknown.Strategy
         private const int InitialStarterStone = 20;
         private const float StarterFoodReserveDays = 3f;
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void BootstrapScene()
         {
-            StrategyDebugLogger debugLogger = Object.FindAnyObjectByType<StrategyDebugLogger>();
-            if (debugLogger == null)
-            {
-                GameObject debugLoggerObject = new GameObject("Strategy Debug Logger");
-                debugLogger = debugLoggerObject.AddComponent<StrategyDebugLogger>();
-            }
-
-            debugLogger.Configure();
-            StrategyDebugLogger.Info("Bootstrap", "Start");
-
-            CityMapController map = Object.FindAnyObjectByType<CityMapController>();
-            if (map == null)
-            {
-                GameObject mapObject = new GameObject("City Map");
-                map = mapObject.AddComponent<CityMapController>();
-            }
-
-            map.GenerateMap();
-            StrategyDebugLogger.Info("Bootstrap", "MapReady", StrategyDebugLogger.F("bounds", map.WorldBounds));
+            StrategyGameSettings.ApplyAtStartup();
+            CityMapController map = ConfigureDebugLoggingAndMap();
 
             StrategyWaterAnimationController water = Object.FindAnyObjectByType<StrategyWaterAnimationController>();
             if (water == null)
@@ -53,7 +35,7 @@ namespace ProjectUnknown.Strategy
 
             trails.Configure(map);
             StrategyDebugLogger.Info("Bootstrap", "TrailsReady");
-
+            ConfigureNavigation(map);
             StrategyWindController wind = Object.FindAnyObjectByType<StrategyWindController>();
             if (wind == null)
             {
@@ -464,32 +446,7 @@ namespace ProjectUnknown.Strategy
             eventLogHud.Configure();
             StrategyDebugLogger.Info("Bootstrap", "EventLogHudReady");
 
-            StrategyGoalsHudController goalsHud = Object.FindAnyObjectByType<StrategyGoalsHudController>();
-            if (goalsHud == null)
-            {
-                GameObject goalsHudObject = new GameObject("Strategy Goals HUD");
-                goalsHud = goalsHudObject.AddComponent<StrategyGoalsHudController>();
-            }
-
-            StrategyGoalsController goals = Object.FindAnyObjectByType<StrategyGoalsController>();
-            if (goals == null)
-            {
-                GameObject goalsObject = new GameObject("Strategy Goals");
-                goals = goalsObject.AddComponent<StrategyGoalsController>();
-            }
-
-            goals.Configure(goalsHud);
-            StrategyDebugLogger.Info("Bootstrap", "GoalsReady");
-
-            StrategyStarterGoalSequenceController starterGoals = Object.FindAnyObjectByType<StrategyStarterGoalSequenceController>();
-            if (starterGoals == null)
-            {
-                GameObject starterGoalsObject = new GameObject("Strategy Starter Goals");
-                starterGoals = starterGoalsObject.AddComponent<StrategyStarterGoalSequenceController>();
-            }
-
-            starterGoals.Configure(goals, buildMenu, placement);
-            StrategyDebugLogger.Info("Bootstrap", "StarterGoalsReady");
+            ConfigureProgression(buildMenu, placement, population);
 
             StrategyRefugeeDialogController refugeeDialog = Object.FindAnyObjectByType<StrategyRefugeeDialogController>();
             if (refugeeDialog == null)
@@ -510,6 +467,9 @@ namespace ProjectUnknown.Strategy
             refugees.Configure(map, population, timeScale, refugeeDialog, fog);
             debugPanel.Configure(fog, weather, refugees);
             StrategyDebugLogger.Info("Bootstrap", "RefugeesReady");
+
+            ConfigurePerformanceDiagnostics(map, population, wildlife, weather, timeScale);
+            ConfigurePersistence(map, placement, population);
         }
 
     }

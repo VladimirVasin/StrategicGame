@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ProjectUnknown.Strategy
 {
     [DisallowMultipleComponent]
-    public sealed partial class StrategyHunterCamp : MonoBehaviour
+    public sealed partial class StrategyHunterCamp : MonoBehaviour, IStrategyResourceStoreOwner
     {
         public const int MaxWorkers = 2;
         public const int WorkRadius = 11;
@@ -24,10 +24,12 @@ namespace ProjectUnknown.Strategy
         private object gameReservationOwner;
         private float nextRejectedRabbitTargetLogTime;
         private int reservedGame;
-        private int gameStored;
+        private readonly StrategyResourceStore resourceStore = new();
+        private ref int gameStored => ref resourceStore.GetAmountRef(StrategyResourceType.Game);
 
         public IReadOnlyList<StrategyResidentAgent> Workers => workers;
         public int WorkerCount => workers.Count;
+        public StrategyResourceStore ResourceStore => resourceStore;
         public int GameStored => gameStored;
         public int AvailableGame => Mathf.Max(0, gameStored - reservedGame);
         public bool HasStorageSpace => HasStorageSpaceFor(1);
@@ -41,6 +43,7 @@ namespace ProjectUnknown.Strategy
             StrategyWildlifeController wildlifeController)
         {
             building = placedBuilding;
+            resourceStore.Bind(this, StrategyResourceStoreScope.Production, StrategyProductionStorage.LocalCapacity);
             map = mapController;
             population = populationController;
             wildlife = wildlifeController;

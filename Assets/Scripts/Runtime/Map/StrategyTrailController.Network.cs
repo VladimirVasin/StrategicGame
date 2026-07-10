@@ -15,7 +15,6 @@ namespace ProjectUnknown.Strategy
         private const int RouteNetworkCandidateLimit = 4;
         private const int RouteNetworkEndpointSearchRadius = 3;
 
-        private readonly StrategyTrailPathfinder routeNetworkPathfinder = new();
         private readonly Queue<RouteNetworkTask> routeNetworkQueue = new();
         private readonly HashSet<string> routeNetworkPendingKeys = new();
         private readonly Dictionary<string, float> routeNetworkRetryTimes = new();
@@ -24,6 +23,8 @@ namespace ProjectUnknown.Strategy
         private readonly List<StrategyPlacedBuilding> routeNetworkRemoveScratch = new();
         private readonly List<RouteNetworkCandidate> routeNetworkCandidateScratch = new();
         private readonly List<Vector2Int> routeNetworkRouteCellsScratch = new();
+        private readonly List<Vector2Int> routeNavigationRawCells = new();
+        private readonly List<Vector2Int> routeNavigationSmoothedCells = new();
         private StrategyBuildPlacementController routeNetworkPlacement;
         private float routeNetworkTickTimer;
         private float routeNetworkScanTimer;
@@ -296,8 +297,21 @@ namespace ProjectUnknown.Strategy
         private bool TryRecordRouteNetworkTraversal(RouteNetworkTask task)
         {
             if (!TryGetRouteNetworkEndpoint(task.From, out Vector2Int startCell)
-                || !TryGetRouteNetworkEndpoint(task.To, out Vector2Int targetCell)
-                || !routeNetworkPathfinder.TryBuildPath(map, startCell, targetCell))
+                || !TryGetRouteNetworkEndpoint(task.To, out Vector2Int targetCell))
+            {
+                return false;
+            }
+
+            StrategyNavigationService navigation = StrategyNavigationService.Active;
+            if (navigation == null
+                || navigation.TryBuildPath(
+                    new StrategyNavigationQuery(
+                        startCell,
+                        targetCell,
+                        StrategyNavigationMode.ResidentTrail),
+                    routeNavigationRawCells,
+                    routeNavigationSmoothedCells)
+                    != StrategyNavigationStatus.Success)
             {
                 return false;
             }
@@ -305,7 +319,7 @@ namespace ProjectUnknown.Strategy
             StrategyTrailRouteCellBuilder.BuildRouteCells(
                 map,
                 startCell,
-                routeNetworkPathfinder.RawCells,
+                routeNavigationRawCells,
                 routeNetworkRouteCellsScratch);
             if (routeNetworkRouteCellsScratch.Count < 2)
             {

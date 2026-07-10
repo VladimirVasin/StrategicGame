@@ -82,12 +82,6 @@ namespace ProjectUnknown.Strategy
             System.Func<Vector2Int, bool> isCandidate,
             System.Func<Vector2Int, float> scoreCandidate)
         {
-            if (requireWalkableConnection
-                && !HasWalkableMigrationConnection(currentCenter, candidate, GetMigrationTargetMaxVisited(currentCenter, candidate)))
-            {
-                return false;
-            }
-
             return TryPickMigrationStep(
                 currentCenter,
                 candidate,

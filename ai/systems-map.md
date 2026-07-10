@@ -92,12 +92,15 @@ Impact hints:
 
 Responsibilities:
 
-- Starter scenes and scene templates.
-- Future scene flow and bootstrapping once implemented.
+- Intro menu, gameplay scene, and reusable scene templates.
+- Build-scene order and scene-role separation.
 
 Primary files/assets:
 
+- `Assets/Scenes/MainMenu.unity`
 - `Assets/Scenes/SampleScene.unity`
+- `Assets/Scripts/Runtime/Menu/StrategySceneCatalog.cs`
+- `ProjectSettings/EditorBuildSettings.asset`
 - `Assets/Settings/Scenes/URP2DSceneTemplate.unity`
 - `Assets/Settings/Lit2DSceneTemplate.scenetemplate`
 
@@ -106,11 +109,41 @@ Impact hints:
 - Scene edits can implicitly depend on rendering, input, UI, and gameplay scripts.
 - Update this map when new gameplay scenes, bootstrap scenes, or scene loading systems are added.
 
+### Main Menu And Map Preloading
+
+Responsibilities:
+
+- Present the actual first-screen Continue/New Settlement/Settings/Quit experience without starting gameplay simulation.
+- Validate save availability and prepare one likely Continue/New map candidate while the menu remains interactive.
+- Prewarm starter visual/audio caches, report real generation progress, and transfer the prepared map into gameplay.
+- Persist master/music/effects volume and fullscreen state.
+
+Primary files/assets:
+
+- `Assets/Scenes/MainMenu.unity`
+- `Assets/Scripts/Runtime/Menu/StrategyMainMenuBootstrap.cs`
+- `Assets/Scripts/Runtime/Menu/StrategyMainMenuController.cs`
+- `Assets/Scripts/Runtime/Menu/StrategyMainMenuController.View.cs`
+- `Assets/Scripts/Runtime/Menu/StrategyMainMenuBackdrop.cs`
+- `Assets/Scripts/Runtime/Menu/StrategyMapPreloadCoordinator.cs`
+- `Assets/Scripts/Runtime/Menu/StrategyMapPreloadCoordinator.Content.cs`
+- `Assets/Scripts/Runtime/Menu/StrategyGameSettings.cs`
+- `Assets/Scripts/Runtime/Menu/StrategySceneCatalog.cs`
+- `Assets/Scripts/Runtime/Map/CityMapController.Generation.cs`
+- `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.cs`
+
+Impact hints:
+
+- Keep only one map candidate alive; a 192x192 map at 16 pixels per cell needs a roughly 36 MB terrain pixel buffer before upload.
+- Map cells and progress can be staged, and pure terrain pixels can run on workers; `Texture2D`, `Sprite`, scene changes, and all other Unity objects stay on the main thread.
+- Continue and New Settlement must cancel mismatched candidate work before starting a different seed.
+- Menu visuals use actual game sprite factories, so sprite-factory changes can affect both preload cost and the first screen.
+
 ### Runtime Bootstrap
 
 Responsibilities:
 
-- Start the MVP strategy layer when a scene loads.
+- Install the scene-loaded hook and start the strategy layer only for the gameplay scene.
 - Configure the strategy debug logger before other runtime systems start.
 - Ensure a city map exists.
 - Ensure a Unity `WindZone`-backed strategy wind source exists.
@@ -147,6 +180,7 @@ Responsibilities:
 Primary files/assets:
 
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.cs`
+- `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.SceneFlow.cs`
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.StarterResources.cs`
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.WorldChunks.cs`
 - `Assets/Scripts/Runtime/Core/StrategyDebugLogger.cs`
@@ -189,7 +223,6 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.RouteConnections.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.Routes.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.Visibility.cs`
-- `Assets/Scripts/Runtime/Map/StrategyTrailPathfinder.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailRouteCellBuilder.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Map/StrategyWorldChunkRegistry.cs`
@@ -227,12 +260,13 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/UI/StrategyGoalsHudController.cs`
 - `Assets/Scripts/Runtime/UI/StrategyStarterGoalSequenceController.cs`
 - `Assets/Scenes/SampleScene.unity`
+- `Assets/Scripts/Runtime/Menu/StrategySceneCatalog.cs`
 
 Impact hints:
 
-- Bootstrap runs through `RuntimeInitializeOnLoadMethod` and does not require scene YAML wiring.
+- Bootstrap registers through `RuntimeInitializeOnLoadMethod`, then handles initial and runtime gameplay loads through `SceneManager.sceneLoaded` without requiring scene YAML wiring.
 - Audio bootstrap expects non-generated clips under `Assets/Resources/Audio`; missing ambience or music clips should degrade quietly rather than blocking scene startup.
-- Any future menu, multi-scene, loading, or mode system should decide whether bootstrap remains global or becomes scene-specific.
+- New scenes must declare their role through `StrategySceneCatalog` or migrate the catalog to a data-driven scene-role system.
 
 ### Strategy Debug Logging
 
@@ -255,6 +289,31 @@ Impact hints:
 - In the Unity Editor, `debug.log` is written at the project root and should remain ignored by git.
 - Prefer meaningful state-change, command, failure, and completion events over per-frame logging.
 - Add future categories through `StrategyDebugLogger.Info/Warn/Error` so log formatting remains consistent.
+
+### Strategy Performance Diagnostics
+
+Responsibilities:
+
+- Record low-overhead frame samples in stable 10-second runtime windows.
+- Separate startup and 15/30/50-resident results by time phase, weather, and requested simulation speed.
+- Log frame-time percentiles, hitch counts, memory/GC, active simulation counts, and resident path/decision workload.
+- Allow repeat benchmark sessions to force the generated map seed with `-strategyBenchmarkSeed`.
+
+Primary files/assets:
+
+- `Assets/Scripts/Runtime/Core/StrategyPerformanceDiagnostics.cs`
+- `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.Diagnostics.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentPerformanceCounters.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part36.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part41.cs`
+- `Assets/Scripts/Runtime/Map/CityMapController.Part01.cs`
+- `Assembly-CSharp.csproj`
+
+Impact hints:
+
+- Keep per-frame sampling allocation-free; add expensive aggregation only at window completion.
+- Reset or split a window when benchmark context changes so pause/dialog/weather transitions do not contaminate results.
+- Add new simulation workload counters through cumulative snapshots instead of per-event logging.
 
 ### Strategy Audio
 
@@ -351,6 +410,38 @@ Impact hints:
 - Rain/wind audio should continue reading `StrategyWeatherController.Active` instead of adding independent rain timers; Snow/Blizzard expose separate snow intensity so they do not trigger rain audio or rain-driven water ripples.
 - Weather and seasons currently have visual/audio/wind/water/probability effects plus outdoor temperature used by winter house warmth, seasonal surface snow/ice visuals, and frozen-water fish/fishing blocking; future gameplay effects should extend this system rather than duplicating weather or season rolls in crops, illness, movement, or fire logic.
 
+### Strategy Navigation
+
+Responsibilities:
+
+- Own reusable A* working memory for resident and land-agent path requests.
+- Preserve resident trail weighting, diagonal corner blocking, and line-of-sight smoothing.
+- Preserve cardinal land-wildlife movement, River transit, and settlement structure buffers.
+- Coalesce duplicate requests and warm deferred paths under a per-frame count/time budget.
+- Cache short-lived path and reachability outcomes and invalidate them on map walkability revision changes.
+
+Primary files/assets:
+
+- `Assets/Scripts/Runtime/Navigation/StrategyNavigationTypes.cs`
+- `Assets/Scripts/Runtime/Navigation/StrategyNavigationPathfinder.cs`
+- `Assets/Scripts/Runtime/Navigation/StrategyNavigationService.cs`
+- `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.Navigation.cs`
+- `Assets/Scripts/Runtime/Map/CityMapController.Buildability.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part36.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyDeerAgent.Part01.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyRabbitAgent.Part06.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyWolfAgent.Part01.cs`
+- `Assets/Scripts/Runtime/Population/StrategyChickenAgent.cs`
+- `Assets/Scripts/Runtime/Economy/StrategyTradeCaravanController.Pathing.cs`
+- `Assets/Scripts/Runtime/Population/StrategyRefugeeArrivalController.Part01.cs`
+- `Assembly-CSharp.csproj`
+
+Impact hints:
+
+- Callers may receive `Deferred`; normal agent decision loops should retry rather than treating that state as a permanent unreachable target.
+- Fish remain on their water-kind path logic, and special flood-fill searches for funeral coverage, refugee staging, migration reachability, and wolf River escape remain specialized queries rather than ordinary point-to-point paths.
+- Any new runtime walkability mutation must go through `CityMapController` so `WalkabilityVersion` invalidates navigation results.
+
 ### Generated City Map
 
 Responsibilities:
@@ -401,7 +492,6 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.RouteConnections.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.Routes.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.Visibility.cs`
-- `Assets/Scripts/Runtime/Map/StrategyTrailPathfinder.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailRouteCellBuilder.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Map/StrategyWorldChunkRegistry.cs`
@@ -436,7 +526,7 @@ Primary files/assets:
 
 Impact hints:
 
-- Current map is runtime-generated with a randomized active seed by default and is not saved.
+- Current map is runtime-generated with a randomized active seed by default; save loading restores that seed before generation so terrain identity is deterministic.
 - Current terrain painter covers Grass, Meadow, Forest, Dirt, Shore, and Water with seeded variants, neighbor transition overlays, and visual hill/mountain relief shading.
 - `CityMapCell.ReliefHeight` is a visual-only value; do not use it as a walkability, buildability, or resource-reachability rule without an explicit gameplay design pass.
 - Water source identity is stored on `CityMapCell.WaterKind`; future systems should query that instead of guessing river/lake from geometry.
@@ -528,7 +618,7 @@ Primary files/assets:
 
 Impact hints:
 
-- Fog state is runtime-only and is not saved yet.
+- Explored fog cells are persisted; current visibility is rebuilt from live reveal sources after load.
 - Placement currently requires explored cells, not current visibility.
 - Selection ignores clicks in unexplored cells, while the overlay visually hides world sprites.
 - Current visibility is reduced by Dusk/Night/Dawn and dense Fog weather, but persistent explored state and daylight-range hidden checks stay separate.
@@ -681,6 +771,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Build/StrategyHunterCamp.cs`
 - `Assets/Scripts/Runtime/Build/StrategyHunterCamp.Part01.cs`
 - `Assets/Scripts/Runtime/Build/StrategyFisherHut.cs`
+- `Assets/Scripts/Runtime/Build/StrategyFisherHut.Visuals.cs`
 - `Assets/Scripts/Runtime/Population/StrategyHuntingArrowProjectile.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyFishAgent.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyFishSpriteFactory.cs`
@@ -1282,7 +1373,7 @@ Primary files/assets:
 
 Impact hints:
 
-- Placement is runtime-only and is not saved yet.
+- Completed buildings, active construction sites, progress, delivered resources, and blockers participate in versioned persistence.
 - Placed objects use tool-specific sprites when available; unknown future tools still fall back to colored sprites/TextMesh labels.
 - Build placement consults fog exploration state, so early expansion starts around the camp and other revealed areas unless player fog is disabled from the F9 debug panel.
 - House ambient overlays are visual-only child sprites and should not be used for footprint/collider calculations.
@@ -1301,7 +1392,7 @@ Impact hints:
 - Goal/progression listeners should use the building completion event so unfinished construction sites are never counted as completed buildings.
 - Loose construction resource piles left by cancelled sites count toward construction affordability and can be reserved before Storage Yard stock.
 - Future zoning/economy should replace or extend the placed marker with durable city state.
-- Occupancy currently lives in the placement controller; move it into a city/map state service when save/load or simulation appears.
+- Occupancy currently lives in the placement controller; a future city-state service should own it if persistence scope or simulation complexity expands.
 
 ### House Visual Upgrades
 
@@ -1995,7 +2086,7 @@ Primary files/assets:
 
 Impact hints:
 
-- Current residents are runtime-only and are not saved.
+- Resident identity, age/life state, home/kinship links, nutrition, and cold state are persisted; transient tasks and active movement are rebuilt after load.
 - Resident names are assigned at runtime from built-in first-name and family-name pools.
 - Startup residents spawn as family-linked adults; children born during play start at age 0, stay inside assigned homes until age 3, become adults at age 16 through scaled game time, and continue aging after adulthood.
 - `StrategyPopulationController` owns the live resident ID registry plus persistent family records used by kinship lookup after deaths.
@@ -2170,6 +2261,97 @@ Impact hints:
 - Action map changes do not affect the current MVP camera/Build menu until controls are migrated to actions.
 - Keep action names stable once code depends on generated wrappers or string keys.
 
+### Shared Resource Stores And Queries
+
+Responsibilities:
+
+- Own physical resource amounts and reservations across settlement storage, production, houses, the starter cart, and loose construction piles.
+- Aggregate resource availability for HUD, construction affordability, logistics, and seasonal readiness without counting carried stock.
+- Adapt existing source-specific reserve/commit/release behavior to the common query contract.
+
+Primary files:
+
+- `Assets/Scripts/Runtime/Economy/StrategyResourceStore.cs`
+- `Assets/Scripts/Runtime/Economy/StrategyResourceQueryService.cs`
+- `Assets/Scripts/Runtime/Economy/StrategyResourceReservationProviders.cs`
+- `Assets/Scripts/Runtime/Economy/StrategyHouseResourceStore.cs`
+- `Assets/Scripts/Runtime/Build/StrategyProductionConstructionResources.cs`
+
+Impact hints:
+
+- New stock-owning buildings should expose a common store and declare the correct query scope.
+- Keep resources removed from a source while carried so settlement totals never double-count in-transit stock.
+
+### First Winter Progression
+
+Responsibilities:
+
+- Extend starter onboarding into food/fuel preparation and first-winter endurance goals.
+- Apply house warmth, resident cold exposure, seasonal movement/mortality consequences, and season/housing-aware refugee pressure.
+- Clear the winter goal and continue normal sandbox simulation after the first winter; do not create victory or defeat outcomes at this stage.
+
+Primary files:
+
+- `Assets/Scripts/Runtime/Core/StrategyFirstWinterController.cs`
+- `Assets/Scripts/Runtime/Core/StrategyFirstYearBalance.cs`
+- `Assets/Scripts/Runtime/Core/StrategySeasonReadiness.cs`
+- `Assets/Scripts/Runtime/Economy/StrategyHouseWarmthState.Cold.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentColdState.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Cold.cs`
+- `Assets/Scripts/Runtime/Population/StrategyPopulationController.Cold.cs`
+
+Impact hints:
+
+- Balance food, fuel, temperature, and refugee changes against the seven-day season length together.
+- Keep the winter controller as progression orchestration; physical stock remains owned by resource stores and cold remains resident/house state.
+
+### Persistence
+
+Responsibilities:
+
+- Capture and restore versioned runtime settlement snapshots with stable IDs and no raw Unity object references.
+- Write saves atomically and coordinate restoration only after runtime bootstrap has created all required systems.
+- Preserve F5 save and F8 load/restart controls while exposing read/validate/pending-load entry points to the intro menu Continue flow.
+
+Primary files:
+
+- `Assets/Scripts/Runtime/Persistence/StrategySaveData.cs`
+- `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.cs`
+- `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Capture.cs`
+- `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Apply.cs`
+- `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.Persistence.cs`
+- `Assets/Scripts/Runtime/Build/StrategyBuildPlacementController.Persistence.cs`
+- `Assets/Scripts/Runtime/Build/StrategyConstructionSite.Persistence.cs`
+- `Assets/Scripts/Runtime/Population/StrategyPopulationController.Persistence.cs`
+- `Assets/Scripts/Runtime/Map/StrategyFogOfWarController.Persistence.cs`
+- `Assets/Scripts/Runtime/Map/StrategyTrailController.Persistence.cs`
+
+Impact hints:
+
+- Increment the save version and add backward-compatible defaults whenever persisted DTO shape changes.
+- Stable IDs are serialization contracts; never replace them with scene-instance IDs or object references.
+
+### Verification
+
+Responsibilities:
+
+- Run deterministic logic checks from the Unity Editor.
+- Enter real Play Mode to verify menu isolation, prepared menu-to-gameplay launch, and direct gameplay bootstrap.
+- Render the menu at 1600x900 for visual layout inspection.
+
+Primary files:
+
+- `Assets/Editor/StrategyVerificationRunner.cs`
+- `Logs/EditModeVerification.txt`
+- `Logs/MainMenuSmoke.txt`
+- `Logs/MainMenuLaunchSmoke.txt`
+- `Logs/PlayModeSmoke.txt`
+
+Impact hints:
+
+- Extend deterministic checks when calendar, resources, cold, persistence, or refugee balance changes.
+- Keep Play Mode checks focused on scene ownership and system readiness so they remain reliable in batch mode.
+
 ### AI Memory Infrastructure
 
 Responsibilities:
@@ -2201,7 +2383,7 @@ Impact hints:
 
 ## Unowned / Not Yet Present
 
-- No custom editor/test scripts are documented yet.
-- No economy, zoning, construction, or save folders are documented yet.
+- No zoning owner is present yet.
+- Victory and defeat outcome ownership is intentionally deferred.
 
 When a new system appears, add an owner card with responsibilities, primary files/assets, and impact hints.

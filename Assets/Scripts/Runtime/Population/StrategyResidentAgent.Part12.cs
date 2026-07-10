@@ -96,18 +96,7 @@ namespace ProjectUnknown.Strategy
 
         private bool HasAnyCarriedResource()
         {
-            return carriedLogAmount > 0
-                || carriedStoneAmount > 0
-                || carriedIronAmount > 0
-                || carriedCoalAmount > 0
-                || carriedClayAmount > 0
-                || carriedPlanksAmount > 0
-                || carriedPotteryAmount > 0
-                || carriedToolsAmount > 0
-                || carriedGameAmount > 0
-                || carriedFishAmount > 0
-                || carriedForageAmount > 0
-                || GetCarriedHouseholdFoodAmount() > 0;
+            return inventory.HasAnyResource;
         }
 
         private void CaptureCarriedConstructionReturnReservation()

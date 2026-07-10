@@ -5,6 +5,8 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyWildlifeController
     {
+        private readonly Dictionary<Vector2Int, Vector2Int> migrationRouteParents = new();
+        private readonly List<Vector2Int> migrationRouteCells = new();
 
         private bool TryPickMigrationStep(
             Vector2Int currentCenter,
@@ -16,52 +18,91 @@ namespace ProjectUnknown.Strategy
             out Vector2Int stepCell)
         {
             stepCell = currentCenter;
-            float currentDistance = Vector2Int.Distance(currentCenter, target);
-            float bestScore = float.NegativeInfinity;
-            bool found = false;
-            for (int y = -maxStep; y <= maxStep; y++)
+            if (map == null || isCandidate == null || scoreCandidate == null)
             {
-                for (int x = -maxStep; x <= maxStep; x++)
+                return false;
+            }
+
+            if (!requireWalkableConnection)
+            {
+                if (!isCandidate(target))
                 {
-                    if (x == 0 && y == 0)
+                    return false;
+                }
+
+                stepCell = target;
+                return true;
+            }
+
+            return TryBuildLandMigrationStep(currentCenter, target, maxStep, out stepCell);
+        }
+
+        private bool TryBuildLandMigrationStep(
+            Vector2Int start,
+            Vector2Int target,
+            int maxStep,
+            out Vector2Int stepCell)
+        {
+            stepCell = start;
+            if (start == target)
+            {
+                return true;
+            }
+
+            Queue<Vector2Int> frontier = migrationConnectionFrontier;
+            HashSet<Vector2Int> visited = migrationConnectionVisited;
+            frontier.Clear();
+            visited.Clear();
+            migrationRouteParents.Clear();
+            migrationRouteCells.Clear();
+
+            bool allowStructureBuffer = IsLandWildlifeStructureBufferCell(start);
+            int maxVisited = GetMigrationTargetMaxVisited(start, target);
+            frontier.Enqueue(start);
+            visited.Add(start);
+            bool found = false;
+            while (frontier.Count > 0 && visited.Count < maxVisited)
+            {
+                Vector2Int current = frontier.Dequeue();
+                for (int i = 0; i < CardinalDirections.Length; i++)
+                {
+                    Vector2Int next = current + CardinalDirections[i];
+                    if (visited.Contains(next) || !IsLandWildlifeTravelCell(next, allowStructureBuffer))
                     {
                         continue;
                     }
 
-                    Vector2Int candidate = currentCenter + new Vector2Int(x, y);
-                    float stepDistance = Vector2Int.Distance(currentCenter, candidate);
-                    if (stepDistance > maxStep || !isCandidate(candidate))
+                    visited.Add(next);
+                    migrationRouteParents[next] = current;
+                    if (next == target)
                     {
-                        continue;
-                    }
-
-                    if (requireWalkableConnection
-                        && !HasWalkableMigrationConnection(currentCenter, candidate, maxStep * maxStep + 24))
-                    {
-                        continue;
-                    }
-
-                    float targetDistance = Vector2Int.Distance(candidate, target);
-                    float progress = currentDistance - targetDistance;
-                    if (progress < -0.25f)
-                    {
-                        continue;
-                    }
-
-                    float score = progress * 8f
-                        - targetDistance * 0.18f
-                        + scoreCandidate(candidate)
-                        + Random.value * 0.18f;
-                    if (score > bestScore)
-                    {
-                        bestScore = score;
-                        stepCell = candidate;
                         found = true;
+                        frontier.Clear();
+                        break;
                     }
+
+                    frontier.Enqueue(next);
                 }
             }
 
-            return found;
+            if (!found)
+            {
+                return false;
+            }
+
+            Vector2Int routeCell = target;
+            while (routeCell != start)
+            {
+                migrationRouteCells.Add(routeCell);
+                if (!migrationRouteParents.TryGetValue(routeCell, out routeCell))
+                {
+                    return false;
+                }
+            }
+
+            int routeIndex = Mathf.Max(0, migrationRouteCells.Count - Mathf.Max(1, maxStep));
+            stepCell = migrationRouteCells[routeIndex];
+            return stepCell != start;
         }
 
         private bool HasWalkableMigrationConnection(Vector2Int start, Vector2Int target, int maxVisited)

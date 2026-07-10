@@ -6,7 +6,6 @@ namespace ProjectUnknown.Strategy
     {
         private IStrategyProductionLogisticsNode activePotterySource;
         private SpriteRenderer carriedPotteryRenderer;
-        private int carriedPotteryAmount;
 
         private bool TryStartStoragePotteryPickup()
         {

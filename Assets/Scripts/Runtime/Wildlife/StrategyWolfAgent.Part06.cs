@@ -107,5 +107,36 @@ namespace ProjectUnknown.Strategy
             BuildWorldPath(startCell, targetCell, cameFrom);
             return path.Count > 0;
         }
+
+        private void BuildWorldPath(
+            Vector2Int startCell,
+            Vector2Int targetCell,
+            Dictionary<Vector2Int, Vector2Int> cameFrom)
+        {
+            List<Vector2Int> cells = new();
+            Vector2Int current = targetCell;
+            cells.Add(current);
+            while (current != startCell)
+            {
+                if (!cameFrom.TryGetValue(current, out current))
+                {
+                    path.Clear();
+                    pathIndex = 0;
+                    return;
+                }
+
+                cells.Add(current);
+            }
+
+            cells.Reverse();
+            path.Clear();
+            for (int i = 1; i < cells.Count; i++)
+            {
+                Vector3 world = map.GetCellCenterWorld(cells[i].x, cells[i].y);
+                path.Add(new Vector3(world.x, world.y, transform.position.z));
+            }
+
+            pathIndex = 0;
+        }
     }
 }

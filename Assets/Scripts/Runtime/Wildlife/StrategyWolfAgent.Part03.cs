@@ -68,8 +68,9 @@ namespace ProjectUnknown.Strategy
 
         private void TrackWolfMovementAttempt(string mode, Vector3 previous, Vector3 current, Vector3 target, float speed)
         {
-            if (!IsWolfMovementState())
+            if (!IsWolfMovementState() || Time.timeScale <= 0.001f)
             {
+                ResetWolfMovementDiagnostics();
                 return;
             }
 

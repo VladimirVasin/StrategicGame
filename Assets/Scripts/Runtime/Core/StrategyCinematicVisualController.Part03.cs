@@ -5,8 +5,8 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyCinematicVisualController
     {
-        private const int NightMaskWidth = 128;
-        private const int NightMaskHeight = 72;
+        private const int NightMaskWidth = 96;
+        private const int NightMaskHeight = 54;
         private const float NightMaskUpdateInterval = 0.16f;
         private const float NightMaskViewMoveThreshold = 0.35f;
         private const float NightMaskMaxAlpha = 1f;
@@ -18,7 +18,7 @@ namespace ProjectUnknown.Strategy
         private SpriteRenderer nightDarknessRenderer;
         private Texture2D nightDarknessTexture;
         private Sprite nightDarknessSprite;
-        private Color[] nightDarknessPixels;
+        private Color32[] nightDarknessPixels;
         private readonly List<NightMaskLightSample> nightMaskLightSamples = new();
         private Rect lastNightDarknessView;
         private float nightDarknessTimer;
@@ -98,14 +98,14 @@ namespace ProjectUnknown.Strategy
 
             float started = Time.realtimeSinceStartup;
             CollectNightMaskLights(view, out int emitterCount, out int handTorchCount);
-            Color baseColor = new(0f, 0.006f, 0.028f, baseAlpha);
+            Color32 baseColor = new(0, 2, 7, (byte)Mathf.RoundToInt(baseAlpha * 255f));
             for (int i = 0; i < nightDarknessPixels.Length; i++)
             {
                 nightDarknessPixels[i] = baseColor;
             }
 
             int appliedLights = ApplyNightMaskLights(view, baseAlpha);
-            nightDarknessTexture.SetPixels(nightDarknessPixels);
+            nightDarknessTexture.SetPixels32(nightDarknessPixels);
             nightDarknessTexture.Apply(false, false);
             lastNightDarknessView = view;
             lastNightDarknessAlpha = baseAlpha;
@@ -186,6 +186,11 @@ namespace ProjectUnknown.Strategy
                 int maxX = Mathf.Clamp(Mathf.CeilToInt((light.Center.x + light.Radius - view.xMin) * invWidth), 0, NightMaskWidth - 1);
                 int minY = Mathf.Clamp(Mathf.FloorToInt((light.Center.y - light.Radius - view.yMin) * invHeight), 0, NightMaskHeight - 1);
                 int maxY = Mathf.Clamp(Mathf.CeilToInt((light.Center.y + light.Radius - view.yMin) * invHeight), 0, NightMaskHeight - 1);
+                float radiusSqr = light.Radius * light.Radius;
+                float stableRadius = Mathf.Min(NightMaskStableCoreRadius, light.Radius * 0.58f);
+                float stableRadiusSqr = stableRadius * stableRadius;
+                float invRadius = 1f / Mathf.Max(0.01f, light.Radius);
+                float safeEdgeFlicker = Mathf.Clamp(light.EdgeFlicker, 0.72f, 1.18f);
                 bool touched = false;
                 for (int y = minY; y <= maxY; y++)
                 {
@@ -199,21 +204,28 @@ namespace ProjectUnknown.Strategy
                             worldY,
                             light.Center,
                             light.Radius,
+                            radiusSqr,
+                            stableRadius,
+                            stableRadiusSqr,
+                            invRadius,
                             light.Strength,
-                            light.EdgeFlicker);
+                            safeEdgeFlicker);
                         if (contribution <= 0f)
                         {
                             continue;
                         }
 
                         int index = row + x;
-                        float alpha = baseAlpha * (1f - Mathf.Clamp01(contribution * NightMaskLightCutoutBoost));
+                        byte alpha = (byte)Mathf.RoundToInt(
+                            baseAlpha
+                            * (1f - Mathf.Clamp01(contribution * NightMaskLightCutoutBoost))
+                            * 255f);
                         if (alpha >= nightDarknessPixels[index].a)
                         {
                             continue;
                         }
 
-                        Color pixel = nightDarknessPixels[index];
+                        Color32 pixel = nightDarknessPixels[index];
                         pixel.a = alpha;
                         nightDarknessPixels[index] = pixel;
                         touched = true;
@@ -234,27 +246,30 @@ namespace ProjectUnknown.Strategy
             float worldY,
             Vector3 center,
             float radius,
+            float radiusSqr,
+            float stableRadius,
+            float stableRadiusSqr,
+            float invRadius,
             float strength,
-            float edgeFlicker)
+            float safeEdgeFlicker)
         {
             float dx = worldX - center.x;
             float dy = worldY - center.y;
-            float distance = Mathf.Sqrt(dx * dx + dy * dy);
-            if (distance >= radius)
+            float distanceSqr = dx * dx + dy * dy;
+            if (distanceSqr >= radiusSqr)
             {
                 return 0f;
             }
 
-            float stableRadius = Mathf.Min(NightMaskStableCoreRadius, radius * 0.58f);
-            if (distance <= stableRadius)
+            if (distanceSqr <= stableRadiusSqr)
             {
                 return strength;
             }
 
-            float falloff = StrategyCinematicVisualMath.Smooth01(1f - distance / Mathf.Max(0.01f, radius));
+            float distance = Mathf.Sqrt(distanceSqr);
+            float falloff = StrategyCinematicVisualMath.Smooth01(1f - distance * invRadius);
             float edgeT = Mathf.InverseLerp(stableRadius, radius, distance);
             float flickerWeight = StrategyCinematicVisualMath.Smooth01(edgeT);
-            float safeEdgeFlicker = Mathf.Clamp(edgeFlicker, 0.72f, 1.18f);
             return strength * falloff * Mathf.Lerp(1f, safeEdgeFlicker, flickerWeight);
         }
 
@@ -315,8 +330,8 @@ namespace ProjectUnknown.Strategy
                 wrapMode = TextureWrapMode.Clamp,
                 name = "Cinematic Night Darkness Mask"
             };
-            nightDarknessPixels = new Color[NightMaskWidth * NightMaskHeight];
-            nightDarknessTexture.SetPixels(nightDarknessPixels);
+            nightDarknessPixels = new Color32[NightMaskWidth * NightMaskHeight];
+            nightDarknessTexture.SetPixels32(nightDarknessPixels);
             nightDarknessTexture.Apply(false, false);
             nightDarknessSprite = Sprite.Create(
                 nightDarknessTexture,

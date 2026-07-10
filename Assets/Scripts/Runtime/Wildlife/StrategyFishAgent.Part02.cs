@@ -6,6 +6,133 @@ namespace ProjectUnknown.Strategy
     public sealed partial class StrategyFishAgent
     {
 
+        private void UpdateThreatAwareness()
+        {
+            threatCheckTimer -= Time.unscaledDeltaTime;
+            if (threatCheckTimer > 0f)
+            {
+                return;
+            }
+
+            threatCheckTimer = ThreatCheckInterval;
+            if (!TryFindNearestThreat(out Vector3 threatWorld, out float threatDistance, out bool noisyThreat))
+            {
+                return;
+            }
+
+            lastThreatWorld = threatWorld;
+            float fleeDistance = noisyThreat ? NoisyFleeRadius : FleeRadius;
+            float alertDistance = noisyThreat ? NoisyAlertRadius : AlertRadius;
+            if (threatDistance <= fleeDistance)
+            {
+                StartFleeing(threatWorld, noisyThreat);
+                return;
+            }
+
+            if (threatDistance <= alertDistance
+                && state != StrategyFishBehaviorState.Fleeing
+                && TryPickSwimTarget(true))
+            {
+                SetState(StrategyFishBehaviorState.Swimming, false, noisyThreat);
+            }
+        }
+
+        private void UpdateIdle()
+        {
+            waitTimer -= Time.deltaTime;
+            AnimateIdle();
+            if (waitTimer <= 0f)
+            {
+                PickRelaxedBehavior();
+            }
+        }
+
+        private void UpdateSwimming()
+        {
+            if (!hasTarget || pathIndex >= path.Count)
+            {
+                if (riverRouteActive)
+                {
+                    CompleteRiverRoute();
+                    return;
+                }
+
+                StartIdle(Random.Range(0.2f, 0.9f));
+                return;
+            }
+
+            float speed = riverRouteActive ? RiverSwimSpeed * riverSpeedMultiplier : SwimSpeed;
+            if (!MoveAlongPath(speed, false))
+            {
+                return;
+            }
+
+            if (riverRouteActive)
+            {
+                CompleteRiverRoute();
+                return;
+            }
+
+            StartIdle(Random.Range(0.2f, 0.8f));
+        }
+
+        private bool TryFindNearestThreat(out Vector3 threatWorld, out float threatDistance, out bool noisyThreat)
+        {
+            threatWorld = default;
+            threatDistance = float.MaxValue;
+            noisyThreat = false;
+
+            IReadOnlyList<StrategyResidentAgent> residents = population != null ? population.Residents : null;
+            if (residents == null || residents.Count <= 0)
+            {
+                return false;
+            }
+
+            float bestSqr = float.MaxValue;
+            for (int i = 0; i < residents.Count; i++)
+            {
+                StrategyResidentAgent resident = residents[i];
+                if (resident == null)
+                {
+                    continue;
+                }
+
+                bool residentIsNoisy = IsNoisyResidentActivity(resident.Activity);
+                float radius = residentIsNoisy ? NoisyAlertRadius : AlertRadius;
+                float sqr = (resident.transform.position - transform.position).sqrMagnitude;
+                if (sqr > radius * radius || sqr >= bestSqr)
+                {
+                    continue;
+                }
+
+                bestSqr = sqr;
+                threatWorld = resident.transform.position;
+                noisyThreat = residentIsNoisy;
+            }
+
+            if (bestSqr >= float.MaxValue)
+            {
+                return false;
+            }
+
+            threatDistance = Mathf.Sqrt(bestSqr);
+            return true;
+        }
+
+        private static bool IsNoisyResidentActivity(StrategyResidentAgent.ResidentActivity activity)
+        {
+            return activity == StrategyResidentAgent.ResidentActivity.ChoppingTree
+                || activity == StrategyResidentAgent.ResidentActivity.BuckingTree
+                || activity == StrategyResidentAgent.ResidentActivity.MiningStone
+                || activity == StrategyResidentAgent.ResidentActivity.BuildingConstruction
+                || activity == StrategyResidentAgent.ResidentActivity.CastingFishingLine
+                || activity == StrategyResidentAgent.ResidentActivity.ReelingFish
+                || activity == StrategyResidentAgent.ResidentActivity.PlantingTree
+                || activity == StrategyResidentAgent.ResidentActivity.DepositingLogs
+                || activity == StrategyResidentAgent.ResidentActivity.DepositingStone
+                || activity == StrategyResidentAgent.ResidentActivity.DepositingConstructionResource;
+        }
+
         private bool IsRelaxedFishTarget(Vector2Int cell)
         {
             return IsFishWaterCell(cell)

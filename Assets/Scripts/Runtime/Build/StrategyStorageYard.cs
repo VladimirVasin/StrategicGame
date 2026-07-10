@@ -37,14 +37,6 @@ namespace ProjectUnknown.Strategy
         private readonly Dictionary<StrategyResidentAgent, ConstructionPickupReservation> constructionPickupReservations = new();
         private object logisticsLogsReservationOwner;
         private int reservedLogisticsLogs;
-        private int logsStored;
-        private int stoneStored;
-        private int ironStored;
-        private int coalStored;
-        private int clayStored;
-        private int potteryStored;
-        private int planksStored;
-        private int toolsStored;
         private static Vector3 yardSortWorld;
 
         public IReadOnlyList<StrategyResidentAgent> Workers => workers;
@@ -93,6 +85,7 @@ namespace ProjectUnknown.Strategy
             StrategyPopulationController populationController)
         {
             building = placedBuilding;
+            ConfigureResourceStore();
             map = mapController;
             population = populationController;
             EnsureStockRenderer();
@@ -113,30 +106,7 @@ namespace ProjectUnknown.Strategy
 
         public static StrategyConstructionResourceCost GetTotalConstructionResources()
         {
-            int logs = 0;
-            int stone = 0;
-            int planks = 0;
-            List<StrategyStorageYard> yards = GetActiveYards();
-            for (int i = 0; i < yards.Count; i++)
-            {
-                StrategyStorageYard yard = yards[i];
-                if (yard == null)
-                {
-                    continue;
-                }
-
-                logs += yard.AvailableConstructionLogs;
-                stone += yard.AvailableConstructionStone;
-                planks += yard.AvailableConstructionPlanks;
-            }
-
-            StrategyConstructionResourceCost loose = StrategyLooseConstructionResourcePile.GetTotalAvailableResources();
-            StrategyConstructionResourceCost production = StrategyProductionConstructionResources.GetTotalConstructionResources();
-            StrategyConstructionResourceCost starter = StrategyStarterCaravanCart.GetTotalConstructionResources();
-            return new StrategyConstructionResourceCost(
-                logs + loose.Logs + production.Logs + starter.Logs,
-                stone + loose.Stone + production.Stone + starter.Stone,
-                planks + loose.Planks + production.Planks + starter.Planks);
+            return StrategyResourceQueryService.GetConstructionResources();
         }
 
         public static bool CanAffordConstruction(StrategyConstructionResourceCost cost)

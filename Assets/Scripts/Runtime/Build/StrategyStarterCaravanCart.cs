@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ProjectUnknown.Strategy
 {
     [DisallowMultipleComponent]
-    public sealed partial class StrategyStarterCaravanCart : MonoBehaviour, IStrategyConstructionResourceSource
+    public sealed partial class StrategyStarterCaravanCart : MonoBehaviour, IStrategyConstructionResourceSource, IStrategyResourceStoreOwner
     {
         private static readonly List<StrategyStarterCaravanCart> cartQuery = new();
         private static Vector3 cartSortWorld;
@@ -20,18 +20,10 @@ namespace ProjectUnknown.Strategy
         private CityMapController map;
         private StrategyPopulationController population;
         private StrategyBuildPlacementController placement;
-        private int logsStored;
-        private int stoneStored;
-        private int planksStored;
-        private int gameStored;
-        private int fishStored;
-        private int eggsStored;
-        private int berriesStored;
-        private int rootsStored;
-        private int mushroomsStored;
         private bool removing;
 
         public int LogsStored => logsStored;
+        public StrategyResourceStore ResourceStore => resourceStore;
         public int StoneStored => stoneStored;
         public int PlanksStored => planksStored;
         public int AvailableConstructionLogs => Mathf.Max(0, logsStored - CountReservations(constructionLogReservations) - CountReservations(householdLogReservations));
@@ -62,6 +54,7 @@ namespace ProjectUnknown.Strategy
             StrategyBuildPlacementController placementController)
         {
             building = placedBuilding;
+            ConfigureResourceStore();
             map = mapController;
             population = populationController;
             placement = placementController;

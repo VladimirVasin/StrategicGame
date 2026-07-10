@@ -33,6 +33,7 @@ namespace ProjectUnknown.Strategy
         {
             EnsureWalkabilityLayer();
             ApplyCellCounter(origin, size, isWalkable, blockedWalkCounts);
+            WalkabilityVersion++;
             StrategyTrailController.Active?.RefreshArea(origin, size);
         }
 
@@ -51,6 +52,7 @@ namespace ProjectUnknown.Strategy
             }
 
             EnsureBridgeWalkabilityLayer();
+            bool changed = false;
             for (int i = 0; i < bridgeCells.Count; i++)
             {
                 Vector2Int cell = bridgeCells[i];
@@ -59,8 +61,19 @@ namespace ProjectUnknown.Strategy
                     continue;
                 }
 
+                if (bridgeWalkableCells[cell.x, cell.y] == isWalkable)
+                {
+                    continue;
+                }
+
                 bridgeWalkableCells[cell.x, cell.y] = isWalkable;
+                changed = true;
                 StrategyTrailController.Active?.RefreshArea(cell, Vector2Int.one);
+            }
+
+            if (changed)
+            {
+                WalkabilityVersion++;
             }
         }
 

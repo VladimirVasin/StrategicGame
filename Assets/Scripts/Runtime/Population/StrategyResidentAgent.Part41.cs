@@ -20,7 +20,7 @@ namespace ProjectUnknown.Strategy
         {
             get
             {
-                return !StrategyDayNightCycleController.IsSettlementWorkTime
+                return StrategyDayNightCycleController.IsResidentEveningHomeTime
                     && (activity == ResidentActivity.Idle || activity == ResidentActivity.TendingHousehold)
                     && (HasExternalWorkplace || constructionSite != null || IsHouseholder);
             }
@@ -28,7 +28,7 @@ namespace ProjectUnknown.Strategy
 
         private bool TryStartScheduledWorkTask()
         {
-            if (!StrategyDayNightCycleController.IsSettlementWorkTime)
+            if (StrategyDayNightCycleController.IsResidentEveningHomeTime)
             {
                 waitTimer = Random.Range(0.55f, 1.25f);
                 return false;
@@ -40,92 +40,7 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
-            if (TryStartHouseholdCookingTask())
-            {
-                return true;
-            }
-
-            if (TryStartHouseholdLogsDelivery())
-            {
-                return true;
-            }
-
-            if (TryStartHouseholdPotteryDelivery())
-            {
-                return true;
-            }
-
-            if (TryStartHouseholdFoodPickupTask())
-            {
-                return true;
-            }
-
-            if (TryStartLumberTask())
-            {
-                return true;
-            }
-
-            if (TryStartStoneTask())
-            {
-                return true;
-            }
-
-            if (TryStartMineTask())
-            {
-                return true;
-            }
-
-            if (TryStartCoalPitTask())
-            {
-                return true;
-            }
-
-            if (TryStartClayPitTask())
-            {
-                return true;
-            }
-
-            if (TryStartSawmillTask())
-            {
-                return true;
-            }
-
-            if (TryStartKilnTask())
-            {
-                return true;
-            }
-
-            if (TryStartForgeTask())
-            {
-                return true;
-            }
-
-            if (TryStartStorageTask())
-            {
-                return true;
-            }
-
-            if (TryStartGranaryTask())
-            {
-                return true;
-            }
-
-            if (TryStartForagerTask())
-            {
-                return true;
-            }
-
-            if (TryStartConstructionTask())
-            {
-                return true;
-            }
-
-            if (TryStartHunterTask())
-            {
-                return true;
-            }
-
-            return TryStartFisherTask();
+            return taskExecution.TryStartPlannedTask();
         }
 
         private bool TryConsumeScheduledDecisionBudget()
@@ -144,10 +59,12 @@ namespace ProjectUnknown.Strategy
             if (scheduledDecisionsThisFrame < budget)
             {
                 scheduledDecisionsThisFrame++;
+                StrategyResidentPerformanceCounters.RecordScheduledDecisionRun();
                 return true;
             }
 
             scheduledDecisionDeferralsSinceLog++;
+            StrategyResidentPerformanceCounters.RecordScheduledDecisionDeferral();
             float now = Time.realtimeSinceStartup;
             if (now >= nextScheduledDecisionBudgetLogTime)
             {
@@ -166,7 +83,7 @@ namespace ProjectUnknown.Strategy
 
         private bool TryPauseActiveWorkForNight()
         {
-            if (StrategyDayNightCycleController.IsSettlementWorkTime)
+            if (!StrategyDayNightCycleController.IsResidentEveningHomeTime)
             {
                 return false;
             }
@@ -183,7 +100,7 @@ namespace ProjectUnknown.Strategy
 
         private bool TryDeferReachedWorkForNight()
         {
-            if (StrategyDayNightCycleController.IsSettlementWorkTime
+            if (!StrategyDayNightCycleController.IsResidentEveningHomeTime
                 || !IsNightBlockedReachedActivity(activity))
             {
                 return false;

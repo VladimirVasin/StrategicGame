@@ -22,38 +22,30 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
-            bool allowStructureBuffer = wildlife != null && wildlife.IsLandWildlifeStructureBufferCell(startCell);
-            Queue<Vector2Int> open = new();
-            Dictionary<Vector2Int, Vector2Int> cameFrom = new();
-            HashSet<Vector2Int> visited = new();
-
-            open.Enqueue(startCell);
-            visited.Add(startCell);
-
-            while (open.Count > 0 && visited.Count < 360)
+            StrategyNavigationService navigation = StrategyNavigationService.Active;
+            if (navigation == null)
             {
-                Vector2Int current = open.Dequeue();
-                if (current == targetCell)
-                {
-                    BuildWorldPath(startCell, targetCell, cameFrom);
-                    return path.Count > 0;
-                }
-
-                for (int i = 0; i < CardinalDirections.Length; i++)
-                {
-                    Vector2Int next = current + CardinalDirections[i];
-                    if (visited.Contains(next) || !IsRabbitWalkCell(next, allowStructureBuffer))
-                    {
-                        continue;
-                    }
-
-                    visited.Add(next);
-                    cameFrom[next] = current;
-                    open.Enqueue(next);
-                }
+                return false;
             }
 
-            return false;
+            bool allowStructureBuffer = wildlife != null && wildlife.IsLandWildlifeStructureBufferCell(startCell);
+            StrategyNavigationStatus status = navigation.TryBuildPath(
+                new StrategyNavigationQuery(
+                    startCell,
+                    targetCell,
+                    StrategyNavigationMode.WildlifeLand,
+                    360,
+                    wildlife,
+                    allowStructureBuffer),
+                navigationRawCells,
+                navigationSmoothedCells);
+            if (status != StrategyNavigationStatus.Success)
+            {
+                return false;
+            }
+
+            BuildWorldPath(navigationSmoothedCells);
+            return path.Count > 0;
         }
     }
 }

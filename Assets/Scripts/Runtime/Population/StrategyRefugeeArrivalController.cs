@@ -144,6 +144,18 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
+            StrategyCalendarSnapshot calendar = StrategyDayNightCycleController.CurrentCalendarSnapshot;
+            int housingSlots = population.GetAvailableHousingSlots();
+            if (!firstArrival && calendar.Season == StrategySeason.Winter && housingSlots <= 0)
+            {
+                arrivalTimer = 120f;
+                StrategyDebugLogger.Info(
+                    "Refugees",
+                    "ArrivalSuppressedByWinterHousing",
+                    StrategyDebugLogger.F("housingSlots", housingSlots));
+                return false;
+            }
+
             if (!population.TryGetCampCell(out Vector2Int campCell)
                 || !population.TryGetCampWorld(out _))
             {
@@ -152,7 +164,10 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            int memberCount = Random.Range(1, Mathf.Min(3, availableSlots) + 1);
+            int supportedFamilySize = housingSlots > 0
+                ? Mathf.Min(3, availableSlots, housingSlots)
+                : 1;
+            int memberCount = Random.Range(1, supportedFamilySize + 1);
             int parentCount = GetRefugeeParentCount(memberCount);
             int childCount = memberCount - parentCount;
             if (!TryPrepareArrivalRoutes(memberCount, campCell, out List<List<Vector3>> routes))

@@ -5,9 +5,6 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyGranary
     {
-        private int berriesStored;
-        private int rootsStored;
-        private int mushroomsStored;
 
         public int BerriesStored => berriesStored;
         public int RootsStored => rootsStored;

@@ -19,8 +19,7 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
-            AddCloseBuildWorkCandidates(candidates);
-            AddBuildWorkRingCandidates(origin, footprint, 2, candidates);
+            AddBuildWorkRingCandidates(blockOrigin, blockFootprint, 2, candidates);
             return candidates.Count > 0;
         }
 
@@ -38,8 +37,7 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
-            AddCloseBuildWorkCandidates(candidates);
-            AddBuildWorkRingCandidates(origin, footprint, 3, candidates);
+            AddBuildWorkRingCandidates(blockOrigin, blockFootprint, 3, candidates);
             return candidates.Count > 0;
         }
 

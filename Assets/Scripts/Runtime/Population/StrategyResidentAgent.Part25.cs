@@ -7,7 +7,6 @@ namespace ProjectUnknown.Strategy
         private IStrategyProductionLogisticsNode activePlanksSource;
         private StrategyLooseConstructionResourcePile activeLoosePlanksSource;
         private SpriteRenderer carriedPlanksRenderer;
-        private int carriedPlanksAmount;
 
         private bool TryStartStoragePlanksPickup()
         {

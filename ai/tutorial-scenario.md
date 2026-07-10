@@ -1,6 +1,6 @@
 # Tutorial Scenario
 
-Last updated: 2026-06-29
+Last updated: 2026-07-10
 
 ## Current State
 
@@ -19,7 +19,9 @@ When a real tutorial or onboarding flow is implemented:
 
 ## Current Scenario
 
-- On normal strategy startup, the left-side Goals HUD shows `Build 3 Houses (0/3)`.
+- Application startup first opens `MainMenu`: `Continue` is enabled only for a valid save, while `New Settlement` starts the normal onboarding flow.
+- The menu prepares the likely saved/new map seed in the background and shows actual preparation progress when launch is requested.
+- After `New Settlement` reaches the gameplay scene, the left-side Goals HUD shows `Build 3 Houses (0/3)`.
 - Normal startup places a temporary Caravan Cart near the campfire instead of a prebuilt Storage Yard; it starts with 20 Logs, 20 Stone, and randomized raw food covering 3 days for the initial families.
 - Dawn counts as settlement work time on every day, so auto-assigned builders and haulers can begin starter construction immediately.
 - While this goal is active, the Build menu allows only `House`; all other building categories/items are locked.
@@ -31,3 +33,11 @@ When a real tutorial or onboarding flow is implemented:
 - The third stage shows `Build Lumberjack Camp` and `Build Stonecutter Camp`.
 - While the third stage is active, the Build menu allows only `Extraction` / `Camps` / `Lumberjack Camp` and `Stonecutter Camp`; other buildings remain locked.
 - After both raw-resource camps are completed, the starter goal sequence completes and the full Build menu catalog unlocks.
+- The Goals HUD then asks the settlement to stock seven days of food and seven days of firewood before the first Winter.
+- Winter readiness counts physical stock across eligible settlement stores and production buildings but excludes resources currently carried by residents.
+- When Winter starts, the preparation goals are replaced by `Endure the first winter`.
+- Occupied houses consume stored Logs for warmth during winter nights; residents accumulate cold exposure in underheated houses, and homeless residents accumulate exposure at Dawn.
+- Cold exposure can slow residents and eventually increase mortality risk, so food, fuel, and housing remain active concerns throughout Winter.
+- After the first Winter ends, the winter goal is cleared and the same settlement continues as an unrestricted sandbox.
+- There is deliberately no victory screen, defeat screen, forced pause, or terminal game state at this stage.
+- F5 saves the current settlement snapshot and F8 restarts the scene into the saved state.

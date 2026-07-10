@@ -192,8 +192,8 @@ namespace ProjectUnknown.Strategy
         {
             Bounds bounds = map.GetCellRectWorld(origin, toolInfo.Footprint);
             GetWalkBlockFootprint(toolInfo.Tool, origin, toolInfo.Footprint, out Vector2Int finalBlockOrigin, out Vector2Int finalBlockFootprint);
-            Vector2Int constructionBlockOrigin = origin;
-            Vector2Int constructionBlockFootprint = toolInfo.Footprint;
+            Vector2Int constructionBlockOrigin = finalBlockOrigin;
+            Vector2Int constructionBlockFootprint = finalBlockFootprint;
 
             GameObject siteObject = new GameObject("Construction: " + toolInfo.Title);
             siteObject.transform.SetParent(placedRoot, false);

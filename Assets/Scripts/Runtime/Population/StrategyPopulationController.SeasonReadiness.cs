@@ -61,5 +61,20 @@ namespace ProjectUnknown.Strategy
 
             return total;
         }
+
+        public int GetAvailableHousingSlots()
+        {
+            int total = 0;
+            for (int i = 0; i < houses.Count; i++)
+            {
+                StrategyPlacedBuilding house = houses[i];
+                if (house != null)
+                {
+                    total += UnityEngine.Mathf.Max(0, house.ResidentCapacity - house.ResidentCount);
+                }
+            }
+
+            return total;
+        }
     }
 }

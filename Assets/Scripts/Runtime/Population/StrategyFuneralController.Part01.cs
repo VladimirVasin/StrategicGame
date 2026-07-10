@@ -16,7 +16,11 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            cemetery.CreateGrave(funeral.Snapshot, funeral.GraveCell);
+            if (!cemetery.TryCreateGrave(funeral.Snapshot, funeral.GraveCell))
+            {
+                return;
+            }
+
             ReleaseReservedGrave(funeral);
             funeral.Corpse.CompleteBurial();
             EndFuneralDuties(funeral.Participants);
@@ -355,11 +359,12 @@ namespace ProjectUnknown.Strategy
             return new Vector3(Mathf.Cos(angle) * radius, Mathf.Sin(angle) * radius * 0.62f, 0f);
         }
 
-        private Vector3 GetGraveStandWorld(Vector2Int graveCell, int index)
+        private bool TryGetGraveStandWorld(Vector2Int graveCell, int index, out Vector3 target)
         {
             if (map == null)
             {
-                return Vector3.zero;
+                target = default;
+                return false;
             }
 
             Vector2Int[] offsets =
@@ -381,12 +386,29 @@ namespace ProjectUnknown.Strategy
                 {
                     Vector3 world = map.GetCellCenterWorld(candidate.x, candidate.y);
                     Vector3 jitter = GetRingOffset(index, 0.18f);
-                    return new Vector3(world.x + jitter.x, world.y + jitter.y, -0.08f);
+                    target = new Vector3(world.x + jitter.x, world.y + jitter.y, -0.08f);
+                    return true;
                 }
             }
 
-            Vector3 fallback = map.GetCellCenterWorld(graveCell.x, graveCell.y) + GetRingOffset(index, 1.15f);
-            return new Vector3(fallback.x, fallback.y, -0.08f);
+            for (int radius = 2; radius <= 3; radius++)
+            {
+                for (int i = 0; i < offsets.Length; i++)
+                {
+                    Vector2Int candidate = graveCell + offsets[(index + i) % offsets.Length] * radius;
+                    if (!map.IsCellWalkable(candidate))
+                    {
+                        continue;
+                    }
+
+                    Vector3 world = map.GetCellCenterWorld(candidate.x, candidate.y);
+                    target = new Vector3(world.x, world.y, -0.08f);
+                    return true;
+                }
+            }
+
+            target = default;
+            return false;
         }
 
         private static bool TryStartFuneralMoveAround(
@@ -428,8 +450,8 @@ namespace ProjectUnknown.Strategy
 
             for (int attempt = 0; attempt < 8; attempt++)
             {
-                Vector3 target = GetGraveStandWorld(graveCell, preferredIndex + attempt);
-                if (resident.TryStartFuneralMove(target, activity, silent, false))
+                if (TryGetGraveStandWorld(graveCell, preferredIndex + attempt, out Vector3 target)
+                    && resident.TryStartFuneralMove(target, activity, silent, false))
                 {
                     return true;
                 }

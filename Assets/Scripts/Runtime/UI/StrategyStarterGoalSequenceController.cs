@@ -17,6 +17,14 @@ namespace ProjectUnknown.Strategy
         private bool lumberjackCampCompleted;
         private bool stonecutterCampCompleted;
 
+        public bool IsComplete => phase == StarterGoalPhase.Complete;
+
+        public void RefreshFromWorld()
+        {
+            CountExistingBuildings();
+            RefreshPhase();
+        }
+
         public void Configure(
             StrategyGoalsController goalsController,
             StrategyBuildMenuController buildMenuController,

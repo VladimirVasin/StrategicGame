@@ -12,7 +12,6 @@ namespace ProjectUnknown.Strategy
         private StrategyClayPit activeClayPit;
         private StrategyClayPit activeClaySource;
         private SpriteRenderer carriedClayRenderer;
-        private int carriedClayAmount;
         private float clayWorkCooldown;
         private float clayWorkTimer;
         private float clayPitWorkEffectTimer;

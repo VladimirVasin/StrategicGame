@@ -4,10 +4,11 @@ using UnityEngine;
 namespace ProjectUnknown.Strategy
 {
     [DisallowMultipleComponent]
-    public sealed partial class StrategyLooseConstructionResourcePile : MonoBehaviour, IStrategyConstructionResourceSource, IStrategyWorldInspectable
+    public sealed partial class StrategyLooseConstructionResourcePile : MonoBehaviour, IStrategyConstructionResourceSource, IStrategyWorldInspectable, IStrategyResourceStoreOwner
     {
         private static Transform root;
 
+        private readonly StrategyResourceStore resourceStore = new();
         private readonly Dictionary<object, int> logReservations = new();
         private readonly Dictionary<object, int> stoneReservations = new();
         private readonly Dictionary<object, int> plankReservations = new();
@@ -18,9 +19,9 @@ namespace ProjectUnknown.Strategy
         private SpriteRenderer planksRenderer;
         private Vector2Int origin;
         private Bounds footprintBounds;
-        private int logs;
-        private int stone;
-        private int planks;
+        private ref int logs => ref resourceStore.GetAmountRef(StrategyResourceType.Logs);
+        private ref int stone => ref resourceStore.GetAmountRef(StrategyResourceType.Stone);
+        private ref int planks => ref resourceStore.GetAmountRef(StrategyResourceType.Planks);
 
         public int Logs => logs;
         public int Stone => stone;
@@ -30,6 +31,7 @@ namespace ProjectUnknown.Strategy
         public int AvailablePlanks => Mathf.Max(0, planks - CountReservations(plankReservations));
         public Vector2Int Origin => origin;
         public Bounds FootprintBounds => footprintBounds;
+        public StrategyResourceStore ResourceStore => resourceStore;
 
         public bool TryGetWorldInspectInfo(out StrategyWorldInspectInfo info)
         {
@@ -296,6 +298,7 @@ namespace ProjectUnknown.Strategy
         {
             map = mapController;
             origin = pileOrigin;
+            resourceStore.Bind(this, StrategyResourceStoreScope.Loose);
             logs = Mathf.Max(0, initialLogs);
             stone = Mathf.Max(0, initialStone);
             planks = Mathf.Max(0, initialPlanks);

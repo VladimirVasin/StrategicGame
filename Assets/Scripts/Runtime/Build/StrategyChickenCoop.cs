@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ProjectUnknown.Strategy
 {
     [DisallowMultipleComponent]
-    public sealed partial class StrategyChickenCoop : MonoBehaviour
+    public sealed partial class StrategyChickenCoop : MonoBehaviour, IStrategyResourceStoreOwner
     {
         private const int ChickensPerCoop = 3;
         private const float EggCycleSeconds = 22f;
@@ -20,10 +20,12 @@ namespace ProjectUnknown.Strategy
         private float productionTimer;
         private float productionCycleSeconds;
         private int reservedEggs;
-        private int eggsStored;
+        private readonly StrategyResourceStore resourceStore = new();
+        private ref int eggsStored => ref resourceStore.GetAmountRef(StrategyResourceType.Eggs);
         private int appliedFrame = -1;
 
         public int EggsStored => eggsStored;
+        public StrategyResourceStore ResourceStore => resourceStore;
         public int AvailableEggs => Mathf.Max(0, eggsStored - reservedEggs);
         public bool HasStorageSpace => StrategyProductionStorage.CanAccept(eggsStored, 1);
         public Vector2Int Origin => building != null ? building.Origin : Vector2Int.zero;
@@ -37,6 +39,7 @@ namespace ProjectUnknown.Strategy
         public void Configure(StrategyPlacedBuilding placedBuilding, CityMapController mapController)
         {
             building = placedBuilding;
+            resourceStore.Bind(this, StrategyResourceStoreScope.Production, StrategyProductionStorage.LocalCapacity);
             map = mapController;
             spriteRenderer = GetComponent<SpriteRenderer>();
             StartProductionCycle(Random.Range(0.05f, 0.65f), false);

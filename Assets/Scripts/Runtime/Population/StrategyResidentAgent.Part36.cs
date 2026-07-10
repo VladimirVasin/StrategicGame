@@ -5,24 +5,13 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyResidentAgent
     {
-        private const int TrailPathBuildBudgetPerFrame = 32;
-        private const float TrailPathBudgetLogIntervalSeconds = 6f;
-
-        private static int trailPathBudgetFrame = -1;
-        private static int trailPathBuildsThisFrame;
-        private static int trailPathBudgetDeferralsSinceLog;
-        private static float nextTrailPathBudgetLogTime;
-
-        private readonly StrategyTrailPathfinder trailPathfinder = new();
         private bool hasLastTrailFootfallCell;
         private Vector2Int lastTrailFootfallCell;
 
         private void MoveAlongCurrentPathTarget(Vector3 targetWorld)
         {
             float moveSpeed = GetCurrentMoveSpeed() * GetTrailMovementSpeedMultiplier(targetWorld);
-            Vector3 previous = transform.position;
-            transform.position = Vector3.MoveTowards(transform.position, targetWorld, moveSpeed * Time.deltaTime);
-            Vector3 delta = transform.position - previous;
+            Vector3 delta = movement.MoveTowards(targetWorld, moveSpeed, Time.deltaTime);
 
             if (spriteRenderer != null && Mathf.Abs(delta.x) > 0.001f)
             {
@@ -139,49 +128,26 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
-            if (!TryConsumeTrailPathBuildBudget())
+            StrategyResidentPerformanceCounters.RecordPathRequest();
+            StrategyNavigationStatus status = movement.TryBuildPath(startCell, targetCell);
+            if (status == StrategyNavigationStatus.Deferred)
             {
                 return false;
             }
 
-            if (!trailPathfinder.TryBuildPath(map, startCell, targetCell))
+            bool pathBuilt = status == StrategyNavigationStatus.Success;
+            StrategyResidentPerformanceCounters.RecordPathResult(pathBuilt);
+            if (!pathBuilt)
             {
                 return false;
             }
 
-            BuildTrailWorldPath(startCell, targetCell, trailPathfinder.RawCells, trailPathfinder.SmoothedCells);
+            BuildTrailWorldPath(
+                startCell,
+                targetCell,
+                movement.NavigationRawCells,
+                movement.NavigationSmoothedCells);
             return path.Count > 0;
-        }
-
-        private static bool TryConsumeTrailPathBuildBudget()
-        {
-            int frame = Time.frameCount;
-            if (trailPathBudgetFrame != frame)
-            {
-                trailPathBudgetFrame = frame;
-                trailPathBuildsThisFrame = 0;
-            }
-
-            if (trailPathBuildsThisFrame < TrailPathBuildBudgetPerFrame)
-            {
-                trailPathBuildsThisFrame++;
-                return true;
-            }
-
-            trailPathBudgetDeferralsSinceLog++;
-            float now = Time.realtimeSinceStartup;
-            if (now >= nextTrailPathBudgetLogTime)
-            {
-                StrategyDebugLogger.Info(
-                    "Population",
-                    "ResidentPathBuildBudgetDeferred",
-                    StrategyDebugLogger.F("deferred", trailPathBudgetDeferralsSinceLog),
-                    StrategyDebugLogger.F("budgetPerFrame", TrailPathBuildBudgetPerFrame));
-                trailPathBudgetDeferralsSinceLog = 0;
-                nextTrailPathBudgetLogTime = now + TrailPathBudgetLogIntervalSeconds;
-            }
-
-            return false;
         }
 
         private void BuildTrailWorldPath(
@@ -199,22 +165,7 @@ namespace ProjectUnknown.Strategy
             }
 
             PrepareTrailRouteForBuiltPath(startCell, targetCell, smoothedCells);
-            path.Clear();
-            for (int i = 0; i < smoothedCells.Count; i++)
-            {
-                Vector2Int cell = smoothedCells[i];
-                Vector3 center = map.GetCellCenterWorld(cell.x, cell.y);
-                if (i == smoothedCells.Count - 1)
-                {
-                    Vector2 jitter = Random.insideUnitCircle * (map.CellSize * 0.18f);
-                    center.x += jitter.x;
-                    center.y += jitter.y;
-                }
-
-                path.Add(new Vector3(center.x, center.y, -0.08f));
-            }
-
-            pathIndex = 0;
+            movement.BuildWorldPath(smoothedCells, -0.08f, map.CellSize * 0.18f);
         }
     }
 }

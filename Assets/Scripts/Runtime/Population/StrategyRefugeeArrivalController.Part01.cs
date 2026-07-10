@@ -5,6 +5,8 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyRefugeeArrivalController
     {
+        private readonly List<Vector2Int> navigationRawCells = new();
+        private readonly List<Vector2Int> navigationSmoothedCells = new();
 
         private bool TryBuildCampArrivalTargets(
             Vector2Int campCell,
@@ -203,69 +205,29 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
-            Queue<Vector2Int> open = new();
-            Dictionary<Vector2Int, Vector2Int> cameFrom = new();
-            HashSet<Vector2Int> visited = new();
-            open.Enqueue(startCell);
-            visited.Add(startCell);
-
-            int visitLimit = Mathf.Max(256, map.Width * map.Height);
-            while (open.Count > 0 && visited.Count < visitLimit)
+            StrategyNavigationService navigation = StrategyNavigationService.Active;
+            if (navigation == null)
             {
-                Vector2Int current = open.Dequeue();
-                if (current == targetCell)
-                {
-                    path = BuildCellPath(startCell, targetCell, cameFrom);
-                    return path.Count > 0;
-                }
-
-                TryVisitNeighbor(current + Vector2Int.right, current, open, visited, cameFrom);
-                TryVisitNeighbor(current + Vector2Int.left, current, open, visited, cameFrom);
-                TryVisitNeighbor(current + Vector2Int.up, current, open, visited, cameFrom);
-                TryVisitNeighbor(current + Vector2Int.down, current, open, visited, cameFrom);
+                return false;
             }
 
-            return false;
-        }
-
-        private void TryVisitNeighbor(
-            Vector2Int candidate,
-            Vector2Int current,
-            Queue<Vector2Int> open,
-            HashSet<Vector2Int> visited,
-            Dictionary<Vector2Int, Vector2Int> cameFrom)
-        {
-            if (visited.Contains(candidate) || !map.IsCellWalkable(candidate))
+            StrategyNavigationStatus status = navigation.TryBuildPath(
+                new StrategyNavigationQuery(
+                    startCell,
+                    targetCell,
+                    StrategyNavigationMode.GroundCardinal,
+                    Mathf.Max(256, map.Width * map.Height)),
+                navigationRawCells,
+                navigationSmoothedCells,
+                false);
+            if (status != StrategyNavigationStatus.Success)
             {
-                return;
+                return false;
             }
 
-            visited.Add(candidate);
-            cameFrom[candidate] = current;
-            open.Enqueue(candidate);
-        }
-
-        private static List<Vector2Int> BuildCellPath(
-            Vector2Int startCell,
-            Vector2Int targetCell,
-            Dictionary<Vector2Int, Vector2Int> cameFrom)
-        {
-            List<Vector2Int> cells = new();
-            Vector2Int current = targetCell;
-            cells.Add(current);
-            while (current != startCell)
-            {
-                if (!cameFrom.TryGetValue(current, out current))
-                {
-                    cells.Clear();
-                    return cells;
-                }
-
-                cells.Add(current);
-            }
-
-            cells.Reverse();
-            return cells;
+            path = new List<Vector2Int>(navigationSmoothedCells.Count + 1) { startCell };
+            path.AddRange(navigationSmoothedCells);
+            return path.Count > 1;
         }
 
         private List<Vector3> ToWorldRoute(IReadOnlyList<Vector2Int> cells)

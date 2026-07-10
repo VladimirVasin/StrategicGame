@@ -47,15 +47,14 @@ namespace ProjectUnknown.Strategy
         public static StrategySeasonReadinessSnapshot Evaluate(StrategyCalendarSnapshot snapshot, StrategyPopulationController population)
         {
             float dailyNeed = population != null ? population.GetTotalDailyRationNeed() : 0f;
-            float storedRations = StrategyGranary.GetTotalSettlementFoodRations()
-                + StrategyStarterCaravanCart.GetTotalAvailableHouseholdRations()
-                + (population != null ? population.GetTotalHouseholdStoredRations() : 0f);
+            float storedRations = StrategyResourceQueryService.GetFoodRations(
+                StrategyResourceStoreScope.Settlement
+                | StrategyResourceStoreScope.TemporarySettlement
+                | StrategyResourceStoreScope.Household);
             float foodDays = dailyNeed > 0.01f ? storedRations / dailyNeed : 0f;
             int occupiedHouses = population != null ? population.GetOccupiedHouseCount() : 0;
             int dailyLogNeed = occupiedHouses * StrategyHouseWarmthState.WinterNightlyLogNeed;
-            int storedLogs = StrategyStorageYard.GetTotalAvailableLogisticsAmount(StrategyResourceType.Logs)
-                + StrategyStarterCaravanCart.GetTotalAvailableHouseholdLogs()
-                + (population != null ? population.GetTotalHouseholdStoredLogs() : 0);
+            int storedLogs = StrategyResourceQueryService.GetAvailable(StrategyResourceType.Logs);
             float fuelDays = dailyLogNeed > 0 ? storedLogs / (float)dailyLogNeed : 0f;
             int daysUntilWinter = StrategySeasonCalendar.GetDaysUntilSeason(snapshot.DayIndex, StrategySeason.Winter);
             int winterDaysToCover = snapshot.Season == StrategySeason.Winter

@@ -7,7 +7,10 @@ namespace ProjectUnknown.Strategy
         BuildThreeHouses = 2,
         BuildLumberjackCamp = 3,
         BuildStonecutterCamp = 4,
-        BuildForagerCamp = 5
+        BuildForagerCamp = 5,
+        PrepareWinterFood = 6,
+        PrepareWinterFuel = 7,
+        SurviveFirstWinter = 8
     }
 
     public readonly struct StrategyGoalDefinition

@@ -5,7 +5,7 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyResidentAgent
     {
-        private bool TryFindReachableRingWorkCell(Vector2Int origin, out Vector2Int cell)
+        private bool TryFindReachableRingWorkCell(Vector2Int origin, out Vector2Int cell, int maxPathChecks = int.MaxValue)
         {
             cell = default;
             if (map == null)
@@ -14,19 +14,26 @@ namespace ProjectUnknown.Strategy
             }
 
             List<Vector2Int> candidates = new();
+            int pathChecks = 0;
             for (int radius = 1; radius <= 2; radius++)
             {
                 GatherRingWorkCells(origin, radius, candidates);
-                while (candidates.Count > 0)
+                while (candidates.Count > 0 && pathChecks < maxPathChecks)
                 {
                     int index = GetNearestWorkCellIndex(candidates);
                     Vector2Int candidate = candidates[index];
                     candidates.RemoveAt(index);
+                    pathChecks++;
                     if (TryBuildPathTo(candidate))
                     {
                         cell = candidate;
                         return true;
                     }
+                }
+
+                if (pathChecks >= maxPathChecks)
+                {
+                    break;
                 }
             }
 

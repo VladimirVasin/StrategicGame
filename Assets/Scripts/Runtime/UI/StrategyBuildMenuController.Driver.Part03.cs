@@ -6,6 +6,21 @@ namespace ProjectUnknown.Strategy
 {
     internal sealed partial class StrategyBuildMenuControllerDriver
     {
+        private bool IsItemInSelectedLayer(CategoryUi category, BuildItemUi item)
+        {
+            if (category == null || item == null || selectedCategoryIndex != category.Index)
+            {
+                return false;
+            }
+
+            if (!category.Data.HasSubcategories)
+            {
+                return true;
+            }
+
+            return selectedSubcategoryIndex >= 0 && item.SubcategoryIndex == selectedSubcategoryIndex;
+        }
+
         private bool IsPointerOverBuildUi()
         {
             return EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();

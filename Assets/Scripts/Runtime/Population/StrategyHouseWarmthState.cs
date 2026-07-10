@@ -11,7 +11,7 @@ namespace ProjectUnknown.Strategy
     }
 
     [DisallowMultipleComponent]
-    public sealed class StrategyHouseWarmthState : MonoBehaviour
+    public sealed partial class StrategyHouseWarmthState : MonoBehaviour
     {
         public const int WinterNightlyLogNeed = 1;
         public const int WinterHouseLogReserveTarget = 3;
@@ -45,6 +45,7 @@ namespace ProjectUnknown.Strategy
                 StrategyWeatherController.Active);
             indoorCelsius = Mathf.Max(12f, outdoor.Celsius + 8f);
             tickTimer = Random.Range(0f, TickSeconds);
+            ConfigureColdConsequences();
         }
 
         private void Update()
@@ -84,6 +85,7 @@ namespace ProjectUnknown.Strategy
                 ? HeatedWarmupCelsiusPerSecond
                 : PassiveDriftCelsiusPerSecond;
             indoorCelsius = Mathf.MoveTowards(indoorCelsius, target, speed * dt);
+            UpdateColdConsequences(calendar);
         }
 
         private float GetTargetIndoorCelsius(

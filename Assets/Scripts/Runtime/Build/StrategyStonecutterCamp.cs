@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ProjectUnknown.Strategy
 {
     [DisallowMultipleComponent]
-    public sealed partial class StrategyStonecutterCamp : MonoBehaviour, IStrategyConstructionResourceSource
+    public sealed partial class StrategyStonecutterCamp : MonoBehaviour, IStrategyConstructionResourceSource, IStrategyResourceStoreOwner
     {
         public const int MaxWorkers = 2;
         public const int WorkRadius = 9;
@@ -19,10 +19,12 @@ namespace ProjectUnknown.Strategy
         private SpriteRenderer stockRenderer;
         private object stoneReservationOwner;
         private int reservedStone;
-        private int stoneStored;
+        private readonly StrategyResourceStore resourceStore = new();
+        private ref int stoneStored => ref resourceStore.GetAmountRef(StrategyResourceType.Stone);
 
         public IReadOnlyList<StrategyResidentAgent> Workers => workers;
         public int WorkerCount => workers.Count;
+        public StrategyResourceStore ResourceStore => resourceStore;
         public int StoneStored => stoneStored;
         public int AvailableStone => Mathf.Max(0, AvailableConstructionStone - reservedStone);
         public int AvailableConstructionStone => Mathf.Max(0, stoneStored - CountReservations(constructionStoneReservations));
@@ -43,6 +45,7 @@ namespace ProjectUnknown.Strategy
             StrategyPopulationController populationController)
         {
             building = placedBuilding;
+            resourceStore.Bind(this, StrategyResourceStoreScope.Production, StrategyProductionStorage.LocalCapacity);
             map = mapController;
             stone = stoneController;
             population = populationController;

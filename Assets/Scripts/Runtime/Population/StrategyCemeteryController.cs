@@ -81,11 +81,11 @@ namespace ProjectUnknown.Strategy
             reservedGraves.Remove(cell);
         }
 
-        public void CreateGrave(StrategyResidentDeathSnapshot snapshot, Vector2Int cell)
+        public bool TryCreateGrave(StrategyResidentDeathSnapshot snapshot, Vector2Int cell)
         {
-            if (map == null || !IsValidGraveCell(cell))
+            if (map == null || !IsValidGraveCell(cell) || IsOccupiedByResident(cell))
             {
-                return;
+                return false;
             }
 
             EnsureGraveRoot();
@@ -115,6 +115,38 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("graveCell", cell),
                 StrategyDebugLogger.F("cemeteryCenter", centerCell),
                 StrategyDebugLogger.F("graveCount", graves.Count));
+            return true;
+        }
+
+        private bool IsOccupiedByResident(Vector2Int cell)
+        {
+            if (population == null || map == null)
+            {
+                return false;
+            }
+
+            IReadOnlyList<StrategyResidentAgent> residents = population.Residents;
+            for (int i = 0; i < residents.Count; i++)
+            {
+                StrategyResidentAgent resident = residents[i];
+                if (resident == null
+                    || resident.IsPendingRefugee
+                    || resident.IsSleepingInsideHome
+                    || resident.IsHomeboundYoungChild
+                    || resident.Activity == StrategyResidentAgent.ResidentActivity.StayingInsideHome
+                    || !resident.gameObject.activeInHierarchy
+                    || !map.TryWorldToCell(resident.transform.position, out Vector2Int residentCell))
+                {
+                    continue;
+                }
+
+                if (residentCell == cell)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private bool TryFindInitialCemeteryCell(

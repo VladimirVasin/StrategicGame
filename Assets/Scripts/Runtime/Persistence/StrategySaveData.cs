@@ -1,0 +1,123 @@
+using System;
+using System.Collections.Generic;
+
+namespace ProjectUnknown.Strategy
+{
+    [Serializable]
+    public sealed class StrategySaveData
+    {
+        public const int CurrentVersion = 1;
+
+        public int version = CurrentVersion;
+        public long savedUtcTicks;
+        public int mapSeed;
+        public int mapWidth;
+        public int mapHeight;
+        public float elapsedSeconds;
+        public int weatherKind;
+        public bool firstWinterFoodPrepared;
+        public bool firstWinterFuelPrepared;
+        public bool firstWinterPassed;
+        public List<StrategyBuildingSaveData> buildings = new();
+        public List<StrategyConstructionSiteSaveData> constructionSites = new();
+        public List<StrategyResidentSaveData> residents = new();
+        public List<StrategyLooseResourceSaveData> looseResources = new();
+        public List<int> exploredCells = new();
+        public List<int> trailCells = new();
+    }
+
+    [Serializable]
+    public sealed class StrategyBuildingSaveData
+    {
+        public string stableId;
+        public int tool;
+        public int originX;
+        public int originY;
+        public int footprintX;
+        public int footprintY;
+        public int visualVariant;
+        public int bridgeStartX;
+        public int bridgeStartY;
+        public int bridgeEndX;
+        public int bridgeEndY;
+        public List<StrategyCellSaveData> bridgeCells = new();
+        public int[] resourceAmounts;
+        public List<string> preparedDishIds = new();
+        public List<int> preparedDishAmounts = new();
+        public float leftoverRations;
+    }
+
+    [Serializable]
+    public sealed class StrategyConstructionSiteSaveData
+    {
+        public int tool;
+        public string title;
+        public int originX;
+        public int originY;
+        public int footprintX;
+        public int footprintY;
+        public int visualVariant;
+        public int costLogs;
+        public int costStone;
+        public int costPlanks;
+        public int deliveredLogs;
+        public int deliveredStone;
+        public int deliveredPlanks;
+        public float progress;
+        public bool hasBridgeSpan;
+        public int bridgeStartX;
+        public int bridgeStartY;
+        public int bridgeEndX;
+        public int bridgeEndY;
+        public List<StrategyCellSaveData> bridgeCells = new();
+    }
+
+    [Serializable]
+    public sealed class StrategyResidentSaveData
+    {
+        public int residentId;
+        public string homeStableId;
+        public int gender;
+        public int lifeStage;
+        public int visualVariant;
+        public string fullName;
+        public string familyName;
+        public float ageYears;
+        public int fatherId;
+        public int motherId;
+        public List<int> childIds = new();
+        public float worldX;
+        public float worldY;
+        public float nutritionDebt;
+        public int daysHungry;
+        public int lastNutritionDayIndex;
+        public float coldExposure;
+        public int lastColdResolutionDayIndex;
+    }
+
+    [Serializable]
+    public sealed class StrategyLooseResourceSaveData
+    {
+        public bool constructionPile;
+        public int originX;
+        public int originY;
+        public int resource;
+        public int amount;
+        public int logs;
+        public int stone;
+        public int planks;
+    }
+
+    [Serializable]
+    public struct StrategyCellSaveData
+    {
+        public StrategyCellSaveData(int x, int y)
+        {
+            this.x = x;
+            this.y = y;
+        }
+
+        public int x;
+        public int y;
+    }
+}

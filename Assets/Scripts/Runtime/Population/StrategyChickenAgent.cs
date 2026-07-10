@@ -24,6 +24,8 @@ namespace ProjectUnknown.Strategy
         };
 
         private readonly List<Vector3> path = new();
+        private readonly List<Vector2Int> navigationRawCells = new();
+        private readonly List<Vector2Int> navigationSmoothedCells = new();
         private CityMapController map;
         private StrategyBuildingUpgrade coop;
         private StrategyChickenCoop standaloneCoop;
@@ -237,55 +239,31 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            Queue<Vector2Int> open = new();
-            Dictionary<Vector2Int, Vector2Int> cameFrom = new();
-            HashSet<Vector2Int> visited = new();
-
-            open.Enqueue(startCell);
-            visited.Add(startCell);
-
-            while (open.Count > 0 && visited.Count < 144)
+            StrategyNavigationService navigation = StrategyNavigationService.Active;
+            if (navigation == null)
             {
-                Vector2Int current = open.Dequeue();
-                if (current == targetCell)
-                {
-                    BuildWorldPath(startCell, targetCell, cameFrom);
-                    return path.Count > 0;
-                }
-
-                for (int i = 0; i < CardinalDirections.Length; i++)
-                {
-                    Vector2Int next = current + CardinalDirections[i];
-                    if (visited.Contains(next) || !IsChickenWalkCell(next))
-                    {
-                        continue;
-                    }
-
-                    visited.Add(next);
-                    cameFrom[next] = current;
-                    open.Enqueue(next);
-                }
+                return false;
             }
 
-            return false;
+            StrategyNavigationStatus status = navigation.TryBuildPath(
+                new StrategyNavigationQuery(
+                    startCell,
+                    targetCell,
+                    StrategyNavigationMode.GroundCardinal,
+                    144),
+                navigationRawCells,
+                navigationSmoothedCells);
+            if (status != StrategyNavigationStatus.Success)
+            {
+                return false;
+            }
+
+            BuildWorldPath(navigationSmoothedCells);
+            return path.Count > 0;
         }
 
-        private void BuildWorldPath(Vector2Int startCell, Vector2Int targetCell, Dictionary<Vector2Int, Vector2Int> cameFrom)
+        private void BuildWorldPath(IReadOnlyList<Vector2Int> cells)
         {
-            List<Vector2Int> cells = new();
-            Vector2Int current = targetCell;
-            while (current != startCell)
-            {
-                cells.Add(current);
-                if (!cameFrom.TryGetValue(current, out current))
-                {
-                    path.Clear();
-                    pathIndex = 0;
-                    return;
-                }
-            }
-
-            cells.Reverse();
             path.Clear();
             for (int i = 0; i < cells.Count; i++)
             {

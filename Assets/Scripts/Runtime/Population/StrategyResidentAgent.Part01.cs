@@ -123,6 +123,9 @@ namespace ProjectUnknown.Strategy
             string residentFamilyName = null)
         {
             map = mapController;
+            movement.Configure(mapController, transform);
+            taskState.Reset();
+            ConfigureTaskExecution();
             population = GetComponentInParent<StrategyPopulationController>();
             home = homeBuilding;
             idleOrigin = initialIdleOrigin;

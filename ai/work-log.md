@@ -1,12 +1,55 @@
 # Work Log
 
-Last updated: 2026-07-08
+Last updated: 2026-07-10
 
 ## Active
 
 - None.
 
 ## Done
+
+### 2026-07-10 - Intro menu and map preloading
+
+- Added `MainMenu.unity` as build scene 0 with an actual in-engine pixel-art settlement backdrop and responsive `Continue`, `New Settlement`, `Settings`, and `Quit` flows.
+- Added persistent master/music/effects volume plus fullscreen settings and routed the existing audio mix through them.
+- Added `StrategyMapPreloadCoordinator`: it validates the save header, chooses the likely Continue/New seed, prewarms starter sprites/audio, incrementally generates deterministic cells, paints the large terrain buffer in a cancellable parallel worker, and transfers exactly one prepared map into gameplay.
+- Changed gameplay bootstrap to a scene-role-gated `SceneManager.sceneLoaded` hook, so no gameplay population/HUD systems start in the menu and runtime menu-to-game scene loads still bootstrap correctly.
+- Extended save loading with reusable read/validate/pending-load APIs for the menu and kept direct F8 gameplay loading intact.
+- Measured the prepared 192x192 map at about 6.9 seconds in the menu launch smoke versus the previous 16.9-second synchronous map generation sample; gameplay accepted the prepared map without regenerating it.
+- Verification: 6 Edit Mode checks, menu-only Play Mode smoke, menu-to-prepared-gameplay smoke, direct gameplay bootstrap smoke, and a 1600x900 menu render capture passed without runtime exceptions; both C# projects built with 0 warnings and 0 errors.
+
+### 2026-07-10 - 30-step stabilization and First Winter roadmap
+
+- Completed the performance baseline and root-cause fixes, including stable population/time/weather benchmark windows, bulk map texture generation, a lower-cost night mask, and corrected runtime stalls in wildlife, resident, construction, planting, and funeral flows.
+- Added the shared budgeted `StrategyNavigationService` and migrated resident, wildlife, caravan, refugee, and road-route path requests to it.
+- Split resident movement, inventory, task ownership, and task execution into focused same-owner components/partials while keeping all project C# files within the 500-line limit.
+- Added shared resource stores, settlement queries, and reservation-provider adapters so HUD, construction, seasonal readiness, storage, production buildings, houses, loose piles, and the starter cart use one physical-stock model.
+- Added the playable First Winter vertical slice: food/fuel preparation goals, seasonal refugee pressure, house and homeless cold exposure, movement/mortality consequences, and normal sandbox continuation after winter. Victory and defeat outcomes are intentionally not implemented.
+- Added versioned JSON save/load with stable building/resident IDs, atomic writes, F5/F8 controls, and restoration of the map seed, calendar, weather, first-winter milestones, buildings, construction, resources/dishes, residents/kinship/cold, loose resources, fog exploration, and roads.
+- Added deterministic Edit Mode verification plus a real Play Mode bootstrap smoke check through `StrategyVerificationRunner`.
+- Verification: all 6 current Edit Mode checks passed; the Play Mode bootstrap smoke check passed with no runtime exceptions; both `dotnet build Assembly-CSharp.csproj -v:minimal` and `dotnet build Assembly-CSharp-Editor.csproj -v:minimal` passed with 0 warnings and 0 errors.
+
+### 2026-07-10 - Map, night-mask, and shared navigation performance pass
+
+- Replaced millions of per-pixel map texture uploads with one `Color32` buffer upload and guaranteed at least 8% Forest coverage among generated land when a seed profile would otherwise underproduce Forest cells.
+- Reduced the camera night mask to a bilinear `96x54` `Color32` buffer and added squared-distance rejection plus per-light precomputation before radial falloff evaluation.
+- Added `StrategyNavigationService` with reusable array-backed A*, resident trail weighting/smoothing, wildlife River traversal, duplicate request coalescing, an 8-path/2.2 ms frame budget, deferred queue warming, short path/reachability caches, and walkability-version invalidation.
+- Migrated resident, deer, rabbit, wolf, chicken, refugee, trade-caravan, and route-network path requests to the shared service and removed `StrategyTrailPathfinder`.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; no C# file exceeds 500 lines.
+
+### 2026-07-10 - Runtime warning root fixes and 500-line compliance
+
+- Fixed pause-time wolf stall diagnostics, late household return timing, planting path-budget exhaustion, final-building footprint blocking, grave-cell occupancy, and greedy wildlife migration detours at their behavioral sources.
+- Construction sites now reserve the final building block from placement onward, starter/player placement avoids active residents, and graves wait for their target cell to clear before becoming non-walkable.
+- Split all nine C# files that exceeded 500 lines across same-owner partials; added `StrategyFisherHut.Visuals.cs`. No project C# file now exceeds the hard limit.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; `git diff --check` passed except for the existing project-file CRLF notice.
+
+### 2026-07-10 - Performance baseline diagnostics
+
+- Added automatic stable-context performance windows for startup and the 15/30/50 resident population bands, split by time-of-day phase, weather, and x1/x2/x3 simulation speed.
+- Baseline events now report average/1%-low FPS, frame-time percentiles, hitches, memory/GC, population/workforce/world counts, wildlife/light counts, and resident path/decision workload.
+- Added optional `-strategyBenchmarkSeed <seed>` / `-strategyBenchmarkSeed=<seed>` command-line seed forcing so benchmark sessions can reproduce the same generated map.
+- Verification: `dotnet build Assembly-CSharp.csproj -v:minimal` passed with 0 warnings and 0 errors; added/affected C# files are at or below 500 lines.
 
 ### 2026-07-08 - Pickaxe stonecut SFX
 

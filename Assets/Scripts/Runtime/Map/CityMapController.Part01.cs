@@ -5,6 +5,7 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class CityMapController
     {
+        private const float MinimumForestLandShare = 0.08f;
 
         private void SmoothLandCells()
         {
@@ -96,11 +97,99 @@ namespace ProjectUnknown.Strategy
             return replacement;
         }
 
+        private void EnsureMinimumForestCoverage(MapGenerationProfile profile)
+        {
+            int eligibleLand = 0;
+            int forestCount = 0;
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    CityMapCellKind kind = cells[x, y].Kind;
+                    if (kind == CityMapCellKind.Forest)
+                    {
+                        forestCount++;
+                        eligibleLand++;
+                    }
+                    else if (kind == CityMapCellKind.Grass
+                        || kind == CityMapCellKind.Meadow
+                        || kind == CityMapCellKind.Dirt)
+                    {
+                        eligibleLand++;
+                    }
+                }
+            }
+
+            int targetForestCount = Mathf.CeilToInt(eligibleLand * MinimumForestLandShare);
+            if (forestCount >= targetForestCount)
+            {
+                return;
+            }
+
+            List<ForestCandidate> candidates = new(eligibleLand - forestCount);
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    CityMapCellKind kind = cells[x, y].Kind;
+                    if (kind != CityMapCellKind.Grass
+                        && kind != CityMapCellKind.Meadow
+                        && kind != CityMapCellKind.Dirt)
+                    {
+                        continue;
+                    }
+
+                    float broadNoise = FractalNoise(x, y, profile.BroadOffset, profile.BroadScale, 3, 0.54f);
+                    float moistureNoise = FractalNoise(x, y, profile.MoistureOffset, profile.MoistureScale, 3, 0.58f);
+                    float forestNoise = FractalNoise(x, y, profile.ForestOffset, profile.ForestScale, 3, 0.52f);
+                    candidates.Add(new ForestCandidate(
+                        new Vector2Int(x, y),
+                        CalculateForestScore(forestNoise, moistureNoise, broadNoise)));
+                }
+            }
+
+            candidates.Sort((left, right) => right.Score.CompareTo(left.Score));
+            int needed = Mathf.Min(targetForestCount - forestCount, candidates.Count);
+            for (int i = 0; i < needed; i++)
+            {
+                Vector2Int cell = candidates[i].Cell;
+                CityMapCell current = cells[cell.x, cell.y];
+                cells[cell.x, cell.y] = new CityMapCell(
+                    cell.x,
+                    cell.y,
+                    CityMapCellKind.Forest,
+                    CityMapWaterKind.None,
+                    current.ReliefHeight);
+            }
+        }
+
         private void BuildTexture()
         {
             int textureWidth = width * tilePixels;
             int textureHeight = height * tilePixels;
+            Color32[] pixels = new Color32[textureWidth * textureHeight];
 
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    StrategyTerrainTexturePainter.PaintTile(
+                        pixels,
+                        textureWidth,
+                        cells,
+                        x,
+                        y,
+                        tilePixels,
+                        activeSeed,
+                        drawGrid);
+                }
+            }
+
+            ApplyTexturePixels(pixels, textureWidth, textureHeight);
+        }
+
+        private void ApplyTexturePixels(Color32[] pixels, int textureWidth, int textureHeight)
+        {
             if (mapTexture != null)
             {
                 Destroy(mapTexture);
@@ -113,14 +202,7 @@ namespace ProjectUnknown.Strategy
                 wrapMode = TextureWrapMode.Clamp
             };
 
-            for (int y = 0; y < height; y++)
-            {
-                for (int x = 0; x < width; x++)
-                {
-                    StrategyTerrainTexturePainter.PaintTile(mapTexture, cells, x, y, tilePixels, activeSeed, drawGrid);
-                }
-            }
-
+            mapTexture.SetPixels32(pixels);
             mapTexture.Apply(false, false);
 
             if (spriteRenderer == null)
@@ -147,6 +229,7 @@ namespace ProjectUnknown.Strategy
 
         private void OnDestroy()
         {
+            CancelIncrementalGeneration();
             if (mapTexture != null)
             {
                 Destroy(mapTexture);
@@ -156,6 +239,18 @@ namespace ProjectUnknown.Strategy
 
         private int ResolveActiveSeed()
         {
+            if (StrategySaveSystem.TryGetPendingMapSeed(out int saveSeed))
+            {
+                seed = saveSeed;
+                return saveSeed;
+            }
+
+            if (StrategyPerformanceBenchmarkOptions.TryGetForcedSeed(out int benchmarkSeed))
+            {
+                seed = benchmarkSeed;
+                return benchmarkSeed;
+            }
+
             if (randomizeSeedOnGenerate || seed == 0)
             {
                 seed = UnityEngine.Random.Range(1, int.MaxValue);
@@ -212,7 +307,7 @@ namespace ProjectUnknown.Strategy
                 ReliefOffset = new Vector2(Range(random, 0f, 4096f), Range(random, 0f, 4096f)),
                 ReliefRidgeOffset = new Vector2(Range(random, 0f, 4096f), Range(random, 0f, 4096f)),
                 ReliefMountainBias = Range(random, 0.16f, 0.28f),
-                ForestThreshold = Range(random, 0.56f, 0.68f),
+                ForestThreshold = Range(random, 0.50f, 0.60f),
                 MeadowMoistureThreshold = Range(random, 0.50f, 0.62f),
                 MeadowBroadThreshold = Range(random, 0.42f, 0.58f),
                 DirtMoistureThreshold = Range(random, 0.32f, 0.45f),
@@ -238,6 +333,11 @@ namespace ProjectUnknown.Strategy
             }
 
             return amplitudeSum > 0f ? total / amplitudeSum : 0f;
+        }
+
+        private static float CalculateForestScore(float forestNoise, float moistureNoise, float broadNoise)
+        {
+            return forestNoise * 0.58f + moistureNoise * 0.28f + broadNoise * 0.14f;
         }
 
         private static bool IsWaterBoundaryKind(CityMapCellKind kind)
@@ -291,6 +391,18 @@ namespace ProjectUnknown.Strategy
             public float DirtDetailThreshold;
             public float DirtBroadThreshold;
             public WaterBlob[] WaterBlobs;
+        }
+
+        private readonly struct ForestCandidate
+        {
+            public ForestCandidate(Vector2Int cell, float score)
+            {
+                Cell = cell;
+                Score = score;
+            }
+
+            public Vector2Int Cell { get; }
+            public float Score { get; }
         }
 
         private readonly struct WaterBlob

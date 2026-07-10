@@ -5,6 +5,8 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyTradeCaravanController
     {
+        private readonly List<Vector2Int> navigationRawCells = new();
+        private readonly List<Vector2Int> navigationSmoothedCells = new();
         private static readonly Vector2Int[] CardinalDirections =
         {
             new Vector2Int(1, 0),
@@ -61,61 +63,29 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            Queue<Vector2Int> open = new();
-            Dictionary<Vector2Int, Vector2Int> cameFrom = new();
-            HashSet<Vector2Int> visited = new();
-            open.Enqueue(start);
-            visited.Add(start);
-            int visitLimit = Mathf.Max(256, map.Width * map.Height);
-            int visitedCount = 0;
-
-            while (open.Count > 0 && visitedCount < visitLimit)
+            StrategyNavigationService navigation = StrategyNavigationService.Active;
+            if (navigation == null)
             {
-                Vector2Int current = open.Dequeue();
-                visitedCount++;
-                if (current == target)
-                {
-                    cellPath = ReconstructPath(start, target, cameFrom);
-                    return cellPath.Count > 0;
-                }
-
-                for (int i = 0; i < CardinalDirections.Length; i++)
-                {
-                    Vector2Int next = current + CardinalDirections[i];
-                    if (visited.Contains(next) || !map.IsCellWalkable(next))
-                    {
-                        continue;
-                    }
-
-                    visited.Add(next);
-                    cameFrom[next] = current;
-                    open.Enqueue(next);
-                }
+                return false;
             }
 
-            return false;
-        }
-
-        private static List<Vector2Int> ReconstructPath(
-            Vector2Int start,
-            Vector2Int target,
-            Dictionary<Vector2Int, Vector2Int> cameFrom)
-        {
-            List<Vector2Int> cells = new() { target };
-            Vector2Int current = target;
-            while (current != start)
+            StrategyNavigationStatus status = navigation.TryBuildPath(
+                new StrategyNavigationQuery(
+                    start,
+                    target,
+                    StrategyNavigationMode.GroundCardinal,
+                    Mathf.Max(256, map.Width * map.Height)),
+                navigationRawCells,
+                navigationSmoothedCells,
+                false);
+            if (status != StrategyNavigationStatus.Success)
             {
-                if (!cameFrom.TryGetValue(current, out current))
-                {
-                    cells.Clear();
-                    return cells;
-                }
-
-                cells.Add(current);
+                return false;
             }
 
-            cells.Reverse();
-            return cells;
+            cellPath = new List<Vector2Int>(navigationSmoothedCells.Count + 1) { start };
+            cellPath.AddRange(navigationSmoothedCells);
+            return cellPath.Count > 1;
         }
 
         private List<Vector3> ToWorldPath(List<Vector2Int> cellPath)

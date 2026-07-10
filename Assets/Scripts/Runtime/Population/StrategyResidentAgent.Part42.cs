@@ -21,7 +21,7 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
-            if (returningHomeToSleep && !IsNightSleepTime())
+            if (returningHomeToSleep && !IsEveningHomeTime())
             {
                 CancelNightSleepReturn();
                 return false;
@@ -57,7 +57,7 @@ namespace ProjectUnknown.Strategy
 
         private bool CanStartNightSleep()
         {
-            return IsNightSleepTime()
+            return IsEveningHomeTime()
                 && home != null
                 && !hiddenInsideHome
                 && !hiddenUnderground
@@ -72,7 +72,7 @@ namespace ProjectUnknown.Strategy
 
         private void EnterNightSleep()
         {
-            if (home == null || !IsNightSleepTime())
+            if (home == null || !IsEveningHomeTime())
             {
                 CancelNightSleepReturn();
                 return;
@@ -111,7 +111,7 @@ namespace ProjectUnknown.Strategy
 
         private void UpdateNightSleep()
         {
-            if (home == null || !IsNightSleepTime())
+            if (home == null || !IsEveningHomeTime())
             {
                 if (!TryConsumeNightWakeBudget())
                 {
@@ -205,6 +205,11 @@ namespace ProjectUnknown.Strategy
         {
             return StrategyDayNightCycleController.CurrentCalendarSnapshot.Phase
                 == StrategyTimeOfDayPhase.Night;
+        }
+
+        private static bool IsEveningHomeTime()
+        {
+            return StrategyDayNightCycleController.IsResidentEveningHomeTime;
         }
 
         private bool TryConsumeNightWakeBudget()

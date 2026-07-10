@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ProjectUnknown.Strategy
 {
     [DisallowMultipleComponent]
-    public sealed partial class StrategyKiln : MonoBehaviour
+    public sealed partial class StrategyKiln : MonoBehaviour, IStrategyResourceStoreOwner
     {
         public const int MaxWorkers = 1;
         private const int MaxInputClay = 4;
@@ -28,15 +28,17 @@ namespace ProjectUnknown.Strategy
         private int reservedInputClay;
         private int reservedInputCoal;
         private int reservedPottery;
-        private int clayStored;
-        private int coalStored;
-        private int potteryStored;
+        private readonly StrategyResourceStore resourceStore = new();
+        private ref int clayStored => ref resourceStore.GetAmountRef(StrategyResourceType.Clay);
+        private ref int coalStored => ref resourceStore.GetAmountRef(StrategyResourceType.Coal);
+        private ref int potteryStored => ref resourceStore.GetAmountRef(StrategyResourceType.Pottery);
         private int pendingPottery;
         private float workFrameTimer;
         private int workFrame;
 
         public IReadOnlyList<StrategyResidentAgent> Workers => workers;
         public int WorkerCount => workers.Count;
+        public StrategyResourceStore ResourceStore => resourceStore;
         public int ClayStored => clayStored;
         public int CoalStored => coalStored;
         public int PotteryStored => potteryStored;
@@ -53,6 +55,7 @@ namespace ProjectUnknown.Strategy
             StrategyPopulationController populationController)
         {
             building = placedBuilding;
+            resourceStore.Bind(this, StrategyResourceStoreScope.Production, StrategyProductionStorage.LocalCapacity);
             map = mapController;
             population = populationController;
             EnsureStockRenderers();

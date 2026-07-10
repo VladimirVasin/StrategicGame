@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ProjectUnknown.Strategy
 {
     [DisallowMultipleComponent]
-    public sealed partial class StrategySawmill : MonoBehaviour, IStrategyConstructionResourceSource
+    public sealed partial class StrategySawmill : MonoBehaviour, IStrategyConstructionResourceSource, IStrategyResourceStoreOwner
     {
         public const int MaxWorkers = 1;
         private const int MaxInputLogs = 4;
@@ -23,14 +23,16 @@ namespace ProjectUnknown.Strategy
         private object planksReservationOwner;
         private int reservedInputLogs;
         private int reservedPlanks;
-        private int logsStored;
-        private int planksStored;
+        private readonly StrategyResourceStore resourceStore = new();
+        private ref int logsStored => ref resourceStore.GetAmountRef(StrategyResourceType.Logs);
+        private ref int planksStored => ref resourceStore.GetAmountRef(StrategyResourceType.Planks);
         private int pendingPlanks;
         private float workFrameTimer;
         private int workFrame;
 
         public IReadOnlyList<StrategyResidentAgent> Workers => workers;
         public int WorkerCount => workers.Count;
+        public StrategyResourceStore ResourceStore => resourceStore;
         public int LogsStored => logsStored;
         public int PlanksStored => planksStored;
         public int AvailablePlanks => Mathf.Max(0, AvailableConstructionPlanks - reservedPlanks);
@@ -46,6 +48,7 @@ namespace ProjectUnknown.Strategy
             StrategyPopulationController populationController)
         {
             building = placedBuilding;
+            resourceStore.Bind(this, StrategyResourceStoreScope.Production, StrategyProductionStorage.LocalCapacity);
             map = mapController;
             population = populationController;
             EnsureStockRenderers();

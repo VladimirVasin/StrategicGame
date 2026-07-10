@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -18,6 +19,7 @@ namespace ProjectUnknown.Strategy
         private StrategyHouseWarmthState warmth;
         private StrategyResidentAgent householder;
         private bool registeredActiveBuilding;
+        private string stableId;
 
         public StrategyBuildTool Tool { get; private set; }
         public Vector2Int Origin { get; private set; }
@@ -39,6 +41,7 @@ namespace ProjectUnknown.Strategy
         public StrategyHouseResourceStore Resources => resources;
         public StrategyHouseWarmthState Warmth => warmth;
         public StrategyResidentAgent Householder => householder;
+        public string StableId => stableId;
         public static IReadOnlyList<StrategyPlacedBuilding> ActiveBuildings => activeBuildings;
 
         public static int CopyActiveComponents<T>(List<T> components)
@@ -75,6 +78,7 @@ namespace ProjectUnknown.Strategy
             Footprint = footprint;
             FootprintBounds = footprintBounds;
             VisualVariant = visualVariant;
+            EnsureStableId();
             residents.Clear();
             bridgeCells.Clear();
             productionUpgrades.Clear();
@@ -87,6 +91,21 @@ namespace ProjectUnknown.Strategy
             EnsureHouseWarmthState();
             EnsureWorldShadow();
             EnsureClickCollider();
+        }
+
+        public void RestoreStableId(string value)
+        {
+            stableId = string.IsNullOrWhiteSpace(value)
+                ? Guid.NewGuid().ToString("N")
+                : value;
+        }
+
+        private void EnsureStableId()
+        {
+            if (string.IsNullOrWhiteSpace(stableId))
+            {
+                stableId = Guid.NewGuid().ToString("N");
+            }
         }
 
         public void ConfigureBridgeSpan(

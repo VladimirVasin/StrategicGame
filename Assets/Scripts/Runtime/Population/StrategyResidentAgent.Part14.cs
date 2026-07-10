@@ -65,6 +65,12 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            if (IsPlantingCellOccupiedByResident())
+            {
+                lumberWorkTimer = Random.Range(0.25f, 0.45f);
+                return;
+            }
+
             bool planted = workplace != null && workplace.TryPlantTree(plantingCell);
             StrategyDebugLogger.Info(
                 "Population",
@@ -439,42 +445,7 @@ namespace ProjectUnknown.Strategy
         private void BuildDirectWorldPath(Vector3 targetWorld)
         {
             ClearPendingTrailRoute();
-            path.Clear();
-            path.Add(new Vector3(targetWorld.x, targetWorld.y, -0.08f));
-            pathIndex = 0;
-        }
-
-        private void BuildWorldPath(Vector2Int startCell, Vector2Int targetCell, Dictionary<Vector2Int, Vector2Int> cameFrom)
-        {
-            List<Vector2Int> cells = new();
-            Vector2Int current = targetCell;
-            while (current != startCell)
-            {
-                cells.Add(current);
-                if (!cameFrom.TryGetValue(current, out current))
-                {
-                    path.Clear();
-                    pathIndex = 0;
-                    return;
-                }
-            }
-
-            cells.Reverse();
-            path.Clear();
-            for (int i = 0; i < cells.Count; i++)
-            {
-                Vector3 center = map.GetCellCenterWorld(cells[i].x, cells[i].y);
-                if (i == cells.Count - 1)
-                {
-                    Vector2 jitter = Random.insideUnitCircle * (map.CellSize * 0.18f);
-                    center.x += jitter.x;
-                    center.y += jitter.y;
-                }
-
-                path.Add(new Vector3(center.x, center.y, -0.08f));
-            }
-
-            pathIndex = 0;
+            movement.BuildDirectWorldPath(targetWorld, -0.08f);
         }
     }
 }

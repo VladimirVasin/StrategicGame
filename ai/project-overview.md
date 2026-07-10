@@ -1,25 +1,29 @@
 # Project Overview
 
-Last updated: 2026-07-07
+Last updated: 2026-07-10
 
 ## Identity
 
 - Project name: `ProjectUnknown`
 - Engine: Unity
 - Unity Editor version: `6000.5.2f1`
-- Current baseline: fresh 2D/URP starter project
+- Current baseline: playable runtime-generated settlement simulation with a First Winter vertical slice
 
 ## Current Shape
 
 - `Assets/`
   Main Unity content folder.
 - `Assets/Scripts/Runtime/`
-  Runtime C# scripts for the MVP strategy foundation, camera, map, visual day/night/weather, simulation, and UI.
+  Runtime C# scripts for the strategy foundation, navigation, map, economy, population, seasons, persistence, audio, and UI.
   Runtime `.cs` files must stay at or below 500 lines; oversized classes are split into same-owner `.PartNN.cs` partial files or extracted when a real service/type boundary exists.
+- `Assets/Editor/`
+  Deterministic Edit Mode verification and a real Play Mode bootstrap smoke runner.
 - `Assets/Resources/Audio/`
   Runtime-loadable non-generated ambience, footstep, and in-game music audio.
+- `Assets/Scenes/MainMenu.unity`
+  Build-index-0 intro menu scene with visual settlement backdrop and background map preparation.
 - `Assets/Scenes/SampleScene.unity`
-  Default starter scene.
+  Gameplay settlement scene.
 - `Assets/InputSystem_Actions.inputactions`
   Default Input System action asset.
 - `Assets/Settings/`
@@ -53,6 +57,7 @@ Confirmed from `Packages/manifest.json`:
 
 ## Implemented Gameplay
 
+- Application startup opens a full-screen intro menu with Continue/New Settlement/Settings/Quit, a live in-engine settlement backdrop, persistent audio/display settings, save-aware status, and actual map/content preload progress. The menu prepares one deterministic map candidate and transfers it into gameplay so `SampleScene` skips duplicate terrain generation.
 - Runtime bootstrap creates the first MVP strategy scene layer on play, including a Unity `WindZone`-backed strategy wind source, runtime Stone/Iron/Coal/Clay resource registries, runtime weather, and runtime ambience audio.
 - Runtime rendering includes a calendar-aware visual day/night overlay, chunk-repainted weather overlays, camera-area rain and snow pools, seasonal snow/ice surface overlays with building snow caps, a runtime URP post-process volume for stronger dawn/dusk/night/weather/season color grading/bloom/vignette, a cinematic visual layer with chunk/active-registry light scans, LOD-capped 2D local lights, emissive pixel masks, animated building torch/lantern source sprites with manual lit state, a cached light-aware nighttime darkness mask over unlit cells, wet puddle glints, lightning flashes, subtle foreground depth props, shared procedural ground/cast shadows, and reusable short-lived world effects for dust, sawdust, chips, sparks, splash, and resource pop/fade moments.
 - Runtime fog of war tracks persistent explored cells separately from current visibility; camp, residents, and placed buildings reveal less during Dusk/Night/Dawn and even less during dense Fog weather, explored-but-not-visible cells become darker at night or turn into layered weather fog around visible zones, and wildlife spawn checks use a daylight-range visibility mask so temporary darkness does not create extra near-settlement spawn openings.
@@ -60,6 +65,10 @@ Confirmed from `Packages/manifest.json`:
 - Runtime debug logging writes structured gameplay diagnostics to `debug.log`, including bootstrap, audio, map, nature, wildlife, Stone, Iron, Coal, Clay, build, population, forestry, selection, time-scale, and Unity warning/error events.
 - A generated 192x192 2D city map appears at runtime with randomized seed-driven terrain generation and procedural pixel-art terrain textures.
 - A runtime 16x16 world chunk registry indexes placed buildings, active construction sites, and residents, and exposes camera-near, active-settlement, and dirty-chunk state for incremental performance work.
+- A shared budgeted navigation service owns resident, wildlife, refugee, caravan, and road-route pathfinding, with duplicate coalescing, short-lived caches, and walkability-version invalidation.
+- Shared physical resource stores and settlement queries unify construction affordability, HUD totals, logistics reservations, household supplies, production stock, and winter readiness while excluding resources already being carried.
+- Starter onboarding now leads into a First Winter preparation/endurance slice with food and fuel goals, house warmth, resident cold exposure, and season/housing-aware refugee pressure. The first winter ends by returning to unrestricted sandbox play; victory and defeat are intentionally absent.
+- Versioned JSON persistence uses stable building/resident IDs and atomic writes; F5 saves and F8 reloads the map seed/time/weather, first-winter milestones, buildings/construction, resources/dishes, residents/kinship/cold, loose resources, fog exploration, and route roads.
 - A runtime road/trail layer records completed building-to-building route traversals for immediate stable visible route roads, renders connected procedural right-angle cardinal trail sprites, derives sparse non-blocking roadside torch props from eligible straight road cells, gives formed roads a 15% resident movement-speed bonus, and makes resident pathfinding prefer roads when practical.
 - Current terrain generation covers grass, meadow, forest, dirt, shore, and water with randomized rivers/water blobs, clustered land biomes, seeded texture variants, and transition overlays; generated water/shore cells are tagged as River or Lake for technical gameplay distinction, and generated rivers expose a technical flow direction used by river animation and river fish. The runtime water overlay adds depth tint, directional river streaks, lake sparkles, shoreline foam, wet shore edges, and weather-driven rain ripples, while the seasonal surface overlay can gradually cover water with ice without changing map cell identity.
 - A runtime nature-props layer uses seeded full-map shuffled placement plus macro cluster weighting to place procedural 2.5D trees, forest groups, bushes, Stone deposits, walkable but not normally buildable mineable underground Iron/Coal fields, and near-water walkable Clay fields over the generated terrain.

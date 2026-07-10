@@ -12,7 +12,6 @@ namespace ProjectUnknown.Strategy
         private StrategyCoalPit activeCoalPit;
         private StrategyCoalPit activeCoalSource;
         private SpriteRenderer carriedCoalRenderer;
-        private int carriedCoalAmount;
         private float coalWorkCooldown;
         private float coalWorkTimer;
         private readonly List<Vector2Int> coalPitEntranceCandidates = new();

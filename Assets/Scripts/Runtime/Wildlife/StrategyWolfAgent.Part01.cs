@@ -299,38 +299,35 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
-            bool allowStructureBuffer = wildlife != null && wildlife.IsLandWildlifeStructureBufferCell(startCell);
-            Queue<Vector2Int> open = new();
-            Dictionary<Vector2Int, Vector2Int> cameFrom = new();
-            HashSet<Vector2Int> visited = new();
-            open.Enqueue(startCell);
-            visited.Add(startCell);
-
-            int visitLimit = Mathf.Max(256, map.Width * map.Height);
-            while (open.Count > 0 && visited.Count < visitLimit)
+            StrategyNavigationService navigation = StrategyNavigationService.Active;
+            if (navigation == null)
             {
-                Vector2Int current = open.Dequeue();
-                if (current == targetCell)
-                {
-                    BuildWorldPath(startCell, targetCell, cameFrom);
-                    return path.Count > 0 || LogWolfPathFailed("path_rebuild_empty", targetCell);
-                }
-
-                for (int i = 0; i < CardinalDirections.Length; i++)
-                {
-                    Vector2Int next = current + CardinalDirections[i];
-                    if (visited.Contains(next) || !IsWolfTravelCell(next, allowStructureBuffer))
-                    {
-                        continue;
-                    }
-
-                    visited.Add(next);
-                    cameFrom[next] = current;
-                    open.Enqueue(next);
-                }
+                return LogWolfPathFailed("navigation_missing", targetCell);
             }
 
-            return LogWolfPathFailed("path_unreachable", targetCell);
+            bool allowStructureBuffer = wildlife != null && wildlife.IsLandWildlifeStructureBufferCell(startCell);
+            StrategyNavigationStatus status = navigation.TryBuildPath(
+                new StrategyNavigationQuery(
+                    startCell,
+                    targetCell,
+                    StrategyNavigationMode.WildlifeLand,
+                    Mathf.Max(256, map.Width * map.Height),
+                    wildlife,
+                    allowStructureBuffer),
+                navigationRawCells,
+                navigationSmoothedCells);
+            if (status == StrategyNavigationStatus.Deferred)
+            {
+                return false;
+            }
+
+            if (status != StrategyNavigationStatus.Success)
+            {
+                return LogWolfPathFailed("path_unreachable", targetCell);
+            }
+
+            BuildWorldPath(navigationSmoothedCells);
+            return path.Count > 0 || LogWolfPathFailed("path_rebuild_empty", targetCell);
         }
 
         private bool TryGetPathStartCell(out Vector2Int startCell)
@@ -385,26 +382,16 @@ namespace ProjectUnknown.Strategy
             return false;
         }
 
-        private void BuildWorldPath(Vector2Int startCell, Vector2Int targetCell, Dictionary<Vector2Int, Vector2Int> cameFrom)
+        private void BuildWorldPath(IReadOnlyList<Vector2Int> cells)
         {
-            List<Vector2Int> cells = new();
-            Vector2Int current = targetCell;
-            cells.Add(current);
-            while (current != startCell)
+            path.Clear();
+            if (cells == null)
             {
-                if (!cameFrom.TryGetValue(current, out current))
-                {
-                    path.Clear();
-                    pathIndex = 0;
-                    return;
-                }
-
-                cells.Add(current);
+                pathIndex = 0;
+                return;
             }
 
-            cells.Reverse();
-            path.Clear();
-            for (int i = 1; i < cells.Count; i++)
+            for (int i = 0; i < cells.Count; i++)
             {
                 Vector3 world = map.GetCellCenterWorld(cells[i].x, cells[i].y);
                 path.Add(new Vector3(world.x, world.y, transform.position.z));

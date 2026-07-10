@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ProjectUnknown.Strategy
 {
     [DisallowMultipleComponent]
-    public sealed partial class StrategyHouseResourceStore : MonoBehaviour
+    public sealed partial class StrategyHouseResourceStore : MonoBehaviour, IStrategyResourceStoreOwner
     {
         public static readonly StrategyResourceType[] DisplayOrder =
         {
@@ -38,11 +38,17 @@ namespace ProjectUnknown.Strategy
             StrategyResourceType.Game
         };
 
-        private readonly Dictionary<StrategyResourceType, int> amounts = new();
+        private readonly StrategyResourceStore resourceStore = new();
         private readonly Dictionary<string, int> preparedDishAmounts = new();
         private float leftoverRations;
 
         public float LeftoverRations => leftoverRations;
+        public StrategyResourceStore ResourceStore => resourceStore;
+
+        private void Awake()
+        {
+            resourceStore.Bind(this, StrategyResourceStoreScope.Household);
+        }
 
         public bool HasAny
         {
@@ -78,8 +84,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            amounts.TryGetValue(type, out int current);
-            amounts[type] = current + amount;
+            resourceStore.Add(type, amount);
         }
 
         public int GetTotalFoodAmount()
@@ -203,15 +208,7 @@ namespace ProjectUnknown.Strategy
 
                 int taken = Mathf.Min(available, remaining);
                 remaining -= taken;
-                int nextAmount = available - taken;
-                if (nextAmount > 0)
-                {
-                    amounts[type] = nextAmount;
-                }
-                else
-                {
-                    amounts.Remove(type);
-                }
+                resourceStore.Take(type, taken);
             }
 
             return requested - remaining;
@@ -262,15 +259,7 @@ namespace ProjectUnknown.Strategy
                 AddLeftoverRations(supplied - used);
                 remaining = Mathf.Max(0f, remaining - used);
 
-                int nextAmount = available - taken;
-                if (nextAmount > 0)
-                {
-                    amounts[type] = nextAmount;
-                }
-                else
-                {
-                    amounts.Remove(type);
-                }
+                resourceStore.Take(type, taken);
             }
 
             return consumedUnits;
@@ -283,7 +272,7 @@ namespace ProjectUnknown.Strategy
                 return GetPreparedDishAmount();
             }
 
-            return amounts.TryGetValue(type, out int amount) ? amount : 0;
+            return resourceStore.GetStored(type);
         }
 
         public int ConsumeResource(StrategyResourceType type, int requested)
@@ -300,17 +289,7 @@ namespace ProjectUnknown.Strategy
                 return 0;
             }
 
-            int nextAmount = available - taken;
-            if (nextAmount > 0)
-            {
-                amounts[type] = nextAmount;
-            }
-            else
-            {
-                amounts.Remove(type);
-            }
-
-            return taken;
+            return resourceStore.Take(type, taken);
         }
 
         private void ConsumeLeftoverRations(ref float remainingRations, ref float suppliedRations)

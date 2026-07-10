@@ -78,12 +78,18 @@ namespace ProjectUnknown.Strategy
         public int Height => height;
         public float CellSize => cellSize;
         public int ActiveSeed => activeSeed;
+        public int WalkabilityVersion { get; private set; }
         public Vector2Int RiverFlowDirection => riverFlowDirection == Vector2Int.zero
             ? Vector2Int.right
             : riverFlowDirection;
 
         public void GenerateMap()
         {
+            IsGenerating = true;
+            IsGenerated = false;
+            GenerationFailed = false;
+            GenerationProgress = 0f;
+            GenerationStage = "Generating terrain";
             width = Mathf.Max(8, width);
             height = Mathf.Max(8, height);
             cellSize = Mathf.Max(0.25f, cellSize);
@@ -94,6 +100,7 @@ namespace ProjectUnknown.Strategy
             blockedWalkCounts = new int[width, height];
             blockedBuildCounts = new int[width, height];
             bridgeWalkableCells = new bool[width, height];
+            WalkabilityVersion++;
             System.Diagnostics.Stopwatch generationTimer = System.Diagnostics.Stopwatch.StartNew();
             BuildCells();
             long buildCellsMs = generationTimer.ElapsedMilliseconds;
@@ -145,6 +152,10 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("buildTextureMs", buildTextureMs),
                 StrategyDebugLogger.F("countTerrainMs", countTerrainMs),
                 StrategyDebugLogger.F("countReliefMs", countReliefMs));
+            IsGenerating = false;
+            IsGenerated = true;
+            GenerationProgress = 1f;
+            GenerationStage = "Ready";
         }
 
         public bool TryGetCell(int x, int y, out CityMapCell cell)
@@ -313,6 +324,7 @@ namespace ProjectUnknown.Strategy
             }
 
             SmoothLandCells();
+            EnsureMinimumForestCoverage(profile);
         }
 
         private CityMapCellKind PickCellKind(
@@ -333,7 +345,7 @@ namespace ProjectUnknown.Strategy
             float moistureNoise = FractalNoise(x, y, profile.MoistureOffset, profile.MoistureScale, 3, 0.58f);
             float forestNoise = FractalNoise(x, y, profile.ForestOffset, profile.ForestScale, 3, 0.52f);
 
-            float forestScore = forestNoise * 0.58f + moistureNoise * 0.28f + broadNoise * 0.14f;
+            float forestScore = CalculateForestScore(forestNoise, moistureNoise, broadNoise);
             if (forestScore > profile.ForestThreshold)
             {
                 return CityMapCellKind.Forest;

@@ -114,7 +114,7 @@ namespace ProjectUnknown.Strategy
         private StrategyStorageYard builderWorkplace;
         private StrategyGranary granaryWorkplace;
         private StrategyConstructionSite constructionSite;
-        private StrategyConstructionSite carriedConstructionReturnSite;
+        private readonly StrategyResidentInventory inventory = new();
         private IStrategyConstructionResourceSource activeConstructionSource;
         private IStrategyProductionLogisticsNode activeProductionInputTarget;
         private StrategyStorageYard returnStorageYard;
@@ -135,9 +135,10 @@ namespace ProjectUnknown.Strategy
         private SpriteRenderer fishingBobberRenderer;
         private StrategyResidentFootstepAudio footstepAudio;
         private StrategyResidentWorkSfxAudio workSfxAudio;
-        private readonly List<Vector3> path = new();
+        private readonly StrategyResidentMovement movement = new();
         private readonly List<Vector2Int> constructionWorkCellCandidates = new();
-        private ResidentActivity activity;
+        private readonly StrategyResidentTaskState taskState = new();
+        private readonly StrategyResidentTaskExecution taskExecution = new();
         private StrategyBuildingUpgrade activeGarden;
         private StrategyForageNode activeForageNode;
         private StrategyForagerCamp activeForagerCamp;
@@ -161,14 +162,12 @@ namespace ProjectUnknown.Strategy
         private IStrategyHuntTarget activeHuntTarget;
         private StrategyFishAgent activeFishTarget;
         private StrategyConstructionResourceKind activeConstructionResource;
-        private StrategyConstructionResourceKind carriedConstructionReturnResource = StrategyConstructionResourceKind.None;
         private StrategyResourceType activeProductionInputResource = StrategyResourceType.None;
         private StrategyResidentLifeStage lifeStage = StrategyResidentLifeStage.Adult;
         private Vector2Int plantingCell;
         private int residentId;
         private int fatherId;
         private int motherId;
-        private int pathIndex;
         private float waitTimer;
         private float gardenWorkCooldown;
         private float gardenWorkTimer;
@@ -197,19 +196,10 @@ namespace ProjectUnknown.Strategy
         private int appliedWorkFrame = -1;
         private int lastMortalityAgeChecked;
         private int lastNutritionDayIndex = -1;
-        private int carriedLogAmount;
-        private int carriedStoneAmount;
-        private int carriedIronAmount;
-        private int carriedGameAmount;
-        private int carriedFishAmount;
-        private StrategyResourceType carriedHouseholdFoodResource = StrategyResourceType.None;
-        private StrategyResourceType carriedForageResource = StrategyResourceType.None;
-        private int carriedForageAmount;
         private int constructionPickupPathFailures;
         private float ageYears = AdultAgeYears;
         private float nutritionDebt;
         private int daysHungry;
-        private bool hasTarget;
         private bool usingWalkSprite;
         private bool usingWorkSprite;
         private bool constructionFutureHome;
@@ -226,6 +216,38 @@ namespace ProjectUnknown.Strategy
         private bool returnCarriedResourcesImmediately;
         private bool silentFuneralDuty;
         private bool funeralNightTorchActive;
+
+        private ResidentActivity activity
+        {
+            get => taskState.Activity;
+            set => taskState.SetActivity(value);
+        }
+        private List<Vector3> path => movement.Path;
+        private int pathIndex
+        {
+            get => movement.PathIndex;
+            set => movement.PathIndex = value;
+        }
+        private bool hasTarget
+        {
+            get => movement.HasTarget;
+            set => movement.HasTarget = value;
+        }
+        private ref StrategyConstructionSite carriedConstructionReturnSite => ref inventory.ConstructionReturnSite;
+        private ref StrategyConstructionResourceKind carriedConstructionReturnResource => ref inventory.ConstructionReturnResource;
+        private ref StrategyResourceType carriedHouseholdFoodResource => ref inventory.HouseholdFoodResource;
+        private ref StrategyResourceType carriedForageResource => ref inventory.ForageResource;
+        private ref int carriedLogAmount => ref inventory.Logs;
+        private ref int carriedStoneAmount => ref inventory.Stone;
+        private ref int carriedIronAmount => ref inventory.Iron;
+        private ref int carriedCoalAmount => ref inventory.Coal;
+        private ref int carriedClayAmount => ref inventory.Clay;
+        private ref int carriedPlanksAmount => ref inventory.Planks;
+        private ref int carriedPotteryAmount => ref inventory.Pottery;
+        private ref int carriedToolsAmount => ref inventory.Tools;
+        private ref int carriedGameAmount => ref inventory.Game;
+        private ref int carriedFishAmount => ref inventory.Fish;
+        private ref int carriedForageAmount => ref inventory.Forage;
 
         public StrategyPlacedBuilding Home => home;
         public StrategyLumberjackCamp Workplace => workplace;
@@ -300,6 +322,8 @@ namespace ProjectUnknown.Strategy
         public string FullName { get; private set; }
         public string FamilyName { get; private set; }
         public ResidentActivity Activity => activity;
+        public IStrategyResidentTask CurrentTask => taskState;
+        public StrategyResidentTaskKind TaskKind => taskState.Kind;
         public Bounds SelectionBounds => spriteRenderer != null
             ? spriteRenderer.bounds
             : new Bounds(transform.position, new Vector3(0.55f, 0.75f, 0f));
@@ -426,9 +450,10 @@ namespace ProjectUnknown.Strategy
 
         private float GetCurrentMoveSpeed()
         {
-            return activity == ResidentActivity.Idle || activity == ResidentActivity.TendingHousehold
+            float activitySpeed = activity == ResidentActivity.Idle || activity == ResidentActivity.TendingHousehold
                 ? MoveSpeed
                 : MoveSpeed * ActiveMoveSpeedMultiplier;
+            return activitySpeed * ColdMovementSpeedMultiplier;
         }
     }
 }

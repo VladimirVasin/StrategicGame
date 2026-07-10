@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ProjectUnknown.Strategy
 {
     [DisallowMultipleComponent]
-    public sealed class StrategyFisherHut : MonoBehaviour
+    public sealed partial class StrategyFisherHut : MonoBehaviour, IStrategyResourceStoreOwner
     {
         public const int MaxWorkers = 2;
         public const int WorkRadius = 12;
@@ -18,7 +18,8 @@ namespace ProjectUnknown.Strategy
         private SpriteRenderer stockRenderer;
         private object fishReservationOwner;
         private int reservedFish;
-        private int fishStored;
+        private readonly StrategyResourceStore resourceStore = new();
+        private ref int fishStored => ref resourceStore.GetAmountRef(StrategyResourceType.Fish);
         private static readonly Vector2Int[] CardinalFishingDirections =
         {
             new Vector2Int(1, 0),
@@ -29,6 +30,7 @@ namespace ProjectUnknown.Strategy
 
         public IReadOnlyList<StrategyResidentAgent> Workers => workers;
         public int WorkerCount => workers.Count;
+        public StrategyResourceStore ResourceStore => resourceStore;
         public int FishStored => fishStored;
         public int AvailableFish => Mathf.Max(0, fishStored - reservedFish);
         public bool HasStorageSpace => HasStorageSpaceFor(1);
@@ -42,6 +44,7 @@ namespace ProjectUnknown.Strategy
             StrategyWildlifeController wildlifeController)
         {
             building = placedBuilding;
+            resourceStore.Bind(this, StrategyResourceStoreScope.Production, StrategyProductionStorage.LocalCapacity);
             map = mapController;
             population = populationController;
             wildlife = wildlifeController;
@@ -445,59 +448,5 @@ namespace ProjectUnknown.Strategy
             return false;
         }
 
-        private void EnsureStockRenderer()
-        {
-            if (stockRenderer != null)
-            {
-                return;
-            }
-
-            GameObject stockObject = new GameObject("Fish Stock");
-            stockObject.transform.SetParent(transform, false);
-            stockRenderer = stockObject.AddComponent<SpriteRenderer>();
-            stockRenderer.color = Color.white;
-            UpdateStockPosition();
-        }
-
-        private void UpdateStockVisual()
-        {
-            EnsureStockRenderer();
-            if (stockRenderer == null)
-            {
-                return;
-            }
-
-            stockRenderer.sprite = StrategyBuildingSpriteFactory.GetFisherHutStockSprite(fishStored);
-            stockRenderer.gameObject.SetActive(fishStored > 0 && stockRenderer.sprite != null);
-            UpdateStockPosition();
-        }
-
-        private void UpdateStockPosition()
-        {
-            if (stockRenderer == null || building == null)
-            {
-                return;
-            }
-
-            Bounds bounds = building.FootprintBounds;
-            Vector3 world = new Vector3(bounds.max.x - 0.25f, bounds.min.y + 0.38f, -0.13f);
-            stockRenderer.transform.localPosition = transform.InverseTransformPoint(world);
-            stockRenderer.transform.localScale = Vector3.one;
-            StrategyWorldSorting.Apply(stockRenderer, world, 1);
-        }
-
-        private void OnDestroy()
-        {
-            for (int i = workers.Count - 1; i >= 0; i--)
-            {
-                StrategyResidentAgent worker = workers[i];
-                if (worker != null)
-                {
-                    worker.ClearFisherWorkplace(this);
-                }
-            }
-
-            workers.Clear();
-        }
     }
 }

@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ProjectUnknown.Strategy
 {
     [DisallowMultipleComponent]
-    public sealed partial class StrategyLumberjackCamp : MonoBehaviour, IStrategyConstructionResourceSource
+    public sealed partial class StrategyLumberjackCamp : MonoBehaviour, IStrategyConstructionResourceSource, IStrategyResourceStoreOwner
     {
         public const int MaxWorkers = 2;
         public const int WorkRadius = 9;
@@ -17,10 +17,12 @@ namespace ProjectUnknown.Strategy
         private SpriteRenderer stockRenderer;
         private object logsReservationOwner;
         private int reservedLogs;
-        private int logsStored;
+        private readonly StrategyResourceStore resourceStore = new();
+        private ref int logsStored => ref resourceStore.GetAmountRef(StrategyResourceType.Logs);
 
         public IReadOnlyList<StrategyResidentAgent> Workers => workers;
         public int WorkerCount => workers.Count;
+        public StrategyResourceStore ResourceStore => resourceStore;
         public int LogsStored => logsStored;
         public int AvailableLogs => Mathf.Max(0, AvailableConstructionLogs - reservedLogs);
         public bool HasStorageSpace => HasStorageSpaceFor(1);
@@ -34,6 +36,7 @@ namespace ProjectUnknown.Strategy
             StrategyPopulationController populationController)
         {
             building = placedBuilding;
+            resourceStore.Bind(this, StrategyResourceStoreScope.Production, StrategyProductionStorage.LocalCapacity);
             map = mapController;
             forestry = forestryController;
             population = populationController;

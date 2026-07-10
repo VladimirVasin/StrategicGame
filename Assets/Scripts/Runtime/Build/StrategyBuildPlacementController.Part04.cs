@@ -5,6 +5,36 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyBuildPlacementController
     {
+        private bool ContainsActiveResident(Vector2Int origin, Vector2Int footprint)
+        {
+            if (population == null || map == null)
+            {
+                return false;
+            }
+
+            IReadOnlyList<StrategyResidentAgent> residents = population.Residents;
+            for (int i = 0; i < residents.Count; i++)
+            {
+                StrategyResidentAgent resident = residents[i];
+                if (resident == null
+                    || resident.IsPendingRefugee
+                    || resident.IsSleepingInsideHome
+                    || resident.IsHomeboundYoungChild
+                    || resident.Activity == StrategyResidentAgent.ResidentActivity.StayingInsideHome
+                    || !map.TryWorldToCell(resident.transform.position, out Vector2Int cell))
+                {
+                    continue;
+                }
+
+                if (ContainsCell(origin, footprint, cell))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         private StrategyPlacedBuilding PlaceTool(
             StrategyBuildToolInfo toolInfo,
             Vector2Int origin,
@@ -191,7 +221,10 @@ namespace ProjectUnknown.Strategy
             {
                 StrategyStorageYard yard = placed.AddComponent<StrategyStorageYard>();
                 yard.Configure(building, map, population);
-                StrategyStarterCaravanCart.TransferConstructionResourcesToStorageYard(yard);
+                if (!restoringPersistentWorld)
+                {
+                    StrategyStarterCaravanCart.TransferConstructionResourcesToStorageYard(yard);
+                }
             }
             else if (toolInfo.Tool == StrategyBuildTool.StarterCaravanCart)
             {

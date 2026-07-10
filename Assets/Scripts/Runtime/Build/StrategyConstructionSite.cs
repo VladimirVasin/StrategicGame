@@ -290,11 +290,6 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
-            if (TryFindCloseBuildWorkCell(out cell))
-            {
-                return true;
-            }
-
             return TryFindAdjacentWorkCell(blockOrigin, blockFootprint, 2, out cell);
         }
 

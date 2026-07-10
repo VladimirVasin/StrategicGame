@@ -73,6 +73,7 @@ namespace ProjectUnknown.Strategy
         private const float DuskEnd = (DuskEndHour - ClockStartHour) / HoursPerDay;
 
         private static Sprite overlaySprite;
+        private static float elapsedTimeOffset;
 
         private CityMapController map;
         private Camera strategyCamera;
@@ -80,13 +81,19 @@ namespace ProjectUnknown.Strategy
         private Color baseCameraColor = new(0.09f, 0.12f, 0.14f);
         private StrategyTimeOfDayPhase loggedPhase = (StrategyTimeOfDayPhase)(-1);
 
-        public float DayPhase => Mathf.Repeat(Time.timeSinceLevelLoad / CycleSeconds, 1f);
-        public StrategyCalendarSnapshot CurrentSnapshot => CreateSnapshot(Time.timeSinceLevelLoad);
+        public float DayPhase => Mathf.Repeat(CurrentElapsedSeconds / CycleSeconds, 1f);
+        public StrategyCalendarSnapshot CurrentSnapshot => CreateSnapshot(CurrentElapsedSeconds);
         public static float DayLengthSeconds => CycleSeconds;
         public static float NightStartPhase => DuskEnd;
-        public static int CurrentDayIndex => Mathf.FloorToInt(Time.timeSinceLevelLoad / CycleSeconds);
-        public static float CurrentDayPhase => Mathf.Repeat(Time.timeSinceLevelLoad / CycleSeconds, 1f);
-        public static StrategyCalendarSnapshot CurrentCalendarSnapshot => CreateSnapshot(Time.timeSinceLevelLoad);
+        public static float CurrentElapsedSeconds => Mathf.Max(0f, Time.timeSinceLevelLoad + elapsedTimeOffset);
+        public static int CurrentDayIndex => Mathf.FloorToInt(CurrentElapsedSeconds / CycleSeconds);
+        public static float CurrentDayPhase => Mathf.Repeat(CurrentElapsedSeconds / CycleSeconds, 1f);
+        public static StrategyCalendarSnapshot CurrentCalendarSnapshot => CreateSnapshot(CurrentElapsedSeconds);
+
+        public static void RestoreElapsedSeconds(float elapsedSeconds)
+        {
+            elapsedTimeOffset = Mathf.Max(0f, elapsedSeconds) - Time.timeSinceLevelLoad;
+        }
         public static bool IsSettlementWorkTime
         {
             get
@@ -99,6 +106,15 @@ namespace ProjectUnknown.Strategy
         public static bool IsHouseholdOutdoorWorkTime
         {
             get { return IsSettlementWorkTime; }
+        }
+        public static bool IsResidentEveningHomeTime
+        {
+            get
+            {
+                StrategyCalendarSnapshot snapshot = CurrentCalendarSnapshot;
+                return snapshot.Phase == StrategyTimeOfDayPhase.Night
+                    || (snapshot.Phase == StrategyTimeOfDayPhase.Dusk && snapshot.Hour >= 21);
+            }
         }
         public static bool IsHouseholdCookingTime => CurrentCalendarSnapshot.Phase == StrategyTimeOfDayPhase.Dusk;
 

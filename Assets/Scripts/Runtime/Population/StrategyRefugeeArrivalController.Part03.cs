@@ -53,7 +53,15 @@ namespace ProjectUnknown.Strategy
             lastDynamicArrivalRollDayIndex = calendar.DayIndex;
             RefugeeWorkforceDemandSnapshot demand = CollectDynamicWorkforceDemand();
             float intensity = GetArrivalIntensity();
-            float chance = GetDynamicArrivalChance(demand.AdultDeficit) * intensity;
+            float dailyNeed = population != null ? population.GetTotalDailyRationNeed() : 0f;
+            float availableFoodDays = dailyNeed > 0.01f
+                ? StrategyResourceQueryService.GetFoodRations(
+                    StrategyResourceStoreScope.Settlement
+                    | StrategyResourceStoreScope.TemporarySettlement
+                    | StrategyResourceStoreScope.Household) / dailyNeed
+                : StrategyFirstYearBalance.ComfortableRefugeeFoodDays;
+            float foodMultiplier = StrategyFirstYearBalance.GetRefugeeFoodMultiplier(availableFoodDays);
+            float chance = GetDynamicArrivalChance(demand.AdultDeficit) * intensity * foodMultiplier;
             if (chance <= 0f)
             {
                 string reason = demand.AdultDeficit <= 0 ? "no_adult_deficit" : "population_slowdown";
@@ -270,12 +278,14 @@ namespace ProjectUnknown.Strategy
                 return 0f;
             }
 
-            if (count <= PopulationSlowdownStart)
-            {
-                return 1f;
-            }
-
-            return Mathf.Clamp01((PopulationHardCap - count) / (float)(PopulationHardCap - PopulationSlowdownStart));
+            float populationMultiplier = count <= PopulationSlowdownStart
+                ? 1f
+                : Mathf.Clamp01((PopulationHardCap - count) / (float)(PopulationHardCap - PopulationSlowdownStart));
+            StrategyCalendarSnapshot calendar = StrategyDayNightCycleController.CurrentCalendarSnapshot;
+            int housingSlots = population != null ? population.GetAvailableHousingSlots() : 0;
+            return populationMultiplier
+                * StrategyFirstYearBalance.GetRefugeeSeasonMultiplier(calendar.Season)
+                * StrategyFirstYearBalance.GetRefugeeHousingMultiplier(housingSlots);
         }
 
         private void LogFirstArrivalWaiting()

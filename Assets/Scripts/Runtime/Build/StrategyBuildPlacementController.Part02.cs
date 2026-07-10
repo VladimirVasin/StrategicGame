@@ -66,7 +66,8 @@ namespace ProjectUnknown.Strategy
             GetWalkBlockFootprint(toolInfo.Tool, origin, toolInfo.Footprint, out Vector2Int finalBlockOrigin, out Vector2Int finalBlockFootprint);
             return CanPlaceFoundation(origin, toolInfo.Footprint, toolInfo.Tool)
                 && CanReserveFinalBlock(finalBlockOrigin, finalBlockFootprint, toolInfo.Tool)
-                && HasBuilderWorkAccess(origin, toolInfo.Footprint)
+                && !ContainsActiveResident(finalBlockOrigin, finalBlockFootprint)
+                && HasBuilderWorkAccess(finalBlockOrigin, finalBlockFootprint)
                 && (toolInfo.Tool != StrategyBuildTool.FisherHut || HasFishingWaterAccess(origin))
                 && HasRequiredDepositAccess(toolInfo.Tool, origin, toolInfo.Footprint, out _);
         }
@@ -354,7 +355,9 @@ namespace ProjectUnknown.Strategy
         private bool CanPlaceStarterSupplyOrigin(Vector2Int origin, Vector2Int avoidCell, StrategyBuildToolInfo toolInfo)
         {
             GetWalkBlockFootprint(toolInfo.Tool, origin, toolInfo.Footprint, out Vector2Int blockOrigin, out Vector2Int blockFootprint);
-            return !ContainsCell(blockOrigin, blockFootprint, avoidCell) && CanPlaceFootprint(blockOrigin, blockFootprint);
+            return !ContainsCell(blockOrigin, blockFootprint, avoidCell)
+                && !ContainsActiveResident(blockOrigin, blockFootprint)
+                && CanPlaceFootprint(blockOrigin, blockFootprint);
         }
 
         private string GetPlacementFailureReason(Vector2Int origin, StrategyBuildToolInfo toolInfo)

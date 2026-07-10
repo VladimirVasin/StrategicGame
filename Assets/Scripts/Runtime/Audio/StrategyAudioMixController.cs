@@ -238,15 +238,17 @@ namespace ProjectUnknown.Strategy
                 ? Mathf.InverseLerp(NearZoomSize, FarZoomSize, strategyCamera.orthographicSize)
                 : 0f;
 
-            float master = 1f;
+            float master = StrategyGameSettings.MasterVolume;
+            float music = StrategyGameSettings.MusicVolume;
+            float sfx = StrategyGameSettings.SfxVolume;
             SetVolume(StrategyAudioBus.Master, master);
-            SetVolume(StrategyAudioBus.Music, master * 0.88f * Mathf.Lerp(1f, 0.82f, Mathf.Max(storm, weatherMask * 0.35f)));
-            SetVolume(StrategyAudioBus.Ambience, master * Mathf.Lerp(0.96f, 1.12f, zoomFactor) * Mathf.Lerp(1f, 1.05f, nightBlend));
-            SetVolume(StrategyAudioBus.Weather, master * Mathf.Lerp(0.98f, 1.16f, Mathf.Max(weatherMask, wind * 0.6f)) * Mathf.Lerp(1f, 1.08f, zoomFactor));
-            SetVolume(StrategyAudioBus.Water, master * Mathf.Lerp(1.04f, 0.86f, zoomFactor));
-            SetVolume(StrategyAudioBus.ResidentFootsteps, master * 0.78f * Mathf.Lerp(1f, 0.45f, zoomFactor) * Mathf.Lerp(1f, 0.78f, weatherMask));
-            SetVolume(StrategyAudioBus.ResidentWork, master * 0.88f * Mathf.Lerp(1f, 0.66f, zoomFactor) * Mathf.Lerp(1f, 0.84f, weatherMask));
-            SetVolume(StrategyAudioBus.Hud, master * 0.82f);
+            SetVolume(StrategyAudioBus.Music, master * music * 0.88f * Mathf.Lerp(1f, 0.82f, Mathf.Max(storm, weatherMask * 0.35f)));
+            SetVolume(StrategyAudioBus.Ambience, master * sfx * Mathf.Lerp(0.96f, 1.12f, zoomFactor) * Mathf.Lerp(1f, 1.05f, nightBlend));
+            SetVolume(StrategyAudioBus.Weather, master * sfx * Mathf.Lerp(0.98f, 1.16f, Mathf.Max(weatherMask, wind * 0.6f)) * Mathf.Lerp(1f, 1.08f, zoomFactor));
+            SetVolume(StrategyAudioBus.Water, master * sfx * Mathf.Lerp(1.04f, 0.86f, zoomFactor));
+            SetVolume(StrategyAudioBus.ResidentFootsteps, master * sfx * 0.78f * Mathf.Lerp(1f, 0.45f, zoomFactor) * Mathf.Lerp(1f, 0.78f, weatherMask));
+            SetVolume(StrategyAudioBus.ResidentWork, master * sfx * 0.88f * Mathf.Lerp(1f, 0.66f, zoomFactor) * Mathf.Lerp(1f, 0.84f, weatherMask));
+            SetVolume(StrategyAudioBus.Hud, master * sfx * 0.82f);
         }
 
         private StrategyAudioWorldMix EvaluateWorldInternal(Vector3 worldPosition, StrategyAudioBus bus)

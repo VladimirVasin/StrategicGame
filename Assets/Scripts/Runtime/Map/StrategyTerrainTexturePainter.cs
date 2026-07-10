@@ -7,7 +7,8 @@ namespace ProjectUnknown.Strategy
         private const int VariantCount = 6;
 
         public static void PaintTile(
-            Texture2D texture,
+            Color32[] pixels,
+            int textureWidth,
             CityMapCell[,] cells,
             int cellX,
             int cellY,
@@ -34,7 +35,7 @@ namespace ProjectUnknown.Strategy
                     }
 
                     pixel.a = 1f;
-                    texture.SetPixel(startX + px, startY + py, pixel);
+                    pixels[(startY + py) * textureWidth + startX + px] = pixel;
                 }
             }
         }

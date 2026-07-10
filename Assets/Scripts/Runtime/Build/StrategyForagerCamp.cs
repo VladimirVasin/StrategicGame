@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ProjectUnknown.Strategy
 {
     [DisallowMultipleComponent]
-    public sealed partial class StrategyForagerCamp : MonoBehaviour
+    public sealed partial class StrategyForagerCamp : MonoBehaviour, IStrategyResourceStoreOwner
     {
         public const int MaxWorkers = 2;
         public const int WorkRadius = 11;
@@ -18,12 +18,14 @@ namespace ProjectUnknown.Strategy
         private object forageReservationOwner;
         private StrategyResourceType forageReservedResource = StrategyResourceType.None;
         private int forageReservedAmount;
-        private int berriesStored;
-        private int rootsStored;
-        private int mushroomsStored;
+        private readonly StrategyResourceStore resourceStore = new();
+        private ref int berriesStored => ref resourceStore.GetAmountRef(StrategyResourceType.Berries);
+        private ref int rootsStored => ref resourceStore.GetAmountRef(StrategyResourceType.Roots);
+        private ref int mushroomsStored => ref resourceStore.GetAmountRef(StrategyResourceType.Mushrooms);
 
         public IReadOnlyList<StrategyResidentAgent> Workers => workers;
         public int WorkerCount => workers.Count;
+        public StrategyResourceStore ResourceStore => resourceStore;
         public int BerriesStored => berriesStored;
         public int RootsStored => rootsStored;
         public int MushroomsStored => mushroomsStored;
@@ -40,6 +42,7 @@ namespace ProjectUnknown.Strategy
             StrategyForageResourceController forageController)
         {
             building = placedBuilding;
+            resourceStore.Bind(this, StrategyResourceStoreScope.Production, StrategyProductionStorage.LocalCapacity);
             map = mapController;
             population = populationController;
             forage = forageController != null ? forageController : StrategyForageResourceController.Active;

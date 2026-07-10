@@ -6,22 +6,8 @@ namespace ProjectUnknown.Strategy
     public sealed partial class StrategyRabbitAgent
     {
 
-        private void BuildWorldPath(Vector2Int startCell, Vector2Int targetCell, Dictionary<Vector2Int, Vector2Int> cameFrom)
+        private void BuildWorldPath(IReadOnlyList<Vector2Int> cells)
         {
-            List<Vector2Int> cells = new();
-            Vector2Int current = targetCell;
-            while (current != startCell)
-            {
-                cells.Add(current);
-                if (!cameFrom.TryGetValue(current, out current))
-                {
-                    path.Clear();
-                    pathIndex = 0;
-                    return;
-                }
-            }
-
-            cells.Reverse();
             path.Clear();
             for (int i = 0; i < cells.Count; i++)
             {

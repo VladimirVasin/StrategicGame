@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ProjectUnknown.Strategy
 {
     [DisallowMultipleComponent]
-    public sealed partial class StrategyGranary : MonoBehaviour
+    public sealed partial class StrategyGranary : MonoBehaviour, IStrategyResourceStoreOwner
     {
         public const int MaxWorkers = 2;
 
@@ -23,13 +23,11 @@ namespace ProjectUnknown.Strategy
         private object householdFoodReservationOwner;
         private StrategyResourceType householdFoodReservedResource = StrategyResourceType.None;
         private int householdFoodReservedAmount;
-        private int gameStored;
-        private int fishStored;
-        private int eggsStored;
         private static Vector3 granarySortWorld;
 
         public IReadOnlyList<StrategyResidentAgent> Workers => workers;
         public int WorkerCount => workers.Count;
+        public StrategyResourceStore ResourceStore => resourceStore;
         public int GameStored => gameStored;
         public int FishStored => fishStored;
         public int EggsStored => eggsStored;
@@ -224,6 +222,7 @@ namespace ProjectUnknown.Strategy
             StrategyPopulationController populationController)
         {
             building = placedBuilding;
+            ConfigureResourceStore();
             map = mapController;
             population = populationController;
             EnsureStockRenderers();

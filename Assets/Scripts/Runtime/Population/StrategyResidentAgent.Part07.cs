@@ -60,48 +60,31 @@ namespace ProjectUnknown.Strategy
                     lumberWorkCooldown = Random.Range(2.0f, 4.0f);
                 }
 
-                StrategyDebugLogger.Warn(
-                    "Population",
-                    "PlantMoveRejected",
-                    StrategyDebugLogger.F("resident", FullName),
-                    StrategyDebugLogger.F("residentId", residentId),
-                    StrategyDebugLogger.F("plantCell", cell),
-                    StrategyDebugLogger.F("reason", "no_work_cell"));
+                if (applyFailureCooldown)
+                {
+                    StrategyDebugLogger.Info(
+                        "Population",
+                        "PlantMoveDeferred",
+                        StrategyDebugLogger.F("resident", FullName),
+                        StrategyDebugLogger.F("residentId", residentId),
+                        StrategyDebugLogger.F("plantCell", cell),
+                        StrategyDebugLogger.F("reason", "no_reachable_work_cell"));
+                }
                 return false;
             }
 
             plantingCell = cell;
             activity = ResidentActivity.MovingToPlantTree;
-            if (TryBuildPathTo(workCell))
-            {
-                hasTarget = true;
-                waitTimer = Random.Range(0.05f, 0.22f);
-                StrategyDebugLogger.Info(
-                    "Population",
-                    "PlantMoveStarted",
-                    StrategyDebugLogger.F("resident", FullName),
-                    StrategyDebugLogger.F("residentId", residentId),
-                    StrategyDebugLogger.F("plantCell", cell),
-                    StrategyDebugLogger.F("workCell", workCell));
-                return true;
-            }
-
-            activity = ResidentActivity.Idle;
-            workplace?.RegisterRejectedPlantingCell(cell, "no_path");
-            if (applyFailureCooldown)
-            {
-                lumberWorkCooldown = Random.Range(2.0f, 4.0f);
-            }
-
-            StrategyDebugLogger.Warn(
+            hasTarget = true;
+            waitTimer = Random.Range(0.05f, 0.22f);
+            StrategyDebugLogger.Info(
                 "Population",
-                "PlantMoveRejected",
+                "PlantMoveStarted",
                 StrategyDebugLogger.F("resident", FullName),
                 StrategyDebugLogger.F("residentId", residentId),
                 StrategyDebugLogger.F("plantCell", cell),
-                StrategyDebugLogger.F("workCell", workCell),
-                StrategyDebugLogger.F("reason", "no_path"));
-            return false;
+                StrategyDebugLogger.F("workCell", workCell));
+            return true;
         }
 
         private bool TryStartPlantingTask()
@@ -124,6 +107,7 @@ namespace ProjectUnknown.Strategy
                 }
             }
 
+            lumberWorkCooldown = Random.Range(2.0f, 4.0f);
             return false;
         }
 
@@ -170,7 +154,39 @@ namespace ProjectUnknown.Strategy
 
         private bool TryFindPlantingWorkCell(Vector2Int targetCell, out Vector2Int cell)
         {
-            return TryFindReachableRingWorkCell(targetCell, out cell);
+            return TryFindReachableRingWorkCell(targetCell, out cell, 4);
+        }
+
+        private bool IsPlantingCellOccupiedByResident()
+        {
+            if (population == null || map == null)
+            {
+                return false;
+            }
+
+            IReadOnlyList<StrategyResidentAgent> residents = population.Residents;
+            for (int i = 0; i < residents.Count; i++)
+            {
+                StrategyResidentAgent resident = residents[i];
+                if (resident == null
+                    || resident == this
+                    || resident.IsPendingRefugee
+                    || resident.IsSleepingInsideHome
+                    || resident.IsHomeboundYoungChild
+                    || resident.Activity == ResidentActivity.StayingInsideHome
+                    || !resident.gameObject.activeInHierarchy
+                    || !map.TryWorldToCell(resident.transform.position, out Vector2Int cell))
+                {
+                    continue;
+                }
+
+                if (cell == plantingCell)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private bool TryFindTreeWorkCell(StrategyForestryTree tree, out Vector2Int cell)

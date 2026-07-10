@@ -6,7 +6,6 @@ namespace ProjectUnknown.Strategy
     {
         private IStrategyProductionLogisticsNode activeToolsSource;
         private SpriteRenderer carriedToolsRenderer;
-        private int carriedToolsAmount;
 
         private bool TryStartStorageToolsPickup()
         {

@@ -60,6 +60,8 @@ namespace ProjectUnknown.Strategy
         };
 
         private readonly List<Vector3> path = new();
+        private readonly List<Vector2Int> navigationRawCells = new();
+        private readonly List<Vector2Int> navigationSmoothedCells = new();
         private CityMapController map;
         private StrategyPopulationController population;
         private StrategyWildlifeController wildlife;

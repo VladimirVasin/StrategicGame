@@ -7,6 +7,80 @@ namespace ProjectUnknown.Strategy
         private Vector2Int activeFishingCell;
         private bool hasActiveFishingCell;
 
+        private bool TryStartFisherTask()
+        {
+            if (activity != ResidentActivity.Idle
+                || fisherWorkplace == null
+                || workplace != null
+                || stoneWorkplace != null
+                || hunterWorkplace != null
+                || storageWorkplace != null
+                || builderWorkplace != null
+                || granaryWorkplace != null
+                || !CanWork
+                || fishingWorkCooldown > 0f)
+            {
+                return false;
+            }
+
+            if (StrategySeasonalSurfaceController.IsWaterFrozenForGameplay)
+            {
+                fishingWorkCooldown = Random.Range(4.0f, 7.5f);
+                return false;
+            }
+
+            if (fisherWorkplace.TryReserveFishTarget(this, out StrategyFishAgent fish)
+                && TryMoveToFishingTarget(fish))
+            {
+                return true;
+            }
+
+            fish?.ReleaseFishingReservation(this);
+            activeFishTarget = null;
+            fishingWorkCooldown = Random.Range(2.5f, 5.0f);
+            return false;
+        }
+
+        private bool TryMoveToFishingTarget(StrategyFishAgent fish)
+        {
+            if (fish == null || fish.IsCaught || fisherWorkplace == null)
+            {
+                return false;
+            }
+
+            activeFishTarget = fish;
+            if (!fisherWorkplace.TryFindFishingCell(fish, out Vector2Int fishingCell)
+                || !TryBuildPathTo(fishingCell))
+            {
+                activeFishTarget = null;
+                ClearFishingStandTracking();
+                activity = ResidentActivity.Idle;
+                fishingWorkCooldown = Random.Range(2.0f, 4.0f);
+                StrategyDebugLogger.Warn(
+                    "Fishing",
+                    "FishingMoveRejected",
+                    StrategyDebugLogger.F("resident", FullName),
+                    StrategyDebugLogger.F("fishWorld", fish != null ? fish.transform.position : Vector3.zero),
+                    StrategyDebugLogger.F("reason", "no_shore_path"),
+                    StrategyDebugLogger.F("hutOrigin", fisherWorkplace != null ? fisherWorkplace.Origin : Vector2Int.zero));
+                return false;
+            }
+
+            activeFishingCell = fishingCell;
+            hasActiveFishingCell = true;
+            activity = ResidentActivity.MovingToFishingSpot;
+            hasTarget = true;
+            waitTimer = Random.Range(0.04f, 0.18f);
+            StrategyDebugLogger.Info(
+                "Fishing",
+                "FishingMoveStarted",
+                StrategyDebugLogger.F("resident", FullName),
+                StrategyDebugLogger.F("fishingCell", fishingCell),
+                StrategyDebugLogger.F("fishWorld", fish.transform.position),
+                StrategyDebugLogger.F("hutOrigin", fisherWorkplace != null ? fisherWorkplace.Origin : Vector2Int.zero));
+            return true;
+        }
+
         private void StartCastingFishingLine()
         {
             hasTarget = false;

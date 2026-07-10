@@ -96,7 +96,7 @@ namespace ProjectUnknown.Strategy
             while (dishesCooked < targetDishes && producedRations < targetRations - 0.01f)
             {
                 StrategyDishRecipe recipe = StrategyDishRecipeCatalog.ChooseBestAvailable(
-                    amounts,
+                    CopyIngredientAmounts(),
                     targetRations - producedRations);
                 if (recipe == null)
                 {
@@ -109,7 +109,7 @@ namespace ProjectUnknown.Strategy
                     break;
                 }
 
-                if (!ConsumeRecipeIngredients(amounts, recipe))
+                if (!TryConsumeRecipeIngredients(recipe))
                 {
                     AddResource(StrategyResourceType.Pottery, pottery);
                     break;
@@ -203,7 +203,7 @@ namespace ProjectUnknown.Strategy
         public bool TryGetBestCookableRecipe(float targetRations, out StrategyDishRecipe recipe)
         {
             recipe = StrategyDishRecipeCatalog.ChooseBestAvailable(
-                amounts,
+                CopyIngredientAmounts(),
                 Mathf.Max(0f, targetRations));
             return recipe != null;
         }
@@ -227,6 +227,48 @@ namespace ProjectUnknown.Strategy
 
             target.Sort((left, right) => StrategyDishRecipeCatalog.CompareServingPriority(left.Recipe, right.Recipe));
             return target.Count;
+        }
+
+        public void CapturePreparedDishState(
+            List<string> recipeIds,
+            List<int> amounts,
+            out float savedLeftoverRations)
+        {
+            recipeIds?.Clear();
+            amounts?.Clear();
+            if (recipeIds != null && amounts != null)
+            {
+                foreach (KeyValuePair<string, int> stack in preparedDishAmounts)
+                {
+                    if (stack.Value > 0)
+                    {
+                        recipeIds.Add(stack.Key);
+                        amounts.Add(stack.Value);
+                    }
+                }
+            }
+
+            savedLeftoverRations = leftoverRations;
+        }
+
+        public void RestorePreparedDishState(
+            IReadOnlyList<string> recipeIds,
+            IReadOnlyList<int> amounts,
+            float savedLeftoverRations)
+        {
+            preparedDishAmounts.Clear();
+            int count = recipeIds != null && amounts != null
+                ? Mathf.Min(recipeIds.Count, amounts.Count)
+                : 0;
+            for (int i = 0; i < count; i++)
+            {
+                if (amounts[i] > 0 && StrategyDishRecipeCatalog.FindById(recipeIds[i]) != null)
+                {
+                    preparedDishAmounts[recipeIds[i]] = amounts[i];
+                }
+            }
+
+            leftoverRations = Mathf.Max(0f, savedLeftoverRations);
         }
 
         private void AddPreparedDish(StrategyDishRecipe recipe, int amount)
@@ -271,17 +313,7 @@ namespace ProjectUnknown.Strategy
                 return 0;
             }
 
-            int nextAmount = available - taken;
-            if (nextAmount > 0)
-            {
-                amounts[StrategyResourceType.Pottery] = nextAmount;
-            }
-            else
-            {
-                amounts.Remove(StrategyResourceType.Pottery);
-            }
-
-            return taken;
+            return resourceStore.Take(StrategyResourceType.Pottery, taken);
         }
 
         private string FindBestPreparedDishStackId()
@@ -323,6 +355,26 @@ namespace ProjectUnknown.Strategy
             }
 
             return copy;
+        }
+
+        private bool TryConsumeRecipeIngredients(StrategyDishRecipe recipe)
+        {
+            Dictionary<StrategyResourceType, int> available = CopyIngredientAmounts();
+            if (!StrategyDishRecipeCatalog.HasIngredients(recipe, available))
+            {
+                return false;
+            }
+
+            for (int i = 0; i < recipe.Ingredients.Length; i++)
+            {
+                StrategyDishIngredient ingredient = recipe.Ingredients[i];
+                if (resourceStore.Take(ingredient.Resource, ingredient.Amount) != ingredient.Amount)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private static bool ConsumeRecipeIngredients(
