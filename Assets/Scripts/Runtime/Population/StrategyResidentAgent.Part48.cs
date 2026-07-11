@@ -36,11 +36,16 @@ namespace ProjectUnknown.Strategy
 
             if (!StrategyStorageYard.HasAnyActiveYard())
             {
+                bool startedWaiting = !householdPotteryWaitingForStorageYard;
                 householdPotteryWaitingForStorageYard = true;
                 householdPotteryWorkCooldown = Mathf.Max(
                     householdPotteryWorkCooldown,
                     Random.Range(HouseholdPotteryNoStorageRetryCooldownMin, HouseholdPotteryNoStorageRetryCooldownMax));
-                LogHouseholderPotteryPickupSkipped("no_storage_yards", demand, dailyNeed);
+                if (startedWaiting)
+                {
+                    LogHouseholderPotteryPickupSkipped("no_storage_yards", demand, dailyNeed);
+                }
+
                 return false;
             }
 
@@ -103,6 +108,12 @@ namespace ProjectUnknown.Strategy
             if (!TryBuildPathTo(pickupCell))
             {
                 yard.ReleaseHouseholdPotteryReservation(this);
+                if (WasLastPathBuildDeferred)
+                {
+                    householdPotteryWorkCooldown = Random.Range(0.18f, 0.38f);
+                    return false;
+                }
+
                 householdPotteryWorkCooldown = Random.Range(
                     HouseholdFoodPickupRetryCooldownMin,
                     HouseholdFoodPickupRetryCooldownMax);

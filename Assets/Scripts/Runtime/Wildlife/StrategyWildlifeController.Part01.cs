@@ -432,13 +432,7 @@ namespace ProjectUnknown.Strategy
             {
                 if (ShouldLogMigrationAbort(kind, id))
                 {
-                    StrategyDebugLogger.Warn(
-                        "Wildlife",
-                        "MigrationAborted",
-                        StrategyDebugLogger.F("kind", kind),
-                        StrategyDebugLogger.F("id", id),
-                        StrategyDebugLogger.F("center", currentCenter),
-                        StrategyDebugLogger.F("target", state.Target));
+                    LogMigrationAbort(kind, id, currentCenter, state.Target, requireWalkableConnection);
                 }
 
                 RegisterMigrationTargetFailure(state.Target);

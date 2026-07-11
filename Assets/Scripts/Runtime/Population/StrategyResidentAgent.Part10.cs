@@ -345,6 +345,12 @@ namespace ProjectUnknown.Strategy
                     out dropoffCell,
                     out checkedDropoffCells))
             {
+                if (WasLastPathBuildDeferred)
+                {
+                    lumberWorkTimer = Random.Range(0.18f, 0.38f);
+                    return;
+                }
+
                 StrategyDebugLogger.Warn(
                     "Construction",
                     isHaulerDelivery ? "HaulerConstructionPickupRejected" : "BuilderPickupRejected",

@@ -1,12 +1,22 @@
 # Work Log
 
-Last updated: 2026-07-10
+Last updated: 2026-07-11
 
 ## Active
 
 - None.
 
 ## Done
+
+### 2026-07-11 - Navigation pressure, resource guarantees, and refugee hitch fixes
+
+- Preserved deferred path requests as budget waits instead of false unreachable failures, stopped resident/wildlife candidate scans after deferral, and prevented construction assignments from being dropped because a path was still queued.
+- Split navigation work into critical/normal/background queues, moved wildlife to background priority, replaced whole-cache clears with bounded recency eviction, and pooled cached path buffers.
+- Moved global Stone/Clay/Iron/Coal minimum guarantees before decorative nature placement and enforced the shared 3600-prop ceiling in every deposit factory.
+- Changed refugee route preparation to validate entry cells against the camp connected component and build family routes incrementally across frames instead of running hundreds of synchronous A* attempts at Dusk.
+- Reset performance windows across application focus/pause transitions, sampled construction hit logs at milestones, and logged expected no-Storage-Yard Pottery waiting only on state entry.
+- Added Edit Mode navigation-priority checks and Play Mode generated-resource/prop-limit checks.
+- Verification: both C# projects build with 0 warnings and 0 errors; all 7 Edit Mode checks passed; the Play Mode smoke check passed with the 3600-prop ceiling, Stone/Iron/Coal/Clay minimums, and incremental refugee routing completing without runtime warnings or exceptions.
 
 ### 2026-07-10 - Intro menu and map preloading
 

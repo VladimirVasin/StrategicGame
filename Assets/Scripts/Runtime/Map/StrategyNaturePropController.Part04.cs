@@ -79,7 +79,7 @@ namespace ProjectUnknown.Strategy
             int maxClay)
         {
             Vector2Int origin = new Vector2Int(cell.X, cell.Y);
-            if (!CanPlaceClayFootprint(origin, footprint))
+            if (spawnedProps >= MaxNatureProps || !CanPlaceClayFootprint(origin, footprint))
             {
                 return false;
             }

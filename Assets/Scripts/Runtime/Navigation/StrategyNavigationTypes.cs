@@ -17,6 +17,13 @@ namespace ProjectUnknown.Strategy
         Invalid
     }
 
+    public enum StrategyNavigationPriority
+    {
+        Background,
+        Normal,
+        Critical
+    }
+
     public readonly struct StrategyNavigationQuery
     {
         public StrategyNavigationQuery(
@@ -25,7 +32,8 @@ namespace ProjectUnknown.Strategy
             StrategyNavigationMode mode,
             int maxVisited = 0,
             StrategyWildlifeController wildlife = null,
-            bool allowWildlifeStructureBuffer = false)
+            bool allowWildlifeStructureBuffer = false,
+            StrategyNavigationPriority priority = StrategyNavigationPriority.Normal)
         {
             Start = start;
             Target = target;
@@ -33,6 +41,10 @@ namespace ProjectUnknown.Strategy
             MaxVisited = maxVisited;
             Wildlife = wildlife;
             AllowWildlifeStructureBuffer = allowWildlifeStructureBuffer;
+            Priority = mode == StrategyNavigationMode.WildlifeLand
+                && priority == StrategyNavigationPriority.Normal
+                    ? StrategyNavigationPriority.Background
+                    : priority;
         }
 
         public Vector2Int Start { get; }
@@ -41,6 +53,7 @@ namespace ProjectUnknown.Strategy
         public int MaxVisited { get; }
         public StrategyWildlifeController Wildlife { get; }
         public bool AllowWildlifeStructureBuffer { get; }
+        public StrategyNavigationPriority Priority { get; }
     }
 
     internal readonly struct StrategyNavigationQueryKey : System.IEquatable<StrategyNavigationQueryKey>

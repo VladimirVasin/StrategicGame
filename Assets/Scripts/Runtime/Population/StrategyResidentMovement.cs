@@ -24,7 +24,11 @@ namespace ProjectUnknown.Strategy
             ClearPath();
         }
 
-        public StrategyNavigationStatus TryBuildPath(Vector2Int startCell, Vector2Int targetCell)
+        public StrategyNavigationStatus TryBuildPath(
+            Vector2Int startCell,
+            Vector2Int targetCell,
+            StrategyNavigationPriority priority,
+            bool allowDeferred)
         {
             StrategyNavigationService navigation = StrategyNavigationService.Active;
             if (navigation == null)
@@ -38,9 +42,11 @@ namespace ProjectUnknown.Strategy
                 new StrategyNavigationQuery(
                     startCell,
                     targetCell,
-                    StrategyNavigationMode.ResidentTrail),
+                    StrategyNavigationMode.ResidentTrail,
+                    priority: priority),
                 navigationRawCells,
-                navigationSmoothedCells);
+                navigationSmoothedCells,
+                allowDeferred);
         }
 
         public Vector3 MoveTowards(Vector3 targetWorld, float speed, float deltaTime)

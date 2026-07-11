@@ -45,6 +45,7 @@ namespace ProjectUnknown.Strategy
         private bool returningToCoopForNight;
         private bool shelteredInsideCoop;
         private bool usingAnimatedSprite;
+        private bool lastPathBuildDeferred;
 
         public StrategyBuildingUpgrade Coop => coop;
         public StrategyChickenCoop StandaloneCoop => standaloneCoop;
@@ -222,6 +223,11 @@ namespace ProjectUnknown.Strategy
                     waitTimer = Random.Range(0.08f, 0.35f);
                     return;
                 }
+
+                if (lastPathBuildDeferred)
+                {
+                    break;
+                }
             }
 
             hasTarget = false;
@@ -232,6 +238,7 @@ namespace ProjectUnknown.Strategy
 
         private bool TryBuildPathTo(Vector2Int targetCell)
         {
+            lastPathBuildDeferred = false;
             if (!map.TryWorldToCell(transform.position, out Vector2Int startCell)
                 || !IsChickenWalkCell(startCell)
                 || !IsChickenWalkCell(targetCell))
@@ -250,9 +257,16 @@ namespace ProjectUnknown.Strategy
                     startCell,
                     targetCell,
                     StrategyNavigationMode.GroundCardinal,
-                    144),
+                    144,
+                    priority: StrategyNavigationPriority.Background),
                 navigationRawCells,
                 navigationSmoothedCells);
+            if (status == StrategyNavigationStatus.Deferred)
+            {
+                lastPathBuildDeferred = true;
+                return false;
+            }
+
             if (status != StrategyNavigationStatus.Success)
             {
                 return false;

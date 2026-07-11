@@ -151,7 +151,7 @@ namespace ProjectUnknown.Strategy
             int maxStone)
         {
             Vector2Int origin = new Vector2Int(cell.X, cell.Y);
-            if (!CanPlaceStoneFootprint(origin, footprint))
+            if (spawnedProps >= MaxNatureProps || !CanPlaceStoneFootprint(origin, footprint))
             {
                 return false;
             }

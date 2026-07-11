@@ -69,13 +69,18 @@ namespace ProjectUnknown.Strategy
             return true;
         }
 
-        public bool TryStartPlannedTask()
+        public bool TryStartPlannedTask(Func<bool> shouldStop)
         {
             for (int i = 0; i < plannedTasks.Count; i++)
             {
                 if (plannedTasks[i].TryStart())
                 {
                     return true;
+                }
+
+                if (shouldStop != null && shouldStop())
+                {
+                    return false;
                 }
             }
 

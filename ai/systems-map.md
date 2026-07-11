@@ -418,13 +418,15 @@ Responsibilities:
 - Preserve resident trail weighting, diagonal corner blocking, and line-of-sight smoothing.
 - Preserve cardinal land-wildlife movement, River transit, and settlement structure buffers.
 - Coalesce duplicate requests and warm deferred paths under a per-frame count/time budget.
-- Cache short-lived path and reachability outcomes and invalidate them on map walkability revision changes.
+- Drain critical resident transitions before normal decisions and background wildlife work.
+- Cache short-lived path and reachability outcomes in pooled bounded buffers and invalidate them on map walkability revision changes.
 
 Primary files/assets:
 
 - `Assets/Scripts/Runtime/Navigation/StrategyNavigationTypes.cs`
 - `Assets/Scripts/Runtime/Navigation/StrategyNavigationPathfinder.cs`
 - `Assets/Scripts/Runtime/Navigation/StrategyNavigationService.cs`
+- `Assets/Scripts/Runtime/Navigation/StrategyNavigationService.Storage.cs`
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.Navigation.cs`
 - `Assets/Scripts/Runtime/Map/CityMapController.Buildability.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part36.cs`
@@ -439,6 +441,7 @@ Primary files/assets:
 Impact hints:
 
 - Callers may receive `Deferred`; normal agent decision loops should retry rather than treating that state as a permanent unreachable target.
+- Candidate-selection loops must stop on `Deferred`; do not enqueue alternate targets or increment failure/blacklist counters until an actual `Unreachable` result exists.
 - Fish remain on their water-kind path logic, and special flood-fill searches for funeral coverage, refugee staging, migration reachability, and wolf River escape remain specialized queries rather than ordinary point-to-point paths.
 - Any new runtime walkability mutation must go through `CityMapController` so `WalkabilityVersion` invalidates navigation results.
 
@@ -637,6 +640,7 @@ Responsibilities:
 - Use `CityMapController.ActiveSeed` plus cell coordinates for deterministic prop layout per generated map.
 - Guarantee a small starter Stone field within stonecutter work distance around the startup campfire.
 - Guarantee small starter Coal and Iron fields in a nearby ring before the shared decorative prop budget can fill.
+- Guarantee global Stone, Clay, Iron, and Coal minimum deposit counts before decorative placement while keeping every generated child inside the shared 3600-prop limit.
 - Make `Forest` cells read as dense forest while adding sparse standalone trees/bushes to other land terrain.
 - Attach wind-sway animation to trees, forest groups, and bushes using the runtime strategy wind source.
 - Add procedural leaf frame overlays to trees, forest groups, and bushes.
@@ -1153,6 +1157,7 @@ Primary files/assets:
 
 - `Assets/Scripts/Runtime/UI/StrategyRefugeeDialogController.cs`
 - `Assets/Scripts/Runtime/Population/StrategyRefugeeArrivalController.cs`
+- `Assets/Scripts/Runtime/Population/StrategyRefugeeArrivalController.Routing.cs`
 - `Assets/Scripts/Runtime/Population/StrategyRefugeeArrivalController.Part02.cs`
 - `Assets/Scripts/Runtime/Core/StrategyTimeScaleController.cs`
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.cs`
@@ -1457,6 +1462,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Build/StrategyBuildingUpgrade.cs`
 - `Assets/Scripts/Runtime/Population/StrategyHouseholdForagingState.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.HouseholdFoodPickup.cs`
 - `Assets/Scripts/Runtime/Map/StrategyForageResourceController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyForageResourceController.Respawn.cs`
 - `Assets/Scripts/Runtime/Map/StrategyForageNode.cs`

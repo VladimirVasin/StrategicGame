@@ -108,6 +108,7 @@ namespace ProjectUnknown.Strategy
 
         private bool TryBuildTrailAwarePathTo(Vector2Int targetCell)
         {
+            lastPathBuildStatus = StrategyNavigationStatus.Invalid;
             if (!suppressTrailRouteCapture)
             {
                 ClearPendingTrailRoute();
@@ -122,6 +123,7 @@ namespace ProjectUnknown.Strategy
 
             if (startCell == targetCell)
             {
+                lastPathBuildStatus = StrategyNavigationStatus.Success;
                 path.Clear();
                 path.Add(new Vector3(transform.position.x, transform.position.y, -0.08f));
                 pathIndex = 0;
@@ -129,9 +131,17 @@ namespace ProjectUnknown.Strategy
             }
 
             StrategyResidentPerformanceCounters.RecordPathRequest();
-            StrategyNavigationStatus status = movement.TryBuildPath(startCell, targetCell);
+            StrategyNavigationStatus status = movement.TryBuildPath(
+                startCell,
+                targetCell,
+                evaluatingPlannedTasks
+                    ? StrategyNavigationPriority.Normal
+                    : StrategyNavigationPriority.Critical,
+                evaluatingPlannedTasks);
+            lastPathBuildStatus = status;
             if (status == StrategyNavigationStatus.Deferred)
             {
+                pathBuildDeferredDuringDecision = true;
                 return false;
             }
 
@@ -149,6 +159,8 @@ namespace ProjectUnknown.Strategy
                 movement.NavigationSmoothedCells);
             return path.Count > 0;
         }
+
+        private bool WasLastPathBuildDeferred => lastPathBuildStatus == StrategyNavigationStatus.Deferred;
 
         private void BuildTrailWorldPath(
             Vector2Int startCell,

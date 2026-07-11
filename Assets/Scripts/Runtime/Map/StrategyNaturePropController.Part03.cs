@@ -156,7 +156,7 @@ namespace ProjectUnknown.Strategy
             int maxCoal)
         {
             Vector2Int origin = new Vector2Int(cell.X, cell.Y);
-            if (!CanPlaceCoalFootprint(origin, footprint))
+            if (spawnedProps >= MaxNatureProps || !CanPlaceCoalFootprint(origin, footprint))
             {
                 return false;
             }
@@ -232,6 +232,7 @@ namespace ProjectUnknown.Strategy
             int attempts = Mathf.Max(256, totalCells);
             for (int i = 0; i < attempts
                 && spawnedCoalDeposits < MinimumCoalDeposits
+                && spawnedProps < MaxNatureProps
                 && spawnedCoalDeposits < MaxCoalDeposits; i++)
             {
                 int cellIndex = StrategyMapDistributionUtility.GetShuffledIndex(map.ActiveSeed, i, totalCells, 3401);

@@ -10,9 +10,11 @@ namespace ProjectUnknown.Strategy
 
         private bool TryBuildCampArrivalTargets(
             Vector2Int campCell,
-            out HashSet<Vector2Int> arrivalTargets)
+            out HashSet<Vector2Int> arrivalTargets,
+            out HashSet<Vector2Int> campReachableCells)
         {
             arrivalTargets = null;
+            campReachableCells = null;
             List<Vector2Int> candidates = new();
             for (int radius = 1; radius <= MaxCampGatherRadius; radius++)
             {
@@ -41,6 +43,7 @@ namespace ProjectUnknown.Strategy
 
             HashSet<Vector2Int> assigned = new();
             HashSet<Vector2Int> bestTargets = null;
+            HashSet<Vector2Int> bestReachable = null;
             int bestResidentScore = -1;
             int bestTargetCount = -1;
             float bestDistanceScore = float.MaxValue;
@@ -86,17 +89,19 @@ namespace ProjectUnknown.Strategy
                 }
 
                 bestTargets = componentTargets;
+                bestReachable = reachable;
                 bestResidentScore = residentScore;
                 bestTargetCount = componentTargets.Count;
                 bestDistanceScore = averageDistance;
             }
 
-            if (bestTargets == null || bestTargets.Count <= 0)
+            if (bestTargets == null || bestTargets.Count <= 0 || bestReachable == null)
             {
                 return false;
             }
 
             arrivalTargets = bestTargets;
+            campReachableCells = bestReachable;
             StrategyDebugLogger.Info(
                 "Refugees",
                 "ArrivalRouteTargetsPrepared",
@@ -290,6 +295,7 @@ namespace ProjectUnknown.Strategy
 
         private void OnDisable()
         {
+            CancelArrivalPreparation();
             ReleasePause();
         }
     }

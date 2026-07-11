@@ -36,6 +36,12 @@ namespace ProjectUnknown.Strategy
 
             activeTree = null;
             activity = ResidentActivity.Idle;
+            if (WasLastPathBuildDeferred)
+            {
+                lumberWorkCooldown = Random.Range(0.18f, 0.38f);
+                return false;
+            }
+
             lumberWorkCooldown = Random.Range(2.0f, 4.0f);
             StrategyDebugLogger.Warn(
                 "Population",

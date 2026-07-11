@@ -32,6 +32,24 @@ namespace ProjectUnknown.Strategy
             return true;
         }
 
+        private static void LogMigrationAbort(
+            string kind,
+            int id,
+            Vector2Int center,
+            Vector2Int target,
+            bool requireWalkableConnection)
+        {
+            StrategyDebugLogger.Warn(
+                "Wildlife",
+                "MigrationAborted",
+                StrategyDebugLogger.F("kind", kind),
+                StrategyDebugLogger.F("id", id),
+                StrategyDebugLogger.F("center", center),
+                StrategyDebugLogger.F("target", target),
+                StrategyDebugLogger.F("reason", "step_candidates_unreachable"),
+                StrategyDebugLogger.F("requireWalkableConnection", requireWalkableConnection));
+        }
+
         private bool IsMigrationTargetCoolingDown(Vector2Int target)
         {
             float now = Time.realtimeSinceStartup;

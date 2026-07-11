@@ -5,7 +5,7 @@ using UnityEngine;
 namespace ProjectUnknown.Strategy
 {
     [DisallowMultipleComponent]
-    public sealed class StrategyNavigationService : MonoBehaviour
+    public sealed partial class StrategyNavigationService : MonoBehaviour
     {
         private const int MaxPathComputationsPerFrame = 8;
         private const int MaxQueuedComputationsPerFrame = 4;
@@ -18,10 +18,12 @@ namespace ProjectUnknown.Strategy
         private const float DiagnosticsIntervalSeconds = 6f;
 
         private readonly StrategyNavigationPathfinder pathfinder = new();
-        private readonly Queue<PendingRequest> pending = new();
+        private readonly Queue<PendingRequest> criticalPending = new();
+        private readonly Queue<PendingRequest> normalPending = new();
+        private readonly Queue<PendingRequest> backgroundPending = new();
         private readonly HashSet<StrategyNavigationQueryKey> pendingKeys = new();
         private readonly Dictionary<StrategyNavigationQueryKey, CachedPath> paths = new();
-        private readonly Dictionary<StrategyNavigationQueryKey, bool> reachability = new();
+        private readonly LinkedList<StrategyNavigationQueryKey> cacheOrder = new();
         private readonly List<Vector2Int> rawScratch = new();
         private readonly List<Vector2Int> smoothedScratch = new();
         private CityMapController map;
@@ -37,7 +39,7 @@ namespace ProjectUnknown.Strategy
         private float nextDiagnosticsTime;
 
         public static StrategyNavigationService Active { get; private set; }
-        public int PendingCount => pending.Count;
+        public int PendingCount => criticalPending.Count + normalPending.Count + backgroundPending.Count;
         public int CachedPathCount => paths.Count;
 
         private void Awake()
@@ -81,12 +83,6 @@ namespace ProjectUnknown.Strategy
                 return cachedStatus;
             }
 
-            if (reachability.TryGetValue(key, out bool cachedReachability) && !cachedReachability)
-            {
-                cacheHitsSinceLog++;
-                return StrategyNavigationStatus.Unreachable;
-            }
-
             if (CanComputeThisFrame() || !allowDeferred)
             {
                 return ComputeAndCache(key, query, rawCells, smoothedCells);
@@ -100,13 +96,17 @@ namespace ProjectUnknown.Strategy
         {
             EnsureCurrentRevision();
             StrategyNavigationQueryKey key = new(query, observedWalkabilityVersion);
-            if (reachability.TryGetValue(key, out canReach))
+            if (paths.TryGetValue(key, out CachedPath cached))
             {
-                return true;
-            }
+                if (cached.ExpiresAt < Time.realtimeSinceStartup)
+                {
+                    RemoveCachedPath(key);
+                    canReach = false;
+                    return false;
+                }
 
-            if (paths.TryGetValue(key, out CachedPath cached) && cached.ExpiresAt >= Time.realtimeSinceStartup)
-            {
+                RefreshCachedPathOrder(cached);
+                cacheHitsSinceLog++;
                 canReach = cached.Status == StrategyNavigationStatus.Success;
                 return true;
             }
@@ -125,11 +125,15 @@ namespace ProjectUnknown.Strategy
             EnsureCurrentRevision();
             BeginFrameBudget();
             int processed = 0;
-            while (pending.Count > 0
+            while (PendingCount > 0
                 && processed < MaxQueuedComputationsPerFrame
                 && CanComputeThisFrame())
             {
-                PendingRequest request = pending.Dequeue();
+                if (!TryDequeuePending(out PendingRequest request))
+                {
+                    break;
+                }
+
                 pendingKeys.Remove(request.Key);
                 if (request.Key.Revision != observedWalkabilityVersion
                     || Time.realtimeSinceStartup - request.EnqueuedAt > QueueRequestLifetimeSeconds)
@@ -166,13 +170,15 @@ namespace ProjectUnknown.Strategy
             }
 
             bool canReach = status == StrategyNavigationStatus.Success;
-            reachability[key] = canReach;
             float ttl = canReach ? SuccessCacheSeconds : FailureCacheSeconds;
-            paths[key] = new CachedPath(
+            RemoveCachedPath(key);
+            CachedPath cachedPath = CachedPath.Create(
                 status,
-                rawScratch.ToArray(),
-                smoothedScratch.ToArray(),
+                rawScratch,
+                smoothedScratch,
                 Time.realtimeSinceStartup + ttl);
+            cachedPath.OrderNode = cacheOrder.AddLast(key);
+            paths[key] = cachedPath;
             TrimCachesIfNeeded();
 
             rawCells.Clear();
@@ -200,17 +206,17 @@ namespace ProjectUnknown.Strategy
 
             if (cached.ExpiresAt < Time.realtimeSinceStartup)
             {
-                paths.Remove(key);
-                reachability.Remove(key);
+                RemoveCachedPath(key);
                 status = default;
                 return false;
             }
 
             status = cached.Status;
+            RefreshCachedPathOrder(cached);
+
             if (status == StrategyNavigationStatus.Success)
             {
-                rawCells.AddRange(cached.RawCells);
-                smoothedCells.AddRange(cached.SmoothedCells);
+                cached.CopyTo(rawCells, smoothedCells);
             }
 
             return true;
@@ -223,14 +229,19 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            while (pending.Count >= MaxPendingRequests)
+            while (PendingCount >= MaxPendingRequests)
             {
-                PendingRequest dropped = pending.Dequeue();
+                if (!TryDropLowestPriorityPending(out PendingRequest dropped))
+                {
+                    break;
+                }
+
                 pendingKeys.Remove(dropped.Key);
                 droppedSinceLog++;
             }
 
-            pending.Enqueue(new PendingRequest(key, query, Time.realtimeSinceStartup));
+            PendingRequest request = new(key, query, Time.realtimeSinceStartup);
+            GetPendingQueue(query.Priority).Enqueue(request);
             pendingKeys.Add(key);
             queuedSinceLog++;
             StrategyResidentPerformanceCounters.RecordPathBudgetDeferral();
@@ -275,10 +286,11 @@ namespace ProjectUnknown.Strategy
 
         private void ClearCachesAndQueue()
         {
-            pending.Clear();
+            criticalPending.Clear();
+            normalPending.Clear();
+            backgroundPending.Clear();
             pendingKeys.Clear();
-            paths.Clear();
-            reachability.Clear();
+            ReleaseAllCachedPaths();
         }
 
         private void TrimCachesIfNeeded()
@@ -288,26 +300,9 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            float now = Time.realtimeSinceStartup;
-            List<StrategyNavigationQueryKey> expired = new();
-            foreach (KeyValuePair<StrategyNavigationQueryKey, CachedPath> pair in paths)
+            while (paths.Count > MaxCachedPaths && cacheOrder.Count > 0)
             {
-                if (pair.Value.ExpiresAt < now)
-                {
-                    expired.Add(pair.Key);
-                }
-            }
-
-            for (int i = 0; i < expired.Count; i++)
-            {
-                paths.Remove(expired[i]);
-                reachability.Remove(expired[i]);
-            }
-
-            if (paths.Count > MaxCachedPaths)
-            {
-                paths.Clear();
-                reachability.Clear();
+                RemoveCachedPath(cacheOrder.First.Value);
             }
         }
 
@@ -330,7 +325,7 @@ namespace ProjectUnknown.Strategy
                     StrategyDebugLogger.F("cacheHits", cacheHitsSinceLog),
                     StrategyDebugLogger.F("unreachable", unreachableSinceLog),
                     StrategyDebugLogger.F("dropped", droppedSinceLog),
-                    StrategyDebugLogger.F("pending", pending.Count),
+                    StrategyDebugLogger.F("pending", PendingCount),
                     StrategyDebugLogger.F("cachedPaths", paths.Count));
             }
 
@@ -343,6 +338,7 @@ namespace ProjectUnknown.Strategy
 
         private void OnDestroy()
         {
+            ClearCachesAndQueue();
             if (Active == this)
             {
                 Active = null;
@@ -366,24 +362,5 @@ namespace ProjectUnknown.Strategy
             public float EnqueuedAt { get; }
         }
 
-        private sealed class CachedPath
-        {
-            public CachedPath(
-                StrategyNavigationStatus status,
-                Vector2Int[] rawCells,
-                Vector2Int[] smoothedCells,
-                float expiresAt)
-            {
-                Status = status;
-                RawCells = rawCells;
-                SmoothedCells = smoothedCells;
-                ExpiresAt = expiresAt;
-            }
-
-            public StrategyNavigationStatus Status { get; }
-            public Vector2Int[] RawCells { get; }
-            public Vector2Int[] SmoothedCells { get; }
-            public float ExpiresAt { get; }
-        }
     }
 }

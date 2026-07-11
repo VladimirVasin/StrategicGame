@@ -524,7 +524,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Spontaneous cemetery placement prefers a moderate distance from the settlement, penalizes extreme map edges, filters graves by carrier-reachable walkable stand cells, and reserves pending grave cells for parallel funeral processes
     - Completed burials create runtime-generated clickable grave sprites with epitaph HUD data and mark grave cells as not walkable
     - Funeral activities temporarily interrupt active resident tasks without permanently removing workplace roles
-    - The first refugee family arrives no earlier than `Dusk` on Day 2; later families periodically spawn inside the map about 4 cells beyond a random side of the daylight-visible fog boundary, route only to the reachable camp-side arrival area, walk to the startup campfire, and ask for settlement acceptance through a modal paused decision
+    - The first refugee family arrives no earlier than `Dusk` on Day 2; later families periodically prepare routes from hidden fog-boundary entry cells in the camp connected component, spread family path calculations across frames, walk to the startup campfire, and ask for settlement acceptance through a modal paused decision
     - After the scripted first arrival, a once-per-game-day dynamic refugee roll can start an earlier later-family arrival when accepted adults are below total finite worker slots from capped worksites plus active construction-site pressure
     - Refugee arrival intensity fades after 40 accepted residents and stops at 50 accepted residents; incoming family size is capped by remaining room below 50
     - Refugee families contain 1-3 members with 1-2 adult parents and optional children, using normal names, ages, visual variants, and parent/child kinship links when children are present
@@ -536,6 +536,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Residents store a random visual variant chosen at startup
     - Residents perform simple idle movement near their current camp/home using short walkable grid paths
     - Resident pathing can recover a blocked start cell by moving the resident to a nearby walkable cell and logging the recovery
+    - Deferred resident path requests remain queued budget waits: planned-task scans yield without dropping construction assignments, reservations, or recording false unreachable failures; wildlife movement uses background navigation priority
     - Resident work normally starts during the shared Dawn-through-Dusk work window; nightfall defers new production, construction, logistics, hunting, fishing, household-food pickup, and household cooking while allowing carried resources and deposits/returns to finish
     - During `Night`, housed idle residents path to their home, hide inside the house, and wake at the home exit after night ends
     - At the start of `Night`, random eligible housed adults can be assigned building and roadside light sources; they leave home, walk to nearest queued lights, kindle them with animation, and return to night sleep

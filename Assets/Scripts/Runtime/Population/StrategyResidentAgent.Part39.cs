@@ -27,6 +27,11 @@ namespace ProjectUnknown.Strategy
                 {
                     return true;
                 }
+
+                if (WasLastPathBuildDeferred)
+                {
+                    return false;
+                }
             }
 
             path.Clear();

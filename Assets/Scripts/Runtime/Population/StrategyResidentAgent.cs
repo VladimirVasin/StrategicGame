@@ -139,6 +139,9 @@ namespace ProjectUnknown.Strategy
         private readonly List<Vector2Int> constructionWorkCellCandidates = new();
         private readonly StrategyResidentTaskState taskState = new();
         private readonly StrategyResidentTaskExecution taskExecution = new();
+        private StrategyNavigationStatus lastPathBuildStatus = StrategyNavigationStatus.Invalid;
+        private bool evaluatingPlannedTasks;
+        private bool pathBuildDeferredDuringDecision;
         private StrategyBuildingUpgrade activeGarden;
         private StrategyForageNode activeForageNode;
         private StrategyForagerCamp activeForagerCamp;

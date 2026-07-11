@@ -5,8 +5,11 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyRabbitAgent
     {
+        private bool lastPathBuildDeferred;
+
         private bool TryBuildPathTo(Vector2Int targetCell)
         {
+            lastPathBuildDeferred = false;
             if (!map.TryWorldToCell(transform.position, out Vector2Int startCell)
                 || !IsRabbitWalkCell(startCell, true)
                 || !IsRabbitWalkCell(targetCell, landOnly: true))
@@ -39,6 +42,12 @@ namespace ProjectUnknown.Strategy
                     allowStructureBuffer),
                 navigationRawCells,
                 navigationSmoothedCells);
+            if (status == StrategyNavigationStatus.Deferred)
+            {
+                lastPathBuildDeferred = true;
+                return false;
+            }
+
             if (status != StrategyNavigationStatus.Success)
             {
                 return false;

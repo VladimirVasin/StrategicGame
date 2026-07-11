@@ -60,18 +60,21 @@ namespace ProjectUnknown.Strategy
             buildHits = Mathf.Min(buildHits + 1, BuildableHitLimit);
             UpdateVisuals();
             PlayBuildHitEffect(hitWorld);
-            StrategyDebugLogger.Info(
-                "Construction",
-                "BuildHit",
-                StrategyDebugLogger.F("tool", tool),
-                StrategyDebugLogger.F("origin", origin),
-                StrategyDebugLogger.F("builder", builder.FullName),
-                StrategyDebugLogger.F("progress", Progress),
-                StrategyDebugLogger.F("buildableProgressLimit", BuildableProgressLimit),
-                StrategyDebugLogger.F("buildHits", buildHits),
-                StrategyDebugLogger.F("buildableHitLimit", BuildableHitLimit),
-                StrategyDebugLogger.F("reservedBuildHits", ReservedBuildHitCount),
-                StrategyDebugLogger.F("unreservedBuildHits", UnreservedBuildHitCount));
+            if (buildHits == 1 || buildHits % 5 == 0 || buildHits >= buildHitsRequired)
+            {
+                StrategyDebugLogger.Info(
+                    "Construction",
+                    "BuildHit",
+                    StrategyDebugLogger.F("tool", tool),
+                    StrategyDebugLogger.F("origin", origin),
+                    StrategyDebugLogger.F("builder", builder.FullName),
+                    StrategyDebugLogger.F("progress", Progress),
+                    StrategyDebugLogger.F("buildableProgressLimit", BuildableProgressLimit),
+                    StrategyDebugLogger.F("buildHits", buildHits),
+                    StrategyDebugLogger.F("buildableHitLimit", BuildableHitLimit),
+                    StrategyDebugLogger.F("reservedBuildHits", ReservedBuildHitCount),
+                    StrategyDebugLogger.F("unreservedBuildHits", UnreservedBuildHitCount));
+            }
 
             if (buildHits >= buildHitsRequired)
             {

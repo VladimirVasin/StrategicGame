@@ -16,6 +16,7 @@ namespace ProjectUnknown.Strategy
         private float nextRoamPathAttemptTime;
         private float nextTargetPathAttemptTime;
         private bool hasLastTargetPathFailureCell;
+        private bool lastPathBuildDeferred;
 
         internal bool IsWolfRoamTargetBlocked(Vector2Int cell)
         {
@@ -57,6 +58,12 @@ namespace ProjectUnknown.Strategy
                     SetWolfState(preferSafety ? StrategyWolfBehaviorState.AvoidingSettlement : StrategyWolfBehaviorState.Roaming, "roam_path_ready");
                     stateTimer = Random.Range(1.0f, 2.2f);
                     return true;
+                }
+
+                if (lastPathBuildDeferred)
+                {
+                    nextRoamPathAttemptTime = Time.realtimeSinceStartup + 0.25f;
+                    return false;
                 }
 
                 blockedRoamTargets[roamCell] = Time.realtimeSinceStartup + WolfRoamPathFailureCooldownSeconds;

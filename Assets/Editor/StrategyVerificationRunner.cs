@@ -41,7 +41,8 @@ namespace ProjectUnknown.Strategy.EditorTests
                 VerifySaveRoundTrip();
                 VerifyRefugeeBalance();
                 VerifyBuildScenes();
-                File.WriteAllText(resultPath, "PASS: 6 checks");
+                VerifyNavigationPriorities();
+                File.WriteAllText(resultPath, "PASS: 7 checks");
                 EditorApplication.Exit(0);
             }
             catch (Exception exception)
@@ -126,7 +127,24 @@ namespace ProjectUnknown.Strategy.EditorTests
                 Require(UnityEngine.Object.FindAnyObjectByType<StrategyBuildPlacementController>() != null, "Placement bootstrap failed");
                 Require(UnityEngine.Object.FindAnyObjectByType<StrategySaveSystem>() != null, "Persistence bootstrap failed");
                 Require(StrategyTrailController.Active != null, "Trail bootstrap failed");
-                CompletePlayMode(true, "PASS: bootstrap systems ready");
+                VerifyGeneratedResourceMinimums();
+                StrategyRefugeeArrivalController refugees = UnityEngine.Object.FindAnyObjectByType<StrategyRefugeeArrivalController>();
+                Require(refugees != null, "Refugee controller bootstrap failed");
+                if (!launchRequestedBySmoke)
+                {
+                    Require(refugees.DebugStartArrival(), "Refugee route preparation did not start");
+                    launchRequestedBySmoke = true;
+                    gameplayFramesAfterLaunch = 0;
+                    return;
+                }
+
+                if (refugees.HasActiveArrivalFamily)
+                {
+                    CompletePlayMode(true, "PASS: bootstrap and refugee routing ready");
+                    return;
+                }
+
+                Require(++gameplayFramesAfterLaunch <= 300, "Refugee route preparation timed out");
             }
             catch (Exception exception)
             {
@@ -221,6 +239,45 @@ namespace ProjectUnknown.Strategy.EditorTests
             Require(scenes.Length >= 2, "Menu and gameplay scenes must be in Build Settings");
             Require(scenes[0].enabled && scenes[0].path == MainMenuScenePath, "Main menu must be the first build scene");
             Require(scenes[1].enabled && scenes[1].path == GameplayScenePath, "Gameplay scene must follow the main menu");
+        }
+
+        private static void VerifyNavigationPriorities()
+        {
+            StrategyNavigationQuery wildlife = new(
+                Vector2Int.zero,
+                Vector2Int.one,
+                StrategyNavigationMode.WildlifeLand);
+            StrategyNavigationQuery resident = new(
+                Vector2Int.zero,
+                Vector2Int.one,
+                StrategyNavigationMode.ResidentTrail);
+            StrategyNavigationQuery critical = new(
+                Vector2Int.zero,
+                Vector2Int.one,
+                StrategyNavigationMode.ResidentTrail,
+                priority: StrategyNavigationPriority.Critical);
+            Require(wildlife.Priority == StrategyNavigationPriority.Background, "Wildlife navigation must be background priority");
+            Require(resident.Priority == StrategyNavigationPriority.Normal, "Resident navigation must be normal priority");
+            Require(critical.Priority == StrategyNavigationPriority.Critical, "Critical navigation priority was not preserved");
+        }
+
+        private static void VerifyGeneratedResourceMinimums()
+        {
+            Require(StrategyStoneResourceController.Active != null
+                && StrategyStoneResourceController.Active.Deposits.Count >= 112,
+                "Generated Stone minimum was not met");
+            Require(StrategyIronResourceController.Active != null
+                && StrategyIronResourceController.Active.Deposits.Count >= 48,
+                "Generated Iron minimum was not met");
+            Require(StrategyCoalResourceController.Active != null
+                && StrategyCoalResourceController.Active.Deposits.Count >= 42,
+                "Generated Coal minimum was not met");
+            Require(StrategyClayResourceController.Active != null
+                && StrategyClayResourceController.Active.Deposits.Count >= 28,
+                "Generated Clay minimum was not met");
+            GameObject natureRoot = GameObject.Find("Nature Props");
+            Require(natureRoot != null && natureRoot.transform.childCount <= 3600,
+                "Nature prop limit was exceeded");
         }
 
         private static void StartPlayModeSmoke(SmokeKind kind, string scenePath)

@@ -163,6 +163,10 @@ namespace ProjectUnknown.Strategy
 
             EnsureStarterStoneDeposits();
             EnsureStarterMineralDeposits();
+            EnsureMinimumStoneDeposits();
+            EnsureMinimumClayDeposits();
+            EnsureMinimumIronDeposits();
+            EnsureMinimumCoalDeposits();
 
             int totalCells = map.Width * map.Height;
             for (int i = 0; i < totalCells && spawnedProps < MaxNatureProps; i++)
@@ -177,11 +181,6 @@ namespace ProjectUnknown.Strategy
 
                 PlaceNatureForCell(cell);
             }
-
-            EnsureMinimumStoneDeposits();
-            EnsureMinimumClayDeposits();
-            EnsureMinimumIronDeposits();
-            EnsureMinimumCoalDeposits();
 
             StrategyDebugLogger.Info(
                 "Nature",

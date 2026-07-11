@@ -255,6 +255,12 @@ namespace ProjectUnknown.Strategy
 
                 if (!TryBuildPathTo(pickupCell))
                 {
+                    if (WasLastPathBuildDeferred)
+                    {
+                        waitTimer = Random.Range(0.18f, 0.38f);
+                        return false;
+                    }
+
                     Vector2Int startCell = Vector2Int.zero;
                     bool hasStartCell = map != null && map.TryWorldToCell(transform.position, out startCell);
                     bool startWalkable = hasStartCell && map.IsCellWalkable(startCell);

@@ -33,6 +33,9 @@ namespace ProjectUnknown.Strategy
         private int severeFrameCount;
         private int gen0CollectionsAtWindowStart;
         private bool configured;
+        private bool hasApplicationFocus = true;
+        private bool applicationPaused;
+        private bool skipNextFrameSample;
 
         public void Configure(
             CityMapController mapController,
@@ -49,6 +52,7 @@ namespace ProjectUnknown.Strategy
             configured = map != null && population != null;
             context = CaptureContext();
             ResetWindow();
+            skipNextFrameSample = true;
 
             StrategyDebugLogger.Info(
                 "Performance",
@@ -66,8 +70,15 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            if (Time.timeScale <= 0.001f)
+            if (!hasApplicationFocus || applicationPaused || Time.timeScale <= 0.001f)
             {
+                ResetWindow();
+                return;
+            }
+
+            if (skipNextFrameSample)
+            {
+                skipNextFrameSample = false;
                 ResetWindow();
                 return;
             }
@@ -191,6 +202,20 @@ namespace ProjectUnknown.Strategy
             severeFrameCount = 0;
             gen0CollectionsAtWindowStart = GC.CollectionCount(0);
             residentCountersAtWindowStart = StrategyResidentPerformanceCounters.Capture();
+        }
+
+        private void OnApplicationFocus(bool hasFocus)
+        {
+            hasApplicationFocus = hasFocus;
+            skipNextFrameSample = true;
+            ResetWindow();
+        }
+
+        private void OnApplicationPause(bool paused)
+        {
+            applicationPaused = paused;
+            skipNextFrameSample = true;
+            ResetWindow();
         }
 
         private float GetPercentile(float percentile)

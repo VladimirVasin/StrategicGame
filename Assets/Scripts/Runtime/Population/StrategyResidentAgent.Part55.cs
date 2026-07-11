@@ -115,6 +115,12 @@ namespace ProjectUnknown.Strategy
                 activeForageNode = null;
                 activeForagerCamp = null;
                 activity = ResidentActivity.Idle;
+                if (WasLastPathBuildDeferred)
+                {
+                    foragerWorkCooldown = Random.Range(0.18f, 0.38f);
+                    return false;
+                }
+
                 StrategyDebugLogger.Warn(
                     "ForagerCamp",
                     "ForageMoveRejected",

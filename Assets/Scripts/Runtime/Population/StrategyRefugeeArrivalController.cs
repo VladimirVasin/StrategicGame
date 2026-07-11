@@ -11,7 +11,7 @@ namespace ProjectUnknown.Strategy
         private const float RepeatArrivalMaxSeconds = 720f;
         private const int PopulationSlowdownStart = 40;
         private const int PopulationHardCap = 50;
-        private const int MaxRouteAttempts = 96;
+        private const int MaxRouteAttempts = 24;
         private const int MaxCampGatherRadius = 5;
 
         private readonly List<StrategyResidentAgent> activeFamily = new();
@@ -31,9 +31,13 @@ namespace ProjectUnknown.Strategy
         private bool loggedWaitingForFirstArrival;
         private bool pauseHeld;
 
+        public bool HasActiveArrivalFamily => activeFamily.Count > 0
+            && state == RefugeeArrivalState.WalkingToCamp;
+
         private enum RefugeeArrivalState
         {
             Waiting,
+            PreparingRoutes,
             WalkingToCamp,
             WaitingForDecision,
             Leaving
@@ -170,59 +174,17 @@ namespace ProjectUnknown.Strategy
             int memberCount = Random.Range(1, supportedFamilySize + 1);
             int parentCount = GetRefugeeParentCount(memberCount);
             int childCount = memberCount - parentCount;
-            if (!TryPrepareArrivalRoutes(memberCount, campCell, out List<List<Vector3>> routes))
-            {
-                StrategyDebugLogger.Warn("Refugees", "ArrivalDelayed", StrategyDebugLogger.F("reason", "no_route"));
-                arrivalTimer = 60f;
-                return false;
-            }
-
-            if (!population.TryCreateRefugeeFamily(
-                    activeOutsideBaseWorld,
-                    activeFormationAxis,
-                    activeEntryCell,
+            if (!BeginPrepareArrival(
+                    firstArrival,
+                    campCell,
+                    memberCount,
                     parentCount,
-                    childCount,
-                    out List<StrategyResidentAgent> family))
+                    childCount))
             {
-                StrategyDebugLogger.Warn("Refugees", "ArrivalDelayed", StrategyDebugLogger.F("reason", "family_create_failed"));
+                StrategyDebugLogger.Warn("Refugees", "ArrivalDelayed", StrategyDebugLogger.F("reason", "route_prepare_busy"));
                 arrivalTimer = 60f;
                 return false;
             }
-
-            activeFamily.Clear();
-            activeFamily.AddRange(family);
-            familySequence++;
-            if (firstArrival)
-            {
-                firstArrivalTriggered = true;
-                lastDynamicArrivalRollDayIndex = StrategyDayNightCycleController.CurrentCalendarSnapshot.DayIndex;
-            }
-
-            for (int i = 0; i < activeFamily.Count; i++)
-            {
-                StrategyResidentAgent resident = activeFamily[i];
-                if (resident == null)
-                {
-                    continue;
-                }
-
-                List<Vector3> route = routes[Mathf.Min(i, routes.Count - 1)];
-                resident.FollowRefugeePath(route, false);
-            }
-
-            state = RefugeeArrivalState.WalkingToCamp;
-            StrategyDebugLogger.Info(
-                "Refugees",
-                "FamilySpawned",
-                StrategyDebugLogger.F("familyId", familySequence),
-                StrategyDebugLogger.F("firstArrival", firstArrival),
-                StrategyDebugLogger.F("completedHouses", population.CompletedHouseCount),
-                StrategyDebugLogger.F("members", activeFamily.Count),
-                StrategyDebugLogger.F("parents", parentCount),
-                StrategyDebugLogger.F("children", childCount),
-                StrategyDebugLogger.F("entryCell", activeEntryCell),
-                StrategyDebugLogger.F("spawnWorld", activeOutsideBaseWorld));
             return true;
         }
 
@@ -335,112 +297,5 @@ namespace ProjectUnknown.Strategy
             return hasLivingMember;
         }
 
-        private bool TryPrepareArrivalRoutes(
-            int memberCount,
-            Vector2Int campCell,
-            out List<List<Vector3>> routes)
-        {
-            routes = null;
-            if (map == null || memberCount <= 0)
-            {
-                return false;
-            }
-
-            if (!TryBuildCampArrivalTargets(campCell, out HashSet<Vector2Int> campArrivalTargets))
-            {
-                StrategyDebugLogger.Warn(
-                    "Refugees",
-                    "ArrivalRouteTargetsRejected",
-                    StrategyDebugLogger.F("reason", "no_reachable_camp_targets"),
-                    StrategyDebugLogger.F("campCell", campCell));
-                return false;
-            }
-
-            for (int attempt = 0; attempt < MaxRouteAttempts; attempt++)
-            {
-                if (!TryGetRandomArrivalEntryCell(out Vector2Int entryCell, out Vector2 outward))
-                {
-                    continue;
-                }
-
-                HashSet<Vector2Int> usedTargets = new();
-                List<List<Vector3>> preparedRoutes = new();
-                bool allReady = true;
-                for (int i = 0; i < memberCount; i++)
-                {
-                    if (!TryFindCampRoute(entryCell, campCell, campArrivalTargets, usedTargets, i, out List<Vector2Int> cellPath))
-                    {
-                        allReady = false;
-                        break;
-                    }
-
-                    preparedRoutes.Add(ToWorldRoute(cellPath));
-                }
-
-                if (!allReady || preparedRoutes.Count <= 0)
-                {
-                    continue;
-                }
-
-                activeEntryCell = entryCell;
-                activeFormationAxis = -outward;
-                Vector3 entryWorld = map.GetCellCenterWorld(entryCell.x, entryCell.y);
-                activeOutsideBaseWorld = new Vector3(entryWorld.x, entryWorld.y, -0.08f);
-                routes = preparedRoutes;
-                return true;
-            }
-
-            return false;
-        }
-
-        private bool TryFindCampRoute(
-            Vector2Int entryCell,
-            Vector2Int campCell,
-            HashSet<Vector2Int> campArrivalTargets,
-            HashSet<Vector2Int> usedTargets,
-            int salt,
-            out List<Vector2Int> cellPath)
-        {
-            cellPath = null;
-            for (int radius = 1; radius <= MaxCampGatherRadius; radius++)
-            {
-                List<Vector2Int> candidates = new();
-                for (int y = -radius; y <= radius; y++)
-                {
-                    for (int x = -radius; x <= radius; x++)
-                    {
-                        if (Mathf.Abs(x) != radius && Mathf.Abs(y) != radius)
-                        {
-                            continue;
-                        }
-
-                        Vector2Int candidate = campCell + new Vector2Int(x, y);
-                        if (usedTargets.Contains(candidate)
-                            || campArrivalTargets == null
-                            || !campArrivalTargets.Contains(candidate)
-                            || !map.IsCellWalkable(candidate))
-                        {
-                            continue;
-                        }
-
-                        candidates.Add(candidate);
-                    }
-                }
-
-                while (candidates.Count > 0)
-                {
-                    int index = Mathf.Abs(Random.Range(0, candidates.Count) + salt) % candidates.Count;
-                    Vector2Int target = candidates[index];
-                    candidates.RemoveAt(index);
-                    if (TryBuildCellPath(entryCell, target, out cellPath))
-                    {
-                        usedTargets.Add(target);
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
     }
 }

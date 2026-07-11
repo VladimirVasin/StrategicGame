@@ -40,7 +40,17 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
-            return taskExecution.TryStartPlannedTask();
+            pathBuildDeferredDuringDecision = false;
+            evaluatingPlannedTasks = true;
+            bool started = taskExecution.TryStartPlannedTask(() => pathBuildDeferredDuringDecision);
+            evaluatingPlannedTasks = false;
+            if (pathBuildDeferredDuringDecision)
+            {
+                waitTimer = Random.Range(0.18f, 0.38f);
+                return true;
+            }
+
+            return started;
         }
 
         private bool TryConsumeScheduledDecisionBudget()

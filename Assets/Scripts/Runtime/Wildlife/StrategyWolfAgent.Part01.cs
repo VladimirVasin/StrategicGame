@@ -234,6 +234,11 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
+            if (lastPathBuildDeferred)
+            {
+                return false;
+            }
+
             for (int i = 0; i < CardinalDirections.Length; i++)
             {
                 Vector2Int candidate = targetCell + CardinalDirections[i];
@@ -242,6 +247,11 @@ namespace ProjectUnknown.Strategy
                     MarkWolfTargetPathSuccess();
                     LogWolfPathReady("target_adjacent", targetCell, candidate);
                     return true;
+                }
+
+                if (lastPathBuildDeferred)
+                {
+                    return false;
                 }
             }
 
@@ -285,6 +295,7 @@ namespace ProjectUnknown.Strategy
 
         private bool TryBuildPathTo(Vector2Int targetCell)
         {
+            lastPathBuildDeferred = false;
             if (map == null
                 || !TryGetPathStartCell(out Vector2Int startCell)
                 || !IsWolfTargetCell(targetCell))
@@ -318,6 +329,7 @@ namespace ProjectUnknown.Strategy
                 navigationSmoothedCells);
             if (status == StrategyNavigationStatus.Deferred)
             {
+                lastPathBuildDeferred = true;
                 return false;
             }
 

@@ -5,6 +5,7 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyDeerAgent
     {
+        private bool lastPathBuildDeferred;
 
         private void SetState(StrategyDeerBehaviorState nextState, bool logImportant, bool noisyThreat)
         {
@@ -106,6 +107,11 @@ namespace ProjectUnknown.Strategy
                     hasTarget = path.Count > 0;
                     return hasTarget;
                 }
+
+                if (lastPathBuildDeferred)
+                {
+                    return false;
+                }
             }
 
             return false;
@@ -171,6 +177,7 @@ namespace ProjectUnknown.Strategy
 
         private bool TryBuildPathTo(Vector2Int targetCell)
         {
+            lastPathBuildDeferred = false;
             if (!map.TryWorldToCell(transform.position, out Vector2Int startCell)
                 || !IsDeerWalkCell(startCell, true)
                 || !IsDeerWalkCell(targetCell, landOnly: true))
@@ -203,6 +210,12 @@ namespace ProjectUnknown.Strategy
                     allowStructureBuffer),
                 navigationRawCells,
                 navigationSmoothedCells);
+            if (status == StrategyNavigationStatus.Deferred)
+            {
+                lastPathBuildDeferred = true;
+                return false;
+            }
+
             if (status != StrategyNavigationStatus.Success)
             {
                 return false;

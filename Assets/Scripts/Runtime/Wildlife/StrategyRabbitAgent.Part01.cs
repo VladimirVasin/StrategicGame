@@ -394,6 +394,11 @@ namespace ProjectUnknown.Strategy
                     hasTarget = path.Count > 0;
                     return hasTarget;
                 }
+
+                if (lastPathBuildDeferred)
+                {
+                    return false;
+                }
             }
 
             return false;
