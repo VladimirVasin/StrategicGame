@@ -228,6 +228,7 @@ Primary files/assets:
 
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.cs`
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.SceneFlow.cs`
+- `Assets/Scripts/Runtime/Core/StrategyBootstrapRunner.cs`
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.StarterResources.cs`
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.WorldChunks.cs`
 - `Assets/Scripts/Runtime/Core/StrategyDebugLogger.cs`
@@ -312,7 +313,7 @@ Primary files/assets:
 
 Impact hints:
 
-- Bootstrap registers through `RuntimeInitializeOnLoadMethod`, then handles initial and runtime gameplay loads through `SceneManager.sceneLoaded` without requiring scene YAML wiring.
+- Bootstrap registers through `RuntimeInitializeOnLoadMethod`, then handles initial and runtime gameplay loads through `SceneManager.sceneLoaded` without requiring scene YAML wiring. A scene-local runner holds a bootstrap pause and spreads deterministic nature generation across bounded frame batches before releasing gameplay.
 - Audio bootstrap expects non-generated clips under `Assets/Resources/Audio`; missing ambience or music clips should degrade quietly rather than blocking scene startup.
 - New scenes must declare their role through `StrategySceneCatalog` or migrate the catalog to a data-driven scene-role system.
 
@@ -410,6 +411,7 @@ Impact hints:
 - Ambience depends on generated map water cells, camera position, and strategy wind/weather values.
 - Music files can be named freely, but `Music_01.mp3`, `Music_02.mp3`, etc. are the recommended convention; all direct AudioClips in `Resources/Audio/Music` are part of the playlist.
 - Music focus handling must use `AudioSource.Pause`/`UnPause` so losing focus does not trigger playlist advancement.
+- Keep long music clips on background `Streaming` and long ambience loops on background `Compressed In Memory`; Edit Mode verification enforces these profiles so scene bootstrap does not synchronously decode them.
 - Footsteps are tied to resident walk sprite frames 1 and 5; changing walk frame counts or animation pacing should retune footstep phases.
 - Work SFX are tied to resident impact/release frames (`WoodcutImpactFrame`, `ConstructionImpactFrame`, `FishingHookFrame`, `FishingReelFrame`, and `BowReleaseFrame`); changing those animation timelines should retune SFX triggers.
 - Forestry SFX are tree-owned rather than resident-owned: `StartFalling()` plays tree-fall audio and `CompleteBucking()` plays split-Logs audio from the tree position.
@@ -558,6 +560,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Map/StrategyTerrainTexturePainter.Relief.cs`
 - `Assets/Scripts/Runtime/Map/CityMapController.Buildability.cs`
 - `Assets/Scripts/Runtime/Map/StrategyNaturePropController.cs`
+- `Assets/Scripts/Runtime/Map/StrategyNaturePropController.Generation.cs`
 - `Assets/Scripts/Runtime/Map/StrategyNaturePropController.Distribution.cs`
 - `Assets/Scripts/Runtime/Map/StrategyNaturePropController.Part05.cs`
 - `Assets/Scripts/Runtime/Map/StrategyNatureSpriteFactory.cs`
@@ -849,7 +852,7 @@ Impact hints:
 - Rabbit pathing uses the same local wildlife land-travel and land-target approach and should stay cheap until a shared pathfinding service exists; repeated same-threat alert/flee reactions are throttled so rabbits do not rebuild flee paths every threat check.
 - Land wildlife river crossing is intentionally scoped to wildlife path helpers through `StrategyWildlifeRiverCrossing`; River cells are transit-only for deer/rabbit/wolf paths and should not become final wildlife targets. Do not change global `CityMapController` walkability to make River water walkable for residents, buildings, or construction.
 - Fish pathing uses `CityMapCellKind.Water` plus `CityMapWaterKind` instead of `IsCellWalkable`, because water is intentionally not walkable for land agents and lake/river fish now have separate movement rules.
-- Migration state is owned by `StrategyWildlifeController`; agents only expose small retarget methods for their current home/roam center, and migration targets must stay in currently hidden near-settlement candidate cells connected to the current land-wildlife travel region with an immediately viable first step.
+- Migration state is owned by `StrategyWildlifeController`; land groups/packs retain the selected cardinal route, advance along it by species step size, and rebuild only after map walkability revision or route mismatch. Agents only expose small retarget methods for their current home/roam center, and migration targets must stay in currently hidden near-settlement candidate cells connected to the current land-wildlife travel region.
 - Failed wildlife migration targets enter a short nearby-cell cooldown before the area can be selected again; keep this guard before committing targets so repeated abort loops do not spam logs or pathfinding.
 - Reproduction is owned by `StrategyWildlifeController`; deer/rabbit/fish birth cells must be currently hidden and near settlement anchors, while agents own species or sex, life stage, growth, movement, and animation state. Birds are decorative and do not reproduce yet; wolves do not reproduce yet and use pack spawn only.
 - Wolf settlement avoidance is pressure-based and reads camp position, placed buildings, active construction sites, and nearby residents; land wildlife pathing also uses the cached structure buffer, so keep it cheaper than per-frame global scans.
@@ -857,7 +860,7 @@ Impact hints:
 - Wolves no longer use ordinary resident target acquisition when no surplus prey is available.
 - Wolf pack placement uses the generated river route to prefer alternating river sides, but falls back to any valid safe side and logs `WolfPackRiverSideFallback` if one side has no candidate.
 - Wolf movement diagnostics are owned by `StrategyWolfAgent` and log state changes, target acquisition/release, path readiness/failures, roam failures, and movement stalls under the `Wildlife` log category.
-- Threat checks, settlement caches, retry cooldowns, and wildlife diagnostics use real-time cadences where they are service/diagnostic work rather than core movement or growth.
+- Wildlife threat checks, decisions, migration, movement, and growth use scaled simulation time and stop under modal pause locks; only diagnostic/log throttles and visual presentation may use real time.
 - `FishLakeBirthBlocked` debug logging is throttled per lake region; keep cap checks cheap and avoid per-fish spam when a lake is full.
 - Fisher Hut fish reservation can pass a requester reachability filter into wildlife selection; keep this pre-reservation filter so fishers do not reserve fish whose shore stand cell is unreachable.
 - Future deer hunting, leather, broader predator ecology, wolf HUD, or animal saving should extend this subsystem instead of adding animal behavior into population or nature-prop code.

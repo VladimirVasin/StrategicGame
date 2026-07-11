@@ -8,6 +8,16 @@ Last updated: 2026-07-11
 
 ## Done
 
+### 2026-07-11 - Debug-log root fixes and runtime load smoothing
+
+- Froze wildlife decisions/migration, automatic workforce evaluation, household migration, and night-light assignment while modal pause locks hold `timeScale` at zero; simulation timers now use scaled time while visual/audio presentation remains unscaled.
+- Added an incremental gameplay bootstrap runner and bootstrap pause; full-map nature generation now preserves deterministic resource guarantees while spreading the 3600-prop pass across bounded frame batches.
+- Changed music imports to background Streaming and long nature ambience to background Compressed In Memory; Edit Mode verification now validates both import profiles.
+- Made road repair cardinal-only, changed 2x2-square avoidance from a hard disconnecting veto into a high path cost, and added a final connectivity check with a guaranteed source-route fallback.
+- Cached land-wildlife migration routes per group/pack and rebuild them only after walkability revision changes or route mismatch instead of repeating full BFS work every migration step.
+- Limited rain/snow transform updates to 30 Hz and bounded moving-camera night-mask refreshes to 10 Hz.
+- Verification: runtime and Editor C# builds pass with 0 warnings and 0 errors; all changed C# files remain within 500 lines. Unity Play Mode verification was not started because the project is open in an interactive Unity Editor process.
+
 ### 2026-07-11 - Full visual pipeline and world-art pass
 
 - Added an art-direction contract plus an Editor baker that produces a Resources-backed catalog of editable PNGs for building variants, resident portraits/pose atlases, nature, terrain swatches, construction stages, road masks, production work cycles, and visible stock levels; runtime factories remain safe procedural fallbacks.

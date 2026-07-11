@@ -12,6 +12,7 @@ namespace ProjectUnknown.Strategy.EditorTests
         private const string GameplayScenePath = "Assets/Scenes/SampleScene.unity";
         private const string MainMenuScenePath = "Assets/Scenes/MainMenu.unity";
         private const int RequiredPlayFrames = 4;
+        private const int BootstrapWaitFrameLimit = 600;
         private const string PlayModeSessionKey = "ProjectUnknown.PlayModeSmokeActive";
         private const string PlayModeKindSessionKey = "ProjectUnknown.PlayModeSmokeKind";
 
@@ -43,7 +44,8 @@ namespace ProjectUnknown.Strategy.EditorTests
                 VerifyBuildScenes();
                 VerifyNavigationPriorities();
                 VerifyVisualCatalog();
-                File.WriteAllText(resultPath, "PASS: 8 checks");
+                VerifyAudioImportProfiles();
+                File.WriteAllText(resultPath, "PASS: 9 checks");
                 EditorApplication.Exit(0);
             }
             catch (Exception exception)
@@ -118,6 +120,13 @@ namespace ProjectUnknown.Strategy.EditorTests
                     Require(UnityEngine.Object.FindAnyObjectByType<StrategyPopulationController>() == null, "Gameplay population bootstrapped in menu");
                     Require(UnityEngine.Object.FindAnyObjectByType<StrategyBuildMenuController>() == null, "Gameplay HUD bootstrapped in menu");
                     CompletePlayMode(true, "PASS: menu systems ready");
+                    return;
+                }
+
+                StrategyBootstrapRunner bootstrapRunner = UnityEngine.Object.FindAnyObjectByType<StrategyBootstrapRunner>();
+                Require(bootstrapRunner == null || playFrames <= BootstrapWaitFrameLimit, "Incremental gameplay bootstrap timed out");
+                if (bootstrapRunner != null)
+                {
                     return;
                 }
 
@@ -351,6 +360,13 @@ namespace ProjectUnknown.Strategy.EditorTests
             }
 
             Require(StrategySceneCatalog.IsGameplayScene(EditorSceneManager.GetActiveScene()), "Launch opened an unexpected scene");
+            StrategyBootstrapRunner bootstrapRunner = UnityEngine.Object.FindAnyObjectByType<StrategyBootstrapRunner>();
+            if (bootstrapRunner != null)
+            {
+                Require(++gameplayFramesAfterLaunch <= BootstrapWaitFrameLimit, "Prepared gameplay bootstrap timed out");
+                return;
+            }
+
             if (++gameplayFramesAfterLaunch < RequiredPlayFrames)
             {
                 return;

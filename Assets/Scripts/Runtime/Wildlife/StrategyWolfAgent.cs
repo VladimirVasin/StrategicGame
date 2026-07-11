@@ -191,12 +191,12 @@ namespace ProjectUnknown.Strategy
 
         private void Update()
         {
-            if (map == null || spriteRenderer == null)
+            if (Time.timeScale <= 0f || map == null || spriteRenderer == null)
             {
                 return;
             }
 
-            float decisionDt = Time.unscaledDeltaTime;
+            float decisionDt = Time.deltaTime;
             huntSearchTimer -= decisionDt;
             roamRefreshTimer -= decisionDt;
             targetRefreshTimer -= decisionDt;

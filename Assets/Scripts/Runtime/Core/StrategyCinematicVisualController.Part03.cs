@@ -8,6 +8,7 @@ namespace ProjectUnknown.Strategy
         private const int NightMaskWidth = 96;
         private const int NightMaskHeight = 54;
         private const float NightMaskUpdateInterval = 0.16f;
+        private const float NightMaskMovingViewUpdateInterval = 0.10f;
         private const float NightMaskViewMoveThreshold = 0.35f;
         private const float NightMaskMaxAlpha = 1f;
         private const float NightMaskLightCutoutBoost = 1.85f;
@@ -82,9 +83,11 @@ namespace ProjectUnknown.Strategy
             nightDarknessTimer -= Mathf.Max(0f, dt);
             bool viewChanged = HasNightMaskViewChanged(view);
             bool alphaChanged = Mathf.Abs(alpha - lastNightDarknessAlpha) > 0.012f;
-            if (nightDarknessTimer <= 0f || viewChanged || alphaChanged)
+            if (nightDarknessTimer <= 0f)
             {
-                nightDarknessTimer = viewChanged ? 0.055f : NightMaskUpdateInterval;
+                nightDarknessTimer = viewChanged || alphaChanged
+                    ? NightMaskMovingViewUpdateInterval
+                    : NightMaskUpdateInterval;
                 UpdateNightDarknessTexture(view, alpha);
             }
         }

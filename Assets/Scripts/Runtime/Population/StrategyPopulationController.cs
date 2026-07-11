@@ -141,12 +141,12 @@ namespace ProjectUnknown.Strategy
 
         private void Update()
         {
-            if (map == null || houses.Count <= 0)
+            if (Time.timeScale <= 0f || map == null || houses.Count <= 0)
             {
                 return;
             }
 
-            householdMigrationTimer -= Time.unscaledDeltaTime;
+            householdMigrationTimer -= Time.deltaTime;
             if (householdMigrationTimer > 0f)
             {
                 return;

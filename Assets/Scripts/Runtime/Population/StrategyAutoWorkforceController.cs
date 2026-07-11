@@ -74,6 +74,11 @@ namespace ProjectUnknown.Strategy
 
         private void Update()
         {
+            if (Time.timeScale <= 0f)
+            {
+                return;
+            }
+
             if (population == null)
             {
                 population = Object.FindAnyObjectByType<StrategyPopulationController>();
@@ -84,7 +89,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            tickTimer -= Time.unscaledDeltaTime;
+            tickTimer -= Time.deltaTime;
             if (tickTimer > 0f)
             {
                 return;

@@ -390,6 +390,9 @@ namespace ProjectUnknown.Strategy
 
                 state.HasTarget = true;
                 state.FailedSteps = 0;
+                state.Route.Clear();
+                state.RouteIndex = 0;
+                state.WalkabilityVersion = -1;
                 StrategyDebugLogger.Info(
                     "Wildlife",
                     "MigrationStarted",
@@ -404,6 +407,9 @@ namespace ProjectUnknown.Strategy
                 nextCenter = state.Target;
                 state.HasTarget = false;
                 state.Cooldown = Random.Range(cooldownMin, cooldownMax);
+                state.Route.Clear();
+                state.RouteIndex = 0;
+                state.WalkabilityVersion = -1;
                 StrategyDebugLogger.Info(
                     "Wildlife",
                     "MigrationCompleted",
@@ -414,14 +420,17 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
-            if (TryPickMigrationStep(
-                currentCenter,
-                state.Target,
-                step,
-                isCandidate,
-                scoreCandidate,
-                requireWalkableConnection,
-                out nextCenter))
+            bool advanced = requireWalkableConnection
+                ? TryAdvanceLandMigrationRoute(state, currentCenter, step, out nextCenter)
+                : TryPickMigrationStep(
+                    currentCenter,
+                    state.Target,
+                    step,
+                    isCandidate,
+                    scoreCandidate,
+                    false,
+                    out nextCenter);
+            if (advanced)
             {
                 state.FailedSteps = 0;
                 return nextCenter != currentCenter;
@@ -439,6 +448,9 @@ namespace ProjectUnknown.Strategy
                 state.HasTarget = false;
                 state.Cooldown = Random.Range(12f, 28f);
                 state.FailedSteps = 0;
+                state.Route.Clear();
+                state.RouteIndex = 0;
+                state.WalkabilityVersion = -1;
             }
 
             return false;

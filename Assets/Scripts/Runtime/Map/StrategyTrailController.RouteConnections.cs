@@ -46,6 +46,8 @@ namespace ProjectUnknown.Strategy
 
                 TryAppendSingleSidedConnector(targetCells, cell, "near_existing");
             }
+
+            EnsureRouteConnectionIntegrity(sourceCells, targetCells);
         }
 
         private bool TryAppendRouteConnectionCell(

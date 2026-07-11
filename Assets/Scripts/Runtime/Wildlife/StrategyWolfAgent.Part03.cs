@@ -86,7 +86,7 @@ namespace ProjectUnknown.Strategy
                 movementStallTimer = 0f;
             }
 
-            movementStallTimer += Time.unscaledDeltaTime;
+            movementStallTimer += Time.deltaTime;
             float now = Time.realtimeSinceStartup;
             if (movementStallTimer < WolfStallSeconds || now < nextMovementStallLogTime)
             {

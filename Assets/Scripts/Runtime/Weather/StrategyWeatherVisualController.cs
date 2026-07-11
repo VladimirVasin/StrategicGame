@@ -10,6 +10,7 @@ namespace ProjectUnknown.Strategy
         private const int MistPixelsPerCell = 1;
         private const float CloudFrameSeconds = 0.44f;
         private const float MistFrameSeconds = 0.38f;
+        private const float PrecipitationFrameSeconds = 1f / 30f;
         private const int MaxRainDrops = 96;
         private const int MaxSnowflakes = 128;
         private const float RainViewPadding = 3.5f;
@@ -30,6 +31,7 @@ namespace ProjectUnknown.Strategy
         private Color[] mistPixels;
         private float cloudTimer;
         private float mistTimer;
+        private float precipitationTimer;
         private bool rainWasActive;
         private bool snowWasActive;
         private static Sprite whiteSprite;
@@ -68,11 +70,16 @@ namespace ProjectUnknown.Strategy
             }
 
             EnsureRenderers();
-            ResizeRenderers();
-            ApplyWetOverlay();
             float dt = Mathf.Max(0f, Time.unscaledDeltaTime);
-            UpdateRainDrops(dt);
-            UpdateSnowflakes(dt);
+            precipitationTimer += dt;
+            if (precipitationTimer >= PrecipitationFrameSeconds)
+            {
+                float precipitationDt = precipitationTimer;
+                precipitationTimer = 0f;
+                ApplyWetOverlay();
+                UpdateRainDrops(precipitationDt);
+                UpdateSnowflakes(precipitationDt);
+            }
 
             cloudTimer += dt;
             if (cloudTimer >= CloudFrameSeconds)

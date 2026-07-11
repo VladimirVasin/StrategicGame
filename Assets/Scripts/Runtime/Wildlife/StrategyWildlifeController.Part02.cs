@@ -49,12 +49,32 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
+            if (!TryBuildLandMigrationRoute(start, target, migrationRouteCells))
+            {
+                return false;
+            }
+
+            int routeIndex = Mathf.Min(migrationRouteCells.Count - 1, Mathf.Max(1, maxStep) - 1);
+            stepCell = migrationRouteCells[routeIndex];
+            return stepCell != start;
+        }
+
+        private bool TryBuildLandMigrationRoute(
+            Vector2Int start,
+            Vector2Int target,
+            List<Vector2Int> routeCells)
+        {
+            routeCells.Clear();
+            if (start == target)
+            {
+                return true;
+            }
+
             Queue<Vector2Int> frontier = migrationConnectionFrontier;
             HashSet<Vector2Int> visited = migrationConnectionVisited;
             frontier.Clear();
             visited.Clear();
             migrationRouteParents.Clear();
-            migrationRouteCells.Clear();
 
             bool allowStructureBuffer = IsLandWildlifeStructureBufferCell(start);
             int maxVisited = GetMigrationTargetMaxVisited(start, target);
@@ -93,16 +113,64 @@ namespace ProjectUnknown.Strategy
             Vector2Int routeCell = target;
             while (routeCell != start)
             {
-                migrationRouteCells.Add(routeCell);
+                routeCells.Add(routeCell);
                 if (!migrationRouteParents.TryGetValue(routeCell, out routeCell))
                 {
+                    routeCells.Clear();
                     return false;
                 }
             }
 
-            int routeIndex = Mathf.Max(0, migrationRouteCells.Count - Mathf.Max(1, maxStep));
-            stepCell = migrationRouteCells[routeIndex];
-            return stepCell != start;
+            routeCells.Reverse();
+            return routeCells.Count > 0;
+        }
+
+        private bool TryAdvanceLandMigrationRoute(
+            MigrationState state,
+            Vector2Int currentCenter,
+            int maxStep,
+            out Vector2Int stepCell)
+        {
+            stepCell = currentCenter;
+            if (state == null || map == null)
+            {
+                return false;
+            }
+
+            bool routeMismatch = state.RouteIndex > 0
+                && state.RouteIndex <= state.Route.Count
+                && state.Route[state.RouteIndex - 1] != currentCenter;
+            bool rebuild = state.Route.Count == 0
+                || state.RouteIndex >= state.Route.Count
+                || state.WalkabilityVersion != map.WalkabilityVersion
+                || routeMismatch;
+            if (rebuild)
+            {
+                if (!TryBuildLandMigrationRoute(currentCenter, state.Target, state.Route))
+                {
+                    state.Route.Clear();
+                    state.RouteIndex = 0;
+                    state.WalkabilityVersion = map.WalkabilityVersion;
+                    return false;
+                }
+
+                state.RouteIndex = 0;
+                state.WalkabilityVersion = map.WalkabilityVersion;
+            }
+
+            int nextIndex = Mathf.Min(
+                state.Route.Count - 1,
+                state.RouteIndex + Mathf.Max(1, maxStep) - 1);
+            Vector2Int candidate = state.Route[nextIndex];
+            if (!IsLandWildlifeTravelCell(candidate, IsLandWildlifeStructureBufferCell(currentCenter)))
+            {
+                state.WalkabilityVersion = -1;
+                return false;
+            }
+
+            state.RouteIndex = nextIndex + 1;
+            stepCell = candidate;
+            return stepCell != currentCenter;
         }
 
         private bool HasWalkableMigrationConnection(Vector2Int start, Vector2Int target, int maxVisited)

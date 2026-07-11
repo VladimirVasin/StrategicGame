@@ -326,6 +326,7 @@
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyRabbitAgent.HuntTarget.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyFogOfWarController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyGameBootstrap.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Core\StrategyBootstrapRunner.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyHouseholdState.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyTrailController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyNatureSpriteFactory.Part04.cs" />
@@ -525,6 +526,7 @@
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWolfSpriteFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyClayPit.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyNaturePropController.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Map\StrategyNaturePropController.Generation.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyAutoWorkforceController.Part02.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyBuildMenuController.Driver.Debug.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyChickenCoop.NightShelter.cs" />

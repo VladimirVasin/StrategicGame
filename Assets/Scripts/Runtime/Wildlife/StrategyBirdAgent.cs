@@ -127,7 +127,7 @@ namespace ProjectUnknown.Strategy
 
         private void Update()
         {
-            if (map == null || spriteRenderer == null)
+            if (Time.timeScale <= 0f || map == null || spriteRenderer == null)
             {
                 return;
             }
@@ -171,7 +171,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            threatCheckTimer -= Time.unscaledDeltaTime;
+            threatCheckTimer -= Time.deltaTime;
             if (threatCheckTimer > 0f)
             {
                 return;

@@ -34,7 +34,9 @@ namespace ProjectUnknown.Strategy
             }
 
             bootstrappedScene = scene;
-            BootstrapScene();
+            GameObject runnerObject = new GameObject("Strategy Bootstrap Runner");
+            StrategyBootstrapRunner runner = runnerObject.AddComponent<StrategyBootstrapRunner>();
+            runner.Run(BootstrapScene());
         }
     }
 }

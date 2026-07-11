@@ -411,7 +411,7 @@ namespace ProjectUnknown.Strategy
 
         private void Update()
         {
-            if (map == null || spriteRenderer == null)
+            if (Time.timeScale <= 0f || map == null || spriteRenderer == null)
             {
                 return;
             }

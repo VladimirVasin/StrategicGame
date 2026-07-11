@@ -67,7 +67,7 @@ namespace ProjectUnknown.Strategy
 
         private void Update()
         {
-            if (map == null || population == null)
+            if (Time.timeScale <= 0f || map == null || population == null)
             {
                 return;
             }
@@ -118,7 +118,7 @@ namespace ProjectUnknown.Strategy
             UpdateAmbientTorchCarriers(snapshot);
             if (snapshot.DayIndex != lastEveningDayIndex)
             {
-                retryTimer -= Time.unscaledDeltaTime;
+                retryTimer -= Time.deltaTime;
                 if (retryTimer > 0f)
                 {
                     return;
@@ -138,7 +138,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            retryTimer -= Time.unscaledDeltaTime;
+            retryTimer -= Time.deltaTime;
             if (retryTimer > 0f)
             {
                 return;

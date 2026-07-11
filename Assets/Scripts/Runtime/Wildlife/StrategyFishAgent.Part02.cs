@@ -8,7 +8,7 @@ namespace ProjectUnknown.Strategy
 
         private void UpdateThreatAwareness()
         {
-            threatCheckTimer -= Time.unscaledDeltaTime;
+            threatCheckTimer -= Time.deltaTime;
             if (threatCheckTimer > 0f)
             {
                 return;

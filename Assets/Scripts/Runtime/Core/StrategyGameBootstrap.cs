@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 namespace ProjectUnknown.Strategy
@@ -11,7 +12,7 @@ namespace ProjectUnknown.Strategy
         private const int InitialStarterStone = 20;
         private const float StarterFoodReserveDays = 3f;
 
-        private static void BootstrapScene()
+        private static IEnumerator BootstrapScene()
         {
             StrategyGameSettings.ApplyAtStartup();
             CityMapController map = ConfigureDebugLoggingAndMap();
@@ -54,6 +55,7 @@ namespace ProjectUnknown.Strategy
             }
 
             timeScale.Configure();
+            timeScale.PushPauseLock("Bootstrap");
             StrategyDebugLogger.Info("Bootstrap", "TimeScaleReady");
 
             StrategyForestryController forestry = Object.FindAnyObjectByType<StrategyForestryController>();
@@ -238,6 +240,7 @@ namespace ProjectUnknown.Strategy
 
             music.Configure();
             StrategyDebugLogger.Info("Bootstrap", "MusicReady");
+            yield return null;
 
             StrategyBuildMenuController buildMenu = Object.FindAnyObjectByType<StrategyBuildMenuController>();
             if (buildMenu == null)
@@ -288,7 +291,13 @@ namespace ProjectUnknown.Strategy
 
             if (population.TryGetCampCell(out Vector2Int campCell))
             {
-                nature.Configure(map, wind, forestry, stone, campCell, CampNatureClearRadius);
+                yield return nature.ConfigureIncremental(
+                    map,
+                    wind,
+                    forestry,
+                    stone,
+                    campCell,
+                    CampNatureClearRadius);
                 StrategyDebugLogger.Info(
                     "Bootstrap",
                     "NatureReady",
@@ -392,6 +401,7 @@ namespace ProjectUnknown.Strategy
 
             wildlife.Configure(map, population, fog);
             StrategyDebugLogger.Info("Bootstrap", "WildlifeReady");
+            yield return null;
 
             StrategyConfirmationDialogController confirmationDialog = Object.FindAnyObjectByType<StrategyConfirmationDialogController>();
             if (confirmationDialog == null)
@@ -486,6 +496,8 @@ namespace ProjectUnknown.Strategy
 
             ConfigurePerformanceDiagnostics(map, population, wildlife, weather, timeScale);
             ConfigurePersistence(map, placement, population);
+            timeScale.PopPauseLock("Bootstrap");
+            StrategyDebugLogger.Info("Bootstrap", "Complete");
         }
 
     }

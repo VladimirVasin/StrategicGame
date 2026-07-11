@@ -163,10 +163,13 @@ namespace ProjectUnknown.Strategy
 
         private sealed class MigrationState
         {
+            public readonly List<Vector2Int> Route = new();
             public Vector2Int Target;
             public float Cooldown;
             public bool HasTarget;
             public int FailedSteps;
+            public int RouteIndex;
+            public int WalkabilityVersion = -1;
         }
 
         private void Awake()
@@ -181,8 +184,13 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            if (Time.timeScale <= 0f)
+            {
+                UpdateWildlifeFogVisibility();
+                return;
+            }
+
             float scaledDt = Mathf.Max(0f, Time.deltaTime);
-            float unscaledDt = Mathf.Max(0f, Time.unscaledDeltaTime);
             if (deer.Count > 0)
             {
                 breedingTimer -= scaledDt;
@@ -214,7 +222,7 @@ namespace ProjectUnknown.Strategy
             }
 
             UpdateRiverFishSpawning(scaledDt);
-            UpdateWildlifeMigration(unscaledDt);
+            UpdateWildlifeMigration(scaledDt);
             UpdateHunterCampSupportSpawning(scaledDt);
             UpdateWildlifeFogVisibility();
         }

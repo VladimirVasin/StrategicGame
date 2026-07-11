@@ -129,11 +129,6 @@ namespace ProjectUnknown.Strategy
             }
 
             byte oldLevel = routeLevels[cell.x, cell.y];
-            if (oldLevel <= 0 && WouldCompleteRouteSquare(cell))
-            {
-                return false;
-            }
-
             float oldWear = routeWear[cell.x, cell.y];
             routeWear[cell.x, cell.y] = MaxWear;
             routeLastTraversalTimes[cell.x, cell.y] = Time.time;

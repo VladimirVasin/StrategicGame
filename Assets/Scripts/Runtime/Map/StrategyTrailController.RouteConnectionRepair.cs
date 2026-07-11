@@ -5,9 +5,17 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyTrailController
     {
-        private const int RouteRepairSourceLookahead = 10;
-        private const int RouteRepairBoundsPadding = 6;
-        private const int RouteRepairMaxVisited = 128;
+        private const int RouteRepairSourceLookahead = 32;
+        private const int RouteRepairBoundsPadding = 12;
+        private const int RouteRepairMaxVisited = 4096;
+        private const int RouteRepairSquarePenalty = 24;
+        private static readonly Vector2Int[] RouteCardinalDirections =
+        {
+            Vector2Int.up,
+            Vector2Int.right,
+            Vector2Int.down,
+            Vector2Int.left
+        };
 
         private readonly List<RouteRepairNode> routeRepairNodes = new();
         private readonly List<int> routeRepairOpen = new();
@@ -15,6 +23,9 @@ namespace ProjectUnknown.Strategy
         private readonly HashSet<Vector2Int> routeRepairClosed = new();
         private readonly List<Vector2Int> routeRepairPathCells = new();
         private readonly List<Vector2Int> routeRepairParentCells = new();
+        private readonly List<Vector2Int> routeConnectivityEmptyCells = new();
+        private readonly Queue<Vector2Int> routeConnectivityFrontier = new();
+        private readonly HashSet<Vector2Int> routeConnectivityVisited = new();
 
         private bool TryAppendRouteRepair(
             List<Vector2Int> targetCells,
@@ -95,9 +106,9 @@ namespace ProjectUnknown.Strategy
                 }
 
                 routeRepairClosed.Add(node.Cell);
-                for (int i = 0; i < NeighborCells.Length; i++)
+                for (int i = 0; i < RouteCardinalDirections.Length; i++)
                 {
-                    Vector2Int next = node.Cell + NeighborCells[i];
+                    Vector2Int next = node.Cell + RouteCardinalDirections[i];
                     if (next.x < minX
                         || next.x > maxX
                         || next.y < minY
@@ -108,7 +119,7 @@ namespace ProjectUnknown.Strategy
                         continue;
                     }
 
-                    int nextCost = node.Cost + 1 + GetRouteRepairStepPenalty(next);
+                    int nextCost = node.Cost + 1 + GetRouteRepairStepPenalty(next, stagedCells);
                     if (routeRepairBestCosts.TryGetValue(next, out int oldCost) && nextCost >= oldCost)
                     {
                         continue;
@@ -150,8 +161,7 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            return GetRawRouteTrailLevel(candidate) > 0
-                || !WouldCompleteRouteSquare(candidate, stagedCells, routeRepairParentCells);
+            return true;
         }
 
         private int PopBestRouteRepairOpenNode()
@@ -256,14 +266,123 @@ namespace ProjectUnknown.Strategy
             return Mathf.Abs(from.x - to.x) + Mathf.Abs(from.y - to.y);
         }
 
-        private int GetRouteRepairStepPenalty(Vector2Int cell)
+        private int GetRouteRepairStepPenalty(Vector2Int cell, IReadOnlyList<Vector2Int> stagedCells)
         {
             if (GetRawRouteTrailLevel(cell) > 0)
             {
                 return 0;
             }
 
-            return CountExistingRouteTrailNeighbors(cell);
+            int penalty = CountExistingRouteTrailNeighbors(cell);
+            if (WouldCompleteRouteSquare(cell, stagedCells, routeRepairParentCells))
+            {
+                penalty += RouteRepairSquarePenalty;
+            }
+
+            return penalty;
+        }
+
+        private void EnsureRouteConnectionIntegrity(
+            IReadOnlyList<Vector2Int> sourceCells,
+            List<Vector2Int> targetCells)
+        {
+            if (sourceCells == null || sourceCells.Count < 2 || targetCells == null)
+            {
+                return;
+            }
+
+            Vector2Int start = sourceCells[0];
+            Vector2Int target = sourceCells[sourceCells.Count - 1];
+            if (HasStagedRouteConnection(start, target, targetCells))
+            {
+                return;
+            }
+
+            routeConnectivityEmptyCells.Clear();
+            if (TryFindRouteRepairPath(start, target, routeConnectivityEmptyCells))
+            {
+                targetCells.Clear();
+                targetCells.Add(start);
+                for (int i = 0; i < routeRepairPathCells.Count; i++)
+                {
+                    targetCells.Add(routeRepairPathCells[i]);
+                }
+
+                StrategyDebugLogger.Info(
+                    "Map",
+                    "TrailRouteConnectivityRebuilt",
+                    StrategyDebugLogger.F("from", start),
+                    StrategyDebugLogger.F("to", target),
+                    StrategyDebugLogger.F("cells", targetCells.Count),
+                    StrategyDebugLogger.F("reason", "disconnected_filtered_route"));
+                return;
+            }
+
+            targetCells.Clear();
+            for (int i = 0; i < sourceCells.Count; i++)
+            {
+                Vector2Int cell = sourceCells[i];
+                if (GetWearRejectReason(cell) == null
+                    && (targetCells.Count == 0 || targetCells[targetCells.Count - 1] != cell))
+                {
+                    targetCells.Add(cell);
+                }
+            }
+
+            StrategyDebugLogger.Warn(
+                "Map",
+                "TrailRouteConnectivityFallback",
+                StrategyDebugLogger.F("from", start),
+                StrategyDebugLogger.F("to", target),
+                StrategyDebugLogger.F("cells", targetCells.Count),
+                StrategyDebugLogger.F("reason", "source_route_required"));
+        }
+
+        private bool HasStagedRouteConnection(
+            Vector2Int start,
+            Vector2Int target,
+            IReadOnlyList<Vector2Int> stagedCells)
+        {
+            if (start == target)
+            {
+                return true;
+            }
+
+            if (!IsRouteNetworkCell(start, stagedCells) || !IsRouteNetworkCell(target, stagedCells))
+            {
+                return false;
+            }
+
+            routeConnectivityFrontier.Clear();
+            routeConnectivityVisited.Clear();
+            routeConnectivityFrontier.Enqueue(start);
+            routeConnectivityVisited.Add(start);
+            while (routeConnectivityFrontier.Count > 0)
+            {
+                Vector2Int current = routeConnectivityFrontier.Dequeue();
+                for (int i = 0; i < RouteCardinalDirections.Length; i++)
+                {
+                    Vector2Int next = current + RouteCardinalDirections[i];
+                    if (!routeConnectivityVisited.Add(next) || !IsRouteNetworkCell(next, stagedCells))
+                    {
+                        continue;
+                    }
+
+                    if (next == target)
+                    {
+                        return true;
+                    }
+
+                    routeConnectivityFrontier.Enqueue(next);
+                }
+            }
+
+            return false;
+        }
+
+        private bool IsRouteNetworkCell(Vector2Int cell, IReadOnlyList<Vector2Int> stagedCells)
+        {
+            return GetRawRouteTrailLevel(cell) > 0 || ContainsRouteConnectionCell(stagedCells, cell);
         }
 
         private readonly struct RouteRepairNode

@@ -49,6 +49,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 
 - MVP strategy foundation
   - Runtime bootstrap
+    - Uses a short bootstrap pause and a scene-local coroutine runner so deterministic nature/resource creation is spread across bounded frame batches before gameplay begins
     - Creates and configures the strategy debug logger before other strategy systems
     - Creates `City Map` if none exists
     - Creates the shared budgeted navigation service after map/trail setup so residents and land agents reuse one path engine and walkability-version cache
@@ -149,7 +150,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Runtime world chunk registry divides the generated map into 16x16 cell chunks, indexes buildings/construction sites/residents, and exposes camera-near, active-settlement, and dirty-chunk flags for incremental fog/weather visual repaint systems
     - Resident footfalls no longer create functional or visible roads, and automatic route-network convergence is disabled
     - Road cells stay until invalidated by map walkability or cell validity changes instead of decaying from disuse
-    - Route road cells render connected procedural sprites using cardinal N/E/S/W right-angle masks, wear levels, and deterministic variants
+    - Route road cells render connected procedural sprites using cardinal N/E/S/W right-angle masks, wear levels, and deterministic variants; repair searches are cardinal, penalize square completion, and guarantee endpoint connectivity through an original-route fallback
     - Route roads own a derived roadside-prop layer that places sparse non-blocking torches/lanterns on eligible straight road segments and refreshes them when roads or adjacent buildability change
     - Formed roads give residents a 15% movement-speed bonus and reduce resident pathfinding cost without becoming required routes
     - Runtime nature-props layer
@@ -254,9 +255,10 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Lake fish use short local lake-water paths inside a loose shoal/home range
       - River fish follow the generated river route from current start to end, then despawn
       - Birds fly between nearby habitat cells inside a loose home range and react to noisy residents by taking off
-      - Deer herds, rabbit groups, wolf packs, bird homes, and lake fish shoals periodically migrate by retargeting their loose home centers across currently hidden near-settlement suitable habitat
+      - Deer herds, rabbit groups, wolf packs, bird homes, and lake fish shoals periodically migrate by retargeting their loose home centers across currently hidden near-settlement suitable habitat; land groups retain a route and rebuild it only when walkability changes or the group leaves that route
       - Land wildlife migration avoids dense settlement pressure and only advances through short connected land-or-river steps so groups do not jump through blockers or lakes
       - Failed wildlife migration targets are temporarily cooled down so groups avoid repeatedly selecting cells that already caused migration aborts
+      - Wildlife decisions and migration stop completely while a modal pause lock holds simulation time at zero
       - Wolves use walkable-cell paths, roam near their current pack migration center, avoid high settlement pressure, and only hunt rabbits/deer when current population surplus is above high control thresholds
       - Wolf attacks use normal stalking first, then a faster pounce/chase phase only once close to the selected prey
       - Wolves no longer use ordinary resident targeting; they idle/roam when no surplus rabbit/deer prey is available

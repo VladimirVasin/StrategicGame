@@ -49,6 +49,28 @@ namespace ProjectUnknown.Strategy.EditorTests
             Require(Resources.Load<Font>("Fonts/PixelifySans") != null, "Pixel UI font is missing");
         }
 
+        private static void VerifyAudioImportProfiles()
+        {
+            VerifyAudioFolderLoadType("Assets/Resources/Audio/Music", AudioClipLoadType.Streaming);
+            VerifyAudioFolderLoadType("Assets/Resources/Audio/Nature", AudioClipLoadType.CompressedInMemory);
+        }
+
+        private static void VerifyAudioFolderLoadType(string folder, AudioClipLoadType expectedLoadType)
+        {
+            string[] guids = AssetDatabase.FindAssets("t:AudioClip", new[] { folder });
+            Require(guids.Length > 0, "Audio folder is empty: " + folder);
+            for (int i = 0; i < guids.Length; i++)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guids[i]);
+                AudioImporter importer = AssetImporter.GetAtPath(path) as AudioImporter;
+                Require(importer != null, "Audio importer is missing: " + path);
+                Require(
+                    importer.defaultSampleSettings.loadType == expectedLoadType,
+                    "Unexpected audio load type: " + path);
+                Require(importer.loadInBackground, "Long audio must load in background: " + path);
+            }
+        }
+
         private static void VerifyBuildingGroundDetails()
         {
             StrategyPlacedBuilding[] buildings =
