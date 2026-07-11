@@ -20,12 +20,22 @@ namespace ProjectUnknown.Strategy
             int startX = cellX * tilePixels;
             int startY = cellY * tilePixels;
             int variant = Hash(seed, cellX, cellY, (int)kind, 19) % VariantCount;
+            float macroVariation = SampleMacroVariation(seed, cellX, cellY, kind);
 
             for (int py = 0; py < tilePixels; py++)
             {
                 for (int px = 0; px < tilePixels; px++)
                 {
-                    Color pixel = PaintBasePixel(kind, variant, seed, cellX, cellY, px, py, tilePixels);
+                    Color pixel = PaintBasePixel(
+                        kind,
+                        variant,
+                        macroVariation,
+                        seed,
+                        cellX,
+                        cellY,
+                        px,
+                        py,
+                        tilePixels);
                     pixel = ApplyNeighborTransitions(pixel, cells, cellX, cellY, px, py, tilePixels, seed);
                     pixel = ApplyReliefShading(pixel, cells, cellX, cellY, px, py, tilePixels, seed);
 
@@ -43,6 +53,35 @@ namespace ProjectUnknown.Strategy
         private static Color PaintBasePixel(
             CityMapCellKind kind,
             int variant,
+            float macroVariation,
+            int seed,
+            int cellX,
+            int cellY,
+            int px,
+            int py,
+            int tilePixels)
+        {
+            if (TrySampleCatalog(kind, variant, px, py, tilePixels, out Color catalogColor))
+            {
+                return Shift(catalogColor, (macroVariation - 0.5f) * GetMacroStrength(kind));
+            }
+
+            return PaintProceduralBasePixel(
+                kind,
+                variant,
+                macroVariation,
+                seed,
+                cellX,
+                cellY,
+                px,
+                py,
+                tilePixels);
+        }
+
+        private static Color PaintProceduralBasePixel(
+            CityMapCellKind kind,
+            int variant,
+            float macroVariation,
             int seed,
             int cellX,
             int cellY,
@@ -52,7 +91,8 @@ namespace ProjectUnknown.Strategy
         {
             float noise = Hash01(seed, cellX, cellY, px, py, 1);
             float detail = Hash01(seed, cellX, cellY, px, py, 2);
-            Color color = GetBaseColor(kind, variant);
+            Color color = Color.Lerp(GetBaseColor(kind, variant), GetBaseColor(kind, 0), 0.74f);
+            color = Shift(color, (macroVariation - 0.5f) * GetMacroStrength(kind));
             color = Shift(color, (noise - 0.5f) * GetNoiseStrength(kind));
 
             switch (kind)

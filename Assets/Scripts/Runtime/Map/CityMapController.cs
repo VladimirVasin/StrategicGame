@@ -62,7 +62,7 @@ namespace ProjectUnknown.Strategy
 
         [Header("Visuals")]
         [SerializeField] private int tilePixels = 16;
-        [SerializeField] private bool drawGrid = true;
+        [SerializeField] private bool drawGrid;
 
         private SpriteRenderer spriteRenderer;
         private Texture2D mapTexture;
@@ -85,6 +85,7 @@ namespace ProjectUnknown.Strategy
 
         public void GenerateMap()
         {
+            StrategyVisualCatalogProvider.Prewarm();
             IsGenerating = true;
             IsGenerated = false;
             GenerationFailed = false;

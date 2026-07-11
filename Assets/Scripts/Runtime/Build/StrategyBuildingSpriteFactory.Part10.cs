@@ -8,32 +8,37 @@ namespace ProjectUnknown.Strategy
 
         public static Sprite GetForgeIronStockSprite(int stored)
         {
-            return GetForgeOreStockSprite(stored, 81920, "Forge Iron Stock", true);
+            return GetForgeOreStockSprite(stored, 81920, "Forge Iron Stock", true, StrategyVisualSequenceIds.ForgeIron);
         }
 
         public static Sprite GetForgeCoalStockSprite(int stored)
         {
-            return GetForgeOreStockSprite(stored, 82944, "Forge Coal Stock", false);
+            return GetForgeOreStockSprite(stored, 82944, "Forge Coal Stock", false, StrategyVisualSequenceIds.ForgeCoal);
         }
 
         public static Sprite GetForgeLogStockSprite(int stored)
         {
-            return GetForgeLogStockSprite(stored, 83968, "Forge Log Stock");
+            return GetForgeLogStockSprite(stored, 83968, "Forge Log Stock", StrategyVisualSequenceIds.ForgeLogs);
         }
 
         public static Sprite GetForgeToolsStockSprite(int stored)
         {
-            return GetToolsStockSprite(stored, 84992, "Forge Tools Stock");
+            return GetToolsStockSprite(stored, 84992, "Forge Tools Stock", StrategyVisualSequenceIds.ForgeTools);
         }
 
         public static Sprite GetStorageYardToolsStockSprite(int stored)
         {
-            return GetToolsStockSprite(stored, 86016, "Storage Tools Stock");
+            return GetToolsStockSprite(stored, 86016, "Storage Tools Stock", StrategyVisualSequenceIds.StorageTools);
         }
 
         public static Sprite GetForgeWorkSprite(int frame)
         {
             int normalizedFrame = Mathf.Abs(frame) % ForgeWorkFrameCount;
+            if (TryGetBakedLayer(StrategyVisualSequenceIds.ForgeWork, normalizedFrame, out Sprite baked))
+            {
+                return baked;
+            }
+
             int cacheKey = 87040 + normalizedFrame;
             if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
             {
@@ -92,7 +97,7 @@ namespace ProjectUnknown.Strategy
             return Sprite.Create(texture, new Rect(8f, 5f, 92f, 74f), new Vector2(0.5f, 0.10f), PixelsPerUnit);
         }
 
-        private static Sprite GetForgeOreStockSprite(int stored, int baseKey, string name, bool iron)
+        private static Sprite GetForgeOreStockSprite(int stored, int baseKey, string name, bool iron, string sequenceId)
         {
             if (stored <= 0)
             {
@@ -100,6 +105,11 @@ namespace ProjectUnknown.Strategy
             }
 
             int level = Mathf.Clamp((stored + 1) / 2, 1, 6);
+            if (TryGetBakedLayer(sequenceId, level - 1, out Sprite baked))
+            {
+                return baked;
+            }
+
             int cacheKey = baseKey + level;
             if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
             {
@@ -110,7 +120,7 @@ namespace ProjectUnknown.Strategy
             return sprite;
         }
 
-        private static Sprite GetForgeLogStockSprite(int stored, int baseKey, string name)
+        private static Sprite GetForgeLogStockSprite(int stored, int baseKey, string name, string sequenceId)
         {
             if (stored <= 0)
             {
@@ -118,6 +128,11 @@ namespace ProjectUnknown.Strategy
             }
 
             int level = Mathf.Clamp((stored + 1) / 2, 1, 6);
+            if (TryGetBakedLayer(sequenceId, level - 1, out Sprite baked))
+            {
+                return baked;
+            }
+
             int cacheKey = baseKey + level;
             if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
             {
@@ -128,7 +143,7 @@ namespace ProjectUnknown.Strategy
             return sprite;
         }
 
-        private static Sprite GetToolsStockSprite(int stored, int baseKey, string name)
+        private static Sprite GetToolsStockSprite(int stored, int baseKey, string name, string sequenceId)
         {
             if (stored <= 0)
             {
@@ -136,6 +151,11 @@ namespace ProjectUnknown.Strategy
             }
 
             int level = Mathf.Clamp((stored + 1) / 2, 1, 6);
+            if (TryGetBakedLayer(sequenceId, level - 1, out Sprite baked))
+            {
+                return baked;
+            }
+
             int cacheKey = baseKey + level;
             if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
             {

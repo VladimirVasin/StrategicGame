@@ -130,6 +130,13 @@ namespace ProjectUnknown.Strategy
 
             cameraController.SetBounds(map.WorldBounds);
             cameraController.FocusOn(map.WorldBounds.center, InitialCameraSize);
+            StrategyCameraFeedbackController cameraFeedback = mainCamera.GetComponent<StrategyCameraFeedbackController>();
+            if (cameraFeedback == null)
+            {
+                cameraFeedback = mainCamera.gameObject.AddComponent<StrategyCameraFeedbackController>();
+            }
+
+            cameraFeedback.Configure(mainCamera);
             StrategyDebugLogger.Info("Bootstrap", "CameraReady", StrategyDebugLogger.F("position", mainCamera.transform.position));
 
             StrategyDayNightCycleController dayNight = Object.FindAnyObjectByType<StrategyDayNightCycleController>();
@@ -159,6 +166,15 @@ namespace ProjectUnknown.Strategy
             }
 
             weatherVisuals.Configure(map, mainCamera, weather, wind);
+
+            StrategySeasonAmbientDetailController seasonDetails = Object.FindAnyObjectByType<StrategySeasonAmbientDetailController>();
+            if (seasonDetails == null)
+            {
+                GameObject seasonDetailsObject = new GameObject("Strategy Season Ambient Details");
+                seasonDetails = seasonDetailsObject.AddComponent<StrategySeasonAmbientDetailController>();
+            }
+
+            seasonDetails.Configure(mainCamera, weather, wind);
 
             StrategySeasonalSurfaceController seasonalSurfaces = Object.FindAnyObjectByType<StrategySeasonalSurfaceController>();
             if (seasonalSurfaces == null)

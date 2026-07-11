@@ -92,6 +92,11 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            if (strategyCamera != null)
+            {
+                StrategyCameraFeedbackController.Emit(strategyCamera.transform.position, 0.045f, 0.12f);
+            }
+
             float burstChance = Mathf.Lerp(0.14f, 0.68f, activity);
             lightningBurstFlashes = Random.value < burstChance ? Random.Range(1, 4) : 0;
             lightningBurstTimer = Random.Range(0.04f, 0.24f);

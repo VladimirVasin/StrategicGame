@@ -346,6 +346,7 @@ namespace ProjectUnknown.Strategy
             fallDirection = transform.position.x >= hitterWorld.x ? 1 : -1;
             StrategyWoodcutEffectAnimator.Spawn(GetChopEffectWorld(), spriteRenderer != null ? spriteRenderer.sortingOrder + 4 : 7, chopHitCount + 11);
             StrategyForestrySfxAudio.PlayTreeFall(transform.position);
+            StrategyCameraFeedbackController.Emit(transform.position, 0.075f, 0.32f);
             StrategyDebugLogger.Info(
                 "Forestry",
                 "TreeFalling",

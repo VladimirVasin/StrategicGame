@@ -1,0 +1,4355 @@
+fileFormatVersion: 2
+guid: defa117db7a31a44daaac20214c8e01b
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -3932258156525025955
+    second: V03_WorldAtlas_0
+  - first:
+      213: -8540677067373032160
+    second: V03_WorldAtlas_1
+  - first:
+      213: -5222590275525248544
+    second: V03_WorldAtlas_2
+  - first:
+      213: -5426231923647279910
+    second: V03_WorldAtlas_3
+  - first:
+      213: 4542972650975607200
+    second: V03_WorldAtlas_4
+  - first:
+      213: -3028801050189061533
+    second: V03_WorldAtlas_5
+  - first:
+      213: -7520369146073291453
+    second: V03_WorldAtlas_6
+  - first:
+      213: -8840549045887687598
+    second: V03_WorldAtlas_7
+  - first:
+      213: -2951727838875761469
+    second: V03_WorldAtlas_8
+  - first:
+      213: -6259680027796863487
+    second: V03_WorldAtlas_9
+  - first:
+      213: -5404683830498160074
+    second: V03_WorldAtlas_10
+  - first:
+      213: 1872384400761541344
+    second: V03_WorldAtlas_11
+  - first:
+      213: -6883230364964275989
+    second: V03_WorldAtlas_12
+  - first:
+      213: 1795427771055046133
+    second: V03_WorldAtlas_13
+  - first:
+      213: 803259024971007835
+    second: V03_WorldAtlas_14
+  - first:
+      213: -8413518522245544202
+    second: V03_WorldAtlas_15
+  - first:
+      213: 6480280488383367356
+    second: V03_WorldAtlas_16
+  - first:
+      213: -1190368313398788333
+    second: V03_WorldAtlas_17
+  - first:
+      213: -5292670895885601991
+    second: V03_WorldAtlas_18
+  - first:
+      213: 1468673268370906654
+    second: V03_WorldAtlas_19
+  - first:
+      213: 347910933313699357
+    second: V03_WorldAtlas_20
+  - first:
+      213: -6170376081377978131
+    second: V03_WorldAtlas_21
+  - first:
+      213: 6604361004807210731
+    second: V03_WorldAtlas_22
+  - first:
+      213: 78814876716742287
+    second: V03_WorldAtlas_23
+  - first:
+      213: -2780465126689361694
+    second: V03_WorldAtlas_24
+  - first:
+      213: 5646095937121356218
+    second: V03_WorldAtlas_25
+  - first:
+      213: 7603103113508166952
+    second: V03_WorldAtlas_26
+  - first:
+      213: -2309454152012263529
+    second: V03_WorldAtlas_27
+  - first:
+      213: -5804748151100487034
+    second: V03_WorldAtlas_28
+  - first:
+      213: -1241111097667594432
+    second: V03_WorldAtlas_29
+  - first:
+      213: -8682653659499661442
+    second: V03_WorldAtlas_30
+  - first:
+      213: -2686783519988851288
+    second: V03_WorldAtlas_31
+  - first:
+      213: 4620017056211876172
+    second: V03_WorldAtlas_32
+  - first:
+      213: 1511434432060291141
+    second: V03_WorldAtlas_33
+  - first:
+      213: -7750460251953816640
+    second: V03_WorldAtlas_34
+  - first:
+      213: 966426137989830038
+    second: V03_WorldAtlas_35
+  - first:
+      213: 8936153545555238334
+    second: V03_WorldAtlas_36
+  - first:
+      213: 2901458468316166033
+    second: V03_WorldAtlas_37
+  - first:
+      213: 3082052779611229510
+    second: V03_WorldAtlas_38
+  - first:
+      213: 426501064774414362
+    second: V03_WorldAtlas_39
+  - first:
+      213: 8760230811339174620
+    second: V03_WorldAtlas_40
+  - first:
+      213: 5802954249380183574
+    second: V03_WorldAtlas_41
+  - first:
+      213: 7966198702290035479
+    second: V03_WorldAtlas_42
+  - first:
+      213: 4303146441084067177
+    second: V03_WorldAtlas_43
+  - first:
+      213: 896369835741861501
+    second: V03_WorldAtlas_44
+  - first:
+      213: -1585442895499145206
+    second: V03_WorldAtlas_45
+  - first:
+      213: -4688829351192338870
+    second: V03_WorldAtlas_46
+  - first:
+      213: 8412154173184880563
+    second: V03_WorldAtlas_47
+  - first:
+      213: 1602111960331114595
+    second: V03_WorldAtlas_48
+  - first:
+      213: -1355883292245120210
+    second: V03_WorldAtlas_49
+  - first:
+      213: -1457511310961995348
+    second: V03_WorldAtlas_50
+  - first:
+      213: 3474222566157967106
+    second: V03_WorldAtlas_51
+  - first:
+      213: 3552208222602853939
+    second: V03_WorldAtlas_52
+  - first:
+      213: 8521055218969543468
+    second: V03_WorldAtlas_53
+  - first:
+      213: 644053742673874314
+    second: V03_WorldAtlas_54
+  - first:
+      213: 5771908510313378783
+    second: V03_WorldAtlas_55
+  - first:
+      213: -5123923352640493204
+    second: V03_WorldAtlas_56
+  - first:
+      213: 7065148318524509825
+    second: V03_WorldAtlas_57
+  - first:
+      213: 8430910750470355110
+    second: V03_WorldAtlas_58
+  - first:
+      213: -5391656395352164426
+    second: V03_WorldAtlas_59
+  - first:
+      213: 4273342864865423275
+    second: V03_WorldAtlas_60
+  - first:
+      213: -3695437377716386426
+    second: V03_WorldAtlas_61
+  - first:
+      213: 6490849800882810848
+    second: V03_WorldAtlas_62
+  - first:
+      213: 3811317644437156763
+    second: V03_WorldAtlas_63
+  - first:
+      213: 5313018761031711276
+    second: V03_WorldAtlas_64
+  - first:
+      213: -6517321191012360475
+    second: V03_WorldAtlas_65
+  - first:
+      213: -4567281977644302051
+    second: V03_WorldAtlas_66
+  - first:
+      213: -1106622426220962771
+    second: V03_WorldAtlas_67
+  - first:
+      213: 2086797423790245878
+    second: V03_WorldAtlas_68
+  - first:
+      213: -8391440318566841433
+    second: V03_WorldAtlas_69
+  - first:
+      213: 7140392128351079645
+    second: V03_WorldAtlas_70
+  - first:
+      213: 448114826132224767
+    second: V03_WorldAtlas_71
+  - first:
+      213: 8913527582015121916
+    second: V03_WorldAtlas_72
+  - first:
+      213: -3741973406181302259
+    second: V03_WorldAtlas_73
+  - first:
+      213: -1428645543056833618
+    second: V03_WorldAtlas_74
+  - first:
+      213: -2328400355555807110
+    second: V03_WorldAtlas_75
+  - first:
+      213: -3026205291271132069
+    second: V03_WorldAtlas_76
+  - first:
+      213: 8443560919349180672
+    second: V03_WorldAtlas_77
+  - first:
+      213: -2733478613958757902
+    second: V03_WorldAtlas_78
+  - first:
+      213: -7956648653953780799
+    second: V03_WorldAtlas_79
+  - first:
+      213: -3372521973323218519
+    second: V03_WorldAtlas_80
+  - first:
+      213: -32303330762619136
+    second: V03_WorldAtlas_81
+  - first:
+      213: -4561382898604010307
+    second: V03_WorldAtlas_82
+  - first:
+      213: -749834065221111191
+    second: V03_WorldAtlas_83
+  - first:
+      213: 2764381651710828813
+    second: V03_WorldAtlas_84
+  - first:
+      213: 1801862517308415738
+    second: V03_WorldAtlas_85
+  - first:
+      213: -2327215410716111105
+    second: V03_WorldAtlas_86
+  - first:
+      213: -5317598006404008957
+    second: V03_WorldAtlas_87
+  - first:
+      213: -4496801554307073651
+    second: V03_WorldAtlas_88
+  - first:
+      213: -1168359551655129956
+    second: V03_WorldAtlas_89
+  - first:
+      213: 7280829175521824039
+    second: V03_WorldAtlas_90
+  - first:
+      213: -1147141669532748854
+    second: V03_WorldAtlas_91
+  - first:
+      213: -5465605489117798907
+    second: V03_WorldAtlas_92
+  - first:
+      213: -4005680682145985753
+    second: V03_WorldAtlas_93
+  - first:
+      213: -8257080562628115380
+    second: V03_WorldAtlas_94
+  - first:
+      213: 7623231590381326589
+    second: V03_WorldAtlas_95
+  - first:
+      213: 329067021448430174
+    second: V03_WorldAtlas_96
+  - first:
+      213: 545923482209007270
+    second: V03_WorldAtlas_97
+  - first:
+      213: 8750398001787711773
+    second: V03_WorldAtlas_98
+  - first:
+      213: -8013904446352170048
+    second: V03_WorldAtlas_99
+  - first:
+      213: -8933601741162927320
+    second: V03_WorldAtlas_100
+  - first:
+      213: 4233257193482602526
+    second: V03_WorldAtlas_101
+  - first:
+      213: 3912072310284737193
+    second: V03_WorldAtlas_102
+  - first:
+      213: 3031386701129460730
+    second: V03_WorldAtlas_103
+  - first:
+      213: -8926765799468069447
+    second: V03_WorldAtlas_104
+  - first:
+      213: 1715957515701604899
+    second: V03_WorldAtlas_105
+  - first:
+      213: -3107704608973664659
+    second: V03_WorldAtlas_106
+  - first:
+      213: 5955989933713942706
+    second: V03_WorldAtlas_107
+  - first:
+      213: 6263937129944467111
+    second: V03_WorldAtlas_108
+  - first:
+      213: -2403406116883348617
+    second: V03_WorldAtlas_109
+  - first:
+      213: 7523830485933044280
+    second: V03_WorldAtlas_110
+  - first:
+      213: -5984269104047881517
+    second: V03_WorldAtlas_111
+  - first:
+      213: -255184240490226015
+    second: V03_WorldAtlas_112
+  - first:
+      213: -632870975724766192
+    second: V03_WorldAtlas_113
+  - first:
+      213: -2520643480543967183
+    second: V03_WorldAtlas_114
+  - first:
+      213: 5607138037585551671
+    second: V03_WorldAtlas_115
+  - first:
+      213: -3571433474321130756
+    second: V03_WorldAtlas_116
+  - first:
+      213: -779350329874501627
+    second: V03_WorldAtlas_117
+  - first:
+      213: -2143198710196729095
+    second: V03_WorldAtlas_118
+  - first:
+      213: -8970097093908552973
+    second: V03_WorldAtlas_119
+  - first:
+      213: -1316426297226941900
+    second: V03_WorldAtlas_120
+  - first:
+      213: 3639300098642126543
+    second: V03_WorldAtlas_121
+  - first:
+      213: 3917410361244744604
+    second: V03_WorldAtlas_122
+  - first:
+      213: -4335945510425304746
+    second: V03_WorldAtlas_123
+  - first:
+      213: 9156714730197993598
+    second: V03_WorldAtlas_124
+  - first:
+      213: 7268260753687516184
+    second: V03_WorldAtlas_125
+  - first:
+      213: 9162670901573221058
+    second: V03_WorldAtlas_126
+  - first:
+      213: -6408564883831933145
+    second: V03_WorldAtlas_127
+  - first:
+      213: 647509394237706973
+    second: V03_WorldAtlas_128
+  - first:
+      213: -7319498840154744554
+    second: V03_WorldAtlas_129
+  - first:
+      213: -178328549506774171
+    second: V03_WorldAtlas_130
+  - first:
+      213: -1456200797633510889
+    second: V03_WorldAtlas_131
+  - first:
+      213: -6365810206530226695
+    second: V03_WorldAtlas_132
+  - first:
+      213: 2394781095024996628
+    second: V03_WorldAtlas_133
+  - first:
+      213: 2029766584902605256
+    second: V03_WorldAtlas_134
+  - first:
+      213: -6848011873460778166
+    second: V03_WorldAtlas_135
+  - first:
+      213: -5104395519506337674
+    second: V03_WorldAtlas_136
+  - first:
+      213: 4281080998989698488
+    second: V03_WorldAtlas_137
+  - first:
+      213: -1223162450679439082
+    second: V03_WorldAtlas_138
+  - first:
+      213: 4197204992910036513
+    second: V03_WorldAtlas_139
+  - first:
+      213: -6362254224669740695
+    second: V03_WorldAtlas_140
+  - first:
+      213: 1039784538009540604
+    second: V03_WorldAtlas_141
+  - first:
+      213: -8418046360747784852
+    second: V03_WorldAtlas_142
+  - first:
+      213: 7515124030890833524
+    second: V03_WorldAtlas_143
+  - first:
+      213: 6137495596015984033
+    second: V03_WorldAtlas_144
+  - first:
+      213: -7792688680548196540
+    second: V03_WorldAtlas_145
+  - first:
+      213: -422467322882173916
+    second: V03_WorldAtlas_146
+  - first:
+      213: 2950676622914336430
+    second: V03_WorldAtlas_147
+  - first:
+      213: -5381603336952613196
+    second: V03_WorldAtlas_148
+  - first:
+      213: -957875670382773301
+    second: V03_WorldAtlas_149
+  - first:
+      213: -6779216168536722777
+    second: V03_WorldAtlas_150
+  - first:
+      213: -3617535938729412889
+    second: V03_WorldAtlas_151
+  - first:
+      213: 8062142423497912501
+    second: V03_WorldAtlas_152
+  - first:
+      213: -4209257212425041072
+    second: V03_WorldAtlas_153
+  - first:
+      213: 8393416635965721099
+    second: V03_WorldAtlas_154
+  - first:
+      213: -5133682761684677029
+    second: V03_WorldAtlas_155
+  - first:
+      213: 8505971984078400870
+    second: V03_WorldAtlas_156
+  - first:
+      213: -5205413501693512475
+    second: V03_WorldAtlas_157
+  - first:
+      213: 2948261937162700485
+    second: V03_WorldAtlas_158
+  - first:
+      213: 669842779222106943
+    second: V03_WorldAtlas_159
+  - first:
+      213: 2848571018944690811
+    second: V03_WorldAtlas_160
+  - first:
+      213: 4189889789702628321
+    second: V03_WorldAtlas_161
+  - first:
+      213: -780374208670695407
+    second: V03_WorldAtlas_162
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 4096
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: V03_WorldAtlas_0
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 496
+        width: 28
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d5581376a00dd69c0800000000000000
+      internalID: -3932258156525025955
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_1
+      rect:
+        serializedVersion: 2
+        x: 31
+        y: 496
+        width: 28
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 02dc7e9257b697980800000000000000
+      internalID: -8540677067373032160
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_2
+      rect:
+        serializedVersion: 2
+        x: 61
+        y: 496
+        width: 28
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0e978eb90d1a587b0800000000000000
+      internalID: -5222590275525248544
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_3
+      rect:
+        serializedVersion: 2
+        x: 91
+        y: 496
+        width: 28
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: adc8e1a90d622b4b0800000000000000
+      internalID: -5426231923647279910
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_4
+      rect:
+        serializedVersion: 2
+        x: 9
+        y: 465
+        width: 16
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0a937bd6e81eb0f30800000000000000
+      internalID: 4542972650975607200
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_5
+      rect:
+        serializedVersion: 2
+        x: 39
+        y: 465
+        width: 16
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 362a62cfd7987f5d0800000000000000
+      internalID: -3028801050189061533
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_6
+      rect:
+        serializedVersion: 2
+        x: 68
+        y: 465
+        width: 17
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3456e743b1842a790800000000000000
+      internalID: -7520369146073291453
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_7
+      rect:
+        serializedVersion: 2
+        x: 97
+        y: 465
+        width: 18
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 25422746b7f005580800000000000000
+      internalID: -8840549045887687598
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_8
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 465
+        width: 17
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3c4cd226b2b5907d0800000000000000
+      internalID: -2951727838875761469
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_9
+      rect:
+        serializedVersion: 2
+        x: 159
+        y: 465
+        width: 16
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1068f8f0e262129a0800000000000000
+      internalID: -6259680027796863487
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_10
+      rect:
+        serializedVersion: 2
+        x: 189
+        y: 465
+        width: 16
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6321cdff0b4bef4b0800000000000000
+      internalID: -5404683830498160074
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_11
+      rect:
+        serializedVersion: 2
+        x: 219
+        y: 465
+        width: 16
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0e2df5231bb0cf910800000000000000
+      internalID: 1872384400761541344
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_12
+      rect:
+        serializedVersion: 2
+        x: 9
+        y: 434
+        width: 16
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: be83f15b37ad970a0800000000000000
+      internalID: -6883230364964275989
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_13
+      rect:
+        serializedVersion: 2
+        x: 9
+        y: 403
+        width: 17
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5fd7b919b04aae810800000000000000
+      internalID: 1795427771055046133
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_14
+      rect:
+        serializedVersion: 2
+        x: 39
+        y: 434
+        width: 16
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b57060ec3dfb52b00800000000000000
+      internalID: 803259024971007835
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_15
+      rect:
+        serializedVersion: 2
+        x: 39
+        y: 403
+        width: 17
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6f682621b7d2d3b80800000000000000
+      internalID: -8413518522245544202
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_16
+      rect:
+        serializedVersion: 2
+        x: 69
+        y: 434
+        width: 17
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cb84cfa25c49ee950800000000000000
+      internalID: 6480280488383367356
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_17
+      rect:
+        serializedVersion: 2
+        x: 69
+        y: 403
+        width: 17
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 31ffbf76356fa7fe0800000000000000
+      internalID: -1190368313398788333
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_18
+      rect:
+        serializedVersion: 2
+        x: 99
+        y: 434
+        width: 17
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 933b0b9acd7ac86b0800000000000000
+      internalID: -5292670895885601991
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_19
+      rect:
+        serializedVersion: 2
+        x: 99
+        y: 403
+        width: 17
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e1e1c546e86c16410800000000000000
+      internalID: 1468673268370906654
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_20
+      rect:
+        serializedVersion: 2
+        x: 129
+        y: 434
+        width: 17
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d1e33a9862704d400800000000000000
+      internalID: 347910933313699357
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_21
+      rect:
+        serializedVersion: 2
+        x: 129
+        y: 403
+        width: 17
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: de816e265ab6e5aa0800000000000000
+      internalID: -6170376081377978131
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_22
+      rect:
+        serializedVersion: 2
+        x: 158
+        y: 403
+        width: 18
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: be6c9fba75767ab50800000000000000
+      internalID: 6604361004807210731
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_23
+      rect:
+        serializedVersion: 2
+        x: 159
+        y: 434
+        width: 17
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f86b7b976b1081100800000000000000
+      internalID: 78814876716742287
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_24
+      rect:
+        serializedVersion: 2
+        x: 188
+        y: 403
+        width: 16
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2e0b155e2bdc969d0800000000000000
+      internalID: -2780465126689361694
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_25
+      rect:
+        serializedVersion: 2
+        x: 189
+        y: 434
+        width: 17
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ab905eb2756fa5e40800000000000000
+      internalID: 5646095937121356218
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_26
+      rect:
+        serializedVersion: 2
+        x: 219
+        y: 434
+        width: 17
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 82d125faff5a38960800000000000000
+      internalID: 7603103113508166952
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_27
+      rect:
+        serializedVersion: 2
+        x: 219
+        y: 403
+        width: 17
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 79f024c4fab23ffd0800000000000000
+      internalID: -2309454152012263529
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_28
+      rect:
+        serializedVersion: 2
+        x: 249
+        y: 434
+        width: 17
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 68acc0bbf44617fa0800000000000000
+      internalID: -5804748151100487034
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_29
+      rect:
+        serializedVersion: 2
+        x: 279
+        y: 434
+        width: 17
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0475ab84800b6cee0800000000000000
+      internalID: -1241111097667594432
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_30
+      rect:
+        serializedVersion: 2
+        x: 309
+        y: 434
+        width: 16
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e77f6c5df74018780800000000000000
+      internalID: -8682653659499661442
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_31
+      rect:
+        serializedVersion: 2
+        x: 339
+        y: 434
+        width: 16
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8add0beaf90a6bad0800000000000000
+      internalID: -2686783519988851288
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_32
+      rect:
+        serializedVersion: 2
+        x: 9
+        y: 372
+        width: 15
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c4931c3e8099d1040800000000000000
+      internalID: 4620017056211876172
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_33
+      rect:
+        serializedVersion: 2
+        x: 39
+        y: 372
+        width: 15
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5487f38ab91b9f410800000000000000
+      internalID: 1511434432060291141
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_34
+      rect:
+        serializedVersion: 2
+        x: 69
+        y: 372
+        width: 15
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0cb128ce675d07490800000000000000
+      internalID: -7750460251953816640
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_35
+      rect:
+        serializedVersion: 2
+        x: 99
+        y: 372
+        width: 16
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6955980c37f696d00800000000000000
+      internalID: 966426137989830038
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_36
+      rect:
+        serializedVersion: 2
+        x: 129
+        y: 372
+        width: 16
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ebdda2dcd48930c70800000000000000
+      internalID: 8936153545555238334
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_37
+      rect:
+        serializedVersion: 2
+        x: 159
+        y: 372
+        width: 16
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 197b886ba1d044820800000000000000
+      internalID: 2901458468316166033
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_38
+      rect:
+        serializedVersion: 2
+        x: 189
+        y: 372
+        width: 15
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 64d8bb37ca6a5ca20800000000000000
+      internalID: 3082052779611229510
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_39
+      rect:
+        serializedVersion: 2
+        x: 219
+        y: 372
+        width: 15
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a10743e657c3be500800000000000000
+      internalID: 426501064774414362
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_40
+      rect:
+        serializedVersion: 2
+        x: 249
+        y: 372
+        width: 16
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cd2bd4c5287929970800000000000000
+      internalID: 8760230811339174620
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_41
+      rect:
+        serializedVersion: 2
+        x: 279
+        y: 372
+        width: 16
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 61e362af42c388050800000000000000
+      internalID: 5802954249380183574
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_42
+      rect:
+        serializedVersion: 2
+        x: 309
+        y: 372
+        width: 15
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 713ec24538f9d8e60800000000000000
+      internalID: 7966198702290035479
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_43
+      rect:
+        serializedVersion: 2
+        x: 339
+        y: 372
+        width: 15
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 96d5d4d93e8d7bb30800000000000000
+      internalID: 4303146441084067177
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_44
+      rect:
+        serializedVersion: 2
+        x: 9
+        y: 341
+        width: 15
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d76d4cecd9b807c00800000000000000
+      internalID: 896369835741861501
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_45
+      rect:
+        serializedVersion: 2
+        x: 39
+        y: 341
+        width: 15
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a005b1a26106ff9e0800000000000000
+      internalID: -1585442895499145206
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_46
+      rect:
+        serializedVersion: 2
+        x: 69
+        y: 341
+        width: 15
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a4e51cd2c8eedeeb0800000000000000
+      internalID: -4688829351192338870
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_47
+      rect:
+        serializedVersion: 2
+        x: 99
+        y: 341
+        width: 16
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3bf2188a6a9fdb470800000000000000
+      internalID: 8412154173184880563
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_48
+      rect:
+        serializedVersion: 2
+        x: 129
+        y: 341
+        width: 16
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 368d0fde658db3610800000000000000
+      internalID: 1602111960331114595
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_49
+      rect:
+        serializedVersion: 2
+        x: 159
+        y: 341
+        width: 16
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e2ba7d8545fee2de0800000000000000
+      internalID: -1355883292245120210
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_50
+      rect:
+        serializedVersion: 2
+        x: 189
+        y: 341
+        width: 15
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ca11ff55f21e5cbe0800000000000000
+      internalID: -1457511310961995348
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_51
+      rect:
+        serializedVersion: 2
+        x: 219
+        y: 341
+        width: 15
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 20fdd76440be63030800000000000000
+      internalID: 3474222566157967106
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_52
+      rect:
+        serializedVersion: 2
+        x: 249
+        y: 341
+        width: 16
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 33ef67cde8afb4130800000000000000
+      internalID: 3552208222602853939
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_53
+      rect:
+        serializedVersion: 2
+        x: 279
+        y: 341
+        width: 16
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c230b2e339ed04670800000000000000
+      internalID: 8521055218969543468
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_54
+      rect:
+        serializedVersion: 2
+        x: 309
+        y: 341
+        width: 15
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a8d4654777320f800800000000000000
+      internalID: 644053742673874314
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_55
+      rect:
+        serializedVersion: 2
+        x: 339
+        y: 341
+        width: 15
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fd378419530f91050800000000000000
+      internalID: 5771908510313378783
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_56
+      rect:
+        serializedVersion: 2
+        x: 9
+        y: 310
+        width: 15
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c69e885cbda24e8b0800000000000000
+      internalID: -5123923352640493204
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_57
+      rect:
+        serializedVersion: 2
+        x: 39
+        y: 310
+        width: 15
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 18e0a1386f27c0260800000000000000
+      internalID: 7065148318524509825
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_58
+      rect:
+        serializedVersion: 2
+        x: 69
+        y: 310
+        width: 15
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6a8bece98ac900570800000000000000
+      internalID: 8430910750470355110
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_59
+      rect:
+        serializedVersion: 2
+        x: 99
+        y: 310
+        width: 16
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6b7321c131dfc25b0800000000000000
+      internalID: -5391656395352164426
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_60
+      rect:
+        serializedVersion: 2
+        x: 129
+        y: 310
+        width: 16
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bafe0c7c1b6fd4b30800000000000000
+      internalID: 4273342864865423275
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_61
+      rect:
+        serializedVersion: 2
+        x: 159
+        y: 310
+        width: 16
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6858383c84b27bcc0800000000000000
+      internalID: -3695437377716386426
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_62
+      rect:
+        serializedVersion: 2
+        x: 189
+        y: 310
+        width: 15
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0efe8000181241a50800000000000000
+      internalID: 6490849800882810848
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_63
+      rect:
+        serializedVersion: 2
+        x: 219
+        y: 310
+        width: 15
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b93fad2543584e430800000000000000
+      internalID: 3811317644437156763
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_64
+      rect:
+        serializedVersion: 2
+        x: 249
+        y: 310
+        width: 16
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c2af740e962abb940800000000000000
+      internalID: 5313018761031711276
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_65
+      rect:
+        serializedVersion: 2
+        x: 279
+        y: 310
+        width: 16
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5ee159238e2dd85a0800000000000000
+      internalID: -6517321191012360475
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_66
+      rect:
+        serializedVersion: 2
+        x: 309
+        y: 310
+        width: 15
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d11c7756d31cd90c0800000000000000
+      internalID: -4567281977644302051
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_67
+      rect:
+        serializedVersion: 2
+        x: 339
+        y: 310
+        width: 15
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d2c5e9834cc74a0f0800000000000000
+      internalID: -1106622426220962771
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_68
+      rect:
+        serializedVersion: 2
+        x: 9
+        y: 279
+        width: 13
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6f7c73b533bc5fc10800000000000000
+      internalID: 2086797423790245878
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_69
+      rect:
+        serializedVersion: 2
+        x: 39
+        y: 279
+        width: 13
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7a3cee17d7d9b8b80800000000000000
+      internalID: -8391440318566841433
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_70
+      rect:
+        serializedVersion: 2
+        x: 69
+        y: 279
+        width: 13
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ddc8c5f2fc4c71360800000000000000
+      internalID: 7140392128351079645
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_71
+      rect:
+        serializedVersion: 2
+        x: 99
+        y: 279
+        width: 13
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ffa72366f06083600800000000000000
+      internalID: 448114826132224767
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_72
+      rect:
+        serializedVersion: 2
+        x: 129
+        y: 279
+        width: 13
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cf968a52c1633bb70800000000000000
+      internalID: 8913527582015121916
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_73
+      rect:
+        serializedVersion: 2
+        x: 159
+        y: 279
+        width: 13
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d00ea9d4307d11cc0800000000000000
+      internalID: -3741973406181302259
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_74
+      rect:
+        serializedVersion: 2
+        x: 8
+        y: 248
+        width: 14
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ea30728a27e6c2ce0800000000000000
+      internalID: -1428645543056833618
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_75
+      rect:
+        serializedVersion: 2
+        x: 37
+        y: 248
+        width: 15
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a70f338863cdfafd0800000000000000
+      internalID: -2328400355555807110
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_76
+      rect:
+        serializedVersion: 2
+        x: 66
+        y: 248
+        width: 17
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b5c60643252c006d0800000000000000
+      internalID: -3026205291271132069
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_77
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 248
+        width: 20
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 009bd259bed8d2570800000000000000
+      internalID: 8443560919349180672
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_78
+      rect:
+        serializedVersion: 2
+        x: 127
+        y: 248
+        width: 19
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2f17cd5eeabb01ad0800000000000000
+      internalID: -2733478613958757902
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_79
+      rect:
+        serializedVersion: 2
+        x: 158
+        y: 248
+        width: 18
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1c3be72943e449190800000000000000
+      internalID: -7956648653953780799
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_80
+      rect:
+        serializedVersion: 2
+        x: 188
+        y: 248
+        width: 18
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9a1ced632256231d0800000000000000
+      internalID: -3372521973323218519
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_81
+      rect:
+        serializedVersion: 2
+        x: 218
+        y: 248
+        width: 18
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 00705d4ba4c3d8ff0800000000000000
+      internalID: -32303330762619136
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_82
+      rect:
+        serializedVersion: 2
+        x: 247
+        y: 248
+        width: 19
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: db49a24cb66b2b0c0800000000000000
+      internalID: -4561382898604010307
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_83
+      rect:
+        serializedVersion: 2
+        x: 276
+        y: 248
+        width: 20
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9623206f3ed0895f0800000000000000
+      internalID: -749834065221111191
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_84
+      rect:
+        serializedVersion: 2
+        x: 307
+        y: 248
+        width: 19
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d01e4d5477e0d5620800000000000000
+      internalID: 2764381651710828813
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_85
+      rect:
+        serializedVersion: 2
+        x: 337
+        y: 248
+        width: 19
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: afe524ea960810910800000000000000
+      internalID: 1801862517308415738
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_86
+      rect:
+        serializedVersion: 2
+        x: 368
+        y: 248
+        width: 18
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ffe83700ae114bfd0800000000000000
+      internalID: -2327215410716111105
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_87
+      rect:
+        serializedVersion: 2
+        x: 398
+        y: 248
+        width: 18
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 304b6f979c81436b0800000000000000
+      internalID: -5317598006404008957
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_88
+      rect:
+        serializedVersion: 2
+        x: 9
+        y: 217
+        width: 17
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d893a1abfc62891c0800000000000000
+      internalID: -4496801554307073651
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_89
+      rect:
+        serializedVersion: 2
+        x: 39
+        y: 217
+        width: 14
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c9c49a19d2729cfe0800000000000000
+      internalID: -1168359551655129956
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_90
+      rect:
+        serializedVersion: 2
+        x: 68
+        y: 217
+        width: 18
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 72d47454f83ba0560800000000000000
+      internalID: 7280829175521824039
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_91
+      rect:
+        serializedVersion: 2
+        x: 97
+        y: 217
+        width: 19
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ac3b378bab88410f0800000000000000
+      internalID: -1147141669532748854
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_92
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 217
+        width: 18
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 50e55b204c44624b0800000000000000
+      internalID: -5465605489117798907
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_93
+      rect:
+        serializedVersion: 2
+        x: 159
+        y: 217
+        width: 17
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 72b4b0184a6f868c0800000000000000
+      internalID: -4005680682145985753
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_94
+      rect:
+        serializedVersion: 2
+        x: 189
+        y: 217
+        width: 17
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c44c4c6e9f4f86d80800000000000000
+      internalID: -8257080562628115380
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_95
+      rect:
+        serializedVersion: 2
+        x: 219
+        y: 217
+        width: 17
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: df01739edb82bc960800000000000000
+      internalID: 7623231590381326589
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_96
+      rect:
+        serializedVersion: 2
+        x: 248
+        y: 217
+        width: 15
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e52cab866b4119400800000000000000
+      internalID: 329067021448430174
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_97
+      rect:
+        serializedVersion: 2
+        x: 279
+        y: 217
+        width: 17
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6a6bc9fb382839700800000000000000
+      internalID: 545923482209007270
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_98
+      rect:
+        serializedVersion: 2
+        x: 8
+        y: 186
+        width: 18
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d1138dbfe98af6970800000000000000
+      internalID: 8750398001787711773
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_99
+      rect:
+        serializedVersion: 2
+        x: 37
+        y: 186
+        width: 19
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0c361439d54e8c090800000000000000
+      internalID: -8013904446352170048
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_100
+      rect:
+        serializedVersion: 2
+        x: 67
+        y: 186
+        width: 19
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 82b2c257c88750480800000000000000
+      internalID: -8933601741162927320
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_101
+      rect:
+        serializedVersion: 2
+        x: 97
+        y: 186
+        width: 19
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e18c56c1dfc8fba30800000000000000
+      internalID: 4233257193482602526
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_102
+      rect:
+        serializedVersion: 2
+        x: 126
+        y: 186
+        width: 20
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9aad9260a097a4630800000000000000
+      internalID: 3912072310284737193
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_103
+      rect:
+        serializedVersion: 2
+        x: 156
+        y: 186
+        width: 20
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: afb2aa9c426a11a20800000000000000
+      internalID: 3031386701129460730
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_104
+      rect:
+        serializedVersion: 2
+        x: 186
+        y: 186
+        width: 20
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9bd89992dc1cd1480800000000000000
+      internalID: -8926765799468069447
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_105
+      rect:
+        serializedVersion: 2
+        x: 216
+        y: 186
+        width: 20
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3225e0dd44e40d710800000000000000
+      internalID: 1715957515701604899
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_106
+      rect:
+        serializedVersion: 2
+        x: 248
+        y: 186
+        width: 18
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d6ec74b9f173fd4d0800000000000000
+      internalID: -3107704608973664659
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_107
+      rect:
+        serializedVersion: 2
+        x: 279
+        y: 186
+        width: 17
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2b862dcd94de7a250800000000000000
+      internalID: 5955989933713942706
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_108
+      rect:
+        serializedVersion: 2
+        x: 308
+        y: 186
+        width: 18
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7a648b5c1a9fde650800000000000000
+      internalID: 6263937129944467111
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_109
+      rect:
+        serializedVersion: 2
+        x: 338
+        y: 186
+        width: 18
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 773ca28ded265aed0800000000000000
+      internalID: -2403406116883348617
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_110
+      rect:
+        serializedVersion: 2
+        x: 9
+        y: 155
+        width: 17
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8323b48c6f30a6860800000000000000
+      internalID: 7523830485933044280
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_111
+      rect:
+        serializedVersion: 2
+        x: 39
+        y: 155
+        width: 14
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3d281e4b4fa93fca0800000000000000
+      internalID: -5984269104047881517
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_112
+      rect:
+        serializedVersion: 2
+        x: 68
+        y: 155
+        width: 18
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1ae5d490947657cf0800000000000000
+      internalID: -255184240490226015
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_113
+      rect:
+        serializedVersion: 2
+        x: 97
+        y: 155
+        width: 19
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 01c354f53379737f0800000000000000
+      internalID: -632870975724766192
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_114
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 155
+        width: 18
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 138c5c00c10e40dd0800000000000000
+      internalID: -2520643480543967183
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_115
+      rect:
+        serializedVersion: 2
+        x: 159
+        y: 155
+        width: 17
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7312ed8565e80dd40800000000000000
+      internalID: 5607138037585551671
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_116
+      rect:
+        serializedVersion: 2
+        x: 189
+        y: 155
+        width: 17
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cfa56286d28bf6ec0800000000000000
+      internalID: -3571433474321130756
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_117
+      rect:
+        serializedVersion: 2
+        x: 219
+        y: 155
+        width: 17
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5003f3011013f25f0800000000000000
+      internalID: -779350329874501627
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_118
+      rect:
+        serializedVersion: 2
+        x: 249
+        y: 155
+        width: 17
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9fa06a3d024d142e0800000000000000
+      internalID: -2143198710196729095
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_119
+      rect:
+        serializedVersion: 2
+        x: 278
+        y: 155
+        width: 16
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3f221dcf730d38380800000000000000
+      internalID: -8970097093908552973
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_120
+      rect:
+        serializedVersion: 2
+        x: 309
+        y: 155
+        width: 17
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 43a2ec4e14d1bbde0800000000000000
+      internalID: -1316426297226941900
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_121
+      rect:
+        serializedVersion: 2
+        x: 339
+        y: 155
+        width: 17
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fc6ab9a6824618230800000000000000
+      internalID: 3639300098642126543
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_122
+      rect:
+        serializedVersion: 2
+        x: 9
+        y: 124
+        width: 17
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c9b7d6dd7ff6d5630800000000000000
+      internalID: 3917410361244744604
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_123
+      rect:
+        serializedVersion: 2
+        x: 39
+        y: 124
+        width: 17
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 65166a5f780a3d3c0800000000000000
+      internalID: -4335945510425304746
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_124
+      rect:
+        serializedVersion: 2
+        x: 68
+        y: 124
+        width: 18
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e78c903688f231f70800000000000000
+      internalID: 9156714730197993598
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_125
+      rect:
+        serializedVersion: 2
+        x: 97
+        y: 124
+        width: 19
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 814157685ac0ed460800000000000000
+      internalID: 7268260753687516184
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_126
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 124
+        width: 18
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2ca741a93a8582f70800000000000000
+      internalID: 9162670901573221058
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_127
+      rect:
+        serializedVersion: 2
+        x: 159
+        y: 124
+        width: 17
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 727b72331343017a0800000000000000
+      internalID: -6408564883831933145
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_128
+      rect:
+        serializedVersion: 2
+        x: 189
+        y: 124
+        width: 17
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dd254480d5a6cf800800000000000000
+      internalID: 647509394237706973
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_129
+      rect:
+        serializedVersion: 2
+        x: 219
+        y: 124
+        width: 17
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 61951b2d59aeb6a90800000000000000
+      internalID: -7319498840154744554
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_130
+      rect:
+        serializedVersion: 2
+        x: 249
+        y: 124
+        width: 17
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 56b86590123768df0800000000000000
+      internalID: -178328549506774171
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_131
+      rect:
+        serializedVersion: 2
+        x: 278
+        y: 124
+        width: 18
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7120a6ff6198acbe0800000000000000
+      internalID: -1456200797633510889
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_132
+      rect:
+        serializedVersion: 2
+        x: 309
+        y: 124
+        width: 17
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9f5b53c385918a7a0800000000000000
+      internalID: -6365810206530226695
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_133
+      rect:
+        serializedVersion: 2
+        x: 339
+        y: 124
+        width: 17
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 41139c3c7b8fb3120800000000000000
+      internalID: 2394781095024996628
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_134
+      rect:
+        serializedVersion: 2
+        x: 9
+        y: 93
+        width: 17
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8c9d31e64fd2b2c10800000000000000
+      internalID: 2029766584902605256
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_135
+      rect:
+        serializedVersion: 2
+        x: 39
+        y: 93
+        width: 17
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a4b86b0cb79f6f0a0800000000000000
+      internalID: -6848011873460778166
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_136
+      rect:
+        serializedVersion: 2
+        x: 68
+        y: 93
+        width: 18
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 670babab15b8929b0800000000000000
+      internalID: -5104395519506337674
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_137
+      rect:
+        serializedVersion: 2
+        x: 97
+        y: 93
+        width: 19
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8b594778c74796b30800000000000000
+      internalID: 4281080998989698488
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_138
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 93
+        width: 18
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 611e7a05b34760fe0800000000000000
+      internalID: -1223162450679439082
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_139
+      rect:
+        serializedVersion: 2
+        x: 159
+        y: 93
+        width: 17
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 12e06eb04b77f3a30800000000000000
+      internalID: 4197204992910036513
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_140
+      rect:
+        serializedVersion: 2
+        x: 189
+        y: 93
+        width: 17
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 961f4d7cd7bb4b7a0800000000000000
+      internalID: -6362254224669740695
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_141
+      rect:
+        serializedVersion: 2
+        x: 219
+        y: 93
+        width: 17
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cf7900f378e0e6e00800000000000000
+      internalID: 1039784538009540604
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_142
+      rect:
+        serializedVersion: 2
+        x: 248
+        y: 93
+        width: 18
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c65cbd48f671d2b80800000000000000
+      internalID: -8418046360747784852
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_143
+      rect:
+        serializedVersion: 2
+        x: 279
+        y: 93
+        width: 17
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 476ff304d751b4860800000000000000
+      internalID: 7515124030890833524
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_144
+      rect:
+        serializedVersion: 2
+        x: 9
+        y: 62
+        width: 17
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1ad9e0b0ab3cc2550800000000000000
+      internalID: 6137495596015984033
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_145
+      rect:
+        serializedVersion: 2
+        x: 39
+        y: 62
+        width: 13
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 44f97b6beeecad390800000000000000
+      internalID: -7792688680548196540
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_146
+      rect:
+        serializedVersion: 2
+        x: 68
+        y: 62
+        width: 17
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 424d56a4538132af0800000000000000
+      internalID: -422467322882173916
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_147
+      rect:
+        serializedVersion: 2
+        x: 97
+        y: 62
+        width: 18
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ea6bbd351c8e2f820800000000000000
+      internalID: 2950676622914336430
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_148
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 62
+        width: 18
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4b6f1ea2744b055b0800000000000000
+      internalID: -5381603336952613196
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_149
+      rect:
+        serializedVersion: 2
+        x: 159
+        y: 62
+        width: 17
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bcb78df1721f4b2f0800000000000000
+      internalID: -957875670382773301
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_150
+      rect:
+        serializedVersion: 2
+        x: 189
+        y: 62
+        width: 17
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7a2b8c200d26be1a0800000000000000
+      internalID: -6779216168536722777
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_151
+      rect:
+        serializedVersion: 2
+        x: 219
+        y: 62
+        width: 17
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7e6f2d1fa3eebcdc0800000000000000
+      internalID: -3617535938729412889
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_152
+      rect:
+        serializedVersion: 2
+        x: 248
+        y: 62
+        width: 14
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5b03331b1db72ef60800000000000000
+      internalID: 8062142423497912501
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_153
+      rect:
+        serializedVersion: 2
+        x: 279
+        y: 62
+        width: 17
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 05b872dedd6b595c0800000000000000
+      internalID: -4209257212425041072
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_154
+      rect:
+        serializedVersion: 2
+        x: 9
+        y: 31
+        width: 13
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b0a479ec5f76b7470800000000000000
+      internalID: 8393416635965721099
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_155
+      rect:
+        serializedVersion: 2
+        x: 39
+        y: 31
+        width: 13
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b5e0d384abe71c8b0800000000000000
+      internalID: -5133682761684677029
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_156
+      rect:
+        serializedVersion: 2
+        x: 69
+        y: 31
+        width: 13
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 66dea64f3784b0670800000000000000
+      internalID: 8505971984078400870
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_157
+      rect:
+        serializedVersion: 2
+        x: 99
+        y: 31
+        width: 13
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5e4398aeff7a2c7b0800000000000000
+      internalID: -5205413501693512475
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_158
+      rect:
+        serializedVersion: 2
+        x: 129
+        y: 31
+        width: 13
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5c6436d7c945ae820800000000000000
+      internalID: 2948261937162700485
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_159
+      rect:
+        serializedVersion: 2
+        x: 158
+        y: 31
+        width: 14
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f33e4ee6572cb4900800000000000000
+      internalID: 669842779222106943
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_160
+      rect:
+        serializedVersion: 2
+        x: 188
+        y: 31
+        width: 14
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b7abba5df38288720800000000000000
+      internalID: 2848571018944690811
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_161
+      rect:
+        serializedVersion: 2
+        x: 219
+        y: 31
+        width: 13
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1e3e243909a752a30800000000000000
+      internalID: 4189889789702628321
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V03_WorldAtlas_162
+      rect:
+        serializedVersion: 2
+        x: 9
+        y: 0
+        width: 13
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1108e44bacd8b25f0800000000000000
+      internalID: -780374208670695407
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      V03_WorldAtlas_0: -3932258156525025955
+      V03_WorldAtlas_1: -8540677067373032160
+      V03_WorldAtlas_10: -5404683830498160074
+      V03_WorldAtlas_100: -8933601741162927320
+      V03_WorldAtlas_101: 4233257193482602526
+      V03_WorldAtlas_102: 3912072310284737193
+      V03_WorldAtlas_103: 3031386701129460730
+      V03_WorldAtlas_104: -8926765799468069447
+      V03_WorldAtlas_105: 1715957515701604899
+      V03_WorldAtlas_106: -3107704608973664659
+      V03_WorldAtlas_107: 5955989933713942706
+      V03_WorldAtlas_108: 6263937129944467111
+      V03_WorldAtlas_109: -2403406116883348617
+      V03_WorldAtlas_11: 1872384400761541344
+      V03_WorldAtlas_110: 7523830485933044280
+      V03_WorldAtlas_111: -5984269104047881517
+      V03_WorldAtlas_112: -255184240490226015
+      V03_WorldAtlas_113: -632870975724766192
+      V03_WorldAtlas_114: -2520643480543967183
+      V03_WorldAtlas_115: 5607138037585551671
+      V03_WorldAtlas_116: -3571433474321130756
+      V03_WorldAtlas_117: -779350329874501627
+      V03_WorldAtlas_118: -2143198710196729095
+      V03_WorldAtlas_119: -8970097093908552973
+      V03_WorldAtlas_12: -6883230364964275989
+      V03_WorldAtlas_120: -1316426297226941900
+      V03_WorldAtlas_121: 3639300098642126543
+      V03_WorldAtlas_122: 3917410361244744604
+      V03_WorldAtlas_123: -4335945510425304746
+      V03_WorldAtlas_124: 9156714730197993598
+      V03_WorldAtlas_125: 7268260753687516184
+      V03_WorldAtlas_126: 9162670901573221058
+      V03_WorldAtlas_127: -6408564883831933145
+      V03_WorldAtlas_128: 647509394237706973
+      V03_WorldAtlas_129: -7319498840154744554
+      V03_WorldAtlas_13: 1795427771055046133
+      V03_WorldAtlas_130: -178328549506774171
+      V03_WorldAtlas_131: -1456200797633510889
+      V03_WorldAtlas_132: -6365810206530226695
+      V03_WorldAtlas_133: 2394781095024996628
+      V03_WorldAtlas_134: 2029766584902605256
+      V03_WorldAtlas_135: -6848011873460778166
+      V03_WorldAtlas_136: -5104395519506337674
+      V03_WorldAtlas_137: 4281080998989698488
+      V03_WorldAtlas_138: -1223162450679439082
+      V03_WorldAtlas_139: 4197204992910036513
+      V03_WorldAtlas_14: 803259024971007835
+      V03_WorldAtlas_140: -6362254224669740695
+      V03_WorldAtlas_141: 1039784538009540604
+      V03_WorldAtlas_142: -8418046360747784852
+      V03_WorldAtlas_143: 7515124030890833524
+      V03_WorldAtlas_144: 6137495596015984033
+      V03_WorldAtlas_145: -7792688680548196540
+      V03_WorldAtlas_146: -422467322882173916
+      V03_WorldAtlas_147: 2950676622914336430
+      V03_WorldAtlas_148: -5381603336952613196
+      V03_WorldAtlas_149: -957875670382773301
+      V03_WorldAtlas_15: -8413518522245544202
+      V03_WorldAtlas_150: -6779216168536722777
+      V03_WorldAtlas_151: -3617535938729412889
+      V03_WorldAtlas_152: 8062142423497912501
+      V03_WorldAtlas_153: -4209257212425041072
+      V03_WorldAtlas_154: 8393416635965721099
+      V03_WorldAtlas_155: -5133682761684677029
+      V03_WorldAtlas_156: 8505971984078400870
+      V03_WorldAtlas_157: -5205413501693512475
+      V03_WorldAtlas_158: 2948261937162700485
+      V03_WorldAtlas_159: 669842779222106943
+      V03_WorldAtlas_16: 6480280488383367356
+      V03_WorldAtlas_160: 2848571018944690811
+      V03_WorldAtlas_161: 4189889789702628321
+      V03_WorldAtlas_162: -780374208670695407
+      V03_WorldAtlas_17: -1190368313398788333
+      V03_WorldAtlas_18: -5292670895885601991
+      V03_WorldAtlas_19: 1468673268370906654
+      V03_WorldAtlas_2: -5222590275525248544
+      V03_WorldAtlas_20: 347910933313699357
+      V03_WorldAtlas_21: -6170376081377978131
+      V03_WorldAtlas_22: 6604361004807210731
+      V03_WorldAtlas_23: 78814876716742287
+      V03_WorldAtlas_24: -2780465126689361694
+      V03_WorldAtlas_25: 5646095937121356218
+      V03_WorldAtlas_26: 7603103113508166952
+      V03_WorldAtlas_27: -2309454152012263529
+      V03_WorldAtlas_28: -5804748151100487034
+      V03_WorldAtlas_29: -1241111097667594432
+      V03_WorldAtlas_3: -5426231923647279910
+      V03_WorldAtlas_30: -8682653659499661442
+      V03_WorldAtlas_31: -2686783519988851288
+      V03_WorldAtlas_32: 4620017056211876172
+      V03_WorldAtlas_33: 1511434432060291141
+      V03_WorldAtlas_34: -7750460251953816640
+      V03_WorldAtlas_35: 966426137989830038
+      V03_WorldAtlas_36: 8936153545555238334
+      V03_WorldAtlas_37: 2901458468316166033
+      V03_WorldAtlas_38: 3082052779611229510
+      V03_WorldAtlas_39: 426501064774414362
+      V03_WorldAtlas_4: 4542972650975607200
+      V03_WorldAtlas_40: 8760230811339174620
+      V03_WorldAtlas_41: 5802954249380183574
+      V03_WorldAtlas_42: 7966198702290035479
+      V03_WorldAtlas_43: 4303146441084067177
+      V03_WorldAtlas_44: 896369835741861501
+      V03_WorldAtlas_45: -1585442895499145206
+      V03_WorldAtlas_46: -4688829351192338870
+      V03_WorldAtlas_47: 8412154173184880563
+      V03_WorldAtlas_48: 1602111960331114595
+      V03_WorldAtlas_49: -1355883292245120210
+      V03_WorldAtlas_5: -3028801050189061533
+      V03_WorldAtlas_50: -1457511310961995348
+      V03_WorldAtlas_51: 3474222566157967106
+      V03_WorldAtlas_52: 3552208222602853939
+      V03_WorldAtlas_53: 8521055218969543468
+      V03_WorldAtlas_54: 644053742673874314
+      V03_WorldAtlas_55: 5771908510313378783
+      V03_WorldAtlas_56: -5123923352640493204
+      V03_WorldAtlas_57: 7065148318524509825
+      V03_WorldAtlas_58: 8430910750470355110
+      V03_WorldAtlas_59: -5391656395352164426
+      V03_WorldAtlas_6: -7520369146073291453
+      V03_WorldAtlas_60: 4273342864865423275
+      V03_WorldAtlas_61: -3695437377716386426
+      V03_WorldAtlas_62: 6490849800882810848
+      V03_WorldAtlas_63: 3811317644437156763
+      V03_WorldAtlas_64: 5313018761031711276
+      V03_WorldAtlas_65: -6517321191012360475
+      V03_WorldAtlas_66: -4567281977644302051
+      V03_WorldAtlas_67: -1106622426220962771
+      V03_WorldAtlas_68: 2086797423790245878
+      V03_WorldAtlas_69: -8391440318566841433
+      V03_WorldAtlas_7: -8840549045887687598
+      V03_WorldAtlas_70: 7140392128351079645
+      V03_WorldAtlas_71: 448114826132224767
+      V03_WorldAtlas_72: 8913527582015121916
+      V03_WorldAtlas_73: -3741973406181302259
+      V03_WorldAtlas_74: -1428645543056833618
+      V03_WorldAtlas_75: -2328400355555807110
+      V03_WorldAtlas_76: -3026205291271132069
+      V03_WorldAtlas_77: 8443560919349180672
+      V03_WorldAtlas_78: -2733478613958757902
+      V03_WorldAtlas_79: -7956648653953780799
+      V03_WorldAtlas_8: -2951727838875761469
+      V03_WorldAtlas_80: -3372521973323218519
+      V03_WorldAtlas_81: -32303330762619136
+      V03_WorldAtlas_82: -4561382898604010307
+      V03_WorldAtlas_83: -749834065221111191
+      V03_WorldAtlas_84: 2764381651710828813
+      V03_WorldAtlas_85: 1801862517308415738
+      V03_WorldAtlas_86: -2327215410716111105
+      V03_WorldAtlas_87: -5317598006404008957
+      V03_WorldAtlas_88: -4496801554307073651
+      V03_WorldAtlas_89: -1168359551655129956
+      V03_WorldAtlas_9: -6259680027796863487
+      V03_WorldAtlas_90: 7280829175521824039
+      V03_WorldAtlas_91: -1147141669532748854
+      V03_WorldAtlas_92: -5465605489117798907
+      V03_WorldAtlas_93: -4005680682145985753
+      V03_WorldAtlas_94: -8257080562628115380
+      V03_WorldAtlas_95: 7623231590381326589
+      V03_WorldAtlas_96: 329067021448430174
+      V03_WorldAtlas_97: 545923482209007270
+      V03_WorldAtlas_98: 8750398001787711773
+      V03_WorldAtlas_99: -8013904446352170048
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

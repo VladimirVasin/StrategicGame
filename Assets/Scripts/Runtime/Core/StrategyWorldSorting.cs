@@ -11,11 +11,13 @@ namespace ProjectUnknown.Strategy
         public const int TrailOverlayOrder = 4;
         public const int WeatherGroundOverlayOrder = 5;
         public const int BridgeDeckOrder = 6;
+        public const int BuildingGroundDetailOrder = 7;
         public const int WeatherCloudShadowOrder = 26500;
         public const int DayNightOverlayOrder = 27000;
         public const int CinematicDepthOverlayOrder = 27350;
         public const int WeatherMistOverlayOrder = 27400;
         public const int WeatherRainOverlayOrder = 27600;
+        public const int SeasonAmbientOverlayOrder = 27610;
         public const int WeatherSnowOverlayOrder = 27620;
         public const int CinematicForegroundOverlayOrder = 27720;
         public const int CinematicScreenFlashOrder = 27800;

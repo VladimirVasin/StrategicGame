@@ -15,6 +15,17 @@ namespace ProjectUnknown.Strategy
         {
             int normalizedVariant = NormalizeVariant(variant, VariantCountPerGender);
             int normalizedFrame = NormalizeVariant(frame, CampfireKindleFrameCount);
+            if (StrategyVisualCatalogProvider.TryGetResidentSprite(
+                    gender,
+                    lifeStage,
+                    StrategyResidentVisualPose.CampfireKindle,
+                    normalizedVariant,
+                    normalizedFrame,
+                    out Sprite authored))
+            {
+                return authored;
+            }
+
             int cacheKey = GetCampfirePoseCacheKey(gender, normalizedVariant, lifeStage, normalizedFrame, 0);
             if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
             {
@@ -33,6 +44,17 @@ namespace ProjectUnknown.Strategy
         {
             int normalizedVariant = NormalizeVariant(variant, VariantCountPerGender);
             int normalizedFrame = NormalizeVariant(frame, GroundSleepFrameCount);
+            if (StrategyVisualCatalogProvider.TryGetResidentSprite(
+                    gender,
+                    lifeStage,
+                    StrategyResidentVisualPose.GroundSleep,
+                    normalizedVariant,
+                    normalizedFrame,
+                    out Sprite authored))
+            {
+                return authored;
+            }
+
             int cacheKey = GetCampfirePoseCacheKey(gender, normalizedVariant, lifeStage, normalizedFrame, 1);
             if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
             {

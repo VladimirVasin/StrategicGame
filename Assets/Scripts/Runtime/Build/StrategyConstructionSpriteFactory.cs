@@ -21,6 +21,12 @@ namespace ProjectUnknown.Strategy
             }
 
             int cacheKey = ((int)tool * 512) + (Mathf.Max(0, variant) * 32) + normalizedStage;
+            string sequenceId = $"Construction/{tool}/V{Mathf.Max(0, variant)}";
+            if (StrategyVisualCatalogProvider.TryGetSequenceSprite(sequenceId, normalizedStage, out Sprite authored))
+            {
+                return authored;
+            }
+
             if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
             {
                 sprite = CreateConstructionSprite(tool, variant, normalizedStage);

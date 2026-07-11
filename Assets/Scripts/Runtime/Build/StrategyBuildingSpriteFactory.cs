@@ -27,6 +27,11 @@ namespace ProjectUnknown.Strategy
 
         private static readonly Dictionary<int, Sprite> CachedSprites = new();
 
+        private static bool TryGetBakedLayer(string id, int frame, out Sprite sprite)
+        {
+            return StrategyVisualCatalogProvider.TryGetSequenceSprite(id, frame, out sprite);
+        }
+
         public static int GetVariantCount(StrategyBuildTool tool)
         {
             return tool switch
@@ -85,6 +90,11 @@ namespace ProjectUnknown.Strategy
             }
 
             int normalizedVariant = NormalizeVariant(variant, variantCount);
+            if (StrategyVisualCatalogProvider.TryGetBuildingSprite(tool, normalizedVariant, out sprite))
+            {
+                return true;
+            }
+
             int cacheKey = GetCacheKey(tool, normalizedVariant);
             if (!CachedSprites.TryGetValue(cacheKey, out sprite) || sprite == null)
             {

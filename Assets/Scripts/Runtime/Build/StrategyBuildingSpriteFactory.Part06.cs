@@ -12,6 +12,11 @@ namespace ProjectUnknown.Strategy
             }
 
             int level = Mathf.Clamp((coalStored + 2) / 3, 1, 5);
+            if (TryGetBakedLayer(StrategyVisualSequenceIds.CoalPitCoal, level - 1, out Sprite baked))
+            {
+                return baked;
+            }
+
             int cacheKey = 63488 + level;
             if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
             {
@@ -30,6 +35,11 @@ namespace ProjectUnknown.Strategy
             }
 
             int level = Mathf.Clamp((coalStored + 3) / 4, 1, 6);
+            if (TryGetBakedLayer(StrategyVisualSequenceIds.StorageCoal, level - 1, out Sprite baked))
+            {
+                return baked;
+            }
+
             int cacheKey = 65536 + level;
             if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
             {

@@ -89,6 +89,7 @@ namespace ProjectUnknown.Strategy
             RegisterActiveBuilding();
             EnsureResourceStore();
             EnsureHouseWarmthState();
+            EnsureGroundDetail();
             EnsureWorldShadow();
             EnsureClickCollider();
         }
@@ -127,6 +128,7 @@ namespace ProjectUnknown.Strategy
 
             BridgeStartCell = startCell;
             BridgeEndCell = endCell;
+            EnsureGroundDetail();
             EnsureWorldShadow();
             EnsureClickCollider();
         }
@@ -346,6 +348,17 @@ namespace ProjectUnknown.Strategy
             float rotation = Tool == StrategyBuildTool.Bridge ? 0f : -7f;
             bool stretch = Tool != StrategyBuildTool.Bridge;
             StrategyShadowCaster2D.Attach(spriteRenderer, shape, offset, scale, alpha, -7, rotation, stretch);
+        }
+
+        private void EnsureGroundDetail()
+        {
+            StrategyBuildingGroundDetail detail = GetComponent<StrategyBuildingGroundDetail>();
+            if (detail == null)
+            {
+                detail = gameObject.AddComponent<StrategyBuildingGroundDetail>();
+            }
+
+            detail.Configure(this);
         }
 
         private Vector2 GetShadowScale()

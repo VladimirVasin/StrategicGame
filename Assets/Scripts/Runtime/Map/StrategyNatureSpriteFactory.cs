@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace ProjectUnknown.Strategy
 {
-    internal enum StrategyNaturePropKind
+    public enum StrategyNaturePropKind
     {
         LargeTree,
         SmallTree,
@@ -52,6 +52,11 @@ namespace ProjectUnknown.Strategy
         public static Sprite GetSprite(StrategyNaturePropKind kind, int variant)
         {
             int normalizedVariant = NormalizeVariant(variant, GetVariantCount(kind));
+            if (StrategyVisualCatalogProvider.TryGetNatureSprite(kind, normalizedVariant, out Sprite authored))
+            {
+                return authored;
+            }
+
             int cacheKey = ((int)kind * 16) + normalizedVariant;
             if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
             {

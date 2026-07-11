@@ -52,7 +52,13 @@
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\6000.5.3f1\Editor\Data\BCLExtensions\TargetingPacks\netstandard2.1\analyzers\dotnet\roslyn4.0\cs\System.Text.Json.SourceGeneration.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Editor\StrategyVisualCatalogBaker.Residents.cs" />
+    <Compile Include="Assets\Editor\StrategyVisualCatalogBaker.Layers.cs" />
+    <Compile Include="Assets\Editor\StrategyVisualCatalogBaker.cs" />
+    <Compile Include="Assets\Editor\StrategyVisualCatalogBaker.Terrain.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.cs" />
+    <Compile Include="Assets\Editor\StrategyVerificationRunner.Visual.cs" />
+    <Compile Include="Assets\Editor\StrategyVisualCatalogBaker.IO.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

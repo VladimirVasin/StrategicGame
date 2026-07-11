@@ -1,0 +1,2274 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f84dc3ce79b4bf3b7e891a74fd28727, type: 3}
+  m_Name: StrategyVisualCatalog
+  m_EditorClassIdentifier: 
+  residentAtlases:
+  - gender: 0
+    lifeStage: 1
+    variant: 0
+    atlas: {fileID: 2800000, guid: fa2dac3d5e7bdac418690a316e788605, type: 3}
+    frameWidth: 30
+    frameHeight: 31
+    pixelsPerUnit: 32
+    pivot: {x: 0.5, y: 0.08129032}
+    rows:
+    - pose: 0
+      row: 0
+      frameCount: 1
+    - pose: 1
+      row: 1
+      frameCount: 8
+    - pose: 3
+      row: 2
+      frameCount: 10
+    - pose: 4
+      row: 3
+      frameCount: 10
+    - pose: 5
+      row: 4
+      frameCount: 12
+    - pose: 6
+      row: 5
+      frameCount: 12
+    - pose: 7
+      row: 6
+      frameCount: 12
+    - pose: 8
+      row: 7
+      frameCount: 10
+    - pose: 9
+      row: 8
+      frameCount: 14
+    - pose: 10
+      row: 9
+      frameCount: 6
+    - pose: 12
+      row: 10
+      frameCount: 12
+    - pose: 13
+      row: 11
+      frameCount: 12
+    - pose: 14
+      row: 12
+      frameCount: 12
+    - pose: 15
+      row: 13
+      frameCount: 8
+    - pose: 16
+      row: 14
+      frameCount: 12
+    - pose: 17
+      row: 15
+      frameCount: 8
+    - pose: 18
+      row: 16
+      frameCount: 4
+  - gender: 0
+    lifeStage: 0
+    variant: 0
+    atlas: {fileID: 2800000, guid: c4ebd49184f30074786d61ca70cbb415, type: 3}
+    frameWidth: 24
+    frameHeight: 31
+    pixelsPerUnit: 32
+    pivot: {x: 0.5, y: 0.08129032}
+    rows:
+    - pose: 0
+      row: 0
+      frameCount: 1
+    - pose: 1
+      row: 1
+      frameCount: 8
+    - pose: 10
+      row: 2
+      frameCount: 6
+    - pose: 12
+      row: 3
+      frameCount: 12
+    - pose: 13
+      row: 4
+      frameCount: 12
+    - pose: 14
+      row: 5
+      frameCount: 12
+    - pose: 15
+      row: 6
+      frameCount: 8
+    - pose: 16
+      row: 7
+      frameCount: 12
+    - pose: 17
+      row: 8
+      frameCount: 8
+    - pose: 18
+      row: 9
+      frameCount: 4
+  - gender: 0
+    lifeStage: 1
+    variant: 1
+    atlas: {fileID: 2800000, guid: d2dece9cc5a431c499bf3d74b6a6e442, type: 3}
+    frameWidth: 30
+    frameHeight: 31
+    pixelsPerUnit: 32
+    pivot: {x: 0.5, y: 0.08129032}
+    rows:
+    - pose: 0
+      row: 0
+      frameCount: 1
+    - pose: 1
+      row: 1
+      frameCount: 8
+    - pose: 3
+      row: 2
+      frameCount: 10
+    - pose: 4
+      row: 3
+      frameCount: 10
+    - pose: 5
+      row: 4
+      frameCount: 12
+    - pose: 6
+      row: 5
+      frameCount: 12
+    - pose: 7
+      row: 6
+      frameCount: 12
+    - pose: 8
+      row: 7
+      frameCount: 10
+    - pose: 9
+      row: 8
+      frameCount: 14
+    - pose: 10
+      row: 9
+      frameCount: 6
+    - pose: 12
+      row: 10
+      frameCount: 12
+    - pose: 13
+      row: 11
+      frameCount: 12
+    - pose: 14
+      row: 12
+      frameCount: 12
+    - pose: 15
+      row: 13
+      frameCount: 8
+    - pose: 16
+      row: 14
+      frameCount: 12
+    - pose: 17
+      row: 15
+      frameCount: 8
+    - pose: 18
+      row: 16
+      frameCount: 4
+  - gender: 0
+    lifeStage: 0
+    variant: 1
+    atlas: {fileID: 2800000, guid: 232eed0cb094a63488d0b4210396313e, type: 3}
+    frameWidth: 24
+    frameHeight: 31
+    pixelsPerUnit: 32
+    pivot: {x: 0.5, y: 0.08129032}
+    rows:
+    - pose: 0
+      row: 0
+      frameCount: 1
+    - pose: 1
+      row: 1
+      frameCount: 8
+    - pose: 10
+      row: 2
+      frameCount: 6
+    - pose: 12
+      row: 3
+      frameCount: 12
+    - pose: 13
+      row: 4
+      frameCount: 12
+    - pose: 14
+      row: 5
+      frameCount: 12
+    - pose: 15
+      row: 6
+      frameCount: 8
+    - pose: 16
+      row: 7
+      frameCount: 12
+    - pose: 17
+      row: 8
+      frameCount: 8
+    - pose: 18
+      row: 9
+      frameCount: 4
+  - gender: 0
+    lifeStage: 1
+    variant: 2
+    atlas: {fileID: 2800000, guid: defa117db7a31a44daaac20214c8e01b, type: 3}
+    frameWidth: 30
+    frameHeight: 31
+    pixelsPerUnit: 32
+    pivot: {x: 0.5, y: 0.08129032}
+    rows:
+    - pose: 0
+      row: 0
+      frameCount: 1
+    - pose: 1
+      row: 1
+      frameCount: 8
+    - pose: 3
+      row: 2
+      frameCount: 10
+    - pose: 4
+      row: 3
+      frameCount: 10
+    - pose: 5
+      row: 4
+      frameCount: 12
+    - pose: 6
+      row: 5
+      frameCount: 12
+    - pose: 7
+      row: 6
+      frameCount: 12
+    - pose: 8
+      row: 7
+      frameCount: 10
+    - pose: 9
+      row: 8
+      frameCount: 14
+    - pose: 10
+      row: 9
+      frameCount: 6
+    - pose: 12
+      row: 10
+      frameCount: 12
+    - pose: 13
+      row: 11
+      frameCount: 12
+    - pose: 14
+      row: 12
+      frameCount: 12
+    - pose: 15
+      row: 13
+      frameCount: 8
+    - pose: 16
+      row: 14
+      frameCount: 12
+    - pose: 17
+      row: 15
+      frameCount: 8
+    - pose: 18
+      row: 16
+      frameCount: 4
+  - gender: 0
+    lifeStage: 0
+    variant: 2
+    atlas: {fileID: 2800000, guid: 08e1da215e5da3f408680aaae2f8244d, type: 3}
+    frameWidth: 24
+    frameHeight: 31
+    pixelsPerUnit: 32
+    pivot: {x: 0.5, y: 0.08129032}
+    rows:
+    - pose: 0
+      row: 0
+      frameCount: 1
+    - pose: 1
+      row: 1
+      frameCount: 8
+    - pose: 10
+      row: 2
+      frameCount: 6
+    - pose: 12
+      row: 3
+      frameCount: 12
+    - pose: 13
+      row: 4
+      frameCount: 12
+    - pose: 14
+      row: 5
+      frameCount: 12
+    - pose: 15
+      row: 6
+      frameCount: 8
+    - pose: 16
+      row: 7
+      frameCount: 12
+    - pose: 17
+      row: 8
+      frameCount: 8
+    - pose: 18
+      row: 9
+      frameCount: 4
+  - gender: 0
+    lifeStage: 1
+    variant: 3
+    atlas: {fileID: 2800000, guid: b080d112cc4917e498ed699d8bc4c2bc, type: 3}
+    frameWidth: 30
+    frameHeight: 31
+    pixelsPerUnit: 32
+    pivot: {x: 0.5, y: 0.08129032}
+    rows:
+    - pose: 0
+      row: 0
+      frameCount: 1
+    - pose: 1
+      row: 1
+      frameCount: 8
+    - pose: 3
+      row: 2
+      frameCount: 10
+    - pose: 4
+      row: 3
+      frameCount: 10
+    - pose: 5
+      row: 4
+      frameCount: 12
+    - pose: 6
+      row: 5
+      frameCount: 12
+    - pose: 7
+      row: 6
+      frameCount: 12
+    - pose: 8
+      row: 7
+      frameCount: 10
+    - pose: 9
+      row: 8
+      frameCount: 14
+    - pose: 10
+      row: 9
+      frameCount: 6
+    - pose: 12
+      row: 10
+      frameCount: 12
+    - pose: 13
+      row: 11
+      frameCount: 12
+    - pose: 14
+      row: 12
+      frameCount: 12
+    - pose: 15
+      row: 13
+      frameCount: 8
+    - pose: 16
+      row: 14
+      frameCount: 12
+    - pose: 17
+      row: 15
+      frameCount: 8
+    - pose: 18
+      row: 16
+      frameCount: 4
+  - gender: 0
+    lifeStage: 0
+    variant: 3
+    atlas: {fileID: 2800000, guid: 09d4b3ccfd4d56a4bb695e2006a55296, type: 3}
+    frameWidth: 24
+    frameHeight: 31
+    pixelsPerUnit: 32
+    pivot: {x: 0.5, y: 0.08129032}
+    rows:
+    - pose: 0
+      row: 0
+      frameCount: 1
+    - pose: 1
+      row: 1
+      frameCount: 8
+    - pose: 10
+      row: 2
+      frameCount: 6
+    - pose: 12
+      row: 3
+      frameCount: 12
+    - pose: 13
+      row: 4
+      frameCount: 12
+    - pose: 14
+      row: 5
+      frameCount: 12
+    - pose: 15
+      row: 6
+      frameCount: 8
+    - pose: 16
+      row: 7
+      frameCount: 12
+    - pose: 17
+      row: 8
+      frameCount: 8
+    - pose: 18
+      row: 9
+      frameCount: 4
+  - gender: 0
+    lifeStage: 1
+    variant: 4
+    atlas: {fileID: 2800000, guid: b1bbf626afddf224383fb3eeaeb4fc51, type: 3}
+    frameWidth: 30
+    frameHeight: 31
+    pixelsPerUnit: 32
+    pivot: {x: 0.5, y: 0.08129032}
+    rows:
+    - pose: 0
+      row: 0
+      frameCount: 1
+    - pose: 1
+      row: 1
+      frameCount: 8
+    - pose: 3
+      row: 2
+      frameCount: 10
+    - pose: 4
+      row: 3
+      frameCount: 10
+    - pose: 5
+      row: 4
+      frameCount: 12
+    - pose: 6
+      row: 5
+      frameCount: 12
+    - pose: 7
+      row: 6
+      frameCount: 12
+    - pose: 8
+      row: 7
+      frameCount: 10
+    - pose: 9
+      row: 8
+      frameCount: 14
+    - pose: 10
+      row: 9
+      frameCount: 6
+    - pose: 12
+      row: 10
+      frameCount: 12
+    - pose: 13
+      row: 11
+      frameCount: 12
+    - pose: 14
+      row: 12
+      frameCount: 12
+    - pose: 15
+      row: 13
+      frameCount: 8
+    - pose: 16
+      row: 14
+      frameCount: 12
+    - pose: 17
+      row: 15
+      frameCount: 8
+    - pose: 18
+      row: 16
+      frameCount: 4
+  - gender: 0
+    lifeStage: 0
+    variant: 4
+    atlas: {fileID: 2800000, guid: 23b8c0037a315aa428512495589948f2, type: 3}
+    frameWidth: 24
+    frameHeight: 31
+    pixelsPerUnit: 32
+    pivot: {x: 0.5, y: 0.08129032}
+    rows:
+    - pose: 0
+      row: 0
+      frameCount: 1
+    - pose: 1
+      row: 1
+      frameCount: 8
+    - pose: 10
+      row: 2
+      frameCount: 6
+    - pose: 12
+      row: 3
+      frameCount: 12
+    - pose: 13
+      row: 4
+      frameCount: 12
+    - pose: 14
+      row: 5
+      frameCount: 12
+    - pose: 15
+      row: 6
+      frameCount: 8
+    - pose: 16
+      row: 7
+      frameCount: 12
+    - pose: 17
+      row: 8
+      frameCount: 8
+    - pose: 18
+      row: 9
+      frameCount: 4
+  - gender: 1
+    lifeStage: 1
+    variant: 0
+    atlas: {fileID: 2800000, guid: b45694f035d6f3949ba884d8841b55c9, type: 3}
+    frameWidth: 30
+    frameHeight: 31
+    pixelsPerUnit: 32
+    pivot: {x: 0.5, y: 0.08129032}
+    rows:
+    - pose: 0
+      row: 0
+      frameCount: 1
+    - pose: 1
+      row: 1
+      frameCount: 8
+    - pose: 3
+      row: 2
+      frameCount: 10
+    - pose: 4
+      row: 3
+      frameCount: 10
+    - pose: 5
+      row: 4
+      frameCount: 12
+    - pose: 6
+      row: 5
+      frameCount: 12
+    - pose: 7
+      row: 6
+      frameCount: 12
+    - pose: 8
+      row: 7
+      frameCount: 10
+    - pose: 9
+      row: 8
+      frameCount: 14
+    - pose: 10
+      row: 9
+      frameCount: 6
+    - pose: 12
+      row: 10
+      frameCount: 12
+    - pose: 13
+      row: 11
+      frameCount: 12
+    - pose: 14
+      row: 12
+      frameCount: 12
+    - pose: 15
+      row: 13
+      frameCount: 8
+    - pose: 16
+      row: 14
+      frameCount: 12
+    - pose: 17
+      row: 15
+      frameCount: 8
+    - pose: 18
+      row: 16
+      frameCount: 4
+  - gender: 1
+    lifeStage: 0
+    variant: 0
+    atlas: {fileID: 2800000, guid: 9ce85f7490b0f45489c11d8b11f04e1d, type: 3}
+    frameWidth: 24
+    frameHeight: 31
+    pixelsPerUnit: 32
+    pivot: {x: 0.5, y: 0.08129032}
+    rows:
+    - pose: 0
+      row: 0
+      frameCount: 1
+    - pose: 1
+      row: 1
+      frameCount: 8
+    - pose: 10
+      row: 2
+      frameCount: 6
+    - pose: 12
+      row: 3
+      frameCount: 12
+    - pose: 13
+      row: 4
+      frameCount: 12
+    - pose: 14
+      row: 5
+      frameCount: 12
+    - pose: 15
+      row: 6
+      frameCount: 8
+    - pose: 16
+      row: 7
+      frameCount: 12
+    - pose: 17
+      row: 8
+      frameCount: 8
+    - pose: 18
+      row: 9
+      frameCount: 4
+  - gender: 1
+    lifeStage: 1
+    variant: 1
+    atlas: {fileID: 2800000, guid: 3d197b256d8d3eb4b8d2ea03daea5250, type: 3}
+    frameWidth: 30
+    frameHeight: 31
+    pixelsPerUnit: 32
+    pivot: {x: 0.5, y: 0.08129032}
+    rows:
+    - pose: 0
+      row: 0
+      frameCount: 1
+    - pose: 1
+      row: 1
+      frameCount: 8
+    - pose: 3
+      row: 2
+      frameCount: 10
+    - pose: 4
+      row: 3
+      frameCount: 10
+    - pose: 5
+      row: 4
+      frameCount: 12
+    - pose: 6
+      row: 5
+      frameCount: 12
+    - pose: 7
+      row: 6
+      frameCount: 12
+    - pose: 8
+      row: 7
+      frameCount: 10
+    - pose: 9
+      row: 8
+      frameCount: 14
+    - pose: 10
+      row: 9
+      frameCount: 6
+    - pose: 12
+      row: 10
+      frameCount: 12
+    - pose: 13
+      row: 11
+      frameCount: 12
+    - pose: 14
+      row: 12
+      frameCount: 12
+    - pose: 15
+      row: 13
+      frameCount: 8
+    - pose: 16
+      row: 14
+      frameCount: 12
+    - pose: 17
+      row: 15
+      frameCount: 8
+    - pose: 18
+      row: 16
+      frameCount: 4
+  - gender: 1
+    lifeStage: 0
+    variant: 1
+    atlas: {fileID: 2800000, guid: e271d131af6aaa947a710371d2323f0d, type: 3}
+    frameWidth: 24
+    frameHeight: 31
+    pixelsPerUnit: 32
+    pivot: {x: 0.5, y: 0.08129032}
+    rows:
+    - pose: 0
+      row: 0
+      frameCount: 1
+    - pose: 1
+      row: 1
+      frameCount: 8
+    - pose: 10
+      row: 2
+      frameCount: 6
+    - pose: 12
+      row: 3
+      frameCount: 12
+    - pose: 13
+      row: 4
+      frameCount: 12
+    - pose: 14
+      row: 5
+      frameCount: 12
+    - pose: 15
+      row: 6
+      frameCount: 8
+    - pose: 16
+      row: 7
+      frameCount: 12
+    - pose: 17
+      row: 8
+      frameCount: 8
+    - pose: 18
+      row: 9
+      frameCount: 4
+  - gender: 1
+    lifeStage: 1
+    variant: 2
+    atlas: {fileID: 2800000, guid: 1be61498444b7df4aacf4d98247ac378, type: 3}
+    frameWidth: 30
+    frameHeight: 31
+    pixelsPerUnit: 32
+    pivot: {x: 0.5, y: 0.08129032}
+    rows:
+    - pose: 0
+      row: 0
+      frameCount: 1
+    - pose: 1
+      row: 1
+      frameCount: 8
+    - pose: 3
+      row: 2
+      frameCount: 10
+    - pose: 4
+      row: 3
+      frameCount: 10
+    - pose: 5
+      row: 4
+      frameCount: 12
+    - pose: 6
+      row: 5
+      frameCount: 12
+    - pose: 7
+      row: 6
+      frameCount: 12
+    - pose: 8
+      row: 7
+      frameCount: 10
+    - pose: 9
+      row: 8
+      frameCount: 14
+    - pose: 10
+      row: 9
+      frameCount: 6
+    - pose: 12
+      row: 10
+      frameCount: 12
+    - pose: 13
+      row: 11
+      frameCount: 12
+    - pose: 14
+      row: 12
+      frameCount: 12
+    - pose: 15
+      row: 13
+      frameCount: 8
+    - pose: 16
+      row: 14
+      frameCount: 12
+    - pose: 17
+      row: 15
+      frameCount: 8
+    - pose: 18
+      row: 16
+      frameCount: 4
+  - gender: 1
+    lifeStage: 0
+    variant: 2
+    atlas: {fileID: 2800000, guid: 198ccf6376994f2418b2341ad436ca72, type: 3}
+    frameWidth: 24
+    frameHeight: 31
+    pixelsPerUnit: 32
+    pivot: {x: 0.5, y: 0.08129032}
+    rows:
+    - pose: 0
+      row: 0
+      frameCount: 1
+    - pose: 1
+      row: 1
+      frameCount: 8
+    - pose: 10
+      row: 2
+      frameCount: 6
+    - pose: 12
+      row: 3
+      frameCount: 12
+    - pose: 13
+      row: 4
+      frameCount: 12
+    - pose: 14
+      row: 5
+      frameCount: 12
+    - pose: 15
+      row: 6
+      frameCount: 8
+    - pose: 16
+      row: 7
+      frameCount: 12
+    - pose: 17
+      row: 8
+      frameCount: 8
+    - pose: 18
+      row: 9
+      frameCount: 4
+  - gender: 1
+    lifeStage: 1
+    variant: 3
+    atlas: {fileID: 2800000, guid: 7e9e7eaad2cc2124fb660308a3564eb1, type: 3}
+    frameWidth: 30
+    frameHeight: 31
+    pixelsPerUnit: 32
+    pivot: {x: 0.5, y: 0.08129032}
+    rows:
+    - pose: 0
+      row: 0
+      frameCount: 1
+    - pose: 1
+      row: 1
+      frameCount: 8
+    - pose: 3
+      row: 2
+      frameCount: 10
+    - pose: 4
+      row: 3
+      frameCount: 10
+    - pose: 5
+      row: 4
+      frameCount: 12
+    - pose: 6
+      row: 5
+      frameCount: 12
+    - pose: 7
+      row: 6
+      frameCount: 12
+    - pose: 8
+      row: 7
+      frameCount: 10
+    - pose: 9
+      row: 8
+      frameCount: 14
+    - pose: 10
+      row: 9
+      frameCount: 6
+    - pose: 12
+      row: 10
+      frameCount: 12
+    - pose: 13
+      row: 11
+      frameCount: 12
+    - pose: 14
+      row: 12
+      frameCount: 12
+    - pose: 15
+      row: 13
+      frameCount: 8
+    - pose: 16
+      row: 14
+      frameCount: 12
+    - pose: 17
+      row: 15
+      frameCount: 8
+    - pose: 18
+      row: 16
+      frameCount: 4
+  - gender: 1
+    lifeStage: 0
+    variant: 3
+    atlas: {fileID: 2800000, guid: 576001895c6d0d44db6f949d08d037ee, type: 3}
+    frameWidth: 24
+    frameHeight: 31
+    pixelsPerUnit: 32
+    pivot: {x: 0.5, y: 0.08129032}
+    rows:
+    - pose: 0
+      row: 0
+      frameCount: 1
+    - pose: 1
+      row: 1
+      frameCount: 8
+    - pose: 10
+      row: 2
+      frameCount: 6
+    - pose: 12
+      row: 3
+      frameCount: 12
+    - pose: 13
+      row: 4
+      frameCount: 12
+    - pose: 14
+      row: 5
+      frameCount: 12
+    - pose: 15
+      row: 6
+      frameCount: 8
+    - pose: 16
+      row: 7
+      frameCount: 12
+    - pose: 17
+      row: 8
+      frameCount: 8
+    - pose: 18
+      row: 9
+      frameCount: 4
+  - gender: 1
+    lifeStage: 1
+    variant: 4
+    atlas: {fileID: 2800000, guid: 778a3c2b07b432e4c9cd3d92706bd2ab, type: 3}
+    frameWidth: 30
+    frameHeight: 31
+    pixelsPerUnit: 32
+    pivot: {x: 0.5, y: 0.08129032}
+    rows:
+    - pose: 0
+      row: 0
+      frameCount: 1
+    - pose: 1
+      row: 1
+      frameCount: 8
+    - pose: 3
+      row: 2
+      frameCount: 10
+    - pose: 4
+      row: 3
+      frameCount: 10
+    - pose: 5
+      row: 4
+      frameCount: 12
+    - pose: 6
+      row: 5
+      frameCount: 12
+    - pose: 7
+      row: 6
+      frameCount: 12
+    - pose: 8
+      row: 7
+      frameCount: 10
+    - pose: 9
+      row: 8
+      frameCount: 14
+    - pose: 10
+      row: 9
+      frameCount: 6
+    - pose: 12
+      row: 10
+      frameCount: 12
+    - pose: 13
+      row: 11
+      frameCount: 12
+    - pose: 14
+      row: 12
+      frameCount: 12
+    - pose: 15
+      row: 13
+      frameCount: 8
+    - pose: 16
+      row: 14
+      frameCount: 12
+    - pose: 17
+      row: 15
+      frameCount: 8
+    - pose: 18
+      row: 16
+      frameCount: 4
+  - gender: 1
+    lifeStage: 0
+    variant: 4
+    atlas: {fileID: 2800000, guid: 69f71331825fafd43ab3f61975d424c2, type: 3}
+    frameWidth: 24
+    frameHeight: 31
+    pixelsPerUnit: 32
+    pivot: {x: 0.5, y: 0.08129032}
+    rows:
+    - pose: 0
+      row: 0
+      frameCount: 1
+    - pose: 1
+      row: 1
+      frameCount: 8
+    - pose: 10
+      row: 2
+      frameCount: 6
+    - pose: 12
+      row: 3
+      frameCount: 12
+    - pose: 13
+      row: 4
+      frameCount: 12
+    - pose: 14
+      row: 5
+      frameCount: 12
+    - pose: 15
+      row: 6
+      frameCount: 8
+    - pose: 16
+      row: 7
+      frameCount: 12
+    - pose: 17
+      row: 8
+      frameCount: 8
+    - pose: 18
+      row: 9
+      frameCount: 4
+  natureSprites:
+  - kind: 0
+    variants:
+    - {fileID: 21300000, guid: 00e78f1b26619f84a9f3e65ac4b47425, type: 3}
+    - {fileID: 21300000, guid: 6c77d3c1616e2ea44aaaa4b8bb54e5aa, type: 3}
+    - {fileID: 21300000, guid: 43dd4b006aeed3d48a5beb1661c9a0c0, type: 3}
+    - {fileID: 21300000, guid: 44fdc688e99cdca43aceb68955cd910c, type: 3}
+    - {fileID: 21300000, guid: 8e82202630e68044587a1fcc23ecad0b, type: 3}
+  - kind: 1
+    variants:
+    - {fileID: 21300000, guid: 1dc773804729a6648a51081cf3c197f6, type: 3}
+    - {fileID: 21300000, guid: d23609f424a1fdb42891a40d2166f75c, type: 3}
+    - {fileID: 21300000, guid: ec543f67ba768c745aaac47cc03507ab, type: 3}
+  - kind: 2
+    variants:
+    - {fileID: 21300000, guid: 94b79489aa4bc304c86428036e715b08, type: 3}
+    - {fileID: 21300000, guid: 6ce74493b74a02c49a4c9f39ec29dc8e, type: 3}
+    - {fileID: 21300000, guid: d6e2b2bfe9a1b084480a01568b514bba, type: 3}
+    - {fileID: 21300000, guid: cc890eef9617d1a41ad108d57afe26cb, type: 3}
+  - kind: 3
+    variants:
+    - {fileID: 21300000, guid: 15dc372b157962d4d825958f2fa97e99, type: 3}
+    - {fileID: 21300000, guid: 229c63b2289e05c4c9466b4f521a7d2a, type: 3}
+    - {fileID: 21300000, guid: 65a798c89665fd04692706c9cbf144ad, type: 3}
+  - kind: 4
+    variants:
+    - {fileID: 21300000, guid: cf4ecbfe7aa9e9040a7af55a3dd2a8ae, type: 3}
+    - {fileID: 21300000, guid: bbde494a728f9a148b28c60213e2bd78, type: 3}
+    - {fileID: 21300000, guid: cbfdb63d4b6222d42bfc54a485e8f650, type: 3}
+    - {fileID: 21300000, guid: ddbb0ca13a8f6014bbf285854ff510f6, type: 3}
+    - {fileID: 21300000, guid: 0128b64c8c2df0a41a4f0a10d7a8bfd3, type: 3}
+    - {fileID: 21300000, guid: 28280573ea6db9940af79435180d1ff2, type: 3}
+  - kind: 5
+    variants:
+    - {fileID: 21300000, guid: 05a5ec8942a3dea43a40d5295dd8a9f9, type: 3}
+    - {fileID: 21300000, guid: 3a1f3df1cb79c834cbe2636fa2683309, type: 3}
+    - {fileID: 21300000, guid: c3029f9f9ab640146af90c7769444881, type: 3}
+    - {fileID: 21300000, guid: 5ac2c48fa710d7d4ba2b44728f79636a, type: 3}
+    - {fileID: 21300000, guid: 23a412730ff84244eb99a9355513c78f, type: 3}
+  - kind: 6
+    variants:
+    - {fileID: 21300000, guid: 0fc0d216146b069459820f180e81ba9d, type: 3}
+    - {fileID: 21300000, guid: f6847d712a5560d428b0b672d4150969, type: 3}
+    - {fileID: 21300000, guid: c45194679b5a1ec4e8c6f97b3cc48d03, type: 3}
+    - {fileID: 21300000, guid: cfc600a6069132d44be8df9db67f0e1e, type: 3}
+  - kind: 7
+    variants:
+    - {fileID: 21300000, guid: 24e14a8e37f01e040a82bd8986c671a3, type: 3}
+    - {fileID: 21300000, guid: 4f1054f9d27570a4582093a31faffd0a, type: 3}
+    - {fileID: 21300000, guid: ddcd541a21a2bd747ad0c8465833452f, type: 3}
+    - {fileID: 21300000, guid: f13af48ff7e4597499643f3dac2e21da, type: 3}
+  - kind: 8
+    variants:
+    - {fileID: 21300000, guid: 4145dc19f5d177944ba06ffb5627bd2a, type: 3}
+    - {fileID: 21300000, guid: ea2d4617dba79f0408f1943061073e46, type: 3}
+    - {fileID: 21300000, guid: 6d655873f9104a14a9ffa06510202c8b, type: 3}
+    - {fileID: 21300000, guid: b235068a5e4577c489ff13eed0f332e2, type: 3}
+  - kind: 9
+    variants:
+    - {fileID: 21300000, guid: c6105981b14bff648879d3e5f8984498, type: 3}
+    - {fileID: 21300000, guid: be590353633c8b84b82b004994919e75, type: 3}
+    - {fileID: 21300000, guid: 3c74bc4861a336b48a8ee525232d2a27, type: 3}
+    - {fileID: 21300000, guid: 48b0e9621cd17024f9e13a691fed250e, type: 3}
+  - kind: 10
+    variants:
+    - {fileID: 21300000, guid: d8f70985ad808b84d81988f2587f1ddf, type: 3}
+    - {fileID: 21300000, guid: def7c92d8a80817488f6b84aba3bfe8f, type: 3}
+    - {fileID: 21300000, guid: 2aca7862945eeac4fad83727e09fd01c, type: 3}
+    - {fileID: 21300000, guid: a35e38fa735b99c43a2e53431f16f224, type: 3}
+  - kind: 11
+    variants:
+    - {fileID: 21300000, guid: 5e50437f61428dd4f8f98324b089c785, type: 3}
+    - {fileID: 21300000, guid: a02bb86bebd64ff4ba8975d4e7131707, type: 3}
+    - {fileID: 21300000, guid: ad67c679c71c4b347a80de3a76370e6a, type: 3}
+    - {fileID: 21300000, guid: 1b99fc99a1e0baa49becd9d858371535, type: 3}
+  - kind: 12
+    variants:
+    - {fileID: 21300000, guid: 3e3b75b49755fd74487e1c6f9b84c119, type: 3}
+    - {fileID: 21300000, guid: 38b864d96189c7144a61f555e46128b5, type: 3}
+    - {fileID: 21300000, guid: b9c3416c9424adb468e31ffd06a049a2, type: 3}
+    - {fileID: 21300000, guid: b6b55c886a5074c428c4e67e59ad62ee, type: 3}
+  visualSequences:
+  - id: Construction/House/V0
+    atlas: {fileID: 2800000, guid: 78c2071ce3e965c4da6244a47db2a608, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/House/V1
+    atlas: {fileID: 2800000, guid: 0608e88deb0104742a1d74876e527cc1, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/House/V2
+    atlas: {fileID: 2800000, guid: f8ea2d4f65758d041817b2aa7606802e, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/House/V3
+    atlas: {fileID: 2800000, guid: 15571f0d86e6ec64eab51e595b7c3cdf, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/House/V4
+    atlas: {fileID: 2800000, guid: 8e8f7ea4acceb384794201575396ecdb, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/LumberjackCamp/V0
+    atlas: {fileID: 2800000, guid: 5c1da12f10af6b74d8f107679c5cfed5, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/LumberjackCamp/V1
+    atlas: {fileID: 2800000, guid: 6ccf4d34dd5023e419ac8dc58a5ff30b, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/LumberjackCamp/V2
+    atlas: {fileID: 2800000, guid: 73c64ceb81937e74bae3dd35a43f57e2, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/StonecutterCamp/V0
+    atlas: {fileID: 2800000, guid: 323e0c1ea7c1ab14bb6b9cd8bd13b2df, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/StonecutterCamp/V1
+    atlas: {fileID: 2800000, guid: a52d6b7ff260811428ad0160482d57df, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/StonecutterCamp/V2
+    atlas: {fileID: 2800000, guid: e136e8244a80f3a4eaa7ee43134314fa, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/Sawmill/V0
+    atlas: {fileID: 2800000, guid: 0fb5546e06eb27a41bbad43d9a65448d, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/Sawmill/V1
+    atlas: {fileID: 2800000, guid: 1c8ca37137f1537408774af03aeca2f8, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/Sawmill/V2
+    atlas: {fileID: 2800000, guid: 2d1c3461a64a13645808926a7ae0ebb0, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/Mine/V0
+    atlas: {fileID: 2800000, guid: 80e9a0b199c4d794ea82f1c95ef75b05, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/Mine/V1
+    atlas: {fileID: 2800000, guid: be1e4add7ba3df745848479c5dfd86a9, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/Mine/V2
+    atlas: {fileID: 2800000, guid: b387c1800f4a88e47aff8282892e7b91, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/CoalPit/V0
+    atlas: {fileID: 2800000, guid: 5f35785f3f4250b4e9f13b15cdf839f0, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/CoalPit/V1
+    atlas: {fileID: 2800000, guid: 33dfa8f005468864081399c9a68eb9b2, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/CoalPit/V2
+    atlas: {fileID: 2800000, guid: 77b022661c32e194aa4a521c880ad898, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/ClayPit/V0
+    atlas: {fileID: 2800000, guid: 5dcf79a47c4e4f249bd77dab12d82544, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/ClayPit/V1
+    atlas: {fileID: 2800000, guid: 94567e9a26f62aa4999f9e8c4d6aad28, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/ClayPit/V2
+    atlas: {fileID: 2800000, guid: 66fc700794e1fce409cf215963f7f085, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/Kiln/V0
+    atlas: {fileID: 2800000, guid: 8a4cd7c462179ff42b3446f411b3f48b, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/Kiln/V1
+    atlas: {fileID: 2800000, guid: 61300631234b9a447b7070bcf03b6065, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/Kiln/V2
+    atlas: {fileID: 2800000, guid: e2cca2d4cd049e14eb61804a954f129a, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/Forge/V0
+    atlas: {fileID: 2800000, guid: cc706c5cdb0621e419dedfc892ee6fd4, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/Forge/V1
+    atlas: {fileID: 2800000, guid: fee255293bbe9b94d964e2470ae6898b, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/Forge/V2
+    atlas: {fileID: 2800000, guid: b0be89668ca05784b914a17a8a905a2f, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/HunterCamp/V0
+    atlas: {fileID: 2800000, guid: f5e68a67aa52fee40823ee07e1a201f3, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/HunterCamp/V1
+    atlas: {fileID: 2800000, guid: a2d9411511c9e4f47b33c16f142fc433, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/HunterCamp/V2
+    atlas: {fileID: 2800000, guid: 9354a8be70dffef46a05f1a3d91a4115, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/FisherHut/V0
+    atlas: {fileID: 2800000, guid: 5c70a5d2302fd844895056dfeca59f70, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/FisherHut/V1
+    atlas: {fileID: 2800000, guid: 46103048535a5e84ba61595817ccc448, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/FisherHut/V2
+    atlas: {fileID: 2800000, guid: fea4c0709c4c9a441b35b17da76734be, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/ForagerCamp/V0
+    atlas: {fileID: 2800000, guid: 7b8f9c189050f6347a3eda82ea7a9ecd, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/ForagerCamp/V1
+    atlas: {fileID: 2800000, guid: 6e5eb73cb09f1ae45b0e633febec8967, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/ForagerCamp/V2
+    atlas: {fileID: 2800000, guid: 8d79ab435520db14a81c28faac5250b5, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/ChickenCoop/V0
+    atlas: {fileID: 2800000, guid: e276e3b8383374740b2f8d9c12eba444, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/ChickenCoop/V1
+    atlas: {fileID: 2800000, guid: 7eda306f45667ae4d8f109815b13e08e, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/ChickenCoop/V2
+    atlas: {fileID: 2800000, guid: 78440a1c75063224391da448e25d364d, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/ChickenCoop/V3
+    atlas: {fileID: 2800000, guid: 315e2cca9e47c384eac723030f8eb4cf, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/ChickenCoop/V4
+    atlas: {fileID: 2800000, guid: 319ee5719b6568541a289ad8433369a2, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/ChickenCoop/V5
+    atlas: {fileID: 2800000, guid: fe1e0b679e643a841a8e270c424c5c7b, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/TradingPost/V0
+    atlas: {fileID: 2800000, guid: 8359c32261005ee49a02141080c0851e, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/TradingPost/V1
+    atlas: {fileID: 2800000, guid: 66b70cd1f769258458451e2111e8cf70, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/TradingPost/V2
+    atlas: {fileID: 2800000, guid: 7245c0b7ffa064c4dbc8cdf4e5d3e37f, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/StarterCaravanCart/V0
+    atlas: {fileID: 2800000, guid: edd9b288605fe494786c7ed03ac04f1d, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/StorageYard/V0
+    atlas: {fileID: 2800000, guid: 8cfa1e38f652feb4dba7af96a9768822, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/StorageYard/V1
+    atlas: {fileID: 2800000, guid: 4b28f289fb289ee4fab8a730aeba503e, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/StorageYard/V2
+    atlas: {fileID: 2800000, guid: ead9ea8ba09a23e498d5accfc85dc36b, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/Granary/V0
+    atlas: {fileID: 2800000, guid: 6f7b8f89cc3bd784e8c933f5708f8d6e, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/Granary/V1
+    atlas: {fileID: 2800000, guid: e30aaadfe00821149bd8c89a779dba4e, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/Granary/V2
+    atlas: {fileID: 2800000, guid: 424034ce25e044a4ba02dac24b758ed6, type: 3}
+    frameWidth: 92
+    frameHeight: 82
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.099999994}
+  - id: Construction/Bridge/V0
+    atlas: {fileID: 2800000, guid: c14bf83894535114fa9347aab19c449a, type: 3}
+    frameWidth: 92
+    frameHeight: 56
+    frameCount: 7
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M0/L1
+    atlas: {fileID: 2800000, guid: cdf04d9f69e6c0a48bb7e7870e1a311a, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M0/L2
+    atlas: {fileID: 2800000, guid: d4a50699faaf4c241a5c0923dffaf4b4, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M0/L3
+    atlas: {fileID: 2800000, guid: 86d11ef185f19064ca57f4b4ef12c003, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M1/L1
+    atlas: {fileID: 2800000, guid: 80646b3f027de654186f337059955729, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M1/L2
+    atlas: {fileID: 2800000, guid: 00901ada9bd7b0043a2530c388aedb16, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M1/L3
+    atlas: {fileID: 2800000, guid: af7ce6b6a7dd3434ba3bd35adbd6c166, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M2/L1
+    atlas: {fileID: 2800000, guid: b99426fc279d4814398ab3543a8bbb17, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M2/L2
+    atlas: {fileID: 2800000, guid: c6335092401e1cd44883b2004fa08e91, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M2/L3
+    atlas: {fileID: 2800000, guid: 9c99baab280e26e4d83a2414d00642cf, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M3/L1
+    atlas: {fileID: 2800000, guid: a72d9ab35f2d5ef42ac839cc759555e8, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M3/L2
+    atlas: {fileID: 2800000, guid: be829747469c62a4995ed77403849df5, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M3/L3
+    atlas: {fileID: 2800000, guid: 826a7d803e60691408844a9c611332e4, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M4/L1
+    atlas: {fileID: 2800000, guid: 2fdca4164eccae74bb661cb3507c1359, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M4/L2
+    atlas: {fileID: 2800000, guid: 1e3b8f61c5f515643b0ccb93cd52b2f2, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M4/L3
+    atlas: {fileID: 2800000, guid: 3988df4bb81a88d468cbafbfabc38d1c, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M5/L1
+    atlas: {fileID: 2800000, guid: 31a743a0b44106e4d929c8840e50e0de, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M5/L2
+    atlas: {fileID: 2800000, guid: 99b01d24adf22ca40b42f93fbb67f4ca, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M5/L3
+    atlas: {fileID: 2800000, guid: f4c73609ebe3f594abf497149aa574fb, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M6/L1
+    atlas: {fileID: 2800000, guid: 9dbb7d35da2b3cd41ab6d2012fc43f78, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M6/L2
+    atlas: {fileID: 2800000, guid: e992b52eee3248544b812363b4695540, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M6/L3
+    atlas: {fileID: 2800000, guid: cdb0c045bed52754d95b33d38d925407, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M7/L1
+    atlas: {fileID: 2800000, guid: 21500ea625941684794e0ff5d5cc585c, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M7/L2
+    atlas: {fileID: 2800000, guid: 3415b935ddd3a8443a3650262af0a502, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M7/L3
+    atlas: {fileID: 2800000, guid: cd8403917e9c5c74c93c93b7ed763cff, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M8/L1
+    atlas: {fileID: 2800000, guid: d40ec4bca3cf3334a89615596f1e7420, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M8/L2
+    atlas: {fileID: 2800000, guid: 25f4e4629df1e564ea685efb45259f0b, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M8/L3
+    atlas: {fileID: 2800000, guid: 89c8d95134e47cc4dbc4bf3ff7f8da31, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M9/L1
+    atlas: {fileID: 2800000, guid: 404a3d6abbd562d4b9a91779e9dca1ca, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M9/L2
+    atlas: {fileID: 2800000, guid: 4ab450af383142d41b5db5bfbd64326c, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M9/L3
+    atlas: {fileID: 2800000, guid: ae2174c25ef9de34797fbc8690f9e143, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M10/L1
+    atlas: {fileID: 2800000, guid: d1aa9d4c27a430e4e9c83430976626e0, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M10/L2
+    atlas: {fileID: 2800000, guid: c0ccd500cd246714f8f6e9aa32f14ad8, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M10/L3
+    atlas: {fileID: 2800000, guid: 81c8d1d9b5c71a94e85d4477c9640ea4, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M11/L1
+    atlas: {fileID: 2800000, guid: 1aecbb76d3e681d47a65ba063d1e5ede, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M11/L2
+    atlas: {fileID: 2800000, guid: 4dd5606d200c373428113907038694c6, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M11/L3
+    atlas: {fileID: 2800000, guid: a597849ece5360c418aae89a1e4da329, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M12/L1
+    atlas: {fileID: 2800000, guid: 23fab5361f07f49468eb6ba2707a7470, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M12/L2
+    atlas: {fileID: 2800000, guid: 313ec33778d7df44ba404b606b6869b4, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M12/L3
+    atlas: {fileID: 2800000, guid: bac0a1744a063c44ca9b05255f245964, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M13/L1
+    atlas: {fileID: 2800000, guid: 5f71a96a2afd7f44a97ee522042537e6, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M13/L2
+    atlas: {fileID: 2800000, guid: 084c0bd9534632b44950692266ee7346, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M13/L3
+    atlas: {fileID: 2800000, guid: f0f48eeda5e2f154597a70c5dbdb55c0, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M14/L1
+    atlas: {fileID: 2800000, guid: 78a6fa017e57e6346bd55a2e7abbdc36, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M14/L2
+    atlas: {fileID: 2800000, guid: c65b392997b0d0843a06bde3aa76423e, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M14/L3
+    atlas: {fileID: 2800000, guid: 32c730bb858d7d64ea4ee87c91042865, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M15/L1
+    atlas: {fileID: 2800000, guid: 4e5780f49dd11ab4ebad64ec0d729660, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M15/L2
+    atlas: {fileID: 2800000, guid: 10254290a5f235d4fbcd101ea415dc60, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Trail/M15/L3
+    atlas: {fileID: 2800000, guid: 7ee51ae9ca08a2842823e01c003e650e, type: 3}
+    frameWidth: 16
+    frameHeight: 16
+    frameCount: 4
+    pixelsPerUnit: 16
+    pivot: {x: 0.5, y: 0.5}
+  - id: Stock/LumberjackLogs
+    atlas: {fileID: 2800000, guid: ee3032916df3bd14d91773153a2c5b36, type: 3}
+    frameWidth: 52
+    frameHeight: 30
+    frameCount: 5
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.18}
+  - id: Stock/StonecutterStone
+    atlas: {fileID: 2800000, guid: 4996c1b99529b8940a32bc542d14fa47, type: 3}
+    frameWidth: 50
+    frameHeight: 28
+    frameCount: 5
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.17999999}
+  - id: Stock/HunterGame
+    atlas: {fileID: 2800000, guid: 00fbea15ac8928e4cad0235b24919dc3, type: 3}
+    frameWidth: 50
+    frameHeight: 28
+    frameCount: 5
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.17999999}
+  - id: Stock/FisherFish
+    atlas: {fileID: 2800000, guid: e024e84cbb92e3f4cbd7bf9ca5082894, type: 3}
+    frameWidth: 52
+    frameHeight: 28
+    frameCount: 5
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.17999999}
+  - id: Stock/StorageLogs
+    atlas: {fileID: 2800000, guid: b276c01c095e2ff428bd5f9025f370ef, type: 3}
+    frameWidth: 76
+    frameHeight: 37
+    frameCount: 6
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.18}
+  - id: Stock/StorageStone
+    atlas: {fileID: 2800000, guid: 40f7310d9f0e2b54098ec2168f9bb911, type: 3}
+    frameWidth: 56
+    frameHeight: 32
+    frameCount: 6
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.18}
+  - id: Stock/GranaryGame
+    atlas: {fileID: 2800000, guid: 3817a4003e6a2e74e84b71f34b8a534e, type: 3}
+    frameWidth: 64
+    frameHeight: 34
+    frameCount: 6
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.18}
+  - id: Stock/GranaryFish
+    atlas: {fileID: 2800000, guid: 123fb4f188ede0b408a2492eca787bd1, type: 3}
+    frameWidth: 64
+    frameHeight: 34
+    frameCount: 6
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.18}
+  - id: Stock/MineIron
+    atlas: {fileID: 2800000, guid: bd5d55767acfc8a4d8fb99286bb3717b, type: 3}
+    frameWidth: 50
+    frameHeight: 28
+    frameCount: 5
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.17999999}
+  - id: Stock/StorageIron
+    atlas: {fileID: 2800000, guid: fd769d95309c8b24bbe40fd0e81d8e9c, type: 3}
+    frameWidth: 50
+    frameHeight: 28
+    frameCount: 6
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.17999999}
+  - id: Stock/CoalPitCoal
+    atlas: {fileID: 2800000, guid: e4cb150a8a4a4934f94a6b65297a8a7b, type: 3}
+    frameWidth: 50
+    frameHeight: 28
+    frameCount: 5
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.17999999}
+  - id: Stock/StorageCoal
+    atlas: {fileID: 2800000, guid: f9630c574a195514bac1e77b3894f52b, type: 3}
+    frameWidth: 50
+    frameHeight: 28
+    frameCount: 6
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.17999999}
+  - id: Stock/SawmillLogs
+    atlas: {fileID: 2800000, guid: 50234c580e82d8240b50c841fe4a4180, type: 3}
+    frameWidth: 54
+    frameHeight: 30
+    frameCount: 6
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.18}
+  - id: Stock/SawmillPlanks
+    atlas: {fileID: 2800000, guid: 4748f2dd07f387c4ebcd791f40a10a27, type: 3}
+    frameWidth: 54
+    frameHeight: 30
+    frameCount: 6
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.18}
+  - id: Stock/StoragePlanks
+    atlas: {fileID: 2800000, guid: 82581185cf9583e4ab443cdae18d65f5, type: 3}
+    frameWidth: 54
+    frameHeight: 30
+    frameCount: 6
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.18}
+  - id: Stock/ClayPitClay
+    atlas: {fileID: 2800000, guid: f0157aeb403726647aaf4404f16845ee, type: 3}
+    frameWidth: 46
+    frameHeight: 24
+    frameCount: 6
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.18}
+  - id: Stock/StorageClay
+    atlas: {fileID: 2800000, guid: 9811cc33af6bee848ac7539e76287fe5, type: 3}
+    frameWidth: 46
+    frameHeight: 24
+    frameCount: 6
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.18}
+  - id: Stock/KilnClay
+    atlas: {fileID: 2800000, guid: 9ce34c889f5b4e74bbd54c4ab3c8bb0b, type: 3}
+    frameWidth: 46
+    frameHeight: 24
+    frameCount: 6
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.18}
+  - id: Stock/KilnCoal
+    atlas: {fileID: 2800000, guid: da0b8374d007fb942a744860f67ea474, type: 3}
+    frameWidth: 40
+    frameHeight: 22
+    frameCount: 6
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.18}
+  - id: Stock/KilnPottery
+    atlas: {fileID: 2800000, guid: 8d7c8f31b9f48b747bf86c3afda68db4, type: 3}
+    frameWidth: 46
+    frameHeight: 26
+    frameCount: 6
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.18}
+  - id: Stock/StoragePottery
+    atlas: {fileID: 2800000, guid: 4bc46de153e78f044aeccea97227f17c, type: 3}
+    frameWidth: 46
+    frameHeight: 26
+    frameCount: 6
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.18}
+  - id: Stock/ForgeIron
+    atlas: {fileID: 2800000, guid: 9168ad84102f545438e52cc9c195a6e9, type: 3}
+    frameWidth: 40
+    frameHeight: 22
+    frameCount: 6
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.18}
+  - id: Stock/ForgeCoal
+    atlas: {fileID: 2800000, guid: 7e795151f0cdad24e838db8ad5a81c79, type: 3}
+    frameWidth: 40
+    frameHeight: 22
+    frameCount: 6
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.18}
+  - id: Stock/ForgeLogs
+    atlas: {fileID: 2800000, guid: 7f21b5b8d01501e4f8f4024be084653d, type: 3}
+    frameWidth: 44
+    frameHeight: 24
+    frameCount: 6
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.18}
+  - id: Stock/ForgeTools
+    atlas: {fileID: 2800000, guid: 12d76fec7254f8a4a913177cf033b3e3, type: 3}
+    frameWidth: 44
+    frameHeight: 24
+    frameCount: 6
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.18}
+  - id: Stock/StorageTools
+    atlas: {fileID: 2800000, guid: f1263801ceba592468d0f5f2c5692c49, type: 3}
+    frameWidth: 44
+    frameHeight: 24
+    frameCount: 6
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.18}
+  - id: Work/Sawmill/W1
+    atlas: {fileID: 2800000, guid: 7692aab299b29d541bb7c86f35bbe0bf, type: 3}
+    frameWidth: 78
+    frameHeight: 34
+    frameCount: 12
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.2}
+  - id: Work/Kiln/W1
+    atlas: {fileID: 2800000, guid: 2394514f7bc44a54a866c1ca8426b752, type: 3}
+    frameWidth: 60
+    frameHeight: 32
+    frameCount: 12
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.2}
+  - id: Work/Forge
+    atlas: {fileID: 2800000, guid: 8c160341668c6d744b98da3ffa080d6c, type: 3}
+    frameWidth: 64
+    frameHeight: 34
+    frameCount: 12
+    pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.2}
+  terrainSprites:
+  - kind: 0
+    variants:
+    - {fileID: 21300000, guid: fbee4fa0879665c45a8ea296546dc79a, type: 3}
+    - {fileID: 21300000, guid: 32eb34cc7e8e6fb4b94299ef50aa4376, type: 3}
+    - {fileID: 21300000, guid: d5a18aa559af89b4e9c8a303e4988fc5, type: 3}
+    - {fileID: 21300000, guid: 9241d96456bdc78448d3dc0de183c0c2, type: 3}
+    - {fileID: 21300000, guid: 54f696dd51c0d5549bb514b6ee246b35, type: 3}
+    - {fileID: 21300000, guid: 8ac1c8ddc5e5424498e87f536a954ad5, type: 3}
+  - kind: 1
+    variants:
+    - {fileID: 21300000, guid: 856c34c42e73c644ab8db328b063375a, type: 3}
+    - {fileID: 21300000, guid: b123ec291d9d453439187eaa0bad9350, type: 3}
+    - {fileID: 21300000, guid: 2317035b341a77e4ca76abc1effa3815, type: 3}
+    - {fileID: 21300000, guid: 294d48216771abc4a813914337f7e09a, type: 3}
+    - {fileID: 21300000, guid: 1dbdd0faebe8a9744a9ae7f3731c056f, type: 3}
+    - {fileID: 21300000, guid: 999a6d1ae9fd43c4f8af41e6170f8aac, type: 3}
+  - kind: 2
+    variants:
+    - {fileID: 21300000, guid: 2b05d33a4737c2249ad6cf732d6987f3, type: 3}
+    - {fileID: 21300000, guid: c9a1f3ca0c72ba2498d0194bd2c80351, type: 3}
+    - {fileID: 21300000, guid: f4aea16fa72aa6f4ea74b0bc4faeb3d3, type: 3}
+    - {fileID: 21300000, guid: 9650fe9b05e73ab42b134d205f3a7fdf, type: 3}
+    - {fileID: 21300000, guid: a20dce0da39d1f64eb31b5560861d321, type: 3}
+    - {fileID: 21300000, guid: 3722faa88035c5549a66e8a315da51ee, type: 3}
+  - kind: 3
+    variants:
+    - {fileID: 21300000, guid: 619b22e05c918884cb27347deab64fa4, type: 3}
+    - {fileID: 21300000, guid: 92674ccf0c948de4a95bddbec89651d3, type: 3}
+    - {fileID: 21300000, guid: e1365b93c67433641b261df58597ee01, type: 3}
+    - {fileID: 21300000, guid: 2cc3433bfa8351346b14f999f321c648, type: 3}
+    - {fileID: 21300000, guid: 1c2dd59f2010a654cbbba29aaf9f9222, type: 3}
+    - {fileID: 21300000, guid: c02e5f3391d589d4d9f93ee77f1fa2a7, type: 3}
+  - kind: 4
+    variants:
+    - {fileID: 21300000, guid: ab8168a9f568a7941b138050c76cd58c, type: 3}
+    - {fileID: 21300000, guid: 12f3e852c5e5ed247bc12734bcb0d9ed, type: 3}
+    - {fileID: 21300000, guid: e32ef6484134a65428eeeb71a767eae8, type: 3}
+    - {fileID: 21300000, guid: e685d689b1ca55144bdf6c0efdb74734, type: 3}
+    - {fileID: 21300000, guid: ffa5d3645521b0245851c35c1c511c90, type: 3}
+    - {fileID: 21300000, guid: 21e9e848796c76e41a9fa098679b556f, type: 3}
+  - kind: 5
+    variants:
+    - {fileID: 21300000, guid: dfc48796da0cc7f4494f59e6f5c1edb7, type: 3}
+    - {fileID: 21300000, guid: 52d8e3a27706ff44ba889d2510e90f1e, type: 3}
+    - {fileID: 21300000, guid: b22af81118ee8de4a8d23212048c8de2, type: 3}
+    - {fileID: 21300000, guid: 129396ae68fd3f941a9b0d31172f674d, type: 3}
+    - {fileID: 21300000, guid: 68ca1711aa7bb4f40b493dea8423bab3, type: 3}
+    - {fileID: 21300000, guid: ed19fa29405b12c488d543ff2a1f9b0b, type: 3}
+  buildingSprites:
+  - tool: 1
+    variants:
+    - {fileID: 21300000, guid: 5aae19180537bad47ae90c8509336618, type: 3}
+    - {fileID: 21300000, guid: d15d83298306b67408ca0215022828eb, type: 3}
+    - {fileID: 21300000, guid: ad42a2bf7b5e726409e0198febe0868f, type: 3}
+    - {fileID: 21300000, guid: 11ccdb8503797d04d891d55273cba799, type: 3}
+    - {fileID: 21300000, guid: 0b8fecc953b54f54fa8e00d635eba318, type: 3}
+  - tool: 2
+    variants:
+    - {fileID: 21300000, guid: a8437e36b9698204c9dbf64dcba3f97e, type: 3}
+    - {fileID: 21300000, guid: 683697618023aa445a030b100e834939, type: 3}
+    - {fileID: 21300000, guid: 293f5b8490ad57644a32051dcbb56426, type: 3}
+  - tool: 3
+    variants:
+    - {fileID: 21300000, guid: 9ce9e16067555e1478671c88d13cf917, type: 3}
+    - {fileID: 21300000, guid: efc6a86d8160ab34d91ac2d372995a1e, type: 3}
+    - {fileID: 21300000, guid: af588fcf8468b524a9f5579461b5dbb6, type: 3}
+  - tool: 4
+    variants:
+    - {fileID: 21300000, guid: 38af0f0defb24da4291141f760f337b0, type: 3}
+    - {fileID: 21300000, guid: 43438b745e9073046beb91050e64d873, type: 3}
+    - {fileID: 21300000, guid: 57415aca7895c614f839e81655803da7, type: 3}
+  - tool: 5
+    variants:
+    - {fileID: 21300000, guid: 7b802bef8b002ad459f7977b673ff6c0, type: 3}
+    - {fileID: 21300000, guid: 0af5349f0d7fc2c44b8fa15c2fd84e9f, type: 3}
+    - {fileID: 21300000, guid: 77e39b829585a0f42b74a03c7e8f5410, type: 3}
+  - tool: 6
+    variants:
+    - {fileID: 21300000, guid: 45b67bfa44bcc2243baeee9920e85c9b, type: 3}
+    - {fileID: 21300000, guid: 694d10ee58fed014782c1d2d768a1444, type: 3}
+    - {fileID: 21300000, guid: 194f82a162cf1794cabc0b3dc4758c23, type: 3}
+  - tool: 7
+    variants:
+    - {fileID: 21300000, guid: 3740286c345129240b0991ab2bf82e98, type: 3}
+    - {fileID: 21300000, guid: 4b7b34a684391fa41b5364319e6db64a, type: 3}
+    - {fileID: 21300000, guid: 2df2356999c10c64f8b7ed9a264ba299, type: 3}
+  - tool: 8
+    variants:
+    - {fileID: 21300000, guid: 66679433f3280eb4a9471d6b1bd77337, type: 3}
+    - {fileID: 21300000, guid: 51eff3fe2ae52c44c89a025b91517a6e, type: 3}
+    - {fileID: 21300000, guid: 03b407fd9dc05bd44873439a42f141af, type: 3}
+  - tool: 9
+    variants:
+    - {fileID: 21300000, guid: 13945db736e04f74ea1045a96aed4d61, type: 3}
+    - {fileID: 21300000, guid: 29cce94e74539ed45a1ff2e9f491494d, type: 3}
+    - {fileID: 21300000, guid: f4c52ecd9047d90479d810e43327a420, type: 3}
+  - tool: 10
+    variants:
+    - {fileID: 21300000, guid: 7c23c9096c22ea44297983f24bf0f205, type: 3}
+    - {fileID: 21300000, guid: c01ec8e6968e5a74b8cce24671abb02e, type: 3}
+    - {fileID: 21300000, guid: c486d759899c13e40a5bcdc0abc4c253, type: 3}
+  - tool: 11
+    variants:
+    - {fileID: 21300000, guid: d14e7a60e99c01445ae2d164e30893e7, type: 3}
+    - {fileID: 21300000, guid: c7b963f8fac34a24abfcc65837af5371, type: 3}
+    - {fileID: 21300000, guid: 3d69112ef39163c48a46245d8897cefa, type: 3}
+  - tool: 12
+    variants:
+    - {fileID: 21300000, guid: f6421a9027649124c9932ee5bb3a2fdd, type: 3}
+    - {fileID: 21300000, guid: 4bea4a0571d33f24f981d8929a8f6669, type: 3}
+    - {fileID: 21300000, guid: 7e8d4c1d61e222a4f95afe6fde14c70b, type: 3}
+  - tool: 13
+    variants:
+    - {fileID: 21300000, guid: ecd9169e10870ac49af4b0840407c548, type: 3}
+    - {fileID: 21300000, guid: 3bd09bc2132a6ec48a7a7a0615d21534, type: 3}
+    - {fileID: 21300000, guid: 60f84e12b6b344b44834a6b5a89b5470, type: 3}
+    - {fileID: 21300000, guid: 728dbd9781886ee4d89fef69298c8bc9, type: 3}
+    - {fileID: 21300000, guid: cd3d53e3b9c109b41a315c72c8aea544, type: 3}
+    - {fileID: 21300000, guid: ebf2b5ae3c4b8df4cb90dd8fe2042646, type: 3}
+  - tool: 14
+    variants:
+    - {fileID: 21300000, guid: ccac3aac9b3d2b346a65c97c1b12deb0, type: 3}
+    - {fileID: 21300000, guid: 5c4dcd599ad59724baa20163572a864c, type: 3}
+    - {fileID: 21300000, guid: c81d391875480ec48b5249b0a27f7895, type: 3}
+  - tool: 15
+    variants:
+    - {fileID: 21300000, guid: e7ea3d7db2044bc49867dbdb6359ba75, type: 3}
+  - tool: 16
+    variants:
+    - {fileID: 21300000, guid: 142df98e914448647bda166a83a203a5, type: 3}
+    - {fileID: 21300000, guid: 42f0cae3af84c3748b7248bd11bc213d, type: 3}
+    - {fileID: 21300000, guid: 8e0476a16a5734c489c971c02ef18887, type: 3}
+  - tool: 17
+    variants:
+    - {fileID: 21300000, guid: 7f6b2623a9c59c444a34af573bf8ad66, type: 3}
+    - {fileID: 21300000, guid: 460e76cd010b4c14aa54de9b2f09e82f, type: 3}
+    - {fileID: 21300000, guid: 22d1a094eecd75746b60d187f40e9e14, type: 3}
+  - tool: 18
+    variants:
+    - {fileID: 21300000, guid: 319bd8e5e9047fc4bb47e2a4c92fdccd, type: 3}
+  residentSprites:
+  - gender: 0
+    lifeStage: 1
+    pose: 2
+    variant: 0
+    frames:
+    - {fileID: 21300000, guid: 41a31e56296d03d479dc9d7d0e37bfb5, type: 3}
+  - gender: 0
+    lifeStage: 0
+    pose: 2
+    variant: 0
+    frames:
+    - {fileID: 21300000, guid: a1dcfb53f8780a5418e664590cabe7bd, type: 3}
+  - gender: 0
+    lifeStage: 1
+    pose: 2
+    variant: 1
+    frames:
+    - {fileID: 21300000, guid: 23ae6bf3b3a1f914bb0a3a114cfbbfd7, type: 3}
+  - gender: 0
+    lifeStage: 0
+    pose: 2
+    variant: 1
+    frames:
+    - {fileID: 21300000, guid: 9f6a1fca06c475c4e9c3f988d0bc375f, type: 3}
+  - gender: 0
+    lifeStage: 1
+    pose: 2
+    variant: 2
+    frames:
+    - {fileID: 21300000, guid: 8f4bb3971c83ddd4dbdb2d82e73ff268, type: 3}
+  - gender: 0
+    lifeStage: 0
+    pose: 2
+    variant: 2
+    frames:
+    - {fileID: 21300000, guid: 779cf0cd4b0aac34289d6ca8f5004fcc, type: 3}
+  - gender: 0
+    lifeStage: 1
+    pose: 2
+    variant: 3
+    frames:
+    - {fileID: 21300000, guid: cfe2554b7261f7c4fb50fe5d05c766bd, type: 3}
+  - gender: 0
+    lifeStage: 0
+    pose: 2
+    variant: 3
+    frames:
+    - {fileID: 21300000, guid: b3ba1fda99fa933418812dbc6cd27453, type: 3}
+  - gender: 0
+    lifeStage: 1
+    pose: 2
+    variant: 4
+    frames:
+    - {fileID: 21300000, guid: 08f469cc090a6d7468dca12a8b8e15e4, type: 3}
+  - gender: 0
+    lifeStage: 0
+    pose: 2
+    variant: 4
+    frames:
+    - {fileID: 21300000, guid: 41058c4e43821e04fb9ca6bf11d71d06, type: 3}
+  - gender: 1
+    lifeStage: 1
+    pose: 2
+    variant: 0
+    frames:
+    - {fileID: 21300000, guid: d205565502f3fba4a898172a17fdb6d6, type: 3}
+  - gender: 1
+    lifeStage: 0
+    pose: 2
+    variant: 0
+    frames:
+    - {fileID: 21300000, guid: 42e3eb9c7f8c53140ba77049133eea10, type: 3}
+  - gender: 1
+    lifeStage: 1
+    pose: 2
+    variant: 1
+    frames:
+    - {fileID: 21300000, guid: 50dde15d4e19d454391fdbd6e7a6f3dc, type: 3}
+  - gender: 1
+    lifeStage: 0
+    pose: 2
+    variant: 1
+    frames:
+    - {fileID: 21300000, guid: 5bec973070fc5ac4bb18dbb7d52e28a6, type: 3}
+  - gender: 1
+    lifeStage: 1
+    pose: 2
+    variant: 2
+    frames:
+    - {fileID: 21300000, guid: 7a533553ac6555b4fa4288390cf525ef, type: 3}
+  - gender: 1
+    lifeStage: 0
+    pose: 2
+    variant: 2
+    frames:
+    - {fileID: 21300000, guid: 177c4d39dcc6e364f9a70ae63b87efb1, type: 3}
+  - gender: 1
+    lifeStage: 1
+    pose: 2
+    variant: 3
+    frames:
+    - {fileID: 21300000, guid: 8c849ba32d2ec904eb64f5a4538b4d6a, type: 3}
+  - gender: 1
+    lifeStage: 0
+    pose: 2
+    variant: 3
+    frames:
+    - {fileID: 21300000, guid: 01e353e4ac57ed5478e446406c909571, type: 3}
+  - gender: 1
+    lifeStage: 1
+    pose: 2
+    variant: 4
+    frames:
+    - {fileID: 21300000, guid: 716ca640c1384be428736797e8547449, type: 3}
+  - gender: 1
+    lifeStage: 0
+    pose: 2
+    variant: 4
+    frames:
+    - {fileID: 21300000, guid: 08d7c051dbc7953418e2ca77b2c71a8f, type: 3}
+  buildingGroundSprites: []

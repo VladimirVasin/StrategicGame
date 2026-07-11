@@ -1,6 +1,6 @@
 # Systems Map
 
-Last updated: 2026-07-08
+Last updated: 2026-07-11
 
 Use this file as the first navigation pass before broad searches. Owner cards are starting points, not hard boundaries.
 
@@ -43,6 +43,7 @@ Responsibilities:
 - Runtime seasonal terrain/building surface overlays for snow cover and water ice.
 - Runtime URP post-processing for soft color grading, bloom, and vignette driven by day/night and weather state.
 - Runtime cinematic visuals for 2D global/local lights, emissive masks, animated building torch/lantern source sprites with manual night-light state, active hand-carried resident torch lights, light-aware nighttime darkness over unlit cells, wet puddle glints, lightning flashes, and foreground depth accents.
+- Pooled spring/autumn camera-area details, centralized vegetation season tinting, and subtle view-gated event camera feedback.
 
 Primary files/assets:
 
@@ -74,6 +75,10 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Weather/StrategyWeatherVisualController.Chunks.cs`
 - `Assets/Scripts/Runtime/Weather/StrategyWeatherVisualController.Snow.cs`
 - `Assets/Scripts/Runtime/Weather/StrategySeasonalSurfaceController.cs`
+- `Assets/Scripts/Runtime/Weather/StrategySeasonalSurfaceController.Painting.cs`
+- `Assets/Scripts/Runtime/Weather/StrategySeasonAmbientDetailController.cs`
+- `Assets/Scripts/Runtime/Map/StrategyNaturePropController.Seasons.cs`
+- `Assets/Scripts/Runtime/Camera/StrategyCameraFeedbackController.cs`
 
 Impact hints:
 
@@ -87,6 +92,48 @@ Impact hints:
 - Cinematic visual effects should stay bounded to reusable emitters/controllers rather than adding per-building one-off light scripts; building torch/lantern source sprites and the night darkness mask are cheap overlays, while real `Light2D` point lights should stay LOD-capped and lazily created because many simultaneous 2D lights can cause visible frame spikes. Non-campfire torch/lantern emitters read `StrategyNightLightSource` manual lit state; resident personal `Dusk` hand torches should use cheap sprite/mask lighting, with resident `Light2D` reserved for actual `Night` lamp-lighting duty. Fire-source daylight fade uses the shared Dawn-to-start-of-`Noon` factor rather than a hard Dawn cutoff, and should shrink/disable only flame layers instead of making torch/campfire bodies transparent. Night-mask work should keep using the cached camera-area emitter list from cinematic LOD instead of scanning every emitter per mask pixel.
 - `StrategyShadowCaster2D` is the shared runtime shadow path for world sprites; tune shape/scale/offset per object type and let day/night control opacity/length globally.
 - Verify scenes visually in Unity after meaningful changes.
+
+### Visual Asset Pipeline
+
+Responsibilities:
+
+- Load one Resources-backed visual catalog before map generation and starter sprite prewarming.
+- Bake editable building, resident, nature, terrain, construction, road, production-work, and stock PNGs through one Editor pipeline.
+- Resolve authored building, resident-pose, nature, terrain, construction, road, work, and stock sprites before procedural factory fallback.
+- Resolve authored building-ground sprites before generated trampled-ground fallback.
+- Prewarm readable terrain sprites into immutable managed pixel arrays on the main thread before parallel terrain painting.
+- Keep partial catalog population safe so art can migrate system by system.
+
+Primary files/assets:
+
+- `Assets/Resources/Visual/StrategyVisualCatalog.asset`
+- `Assets/Resources/Visual/Baked/`
+- `Assets/Art/ART_DIRECTION.md`
+- `Assets/Editor/StrategyVisualCatalogBaker.cs`
+- `Assets/Editor/StrategyVisualCatalogBaker.IO.cs`
+- `Assets/Editor/StrategyVisualCatalogBaker.Residents.cs`
+- `Assets/Editor/StrategyVisualCatalogBaker.Layers.cs`
+- `Assets/Editor/StrategyVisualCatalogBaker.Terrain.cs`
+- `Assets/Scripts/Runtime/Visual/StrategyVisualCatalog.cs`
+- `Assets/Scripts/Runtime/Visual/StrategyVisualCatalog.Atlases.cs`
+- `Assets/Scripts/Runtime/Visual/StrategyVisualCatalog.Terrain.cs`
+- `Assets/Scripts/Runtime/Visual/StrategyVisualCatalogProvider.cs`
+- `Assets/Scripts/Runtime/Visual/StrategyVisualBakeSource.cs`
+- `Assets/Scripts/Runtime/Visual/StrategyVisualSequenceIds.cs`
+- `Assets/Scripts/Runtime/Visual/StrategyResidentVisualPose.cs`
+- `Assets/Scripts/Runtime/Visual/StrategyBuildingGroundDetail.cs`
+- `Assets/Scripts/Runtime/Visual/StrategyBuildingGroundSpriteFactory.cs`
+- `Assets/Scripts/Runtime/Build/StrategyBuildingSpriteFactory.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentSpriteFactory.cs`
+- `Assets/Scripts/Runtime/Menu/StrategyMapPreloadCoordinator.Content.cs`
+
+Impact hints:
+
+- Catalog entries are optional; missing sets, variants, or frames must continue into the existing procedural fallback.
+- Imported authored sprites should use point filtering, a consistent pixels-per-unit contract, bottom-center world pivots where applicable, and the existing Y-based sorting path.
+- Atlas textures must stay `Sprite/Single`; automatic Multiple slicing breaks runtime rectangular frame extraction.
+- Worker terrain code must consume only the prewarmed managed swatch cache, never Unity textures or sprites directly.
+- Seasonal overlays, carried-resource layers, shadows, snow caps, selection bounds, and click colliders must still align after replacing a base sprite.
 
 ### Scene Foundation
 
@@ -204,6 +251,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Weather/StrategyWeatherVisualController.Chunks.cs`
 - `Assets/Scripts/Runtime/Weather/StrategyWeatherVisualController.Snow.cs`
 - `Assets/Scripts/Runtime/Weather/StrategySeasonalSurfaceController.cs`
+- `Assets/Scripts/Runtime/Weather/StrategySeasonalSurfaceController.Painting.cs`
 - `Assets/Scripts/Runtime/Audio/StrategyAmbientAudioController.cs`
 - `Assets/Scripts/Runtime/Audio/StrategyAudioMixController.cs`
 - `Assets/Scripts/Runtime/Audio/StrategyMusicController.cs`
@@ -393,6 +441,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Weather/StrategyWeatherVisualController.Chunks.cs`
 - `Assets/Scripts/Runtime/Weather/StrategyWeatherVisualController.Snow.cs`
 - `Assets/Scripts/Runtime/Weather/StrategySeasonalSurfaceController.cs`
+- `Assets/Scripts/Runtime/Weather/StrategySeasonalSurfaceController.Painting.cs`
 - `Assets/Scripts/Runtime/Build/StrategyBuildingSnowSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Core/StrategySeasonCalendar.cs`
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.cs`
@@ -505,6 +554,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Map/StrategyRoadsidePropPlanner.cs`
 - `Assets/Scripts/Runtime/Map/StrategyMapDistributionUtility.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTerrainTexturePainter.cs`
+- `Assets/Scripts/Runtime/Map/StrategyTerrainTexturePainter.Macro.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTerrainTexturePainter.Relief.cs`
 - `Assets/Scripts/Runtime/Map/CityMapController.Buildability.cs`
 - `Assets/Scripts/Runtime/Map/StrategyNaturePropController.cs`
@@ -530,7 +580,7 @@ Primary files/assets:
 Impact hints:
 
 - Current map is runtime-generated with a randomized active seed by default; save loading restores that seed before generation so terrain identity is deterministic.
-- Current terrain painter covers Grass, Meadow, Forest, Dirt, Shore, and Water with seeded variants, neighbor transition overlays, and visual hill/mountain relief shading.
+- Current terrain painter covers Grass, Meadow, Forest, Dirt, Shore, and Water with a hidden default grid, broad seeded macro palette variation, neighbor transition overlays, and visual hill/mountain relief shading.
 - `CityMapCell.ReliefHeight` is a visual-only value; do not use it as a walkability, buildability, or resource-reachability rule without an explicit gameplay design pass.
 - Water source identity is stored on `CityMapCell.WaterKind`; future systems should query that instead of guessing river/lake from geometry.
 - River current direction is stored on `CityMapController.RiverFlowDirection`; river-specific ambience/gameplay should follow that instead of creating independent direction timers.
@@ -2344,19 +2394,23 @@ Responsibilities:
 - Run deterministic logic checks from the Unity Editor.
 - Enter real Play Mode to verify menu isolation, prepared menu-to-gameplay launch, and direct gameplay bootstrap.
 - Render the menu at 1600x900 for visual layout inspection.
+- Render deterministic Noon, Night, and Winter gameplay frames for visual comparison on a real graphics device.
 
 Primary files:
 
 - `Assets/Editor/StrategyVerificationRunner.cs`
+- `Assets/Editor/StrategyVerificationRunner.Visual.cs`
 - `Logs/EditModeVerification.txt`
 - `Logs/MainMenuSmoke.txt`
 - `Logs/MainMenuLaunchSmoke.txt`
 - `Logs/PlayModeSmoke.txt`
+- `Logs/GameplayVisualCapture.txt`
 
 Impact hints:
 
 - Extend deterministic checks when calendar, resources, cold, persistence, or refugee balance changes.
 - Keep Play Mode checks focused on scene ownership and system readiness so they remain reliable in batch mode.
+- Do not run gameplay `Camera.Render()` capture with `-nographics`; URP requires a non-Null graphics device for this path.
 
 ### AI Memory Infrastructure
 

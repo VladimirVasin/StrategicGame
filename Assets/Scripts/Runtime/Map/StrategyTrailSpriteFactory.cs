@@ -20,6 +20,12 @@ namespace ProjectUnknown.Strategy
             int normalizedMask = mask & CardinalMask;
             int normalizedLevel = Mathf.Clamp(level, 1, 3);
             int normalizedVariant = Mathf.Abs(variant) % 4;
+            string sequenceId = $"Trail/M{normalizedMask}/L{normalizedLevel}";
+            if (StrategyVisualCatalogProvider.TryGetSequenceSprite(sequenceId, normalizedVariant, out Sprite authored))
+            {
+                return authored;
+            }
+
             int key = normalizedMask + normalizedLevel * 16 + normalizedVariant * 64;
             if (!CachedSprites.TryGetValue(key, out Sprite sprite) || sprite == null)
             {

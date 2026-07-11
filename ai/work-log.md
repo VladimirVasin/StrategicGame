@@ -8,6 +8,17 @@ Last updated: 2026-07-11
 
 ## Done
 
+### 2026-07-11 - Full visual pipeline and world-art pass
+
+- Added an art-direction contract plus an Editor baker that produces a Resources-backed catalog of editable PNGs for building variants, resident portraits/pose atlases, nature, terrain swatches, construction stages, road masks, production work cycles, and visible stock levels; runtime factories remain safe procedural fallbacks.
+- Added catalog-prewarmed managed terrain swatches so the cancellable parallel map painter can use authored Grass/Meadow/Forest/Dirt/Shore/Water bases without touching Unity objects off the main thread; retained macro variation, biome transitions, relief, and a hidden default grid.
+- Added reusable trampled ground beneath buildings, coherent world-space snow/ice and building snow caps, spring petals, autumn leaves, and centralized seasonal vegetation tinting that keeps evergreen and deciduous palettes distinct.
+- Added the licensed Pixelify Sans UI font, shared sliced pixel frames, and a bounded scene-start theme pass across runtime HUD surfaces.
+- Added view-gated subtle camera feedback for tree falls, construction completion, and primary lightning without camera drift or per-agent update work.
+- Fixed atlas imports to force `Sprite/Single`; this prevents Unity auto-slicing transparent atlas contents and rendering whole resident pose sheets.
+- Expanded deterministic visual capture to Noon/Spring/Autumn/Night/Winter and strengthened catalog verification across buildings, residents, nature, readable terrain swatches, stock sequences, and UI font loading.
+- Verification: runtime and Editor C# builds pass with 0 warnings and 0 errors; all 8 Edit Mode checks, gameplay/refugee smoke, prepared menu-to-gameplay launch, menu render, and five-state gameplay visual capture pass; no C# file exceeds 500 lines.
+
 ### 2026-07-11 - Navigation pressure, resource guarantees, and refugee hitch fixes
 
 - Preserved deferred path requests as budget waits instead of false unreachable failures, stopped resident/wildlife candidate scans after deferral, and prevented construction assignments from being dropped because a path was still queued.

@@ -95,6 +95,7 @@ namespace ProjectUnknown.Strategy
             newSettlementSeed = Random.Range(1, int.MaxValue);
             candidateMode = HasValidSave ? StrategyLaunchMode.Continue : StrategyLaunchMode.NewSettlement;
             int seed = HasValidSave ? savedGame.mapSeed : newSettlementSeed;
+            StrategyVisualCatalogProvider.Prewarm();
             StartCandidate(candidateMode, seed);
             StartCoroutine(PrewarmContent());
 

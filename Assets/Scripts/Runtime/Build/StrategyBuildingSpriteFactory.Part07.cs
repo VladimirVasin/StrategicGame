@@ -8,23 +8,28 @@ namespace ProjectUnknown.Strategy
 
         public static Sprite GetSawmillLogStockSprite(int logsStored)
         {
-            return GetPlankResourceStockSprite(logsStored, 69632, "Sawmill Log Stock", false);
+            return GetPlankResourceStockSprite(logsStored, 69632, "Sawmill Log Stock", false, StrategyVisualSequenceIds.SawmillLogs);
         }
 
         public static Sprite GetSawmillPlankStockSprite(int planksStored)
         {
-            return GetPlankResourceStockSprite(planksStored, 70656, "Sawmill Plank Stock", true);
+            return GetPlankResourceStockSprite(planksStored, 70656, "Sawmill Plank Stock", true, StrategyVisualSequenceIds.SawmillPlanks);
         }
 
         public static Sprite GetStorageYardPlankStockSprite(int planksStored)
         {
-            return GetPlankResourceStockSprite(planksStored, 71680, "Storage Plank Stock", true);
+            return GetPlankResourceStockSprite(planksStored, 71680, "Storage Plank Stock", true, StrategyVisualSequenceIds.StoragePlanks);
         }
 
         public static Sprite GetSawmillWorkSprite(int frame, int workerCount)
         {
             int normalizedFrame = Mathf.Abs(frame) % SawmillWorkFrameCount;
             int workers = Mathf.Clamp(workerCount, 1, StrategySawmill.MaxWorkers);
+            if (TryGetBakedLayer(StrategyVisualSequenceIds.SawmillWork + "/W" + workers, normalizedFrame, out Sprite baked))
+            {
+                return baked;
+            }
+
             int cacheKey = 72704 + workers * 32 + normalizedFrame;
             if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
             {
@@ -35,7 +40,7 @@ namespace ProjectUnknown.Strategy
             return sprite;
         }
 
-        private static Sprite GetPlankResourceStockSprite(int stored, int baseKey, string name, bool planks)
+        private static Sprite GetPlankResourceStockSprite(int stored, int baseKey, string name, bool planks, string sequenceId)
         {
             if (stored <= 0)
             {
@@ -43,6 +48,11 @@ namespace ProjectUnknown.Strategy
             }
 
             int level = Mathf.Clamp((stored + 2) / 3, 1, 6);
+            if (TryGetBakedLayer(sequenceId, level - 1, out Sprite baked))
+            {
+                return baked;
+            }
+
             int cacheKey = baseKey + level;
             if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
             {

@@ -8,28 +8,33 @@ namespace ProjectUnknown.Strategy
 
         public static Sprite GetKilnClayStockSprite(int stored)
         {
-            return GetClayStockSprite(stored, 75776, "Kiln Clay Stock");
+            return GetClayStockSprite(stored, 75776, "Kiln Clay Stock", StrategyVisualSequenceIds.KilnClay);
         }
 
         public static Sprite GetKilnCoalStockSprite(int stored)
         {
-            return GetCoalStockSprite(stored, 76800, "Kiln Coal Stock");
+            return GetCoalStockSprite(stored, 76800, "Kiln Coal Stock", StrategyVisualSequenceIds.KilnCoal);
         }
 
         public static Sprite GetKilnPotteryStockSprite(int stored)
         {
-            return GetPotteryStockSprite(stored, 77824, "Kiln Pottery Stock");
+            return GetPotteryStockSprite(stored, 77824, "Kiln Pottery Stock", StrategyVisualSequenceIds.KilnPottery);
         }
 
         public static Sprite GetStorageYardPotteryStockSprite(int stored)
         {
-            return GetPotteryStockSprite(stored, 78848, "Storage Pottery Stock");
+            return GetPotteryStockSprite(stored, 78848, "Storage Pottery Stock", StrategyVisualSequenceIds.StoragePottery);
         }
 
         public static Sprite GetKilnWorkSprite(int frame, int workerCount)
         {
             int normalizedFrame = Mathf.Abs(frame) % KilnWorkFrameCount;
             int workers = Mathf.Clamp(workerCount, 1, StrategyKiln.MaxWorkers);
+            if (TryGetBakedLayer(StrategyVisualSequenceIds.KilnWork + "/W" + workers, normalizedFrame, out Sprite baked))
+            {
+                return baked;
+            }
+
             int cacheKey = 79872 + workers * 32 + normalizedFrame;
             if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
             {
@@ -79,7 +84,7 @@ namespace ProjectUnknown.Strategy
             return Sprite.Create(texture, new Rect(8f, 5f, 92f, 74f), new Vector2(0.5f, 0.10f), PixelsPerUnit);
         }
 
-        private static Sprite GetCoalStockSprite(int stored, int baseKey, string name)
+        private static Sprite GetCoalStockSprite(int stored, int baseKey, string name, string sequenceId)
         {
             if (stored <= 0)
             {
@@ -87,6 +92,11 @@ namespace ProjectUnknown.Strategy
             }
 
             int level = Mathf.Clamp((stored + 1) / 2, 1, 6);
+            if (TryGetBakedLayer(sequenceId, level - 1, out Sprite baked))
+            {
+                return baked;
+            }
+
             int cacheKey = baseKey + level;
             if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
             {
@@ -97,7 +107,7 @@ namespace ProjectUnknown.Strategy
             return sprite;
         }
 
-        private static Sprite GetPotteryStockSprite(int stored, int baseKey, string name)
+        private static Sprite GetPotteryStockSprite(int stored, int baseKey, string name, string sequenceId)
         {
             if (stored <= 0)
             {
@@ -105,6 +115,11 @@ namespace ProjectUnknown.Strategy
             }
 
             int level = Mathf.Clamp((stored + 1) / 2, 1, 6);
+            if (TryGetBakedLayer(sequenceId, level - 1, out Sprite baked))
+            {
+                return baked;
+            }
+
             int cacheKey = baseKey + level;
             if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
             {

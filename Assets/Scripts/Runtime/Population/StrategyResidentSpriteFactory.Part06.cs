@@ -14,6 +14,23 @@ namespace ProjectUnknown.Strategy
             int frame)
         {
             int normalizedVariant = NormalizeVariant(variant, VariantCountPerGender);
+            StrategyResidentVisualPose visualPose = resource switch
+            {
+                StrategyResourceType.Roots => StrategyResidentVisualPose.ForageRoots,
+                StrategyResourceType.Mushrooms => StrategyResidentVisualPose.ForageMushrooms,
+                _ => StrategyResidentVisualPose.ForageBerries
+            };
+            if (StrategyVisualCatalogProvider.TryGetResidentSprite(
+                    gender,
+                    lifeStage,
+                    visualPose,
+                    normalizedVariant,
+                    frame,
+                    out Sprite authored))
+            {
+                return authored;
+            }
+
             int encodedFrame = GetForageEncodedFrame(resource, frame);
             int cacheKey = GetCacheKey(gender, normalizedVariant, ResidentSpritePose.Forage, encodedFrame, lifeStage);
             if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)

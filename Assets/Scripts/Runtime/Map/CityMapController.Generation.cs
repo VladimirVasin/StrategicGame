@@ -222,6 +222,7 @@ namespace ProjectUnknown.Strategy
 
         private void PrepareIncrementalGeneration(int requestedSeed)
         {
+            StrategyVisualCatalogProvider.Prewarm();
             width = Mathf.Max(8, width);
             height = Mathf.Max(8, height);
             cellSize = Mathf.Max(0.25f, cellSize);

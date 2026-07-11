@@ -1,6 +1,6 @@
 # System Tree
 
-Last updated: 2026-07-10
+Last updated: 2026-07-11
 
 This is a conceptual map of the current project. Keep concrete file ownership in `ai/systems-map.md`.
 
@@ -20,11 +20,16 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - URP global settings
   - Runtime day/night overlay tints the world above sprites and below preview/fog/UI, exposes day/clock/phase/season calendar snapshots, and drives dawn/nightfall/season-start player messages
   - Runtime weather overlays add wet ground/cold ground wash, chunk-repainted cloud shadows, chunk-repainted mist, rain, and pooled camera-area snow in dedicated sorting bands around day/night and fog-of-war
-  - Runtime seasonal surface overlays add gradual snow cover over non-water terrain, ice cover over water cells, and cached snow-cap overlays on placed building sprites
+  - Runtime seasonal surface overlays add coherent world-space snow cover over non-water terrain, ice cover over water cells, and cached snow-cap overlays on placed building sprites
   - Runtime URP post-process volume adds soft day/night/weather/season color grading, bloom, and vignette
   - Runtime cinematic visual layer adds 2D global/local light with chunk/active-registry emitter scans, LOD-capped point lights, emissive pixel masks, animated building torch/lantern source sprites with manual lit state for building/roadside lights, active hand-carried resident torch lights, cached camera-area night-mask light cutouts, wet puddle glints, lightning flashes, and subtle foreground depth props
   - Runtime procedural 2D shadow caster supplies soft ground/cast shadows below world sprites
   - Runtime short-lived world effect layer supplies reusable dust, sawdust, chip, spark, splash, and resource pop/fade effects
+  - Resources-backed visual catalog and Editor baker provide editable PNGs for buildings, resident pose atlases, nature, terrain, construction, roads, production work, and stock layers while retaining procedural fallback
+  - Generated terrain hides the cell grid, reads main-thread-prewarmed authored swatches in its parallel painter, and blends seeded palette variation over broad spatial patches
+  - Non-Bridge placed buildings add a catalog-overridable trampled-ground layer beneath their Y-sorted body and shadow
+  - Spring/autumn camera-area details and centralized vegetation tinting make seasonal changes readable without per-prop Update components
+  - Shared HUD theme supplies Pixelify Sans plus sliced pixel panel/button frames through bounded scene-start scans
 
 - Scene foundation
   - Build-index-0 `MainMenu` intro scene
@@ -50,8 +55,10 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Creates `Strategy Wind` with a Unity `WindZone` if none exists
     - Finds or creates `Main Camera`
     - Wires camera bounds to the generated map
+    - Adds subtle view-gated camera feedback for tree falls, completed construction, and primary lightning flashes
     - Creates and configures the visual day/night cycle after camera setup
     - Creates and configures runtime weather state and visual weather overlays after camera/day-night setup
+    - Creates pooled spring-petal/autumn-leaf ambient details after weather setup
     - Creates and configures runtime post-processing after weather setup so color grading follows day/night and weather intensities
     - Creates and configures runtime cinematic visuals after post-processing so lights and atmosphere follow day/night/weather state
     - Creates and configures runtime ambience audio after camera setup
@@ -633,9 +640,10 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 
 - Testing foundation
   - Unity Test Framework package installed
-  - `StrategyVerificationRunner` executes six deterministic Edit Mode checks for calendar, resource reservations, cold, save-data serialization, refugee balance, and build-scene order
+  - `StrategyVerificationRunner` executes eight deterministic Edit Mode checks, including navigation priority and visual-catalog availability
   - Separate Play Mode checks cover menu isolation, menu-to-prepared-gameplay launch, and direct gameplay bootstrap
   - Main menu layout can be rendered to a deterministic 1600x900 inspection image
+  - Gameplay can be rendered at deterministic Noon, Night, and Winter states for visual comparison when a graphics device is available
 
 - Persistence
   - Versioned JSON save data with atomic file replacement

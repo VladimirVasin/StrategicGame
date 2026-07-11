@@ -139,7 +139,7 @@ namespace ProjectUnknown.Strategy
             }
 
             initialized = true;
-            font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            font = StrategyUiThemeProvider.Font;
             categories = StrategyBuildMenuCatalog.CreateCatalog();
             EnsureEventSystem();
             BuildUi();

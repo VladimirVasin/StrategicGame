@@ -315,6 +315,7 @@ namespace ProjectUnknown.Strategy
             renderer.color = Color.white;
             StrategyWorldSorting.Apply(renderer, prop.transform.position);
             renderer.flipX = Hash01(map.ActiveSeed, cell.X, cell.Y, salt + 23) > 0.5f;
+            RegisterSeasonTintTarget(renderer, kind, variant);
 
             AttachNatureShadow(renderer, kind, scale);
             AddWindSway(prop, kind, cell, salt, scale);

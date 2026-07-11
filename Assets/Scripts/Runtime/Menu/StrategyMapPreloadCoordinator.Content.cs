@@ -8,6 +8,7 @@ namespace ProjectUnknown.Strategy
         private IEnumerator PrewarmContent()
         {
             yield return null;
+            StrategyVisualCatalogProvider.Prewarm();
             contentStage = "Preparing buildings";
             StrategyBuildTool[] starterBuildings =
             {

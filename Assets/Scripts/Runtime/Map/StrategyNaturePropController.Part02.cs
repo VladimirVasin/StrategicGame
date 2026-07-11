@@ -8,6 +8,7 @@ namespace ProjectUnknown.Strategy
 
         private void ClearProps()
         {
+            seasonTintTargets.Clear();
             if (propRoot == null)
             {
                 return;

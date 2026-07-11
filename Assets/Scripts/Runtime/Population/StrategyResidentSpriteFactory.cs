@@ -188,6 +188,17 @@ namespace ProjectUnknown.Strategy
             int frame,
             StrategyResidentLifeStage lifeStage)
         {
+            if (StrategyVisualCatalogProvider.TryGetResidentSprite(
+                    gender,
+                    lifeStage,
+                    (StrategyResidentVisualPose)(int)pose,
+                    variant,
+                    frame,
+                    out Sprite authoredSprite))
+            {
+                return authoredSprite;
+            }
+
             if (lifeStage == StrategyResidentLifeStage.Child)
             {
                 return pose == ResidentSpritePose.Portrait

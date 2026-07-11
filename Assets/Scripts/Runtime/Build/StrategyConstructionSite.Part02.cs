@@ -97,6 +97,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("tool", tool),
                 StrategyDebugLogger.F("origin", origin),
                 StrategyDebugLogger.F("builders", builders.Count));
+            StrategyCameraFeedbackController.Emit(footprintBounds.center, 0.055f, 0.18f);
 
             for (int i = builders.Count - 1; i >= 0; i--)
             {

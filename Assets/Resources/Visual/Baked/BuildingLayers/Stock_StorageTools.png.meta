@@ -1,0 +1,559 @@
+fileFormatVersion: 2
+guid: f1263801ceba592468d0f5f2c5692c49
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -6350604792053331839
+    second: Stock_StorageTools_0
+  - first:
+      213: 5951753040321032701
+    second: Stock_StorageTools_1
+  - first:
+      213: -1254204778585164229
+    second: Stock_StorageTools_2
+  - first:
+      213: -6929389395294944441
+    second: Stock_StorageTools_3
+  - first:
+      213: -6036852750951118249
+    second: Stock_StorageTools_4
+  - first:
+      213: 7267750849451391865
+    second: Stock_StorageTools_5
+  - first:
+      213: -8818170968604509319
+    second: Stock_StorageTools_6
+  - first:
+      213: -797550052267435645
+    second: Stock_StorageTools_7
+  - first:
+      213: 7063494441454295043
+    second: Stock_StorageTools_8
+  - first:
+      213: 6901242528764232548
+    second: Stock_StorageTools_9
+  - first:
+      213: 7403005764338790215
+    second: Stock_StorageTools_10
+  - first:
+      213: -5562052663297780428
+    second: Stock_StorageTools_11
+  - first:
+      213: 5132691307687924980
+    second: Stock_StorageTools_12
+  - first:
+      213: 8518049841707007542
+    second: Stock_StorageTools_13
+  - first:
+      213: 3837862418070431299
+    second: Stock_StorageTools_14
+  - first:
+      213: 6487573961295377845
+    second: Stock_StorageTools_15
+  - first:
+      213: 2805246158410947013
+    second: Stock_StorageTools_16
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 4096
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Stock_StorageTools_0
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 2
+        width: 14
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 18884cca69e1ed7a0800000000000000
+      internalID: -6350604792053331839
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Stock_StorageTools_1
+      rect:
+        serializedVersion: 2
+        x: 13
+        y: 2
+        width: 14
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: df1bf2f3bdfd89250800000000000000
+      internalID: 5951753040321032701
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Stock_StorageTools_2
+      rect:
+        serializedVersion: 2
+        x: 45
+        y: 2
+        width: 14
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b3675d0266b289ee0800000000000000
+      internalID: -1254204778585164229
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Stock_StorageTools_3
+      rect:
+        serializedVersion: 2
+        x: 57
+        y: 2
+        width: 14
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7430617fe0dd5df90800000000000000
+      internalID: -6929389395294944441
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Stock_StorageTools_4
+      rect:
+        serializedVersion: 2
+        x: 69
+        y: 2
+        width: 14
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 75a083a586ac83ca0800000000000000
+      internalID: -6036852750951118249
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Stock_StorageTools_5
+      rect:
+        serializedVersion: 2
+        x: 89
+        y: 2
+        width: 17
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 97bf79134ec3cd460800000000000000
+      internalID: 7267750849451391865
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Stock_StorageTools_6
+      rect:
+        serializedVersion: 2
+        x: 101
+        y: 2
+        width: 14
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 97b7aa789309f9580800000000000000
+      internalID: -8818170968604509319
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Stock_StorageTools_7
+      rect:
+        serializedVersion: 2
+        x: 113
+        y: 2
+        width: 14
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 389510cf3788ee4f0800000000000000
+      internalID: -797550052267435645
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Stock_StorageTools_8
+      rect:
+        serializedVersion: 2
+        x: 133
+        y: 2
+        width: 17
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 30854df35c2960260800000000000000
+      internalID: 7063494441454295043
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Stock_StorageTools_9
+      rect:
+        serializedVersion: 2
+        x: 145
+        y: 2
+        width: 17
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4638fcbf38326cf50800000000000000
+      internalID: 6901242528764232548
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Stock_StorageTools_10
+      rect:
+        serializedVersion: 2
+        x: 157
+        y: 2
+        width: 14
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 74f25951582ccb660800000000000000
+      internalID: 7403005764338790215
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Stock_StorageTools_11
+      rect:
+        serializedVersion: 2
+        x: 177
+        y: 2
+        width: 17
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 435de1e529e9fc2b0800000000000000
+      internalID: -5562052663297780428
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Stock_StorageTools_12
+      rect:
+        serializedVersion: 2
+        x: 189
+        y: 2
+        width: 17
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4f45978dc8bfa3740800000000000000
+      internalID: 5132691307687924980
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Stock_StorageTools_13
+      rect:
+        serializedVersion: 2
+        x: 201
+        y: 2
+        width: 17
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 63eb4025331363670800000000000000
+      internalID: 8518049841707007542
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Stock_StorageTools_14
+      rect:
+        serializedVersion: 2
+        x: 221
+        y: 2
+        width: 17
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 346e8ed0983d24530800000000000000
+      internalID: 3837862418070431299
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Stock_StorageTools_15
+      rect:
+        serializedVersion: 2
+        x: 233
+        y: 2
+        width: 17
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5b5b519252e780a50800000000000000
+      internalID: 6487573961295377845
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Stock_StorageTools_16
+      rect:
+        serializedVersion: 2
+        x: 245
+        y: 2
+        width: 17
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5c91d9ba48c3ee620800000000000000
+      internalID: 2805246158410947013
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Stock_StorageTools_0: -6350604792053331839
+      Stock_StorageTools_1: 5951753040321032701
+      Stock_StorageTools_10: 7403005764338790215
+      Stock_StorageTools_11: -5562052663297780428
+      Stock_StorageTools_12: 5132691307687924980
+      Stock_StorageTools_13: 8518049841707007542
+      Stock_StorageTools_14: 3837862418070431299
+      Stock_StorageTools_15: 6487573961295377845
+      Stock_StorageTools_16: 2805246158410947013
+      Stock_StorageTools_2: -1254204778585164229
+      Stock_StorageTools_3: -6929389395294944441
+      Stock_StorageTools_4: -6036852750951118249
+      Stock_StorageTools_5: 7267750849451391865
+      Stock_StorageTools_6: -8818170968604509319
+      Stock_StorageTools_7: -797550052267435645
+      Stock_StorageTools_8: 7063494441454295043
+      Stock_StorageTools_9: 6901242528764232548
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -12,6 +12,11 @@ namespace ProjectUnknown.Strategy
             }
 
             int level = Mathf.Clamp((logsStored + 1) / 2, 1, 5);
+            if (TryGetBakedLayer(StrategyVisualSequenceIds.LumberjackLogs, level - 1, out Sprite baked))
+            {
+                return baked;
+            }
+
             int cacheKey = 32768 + level;
             if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
             {
@@ -30,6 +35,11 @@ namespace ProjectUnknown.Strategy
             }
 
             int level = Mathf.Clamp((stoneStored + 2) / 3, 1, 5);
+            if (TryGetBakedLayer(StrategyVisualSequenceIds.StonecutterStone, level - 1, out Sprite baked))
+            {
+                return baked;
+            }
+
             int cacheKey = 36864 + level;
             if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
             {
@@ -48,6 +58,11 @@ namespace ProjectUnknown.Strategy
             }
 
             int level = Mathf.Clamp((gameStored + 1) / 2, 1, 5);
+            if (TryGetBakedLayer(StrategyVisualSequenceIds.HunterGame, level - 1, out Sprite baked))
+            {
+                return baked;
+            }
+
             int cacheKey = 38912 + level;
             if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
             {
@@ -66,6 +81,11 @@ namespace ProjectUnknown.Strategy
             }
 
             int level = Mathf.Clamp((fishStored + 1) / 2, 1, 5);
+            if (TryGetBakedLayer(StrategyVisualSequenceIds.FisherFish, level - 1, out Sprite baked))
+            {
+                return baked;
+            }
+
             int cacheKey = 43008 + level;
             if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
             {
@@ -84,6 +104,11 @@ namespace ProjectUnknown.Strategy
             }
 
             int level = Mathf.Clamp((logsStored + 2) / 3, 1, 6);
+            if (TryGetBakedLayer(StrategyVisualSequenceIds.StorageLogs, level - 1, out Sprite baked))
+            {
+                return baked;
+            }
+
             int cacheKey = 40960 + level;
             if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
             {
@@ -102,6 +127,11 @@ namespace ProjectUnknown.Strategy
             }
 
             int level = Mathf.Clamp((stoneStored + 3) / 4, 1, 6);
+            if (TryGetBakedLayer(StrategyVisualSequenceIds.StorageStone, level - 1, out Sprite baked))
+            {
+                return baked;
+            }
+
             int cacheKey = 45056 + level;
             if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
             {
@@ -120,6 +150,11 @@ namespace ProjectUnknown.Strategy
             }
 
             int level = Mathf.Clamp((gameStored + 1) / 2, 1, 6);
+            if (TryGetBakedLayer(StrategyVisualSequenceIds.GranaryGame, level - 1, out Sprite baked))
+            {
+                return baked;
+            }
+
             int cacheKey = 49152 + level;
             if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
             {
@@ -138,6 +173,11 @@ namespace ProjectUnknown.Strategy
             }
 
             int level = Mathf.Clamp((fishStored + 1) / 2, 1, 6);
+            if (TryGetBakedLayer(StrategyVisualSequenceIds.GranaryFish, level - 1, out Sprite baked))
+            {
+                return baked;
+            }
+
             int cacheKey = 53248 + level;
             if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
             {
@@ -156,6 +196,11 @@ namespace ProjectUnknown.Strategy
             }
 
             int level = Mathf.Clamp((ironStored + 2) / 3, 1, 5);
+            if (TryGetBakedLayer(StrategyVisualSequenceIds.MineIron, level - 1, out Sprite baked))
+            {
+                return baked;
+            }
+
             int cacheKey = 59392 + level;
             if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
             {
@@ -174,6 +219,11 @@ namespace ProjectUnknown.Strategy
             }
 
             int level = Mathf.Clamp((ironStored + 3) / 4, 1, 6);
+            if (TryGetBakedLayer(StrategyVisualSequenceIds.StorageIron, level - 1, out Sprite baked))
+            {
+                return baked;
+            }
+
             int cacheKey = 61440 + level;
             if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
             {

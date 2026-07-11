@@ -7,7 +7,7 @@ using UnityEngine;
 namespace ProjectUnknown.Strategy.EditorTests
 {
     [InitializeOnLoad]
-    public static class StrategyVerificationRunner
+    public static partial class StrategyVerificationRunner
     {
         private const string GameplayScenePath = "Assets/Scenes/SampleScene.unity";
         private const string MainMenuScenePath = "Assets/Scenes/MainMenu.unity";
@@ -42,7 +42,8 @@ namespace ProjectUnknown.Strategy.EditorTests
                 VerifyRefugeeBalance();
                 VerifyBuildScenes();
                 VerifyNavigationPriorities();
-                File.WriteAllText(resultPath, "PASS: 7 checks");
+                VerifyVisualCatalog();
+                File.WriteAllText(resultPath, "PASS: 8 checks");
                 EditorApplication.Exit(0);
             }
             catch (Exception exception)
@@ -127,6 +128,13 @@ namespace ProjectUnknown.Strategy.EditorTests
                 Require(UnityEngine.Object.FindAnyObjectByType<StrategyBuildPlacementController>() != null, "Placement bootstrap failed");
                 Require(UnityEngine.Object.FindAnyObjectByType<StrategySaveSystem>() != null, "Persistence bootstrap failed");
                 Require(StrategyTrailController.Active != null, "Trail bootstrap failed");
+                VerifyBuildingGroundDetails();
+                if (smokeKind == SmokeKind.GameplayVisualCapture)
+                {
+                    UpdateGameplayVisualCapture(map, population);
+                    return;
+                }
+
                 VerifyGeneratedResourceMinimums();
                 StrategyRefugeeArrivalController refugees = UnityEngine.Object.FindAnyObjectByType<StrategyRefugeeArrivalController>();
                 Require(refugees != null, "Refugee controller bootstrap failed");
@@ -301,6 +309,7 @@ namespace ProjectUnknown.Strategy.EditorTests
                 SmokeKind.MainMenu => "MainMenuSmoke.txt",
                 SmokeKind.MainMenuLaunch => "MainMenuLaunchSmoke.txt",
                 SmokeKind.MainMenuRenderCapture => "MainMenuRenderCapture.txt",
+                SmokeKind.GameplayVisualCapture => "GameplayVisualCapture.txt",
                 _ => "PlayModeSmoke.txt"
             };
             File.WriteAllText(GetResultPath(resultFile), result);
@@ -397,7 +406,8 @@ namespace ProjectUnknown.Strategy.EditorTests
             Gameplay,
             MainMenu,
             MainMenuLaunch,
-            MainMenuRenderCapture
+            MainMenuRenderCapture,
+            GameplayVisualCapture
         }
     }
 }

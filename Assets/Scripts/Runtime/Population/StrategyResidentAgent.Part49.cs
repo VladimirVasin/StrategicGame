@@ -396,7 +396,7 @@ namespace ProjectUnknown.Strategy
             campfireSleepIndicatorText.fontStyle = FontStyle.Bold;
             campfireSleepIndicatorText.color = new Color(0.82f, 0.90f, 1f, 0.86f);
 
-            Font font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            Font font = StrategyUiThemeProvider.Font;
             if (font != null)
             {
                 campfireSleepIndicatorText.font = font;

@@ -1,0 +1,429 @@
+fileFormatVersion: 2
+guid: 7692aab299b29d541bb7c86f35bbe0bf
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 5583489806509553772
+    second: Work_Sawmill_W1_0
+  - first:
+      213: -2052289478006395436
+    second: Work_Sawmill_W1_1
+  - first:
+      213: -575023850986358385
+    second: Work_Sawmill_W1_2
+  - first:
+      213: -2961522358878244082
+    second: Work_Sawmill_W1_3
+  - first:
+      213: -8163008313269408154
+    second: Work_Sawmill_W1_4
+  - first:
+      213: 4291646793236853727
+    second: Work_Sawmill_W1_5
+  - first:
+      213: -8421079166637258435
+    second: Work_Sawmill_W1_6
+  - first:
+      213: -8308802851187497010
+    second: Work_Sawmill_W1_7
+  - first:
+      213: -5341941819597436200
+    second: Work_Sawmill_W1_8
+  - first:
+      213: -5432894351990407418
+    second: Work_Sawmill_W1_9
+  - first:
+      213: 253282249079908193
+    second: Work_Sawmill_W1_10
+  - first:
+      213: -3888592815920196814
+    second: Work_Sawmill_W1_11
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 4096
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Work_Sawmill_W1_0
+      rect:
+        serializedVersion: 2
+        x: 3
+        y: 0
+        width: 76
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c68340c756a8c7d40800000000000000
+      internalID: 5583489806509553772
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Work_Sawmill_W1_1
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 0
+        width: 76
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4dd282fd79dc483e0800000000000000
+      internalID: -2052289478006395436
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Work_Sawmill_W1_2
+      rect:
+        serializedVersion: 2
+        x: 159
+        y: 0
+        width: 76
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f89b498aada1508f0800000000000000
+      internalID: -575023850986358385
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Work_Sawmill_W1_3
+      rect:
+        serializedVersion: 2
+        x: 237
+        y: 0
+        width: 76
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e037facfa1f86e6d0800000000000000
+      internalID: -2961522358878244082
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Work_Sawmill_W1_4
+      rect:
+        serializedVersion: 2
+        x: 315
+        y: 0
+        width: 76
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 66e2405403b27be80800000000000000
+      internalID: -8163008313269408154
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Work_Sawmill_W1_5
+      rect:
+        serializedVersion: 2
+        x: 393
+        y: 0
+        width: 76
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fd3b354350efe8b30800000000000000
+      internalID: 4291646793236853727
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Work_Sawmill_W1_6
+      rect:
+        serializedVersion: 2
+        x: 471
+        y: 0
+        width: 76
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d39c42f5d11522b80800000000000000
+      internalID: -8421079166637258435
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Work_Sawmill_W1_7
+      rect:
+        serializedVersion: 2
+        x: 549
+        y: 0
+        width: 76
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ec7673a24d331bc80800000000000000
+      internalID: -8308802851187497010
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Work_Sawmill_W1_8
+      rect:
+        serializedVersion: 2
+        x: 627
+        y: 0
+        width: 76
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8da4718c73c9dd5b0800000000000000
+      internalID: -5341941819597436200
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Work_Sawmill_W1_9
+      rect:
+        serializedVersion: 2
+        x: 705
+        y: 0
+        width: 76
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 60fb26f1f5b7a94b0800000000000000
+      internalID: -5432894351990407418
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Work_Sawmill_W1_10
+      rect:
+        serializedVersion: 2
+        x: 783
+        y: 0
+        width: 76
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 167e1541dd6d38300800000000000000
+      internalID: 253282249079908193
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Work_Sawmill_W1_11
+      rect:
+        serializedVersion: 2
+        x: 861
+        y: 0
+        width: 75
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 233d0f2cf61f80ac0800000000000000
+      internalID: -3888592815920196814
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Work_Sawmill_W1_0: 5583489806509553772
+      Work_Sawmill_W1_1: -2052289478006395436
+      Work_Sawmill_W1_10: 253282249079908193
+      Work_Sawmill_W1_11: -3888592815920196814
+      Work_Sawmill_W1_2: -575023850986358385
+      Work_Sawmill_W1_3: -2961522358878244082
+      Work_Sawmill_W1_4: -8163008313269408154
+      Work_Sawmill_W1_5: 4291646793236853727
+      Work_Sawmill_W1_6: -8421079166637258435
+      Work_Sawmill_W1_7: -8308802851187497010
+      Work_Sawmill_W1_8: -5341941819597436200
+      Work_Sawmill_W1_9: -5432894351990407418
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

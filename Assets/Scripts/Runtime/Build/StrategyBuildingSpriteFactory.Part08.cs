@@ -6,15 +6,15 @@ namespace ProjectUnknown.Strategy
     {
         public static Sprite GetClayPitStockSprite(int clayStored)
         {
-            return GetClayStockSprite(clayStored, 73728, "Clay Pit Stock");
+            return GetClayStockSprite(clayStored, 73728, "Clay Pit Stock", StrategyVisualSequenceIds.ClayPitClay);
         }
 
         public static Sprite GetStorageYardClayStockSprite(int clayStored)
         {
-            return GetClayStockSprite(clayStored, 74752, "Storage Clay Stock");
+            return GetClayStockSprite(clayStored, 74752, "Storage Clay Stock", StrategyVisualSequenceIds.StorageClay);
         }
 
-        private static Sprite GetClayStockSprite(int stored, int baseKey, string name)
+        private static Sprite GetClayStockSprite(int stored, int baseKey, string name, string sequenceId = null)
         {
             if (stored <= 0)
             {
@@ -22,6 +22,11 @@ namespace ProjectUnknown.Strategy
             }
 
             int level = Mathf.Clamp((stored + 1) / 2, 1, 6);
+            if (sequenceId != null && TryGetBakedLayer(sequenceId, level - 1, out Sprite baked))
+            {
+                return baked;
+            }
+
             int cacheKey = baseKey + level;
             if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
             {

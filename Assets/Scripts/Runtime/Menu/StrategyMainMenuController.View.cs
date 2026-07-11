@@ -218,7 +218,7 @@ namespace ProjectUnknown.Strategy
         {
             RectTransform root = CreateRect(name, parent);
             Text text = root.gameObject.AddComponent<Text>();
-            text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            text.font = StrategyUiThemeProvider.Font;
             text.text = value;
             text.fontSize = size;
             text.alignment = anchor;

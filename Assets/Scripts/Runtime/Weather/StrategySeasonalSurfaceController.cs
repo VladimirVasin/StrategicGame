@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ProjectUnknown.Strategy
 {
     [DisallowMultipleComponent]
-    public sealed class StrategySeasonalSurfaceController : MonoBehaviour
+    public sealed partial class StrategySeasonalSurfaceController : MonoBehaviour
     {
         private const int PixelsPerCell = 4;
         private const float SurfaceRepaintSeconds = 0.65f;
@@ -50,6 +50,17 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("pixelsPerCell", PixelsPerCell),
                 StrategyDebugLogger.F("snowOrder", StrategyWorldSorting.SeasonalGroundOverlayOrder),
                 StrategyDebugLogger.F("iceOrder", StrategyWorldSorting.SeasonalIceOverlayOrder));
+        }
+
+        public void DebugSetCoverage(float snow, float ice)
+        {
+            snowCoverFactor = Mathf.Clamp01(snow);
+            iceCoverFactor = Mathf.Clamp01(ice);
+            lastPaintedSnow = -1f;
+            lastPaintedIce = -1f;
+            PaintSurfaces(true);
+            RefreshBuildingSnow(true);
+            lastGameplayFrozen = IsWaterGameplayFrozen;
         }
 
         private void Update()
@@ -268,61 +279,6 @@ namespace ProjectUnknown.Strategy
             lastPaintedIce = iceCoverFactor;
         }
 
-        private void PaintSnowCell(int cellX, int cellY, CityMapCell cell)
-        {
-            float strength = GetSnowTerrainStrength(cell.Kind);
-            for (int py = 0; py < PixelsPerCell; py++)
-            {
-                for (int px = 0; px < PixelsPerCell; px++)
-                {
-                    float noise = Hash01(map.ActiveSeed, cellX, cellY, px, py, 991);
-                    float detail = Hash01(map.ActiveSeed, cellX, cellY, px, py, 1171);
-                    float alpha = snowCoverFactor * strength * Mathf.Lerp(0.36f, 0.78f, noise);
-                    if (detail > 0.88f && snowCoverFactor < 0.86f)
-                    {
-                        alpha *= 0.22f;
-                    }
-
-                    Color color = Color.Lerp(
-                        new Color(0.70f, 0.82f, 0.88f, 1f),
-                        new Color(0.96f, 1f, 1f, 1f),
-                        noise);
-                    color.a = Mathf.Clamp01(alpha);
-                    SetPixel(snowPixels, cellX, cellY, px, py, color);
-                }
-            }
-        }
-
-        private void PaintIceCell(int cellX, int cellY, CityMapCell cell)
-        {
-            bool river = cell.IsRiver;
-            float strength = river ? 0.54f : 0.78f;
-            for (int py = 0; py < PixelsPerCell; py++)
-            {
-                for (int px = 0; px < PixelsPerCell; px++)
-                {
-                    float noise = Hash01(map.ActiveSeed, cellX, cellY, px, py, 1601);
-                    float crack = Hash01(map.ActiveSeed, cellX, cellY, px, py, 1867);
-                    float alpha = iceCoverFactor * strength * Mathf.Lerp(0.46f, 0.86f, noise);
-                    if (river && (px == py || crack > 0.82f))
-                    {
-                        alpha *= 0.34f;
-                    }
-                    else if (!river && crack > 0.93f)
-                    {
-                        alpha *= 0.48f;
-                    }
-
-                    Color color = Color.Lerp(
-                        new Color(0.63f, 0.82f, 0.91f, 1f),
-                        new Color(0.93f, 1f, 1f, 1f),
-                        noise);
-                    color.a = Mathf.Clamp01(alpha);
-                    SetPixel(icePixels, cellX, cellY, px, py, color);
-                }
-            }
-        }
-
         private void RefreshBuildingSnow(bool force)
         {
             float alpha = Mathf.Clamp01(snowCoverFactor * 1.18f);
@@ -420,26 +376,6 @@ namespace ProjectUnknown.Strategy
             texture.Apply(false, false);
         }
 
-        private void SetPixel(Color[] pixels, int cellX, int cellY, int px, int py, Color color)
-        {
-            int x = cellX * PixelsPerCell + px;
-            int y = cellY * PixelsPerCell + py;
-            pixels[y * map.Width * PixelsPerCell + x] = color;
-        }
-
-        private static float GetSnowTerrainStrength(CityMapCellKind kind)
-        {
-            return kind switch
-            {
-                CityMapCellKind.Meadow => 0.88f,
-                CityMapCellKind.Grass => 0.80f,
-                CityMapCellKind.Forest => 0.58f,
-                CityMapCellKind.Dirt => 0.48f,
-                CityMapCellKind.Shore => 0.64f,
-                _ => 0.70f
-            };
-        }
-
         private float GetSnowIntensity()
         {
             return weather != null ? weather.SnowIntensity : 0f;
@@ -448,17 +384,6 @@ namespace ProjectUnknown.Strategy
         private float GetRainIntensity()
         {
             return weather != null ? weather.RainIntensity : 0f;
-        }
-
-        private static float Hash01(int seed, int x, int y, int px, int py, int salt)
-        {
-            unchecked
-            {
-                int n = seed;
-                n = n * 73856093 ^ x * 19349663 ^ y * 83492791 ^ px * 265443576 ^ py * 1597334677 ^ salt;
-                n = (n << 13) ^ n;
-                return 1f - ((n * (n * n * 15731 + 789221) + 1376312589) & 0x7fffffff) / 1073741824f;
-            }
         }
 
         private void OnDestroy()
