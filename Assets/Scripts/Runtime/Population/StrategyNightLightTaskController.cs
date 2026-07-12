@@ -31,6 +31,11 @@ namespace ProjectUnknown.Strategy
 
         public static StrategyNightLightTaskController Active { get; private set; }
 
+        public bool HasPendingDutyFor(StrategyResidentAgent resident)
+        {
+            return resident != null && queues.ContainsKey(resident);
+        }
+
         public void Configure(CityMapController mapController, StrategyPopulationController populationController)
         {
             map = mapController;

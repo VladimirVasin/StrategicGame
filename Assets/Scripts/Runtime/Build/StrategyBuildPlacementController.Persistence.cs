@@ -101,7 +101,7 @@ namespace ProjectUnknown.Strategy
             renderer.color = Color.white;
             siteObject.transform.position = tool == StrategyBuildTool.Bridge
                 ? new Vector3(bounds.center.x, bounds.center.y, -0.14f)
-                : GetSpriteAnchor(bounds, -0.14f);
+                : GetSpriteAnchor(tool, bounds, -0.14f);
             StrategyWorldSorting.Apply(renderer, siteObject.transform.position);
 
             StrategyConstructionSite site = siteObject.AddComponent<StrategyConstructionSite>();

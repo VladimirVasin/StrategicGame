@@ -59,6 +59,7 @@ namespace ProjectUnknown.Strategy
         {
             return IsEveningHomeTime()
                 && home != null
+                && !HasPendingNightLightDuty()
                 && !hiddenInsideHome
                 && !hiddenUnderground
                 && !IsPendingRefugee
@@ -72,7 +73,7 @@ namespace ProjectUnknown.Strategy
 
         private void EnterNightSleep()
         {
-            if (home == null || !IsEveningHomeTime())
+            if (home == null || !IsEveningHomeTime() || HasPendingNightLightDuty())
             {
                 CancelNightSleepReturn();
                 return;
@@ -210,6 +211,12 @@ namespace ProjectUnknown.Strategy
         private static bool IsEveningHomeTime()
         {
             return StrategyDayNightCycleController.IsResidentEveningHomeTime;
+        }
+
+        private bool HasPendingNightLightDuty()
+        {
+            return StrategyNightLightTaskController.Active != null
+                && StrategyNightLightTaskController.Active.HasPendingDutyFor(this);
         }
 
         private bool TryConsumeNightWakeBudget()

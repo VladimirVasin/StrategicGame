@@ -78,7 +78,7 @@ namespace ProjectUnknown.Strategy
             {
                 placed.transform.position = isBridge
                     ? new Vector3(bounds.center.x, bounds.center.y, -0.15f)
-                    : GetSpriteAnchor(bounds, -0.15f);
+                    : GetSpriteAnchor(toolInfo.Tool, bounds, -0.15f);
                 placed.transform.localScale = Vector3.one;
                 renderer.sprite = sprite;
                 renderer.color = Color.white;

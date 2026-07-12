@@ -1,5 +1,22 @@
 # Work Log
 
+### 2026-07-12 - Building sprite ground alignment audit
+
+- Audited all catalog buildings against their footprint, navigation blocker, ground detail, preview, construction, load, and completed-building anchors.
+- Normalized baked building sprites to the same lower pivots as their procedural fallbacks; baked imports were centered despite carrying unused low-pivot metadata.
+- Normalized baked non-Bridge construction stages to the procedural construction pivot and retained centered Bridge alignment.
+- Removed the temporary House-only vertical offset because House now uses the same correctly grounded pipeline as other buildings.
+
+### 2026-07-12 - House sprite ground alignment
+
+- Raised the House-specific world sprite anchor by `0.35` map cells so its visible foundation aligns with the technical footprint, expanded navigation blocker, and building ground detail.
+- Applied the same House anchor to placement preview, construction sites, loaded construction sites, and completed buildings.
+
+### 2026-07-12 - Night light workers finish lighting before going home
+
+- Prevented residents with a queued night-light assignment from starting or completing their return home for sleep.
+- Night light workers now remain available until their assigned reachable light-source queue is exhausted, then resume normal night sleep behavior.
+
 Last updated: 2026-07-12
 
 ## Active

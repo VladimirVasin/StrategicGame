@@ -50,7 +50,7 @@ namespace ProjectUnknown.Strategy
 
             if (hasSprite)
             {
-                previewRenderer.transform.position = GetSpriteAnchor(bounds, -0.25f);
+                previewRenderer.transform.position = GetSpriteAnchor(toolInfo.Tool, bounds, -0.25f);
                 previewRenderer.transform.localScale = Vector3.one;
             }
             else
@@ -202,7 +202,7 @@ namespace ProjectUnknown.Strategy
             int visualVariant = Random.Range(0, StrategyBuildingSpriteFactory.GetVariantCount(toolInfo.Tool));
             renderer.sprite = StrategyConstructionSpriteFactory.GetConstructionSprite(toolInfo.Tool, visualVariant, 0);
             renderer.color = Color.white;
-            siteObject.transform.position = GetSpriteAnchor(bounds, -0.14f);
+            siteObject.transform.position = GetSpriteAnchor(toolInfo.Tool, bounds, -0.14f);
             StrategyWorldSorting.Apply(renderer, siteObject.transform.position);
 
             StrategyConstructionSite site = siteObject.AddComponent<StrategyConstructionSite>();

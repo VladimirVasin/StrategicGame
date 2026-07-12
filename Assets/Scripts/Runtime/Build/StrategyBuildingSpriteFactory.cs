@@ -90,12 +90,18 @@ namespace ProjectUnknown.Strategy
             }
 
             int normalizedVariant = NormalizeVariant(variant, variantCount);
-            if (StrategyVisualCatalogProvider.TryGetBuildingSprite(tool, normalizedVariant, out sprite))
+            int cacheKey = GetCacheKey(tool, normalizedVariant);
+            if (StrategyVisualCatalogProvider.TryGetBuildingSprite(tool, normalizedVariant, out Sprite authored))
             {
+                if (!CachedSprites.TryGetValue(cacheKey, out sprite) || sprite == null)
+                {
+                    sprite = CreateGroundAlignedAuthoredSprite(authored, tool);
+                    CachedSprites[cacheKey] = sprite;
+                }
+
                 return true;
             }
 
-            int cacheKey = GetCacheKey(tool, normalizedVariant);
             if (!CachedSprites.TryGetValue(cacheKey, out sprite) || sprite == null)
             {
                 sprite = tool switch
@@ -123,6 +129,30 @@ namespace ProjectUnknown.Strategy
             }
 
             return sprite != null;
+        }
+
+        private static Sprite CreateGroundAlignedAuthoredSprite(Sprite source, StrategyBuildTool tool)
+        {
+            if (source == null || tool == StrategyBuildTool.Bridge)
+            {
+                return source;
+            }
+
+            float pivotY = tool == StrategyBuildTool.ForagerCamp
+                || tool == StrategyBuildTool.ChickenCoop
+                || tool == StrategyBuildTool.TradingPost
+                    ? 0.20f
+                    : 0.10f;
+            Sprite aligned = Sprite.Create(
+                source.texture,
+                source.rect,
+                new Vector2(0.5f, pivotY),
+                source.pixelsPerUnit,
+                0,
+                SpriteMeshType.FullRect,
+                source.border);
+            aligned.name = source.name + " Ground Aligned";
+            return aligned;
         }
 
         public static Sprite GetBridgeSprite(Vector2Int footprint)

@@ -290,7 +290,7 @@ namespace ProjectUnknown.Strategy
             }
         }
 
-        private Vector3 GetSpriteAnchor(Bounds bounds, float z)
+        private Vector3 GetSpriteAnchor(StrategyBuildTool tool, Bounds bounds, float z)
         {
             return new Vector3(bounds.center.x, bounds.min.y + map.CellSize * 0.20f, z);
         }

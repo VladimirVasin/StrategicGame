@@ -24,7 +24,21 @@ namespace ProjectUnknown.Strategy
             string sequenceId = $"Construction/{tool}/V{Mathf.Max(0, variant)}";
             if (StrategyVisualCatalogProvider.TryGetSequenceSprite(sequenceId, normalizedStage, out Sprite authored))
             {
-                return authored;
+                if (!CachedSprites.TryGetValue(cacheKey, out Sprite aligned) || aligned == null)
+                {
+                    aligned = Sprite.Create(
+                        authored.texture,
+                        authored.rect,
+                        new Vector2(0.5f, 0.10f),
+                        authored.pixelsPerUnit,
+                        0,
+                        SpriteMeshType.FullRect,
+                        authored.border);
+                    aligned.name = authored.name + " Ground Aligned";
+                    CachedSprites[cacheKey] = aligned;
+                }
+
+                return aligned;
             }
 
             if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
