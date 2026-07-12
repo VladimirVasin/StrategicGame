@@ -46,7 +46,7 @@ namespace ProjectUnknown.Strategy
             BindActions();
             RefreshSettingsControls();
             RefreshView();
-            StartCoroutine(StartMenuAudioAfterFirstFrame());
+            StartCoroutine(StartMenuSfxAfterFirstFrame());
         }
 
         private void Update()
@@ -181,9 +181,15 @@ namespace ProjectUnknown.Strategy
             StrategyHudSfxAudio.Play(StrategyHudSfxKind.Step);
         }
 
-        private IEnumerator StartMenuAudioAfterFirstFrame()
+        private IEnumerator StartMenuSfxAfterFirstFrame()
         {
             yield return null;
+            StrategyMusicController menuMusic = FindAnyObjectByType<StrategyMusicController>();
+            if (menuMusic != null)
+            {
+                Destroy(menuMusic.gameObject);
+            }
+
             StrategyAudioMixController mix = StrategyAudioMixController.Active;
             if (mix == null)
             {
@@ -191,13 +197,6 @@ namespace ProjectUnknown.Strategy
             }
 
             mix.Configure(menuCamera);
-            StrategyMusicController music = FindAnyObjectByType<StrategyMusicController>();
-            if (music == null)
-            {
-                music = new GameObject("Strategy Menu Music").AddComponent<StrategyMusicController>();
-            }
-
-            music.Configure();
         }
     }
 }

@@ -73,6 +73,23 @@ namespace ProjectUnknown.Strategy
             float rainBlend = weather != null ? weather.RainIntensity : 0f;
             float strongRainBlend = weather != null ? Mathf.Max(weather.HeavyRainIntensity, weather.StormIntensity) : 0f;
             float weatherWindBlend = weather != null ? weather.WindIntensity : 0f;
+            StrategySeason season = StrategyDayNightCycleController.CurrentCalendarSnapshot.Season;
+            float birdSeason = season switch
+            {
+                StrategySeason.Spring => 1.22f,
+                StrategySeason.Summer => 1f,
+                StrategySeason.Autumn => 0.58f,
+                StrategySeason.Winter => 0.12f,
+                _ => 1f
+            };
+            float insectSeason = season switch
+            {
+                StrategySeason.Summer => 1f,
+                StrategySeason.Spring => 0.48f,
+                StrategySeason.Autumn => 0.22f,
+                _ => 0f
+            };
+            float winterHush = season == StrategySeason.Winter ? 0.68f : 1f;
             float ambienceBus = StrategyAudioMixController.GetVolume(StrategyAudioBus.Ambience);
             float weatherBus = StrategyAudioMixController.GetVolume(StrategyAudioBus.Weather);
             float waterBus = StrategyAudioMixController.GetVolume(StrategyAudioBus.Water);
@@ -81,9 +98,9 @@ namespace ProjectUnknown.Strategy
                     + StrategyWindController.Active.WindZone.windPulseMagnitude * 0.5f)
                 : 0.55f;
 
-            FadeLoop(forestBirdsSource, forestBirdsClip, ambienceBus * 0.17f * dayBlend * Mathf.Lerp(0.65f, 1f, forestBlend) * (1f - rainBlend * 0.55f), dt);
-            FadeLoop(cicadasSource, cicadasClip, ambienceBus * 0.07f * eveningBlend * (1f - rainBlend * 0.7f), dt);
-            FadeLoop(nightSource, nightClip, ambienceBus * 0.10f * nightBlend * (1f - rainBlend * 0.35f), dt);
+            FadeLoop(forestBirdsSource, forestBirdsClip, ambienceBus * 0.17f * birdSeason * dayBlend * Mathf.Lerp(0.65f, 1f, forestBlend) * (1f - rainBlend * 0.55f), dt);
+            FadeLoop(cicadasSource, cicadasClip, ambienceBus * 0.07f * insectSeason * eveningBlend * (1f - rainBlend * 0.7f), dt);
+            FadeLoop(nightSource, nightClip, ambienceBus * 0.10f * winterHush * nightBlend * (1f - rainBlend * 0.35f), dt);
             FadeLoop(rainCalmSource, rainCalmClip, weatherBus * 0.085f * rainBlend * (1f - strongRainBlend * 0.35f), dt);
             FadeLoop(rainStrongSource, rainStrongClip, weatherBus * 0.07f * strongRainBlend, dt);
             FadeLoop(windCalmSource, windCalmClip, weatherBus * (0.08f + windPulse * 0.05f + weatherWindBlend * 0.025f), dt);

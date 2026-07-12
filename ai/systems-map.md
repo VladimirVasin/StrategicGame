@@ -1,6 +1,6 @@
 # Systems Map
 
-Last updated: 2026-07-11
+Last updated: 2026-07-12
 
 Use this file as the first navigation pass before broad searches. Owner cards are starting points, not hard boundaries.
 
@@ -102,6 +102,7 @@ Responsibilities:
 - Resolve authored building, resident-pose, nature, terrain, construction, road, work, and stock sprites before procedural factory fallback.
 - Resolve authored building-ground sprites before generated trampled-ground fallback.
 - Prewarm readable terrain sprites into immutable managed pixel arrays on the main thread before parallel terrain painting.
+- Supply one readable Resources-backed runtime font and shared sliced panel/button frames through the centralized UI theme provider.
 - Keep partial catalog population safe so art can migrate system by system.
 
 Primary files/assets:
@@ -123,6 +124,8 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Visual/StrategyResidentVisualPose.cs`
 - `Assets/Scripts/Runtime/Visual/StrategyBuildingGroundDetail.cs`
 - `Assets/Scripts/Runtime/Visual/StrategyBuildingGroundSpriteFactory.cs`
+- `Assets/Scripts/Runtime/UI/StrategyUiThemeProvider.cs`
+- `Assets/Resources/Fonts/Inter-Regular.ttf`
 - `Assets/Scripts/Runtime/Build/StrategyBuildingSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Menu/StrategyMapPreloadCoordinator.Content.cs`
@@ -134,6 +137,7 @@ Impact hints:
 - Atlas textures must stay `Sprite/Single`; automatic Multiple slicing breaks runtime rectangular frame extraction.
 - Worker terrain code must consume only the prewarmed managed swatch cache, never Unity textures or sprites directly.
 - Seasonal overlays, carried-resource layers, shadows, snow caps, selection bounds, and click colliders must still align after replacing a base sprite.
+- Runtime text should read `StrategyUiThemeProvider.Font`; replace the centralized Inter asset instead of assigning per-HUD fonts.
 
 ### Scene Foundation
 
@@ -161,6 +165,8 @@ Impact hints:
 Responsibilities:
 
 - Present the actual first-screen Continue/New Settlement/Settings/Quit experience without starting gameplay simulation.
+- Present one dedicated generated static pixel-art key image instead of composing gameplay sprites or runtime backdrop layers.
+- Keep music disabled in the menu while retaining HUD SFX, and animate pointer/selection hover feedback on every command button.
 - Validate save availability and prepare one likely Continue/New map candidate while the menu remains interactive.
 - Prewarm starter visual/audio caches, report real generation progress, and transfer the prepared map into gameplay.
 - Persist master/music/effects volume and fullscreen state.
@@ -172,6 +178,8 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Menu/StrategyMainMenuController.cs`
 - `Assets/Scripts/Runtime/Menu/StrategyMainMenuController.View.cs`
 - `Assets/Scripts/Runtime/Menu/StrategyMainMenuBackdrop.cs`
+- `Assets/Scripts/Runtime/Menu/StrategyMainMenuButtonHover.cs`
+- `Assets/Resources/Visual/Menu/MainMenuKeyArt.png`
 - `Assets/Scripts/Runtime/Menu/StrategyMapPreloadCoordinator.cs`
 - `Assets/Scripts/Runtime/Menu/StrategyMapPreloadCoordinator.Content.cs`
 - `Assets/Scripts/Runtime/Menu/StrategyGameSettings.cs`
@@ -184,7 +192,8 @@ Impact hints:
 - Keep only one map candidate alive; a 192x192 map at 16 pixels per cell needs a roughly 36 MB terrain pixel buffer before upload.
 - Map cells and progress can be staged, and pure terrain pixels can run on workers; `Texture2D`, `Sprite`, scene changes, and all other Unity objects stay on the main thread.
 - Continue and New Settlement must cancel mismatched candidate work before starting a different seed.
-- Menu visuals use actual game sprite factories, so sprite-factory changes can affect both preload cost and the first screen.
+- Main-menu key art is independent from gameplay sprite factories; keep point filtering, cover-crop behavior, the dark left UI-safe area, and the single static-image ownership model when replacing it.
+- Do not create/configure `StrategyMusicController` in the menu; hover feedback should remain one quiet, cooldown-limited HUD cue per pointer entry.
 
 ### Runtime Bootstrap
 
@@ -373,28 +382,34 @@ Responsibilities:
 - Load resident work one-shot clips from `Assets/Resources/Audio/WorkSfx`.
 - Load forestry tree-fall and split-Logs one-shot clips from `Assets/Resources/Audio/WorkSfx`.
 - Load HUD interaction one-shot clips from `Assets/Resources/Audio/HudSfx`.
-- Own runtime bus-level mix multipliers for music, ambience, weather, water, resident footsteps, resident work SFX, and HUD SFX.
-- Shape world resident SFX by camera focus and orthographic zoom through volume, low-pass cutoff, and subtle reverb tail changes.
-- Create runtime AudioSources without scene YAML wiring.
-- Play layered forest birds, cicadas, night, rain, calm wind, and forest wind ambience.
+- Own Unity AudioMixer routing plus runtime mix profiles for music, ambience, weather, water, settlement, work, footsteps, wildlife, fire, important events, and HUD.
+- Bound spatial one-shots to an 18-voice pool with per-family concurrency, cooldowns, priority stealing, camera-focus/zoom attenuation, low-pass, and reverb.
+- Play layered season-aware forest birds, cicadas, night, rain, calm wind, forest wind, river, settlement, campfire, and winter ambience.
 - Follow the active runtime weather state for rain and weather wind ambience.
 - Position a spatial river ambience source at the nearest generated water cell to the active camera.
-- Play random in-game music tracks without repeating the previous track when 2+ tracks exist.
+- Prefer `calm`/`night`/`winter`/`storm` music filename tags, use generic tracks as fallback, avoid immediate repeats, and insert contextual silence/end fades.
 - Pause current in-game music on application focus loss and resume the same clip on focus return.
-- Add quiet spatial grass footsteps to resident walk animation step frames.
+- Shape resident walk frames into grass/forest/dirt/road/snow profiles and submit them to the shared voice pool.
 - Add spatial resident work SFX for axe, pickaxe, construction hammer, fishing, and bow actions on animation impact/release frames.
 - Add pooled spatial forestry SFX for `StrategyForestryTree` fall and split-Logs completion events.
 - Add non-spatial HUD SFX for accepted, rejected, modal, roster, profession, build-menu, and speed-control interactions.
+- Add bounded procedural settlement/fire/winter layers and event details for completion, delivery, lamp ignition, wolf howl, and burial.
 
 Primary files/assets:
 
 - `Assets/Scripts/Runtime/Audio/StrategyAmbientAudioController.cs`
 - `Assets/Scripts/Runtime/Audio/StrategyAudioMixController.cs`
+- `Assets/Scripts/Runtime/Audio/StrategyAudioVoicePool.cs`
+- `Assets/Scripts/Runtime/Audio/StrategyProceduralAudioLibrary.cs`
+- `Assets/Scripts/Runtime/Audio/StrategyWorldAudioDirector.cs`
 - `Assets/Scripts/Runtime/Audio/StrategyMusicController.cs`
 - `Assets/Scripts/Runtime/Audio/StrategyHudSfxAudio.cs`
 - `Assets/Scripts/Runtime/Audio/StrategyResidentFootstepAudio.cs`
 - `Assets/Scripts/Runtime/Audio/StrategyResidentWorkSfxAudio.cs`
 - `Assets/Scripts/Runtime/Audio/StrategyForestrySfxAudio.cs`
+- `Assets/Editor/StrategyAudioMixerBuilder.cs`
+- `Assets/Resources/Audio/StrategyAudioMixer.mixer`
+- `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.Audio.cs`
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.WorkSfx.cs`
@@ -416,8 +431,8 @@ Impact hints:
 - Work SFX are tied to resident impact/release frames (`WoodcutImpactFrame`, `ConstructionImpactFrame`, `FishingHookFrame`, `FishingReelFrame`, and `BowReleaseFrame`); changing those animation timelines should retune SFX triggers.
 - Forestry SFX are tree-owned rather than resident-owned: `StartFalling()` plays tree-fall audio and `CompleteBucking()` plays split-Logs audio from the tree position.
 - HUD SFX are event-driven from runtime UI controllers and use a singleton non-spatial source with small cooldowns; avoid per-hover playback unless a future pass adds stronger throttling.
-- `StrategyAudioMixController` is the shared runtime mix layer; keep new audio systems on a named `StrategyAudioBus` and use `EvaluateWorld` for camera-dependent world one-shots instead of duplicating zoom/focus math.
-- Camera-dependent world SFX should stay cheap: prefer per-source low-pass/reverb parameter changes at play time over adding echo filters, extra sources, or per-frame scans.
+- `StrategyAudioMixController` is the shared mix/routing layer; keep new audio on a named `StrategyAudioBus` and use `StrategyAudioVoicePool` for spatial one-shots instead of creating AudioSources.
+- The 18-voice pool is a hard performance budget. Add new sounds through concurrency keys/priorities and only raise capacity after benchmark evidence.
 - Keep imported ambience/footstep/work/HUD clips under `Resources/Audio` unless the loading path is updated at the same time.
 
 ### Strategy Weather

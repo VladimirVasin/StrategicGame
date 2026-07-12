@@ -6,7 +6,7 @@ namespace ProjectUnknown.Strategy
 {
     public static class StrategyUiThemeProvider
     {
-        private const string FontPath = "Fonts/PixelifySans";
+        private const string FontPath = "Fonts/Inter-Regular";
 
         private static Font font;
         private static Sprite panelSprite;

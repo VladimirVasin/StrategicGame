@@ -16,9 +16,7 @@ namespace ProjectUnknown.Strategy
         private static int nextFallbackSeed = 1;
 
         private StrategyResidentAgent resident;
-        private AudioSource source;
-        private AudioReverbFilter reverbFilter;
-        private AudioLowPassFilter lowPassFilter;
+        private CityMapController map;
         private float nextStepTime;
         private int lastStepPhase = -1;
         private int clipCursor;
@@ -41,8 +39,8 @@ namespace ProjectUnknown.Strategy
                 fallbackSeed = nextFallbackSeed++;
             }
 
-            EnsureSource();
             EnsureClipsLoaded();
+            map ??= FindAnyObjectByType<CityMapController>();
         }
 
         public void PlayWalkFrame(int walkFrame, StrategyResidentLifeStage lifeStage)
@@ -59,29 +57,28 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            EnsureSource();
-            if (source == null)
-            {
-                return;
-            }
-
             lastStepPhase = stepPhase;
             nextStepTime = Time.time + StepCooldownSeconds;
             int residentSeed = resident != null && resident.ResidentId > 0 ? resident.ResidentId : fallbackSeed;
             int clipIndex = Mathf.Abs(residentSeed * 31 + stepPhase * 7 + clipCursor) % grassClips.Length;
             clipCursor++;
 
-            StrategyAudioWorldMix mix = StrategyAudioMixController.EvaluateWorld(transform.position, StrategyAudioBus.ResidentFootsteps);
             float volume = lifeStage == StrategyResidentLifeStage.Child ? ChildStepVolume : AdultStepVolume;
-            volume *= mix.VolumeMultiplier;
-            if (volume <= 0.004f)
-            {
-                return;
-            }
-
-            StrategyAudioMixController.ApplyWorldFilters(lowPassFilter, reverbFilter, mix, 0.72f);
-            source.pitch = UnityEngine.Random.Range(0.94f, 1.06f) * Mathf.Lerp(1f, 0.975f, mix.FarBlend);
-            source.PlayOneShot(grassClips[clipIndex], volume);
+            GetSurfaceProfile(out string surface, out float pitch, out float surfaceVolume);
+            StrategyAudioVoicePool.Play(
+                grassClips[clipIndex],
+                transform.position,
+                StrategyAudioBus.Footsteps,
+                volume * surfaceVolume,
+                pitch * 0.95f,
+                pitch * 1.05f,
+                StrategyAudioPriority.Ambient,
+                "footstep_" + surface,
+                0.025f,
+                5,
+                0.48f,
+                3.5f,
+                25f);
         }
 
         public void ResetStepPhase()
@@ -113,73 +110,54 @@ namespace ProjectUnknown.Strategy
             }
         }
 
-        private void EnsureSource()
+        private void GetSurfaceProfile(out string surface, out float pitch, out float volume)
         {
-            if (source != null)
+            surface = "grass";
+            pitch = 1f;
+            volume = 1f;
+            if (map == null)
             {
-                EnsureReverbFilter();
-                EnsureLowPassFilter();
+                map = FindAnyObjectByType<CityMapController>();
+            }
+
+            if (map == null || !map.TryWorldToCell(transform.position, out Vector2Int cell))
+            {
                 return;
             }
 
-            source = StrategyAudioMixController.CreateRuntimeSource(transform, "Resident Footstep Audio", StrategyAudioBus.ResidentFootsteps);
-            source.loop = false;
-            source.playOnAwake = false;
-            source.spatialBlend = 0.45f;
-            source.dopplerLevel = 0f;
-            source.rolloffMode = AudioRolloffMode.Linear;
-            source.minDistance = 4f;
-            source.maxDistance = 28f;
-            source.priority = 128;
-            EnsureReverbFilter();
-            EnsureLowPassFilter();
-        }
-
-        private void EnsureReverbFilter()
-        {
-            GameObject filterHost = source != null ? source.gameObject : gameObject;
-            if (reverbFilter == null)
+            if (StrategyTrailController.Active != null && StrategyTrailController.Active.IsTrailCell(cell))
             {
-                reverbFilter = filterHost.GetComponent<AudioReverbFilter>();
+                surface = "road";
+                pitch = 1.11f;
+                volume = 1.08f;
+                return;
             }
 
-            if (reverbFilter == null)
+            StrategyCalendarSnapshot snapshot = StrategyDayNightCycleController.CurrentCalendarSnapshot;
+            StrategyWeatherController weather = StrategyWeatherController.Active;
+            if (snapshot.Season == StrategySeason.Winter && weather != null && weather.SnowIntensity > 0.15f)
             {
-                reverbFilter = filterHost.AddComponent<AudioReverbFilter>();
+                surface = "snow";
+                pitch = 0.82f;
+                volume = 0.72f;
+                return;
             }
 
-            reverbFilter.reverbPreset = AudioReverbPreset.User;
-            reverbFilter.dryLevel = 0f;
-            reverbFilter.room = -2600f;
-            reverbFilter.roomHF = -1200f;
-            reverbFilter.decayTime = 0.72f;
-            reverbFilter.decayHFRatio = 0.42f;
-            reverbFilter.reflectionsLevel = -3100f;
-            reverbFilter.reflectionsDelay = 0.014f;
-            reverbFilter.reverbLevel = -2100f;
-            reverbFilter.reverbDelay = 0.026f;
-            reverbFilter.diffusion = 58f;
-            reverbFilter.density = 52f;
-            reverbFilter.hfReference = 4200f;
-            reverbFilter.roomLF = -850f;
-            reverbFilter.lfReference = 250f;
-        }
-
-        private void EnsureLowPassFilter()
-        {
-            GameObject filterHost = source != null ? source.gameObject : gameObject;
-            if (lowPassFilter == null)
+            if (map.TryGetCell(cell.x, cell.y, out CityMapCell mapCell))
             {
-                lowPassFilter = filterHost.GetComponent<AudioLowPassFilter>();
+                if (mapCell.Kind == CityMapCellKind.Dirt)
+                {
+                    surface = "dirt";
+                    pitch = 0.91f;
+                    volume = 0.92f;
+                }
+                else if (mapCell.Kind == CityMapCellKind.Forest)
+                {
+                    surface = "forest";
+                    pitch = 0.86f;
+                    volume = 0.84f;
+                }
             }
-
-            if (lowPassFilter == null)
-            {
-                lowPassFilter = filterHost.AddComponent<AudioLowPassFilter>();
-            }
-
-            lowPassFilter.cutoffFrequency = 22000f;
-            lowPassFilter.lowpassResonanceQ = 1f;
         }
     }
 }

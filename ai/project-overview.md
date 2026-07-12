@@ -1,6 +1,6 @@
 # Project Overview
 
-Last updated: 2026-07-11
+Last updated: 2026-07-12
 
 ## Identity
 
@@ -23,9 +23,9 @@ Last updated: 2026-07-11
 - `Assets/Resources/Visual/`
   Resources-backed visual catalog and baked editable PNGs for buildings, residents, nature, terrain, construction, roads, production work, and stock layers, with safe procedural fallback.
 - `Assets/Resources/Fonts/`
-  Licensed Pixelify Sans runtime UI font and its OFL license.
+  Licensed Inter runtime UI font and its OFL license.
 - `Assets/Scenes/MainMenu.unity`
-  Build-index-0 intro menu scene with visual settlement backdrop and background map preparation.
+  Build-index-0 intro menu scene with generated animated pixel-art key art and background map preparation.
 - `Assets/Scenes/SampleScene.unity`
   Gameplay settlement scene.
 - `Assets/InputSystem_Actions.inputactions`
@@ -61,7 +61,7 @@ Confirmed from `Packages/manifest.json`:
 
 ## Implemented Gameplay
 
-- Application startup opens a full-screen intro menu with Continue/New Settlement/Settings/Quit, a live in-engine settlement backdrop, persistent audio/display settings, save-aware status, and actual map/content preload progress. The menu prepares one deterministic map candidate and transfers it into gameplay so `SampleScene` skips duplicate terrain generation.
+- Application startup opens a full-screen intro menu with Continue/New Settlement/Settings/Quit, one dedicated static generated pixel-art key image, animated pointer/selection button hover, persistent audio/display settings, save-aware status, and actual map/content preload progress. Menu music stays disabled while HUD SFX remain available. The menu prepares one deterministic map candidate and transfers it into gameplay so `SampleScene` skips duplicate terrain generation.
 - Runtime bootstrap creates the first MVP strategy scene layer on play, holds a temporary simulation pause, and spreads deterministic full-map nature creation across bounded frame batches before releasing gameplay; it includes a Unity `WindZone`-backed strategy wind source, runtime Stone/Iron/Coal/Clay resource registries, runtime weather, and runtime ambience audio.
 - Runtime rendering includes catalog-first authored sprites for terrain/buildings/residents/nature/roads/work/stock with procedural fallback, gridless macro-varied terrain, building ground detail, calendar-aware day/night, pooled weather and spring/autumn details, coherent snow/ice/building caps, seasonal vegetation palettes, URP post-processing, LOD-capped lights, emissive masks, a cached nighttime darkness mask, wet puddles, lightning, subtle event camera feedback, foreground depth props, shared shadows, and reusable world effects.
 - Runtime fog of war tracks persistent explored cells separately from current visibility; camp, residents, and placed buildings reveal less during Dusk/Night/Dawn and even less during dense Fog weather, explored-but-not-visible cells become darker at night or turn into layered weather fog around visible zones, and wildlife spawn checks use a daylight-range visibility mask so temporary darkness does not create extra near-settlement spawn openings.
@@ -84,12 +84,12 @@ Confirmed from `Packages/manifest.json`:
 - Orthographic strategy camera supports map pan/scroll, zoom controls, a `Space` shortcut that recenters on the startup campfire, and subtle view-gated feedback for tree falls, completed construction, and primary lightning without positional drift.
 - Runtime time controls support F1/F2/F3 for x1/x2/x3 simulation speed.
 - Runtime weather randomizes Clear, Cloudy, LightRain, HeavyRain, Fog, Storm, Snow, and Blizzard states, drives cloud-shadow/rain/snow/heavy-precipitation-mist/wet-ground/cold-ground-wash overlays plus gradual seasonal ground snow, water ice, and building snow caps, updates pooled precipitation at a pixel-art-friendly 30 Hz, feeds dense Fog weather into fog-of-war visibility, boosts wind, intensifies water ripples only from rain/storms, feeds rain/wind ambience, and exposes an informational outdoor temperature derived from season, time of day, daily variation, and weather.
-- Runtime ambience audio loads background Compressed In Memory forest birds, cicadas, night, rain, wind, and river loops from `Assets/Resources/Audio/Nature`; river ambience is spatial and follows the nearest water to the camera, while rain/wind ambience follows the current weather state.
-- Runtime in-game music streams all AudioClips from `Assets/Resources/Audio/Music` in the background as a random playlist, avoids repeating the same track twice in a row when multiple tracks exist, and pauses/resumes the current clip when the game loses/regains focus.
-- Runtime audio is shaped by `StrategyAudioMixController`, which applies bus-level mix profiles and camera-focus/orthographic-zoom attenuation for world resident/work SFX.
-- Resident walking now uses non-generated grass footstep clips from `Assets/Resources/Audio/Footsteps/GrassWalk` through quiet spatial AudioSources on residents.
+- Runtime ambience audio loads background Compressed In Memory forest birds, cicadas, night, rain, wind, and river loops from `Assets/Resources/Audio/Nature`; river follows the nearest water, nature layers follow season/time/weather, and a procedural soundscape adds camera-area settlement, campfire, winter-wind, wildlife, construction, funeral, logistics, and lamp-lighting detail.
+- Runtime in-game music streams all AudioClips from `Assets/Resources/Audio/Music`, supports `calm`/`night`/`winter`/`storm` filename tags with generic fallback, inserts breathing space between tracks, fades track endings, avoids immediate repeats, and preserves playback across focus loss.
+- Runtime audio uses named Unity AudioMixer groups plus `StrategyAudioMixController` profiles for camera focus, zoom, night, weather, pause, and bus balance; `StrategyAudioVoicePool` caps world one-shots at 18 voices with concurrency limits and importance-based stealing.
+- Resident walking uses non-generated grass clips shaped as grass/forest/dirt/road/snow footsteps by current cell and season, while resident footstep/work components only trigger the shared voice pool instead of owning AudioSources/filters.
 - Runtime HUD interactions use generated non-spatial one-shots from `Assets/Resources/Audio/HudSfx` for menu open/close, selection, denials, confirmations, roster/sort/filter controls, profession controls, speed buttons, and modal dialogs.
-- Forestry uses generated spatial one-shots from `Assets/Resources/Audio/WorkSfx` for tree falling and split-Logs completion events.
+- Forestry uses pooled spatial one-shots from `Assets/Resources/Audio/WorkSfx` for tree falling and split-Logs completion events.
 - Storage Yard is implemented as the first storage/logistics building: it has procedural 2.5D art, uncapped assigned Haulers/builders, uncapped local Logs, Stone, Iron, Coal, Clay, Planks, Pottery, and Tools stock, growing visual stockpiles with resource drop effects, resident hauling from production camps/Mines/Coal Pits/Clay Pits/Sawmills/Kilns/Forges, food hauling to Granaries, householder-facing Pottery and winter Logs pickup reservations, production-input delivery to production nodes, and construction resource reservations.
 - Granary is implemented as the first food-storage building: it has procedural 2.5D art, uncapped local `Game`, `Fish`, `Eggs`, Berries, Roots, and Mushrooms stock, growing visual food stockpiles with food drop effects, and is filled by the shared settlement Hauler profession rather than a separate player-facing Granary Worker profession.
 - A temporary starter Caravan Cart appears near the campfire with 20 Logs, 20 Stone, and randomized raw food covering 3 days of ration needs for the initial population; it does not accept deliveries, transfers available construction resources into a completed Storage Yard, serves as a low-priority fallback for raw food and winter household Logs, and despawns when empty.

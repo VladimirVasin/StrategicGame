@@ -105,6 +105,7 @@ namespace ProjectUnknown.Strategy
             ReleaseTargets();
             SetWolfState(StrategyWolfBehaviorState.Howling, "howl_selected");
             stateTimer = Random.Range(1.4f, 2.6f);
+            StrategyWorldAudioDirector.PlayWolfHowl(transform.position);
             path.Clear();
             pathIndex = 0;
         }

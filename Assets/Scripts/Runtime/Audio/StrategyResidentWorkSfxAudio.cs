@@ -23,9 +23,6 @@ namespace ProjectUnknown.Strategy
         private static int nextFallbackSeed = 1;
 
         private StrategyResidentAgent resident;
-        private AudioSource source;
-        private AudioLowPassFilter lowPassFilter;
-        private AudioReverbFilter reverbFilter;
         private int fallbackSeed;
         private int clipCursor;
         private float nextAxeTime;
@@ -43,7 +40,6 @@ namespace ProjectUnknown.Strategy
                 fallbackSeed = nextFallbackSeed++;
             }
 
-            EnsureSource();
             EnsureClipsLoaded();
         }
 
@@ -92,26 +88,24 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            EnsureSource();
-            if (source == null)
-            {
-                return;
-            }
-
             nextAllowedTime = Time.unscaledTime + cooldown;
             int residentSeed = resident != null && resident.ResidentId > 0 ? resident.ResidentId : fallbackSeed;
             int clipIndex = Mathf.Abs(residentSeed * seedSalt + clipCursor) % clips.Length;
             clipCursor++;
-            StrategyAudioWorldMix mix = StrategyAudioMixController.EvaluateWorld(transform.position, StrategyAudioBus.ResidentWork);
-            float finalVolume = volume * mix.VolumeMultiplier;
-            if (finalVolume <= 0.006f)
-            {
-                return;
-            }
-
-            StrategyAudioMixController.ApplyWorldFilters(lowPassFilter, reverbFilter, mix, 0.92f);
-            source.pitch = UnityEngine.Random.Range(pitchMin, pitchMax) * Mathf.Lerp(1f, 0.965f, mix.FarBlend);
-            source.PlayOneShot(clips[clipIndex], finalVolume);
+            StrategyAudioVoicePool.Play(
+                clips[clipIndex],
+                transform.position,
+                StrategyAudioBus.Work,
+                volume,
+                pitchMin,
+                pitchMax,
+                StrategyAudioPriority.Normal,
+                "work_" + seedSalt,
+                cooldown * 0.45f,
+                4,
+                0.68f,
+                3.5f,
+                30f);
         }
 
         private static void EnsureClipsLoaded()
@@ -141,55 +135,5 @@ namespace ProjectUnknown.Strategy
             return clips;
         }
 
-        private void EnsureSource()
-        {
-            if (source != null)
-            {
-                EnsureWorldFilters();
-                return;
-            }
-
-            source = StrategyAudioMixController.CreateRuntimeSource(transform, "Resident Work SFX Audio", StrategyAudioBus.ResidentWork);
-            source.loop = false;
-            source.playOnAwake = false;
-            source.spatialBlend = 0.62f;
-            source.dopplerLevel = 0f;
-            source.rolloffMode = AudioRolloffMode.Linear;
-            source.minDistance = 3.5f;
-            source.maxDistance = 30f;
-            source.priority = 126;
-            EnsureWorldFilters();
-        }
-
-        private void EnsureWorldFilters()
-        {
-            GameObject filterHost = source != null ? source.gameObject : gameObject;
-            if (lowPassFilter == null)
-            {
-                lowPassFilter = filterHost.GetComponent<AudioLowPassFilter>();
-            }
-
-            if (lowPassFilter == null)
-            {
-                lowPassFilter = filterHost.AddComponent<AudioLowPassFilter>();
-            }
-
-            if (reverbFilter == null)
-            {
-                reverbFilter = filterHost.GetComponent<AudioReverbFilter>();
-            }
-
-            if (reverbFilter == null)
-            {
-                reverbFilter = filterHost.AddComponent<AudioReverbFilter>();
-            }
-
-            lowPassFilter.cutoffFrequency = 22000f;
-            lowPassFilter.lowpassResonanceQ = 1f;
-            reverbFilter.reverbPreset = AudioReverbPreset.User;
-            reverbFilter.dryLevel = 0f;
-            reverbFilter.room = -10000f;
-            reverbFilter.reverbLevel = -10000f;
-        }
     }
 }

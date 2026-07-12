@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Audio;
 
 namespace ProjectUnknown.Strategy
 {
@@ -9,8 +10,12 @@ namespace ProjectUnknown.Strategy
         Ambience,
         Weather,
         Water,
-        ResidentFootsteps,
-        ResidentWork,
+        Settlement,
+        Work,
+        Footsteps,
+        Wildlife,
+        Fire,
+        ImportantEvents,
         Hud
     }
 
@@ -48,12 +53,15 @@ namespace ProjectUnknown.Strategy
 
         private static StrategyAudioMixController instance;
 
-        private readonly float[] busVolumes = new float[8];
+        private readonly float[] busVolumes = new float[(int)StrategyAudioBus.Hud + 1];
+        private readonly AudioMixerGroup[] busGroups = new AudioMixerGroup[(int)StrategyAudioBus.Hud + 1];
+        private AudioMixer unityMixer;
         private Camera strategyCamera;
         private int lastRefreshFrame = -1;
         private float zoomFactor;
         private float weatherMask;
         private float nightBlend;
+        private float pausedBlend;
 
         public static StrategyAudioMixController Active => instance;
 
@@ -66,6 +74,10 @@ namespace ProjectUnknown.Strategy
             }
         }
 
+        public float NightBlend => nightBlend;
+        public float WeatherBlend => weatherMask;
+        public float PausedBlend => pausedBlend;
+
         public void Configure(Camera camera)
         {
             if (instance != null && instance != this)
@@ -77,6 +89,7 @@ namespace ProjectUnknown.Strategy
             instance = this;
             strategyCamera = camera != null ? camera : Camera.main;
             DontDestroyOnLoad(gameObject);
+            LoadMixerRouting();
             RefreshMix(true);
             StrategyDebugLogger.Info(
                 "Audio",
@@ -107,6 +120,12 @@ namespace ProjectUnknown.Strategy
             }
 
             source.dopplerLevel = 0f;
+            AudioMixerGroup group = instance != null ? instance.GetBusGroup(bus) : null;
+            if (group != null)
+            {
+                source.outputAudioMixerGroup = group;
+            }
+
             if (bus == StrategyAudioBus.Hud)
             {
                 source.ignoreListenerPause = true;
@@ -176,6 +195,7 @@ namespace ProjectUnknown.Strategy
             instance = this;
             strategyCamera = strategyCamera != null ? strategyCamera : Camera.main;
             DontDestroyOnLoad(gameObject);
+            LoadMixerRouting();
             RefreshMix(true);
         }
 
@@ -234,6 +254,7 @@ namespace ProjectUnknown.Strategy
             float fog = weather != null ? weather.FogIntensity : 0f;
             float wind = weather != null ? weather.WindIntensity : 0f;
             weatherMask = Mathf.Clamp01(Mathf.Max(Mathf.Max(rain, snow), Mathf.Max(storm, fog * 0.65f)));
+            pausedBlend = Mathf.MoveTowards(pausedBlend, Time.timeScale <= 0f ? 1f : 0f, Time.unscaledDeltaTime * 4f);
             zoomFactor = strategyCamera != null
                 ? Mathf.InverseLerp(NearZoomSize, FarZoomSize, strategyCamera.orthographicSize)
                 : 0f;
@@ -241,13 +262,19 @@ namespace ProjectUnknown.Strategy
             float master = StrategyGameSettings.MasterVolume;
             float music = StrategyGameSettings.MusicVolume;
             float sfx = StrategyGameSettings.SfxVolume;
+            float worldPause = Mathf.Lerp(1f, 0.34f, pausedBlend);
+            float stormDuck = Mathf.Lerp(1f, 0.82f, Mathf.Max(storm, weatherMask * 0.35f));
             SetVolume(StrategyAudioBus.Master, master);
-            SetVolume(StrategyAudioBus.Music, master * music * 0.88f * Mathf.Lerp(1f, 0.82f, Mathf.Max(storm, weatherMask * 0.35f)));
-            SetVolume(StrategyAudioBus.Ambience, master * sfx * Mathf.Lerp(0.96f, 1.12f, zoomFactor) * Mathf.Lerp(1f, 1.05f, nightBlend));
-            SetVolume(StrategyAudioBus.Weather, master * sfx * Mathf.Lerp(0.98f, 1.16f, Mathf.Max(weatherMask, wind * 0.6f)) * Mathf.Lerp(1f, 1.08f, zoomFactor));
-            SetVolume(StrategyAudioBus.Water, master * sfx * Mathf.Lerp(1.04f, 0.86f, zoomFactor));
-            SetVolume(StrategyAudioBus.ResidentFootsteps, master * sfx * 0.78f * Mathf.Lerp(1f, 0.45f, zoomFactor) * Mathf.Lerp(1f, 0.78f, weatherMask));
-            SetVolume(StrategyAudioBus.ResidentWork, master * sfx * 0.88f * Mathf.Lerp(1f, 0.66f, zoomFactor) * Mathf.Lerp(1f, 0.84f, weatherMask));
+            SetVolume(StrategyAudioBus.Music, master * music * 0.88f * stormDuck * Mathf.Lerp(1f, 0.82f, pausedBlend));
+            SetVolume(StrategyAudioBus.Ambience, master * sfx * worldPause * Mathf.Lerp(0.96f, 1.12f, zoomFactor) * Mathf.Lerp(1f, 1.05f, nightBlend));
+            SetVolume(StrategyAudioBus.Weather, master * sfx * worldPause * Mathf.Lerp(0.98f, 1.16f, Mathf.Max(weatherMask, wind * 0.6f)) * Mathf.Lerp(1f, 1.08f, zoomFactor));
+            SetVolume(StrategyAudioBus.Water, master * sfx * worldPause * Mathf.Lerp(1.04f, 0.86f, zoomFactor));
+            SetVolume(StrategyAudioBus.Settlement, master * sfx * worldPause * 0.82f * Mathf.Lerp(0.76f, 1.16f, zoomFactor) * Mathf.Lerp(1f, 0.72f, weatherMask));
+            SetVolume(StrategyAudioBus.Work, master * sfx * worldPause * 0.88f * Mathf.Lerp(1f, 0.60f, zoomFactor) * Mathf.Lerp(1f, 0.82f, weatherMask));
+            SetVolume(StrategyAudioBus.Footsteps, master * sfx * worldPause * 0.74f * Mathf.Lerp(1f, 0.38f, zoomFactor) * Mathf.Lerp(1f, 0.72f, weatherMask));
+            SetVolume(StrategyAudioBus.Wildlife, master * sfx * worldPause * 0.76f * Mathf.Lerp(1f, 0.70f, weatherMask));
+            SetVolume(StrategyAudioBus.Fire, master * sfx * worldPause * 0.92f * Mathf.Lerp(1f, 0.74f, weatherMask));
+            SetVolume(StrategyAudioBus.ImportantEvents, master * sfx * Mathf.Lerp(1f, 0.78f, pausedBlend));
             SetVolume(StrategyAudioBus.Hud, master * sfx * 0.82f);
         }
 
@@ -304,6 +331,34 @@ namespace ProjectUnknown.Strategy
             }
 
             busVolumes[index] = Mathf.Clamp01(value);
+        }
+
+        private void LoadMixerRouting()
+        {
+            if (unityMixer != null)
+            {
+                return;
+            }
+
+            unityMixer = Resources.Load<AudioMixer>("Audio/StrategyAudioMixer");
+            if (unityMixer == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < busGroups.Length; i++)
+            {
+                StrategyAudioBus bus = (StrategyAudioBus)i;
+                AudioMixerGroup[] matches = unityMixer.FindMatchingGroups(bus.ToString());
+                busGroups[i] = matches != null && matches.Length > 0 ? matches[0] : null;
+            }
+        }
+
+        private AudioMixerGroup GetBusGroup(StrategyAudioBus bus)
+        {
+            LoadMixerRouting();
+            int index = (int)bus;
+            return index >= 0 && index < busGroups.Length ? busGroups[index] : null;
         }
     }
 }

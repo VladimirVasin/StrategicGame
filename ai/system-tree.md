@@ -1,6 +1,6 @@
 # System Tree
 
-Last updated: 2026-07-11
+Last updated: 2026-07-12
 
 This is a conceptual map of the current project. Keep concrete file ownership in `ai/systems-map.md`.
 
@@ -29,7 +29,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Generated terrain hides the cell grid, reads main-thread-prewarmed authored swatches in its parallel painter, and blends seeded palette variation over broad spatial patches
   - Non-Bridge placed buildings add a catalog-overridable trampled-ground layer beneath their Y-sorted body and shadow
   - Spring/autumn camera-area details and centralized vegetation tinting make seasonal changes readable without per-prop Update components
-  - Shared HUD theme supplies Pixelify Sans plus sliced pixel panel/button frames through bounded scene-start scans
+  - Shared HUD theme supplies readable Inter typography plus sliced pixel panel/button frames through bounded scene-start scans
 
 - Scene foundation
   - Build-index-0 `MainMenu` intro scene
@@ -39,7 +39,10 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Persistent scene-loaded hook starts gameplay after runtime menu transitions
 
 - Intro menu and preload foundation
-  - Full-screen in-engine settlement backdrop built from current pixel-art terrain, buildings, residents, nature, caravan, and campfire sprites
+  - One full-screen generated static pixel-art key image replaces the old composition assembled from gameplay sprites
+  - Campfire, chimney smoke, river, wood carrier, and water carrier are baked into the key image; the backdrop has no runtime animation or drift
+  - Main-menu buttons use pointer/selection hover movement, warm tint, gold accent, and throttled quiet HUD feedback
+  - Main menu keeps music disabled and starts only the HUD SFX mix
   - Continue reads and validates the current save before launch; New Settlement keeps a separate candidate seed
   - Master, music, effects, and fullscreen settings persist through `PlayerPrefs`
   - Exactly one candidate map is prepared to cap memory usage
@@ -105,10 +108,13 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Updates both `Time.timeScale` and `Time.fixedDeltaTime`
     - Supports pause locks for modal gameplay decisions while preserving the requested x1/x2/x3 speed
   - Strategy audio
-    - Runtime-created central audio mix controller owns bus-level volume profiles and camera-aware world-source acoustic attenuation
-    - Runtime-created ambience controller
+    - Runtime-created central audio mix controller owns named Music/Ambience/Weather/Water/Settlement/Work/Footsteps/Wildlife/Fire/ImportantEvents/HUD buses, smooth day/night/weather/winter/pause/zoom profiles, and camera-aware acoustic attenuation
+    - Editor-created Unity AudioMixer routes every runtime source through the matching named group
+    - A fixed 18-voice world pool applies concurrency limits, priority stealing, low-pass, and reverb without per-resident AudioSources
+    - Runtime world audio director blends daytime/nighttime settlement beds, campfire, winter wind, local work details, and important event one-shots from camera-area population/building context
+    - Runtime-created ambience controller applies season/time/weather weighting to nature, river, rain, and wind layers
     - Loads non-generated nature loops and grass footsteps from `Assets/Resources/Audio`
-    - Loads in-game music playlist clips from `Assets/Resources/Audio/Music`
+    - Loads context-tagged `calm`/`night`/`winter`/`storm` music from `Assets/Resources/Audio/Music`, with generic-track fallback, inter-track silence, end fades, and focus-safe pause/resume
     - Loads generated resident work one-shot clips from `Assets/Resources/Audio/WorkSfx`
     - Loads generated non-spatial HUD interaction one-shots from `Assets/Resources/Audio/HudSfx`
     - Plays forest birds, cicadas, night, rain, calm wind, and forest wind as global ambience layers

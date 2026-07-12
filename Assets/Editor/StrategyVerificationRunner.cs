@@ -45,7 +45,8 @@ namespace ProjectUnknown.Strategy.EditorTests
                 VerifyNavigationPriorities();
                 VerifyVisualCatalog();
                 VerifyAudioImportProfiles();
-                File.WriteAllText(resultPath, "PASS: 9 checks");
+                VerifyAudioArchitecture();
+                File.WriteAllText(resultPath, "PASS: 10 checks");
                 EditorApplication.Exit(0);
             }
             catch (Exception exception)
@@ -119,6 +120,11 @@ namespace ProjectUnknown.Strategy.EditorTests
                     Require(UnityEngine.Object.FindAnyObjectByType<StrategyMapPreloadCoordinator>() != null, "Menu preloader failed");
                     Require(UnityEngine.Object.FindAnyObjectByType<StrategyPopulationController>() == null, "Gameplay population bootstrapped in menu");
                     Require(UnityEngine.Object.FindAnyObjectByType<StrategyBuildMenuController>() == null, "Gameplay HUD bootstrapped in menu");
+                    Require(UnityEngine.Object.FindAnyObjectByType<StrategyMusicController>() == null, "Music must stay disabled in the main menu");
+                    Require(
+                        UnityEngine.Object.FindObjectsByType<StrategyMainMenuButtonHover>(
+                            FindObjectsInactive.Include).Length >= 5,
+                        "Main-menu button hover controllers are missing");
                     CompletePlayMode(true, "PASS: menu systems ready");
                     return;
                 }
@@ -136,6 +142,8 @@ namespace ProjectUnknown.Strategy.EditorTests
                 Require(population != null && population.TotalResidentCount > 0, "Population bootstrap failed");
                 Require(UnityEngine.Object.FindAnyObjectByType<StrategyBuildPlacementController>() != null, "Placement bootstrap failed");
                 Require(UnityEngine.Object.FindAnyObjectByType<StrategySaveSystem>() != null, "Persistence bootstrap failed");
+                Require(UnityEngine.Object.FindAnyObjectByType<StrategyWorldAudioDirector>() != null, "World audio director bootstrap failed");
+                Require(StrategyAudioVoicePool.ActiveVoiceCount <= StrategyAudioVoicePool.Capacity, "World audio voice budget exceeded");
                 Require(StrategyTrailController.Active != null, "Trail bootstrap failed");
                 VerifyBuildingGroundDetails();
                 if (smokeKind == SmokeKind.GameplayVisualCapture)

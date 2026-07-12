@@ -315,6 +315,9 @@ namespace ProjectUnknown.Strategy
 
             UpdateVisuals();
             PlayDeliveredResourceEffect(kind, amount);
+            StrategyWorldAudioDirector.PlayResourceDrop(
+                footprintBounds.center,
+                kind == StrategyConstructionResourceKind.Stone);
             StrategyDebugLogger.Info(
                 "Construction",
                 "ResourceDelivered",

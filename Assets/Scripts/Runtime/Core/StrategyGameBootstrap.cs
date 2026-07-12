@@ -208,38 +208,7 @@ namespace ProjectUnknown.Strategy
             cinematicVisuals.Configure(map, mainCamera, dayNight, weather, wind);
             StrategyDebugLogger.Info("Bootstrap", "CinematicVisualsReady");
 
-            StrategyAudioMixController audioMix = Object.FindAnyObjectByType<StrategyAudioMixController>();
-            if (audioMix == null)
-            {
-                GameObject audioMixObject = new GameObject("Strategy Audio Mix");
-                audioMix = audioMixObject.AddComponent<StrategyAudioMixController>();
-            }
-
-            audioMix.Configure(mainCamera);
-            StrategyDebugLogger.Info("Bootstrap", "AudioMixReady");
-
-            StrategyAmbientAudioController ambientAudio = Object.FindAnyObjectByType<StrategyAmbientAudioController>();
-            if (ambientAudio == null)
-            {
-                GameObject ambientAudioObject = new GameObject("Strategy Ambient Audio");
-                ambientAudio = ambientAudioObject.AddComponent<StrategyAmbientAudioController>();
-            }
-
-            ambientAudio.Configure(map, mainCamera);
-            StrategyDebugLogger.Info(
-                "Bootstrap",
-                "AmbientAudioReady",
-                StrategyDebugLogger.F("footstepClips", StrategyResidentFootstepAudio.LoadedClipCount));
-
-            StrategyMusicController music = Object.FindAnyObjectByType<StrategyMusicController>();
-            if (music == null)
-            {
-                GameObject musicObject = new GameObject("Strategy Music");
-                music = musicObject.AddComponent<StrategyMusicController>();
-            }
-
-            music.Configure();
-            StrategyDebugLogger.Info("Bootstrap", "MusicReady");
+            ConfigureAudio(map, mainCamera);
             yield return null;
 
             StrategyBuildMenuController buildMenu = Object.FindAnyObjectByType<StrategyBuildMenuController>();

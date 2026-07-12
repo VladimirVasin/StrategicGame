@@ -58,6 +58,7 @@ namespace ProjectUnknown.Strategy
             funeral.Timer = BurialSeconds;
 
             StartBurialPoses(funeral);
+            StrategyWorldAudioDirector.PlayBurial(funeral.GraveWorld);
 
             StrategyDebugLogger.Info(
                 "Funeral",

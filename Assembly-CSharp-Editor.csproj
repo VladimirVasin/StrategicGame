@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Editor\StrategyVisualCatalogBaker.Residents.cs" />
+    <Compile Include="Assets\Editor\StrategyAudioMixerBuilder.cs" />
     <Compile Include="Assets\Editor\StrategyVisualCatalogBaker.Layers.cs" />
     <Compile Include="Assets\Editor\StrategyVisualCatalogBaker.cs" />
     <Compile Include="Assets\Editor\StrategyVisualCatalogBaker.Terrain.cs" />

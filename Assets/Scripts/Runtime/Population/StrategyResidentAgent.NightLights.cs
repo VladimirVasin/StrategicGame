@@ -232,6 +232,11 @@ namespace ProjectUnknown.Strategy
             }
 
             bool completed = activeNightLightSource.CompleteLighting(this);
+            if (completed)
+            {
+                StrategyWorldAudioDirector.PlayTorchIgnite(activeNightLightSource.WorldPosition);
+            }
+
             StrategyDebugLogger.Info(
                 "NightLights",
                 completed ? "NightLightIgnited" : "NightLightIgniteFailed",

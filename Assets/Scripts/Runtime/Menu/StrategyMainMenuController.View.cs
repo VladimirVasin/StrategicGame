@@ -150,16 +150,22 @@ namespace ProjectUnknown.Strategy
             image.color = ButtonColor;
             Button button = root.gameObject.AddComponent<Button>();
             button.targetGraphic = image;
-            ColorBlock colors = button.colors;
-            colors.normalColor = ButtonColor;
-            colors.highlightedColor = ButtonHoverColor;
-            colors.pressedColor = new Color(0.24f, 0.35f, 0.27f, 1f);
-            colors.disabledColor = new Color(0.09f, 0.11f, 0.10f, 0.78f);
-            button.colors = colors;
+            button.transition = Selectable.Transition.None;
+            RectTransform accent = CreateRect("HoverAccent", root);
+            accent.anchorMin = new Vector2(0f, 0f);
+            accent.anchorMax = new Vector2(0f, 1f);
+            accent.pivot = new Vector2(0f, 0.5f);
+            accent.anchoredPosition = Vector2.zero;
+            accent.sizeDelta = new Vector2(5f, 0f);
+            Image accentImage = accent.gameObject.AddComponent<Image>();
+            accentImage.color = new Color(GoldColor.r, GoldColor.g, GoldColor.b, 0f);
+            accentImage.raycastTarget = false;
             text = CreateText("Label", root, label, 17, TextAnchor.MiddleLeft, Color.white);
             text.fontStyle = FontStyle.Bold;
             text.raycastTarget = false;
             Stretch(text.rectTransform, new Vector2(22f, 0f), new Vector2(-18f, 0f));
+            StrategyMainMenuButtonHover hover = root.gameObject.AddComponent<StrategyMainMenuButtonHover>();
+            hover.Configure(button, image, accentImage, text, ButtonColor, ButtonHoverColor, GoldColor);
             return button;
         }
 

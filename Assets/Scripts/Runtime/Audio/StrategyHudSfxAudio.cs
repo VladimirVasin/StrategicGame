@@ -54,10 +54,10 @@ namespace ProjectUnknown.Strategy
         private float nextStepTime;
         private float nextNotifyTime;
 
-        public static void Play(StrategyHudSfxKind kind)
+        public static void Play(StrategyHudSfxKind kind, float volumeScale = 1f)
         {
             StrategyHudSfxAudio audio = EnsureInstance();
-            audio?.PlayInternal(kind);
+            audio?.PlayInternal(kind, volumeScale);
         }
 
         private void Awake()
@@ -102,7 +102,7 @@ namespace ProjectUnknown.Strategy
             return instance;
         }
 
-        private void PlayInternal(StrategyHudSfxKind kind)
+        private void PlayInternal(StrategyHudSfxKind kind, float volumeScale)
         {
             EnsureClipsLoaded();
             AudioClip[] clips = GetClips(kind);
@@ -129,7 +129,11 @@ namespace ProjectUnknown.Strategy
             int clipIndex = Mathf.Abs(((int)kind + 1) * 23 + clipCursor * 7) % clips.Length;
             clipCursor++;
             source.pitch = UnityEngine.Random.Range(GetPitchMin(kind), GetPitchMax(kind));
-            source.PlayOneShot(clips[clipIndex], GetVolume(kind) * StrategyAudioMixController.GetVolume(StrategyAudioBus.Hud));
+            source.PlayOneShot(
+                clips[clipIndex],
+                GetVolume(kind)
+                    * Mathf.Clamp(volumeScale, 0f, 2f)
+                    * StrategyAudioMixController.GetVolume(StrategyAudioBus.Hud));
         }
 
         private static void EnsureClipsLoaded()

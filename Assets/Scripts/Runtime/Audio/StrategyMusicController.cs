@@ -9,6 +9,7 @@ namespace ProjectUnknown.Strategy
         private const string MusicFolderPath = "Audio/Music";
         private const float TargetVolume = 0.12f;
         private const float FadeInSpeed = 0.18f;
+        private const float TrackEndFadeSeconds = 5f;
 
         private AudioSource musicSource;
         private AudioReverbFilter reverbFilter;
@@ -19,6 +20,8 @@ namespace ProjectUnknown.Strategy
         private bool applicationPaused;
         private bool hasAudioFocus = true;
         private bool pausedForFocusLoss;
+        private float nextTrackTime;
+        private bool waitingBetweenTracks;
 
         public void Configure()
         {
@@ -49,7 +52,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("targetVolume", TargetVolume));
             if (hasAudioFocus)
             {
-                PlayNextTrack();
+                PlayNextTrack(GetDesiredMood());
             }
         }
 
@@ -67,13 +70,27 @@ namespace ProjectUnknown.Strategy
 
             if (!musicSource.isPlaying)
             {
-                PlayNextTrack();
+                if (!waitingBetweenTracks)
+                {
+                    waitingBetweenTracks = true;
+                    nextTrackTime = Time.unscaledTime + GetSilenceDuration();
+                }
+
+                if (Time.unscaledTime >= nextTrackTime)
+                {
+                    waitingBetweenTracks = false;
+                    PlayNextTrack(GetDesiredMood());
+                }
+
                 return;
             }
 
+            float endFade = musicSource.clip != null
+                ? Mathf.InverseLerp(0f, TrackEndFadeSeconds, musicSource.clip.length - musicSource.time)
+                : 1f;
             musicSource.volume = Mathf.MoveTowards(
                 musicSource.volume,
-                TargetVolume * StrategyAudioMixController.GetVolume(StrategyAudioBus.Music),
+                TargetVolume * endFade * StrategyAudioMixController.GetVolume(StrategyAudioBus.Music),
                 FadeInSpeed * Time.unscaledDeltaTime);
         }
 
@@ -153,9 +170,9 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("reason", reason));
         }
 
-        private void PlayNextTrack()
+        private void PlayNextTrack(StrategyMusicMood mood)
         {
-            int nextTrackIndex = PickNextTrackIndex();
+            int nextTrackIndex = PickNextTrackIndex(mood);
             if (nextTrackIndex < 0 || nextTrackIndex >= playlist.Length)
             {
                 return;
@@ -171,14 +188,36 @@ namespace ProjectUnknown.Strategy
                 "InGameMusicTrackStarted",
                 StrategyDebugLogger.F("clip", clip.name),
                 StrategyDebugLogger.F("trackIndex", currentTrackIndex),
-                StrategyDebugLogger.F("trackCount", playlist.Length));
+                StrategyDebugLogger.F("trackCount", playlist.Length),
+                StrategyDebugLogger.F("mood", mood));
         }
 
-        private int PickNextTrackIndex()
+        private int PickNextTrackIndex(StrategyMusicMood mood)
         {
             if (playlist.Length <= 0)
             {
                 return -1;
+            }
+
+            int candidateCount = 0;
+            for (int i = 0; i < playlist.Length; i++)
+            {
+                if (i != currentTrackIndex && MatchesMood(playlist[i], mood))
+                {
+                    candidateCount++;
+                }
+            }
+
+            if (candidateCount > 0)
+            {
+                int selected = UnityEngine.Random.Range(0, candidateCount);
+                for (int i = 0; i < playlist.Length; i++)
+                {
+                    if (i != currentTrackIndex && MatchesMood(playlist[i], mood) && selected-- == 0)
+                    {
+                        return i;
+                    }
+                }
             }
 
             if (playlist.Length == 1 || currentTrackIndex < 0)
@@ -186,13 +225,48 @@ namespace ProjectUnknown.Strategy
                 return UnityEngine.Random.Range(0, playlist.Length);
             }
 
-            int randomIndex = UnityEngine.Random.Range(0, playlist.Length - 1);
-            if (randomIndex >= currentTrackIndex)
+            int fallback = UnityEngine.Random.Range(0, playlist.Length - 1);
+            return fallback >= currentTrackIndex ? fallback + 1 : fallback;
+        }
+
+        private static StrategyMusicMood GetDesiredMood()
+        {
+            StrategyWeatherController weather = StrategyWeatherController.Active;
+            if (weather != null && Mathf.Max(weather.StormIntensity, weather.HeavySnowIntensity) > 0.55f)
             {
-                randomIndex++;
+                return StrategyMusicMood.Storm;
             }
 
-            return randomIndex;
+            StrategyCalendarSnapshot snapshot = StrategyDayNightCycleController.CurrentCalendarSnapshot;
+            if (snapshot.Season == StrategySeason.Winter)
+            {
+                return StrategyMusicMood.Winter;
+            }
+
+            return snapshot.Phase == StrategyTimeOfDayPhase.Night
+                ? StrategyMusicMood.Night
+                : StrategyMusicMood.Calm;
+        }
+
+        private static bool MatchesMood(AudioClip clip, StrategyMusicMood mood)
+        {
+            if (clip == null)
+            {
+                return false;
+            }
+
+            string name = clip.name.ToLowerInvariant();
+            string tag = mood.ToString().ToLowerInvariant();
+            bool hasKnownTag = name.Contains("calm") || name.Contains("night") || name.Contains("winter") || name.Contains("storm");
+            return hasKnownTag && name.Contains(tag);
+        }
+
+        private static float GetSilenceDuration()
+        {
+            StrategyMusicMood mood = GetDesiredMood();
+            return mood == StrategyMusicMood.Storm
+                ? UnityEngine.Random.Range(8f, 16f)
+                : UnityEngine.Random.Range(18f, 38f);
         }
 
         private void EnsureMusicSource()
@@ -241,6 +315,14 @@ namespace ProjectUnknown.Strategy
             reverbFilter.hfReference = 5000f;
             reverbFilter.roomLF = -450f;
             reverbFilter.lfReference = 250f;
+        }
+
+        private enum StrategyMusicMood
+        {
+            Calm,
+            Night,
+            Winter,
+            Storm
         }
     }
 }

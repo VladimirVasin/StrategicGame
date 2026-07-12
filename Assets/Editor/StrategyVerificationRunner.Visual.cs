@@ -1,6 +1,7 @@
 using System.IO;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Audio;
 
 namespace ProjectUnknown.Strategy.EditorTests
 {
@@ -46,13 +47,43 @@ namespace ProjectUnknown.Strategy.EditorTests
                 catalog.TryGetSequenceSprite(StrategyVisualSequenceIds.StorageLogs, 0, out Sprite stock)
                     && stock != null,
                 "Visual catalog stock sequence is missing");
-            Require(Resources.Load<Font>("Fonts/PixelifySans") != null, "Pixel UI font is missing");
+            Require(Resources.Load<Font>("Fonts/Inter-Regular") != null, "Readable Inter UI font is missing");
+            Sprite menuArt = Resources.Load<Sprite>("Visual/Menu/MainMenuKeyArt");
+            Require(
+                menuArt != null
+                    && menuArt.texture != null
+                    && menuArt.texture.filterMode == FilterMode.Point
+                    && menuArt.texture.width >= 1280,
+                "Generated point-filtered main-menu key art is missing");
         }
 
         private static void VerifyAudioImportProfiles()
         {
             VerifyAudioFolderLoadType("Assets/Resources/Audio/Music", AudioClipLoadType.Streaming);
             VerifyAudioFolderLoadType("Assets/Resources/Audio/Nature", AudioClipLoadType.CompressedInMemory);
+        }
+
+        private static void VerifyAudioArchitecture()
+        {
+            AudioMixer mixer = Resources.Load<AudioMixer>("Audio/StrategyAudioMixer");
+            Require(mixer != null, "Strategy AudioMixer resource is missing");
+            string[] busNames = System.Enum.GetNames(typeof(StrategyAudioBus));
+            for (int i = 0; i < busNames.Length; i++)
+            {
+                Require(mixer.FindMatchingGroups(busNames[i]).Length > 0,
+                    "AudioMixer group is missing: " + busNames[i]);
+            }
+
+            Require(StrategyAudioVoicePool.Capacity >= 12 && StrategyAudioVoicePool.Capacity <= 24,
+                "World audio voice pool must stay bounded");
+            Require((int)StrategyAudioBus.ImportantEvents > (int)StrategyAudioBus.Footsteps,
+                "Audio priority buses are missing");
+            AudioClip fire = StrategyProceduralAudioLibrary.Get(StrategyProceduralSound.Fire);
+            AudioClip settlement = StrategyProceduralAudioLibrary.Get(StrategyProceduralSound.SettlementDay);
+            AudioClip completion = StrategyProceduralAudioLibrary.Get(StrategyProceduralSound.BuildComplete);
+            Require(fire != null && fire.length >= 4f, "Procedural fire soundscape is missing");
+            Require(settlement != null && settlement.length >= 6f, "Settlement soundscape is missing");
+            Require(completion != null && completion.length >= 0.8f, "Construction completion SFX is missing");
         }
 
         private static void VerifyAudioFolderLoadType(string folder, AudioClipLoadType expectedLoadType)

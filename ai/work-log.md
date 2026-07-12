@@ -1,12 +1,43 @@
 # Work Log
 
-Last updated: 2026-07-11
+Last updated: 2026-07-12
 
 ## Active
 
 - None.
 
 ## Done
+
+### 2026-07-12 - Replaced the global pixel font with Inter
+
+- Replaced Pixelify Sans with licensed Inter Regular through the shared `StrategyUiThemeProvider`, covering the main menu, HUD, dialogs, debug panels, and runtime-created text without per-surface changes.
+- Removed the unused Pixelify Sans font/license assets and updated visual verification to require the Resources-backed Inter font.
+- Preserved the existing pixel-framed panels and buttons so typography becomes clearer without discarding the established UI material style.
+- Verification: runtime and Editor C# builds pass with 0 warnings and 0 errors; affected C# files remain within 500 lines.
+
+### 2026-07-12 - Restored a static main menu backdrop
+
+- Baked the selected campfire, chimney smoke, river, wood-carrier, and water-carrier composition directly into the generated 1672x941 main-menu key art.
+- Removed all runtime backdrop frame animation, whole-art drift, five 4x2 animation atlases, and their Resources verification requirements; the responsive cover crop and button hover feedback remain.
+- Verification: runtime and Editor C# builds pass with 0 warnings and 0 errors; affected C# files remain within 500 lines.
+
+### 2026-07-12 - Generated animated pixel-art main-menu key art
+
+- Replaced the old main-menu settlement assembled from gameplay sprites with dedicated generated 1672x941 pixel-art key art composed around the existing dark left-side menu band, then removed baked residents, campfire flames, and chimney smoke from the clean animation plate.
+- Added five generated, alpha-matted, point-filtered 4x2 atlases for the campfire, chimney smoke, flowing river, wood carrier, and water carrier. The menu slices them into real frame animations at runtime; smoke cycles use independent phases and both residents walk closed routes with directional flipping.
+- Removed the former snow, ember, smoke-puff, and river-glint particle overlays. The bounded sprite-sheet layers inherit the artwork's responsive cover crop and retain only the subtle whole-art drift.
+- Extended visual verification to require all five divisible, uncompressed, mip-free menu animation atlases in addition to the point-filtered Resources-backed key art.
+- Disabled menu music while retaining HUD SFX, and added pointer/keyboard hover movement, warm tint, gold accent, press response, and a quiet throttled hover cue to every main-menu command button.
+- Verification: runtime and Editor C# builds pass with 0 warnings and 0 errors; affected C# files remain within 500 lines.
+
+### 2026-07-12 - Total sound-design architecture upgrade
+
+- Replaced per-resident footstep/work and standalone forestry AudioSources/filters with one fixed 18-voice spatial pool using bus routing, camera-aware filtering, family concurrency limits, and importance-based voice stealing.
+- Expanded the central mix into named Music/Ambience/Weather/Water/Settlement/Work/Footsteps/Wildlife/Fire/ImportantEvents/HUD buses with smooth pause, night, weather, and zoom profiles; added an Editor builder for the matching Unity AudioMixer asset/groups.
+- Added a camera-area world audio director with procedural day/night settlement, campfire, and winter layers plus bounded construction, delivery, lamp ignition, wolf howl, burial, and distant-work details.
+- Added season-aware imported ambience weighting, terrain/trail/snow footstep profiles, context-tagged Calm/Night/Winter/Storm music selection, inter-track silence, end fades, and focus-safe music pause/resume.
+- Added audio voice-budget diagnostics to periodic audio logs and performance baseline windows plus Edit/Play verification for mixer groups, procedural layers, director bootstrap, and the hard voice cap.
+- Removed fixed-rate impulses from the procedural settlement and fire loops after they produced a repetitive wing-flap-like rhythm; local work remains irregularly scheduled and fire crackle now uses non-periodic noise peaks.
 
 ### 2026-07-11 - Debug-log root fixes and runtime load smoothing
 
