@@ -101,7 +101,7 @@ namespace ProjectUnknown.Strategy
             }
 
             funeral.TorchBearer = torchBearer;
-            torchBearer.SetFuneralNightTorchActive(true);
+            bool torchLit = torchBearer.SetFuneralNightTorchActive(true);
             StrategyDebugLogger.Info(
                 "Funeral",
                 "FuneralTorchBearerAssigned",
@@ -109,6 +109,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("residentId", funeral.Snapshot.ResidentId),
                 StrategyDebugLogger.F("torchBearer", torchBearer.FullName),
                 StrategyDebugLogger.F("torchBearerId", torchBearer.ResidentId),
+                StrategyDebugLogger.F("torchLit", torchLit),
                 StrategyDebugLogger.F("startedAtNight", funeral.StartedAtNight),
                 StrategyDebugLogger.F("phase", StrategyDayNightCycleController.CurrentCalendarSnapshot.PhaseLabel));
         }

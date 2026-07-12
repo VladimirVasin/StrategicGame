@@ -412,7 +412,7 @@ namespace ProjectUnknown.Strategy
             return false;
         }
 
-        private static bool TryStartFuneralMoveAround(
+        private bool TryStartFuneralMoveAround(
             StrategyResidentAgent resident,
             Vector3 centerWorld,
             int preferredIndex,
@@ -425,12 +425,17 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            for (int attempt = 0; attempt < 8; attempt++)
+            float cellStep = map != null ? Mathf.Max(0.5f, map.CellSize) : 1f;
+            for (int ring = 0; ring < 4; ring++)
             {
-                Vector3 target = centerWorld + GetRingOffset(preferredIndex + attempt, radius);
-                if (resident.TryStartFuneralMove(target, activity, silent, false))
+                float ringRadius = radius + ring * cellStep;
+                for (int attempt = 0; attempt < 8; attempt++)
                 {
-                    return true;
+                    Vector3 target = centerWorld + GetRingOffset(preferredIndex + attempt, ringRadius);
+                    if (resident.TryStartFuneralMove(target, activity, silent, false))
+                    {
+                        return true;
+                    }
                 }
             }
 

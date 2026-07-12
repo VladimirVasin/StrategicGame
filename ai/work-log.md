@@ -1,5 +1,48 @@
 # Work Log
 
+### 2026-07-12 - Chicken Coop frame and placement alignment fix
+
+- Routed every standalone Chicken Coop production frame through the same authored-building lookup and cache path, preventing animation from mixing baked sprites with procedural fallback sprites that used a different pivot.
+- Aligned Chicken Coop authored frames to the common building ground pivot (`0.10`) instead of the decorative-camp pivot (`0.20`), keeping build preview and placed visuals registered to the footprint ground edge.
+- Preserved the legacy House Chicken Coop upgrade sprite path; only the active standalone building wrapper changed.
+
+### 2026-07-12 - Fisher Hut local fish availability recovery
+
+- Added a bounded Fisher Hut support pass that seeds up to two adult lake fish in the nearest in-range lake region with valid shore access when no catchable fish exist nearby.
+- Kept support spawning under existing global and per-lake capacity limits and rechecks availability on a throttled cooldown after failed target searches.
+- Made fishing-stand selection deterministic so reservation validation and actual movement reuse the same nearest viable shore choice instead of separate random choices.
+- Added throttled `FishTargetUnavailable`, `FisherHutFishSupportCompleted`, and support-skip diagnostics for distinguishing empty water, unreachable shore, frozen water, full storage, and unavailable wildlife state.
+
+### 2026-07-12 - Non-readable nature texture wind-split fix
+
+- Fixed foliage-layer generation for baked/imported nature sprites whose texture Read/Write setting is disabled.
+- Kept direct CPU pixel access for readable procedural sprites and added a temporary GPU readback path for non-readable textures.
+- Restored the previously active render target and released temporary texture resources after each uncached split.
+
+### 2026-07-12 - Foliage-only wind sway
+
+- Split generated tree, forest-group, bush, and plant sprites at runtime into a fixed trunk/base layer and a cached foliage layer.
+- Applied wind rotation, offset, and stretch only to the foliage layer while keeping world position, shadows, blockers, and interaction roots fixed.
+- Synchronized foliage tint, flip, material, and sorting with the source renderer and refreshed the split when forestry growth, felling, or log sprites replace the standing visual.
+
+### 2026-07-12 - Opening two-day death protection
+
+- Centralized a no-death grace period in population death handling for calendar days 1-2, covering annual/malnutrition mortality, cold, wolf attacks, and future causes using the same death path.
+- Normal death handling resumes at the start of calendar day 3.
+- Added once-per-resident-per-day diagnostics for blocked death attempts without spamming repeated wolf attacks.
+
+### 2026-07-12 - Diagnostic follow-up fixes
+
+- Expanded family funeral gathering from one sub-cell-radius ring to four progressively wider cell-spaced rings, allowing relatives to find reachable positions when a corpse is inside or beside a building blocker.
+- Split intentional audio concurrency suppression from real voice-capacity drops; `VoiceBudget` now reports both `dropped` and `suppressed`, so duplicate throttling no longer inflates the capacity-failure metric.
+- Confirmed construction already exhausts all collected work-cell candidates before retrying and wildlife migration already uses connected-route validation plus failed-target/log cooldowns; no duplicate fallback logic was added.
+
+### 2026-07-12 - Funeral torch real light activation
+
+- Allowed active funeral participants, including corpse carriers, to keep a real funeral torch light even if residual carried-resource inventory is present.
+- Funeral torch activation now returns and logs the actual light state instead of unconditionally reporting a successful ignition.
+- Added explicit failure diagnostics and recorded `torchLit` on funeral torch-bearer assignment.
+
 ### 2026-07-12 - Full building sprite polish pass
 
 - Added restrained material and ground-contact accents across extraction/gathering, production, storage, and trade building sprite families while preserving silhouettes, footprints, animation contracts, and variant palettes.

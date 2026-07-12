@@ -24,6 +24,7 @@ When a real tutorial or onboarding flow is implemented:
 - After `New Settlement` reaches the gameplay scene, the left-side Goals HUD shows `Build 3 Houses (0/3)`.
 - Normal startup places a temporary Caravan Cart near the campfire instead of a prebuilt Storage Yard; it starts with 20 Logs, 20 Stone, and randomized raw food covering 3 days for the initial families.
 - Dawn counts as settlement work time on every day, so auto-assigned builders and haulers can begin starter construction immediately.
+- Residents cannot die from any cause during calendar days 1-2; normal mortality begins at the start of day 3.
 - While this goal is active, the Build menu allows only `House`; all other building categories/items are locked.
 - Completed construction, not placed construction sites, advances goal progress.
 - After the third completed House, the next goal stage starts.

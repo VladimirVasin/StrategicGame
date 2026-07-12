@@ -18,6 +18,8 @@ namespace ProjectUnknown.Strategy
         private SpriteRenderer stockRenderer;
         private object fishReservationOwner;
         private int reservedFish;
+        private float nextFishAvailabilityCheckTime;
+        private float nextReservationFailureLogTime;
         private readonly StrategyResourceStore resourceStore = new();
         private ref int fishStored => ref resourceStore.GetAmountRef(StrategyResourceType.Fish);
         private static readonly Vector2Int[] CardinalFishingDirections =
@@ -50,6 +52,7 @@ namespace ProjectUnknown.Strategy
             wildlife = wildlifeController;
             EnsureStockRenderer();
             UpdateStockVisual();
+            wildlife?.EnsureCatchableFishNearFisherHut(Origin, WorkRadius);
             StrategyDebugLogger.Info(
                 "FisherHut",
                 "Configured",
@@ -186,9 +189,32 @@ namespace ProjectUnknown.Strategy
                 wildlife = StrategyWildlifeController.Active;
             }
 
-            return HasStorageSpace
-                && wildlife != null
-                && wildlife.TryReserveFishForFishing(Origin, WorkRadius, owner, candidate => CanReserveFishTarget(owner, candidate), out fish);
+            if (!HasStorageSpace || wildlife == null)
+            {
+                LogReservationFailure(!HasStorageSpace ? "hut_storage_full" : "wildlife_unavailable");
+                return false;
+            }
+
+            if (wildlife.TryReserveFishForFishing(
+                Origin,
+                WorkRadius,
+                owner,
+                candidate => CanReserveFishTarget(owner, candidate),
+                out fish))
+            {
+                return true;
+            }
+
+            if (Time.time >= nextFishAvailabilityCheckTime)
+            {
+                nextFishAvailabilityCheckTime = Time.time + 12f;
+                wildlife.EnsureCatchableFishNearFisherHut(Origin, WorkRadius);
+            }
+
+            LogReservationFailure(wildlife.CountCatchableFish(Origin, WorkRadius) > 0
+                ? "no_reachable_shore"
+                : "no_fish_in_radius");
+            return false;
         }
 
         private bool CanReserveFishTarget(object owner, StrategyFishAgent fish)
@@ -237,11 +263,24 @@ namespace ProjectUnknown.Strategy
                     }
                 }
 
-                if (candidates.Count > 0)
+                if (candidates.Count <= 0)
                 {
-                    cell = candidates[Random.Range(0, candidates.Count)];
-                    return true;
+                    continue;
                 }
+
+                cell = candidates[0];
+                float bestSqr = (cell - Origin).sqrMagnitude;
+                for (int i = 1; i < candidates.Count; i++)
+                {
+                    float sqr = (candidates[i] - Origin).sqrMagnitude;
+                    if (sqr < bestSqr)
+                    {
+                        cell = candidates[i];
+                        bestSqr = sqr;
+                    }
+                }
+
+                return true;
             }
 
             return false;

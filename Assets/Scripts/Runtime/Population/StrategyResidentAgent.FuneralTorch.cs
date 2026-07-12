@@ -4,7 +4,7 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyResidentAgent
     {
-        internal void SetFuneralNightTorchActive(bool active)
+        internal bool SetFuneralNightTorchActive(bool active)
         {
             if (funeralNightTorchActive == active)
             {
@@ -13,7 +13,7 @@ namespace ProjectUnknown.Strategy
                     EnableNightTorchLight();
                 }
 
-                return;
+                return !active || nightTorchLightActive;
             }
 
             funeralNightTorchActive = active;
@@ -25,16 +25,34 @@ namespace ProjectUnknown.Strategy
                     DisableNightTorchLight();
                 }
 
-                return;
+                return true;
             }
 
             EnableNightTorchLight();
-            StrategyDebugLogger.Info(
-                "Funeral",
-                "ResidentFuneralTorchLit",
-                StrategyDebugLogger.F("resident", FullName),
-                StrategyDebugLogger.F("residentId", residentId),
-                StrategyDebugLogger.F("activity", activity));
+            bool lit = nightTorchLightActive;
+            if (lit)
+            {
+                StrategyDebugLogger.Info(
+                    "Funeral",
+                    "ResidentFuneralTorchLit",
+                    StrategyDebugLogger.F("resident", FullName),
+                    StrategyDebugLogger.F("residentId", residentId),
+                    StrategyDebugLogger.F("activity", activity));
+            }
+            else
+            {
+                StrategyDebugLogger.Warn(
+                    "Funeral",
+                    "ResidentFuneralTorchLightFailed",
+                    StrategyDebugLogger.F("resident", FullName),
+                    StrategyDebugLogger.F("residentId", residentId),
+                    StrategyDebugLogger.F("activity", activity),
+                    StrategyDebugLogger.F("carryingResource", HasAnyCarriedResource()),
+                    StrategyDebugLogger.F("hiddenInsideHome", hiddenInsideHome),
+                    StrategyDebugLogger.F("hiddenUnderground", hiddenUnderground));
+            }
+
+            return lit;
         }
 
         private bool ShouldUseFuneralNightTorch()
@@ -49,7 +67,7 @@ namespace ProjectUnknown.Strategy
                 && !deathRequested
                 && !IsPendingRefugee
                 && !IsHomeboundYoungChild
-                && !HasAnyCarriedResource()
+                && (!HasAnyCarriedResource() || IsFuneralActivity(activity))
                 && (IsFuneralActivity(activity)
                     || returningHomeWithFuneralTorch
                     || activity == ResidentActivity.Idle

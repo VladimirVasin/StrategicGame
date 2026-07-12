@@ -71,7 +71,8 @@ namespace ProjectUnknown.Strategy
                     "VoiceBudget",
                     StrategyDebugLogger.F("active", StrategyAudioVoicePool.ActiveVoiceCount),
                     StrategyDebugLogger.F("capacity", StrategyAudioVoicePool.Capacity),
-                    StrategyDebugLogger.F("dropped", StrategyAudioVoicePool.DroppedVoiceCount));
+                    StrategyDebugLogger.F("dropped", StrategyAudioVoicePool.DroppedVoiceCount),
+                    StrategyDebugLogger.F("suppressed", StrategyAudioVoicePool.SuppressedVoiceCount));
             }
         }
 

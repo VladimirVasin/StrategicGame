@@ -282,6 +282,7 @@ namespace ProjectUnknown.Strategy
             spriteRenderer.sprite = StrategyNatureSpriteFactory.GetTreeGrowthSprite(Stage, VisualVariant);
             spriteRenderer.color = Color.white;
             StrategyWorldSorting.Apply(spriteRenderer, transform.position);
+            windSway?.RefreshVisual();
             SyncDamageSorting();
             EnsureStandingWorldShadow();
         }
@@ -387,6 +388,7 @@ namespace ProjectUnknown.Strategy
             if (spriteRenderer != null)
             {
                 spriteRenderer.sprite = StrategyNatureSpriteFactory.GetFelledTreeSprite(VisualVariant);
+                windSway?.RefreshVisual();
                 spriteRenderer.flipX = fallDirection < 0;
                 StrategyWorldSorting.Apply(spriteRenderer, transform.position);
                 SyncDamageSorting();
@@ -413,6 +415,7 @@ namespace ProjectUnknown.Strategy
             if (spriteRenderer != null)
             {
                 spriteRenderer.sprite = StrategyNatureSpriteFactory.GetSplitLogsSprite(VisualVariant);
+                windSway?.RefreshVisual();
                 spriteRenderer.flipX = fallDirection < 0;
                 StrategyWorldSorting.Apply(spriteRenderer, transform.position);
                 SyncDamageSorting();

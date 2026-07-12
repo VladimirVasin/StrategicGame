@@ -29,6 +29,7 @@ namespace ProjectUnknown.Strategy
         private const float MortalityChanceAfterFiftyPerYear = 0.018f;
         private const float MortalityMaxAnnualChance = 0.70f;
         private const float MalnutritionMortalityMaxAnnualChance = 0.95f;
+        private const int ProtectedOpeningDayCount = 2;
 
         private static readonly string[] MaleFirstNames =
         {
@@ -107,6 +108,8 @@ namespace ProjectUnknown.Strategy
         private readonly Dictionary<int, StrategyResidentAgent> residentsById = new();
         private readonly Dictionary<int, StrategyResidentFamilyRecord> familyRecordsById = new();
         private readonly Dictionary<string, int> familyNameUseCounts = new();
+        private readonly HashSet<int> protectedDeathLoggedResidentIds = new();
+        private int protectedDeathLogDayIndex = -1;
         private CityMapController map;
         private Transform residentRoot;
         private StrategyFuneralController funeralController;
@@ -267,6 +270,29 @@ namespace ProjectUnknown.Strategy
         {
             if (resident == null || resident.IsPendingRefugee || !residents.Contains(resident))
             {
+                return false;
+            }
+
+            StrategyCalendarSnapshot calendar = StrategyDayNightCycleController.CurrentCalendarSnapshot;
+            if (calendar.DayIndex < ProtectedOpeningDayCount)
+            {
+                if (protectedDeathLogDayIndex != calendar.DayIndex)
+                {
+                    protectedDeathLogDayIndex = calendar.DayIndex;
+                    protectedDeathLoggedResidentIds.Clear();
+                }
+
+                if (protectedDeathLoggedResidentIds.Add(resident.ResidentId))
+                {
+                    StrategyDebugLogger.Info(
+                        "Population",
+                        "ResidentDeathBlockedDuringOpeningDays",
+                        StrategyDebugLogger.F("resident", resident.FullName),
+                        StrategyDebugLogger.F("residentId", resident.ResidentId),
+                        StrategyDebugLogger.F("reason", reason),
+                        StrategyDebugLogger.F("day", calendar.DisplayDay));
+                }
+
                 return false;
             }
 

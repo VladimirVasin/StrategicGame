@@ -4,6 +4,24 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyFisherHut
     {
+        private void LogReservationFailure(string reason)
+        {
+            if (Time.time < nextReservationFailureLogTime)
+            {
+                return;
+            }
+
+            nextReservationFailureLogTime = Time.time + 10f;
+            StrategyDebugLogger.Warn(
+                "Fishing",
+                "FishTargetUnavailable",
+                StrategyDebugLogger.F("hutOrigin", Origin),
+                StrategyDebugLogger.F("reason", reason),
+                StrategyDebugLogger.F("fishNearby", wildlife != null ? wildlife.CountCatchableFish(Origin, WorkRadius) : 0),
+                StrategyDebugLogger.F("storageSpace", HasStorageSpace),
+                StrategyDebugLogger.F("waterFrozen", StrategySeasonalSurfaceController.IsWaterFrozenForGameplay));
+        }
+
         private void EnsureStockRenderer()
         {
             if (stockRenderer != null)

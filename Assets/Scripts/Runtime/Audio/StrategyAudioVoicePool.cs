@@ -23,9 +23,11 @@ namespace ProjectUnknown.Strategy
         private readonly Dictionary<string, float> nextPlayTimes = new();
         private float refreshTimer;
         private int droppedVoices;
+        private int suppressedVoices;
 
         public static int ActiveVoiceCount => instance != null ? instance.CountActiveVoices() : 0;
         public static int DroppedVoiceCount => instance != null ? instance.droppedVoices : 0;
+        public static int SuppressedVoiceCount => instance != null ? instance.suppressedVoices : 0;
         public static int Capacity => VoiceCount;
 
         public static bool Play(
@@ -159,7 +161,7 @@ namespace ProjectUnknown.Strategy
 
             if (activeForKey >= Mathf.Max(1, concurrencyLimit))
             {
-                droppedVoices++;
+                suppressedVoices++;
                 return false;
             }
 

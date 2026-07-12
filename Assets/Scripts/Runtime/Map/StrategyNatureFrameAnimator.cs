@@ -20,7 +20,8 @@ namespace ProjectUnknown.Strategy
             variant = propVariant;
             frameIndex = Mathf.FloorToInt(Mathf.Abs(phase) * 10f) % StrategyNatureAmbientSpriteFactory.FrameCount;
             frameTimer = Mathf.Abs(phase) % FrameDuration;
-            EnsureOverlay(baseRenderer);
+            StrategyWindSway sway = GetComponent<StrategyWindSway>();
+            EnsureOverlay(baseRenderer, sway != null ? sway.FoliageTransform : null);
             ApplyFrame();
         }
 
@@ -51,7 +52,7 @@ namespace ProjectUnknown.Strategy
             ApplyFrame();
         }
 
-        private void EnsureOverlay(SpriteRenderer baseRenderer)
+        private void EnsureOverlay(SpriteRenderer baseRenderer, Transform foliageTransform)
         {
             if (overlayRenderer != null)
             {
@@ -59,7 +60,7 @@ namespace ProjectUnknown.Strategy
             }
 
             GameObject overlay = new GameObject("Leaf Frame Overlay");
-            overlay.transform.SetParent(transform, false);
+            overlay.transform.SetParent(foliageTransform != null ? foliageTransform : transform, false);
             overlay.transform.localPosition = Vector3.zero;
             overlay.transform.localScale = Vector3.one;
             overlayRenderer = overlay.AddComponent<SpriteRenderer>();

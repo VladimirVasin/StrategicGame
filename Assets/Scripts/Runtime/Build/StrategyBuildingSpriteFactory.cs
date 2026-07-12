@@ -139,7 +139,6 @@ namespace ProjectUnknown.Strategy
             }
 
             float pivotY = tool == StrategyBuildTool.ForagerCamp
-                || tool == StrategyBuildTool.ChickenCoop
                 || tool == StrategyBuildTool.TradingPost
                     ? 0.20f
                     : 0.10f;
@@ -173,13 +172,7 @@ namespace ProjectUnknown.Strategy
         public static Sprite GetStandaloneChickenCoopSprite(int frame)
         {
             int normalizedFrame = NormalizeVariant(frame, StrategyBuildingUpgradeSpriteFactory.AnimationFrameCount);
-            int cacheKey = GetCacheKey(StrategyBuildTool.ChickenCoop, normalizedFrame);
-            if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
-            {
-                sprite = CreateChickenCoopSprite(normalizedFrame);
-                CachedSprites[cacheKey] = sprite;
-            }
-
+            TryGetBuildSprite(StrategyBuildTool.ChickenCoop, normalizedFrame, out Sprite sprite);
             return sprite;
         }
 
