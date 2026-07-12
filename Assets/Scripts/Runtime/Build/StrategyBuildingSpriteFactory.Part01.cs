@@ -147,6 +147,7 @@ namespace ProjectUnknown.Strategy
             DrawLine(texture, P(27, 17), P(48, 11), soilDark);
             DrawLine(texture, P(51, 27), P(71, 20), soilDark);
 
+            DrawBuildingPolish(texture, StrategyBuildTool.LumberjackCamp, variant);
             texture.Apply(false, false);
             return Sprite.Create(texture, new Rect(8f, 6f, 80f, 76f), new Vector2(0.5f, 0.10f), PixelsPerUnit);
         }
@@ -249,6 +250,7 @@ namespace ProjectUnknown.Strategy
             DrawThickLine(texture, P(63, 33), P(48, 45), woodDark, 1);
             DrawPickHead(texture, 48, 45, outline, metal, stoneLight);
 
+            DrawBuildingPolish(texture, StrategyBuildTool.StonecutterCamp, variant);
             texture.Apply(false, false);
             return Sprite.Create(texture, new Rect(8f, 6f, 80f, 74f), new Vector2(0.5f, 0.10f), PixelsPerUnit);
         }
@@ -362,6 +364,7 @@ namespace ProjectUnknown.Strategy
             FillEllipse(texture, 66, 18, 3, 3, Rgb(154, 107, 72));
             DrawCanopyRim(texture, 61, 20, 5, 5, outline);
 
+            DrawBuildingPolish(texture, StrategyBuildTool.HunterCamp, variant);
             texture.Apply(false, false);
             return Sprite.Create(texture, new Rect(8f, 6f, 80f, 74f), new Vector2(0.5f, 0.10f), PixelsPerUnit);
         }
@@ -471,6 +474,7 @@ namespace ProjectUnknown.Strategy
             DrawFishNet(texture, 76, 25, outline, Rgb(178, 163, 112), waterLight);
             DrawFishIcon(texture, 59, 19, outline, Rgb(70, 137, 161), Rgb(223, 151, 76));
 
+            DrawBuildingPolish(texture, StrategyBuildTool.FisherHut, variant);
             texture.Apply(false, false);
             return Sprite.Create(texture, new Rect(8f, 6f, 84f, 76f), new Vector2(0.5f, 0.10f), PixelsPerUnit);
         }

@@ -82,6 +82,7 @@
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyGameBootstrap.Audio.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyPopulationRosterHudController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategySettlementTreasury.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingSpriteFactory.Polish.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyFirstYearBalance.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyGranary.Part03.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyPopulationController.Cold.cs" />
@@ -100,8 +101,8 @@
     <Compile Include="Assets\Scripts\Runtime\Selection\StrategyWorldSelectionController.Part12.cs" />
     <Compile Include="Assets\Scripts\Runtime\Visual\StrategyVisualCatalog.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyFishSpriteFactory.cs" />
-    <Compile Include="Assets\Scripts\Runtime\Map\StrategyFogOfWarController.Chunks.cs" />
     <Compile Include="Assets\Scripts\Runtime\Visual\StrategyVisualSequenceIds.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Map\StrategyFogOfWarController.Chunks.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyProfessionHudController.Part06.cs" />
     <Compile Include="Assets\Scripts\Runtime\Menu\StrategySceneCatalog.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyStorageYard.Part09.cs" />
@@ -603,7 +604,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Resources\Audio\Music\PUT_INGAME_MUSIC_HERE.txt" />
-    <None Include="Assets\Resources\Fonts\PixelifySans-OFL.txt" />
+    <None Include="Assets\Resources\Fonts\Inter-OFL.txt" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

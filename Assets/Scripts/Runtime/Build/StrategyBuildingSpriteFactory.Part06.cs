@@ -78,6 +78,7 @@ namespace ProjectUnknown.Strategy
             DrawCoalChunks(texture, variant, coal, coalLight);
             DrawSupportPosts(texture, variant, outline, woodDark, wood, woodLight);
 
+            DrawBuildingPolish(texture, StrategyBuildTool.CoalPit, variant);
             texture.Apply(false, false);
             return Sprite.Create(texture, new Rect(8f, 5f, 84f, 74f), new Vector2(0.5f, 0.10f), PixelsPerUnit);
         }

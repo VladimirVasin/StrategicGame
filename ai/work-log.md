@@ -1,5 +1,17 @@
 # Work Log
 
+### 2026-07-12 - Full building sprite polish pass
+
+- Added restrained material and ground-contact accents across extraction/gathering, production, storage, and trade building sprite families while preserving silhouettes, footprints, animation contracts, and variant palettes.
+- Kept Chicken Coop animation frames, dynamic Bridge spans, and the standalone Caravan Cart composition structurally unchanged; they still receive the corrected catalog pivot pipeline.
+- Added `StrategyBuildingSpriteFactory.Polish.cs` as the shared owner for the cross-catalog finishing pass.
+
+### 2026-07-12 - House visual polish source pass
+
+- Improved the code-native House variants with a more readable masonry foundation, entrance step, subtle mortar breaks, and chimney highlight while preserving silhouette, footprint, palette identity, and pixel scale.
+- Fixed the visual catalog baker to import baked single sprites with `Custom` alignment so their generated lower pivots are actually retained by Unity.
+- Full visual rebake remains pending while the project is open in Unity; source and build verification are complete.
+
 ### 2026-07-12 - Building sprite ground alignment audit
 
 - Audited all catalog buildings against their footprint, navigation blocker, ground detail, preview, construction, load, and completed-building anchors.

@@ -142,6 +142,7 @@ namespace ProjectUnknown.Strategy
             DrawRectOutline(texture, 75, 22, 12, 10, outline);
             DrawLine(texture, P(81, 23), P(81, 31), outline);
 
+            DrawBuildingPolish(texture, StrategyBuildTool.StorageYard, variant);
             texture.Apply(false, false);
             return Sprite.Create(texture, new Rect(8f, 5f, 96f, 74f), new Vector2(0.5f, 0.10f), PixelsPerUnit);
         }
@@ -308,6 +309,7 @@ namespace ProjectUnknown.Strategy
                 DrawLine(texture, P(x - 3, y + 2), P(x + 3, y + 2), outline);
             }
 
+            DrawBuildingPolish(texture, StrategyBuildTool.Granary, variant);
             texture.Apply(false, false);
             return Sprite.Create(texture, new Rect(8f, 5f, 96f, 84f), new Vector2(0.5f, 0.10f), PixelsPerUnit);
         }

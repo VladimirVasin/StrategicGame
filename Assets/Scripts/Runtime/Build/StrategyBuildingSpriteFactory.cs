@@ -295,6 +295,7 @@ namespace ProjectUnknown.Strategy
                 ? new[] { P(19, 18), P(48, 10), P(79, 19), P(51, 28) }
                 : new[] { P(22, 18), P(48, 10), P(76, 19), P(51, 27) };
             FillPolygon(texture, platformTop, stoneLight);
+            DrawHouseFoundationDetails(texture, variant, outline, stoneDark, stoneLight);
 
             Vector2Int[] sideWall = { P(frontRight - 1, 22), P(76, 29), P(76, wallTop + 2), P(frontRight - 1, wallTop - 1) };
             FillPolygon(texture, sideWall, wallSide);
@@ -322,6 +323,7 @@ namespace ProjectUnknown.Strategy
             };
             FillPolygon(texture, chimney, variant == 1 ? Rgb(91, 83, 75) : Rgb(111, 78, 62));
             DrawPolygon(texture, chimney, outline);
+            DrawLine(texture, P(chimneyLeft + 1, chimneyBottom + 8), P(chimneyLeft + 6, chimneyBottom + 10), stoneLight);
 
             Vector2Int[] roofFront = { P(roofLeft, roofEaveY), P(43, roofPeakY), P(roofRightFront, roofEaveY + 1), P(frontRight, roofBaseY), P(frontLeft + 3, roofBaseY) };
             FillPolygon(texture, roofFront, roof);
@@ -334,6 +336,22 @@ namespace ProjectUnknown.Strategy
 
             texture.Apply(false, false);
             return Sprite.Create(texture, new Rect(8f, 6f, 80f, 80f), new Vector2(0.5f, 0.10f), PixelsPerUnit);
+        }
+
+        private static void DrawHouseFoundationDetails(
+            Texture2D texture,
+            int variant,
+            Color outline,
+            Color stoneDark,
+            Color stoneLight)
+        {
+            Color mortar = Color.Lerp(stoneDark, stoneLight, 0.58f);
+            DrawLine(texture, P(24, 18), P(50, 11), mortar);
+            DrawLine(texture, P(50, 11), P(74, 18), mortar);
+            DrawLine(texture, P(31, 15), P(34, 20), stoneDark);
+            DrawLine(texture, P(61, 14), P(59, 21), stoneDark);
+            FillRect(texture, variant == 3 ? 36 : 34, 15, 14, 3, stoneLight);
+            DrawRectOutline(texture, variant == 3 ? 36 : 34, 15, 14, 3, outline);
         }
 
         private static void DrawWallDetails(

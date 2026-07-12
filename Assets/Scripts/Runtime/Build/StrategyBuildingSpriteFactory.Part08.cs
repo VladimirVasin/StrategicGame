@@ -78,6 +78,7 @@ namespace ProjectUnknown.Strategy
                 SetPixelSafe(texture, x, y, i % 3 == 0 ? clayLight : clay);
             }
 
+            DrawBuildingPolish(texture, StrategyBuildTool.ClayPit, variant);
             texture.Apply(false, false);
             return Sprite.Create(texture, new Rect(8f, 6f, 92f, 70f), new Vector2(0.5f, 0.10f), PixelsPerUnit);
         }

@@ -50,6 +50,7 @@ namespace ProjectUnknown.Strategy
             FillEllipse(texture, 44, 31, 3, 2, berry);
             FillEllipse(texture, 50, 31, 3, 2, Rgb(142, 96, 54));
 
+            DrawBuildingPolish(texture, StrategyBuildTool.ForagerCamp, variant);
             texture.Apply(false, false);
             return Sprite.Create(texture, new Rect(4f, 10f, 88f, 58f), new Vector2(0.5f, 0.2f), PixelsPerUnit);
         }
@@ -99,6 +100,7 @@ namespace ProjectUnknown.Strategy
             FillRect(texture, 45, 14, 16, 5, outline);
             FillRect(texture, 47, 15, 12, 4, Rgb(93, 70, 50));
 
+            DrawBuildingPolish(texture, StrategyBuildTool.TradingPost, variant);
             texture.Apply(false, false);
             return Sprite.Create(texture, new Rect(4f, 9f, 96f, 60f), new Vector2(0.5f, 0.2f), PixelsPerUnit);
         }

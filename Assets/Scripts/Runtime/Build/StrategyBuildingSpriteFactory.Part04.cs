@@ -51,6 +51,7 @@ namespace ProjectUnknown.Strategy
                 SetPixelSafe(texture, x, y, i % 3 == 0 ? rustLight : rust);
             }
 
+            DrawBuildingPolish(texture, StrategyBuildTool.Mine, variant);
             texture.Apply(false, false);
             return Sprite.Create(texture, new Rect(8f, 6f, 84f, 76f), new Vector2(0.5f, 0.10f), PixelsPerUnit);
         }

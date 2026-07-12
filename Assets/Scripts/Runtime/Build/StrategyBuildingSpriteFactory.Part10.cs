@@ -93,6 +93,7 @@ namespace ProjectUnknown.Strategy
             DrawSmallLogStack(texture, 14, 19, outline, wood, woodLight);
             DrawToolPile(texture, 84, 23, outline, metal, Rgb(199, 199, 184));
 
+            DrawBuildingPolish(texture, StrategyBuildTool.Forge, variant);
             texture.Apply(false, false);
             return Sprite.Create(texture, new Rect(8f, 5f, 92f, 74f), new Vector2(0.5f, 0.10f), PixelsPerUnit);
         }

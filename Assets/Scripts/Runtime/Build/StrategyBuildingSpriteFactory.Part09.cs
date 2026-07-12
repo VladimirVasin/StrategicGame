@@ -80,6 +80,7 @@ namespace ProjectUnknown.Strategy
             DrawThickLine(texture, P(16, 35), P(33, 42), outline, 3);
             DrawThickLine(texture, P(17, 35), P(32, 42), wood, 1);
 
+            DrawBuildingPolish(texture, StrategyBuildTool.Kiln, variant);
             texture.Apply(false, false);
             return Sprite.Create(texture, new Rect(8f, 5f, 92f, 74f), new Vector2(0.5f, 0.10f), PixelsPerUnit);
         }

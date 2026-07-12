@@ -85,6 +85,7 @@ namespace ProjectUnknown.Strategy
             DrawSawmillBench(texture, outline, timberDark, timber, timberLight, blade);
             DrawBoardStack(texture, 75, 19, 5, outline, timber, timberLight);
 
+            DrawBuildingPolish(texture, StrategyBuildTool.Sawmill, variant);
             texture.Apply(false, false);
             return Sprite.Create(texture, new Rect(8f, 5f, 100f, 78f), new Vector2(0.5f, 0.10f), PixelsPerUnit);
         }

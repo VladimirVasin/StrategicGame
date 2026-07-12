@@ -170,6 +170,10 @@ namespace ProjectUnknown.Strategy.EditorTools
             importer.textureType = TextureImporterType.Sprite;
             importer.spriteImportMode = SpriteImportMode.Single;
             importer.spritePixelsPerUnit = ppu;
+            TextureImporterSettings settings = new();
+            importer.ReadTextureSettings(settings);
+            settings.spriteAlignment = (int)SpriteAlignment.Custom;
+            importer.SetTextureSettings(settings);
             importer.spritePivot = pivot;
             ConfigureCommonImporter(importer);
             importer.isReadable = readable;
