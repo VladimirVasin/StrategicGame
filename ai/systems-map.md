@@ -619,7 +619,7 @@ Impact hints:
 - Future movement/pathfinding should use `IsCellWalkable` rather than terrain kind alone.
 - Rendering is currently a generated point-filtered texture on a `SpriteRenderer`, not a Tilemap.
 - Water and shore animation is a separate transparent `SpriteRenderer` overlay above the static map and below world props; it reads active weather intensity for rain ripple hits and repaints only cached water/shore cells after setup.
-- Trail visuals use one `SpriteRenderer` per visible route-road cell under a `Trail Visuals` root, sorted above terrain/water overlays and below world props, with cardinal N/E/S/W right-angle masks and narrow line/brush sprites; visual road formation comes from direct-first completed building-to-building traversals rather than per-step footfall squares, raw A* detours, or background network convergence. Route recording can add single-sided connector cells with exactly one existing route-road neighbor or step onto adjacent existing route roads, must reject full 2x2 route-road blocks, must not record disconnected tail cells after a skipped square candidate, and can run a bounded local cardinal repair search for a connected no-square detour. Roadside torch props are generated under a separate `Roadside Props` root and should remain visual-only, non-blocking derivatives of route-road cells.
+- Trail visuals use one `SpriteRenderer` per visible route-road cell under a `Trail Visuals` root, sorted above terrain/water overlays and below world props, with cardinal N/E/S/W right-angle masks and narrow line/brush sprites; visual road formation comes from direct-first completed building-to-building traversals rather than per-step footfall squares, raw A* detours, or background network convergence. Route recording starts from the endpoint not already connected, stops at the first cardinal contact with an existing route road, rejects full 2x2 route-road blocks, must not record disconnected tail cells after a skipped square candidate, and can run a bounded local cardinal repair search for a connected no-square detour. Roadside torch props are generated under a separate `Roadside Props` root and should remain visual-only, non-blocking derivatives of route-road cells.
 - Road cells are runtime-only and should be refreshed when map walkability or cell validity changes so blocked cells do not keep visible or functional roads.
 - Resident pathfinding should continue to use the shared road-aware pathfinder, reading functional road cells as a cost preference rather than required connectivity.
 - `StrategyWorldChunkRegistry` is the shared chunk foundation for future Minecraft-style incremental work; first migrate expensive scans behind its safe query APIs, then switch fog/weather/props/lights/resources to dirty or active chunks only.
@@ -762,6 +762,8 @@ Impact hints:
 
 Responsibilities:
 
+- Grow settlement cats and mice from completed-building, occupied-house, and food-building counts; mice hide and scurry around food structures while cats patrol, reserve, pursue, and catch nearby mice.
+
 - Spawn compact ambient deer herds only on currently hidden suitable land cells near completed buildings or active construction sites.
 - Spawn compact ambient rabbit groups only on currently hidden suitable land cells near completed buildings or active construction sites.
 - Spawn compact lake fish shoals only in currently hidden lake cells near settlement anchors, with strict per-shoal and per-lake population caps.
@@ -813,6 +815,13 @@ Responsibilities:
 
 Primary files/assets:
 
+- `Assets/Scripts/Runtime/Wildlife/StrategySettlementFaunaController.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategySettlementFaunaController.Population.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategySettlementFaunaTypes.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyCatAgent.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyMouseAgent.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategySettlementFaunaSpriteFactory.cs`
+- `Assets/Scripts/Runtime/Build/StrategyFishingAccessUtility.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.Fishing.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.MigrationDiagnostics.cs`
@@ -2067,6 +2076,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyFuneralController.cs`
 - `Assets/Scripts/Runtime/Population/StrategyFuneralController.Part01.cs`
 - `Assets/Scripts/Runtime/Population/StrategyFuneralController.Part02.cs`
+- `Assets/Scripts/Runtime/Population/StrategyFuneralController.Part03.cs`
 - `Assets/Scripts/Runtime/Population/StrategyCemeteryController.cs`
 - `Assets/Scripts/Runtime/Population/StrategyCorpse.cs`
 - `Assets/Scripts/Runtime/Population/StrategyFuneralSpriteFactory.cs`
@@ -2105,6 +2115,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part49.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part57.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part58.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.ChildIdle.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part60.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part62.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentSpriteFactory.Part05.cs`
@@ -2217,7 +2228,7 @@ Impact hints:
 - Construction assignment is an exclusive active task for settlement Builders; there is no construction-site builder cap, balanced dispatch spreads free Builders across active sites first, and workplace assignment skips residents already attached to a construction site. Construction assignment does not block home/family assignment.
 - Construction hammer work must reserve an individual unlocked build-hit unit on `StrategyConstructionSite` before the resident enters the hammer animation; reset, assignment clear, site completion, and site destruction paths must release those reservations.
 - Builder construction pickup path failures include start/pickup walkability details in `debug.log`; repeated pickup path failures drop that builder's current site assignment so another builder can retry.
-- Worker and builder assignment must check `StrategyResidentAgent.CanWork`; children under age 3 remain inside assigned homes, and older children can play or carry raw household food home at displayed age 6+, but cannot work/build.
+- Worker and builder assignment must check `StrategyResidentAgent.CanWork`; children under age 3 remain inside assigned homes, and older children can use age-weighted ambient actions or carry raw household food home at displayed age 6+, but cannot work/build.
 - Resident construction sprites are generated for every male/female visual variant and should stay in sync with readability outline mirroring.
 - Resident crying sprites are generated for adult and child funeral mourning/waiting states and should stay in sync with readability outline mirroring.
 - Chickens use the same local path style as before; their animation and standalone coop night sheltering are visual-only.
@@ -2361,6 +2372,7 @@ Impact hints:
 Responsibilities:
 
 - Extend starter onboarding into food/fuel preparation and first-winter endurance goals.
+- Show live current-days/target-days progress bars for first-winter Food and Firewood preparation using `StrategySeasonReadiness` values.
 - Apply house warmth, resident cold exposure, seasonal movement/mortality consequences, and season/housing-aware refugee pressure.
 - Clear the winter goal and continue normal sandbox simulation after the first winter; do not create victory or defeat outcomes at this stage.
 

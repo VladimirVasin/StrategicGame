@@ -35,6 +35,7 @@ When a real tutorial or onboarding flow is implemented:
 - While the third stage is active, the Build menu allows only `Extraction` / `Camps` / `Lumberjack Camp` and `Stonecutter Camp`; other buildings remain locked.
 - After both raw-resource camps are completed, the starter goal sequence completes and the full Build menu catalog unlocks.
 - The Goals HUD then asks the settlement to stock seven days of food and seven days of firewood before the first Winter.
+- Both preparation goals show live filled bars and current reserve days out of seven, using the same readiness calculation that completes the goals.
 - Winter readiness counts physical stock across eligible settlement stores and production buildings but excludes resources currently carried by residents.
 - When Winter starts, the preparation goals are replaced by `Endure the first winter`.
 - Occupied houses consume stored Logs for warmth during winter nights; residents accumulate cold exposure in underheated houses, and homeless residents accumulate exposure at Dawn.

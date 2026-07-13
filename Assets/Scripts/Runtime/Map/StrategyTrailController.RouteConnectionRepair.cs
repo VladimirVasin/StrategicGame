@@ -9,6 +9,8 @@ namespace ProjectUnknown.Strategy
         private const int RouteRepairBoundsPadding = 12;
         private const int RouteRepairMaxVisited = 4096;
         private const int RouteRepairSquarePenalty = 24;
+        private const int RouteRepairMaxExtraCells = 2;
+        private const int RouteRepairMaxSegmentCells = 8;
         private static readonly Vector2Int[] RouteCardinalDirections =
         {
             Vector2Int.up,
@@ -52,6 +54,21 @@ namespace ProjectUnknown.Strategy
 
                 if (!TryFindRouteRepairPath(start, target, targetCells))
                 {
+                    continue;
+                }
+
+                int directDistance = GetRouteRepairHeuristic(start, target);
+                if (routeRepairPathCells.Count > RouteRepairMaxSegmentCells
+                    || routeRepairPathCells.Count > directDistance + RouteRepairMaxExtraCells)
+                {
+                    StrategyDebugLogger.Info(
+                        "Map",
+                        "TrailRouteConnectorRepairRejected",
+                        StrategyDebugLogger.F("from", start),
+                        StrategyDebugLogger.F("to", target),
+                        StrategyDebugLogger.F("reason", "excessive_detour"),
+                        StrategyDebugLogger.F("directCells", directDistance),
+                        StrategyDebugLogger.F("repairCells", routeRepairPathCells.Count));
                     continue;
                 }
 

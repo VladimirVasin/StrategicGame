@@ -156,7 +156,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Runtime world chunk registry divides the generated map into 16x16 cell chunks, indexes buildings/construction sites/residents, and exposes camera-near, active-settlement, and dirty-chunk flags for incremental fog/weather visual repaint systems
     - Resident footfalls no longer create functional or visible roads, and automatic route-network convergence is disabled
     - Road cells stay until invalidated by map walkability or cell validity changes instead of decaying from disuse
-    - Route road cells render connected procedural sprites using cardinal N/E/S/W right-angle masks, wear levels, and deterministic variants; repair searches are cardinal, penalize square completion, and guarantee endpoint connectivity through an original-route fallback
+    - Route road cells render connected procedural sprites using cardinal N/E/S/W right-angle masks, wear levels, and deterministic variants; new branches stop at their first cardinal contact with the existing network, while repair searches penalize square completion and retain an original-route connectivity fallback
     - Route roads own a derived roadside-prop layer that places sparse non-blocking torches/lanterns on eligible straight road segments and refreshes them when roads or adjacent buildability change
     - Formed roads give residents a 15% movement-speed bonus and reduce resident pathfinding cost without becoming required routes
     - Runtime nature-props layer
@@ -231,6 +231,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Drives tree, forest-group, and bush sway through per-prop animation phases
       - Shared procedural shadows keep day/night opacity and length tuning while wind-driven props sway
     - Wildlife MVP
+      - Settlement fauna grows with completed buildings: a low-density mouse population emerges near food structures with a recovery delay after catches, while coat/temperament-varied cats use distinct idle/walk/stalk/rest sprite animation while patrolling and hunting reserved mouse targets
       - Runtime-created wildlife controller
       - Spawns 12-16 deer across up to 8 compact herds only on currently hidden suitable land cells within a broad ring around completed buildings or active construction sites
       - Spawns 16-22 rabbits across up to 10 compact groups only on currently hidden suitable land cells within the same near-settlement ring
@@ -583,6 +584,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Completed houses first try to pull a homeless adult male/female pair, including residents who already have workplaces or construction assignments, then fall back to adult-child migration and partner lookup
     - Runtime-generated resident sprites include 5 male variants, 5 female variants, child sprites, matching portrait sprites, and hand-carried torch walk/light frames for night lamp duty, with temporary carried torch light during night-light tasks
     - Resident movement uses cached 8-frame procedural walk cycles for adult and child variants
+    - Outdoor children use age-weighted ambient idle actions with distinct motion and HUD states: drawing in dirt, sitting near home, watching village activity, talking with another child, solo play, and tag
     - Lumberjack work uses cached frame-based axe swing sprites for all male/female visual variants
     - Stonecutter work uses cached frame-based pickaxe swing sprites for all male/female visual variants
     - Construction work uses cached frame-based hammer/build sprites for all male/female visual variants
@@ -633,6 +635,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Custom runtime residents roster HUD showing settlement stats plus filterable resident rows for name, age, home state, role, current status, and food status
 - Custom fullscreen Family Trees HUD opened from the residents roster; it pauses simulation, provides permanent horizontal/vertical scrollbars, lays connected same-surname family cards out as affinity-ordered left-to-right columns, and shows compact generation rows connected by local parent-pair branches plus cross-family relationship lines, deceased markers, gender symbols, and hover relationship labels
   - Custom compact runtime event log showing births, deaths, adoptions, dawn, nightfall, season starts, and late-Autumn winter warnings
+  - Goals HUD supports optional live progress bars; first-winter Food and Firewood goals show current reserve days out of the seven-day target
   - Custom runtime goals HUD showing the active starter build checklist on the left side
   - Custom runtime world inspect microHUD for clicked graves, resources, nature props, and wildlife; residents, buildings, and construction sites use the right-side selection HUD only
     - MicroHUD supports typed chip/row dashboards for wildlife, deposits, trees, forage, and loose resource piles, with old body text kept as fallback

@@ -1,5 +1,79 @@
 # Work Log
 
+### 2026-07-13 - Mouse recovery cadence and unified Fisher Hut access
+
+- Added a randomized 20-40 game-second recovery delay after a cat catches a mouse, preventing the settlement fauna controller from immediately replacing every catch on its four-second population refresh.
+- Added shared `StrategyFishingAccessUtility` so Fisher Hut placement and runtime fish support require the same cardinally adjacent walkable shore within work radius.
+- Extended local Fisher Hut support to valid unregistered Lake water as well as River water, allowing small generated water areas accepted by placement to receive catchable local fish.
+- Verification: `Assembly-CSharp.csproj` builds with 0 warnings and 0 errors; all affected C# files remain below 500 lines.
+
+### 2026-07-13 - Smaller settlement cats
+
+- Reduced settlement cat world scale from `0.96` to `0.70` while preserving the existing sprite-frame animation offsets, leaving cats only moderately larger than mice.
+- Verification: `Assembly-CSharp.csproj` builds with 0 warnings and 0 errors.
+
+### 2026-07-13 - Lower mouse density and cat sprite animation
+
+- Reduced settlement mouse targets to approximately one third of the previous formula, with a new cap of 6, and cull excess live mice on the next fauna refresh so existing sessions converge immediately.
+- Replaced cats' mostly transform-only motion with cached four-frame `Idle`, `Walk`, `Stalk`, and `Rest` sprite sequences that vary body height, head position, leg stride, and tail lift.
+- Verification: `Assembly-CSharp.csproj` builds with 0 warnings and 0 errors; all affected C# files remain below 500 lines.
+
+### 2026-07-12 - Settlement cats and mice runtime population
+
+- Completed the missing settlement-fauna population implementation: dynamic targets now spawn mice near food buildings and cats around the developed settlement at one agent per refresh.
+- Added mouse hide/emerge, local scurry, reservation, and caught behavior plus cat coat/temperament assignment, idle breathing, patrol, mouse search, pursuit, catch, and post-hunt rest behavior.
+- Added cached procedural pixel-art cat and mouse sprites and structured `MouseSpawned`, `CatSpawned`, and `MouseCaught` diagnostics.
+- Added the new runtime sources to `Assembly-CSharp.csproj`; verification builds with 0 warnings and 0 errors and all new C# files remain below 500 lines.
+
+### 2026-07-12 - Grave-cell occupant deadlock fix
+
+- Grave creation now reports whether it failed because the map is unavailable, the grave cell became invalid, or a resident occupies the reserved cell.
+- When burial completion finds a resident on the grave cell, the funeral controller moves the blocker to a free nearby walkable cell and retries grave creation on a throttled interval instead of waiting for the 90-second funeral-duty timeout.
+- Split grave-clearance helpers into `StrategyFuneralController.Part03.cs` to keep every C# file below 500 lines and synchronized `Assembly-CSharp.csproj`.
+- Verification: `Assembly-CSharp.csproj` builds with 0 warnings and 0 errors.
+
+### 2026-07-12 - Wide-river fishing access and early road-network joins
+
+- Fisher Hut support now scans all nearby River water instead of only the river centerline, chooses a shore-adjacent water cell, and spawns local non-migrating adult river fish within cast access.
+- New building-route roads now start from the endpoint not already connected to the road network and stop at the first cardinal contact with an existing road, logging discarded route tails.
+- Verification: `Assembly-CSharp.csproj` builds with 0 warnings and 0 errors; affected C# files remain below 500 lines.
+
+### 2026-07-12 - Funeral torch activation after nightfall
+
+- Active funerals now re-evaluate torch-bearer assignment after the phase changes to Night, including processions that began in daylight.
+- Added a 2-second retry interval so temporarily unavailable attendees can still become the torch bearer without per-frame warning spam.
+- Verification: `Assembly-CSharp.csproj` builds with 0 warnings and 0 errors; `StrategyFuneralController.cs` remains below 500 lines.
+
+### 2026-07-12 - Wider rivers and continuous river fishing
+
+- Increased generated river water width from roughly 2-4 cells to roughly 5-8 cells while retaining the seeded curve and shore band.
+- Extended Fisher Hut fish support from lake-only regions to nearby reachable river-route cells, spawning up to two adult river fish when no catchable target remains.
+- Reduced Fisher Hut availability rechecks to 2 seconds and the successful delivery cooldown to a brief 0.35-0.8 second transition so assigned fishers resume work promptly.
+- Verification: `Assembly-CSharp.csproj` builds with 0 warnings and 0 errors; all affected C# files remain below 500 lines.
+
+### 2026-07-12 - Navigation target and route-repair safeguards
+
+- Rejected route-connection repairs that exceed both a bounded segment length and a small detour allowance over direct cardinal distance, preventing `square_candidate` avoidance from producing very long road loops.
+- Allowed Fisher Huts with nearby but unreachable fish to seed a shore-valid local lake shoal instead of treating raw in-radius fish count as sufficient availability.
+- Fixed Stone deposit lookup to enforce its declared work radius and added resident reachability filtering before reservation, avoiding repeated reserve/move/release failures on inaccessible deposits.
+
+### 2026-07-12 - Route-road micro-square connector fix
+
+- Removed proactive `near_existing` connector insertion after every accepted building-route cell.
+- Kept connector insertion for genuinely rejected/disconnected candidates plus the final route-integrity repair, preventing a connector from stepping off the source route and then repairing back through a small road rectangle near the Caravan Cart.
+
+### 2026-07-12 - First-winter goal progress bars
+
+- Extended goal view state with optional live progress and rendered compact fill bars plus current/target text in the Goals HUD.
+- Connected the first-winter Food and Firewood preparation goals to the shared season-readiness snapshot, showing values such as `4.3 / 7 days` from the same calculation used for completion.
+- Kept non-progress construction goals on the existing checkbox/title presentation.
+
+### 2026-07-12 - Child ambient idle variety
+
+- Expanded outdoor child idle behavior with age-weighted drawing-with-a-stick, sitting-near-home, village-watching, and child-conversation states while retaining solo play and tag.
+- Added distinct transform animation and explicit HUD status for each ambient state; shared child-play cancellation still interrupts them for night, household food help, funerals, aging, and other higher-priority behavior.
+- Moved child ambient selection, animation, and shared play helpers into `StrategyResidentAgent.ChildIdle.cs`, reducing the nearly full existing child-play partial below the 500-line limit.
+
 ### 2026-07-12 - Chicken Coop frame and placement alignment fix
 
 - Routed every standalone Chicken Coop production frame through the same authored-building lookup and cache path, preventing animation from mixing baked sprites with procedural fallback sprites that used a different pivot.

@@ -284,13 +284,21 @@ namespace ProjectUnknown.Strategy
 
         public bool TryReserveStoneDeposit(object owner, out StrategyStoneDeposit deposit)
         {
+            return TryReserveStoneDeposit(owner, null, out deposit);
+        }
+
+        public bool TryReserveStoneDeposit(
+            object owner,
+            System.Func<StrategyStoneDeposit, bool> accepts,
+            out StrategyStoneDeposit deposit)
+        {
             deposit = null;
             if (stone == null || !HasStorageSpace)
             {
                 return false;
             }
 
-            if (!stone.TryFindStoneDeposit(Origin, WorkRadius, out StrategyStoneDeposit candidate)
+            if (!stone.TryFindStoneDeposit(Origin, WorkRadius, accepts, out StrategyStoneDeposit candidate)
                 || !candidate.TryReserve(owner))
             {
                 return false;

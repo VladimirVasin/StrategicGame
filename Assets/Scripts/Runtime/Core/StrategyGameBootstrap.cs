@@ -370,6 +370,16 @@ namespace ProjectUnknown.Strategy
 
             wildlife.Configure(map, population, fog);
             StrategyDebugLogger.Info("Bootstrap", "WildlifeReady");
+
+            StrategySettlementFaunaController settlementFauna = Object.FindAnyObjectByType<StrategySettlementFaunaController>();
+            if (settlementFauna == null)
+            {
+                GameObject faunaObject = new GameObject("Strategy Settlement Fauna");
+                settlementFauna = faunaObject.AddComponent<StrategySettlementFaunaController>();
+            }
+
+            settlementFauna.Configure(map, population, fog, placement);
+            StrategyDebugLogger.Info("Bootstrap", "SettlementFaunaReady");
             yield return null;
 
             StrategyConfirmationDialogController confirmationDialog = Object.FindAnyObjectByType<StrategyConfirmationDialogController>();

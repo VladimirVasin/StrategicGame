@@ -207,8 +207,11 @@ namespace ProjectUnknown.Strategy
 
             if (Time.time >= nextFishAvailabilityCheckTime)
             {
-                nextFishAvailabilityCheckTime = Time.time + 12f;
-                wildlife.EnsureCatchableFishNearFisherHut(Origin, WorkRadius);
+                nextFishAvailabilityCheckTime = Time.time + 2f;
+                wildlife.EnsureCatchableFishNearFisherHut(
+                    Origin,
+                    WorkRadius,
+                    wildlife.CountCatchableFish(Origin, WorkRadius) > 0);
             }
 
             LogReservationFailure(wildlife.CountCatchableFish(Origin, WorkRadius) > 0

@@ -18,6 +18,7 @@ namespace ProjectUnknown.Strategy
         private const float CorpseDragDistance = 0.72f;
         private const float CorpseMaxDragDistance = 0.96f;
         private const float CarrierRetrySeconds = 6.0f;
+        private const float TorchAssignmentRetrySeconds = 2.0f;
         private static readonly Vector2Int[] CardinalDirections =
         {
             new Vector2Int(1, 0),
@@ -57,6 +58,8 @@ namespace ProjectUnknown.Strategy
             public float Timer;
             public bool Dispatched;
             public bool StartedAtNight;
+            public float NextTorchAssignmentTime;
+            public float NextGraveClearanceTime;
             public bool HasReservedGrave;
             public bool Completed;
         }
@@ -140,6 +143,7 @@ namespace ProjectUnknown.Strategy
             FilterLiveResidents(funeral.Participants);
             FilterLiveResidents(funeral.Carriers);
             FilterLiveResidents(funeral.ExpectedBurialAttendees);
+            EnsureNightTorchBearer(funeral);
 
             switch (funeral.Stage)
             {
@@ -162,6 +166,22 @@ namespace ProjectUnknown.Strategy
                     UpdateBurial(funeral);
                     break;
             }
+        }
+
+        private void EnsureNightTorchBearer(FuneralProcess funeral)
+        {
+            if (funeral == null
+                || funeral.TorchBearer != null
+                || !IsNightFuneralTorchTime()
+                || funeral.ExpectedBurialAttendees.Count <= 0
+                || funeral.Stage < FuneralStage.Procession
+                || Time.time < funeral.NextTorchAssignmentTime)
+            {
+                return;
+            }
+
+            funeral.NextTorchAssignmentTime = Time.time + TorchAssignmentRetrySeconds;
+            AssignNightFuneralTorchBearer(funeral);
         }
 
         private void UpdateWaitingForCorpse(FuneralProcess funeral)

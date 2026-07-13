@@ -81,10 +81,24 @@ namespace ProjectUnknown.Strategy
             reservedGraves.Remove(cell);
         }
 
-        public bool TryCreateGrave(StrategyResidentDeathSnapshot snapshot, Vector2Int cell)
+        public bool TryCreateGrave(StrategyResidentDeathSnapshot snapshot, Vector2Int cell, out string failureReason)
         {
-            if (map == null || !IsValidGraveCell(cell) || IsOccupiedByResident(cell))
+            failureReason = null;
+            if (map == null)
             {
+                failureReason = "map_unavailable";
+                return false;
+            }
+
+            if (!IsValidGraveCell(cell))
+            {
+                failureReason = "grave_cell_invalid";
+                return false;
+            }
+
+            if (IsOccupiedByResident(cell))
+            {
+                failureReason = "grave_cell_occupied";
                 return false;
             }
 

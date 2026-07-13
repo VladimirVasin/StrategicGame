@@ -102,6 +102,17 @@ namespace ProjectUnknown.Strategy
             }
 
             StrategySeasonReadinessSnapshot readiness = StrategySeasonReadiness.Evaluate(calendar, population);
+            float targetDays = StrategyFirstYearBalance.WinterPreparationDays;
+            goals?.SetGoalProgress(
+                StrategyGoalKind.PrepareWinterFood,
+                readiness.FoodDays,
+                targetDays,
+                Mathf.Min(readiness.FoodDays, targetDays).ToString("0.#") + " / " + targetDays.ToString("0") + " days");
+            goals?.SetGoalProgress(
+                StrategyGoalKind.PrepareWinterFuel,
+                readiness.FuelDays,
+                targetDays,
+                Mathf.Min(readiness.FuelDays, targetDays).ToString("0.#") + " / " + targetDays.ToString("0") + " days");
             if (!foodPrepared && readiness.CoversFood)
             {
                 foodPrepared = true;

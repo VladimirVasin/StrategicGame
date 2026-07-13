@@ -13,7 +13,7 @@ namespace ProjectUnknown.Strategy
         private static readonly Color AccentColor = new Color(0.78f, 0.59f, 0.25f, 1f);
         private const float PanelWidth = 268f;
         private const float HeaderHeight = 30f;
-        private const float RowHeight = 28f;
+        private const float RowHeight = 42f;
         private const float RowSpacing = 6f;
         private const float IntroDelaySeconds = 2.1f;
         private const float IntroAnimationSeconds = 0.55f;
@@ -229,7 +229,38 @@ namespace ProjectUnknown.Strategy
             label.verticalOverflow = VerticalWrapMode.Truncate;
             label.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1f;
 
-            return new GoalRowUi(root, checkBox, checkMark, label);
+            Image progressTrack = CreateUiObject("ProgressTrack", root).AddComponent<Image>();
+            progressTrack.color = new Color(0.035f, 0.05f, 0.05f, 0.96f);
+            progressTrack.raycastTarget = false;
+            RectTransform trackRect = progressTrack.rectTransform;
+            trackRect.anchorMin = new Vector2(0f, 0f);
+            trackRect.anchorMax = new Vector2(1f, 0f);
+            trackRect.pivot = new Vector2(0.5f, 0f);
+            trackRect.offsetMin = new Vector2(30f, 4f);
+            trackRect.offsetMax = new Vector2(-8f, 9f);
+            LayoutElement trackLayout = progressTrack.gameObject.AddComponent<LayoutElement>();
+            trackLayout.ignoreLayout = true;
+
+            Image progressFill = CreateUiObject("ProgressFill", progressTrack.transform).AddComponent<Image>();
+            progressFill.color = AccentColor;
+            progressFill.raycastTarget = false;
+            RectTransform fillRect = progressFill.rectTransform;
+            fillRect.anchorMin = Vector2.zero;
+            fillRect.anchorMax = Vector2.one;
+            fillRect.offsetMin = Vector2.zero;
+            fillRect.offsetMax = Vector2.zero;
+
+            Text progressText = CreateText("ProgressText", root, string.Empty, 10, TextAnchor.LowerRight, new Color(0.82f, 0.88f, 0.84f));
+            RectTransform progressTextRect = progressText.rectTransform;
+            progressTextRect.anchorMin = new Vector2(0f, 0f);
+            progressTextRect.anchorMax = new Vector2(1f, 0f);
+            progressTextRect.pivot = new Vector2(1f, 0f);
+            progressTextRect.offsetMin = new Vector2(30f, 10f);
+            progressTextRect.offsetMax = new Vector2(-8f, 23f);
+            LayoutElement progressTextLayout = progressText.gameObject.AddComponent<LayoutElement>();
+            progressTextLayout.ignoreLayout = true;
+
+            return new GoalRowUi(root, checkBox, checkMark, label, progressTrack, progressFill, progressText);
         }
 
         private void PrepareIntroIfNeeded()
@@ -346,18 +377,31 @@ namespace ProjectUnknown.Strategy
 
         private sealed class GoalRowUi
         {
-            public GoalRowUi(RectTransform root, Image checkBox, Text checkMark, Text label)
+            public GoalRowUi(
+                RectTransform root,
+                Image checkBox,
+                Text checkMark,
+                Text label,
+                Image progressTrack,
+                Image progressFill,
+                Text progressText)
             {
                 Root = root;
                 CheckBox = checkBox;
                 CheckMark = checkMark;
                 Label = label;
+                ProgressTrack = progressTrack;
+                ProgressFill = progressFill;
+                ProgressText = progressText;
             }
 
             public RectTransform Root { get; }
             private Image CheckBox { get; }
             private Text CheckMark { get; }
             private Text Label { get; }
+            private Image ProgressTrack { get; }
+            private Image ProgressFill { get; }
+            private Text ProgressText { get; }
 
             public void SetIndex(int index)
             {
@@ -371,6 +415,16 @@ namespace ProjectUnknown.Strategy
                 Label.text = state.Title;
                 Label.color = state.Completed ? CompleteColor : Color.white;
                 Label.fontStyle = state.Completed ? FontStyle.Bold : FontStyle.Normal;
+                ProgressTrack.gameObject.SetActive(state.HasProgress);
+                ProgressText.gameObject.SetActive(state.HasProgress);
+                if (state.HasProgress)
+                {
+                    RectTransform fillRect = ProgressFill.rectTransform;
+                    fillRect.anchorMax = new Vector2(state.ProgressNormalized, 1f);
+                    ProgressFill.color = state.Completed ? CompleteColor : AccentColor;
+                    ProgressText.text = state.Completed ? "7 / 7 days" : state.ProgressText;
+                    ProgressText.color = state.Completed ? CompleteColor : new Color(0.82f, 0.88f, 0.84f);
+                }
             }
         }
     }

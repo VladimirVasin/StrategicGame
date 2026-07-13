@@ -162,7 +162,7 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            if (stoneWorkplace.TryReserveStoneDeposit(this, out StrategyStoneDeposit deposit)
+            if (stoneWorkplace.TryReserveStoneDeposit(this, CanReachStoneDeposit, out StrategyStoneDeposit deposit)
                 && TryMoveToStoneDeposit(deposit))
             {
                 return true;
@@ -171,6 +171,13 @@ namespace ProjectUnknown.Strategy
             deposit?.Release(this);
             stoneWorkCooldown = Random.Range(2.5f, 5.0f);
             return false;
+        }
+
+        private bool CanReachStoneDeposit(StrategyStoneDeposit deposit)
+        {
+            return deposit != null
+                && TryFindStoneWorkCell(deposit, out Vector2Int workCell)
+                && CanReachCellForReservation(workCell);
         }
 
         private bool TryStartStorageTask()

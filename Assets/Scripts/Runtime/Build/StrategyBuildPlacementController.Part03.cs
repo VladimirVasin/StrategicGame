@@ -329,53 +329,12 @@ namespace ProjectUnknown.Strategy
 
         private bool HasFishingWaterAccess(Vector2Int origin)
         {
-            if (map == null)
-            {
-                return false;
-            }
-
-            int radius = StrategyFisherHut.WorkRadius;
-            for (int y = -radius; y <= radius; y++)
-            {
-                for (int x = -radius; x <= radius; x++)
-                {
-                    Vector2Int cell = origin + new Vector2Int(x, y);
-                    if ((cell - origin).sqrMagnitude > radius * radius)
-                    {
-                        continue;
-                    }
-
-                    if (map.TryGetCell(cell.x, cell.y, out CityMapCell mapCell)
-                        && mapCell.Kind == CityMapCellKind.Water
-                        && HasAdjacentWalkableCell(cell))
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
-
-        private bool HasAdjacentWalkableCell(Vector2Int waterCell)
-        {
-            for (int y = -1; y <= 1; y++)
-            {
-                for (int x = -1; x <= 1; x++)
-                {
-                    if (x == 0 && y == 0)
-                    {
-                        continue;
-                    }
-
-                    if (map.IsCellWalkable(waterCell + new Vector2Int(x, y)))
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
+            return StrategyFishingAccessUtility.TryFindFishingWaterCell(
+                map,
+                origin,
+                StrategyFisherHut.WorkRadius,
+                out _,
+                out _);
         }
 
         private bool HasBuilderWorkAccess(Vector2Int origin, Vector2Int footprint)

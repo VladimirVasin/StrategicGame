@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace ProjectUnknown.Strategy
@@ -6,11 +7,11 @@ namespace ProjectUnknown.Strategy
     {
         private const int FisherSupportedShoalIdBase = 20000;
 
-        public int EnsureCatchableFishNearFisherHut(Vector2Int center, int radius)
+        public int EnsureCatchableFishNearFisherHut(Vector2Int center, int radius, bool ignoreExistingFish = false)
         {
             if (map == null
                 || StrategySeasonalSurfaceController.IsWaterFrozenForGameplay
-                || CountCatchableFish(center, radius) > 0)
+                || !ignoreExistingFish && CountCatchableFish(center, radius) > 0)
             {
                 return 0;
             }
@@ -50,13 +51,7 @@ namespace ProjectUnknown.Strategy
 
             if (bestRegion == null)
             {
-                StrategyDebugLogger.Warn(
-                    "Fishing",
-                    "FisherHutFishSupportSkipped",
-                    StrategyDebugLogger.F("hutOrigin", center),
-                    StrategyDebugLogger.F("radius", radius),
-                    StrategyDebugLogger.F("reason", "no_nearby_lake_with_shore"));
-                return 0;
+                return EnsureCatchableFishAtUnregisteredWater(center, radius);
             }
 
             int regionRoom = bestRegion.Capacity - CountFishInLakeRegion(bestRegion.Id);
@@ -94,6 +89,61 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("spawned", spawned),
                 StrategyDebugLogger.F("regionPopulation", CountFishInLakeRegion(bestRegion.Id)),
                 StrategyDebugLogger.F("regionCapacity", bestRegion.Capacity));
+            return spawned;
+        }
+
+        private int EnsureCatchableFishAtUnregisteredWater(Vector2Int center, int radius)
+        {
+            if (!StrategyFishingAccessUtility.TryFindFishingWaterCell(
+                map, center, radius, out Vector2Int bestCell, out CityMapWaterKind waterKind))
+            {
+                StrategyDebugLogger.Warn(
+                    "Fishing",
+                    "FisherHutFishSupportSkipped",
+                    StrategyDebugLogger.F("hutOrigin", center),
+                    StrategyDebugLogger.F("radius", radius),
+                    StrategyDebugLogger.F("reason", "no_nearby_fishable_water"));
+                return 0;
+            }
+
+            int spawnCount = Mathf.Min(2, MaxFishPopulation - fish.Count);
+            int spawned = 0;
+            float radiusSqr = radius * radius;
+            for (int radiusOffset = 0; radiusOffset <= 3 && spawned < spawnCount; radiusOffset++)
+            {
+                for (int i = 0; i < CardinalDirections.Length && spawned < spawnCount; i++)
+                {
+                    Vector2Int spawnCell = bestCell + CardinalDirections[i] * radiusOffset;
+                    if ((spawnCell - center).sqrMagnitude > radiusSqr
+                        || !IsWaterCellOfKind(spawnCell, waterKind)
+                        || !HasFishingShoreCell(spawnCell)
+                        || IsFishCellOccupied(spawnCell))
+                    {
+                        continue;
+                    }
+
+                    int shoalId = FisherSupportedShoalIdBase + nextRiverShoalId++;
+                    SpawnFish(
+                        PickFishSpecies(shoalId, spawnCell),
+                        shoalId,
+                        bestCell,
+                        spawnCell,
+                        StrategyFishLifeStage.Adult,
+                        0f,
+                        waterKind == CityMapWaterKind.River
+                            ? StrategyFishHabitatKind.River
+                            : StrategyFishHabitatKind.Lake);
+                    spawned++;
+                }
+            }
+
+            StrategyDebugLogger.Info(
+                "Fishing",
+                "FisherHutLocalFishSupportCompleted",
+                StrategyDebugLogger.F("hutOrigin", center),
+                StrategyDebugLogger.F("spawned", spawned),
+                StrategyDebugLogger.F("shoreWaterCell", bestCell),
+                StrategyDebugLogger.F("waterKind", waterKind));
             return spawned;
         }
 

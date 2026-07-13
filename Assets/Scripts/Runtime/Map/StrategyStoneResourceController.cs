@@ -61,10 +61,20 @@ namespace ProjectUnknown.Strategy
 
         public bool TryFindStoneDeposit(Vector2Int center, int radius, out StrategyStoneDeposit deposit)
         {
+            return TryFindStoneDeposit(center, radius, null, out deposit);
+        }
+
+        public bool TryFindStoneDeposit(
+            Vector2Int center,
+            int radius,
+            System.Func<StrategyStoneDeposit, bool> accepts,
+            out StrategyStoneDeposit deposit)
+        {
             PruneNulls();
             float bestSqr = float.MaxValue;
             StrategyStoneDeposit best = null;
 
+            float radiusSqr = radius * radius;
             for (int i = 0; i < deposits.Count; i++)
             {
                 StrategyStoneDeposit candidate = deposits[i];
@@ -76,7 +86,7 @@ namespace ProjectUnknown.Strategy
                 }
 
                 float sqr = (candidate.Cell - center).sqrMagnitude;
-                if (sqr >= bestSqr)
+                if (sqr > radiusSqr || sqr >= bestSqr || accepts != null && !accepts(candidate))
                 {
                     continue;
                 }

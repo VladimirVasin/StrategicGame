@@ -9,6 +9,7 @@ namespace ProjectUnknown.Strategy
         private readonly List<StrategyGoalDefinition> activeGoals = new();
         private readonly HashSet<StrategyGoalKind> completedGoals = new();
         private readonly List<StrategyGoalViewState> viewStates = new();
+        private readonly Dictionary<StrategyGoalKind, GoalProgress> goalProgress = new();
 
         private StrategyGoalsHudController hud;
         private bool configured;
@@ -41,6 +42,7 @@ namespace ProjectUnknown.Strategy
         {
             activeGoals.Clear();
             completedGoals.Clear();
+            goalProgress.Clear();
 
             if (goals != null)
             {
@@ -74,6 +76,7 @@ namespace ProjectUnknown.Strategy
 
             activeGoals.Clear();
             completedGoals.Clear();
+            goalProgress.Clear();
             RefreshHud();
             StrategyDebugLogger.Info("Goals", "GoalsCleared");
         }
@@ -116,6 +119,24 @@ namespace ProjectUnknown.Strategy
             return completedGoals.Contains(kind);
         }
 
+        public void SetGoalProgress(StrategyGoalKind kind, float current, float target, string text)
+        {
+            if (!ContainsGoalKind(kind) || target <= 0f)
+            {
+                return;
+            }
+
+            GoalProgress next = new GoalProgress(current, target, text);
+            if (goalProgress.TryGetValue(kind, out GoalProgress previous)
+                && previous.IsApproximately(next))
+            {
+                return;
+            }
+
+            goalProgress[kind] = next;
+            RefreshHud();
+        }
+
         private void Awake()
         {
             if (Active == null)
@@ -149,7 +170,20 @@ namespace ProjectUnknown.Strategy
             for (int i = 0; i < activeGoals.Count; i++)
             {
                 StrategyGoalDefinition definition = activeGoals[i];
-                viewStates.Add(new StrategyGoalViewState(definition, completedGoals.Contains(definition.Kind)));
+                bool completed = completedGoals.Contains(definition.Kind);
+                if (goalProgress.TryGetValue(definition.Kind, out GoalProgress progress))
+                {
+                    viewStates.Add(new StrategyGoalViewState(
+                        definition,
+                        completed,
+                        completed ? progress.Target : progress.Current,
+                        progress.Target,
+                        progress.Text));
+                }
+                else
+                {
+                    viewStates.Add(new StrategyGoalViewState(definition, completed));
+                }
             }
 
             hud.SetGoals(viewStates);
@@ -184,6 +218,27 @@ namespace ProjectUnknown.Strategy
             }
 
             return false;
+        }
+
+        private readonly struct GoalProgress
+        {
+            public GoalProgress(float current, float target, string text)
+            {
+                Current = current;
+                Target = target;
+                Text = text ?? string.Empty;
+            }
+
+            public float Current { get; }
+            public float Target { get; }
+            public string Text { get; }
+
+            public bool IsApproximately(GoalProgress other)
+            {
+                return Mathf.Abs(Current - other.Current) < 0.025f
+                    && Mathf.Abs(Target - other.Target) < 0.001f
+                    && Text == other.Text;
+            }
         }
     }
 }

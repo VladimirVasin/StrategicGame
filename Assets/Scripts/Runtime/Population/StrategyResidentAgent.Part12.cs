@@ -90,7 +90,7 @@ namespace ProjectUnknown.Strategy
             SetFishingLineVisible(false);
             UseIdleSprite();
             activity = ResidentActivity.Idle;
-            fishingWorkCooldown = Random.Range(3.5f, 7.0f);
+            fishingWorkCooldown = Random.Range(0.35f, 0.8f);
             waitTimer = Random.Range(0.35f, 0.9f);
         }
 

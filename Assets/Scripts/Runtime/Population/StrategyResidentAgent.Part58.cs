@@ -24,6 +24,9 @@ namespace ProjectUnknown.Strategy
         {
             None,
             Solo,
+            Stick,
+            Sit,
+            Watch,
             Pair,
             Tag
         }
@@ -48,7 +51,7 @@ namespace ProjectUnknown.Strategy
                 {
                     continue;
                 }
-                childPlayKind = ChildPlayKind.Solo;
+                childPlayKind = PickChildSoloAmbientKind();
                 childPlayPartner = null;
                 childPlayCenterCell = cell;
                 childPlayTimer = Random.Range(ChildSoloPlaySecondsMin, ChildSoloPlaySecondsMax);
@@ -211,6 +214,9 @@ namespace ProjectUnknown.Strategy
             {
                 ChildPlayKind.Tag => ResidentActivity.PlayingTag,
                 ChildPlayKind.Pair => ResidentActivity.PlayingWithChild,
+                ChildPlayKind.Stick => ResidentActivity.PlayingWithStick,
+                ChildPlayKind.Sit => ResidentActivity.SittingNearHome,
+                ChildPlayKind.Watch => ResidentActivity.WatchingActivity,
                 _ => ResidentActivity.PlayingAlone
             };
 
@@ -257,7 +263,7 @@ namespace ProjectUnknown.Strategy
                 FaceWorldPoint(childPlayPartner.transform.position);
             }
 
-            AnimateIdle();
+            AnimateChildIdleActivity();
         }
 
         private bool TryStartNextChildTagMove()
@@ -429,28 +435,6 @@ namespace ProjectUnknown.Strategy
             return ageYears >= 7f ? 6 : IdleRadius;
         }
 
-        private float GetChildPairPlayChance()
-        {
-            if (ageYears >= 7f)
-            {
-                return 0.68f;
-            }
-
-            return 0.42f;
-        }
-
-        private bool IsSiblingOf(StrategyResidentAgent other)
-        {
-            return other != null
-                && ((fatherId != 0 && fatherId == other.fatherId)
-                    || (motherId != 0 && motherId == other.motherId));
-        }
-
-        private static int GetChebyshevDistance(Vector2Int a, Vector2Int b)
-        {
-            return Mathf.Max(Mathf.Abs(a.x - b.x), Mathf.Abs(a.y - b.y));
-        }
-
         private static bool IsChildPlayActivity(ResidentActivity residentActivity)
         {
             return IsMovingChildPlayActivity(residentActivity)
@@ -466,28 +450,11 @@ namespace ProjectUnknown.Strategy
         private static bool IsStationaryChildPlayActivity(ResidentActivity residentActivity)
         {
             return residentActivity == ResidentActivity.PlayingAlone
+                || residentActivity == ResidentActivity.PlayingWithStick
+                || residentActivity == ResidentActivity.SittingNearHome
+                || residentActivity == ResidentActivity.WatchingActivity
                 || residentActivity == ResidentActivity.PlayingWithChild
                 || residentActivity == ResidentActivity.PlayingTag;
-        }
-
-        private readonly struct ChildPlayCandidate
-        {
-            public ChildPlayCandidate(
-                StrategyResidentAgent resident,
-                Vector2Int selfCell,
-                Vector2Int partnerCell,
-                int score)
-            {
-                Resident = resident;
-                SelfCell = selfCell;
-                PartnerCell = partnerCell;
-                Score = score;
-            }
-
-            public StrategyResidentAgent Resident { get; }
-            public Vector2Int SelfCell { get; }
-            public Vector2Int PartnerCell { get; }
-            public int Score { get; }
         }
     }
 }

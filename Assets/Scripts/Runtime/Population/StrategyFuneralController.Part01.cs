@@ -16,8 +16,22 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            if (!cemetery.TryCreateGrave(funeral.Snapshot, funeral.GraveCell))
+            if (!cemetery.TryCreateGrave(funeral.Snapshot, funeral.GraveCell, out string failureReason))
             {
+                if (failureReason == "grave_cell_occupied" && Time.time >= funeral.NextGraveClearanceTime)
+                {
+                    funeral.NextGraveClearanceTime = Time.time + 1f;
+                    int moved = MoveResidentsOffGraveCell(funeral);
+                    StrategyDebugLogger.Warn(
+                        "Funeral",
+                        "GraveCreationDelayed",
+                        StrategyDebugLogger.F("resident", funeral.Snapshot.FullName),
+                        StrategyDebugLogger.F("residentId", funeral.Snapshot.ResidentId),
+                        StrategyDebugLogger.F("graveCell", funeral.GraveCell),
+                        StrategyDebugLogger.F("reason", failureReason),
+                        StrategyDebugLogger.F("relocatedResidents", moved));
+                }
+
                 return;
             }
 

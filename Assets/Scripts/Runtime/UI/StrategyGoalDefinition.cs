@@ -29,17 +29,32 @@ namespace ProjectUnknown.Strategy
 
     public readonly struct StrategyGoalViewState
     {
-        public StrategyGoalViewState(StrategyGoalDefinition definition, bool completed)
+        public StrategyGoalViewState(
+            StrategyGoalDefinition definition,
+            bool completed,
+            float progressCurrent = 0f,
+            float progressTarget = 0f,
+            string progressText = "")
         {
             Kind = definition.Kind;
             Title = definition.Title;
             Description = definition.Description;
             Completed = completed;
+            ProgressCurrent = progressCurrent;
+            ProgressTarget = progressTarget;
+            ProgressText = progressText ?? string.Empty;
         }
 
         public StrategyGoalKind Kind { get; }
         public string Title { get; }
         public string Description { get; }
         public bool Completed { get; }
+        public float ProgressCurrent { get; }
+        public float ProgressTarget { get; }
+        public string ProgressText { get; }
+        public bool HasProgress => ProgressTarget > 0.001f;
+        public float ProgressNormalized => HasProgress
+            ? UnityEngine.Mathf.Clamp01(ProgressCurrent / ProgressTarget)
+            : 0f;
     }
 }

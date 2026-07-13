@@ -6,6 +6,7 @@ namespace ProjectUnknown.Strategy
     public sealed partial class StrategyTrailController
     {
         private readonly List<Vector2Int> routeConnectionCells = new();
+        private readonly List<Vector2Int> orderedRouteConnectionSource = new();
 
         private void BuildSingleSidedRouteCells(IReadOnlyList<Vector2Int> sourceCells, List<Vector2Int> targetCells)
         {
@@ -13,6 +14,19 @@ namespace ProjectUnknown.Strategy
             if (sourceCells == null)
             {
                 return;
+            }
+
+            bool reverse = HasRouteNetworkContact(sourceCells[0])
+                && !HasRouteNetworkContact(sourceCells[sourceCells.Count - 1]);
+            if (reverse)
+            {
+                orderedRouteConnectionSource.Clear();
+                for (int i = sourceCells.Count - 1; i >= 0; i--)
+                {
+                    orderedRouteConnectionSource.Add(sourceCells[i]);
+                }
+
+                sourceCells = orderedRouteConnectionSource;
             }
 
             for (int i = 0; i < sourceCells.Count; i++)
@@ -44,10 +58,57 @@ namespace ProjectUnknown.Strategy
                     continue;
                 }
 
-                TryAppendSingleSidedConnector(targetCells, cell, "near_existing");
+                if (targetCells.Count > 1 && TryJoinExistingRouteNetwork(targetCells, cell, out Vector2Int joinedCell))
+                {
+                    StrategyDebugLogger.Info(
+                        "Map",
+                        "TrailRouteJoinedExistingNetwork",
+                        StrategyDebugLogger.F("cell", cell),
+                        StrategyDebugLogger.F("joinedCell", joinedCell),
+                        StrategyDebugLogger.F("discardedCells", sourceCells.Count - i - 1));
+                    break;
+                }
+
             }
 
             EnsureRouteConnectionIntegrity(sourceCells, targetCells);
+        }
+
+        private bool HasRouteNetworkContact(Vector2Int cell)
+        {
+            return GetRawRouteTrailLevel(cell) > 0 || CountExistingRouteTrailNeighbors(cell) > 0;
+        }
+
+        private bool TryJoinExistingRouteNetwork(
+            List<Vector2Int> targetCells,
+            Vector2Int cell,
+            out Vector2Int joinedCell)
+        {
+            joinedCell = default;
+            if (GetRawRouteTrailLevel(cell) > 0)
+            {
+                joinedCell = cell;
+                return true;
+            }
+
+            for (int i = 0; i < RouteCardinalDirections.Length; i++)
+            {
+                Vector2Int candidate = cell + RouteCardinalDirections[i];
+                if (GetRawRouteTrailLevel(candidate) <= 0)
+                {
+                    continue;
+                }
+
+                joinedCell = candidate;
+                if (!ContainsRouteConnectionCell(targetCells, candidate))
+                {
+                    targetCells.Add(candidate);
+                }
+
+                return true;
+            }
+
+            return false;
         }
 
         private bool TryAppendRouteConnectionCell(

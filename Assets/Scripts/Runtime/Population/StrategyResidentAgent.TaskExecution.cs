@@ -71,6 +71,9 @@ namespace ProjectUnknown.Strategy
             RegisterNormalTask(ResidentActivity.DepositingFish, UpdateDepositingFish);
             RegisterNormalTask(ResidentActivity.PlantingTree, UpdatePlantingTree);
             RegisterNormalTask(ResidentActivity.PlayingAlone, UpdateChildPlayActivity);
+            RegisterNormalTask(ResidentActivity.PlayingWithStick, UpdateChildPlayActivity);
+            RegisterNormalTask(ResidentActivity.SittingNearHome, UpdateChildPlayActivity);
+            RegisterNormalTask(ResidentActivity.WatchingActivity, UpdateChildPlayActivity);
             RegisterNormalTask(ResidentActivity.PlayingWithChild, UpdateChildPlayActivity);
             RegisterNormalTask(ResidentActivity.PlayingTag, UpdateChildPlayActivity);
 
