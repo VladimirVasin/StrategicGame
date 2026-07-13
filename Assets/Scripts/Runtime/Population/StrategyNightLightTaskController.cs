@@ -85,7 +85,6 @@ namespace ProjectUnknown.Strategy
                     && snapshot.Phase != StrategyTimeOfDayPhase.Night)
                 {
                     ClearAssignments();
-                    ClearAmbientTorchCarriers();
                 }
             }
 
@@ -100,7 +99,6 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            UpdateAmbientTorchCarriers(snapshot);
             if (snapshot.DayIndex != lastNightDayIndex)
             {
                 lastNightDayIndex = snapshot.DayIndex;
@@ -120,7 +118,6 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            UpdateAmbientTorchCarriers(snapshot);
             if (snapshot.DayIndex != lastEveningDayIndex)
             {
                 retryTimer -= Time.deltaTime;
@@ -133,7 +130,6 @@ namespace ProjectUnknown.Strategy
                 BeginTorchDuty(snapshot, false);
             }
 
-            UpdateEveningTorchCarriers(snapshot);
         }
 
         private void RetryQueuedWorkers(StrategyCalendarSnapshot snapshot)
@@ -180,7 +176,6 @@ namespace ProjectUnknown.Strategy
             }
             else
             {
-                UpdateEveningTorchCarriers(snapshot);
             }
 
             StrategyDebugLogger.Info(

@@ -16,6 +16,8 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            UpdatePersonalNightTorchState();
+
             if (IsHomeboundYoungChild)
             {
                 UpdateHomeboundChild();

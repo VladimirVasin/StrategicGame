@@ -173,8 +173,13 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            if (!forestry.TryFindMatureTree(Origin, WorkRadius, out StrategyForestryTree candidate)
-                || !HasStorageSpaceFor(candidate.LogYield)
+            int availableCapacity = StrategyProductionStorage.GetRemaining(logsStored);
+            if (availableCapacity <= 0
+                || !forestry.TryFindMatureTree(
+                    Origin,
+                    WorkRadius,
+                    availableCapacity,
+                    out StrategyForestryTree candidate)
                 || !candidate.TryReserve(owner))
             {
                 return false;
@@ -192,8 +197,13 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            if (!forestry.TryFindProcessableWood(Origin, WorkRadius, out StrategyForestryTree candidate)
-                || !HasStorageSpaceFor(candidate.LogYield)
+            int availableCapacity = StrategyProductionStorage.GetRemaining(logsStored);
+            if (availableCapacity <= 0
+                || !forestry.TryFindProcessableWood(
+                    Origin,
+                    WorkRadius,
+                    availableCapacity,
+                    out StrategyForestryTree candidate)
                 || !candidate.TryReserve(owner))
             {
                 return false;

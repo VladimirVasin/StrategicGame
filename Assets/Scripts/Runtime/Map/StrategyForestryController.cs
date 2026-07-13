@@ -70,24 +70,30 @@ namespace ProjectUnknown.Strategy
             tree.Configure(this, map, wind, cell, 2, variant, renderer, false, isLargeTree, logYield);
         }
 
-        public bool TryFindMatureTree(Vector2Int center, int radius, out StrategyForestryTree tree)
+        public bool TryFindMatureTree(
+            Vector2Int center,
+            int radius,
+            int maxLogYield,
+            out StrategyForestryTree tree)
         {
             PruneNulls();
             float bestSqr = float.MaxValue;
             StrategyForestryTree best = null;
+            int radiusSqr = radius * radius;
 
             for (int i = 0; i < trees.Count; i++)
             {
                 StrategyForestryTree candidate = trees[i];
                 if (candidate == null
                     || !candidate.CanBeChopped
-                    || candidate.IsReserved)
+                    || candidate.IsReserved
+                    || candidate.LogYield > maxLogYield)
                 {
                     continue;
                 }
 
                 float sqr = (candidate.Cell - center).sqrMagnitude;
-                if (sqr >= bestSqr)
+                if (sqr > radiusSqr || sqr >= bestSqr)
                 {
                     continue;
                 }
@@ -106,24 +112,30 @@ namespace ProjectUnknown.Strategy
             return true;
         }
 
-        public bool TryFindProcessableWood(Vector2Int center, int radius, out StrategyForestryTree tree)
+        public bool TryFindProcessableWood(
+            Vector2Int center,
+            int radius,
+            int maxLogYield,
+            out StrategyForestryTree tree)
         {
             PruneNulls();
             float bestSqr = float.MaxValue;
             StrategyForestryTree best = null;
+            int radiusSqr = radius * radius;
 
             for (int i = 0; i < trees.Count; i++)
             {
                 StrategyForestryTree candidate = trees[i];
                 if (candidate == null
                     || candidate.IsReserved
-                    || (!candidate.CanBeBucked && !candidate.HasLogsReady))
+                    || (!candidate.CanBeBucked && !candidate.HasLogsReady)
+                    || candidate.LogYield > maxLogYield)
                 {
                     continue;
                 }
 
                 float sqr = (candidate.Cell - center).sqrMagnitude;
-                if (sqr >= bestSqr)
+                if (sqr > radiusSqr || sqr >= bestSqr)
                 {
                     continue;
                 }

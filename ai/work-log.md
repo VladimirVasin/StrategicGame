@@ -1,5 +1,25 @@
 # Work Log
 
+### 2026-07-13 - Lumber production stall and diagnostic cleanup
+
+- Fixed lumberjack target selection so camps only reserve trees inside their work radius whose complete Logs yield fits the camp's remaining local storage; a smaller tree can now be selected when a large tree would overflow the stockpile.
+- Kept existing fishing and wildlife retry cooldowns, but reclassified temporary fish-target, migration-step, and hunting-stand failures as informational diagnostics instead of technical warnings.
+- Extended forced household dinner diagnostics with the names and current activities of residents who missed the deadline.
+- Verification: `Assembly-CSharp.csproj` builds with 0 warnings and 0 errors; all affected C# files remain below 500 lines.
+
+### 2026-07-13 - Cross-family spouse generation fix
+
+- Changed Family Trees to calculate generations once from all recorded residents instead of recalculating each surname card without cross-family parents.
+- Spouses who changed surname now retain the generation derived from their biological family and align with their partner rather than incorrectly appearing beside the partner's parents.
+- Verification: `Assembly-CSharp.csproj` builds with 0 warnings and 0 errors; all affected Family Tree C# files remain below 500 lines.
+
+### 2026-07-13 - Dynamic personal torch coverage
+
+- Replaced capped housed-adult ambient torch selection with staggered per-resident coverage checks for every adult outside during late Dusk and Night.
+- Adults ignite personal torches beyond active cinematic light emitters and higher-priority resident torches, then extinguish inside a smaller hysteresis radius to avoid boundary flicker and group oscillation.
+- Preserved stationary lamp-lighting and funeral overrides; ordinary work and carried-resource animations remain intact while the separate personal flame/glow/night-mask light stays active.
+- Verification: `Assembly-CSharp.csproj` builds with 0 warnings and 0 errors; all affected C# files remain below 500 lines.
+
 ### 2026-07-13 - Resident old-age mortality rescaling
 
 - Kept annual age-related mortality low through age 60, then introduced a stronger 60-70 rise and a still steeper 70-80 rise.

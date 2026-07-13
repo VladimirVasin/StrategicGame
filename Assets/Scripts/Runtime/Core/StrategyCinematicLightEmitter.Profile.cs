@@ -20,6 +20,7 @@ namespace ProjectUnknown.Strategy
             ConfigureFlickerProfile(GetRoadsideFlickerKey(owner));
 
             configured = owner != null;
+            RegisterCoverageEmitter();
             RefreshNightLightSource();
             EnsureVisuals();
         }

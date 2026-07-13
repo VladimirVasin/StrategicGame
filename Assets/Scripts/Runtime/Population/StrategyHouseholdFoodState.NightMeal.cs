@@ -142,6 +142,7 @@ namespace ProjectUnknown.Strategy
                     StrategyDebugLogger.F("day", dayIndex),
                     StrategyDebugLogger.F("present", nightMealPresentResidentCount),
                     StrategyDebugLogger.F("expected", nightMealExpectedResidentCount),
+                    StrategyDebugLogger.F("missingResidents", DescribeMissingNightMealResidents()),
                     StrategyDebugLogger.F("waitSeconds", nightMealWaitSeconds));
             }
             else
@@ -175,6 +176,37 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("present", nightMealPresentResidentCount),
                 StrategyDebugLogger.F("expected", nightMealExpectedResidentCount),
                 StrategyDebugLogger.F("fallbackSeconds", NightMealFallbackSeconds));
+        }
+
+        private string DescribeMissingNightMealResidents()
+        {
+            if (house == null)
+            {
+                return "none";
+            }
+
+            string result = string.Empty;
+            System.Collections.Generic.IReadOnlyList<StrategyResidentAgent> residents = house.Residents;
+            for (int i = 0; i < residents.Count; i++)
+            {
+                StrategyResidentAgent resident = residents[i];
+                if (resident == null
+                    || resident.Home != house
+                    || resident.IsPendingRefugee
+                    || IsResidentPresentForNightMeal(resident))
+                {
+                    continue;
+                }
+
+                if (result.Length > 0)
+                {
+                    result += ",";
+                }
+
+                result += resident.FullName + ":" + resident.Activity;
+            }
+
+            return result.Length > 0 ? result : "none";
         }
 
         private void ResetNightMealWait()

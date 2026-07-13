@@ -39,7 +39,7 @@ namespace ProjectUnknown.Strategy
             Vector2Int target,
             bool requireWalkableConnection)
         {
-            StrategyDebugLogger.Warn(
+            StrategyDebugLogger.Info(
                 "Wildlife",
                 "MigrationAborted",
                 StrategyDebugLogger.F("kind", kind),

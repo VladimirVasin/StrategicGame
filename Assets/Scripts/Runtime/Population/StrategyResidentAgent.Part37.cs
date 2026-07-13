@@ -196,7 +196,7 @@ namespace ProjectUnknown.Strategy
             }
 
             nextHuntMoveRejectedLogTime = Time.time + HuntMoveRejectedLogCooldownSeconds;
-            StrategyDebugLogger.Warn(
+            StrategyDebugLogger.Info(
                 "Hunting",
                 "HuntMoveRejected",
                 StrategyDebugLogger.F("resident", FullName),

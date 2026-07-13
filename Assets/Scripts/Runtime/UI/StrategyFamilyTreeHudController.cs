@@ -227,6 +227,7 @@ namespace ProjectUnknown.Strategy
             float x = 0f;
             float contentWidth = MinimumContentWidth;
             float contentHeight = 1f;
+            PrepareGenerations(allRecords);
             BuildFamilyGroups();
             familyGroups.Sort(CompareFamilyGroups);
             SortFamilyGroupsByRelationshipAffinity();

@@ -12,7 +12,7 @@ namespace ProjectUnknown.Strategy
             }
 
             nextReservationFailureLogTime = Time.time + 10f;
-            StrategyDebugLogger.Warn(
+            StrategyDebugLogger.Info(
                 "Fishing",
                 "FishTargetUnavailable",
                 StrategyDebugLogger.F("hutOrigin", Origin),

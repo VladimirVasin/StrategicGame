@@ -105,7 +105,9 @@ namespace ProjectUnknown.Strategy
             eveningNightTorchActive = active;
             if (!eveningNightTorchActive)
             {
-                if (!IsNightLightActivity(activity))
+                if (!IsNightLightActivity(activity)
+                    && !personalNightTorchRequired
+                    && !ShouldUseFuneralNightTorch())
                 {
                     DisableNightTorchLight();
                 }
@@ -141,27 +143,20 @@ namespace ProjectUnknown.Strategy
         private bool ShouldKeepNightTorchLightActive()
         {
             return IsNightLightActivity(activity)
-                || ShouldUsePersonalNightTorch()
+                || (personalNightTorchRequired && IsEveningNightTorchTime())
                 || ShouldUseFuneralNightTorch();
         }
 
         private bool ShouldUsePersonalNightTorch()
         {
-            return eveningNightTorchActive
+            return personalNightTorchRequired
                 && IsEveningNightTorchTime()
-                && CanCarryPersonalNightTorch();
+                && CanCarryPersonalNightTorchVisual();
         }
 
-        private bool CanCarryPersonalNightTorch()
+        private bool CanCarryPersonalNightTorchVisual()
         {
-            return IsAdult
-                && !hiddenInsideHome
-                && !hiddenUnderground
-                && !deathRequested
-                && !IsPendingRefugee
-                && !IsHomeboundYoungChild
-                && !IsFuneralActivity(activity)
-                && !HasAnyCarriedResource()
+            return !HasAnyCarriedResource()
                 && (activity == ResidentActivity.Idle
                     || activity == ResidentActivity.TendingHousehold
                     || activity == ResidentActivity.MovingHome);

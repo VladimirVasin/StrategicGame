@@ -62,6 +62,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Core/StrategyCinematicLightEmitter.cs`
 - `Assets/Scripts/Runtime/Core/StrategyCinematicLightEmitter.Profile.cs`
 - `Assets/Scripts/Runtime/Core/StrategyCinematicLightEmitter.Torch.cs`
+- `Assets/Scripts/Runtime/Core/StrategyCinematicLightEmitter.Coverage.cs`
 - `Assets/Scripts/Runtime/Core/StrategyNightLightSource.cs`
 - `Assets/Scripts/Runtime/Core/StrategyCinematicVisualMath.cs`
 - `Assets/Scripts/Runtime/Core/StrategyCinematicVisualSprites.cs`
@@ -254,7 +255,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Core/StrategyCinematicLightEmitter.cs`
 - `Assets/Scripts/Runtime/Core/StrategyCinematicLightEmitter.Profile.cs`
 - `Assets/Scripts/Runtime/Population/StrategyNightLightTaskController.cs`
-- `Assets/Scripts/Runtime/Population/StrategyNightLightTaskController.Ambient.cs`
+- `Assets/Scripts/Runtime/Population/StrategyNightLightTaskController.Utilities.cs`
 - `Assets/Scripts/Runtime/Weather/StrategyWeatherKind.cs`
 - `Assets/Scripts/Runtime/Weather/StrategyWeatherController.cs`
 - `Assets/Scripts/Runtime/Weather/StrategyWeatherVisualController.cs`
@@ -634,7 +635,7 @@ Responsibilities:
 - Mark tree cells as not walkable while the tree exists.
 - Release chopped tree cells back to walkable.
 - Plant saplings that grow through 3 visual stages.
-- Provide mature-tree, fallen-trunk, split-Logs, and planting-cell targets to lumberjack camps.
+- Provide mature-tree, fallen-trunk, split-Logs, and planting-cell targets to lumberjack camps, filtering harvest targets by camp work radius and full-yield storage capacity before reservation.
 - Animate chop damage, tree shake, falling, fallen-trunk bucking, split Logs, and hit effects.
 
 Primary files/assets:
@@ -1982,7 +1983,7 @@ Responsibilities:
 - Keep children younger than 3 years old inside their assigned home by hiding their world sprite/collider and skipping outdoor idle/funeral movement until they age out.
 - Give older children daytime ambient play activities near home/camp, including solo play, pair play with siblings or nearby children, and tag; children with displayed age 6+ can instead help carry raw household food to their own home when reserves are low.
 - Send housed idle residents home to sleep inside during the `Night` phase by hiding their world sprite/collider until morning, while leaving homeless residents outside with a visible `Zzz...` sleep indicator.
-- Prepare future lamp workers around 20:00 during `Dusk`, and separately stagger cheap personal hand torches for a capped majority of eligible housed adults so ordinary residents can carry light while moving toward night. Assign only the lamp-worker subset to light building and roadside lamps at `Night` using nearest-to-home light queues and hand-carried torch walk/light animations before they return to sleep.
+- Prepare future lamp workers around 20:00 during `Dusk`, while every adult outside independently uses a personal torch only beyond active stationary or higher-priority resident light coverage. Assign only the lamp-worker subset to light building and roadside lamps at `Night` using nearest-to-home light queues and hand-carried torch walk/light animations before they return to sleep.
 - Resolve one nightly household dinner from prepared house `Dish`, using resident age-based ration needs after eligible residents return home for `Night`.
 - Send Householders to fetch reserved raw `Fish`/`Game`/forage food from reachable Granaries into their own house when ingredient reserves are low, then from the starter Caravan Cart while it has food, or from reachable Hunter/Fisher/Forager production stock when no stored food is available.
 - Send Householders to fetch Pottery from active Storage Yards and cook stored ingredients plus 1 Pottery per prepared `Dish` during `Dusk` when dinner coverage is low; keep Pottery retry cooldown separate from raw-food pickup.
@@ -2091,12 +2092,13 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyHouseholdForagingState.cs`
 - `Assets/Scripts/Runtime/Population/StrategyHomelessCampController.cs`
 - `Assets/Scripts/Runtime/Population/StrategyNightLightTaskController.cs`
-- `Assets/Scripts/Runtime/Population/StrategyNightLightTaskController.Ambient.cs`
+- `Assets/Scripts/Runtime/Population/StrategyNightLightTaskController.Utilities.cs`
 - `Assets/Scripts/Runtime/Population/StrategyKinshipUtility.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.SettlementRoles.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.NightLights.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.NightTorchLight.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.PersonalTorch.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.WorkSfx.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part36.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.TrailRoutes.cs`
@@ -2208,7 +2210,7 @@ Impact hints:
 - Resident pathfinding can recover a blocked start cell by snapping to a nearby walkable cell and logging `PathStartRecovered`.
 - Resident scheduled work starts only during `StrategyDayNightCycleController.IsSettlementWorkTime`, which now covers Dawn through Dusk on every day. Keep carried-resource returns, deposits, and cleanup paths schedule-safe so nightfall cannot strand stock reservations.
 - Resident night sleep is separate from homebound young-child hiding: housed residents only enter the hidden home interior during `Night` when they are not carrying resources, in funeral duty, underground, or assigned to night lamp lighting, notify household food state for dinner readiness, then reappear at the home exit after night ends. Homeless residents instead reserve reachable campfire sleep spots, relight embers if needed, and sleep visibly around the startup campfire with a small `Zzz...` indicator.
-- Night lamp lighting is owned by `StrategyNightLightTaskController` plus `StrategyResidentAgent.NightLights.cs`; capped ambient evening torch selection lives in `StrategyNightLightTaskController.Ambient.cs`; carried torch light/glow/night-mask contribution is isolated in `StrategyResidentAgent.NightTorchLight.cs`; late-Dusk personal hand-torch activation should not start stationary-lamp routes before `Night`, personal Dusk torches should avoid real `Light2D` point lights, and lamp sources should not automatically light when no eligible resident can reach them.
+- Night lamp lighting is owned by `StrategyNightLightTaskController` plus `StrategyResidentAgent.NightLights.cs`; dynamic adult light-coverage decisions live in `StrategyResidentAgent.PersonalTorch.cs` and `StrategyCinematicLightEmitter.Coverage.cs`; carried torch light/glow/night-mask contribution is isolated in `StrategyResidentAgent.NightTorchLight.cs`. Late-Dusk personal hand-torch activation must not start stationary-lamp routes before `Night`, ordinary personal torches should avoid real `Light2D` point lights, and lamp sources should not automatically light when no eligible resident can reach them.
 - Resident footstep audio is attached by `StrategyResidentAgent` and plays grass clips on selected walk frames; resident work SFX plays axe/pickaxe/hammer/fishing/bow clips on selected work frames; both route through `StrategyAudioMixController` for bus volume, camera-focus/zoom attenuation, low-pass, and subtle far-source reverb, so keep them low-volume/spatial when adding more residents or faster simulation speeds.
 - Lumberjack work keeps the same camp worksite component but chooses the nearest available tree/processable wood on the map; it tests nearby work cells for real path reachability before starting tree/log/plant movement, only starts planting when the camp can accept future Logs, and includes tree chopping, trunk bucking, Logs delivery, and sapling planting.
 - Resident woodcut sprites are generated for every male/female visual variant and should stay in sync with readability outline mirroring.

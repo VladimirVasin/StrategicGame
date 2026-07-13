@@ -16,7 +16,7 @@ namespace ProjectUnknown.Strategy
             float top,
             out float sectionHeight)
         {
-            PrepareGenerations(records);
+            PrepareFamilyIds(records);
             int maxGeneration = BuildRows(records, out int maxRowCount);
             float sectionWidth = CalculateFamilySectionWidth(maxRowCount);
             sectionHeight = 76f
@@ -58,11 +58,9 @@ namespace ProjectUnknown.Strategy
         private void PrepareGenerations(List<StrategyResidentFamilyRecord> records)
         {
             generationsById.Clear();
-            familyIds.Clear();
             for (int i = 0; i < records.Count; i++)
             {
                 generationsById[records[i].ResidentId] = 0;
-                familyIds.Add(records[i].ResidentId);
             }
 
             for (int pass = 0; pass < records.Count; pass++)
@@ -94,6 +92,15 @@ namespace ProjectUnknown.Strategy
                 {
                     break;
                 }
+            }
+        }
+
+        private void PrepareFamilyIds(List<StrategyResidentFamilyRecord> records)
+        {
+            familyIds.Clear();
+            for (int i = 0; i < records.Count; i++)
+            {
+                familyIds.Add(records[i].ResidentId);
             }
         }
 

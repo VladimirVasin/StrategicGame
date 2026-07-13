@@ -49,6 +49,7 @@ namespace ProjectUnknown.Strategy
             ConfigureFlickerProfile(GetBuildingFlickerKey(owner));
 
             configured = owner != null;
+            RegisterCoverageEmitter();
             RefreshNightLightSource();
             EnsureVisuals();
         }
@@ -67,6 +68,7 @@ namespace ProjectUnknown.Strategy
             ConfigureFlickerProfile(GetTransformFlickerKey());
 
             configured = owner != null;
+            RegisterCoverageEmitter();
             EnsureVisuals();
         }
 
