@@ -1,5 +1,16 @@
 # Work Log
 
+### 2026-07-13 - Founding Journey and preference-driven settlement start
+
+- Added build-index-1 `FoundingJourney` between MainMenu and gameplay for New Settlement; Continue still transfers its prepared save candidate directly into gameplay.
+- Added four generated point-filtered pixel-art story panels under `Assets/Resources/Visual/Founding`, runtime crossfade/pan and rain/embers/mist/fireflies presentation, Back/Skip, balanced defaults, centralized UI navigation, preparation progress, and persistent reduced motion.
+- Added four stable-ID founding questions for water, landscape, first livelihood, and construction/resource priority.
+- Added a defensive map snapshot plus pure deterministic start-site selector with hard water/land/buildability/connectivity/resident/cart constraints, stable tie-breaking, exact `3x3` cart reservation, and explicit relaxed/legacy fallback diagnostics.
+- Carried the selected profile and exact camp/cart geometry into population, camera focus, nature/forage exclusions, exact Caravan Cart placement, and save version 3 with v1/v2 migrations.
+- Hardened failure/Continue behavior with a 90-second preparation watchdog, snapshot/selection exception recovery, scene-load rejection recovery, full reserved-footprint save validation, and restored-state startup that avoids transient new-game residents or a second cart.
+- Extended EditMode coverage for deterministic preferences/layouts/fallbacks, story-art import and catalog IDs, founding-state/save round trips, v1/v2 migration, defensive pending data, and full cart bounds. MainMenuLaunch now verifies the actual balanced selector path, transferred founding state, exact camp/cart origins, and no forage overlap.
+- Verification: technical static gates passed; `Assembly-CSharp` and `Assembly-CSharp-Editor` built with 0 warnings/errors; isolated Unity EditMode passed 71/71; fixed-seed 74123 `MainMenu -> FoundingJourney -> SampleScene` and direct PlayMode smokes passed. The measured real-map founding snapshot/selection cost was 2.5/39.3 ms. The two-day soak remains on its existing nightly/manual/release tier and was not rerun for this feature.
+
 ### 2026-07-13 - Tiered CI soak verification
 
 - Split CI soak coverage into a 45-game-second `QuickSoak` (3 in-game hours) for pull requests and `main`, plus the deterministic 720-game-second full soak (2 in-game days) for the nightly 01:23 UTC schedule, manual `workflow_dispatch`, `release`/`release/**` branches, and `v*` tags.

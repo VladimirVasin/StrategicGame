@@ -312,7 +312,8 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            if (!TryFindCampCell(true, out campCell)
+            if (!TryUseFoundingCampCell(out campCell)
+                && !TryFindCampCell(true, out campCell)
                 && !TryFindCampCell(false, out campCell)
                 && !TryFindFallbackCampCell(out campCell))
             {
@@ -326,7 +327,10 @@ namespace ProjectUnknown.Strategy
 
             campWorld = map.GetCellCenterWorld(campCell.x, campCell.y);
             CreateCampfire();
-            SpawnInitialResidents();
+            if (foundingStartState == null || !foundingStartState.IsRestoredFromSave)
+            {
+                SpawnInitialResidents();
+            }
             hasStarterCamp = true;
             StrategyDebugLogger.Info(
                 "Population",

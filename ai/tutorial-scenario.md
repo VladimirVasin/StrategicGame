@@ -1,12 +1,13 @@
 # Tutorial Scenario
 
-Last updated: 2026-07-10
+Last updated: 2026-07-13
 
 ## Current State
 
 - A lightweight starter onboarding goal sequence exists in the normal strategy runtime.
+- A separate pre-game `FoundingJourney` onboarding scene now precedes normal New Settlement gameplay.
 - No `GameStartMode.Tutorial`-style mode is documented yet.
-- No separate tutorial scene or mode is documented yet.
+- No dedicated gameplay tutorial scene or mode exists beyond the founding onboarding and normal starter goals.
 
 ## Maintenance Rule
 
@@ -19,8 +20,13 @@ When a real tutorial or onboarding flow is implemented:
 
 ## Current Scenario
 
-- Application startup first opens `MainMenu`: `Continue` is enabled only for a valid save, while `New Settlement` starts the normal onboarding flow.
-- The menu prepares the likely saved/new map seed in the background and shows actual preparation progress when launch is requested.
+- Application startup first opens `MainMenu`: `Continue` is enabled only for a valid save and opens gameplay directly, while `New Settlement` opens `FoundingJourney`.
+- The menu prepares the likely saved/new map seed in the background. The same New Settlement candidate continues preparing while the founding story is shown; no second map is generated.
+- Four story panels describe the families leaving a war-torn home, crossing the long road, discovering a quiet valley, and gathering for their first decision. The player can move Back, Skip the story, use normal UI submit/navigation controls, or enable persistent reduced motion.
+- The player answers four questions: preferred water landmark (River/Lake/High Dry Ground), surrounding landscape (Forest Edge/Open Meadow/Mixed), first livelihood (Hunting/Fishing/Foraging), and immediate priority (Construction/Resources/Balanced). `Use balanced defaults` skips individual answers with a neutral profile.
+- The answers rank safe cells on the already prepared map. They never override water clearance, connected-land, resident-spawn, buildability, or Caravan Cart reservation requirements; explicit relaxed/legacy fallbacks keep unusually constrained maps playable.
+- The summary lets the player change answers or begin. Beginning selects one deterministic camp cell and an exact `3x3` reserved Caravan Cart blocker, then opens gameplay.
+- Gameplay places the campfire, initial families, camera focus, nature/forage exclusions, and visible `3x2` Caravan Cart from that selected layout. The profile and exact geometry are included in save version 3; Continue does not replay the story or create temporary new-game residents/cart.
 - After `New Settlement` reaches the gameplay scene, the left-side Goals HUD shows `Build 3 Houses (0/3)`.
 - Normal startup places a temporary Caravan Cart near the campfire instead of a prebuilt Storage Yard; it starts with 20 Logs, 20 Stone, and randomized raw food covering 3 days for the initial families.
 - Dawn counts as settlement work time on every day, so auto-assigned builders and haulers can begin starter construction immediately.

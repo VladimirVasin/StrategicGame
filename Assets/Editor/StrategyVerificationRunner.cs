@@ -11,6 +11,7 @@ namespace ProjectUnknown.Strategy.EditorTests
     {
         private const string GameplayScenePath = "Assets/Scenes/SampleScene.unity";
         private const string MainMenuScenePath = "Assets/Scenes/MainMenu.unity";
+        private const string FoundingJourneyScenePath = "Assets/Scenes/FoundingJourney.unity";
         private const int RequiredPlayFrames = 4;
         private const double RefugeeRouteTimeoutSeconds = 30d;
         private const string PlayModeSessionKey = "ProjectUnknown.PlayModeSmokeActive";
@@ -296,9 +297,10 @@ namespace ProjectUnknown.Strategy.EditorTests
         internal static void VerifyBuildScenes()
         {
             EditorBuildSettingsScene[] scenes = EditorBuildSettings.scenes;
-            Require(scenes.Length >= 2, "Menu and gameplay scenes must be in Build Settings");
+            Require(scenes.Length >= 3, "Menu, founding journey, and gameplay scenes must be in Build Settings");
             Require(scenes[0].enabled && scenes[0].path == MainMenuScenePath, "Main menu must be the first build scene");
-            Require(scenes[1].enabled && scenes[1].path == GameplayScenePath, "Gameplay scene must follow the main menu");
+            Require(scenes[1].enabled && scenes[1].path == FoundingJourneyScenePath, "Founding journey must follow the main menu");
+            Require(scenes[2].enabled && scenes[2].path == GameplayScenePath, "Gameplay scene must follow the founding journey");
         }
 
         internal static void VerifyNavigationPriorities()
@@ -397,45 +399,6 @@ namespace ProjectUnknown.Strategy.EditorTests
             {
                 throw new InvalidOperationException(message);
             }
-        }
-
-        private static void UpdateMainMenuLaunchSmoke()
-        {
-            if (StrategySceneCatalog.IsMainMenuScene(EditorSceneManager.GetActiveScene()))
-            {
-                StrategyMapPreloadCoordinator preloader = UnityEngine.Object.FindAnyObjectByType<StrategyMapPreloadCoordinator>();
-                Require(preloader != null, "Menu preloader failed before launch");
-                VerifyMainMenuLaunchWatchdog(preloader);
-                if (!launchRequestedBySmoke)
-                {
-                    Require(preloader.RequestNewSettlement(), "New settlement launch request was rejected");
-                    launchRequestedBySmoke = true;
-                }
-
-                return;
-            }
-
-            Require(StrategySceneCatalog.IsGameplayScene(EditorSceneManager.GetActiveScene()), "Launch opened an unexpected scene");
-            StrategyGameContext context = StrategyGameContext.Current;
-            Require(context == null || context.State != StrategyGameContextState.Failed, "Prepared gameplay bootstrap failed: " + context?.FailureReason);
-            if (context == null || !context.IsReady)
-            {
-                VerifyGameplayBootstrapWatchdog(context);
-                return;
-            }
-
-            if (++gameplayFramesAfterLaunch < RequiredPlayFrames)
-            {
-                return;
-            }
-
-            CityMapController map = UnityEngine.Object.FindAnyObjectByType<CityMapController>();
-            StrategyPopulationController population = UnityEngine.Object.FindAnyObjectByType<StrategyPopulationController>();
-            Require(map != null && map.IsGenerated, "Prepared map was not accepted by gameplay");
-            Require(population != null && population.TotalResidentCount > 0, "Gameplay did not start after menu launch");
-            Require(StrategyMapPreloadCoordinator.Active == null, "Menu preloader survived gameplay bootstrap");
-            VerifyRuntimeInput(context);
-            CompletePlayMode(true, "PASS: menu launched prepared gameplay");
         }
 
         private static void CaptureMainMenuRender()

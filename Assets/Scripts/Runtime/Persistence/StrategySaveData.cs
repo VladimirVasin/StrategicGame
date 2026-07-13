@@ -6,7 +6,7 @@ namespace ProjectUnknown.Strategy
     [Serializable]
     public sealed class StrategySaveData
     {
-        public const int CurrentVersion = 2;
+        public const int CurrentVersion = 3;
 
         public int version = CurrentVersion;
         public long savedUtcTicks;
@@ -18,12 +18,34 @@ namespace ProjectUnknown.Strategy
         public bool firstWinterFoodPrepared;
         public bool firstWinterFuelPrepared;
         public bool firstWinterPassed;
+        public StrategyFoundingStartSaveData foundingStart = new();
         public List<StrategyBuildingSaveData> buildings = new();
         public List<StrategyConstructionSiteSaveData> constructionSites = new();
         public List<StrategyResidentSaveData> residents = new();
         public List<StrategyLooseResourceSaveData> looseResources = new();
         public List<int> exploredCells = new();
         public List<int> trailCells = new();
+    }
+
+    [Serializable]
+    public sealed class StrategyFoundingStartSaveData
+    {
+        public bool hasStarterCamp;
+        public int starterCampX;
+        public int starterCampY;
+        public bool hasStarterCartOrigin;
+        public int starterCartOriginX;
+        public int starterCartOriginY;
+        public int profileVersion;
+        public string profileId = string.Empty;
+        public List<StrategyFoundingAnswerSaveData> answers = new();
+    }
+
+    [Serializable]
+    public sealed class StrategyFoundingAnswerSaveData
+    {
+        public string questionId = string.Empty;
+        public string answerId = string.Empty;
     }
 
     [Serializable]

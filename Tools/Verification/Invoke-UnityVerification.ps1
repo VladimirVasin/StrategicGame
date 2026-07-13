@@ -228,7 +228,7 @@ else {
         '-executeMethod', $smokeConfiguration.Method,
         '-logFile', $logPath
     )
-    if ($Kind -in @('QuickSoak', 'Soak')) {
+    if ($Kind -in @('MainMenuLaunch', 'QuickSoak', 'Soak')) {
         $unityArguments += @('-strategyBenchmarkSeed', '74123')
     }
 }

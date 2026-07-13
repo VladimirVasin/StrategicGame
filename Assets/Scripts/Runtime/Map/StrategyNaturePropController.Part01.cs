@@ -467,9 +467,10 @@ namespace ProjectUnknown.Strategy
 
         private bool IsInsideExclusion(int x, int y)
         {
-            return hasExclusion
-                && Mathf.Abs(x - excludedCenter.x) <= excludedRadius
-                && Mathf.Abs(y - excludedCenter.y) <= excludedRadius;
+            return IsInsideAdditionalExclusion(x, y)
+                || hasExclusion
+                    && Mathf.Abs(x - excludedCenter.x) <= excludedRadius
+                    && Mathf.Abs(y - excludedCenter.y) <= excludedRadius;
         }
 
         private Vector2 GetJitter(int x, int y, int salt)

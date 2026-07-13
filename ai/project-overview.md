@@ -28,8 +28,10 @@ Last updated: 2026-07-13
   Licensed Inter runtime UI font and its OFL license.
 - `Assets/Scenes/MainMenu.unity`
   Build-index-0 intro menu scene with generated static pixel-art key art and background map preparation.
+- `Assets/Scenes/FoundingJourney.unity`
+  Build-index-1 pre-game founding story and start-site choice scene for New Settlement.
 - `Assets/Scenes/SampleScene.unity`
-  Gameplay settlement scene.
+  Build-index-2 gameplay settlement scene.
 - `Assets/InputSystem_Actions.inputactions`
   Canonical Global/Camera/Gameplay/Build/Debug/UI action maps used by the centralized input router.
 - `Assets/Settings/`
@@ -64,7 +66,9 @@ Confirmed from `Packages/manifest.json`:
 
 ## Implemented Gameplay
 
-- Application startup opens a full-screen intro menu with Continue/New Settlement/Settings/Quit, one dedicated static generated pixel-art key image, animated pointer/selection button hover, persistent audio/display settings, save-aware status, and actual map/content preload progress. Menu music stays disabled while HUD SFX remain available. The menu prepares one deterministic map candidate and transfers it into gameplay so `SampleScene` skips duplicate terrain generation.
+- Application startup opens a full-screen intro menu with Continue/New Settlement/Settings/Quit, one dedicated static generated pixel-art key image, animated pointer/selection button hover, persistent audio/display settings, save-aware status, and actual map/content preload progress. Menu music stays disabled while HUD SFX remain available. Continue transfers the prepared save candidate directly into gameplay; New Settlement keeps the same candidate alive while opening `FoundingJourney`, then transfers it after the founding decision so `SampleScene` skips duplicate terrain generation.
+- `FoundingJourney` presents four generated point-filtered pixel-art story panels about families fleeing war, with restrained crossfades/pan, scene-specific rain/embers/mist/fireflies, Back/Skip, keyboard/controller UI navigation, and a persistent reduced-motion option. Four stable-ID questions cover water, landscape, first livelihood, and construction/resource priority, plus a balanced-default shortcut.
+- Founding answers feed a deterministic pure start-site selector over a defensive map snapshot. Safety and playability remain hard constraints; preferences score valid cells, reserve the exact `3x3` Caravan Cart blocker, and fall back through relaxed space/water policies before the legacy center-out search. The selected camp/cart geometry and profile are carried into gameplay and persisted in save version 3.
 - Runtime bootstrap creates the first MVP strategy scene layer inside a scene-local `StrategyGameContext`, exposes explicit Created/Configuring/Ready/Failed/Disposed lifecycle state, holds a temporary simulation pause, and spreads deterministic full-map nature creation across bounded frame batches before releasing gameplay; it includes a Unity `WindZone`-backed strategy wind source, runtime Stone/Iron/Coal/Clay resource registries, runtime weather, and runtime ambience audio.
 - Runtime rendering includes catalog-first authored sprites for terrain/buildings/residents/nature/roads/work/stock with procedural fallback, gridless macro-varied terrain, building ground detail, calendar-aware day/night, pooled weather and spring/autumn details, coherent snow/ice/building caps, seasonal vegetation palettes, URP post-processing, LOD-capped lights, emissive masks, a cached nighttime darkness mask, wet puddles, lightning, subtle event camera feedback, foreground depth props, shared shadows, and reusable world effects.
 - Runtime fog of war tracks persistent explored cells separately from current visibility; camp, residents, and placed buildings reveal less during Dusk/Night/Dawn and even less during dense Fog weather, explored-but-not-visible cells become darker at night or turn into layered weather fog around visible zones, and wildlife spawn checks use a daylight-range visibility mask so temporary darkness does not create extra near-settlement spawn openings.
@@ -121,7 +125,7 @@ Confirmed from `Packages/manifest.json`:
 - `Granary` uses runtime-generated 2.5D pixel-art sprites, keeps uncapped local visual `Game`/`Fish`/`Eggs`/forage food stockpiles, and is serviced by shared Haulers.
 - `Trading Post` uses runtime-generated 2.5D pixel-art sprites, opens a right-side trade HUD, waits for a caravan visit, and exchanges Storage Yard/Granary stock for settlement Coins or buys goods back into the nearest valid storage building.
 - Production buildings keep at most 6 local resources and stop starting new production when the next unit/cycle would exceed that cap; Storage Yards and Granaries stay uncapped.
-- A startup camp selects a walkable land cell at least 6 cells from generated water/shore when possible, then places an animated procedural campfire and 3 initial families; each family has a father, a mother, and 1-2 adult children with parent/child links.
+- A startup camp uses the Founding Journey selection when available, otherwise selects a walkable land cell at least 6 cells from generated water/shore when possible, then places an animated procedural campfire and 3 initial families; each family has a father, a mother, and 1-2 adult children with parent/child links. Initial residents, nature, and forage avoid the reserved Caravan Cart footprint, and Continue restores saved residents/buildings without creating transient new-game families or a second starter cart.
 - The startup campfire begins Day 1 as a lit central fire, fades out by `Noon`, blocks its own cell while burning, then releases the cell while extinguished and can later be relit by homeless residents at night.
 - The startup camp reserves a 3-cell clear radius where generated trees, bushes, forest groups, and other nature props are skipped.
 - The initial camera view starts focused near the startup campfire with a medium-close zoom, and pressing `Space` later recenters the camera on that campfire cell.

@@ -16,6 +16,7 @@ namespace ProjectUnknown.Strategy
         private StrategyBuildPlacementController placement;
         private StrategyPopulationController population;
         private StrategyInputRouter inputRouter;
+        private StrategyFoundingStartSaveData foundingStart = new();
         private bool configured;
 
         public static string SavePath => Path.Combine(Application.persistentDataPath, SaveFileName);
@@ -38,6 +39,7 @@ namespace ProjectUnknown.Strategy
             configured = map != null && placement != null && population != null;
             if (configured && pendingLoad != null)
             {
+                foundingStart = CopyFoundingStartData(pendingLoad.foundingStart);
                 ApplyPendingLoad();
             }
         }
@@ -141,6 +143,19 @@ namespace ProjectUnknown.Strategy
         {
             seed = pendingLoad != null ? Mathf.Max(1, pendingLoad.mapSeed) : 0;
             return seed > 0;
+        }
+
+        public void SetFoundingStartData(StrategyFoundingStartSaveData data)
+        {
+            foundingStart = CopyFoundingStartData(data);
+        }
+
+        public static bool TryGetPendingFoundingStartData(out StrategyFoundingStartSaveData data)
+        {
+            data = pendingLoad != null
+                ? CopyFoundingStartData(pendingLoad.foundingStart)
+                : null;
+            return data != null;
         }
 
     }

@@ -26,6 +26,142 @@ namespace ProjectUnknown.Strategy.EditorTests
             Assert.That(restored.version, Is.EqualTo(StrategySaveData.CurrentVersion));
             Assert.That(restored.buildings[0].preparedDishIds, Is.Not.Null);
             Assert.That(restored.buildings[0].preparedDishAmounts, Is.Not.Null);
+            Assert.That(restored.foundingStart, Is.Not.Null);
+            Assert.That(restored.foundingStart.hasStarterCamp, Is.False);
+            Assert.That(restored.foundingStart.answers, Is.Empty);
+        }
+
+        [Test]
+        public void Version2MigratesToNeutralFoundingStart()
+        {
+            StrategySaveData legacy = CreateValidSave();
+            legacy.version = 2;
+            legacy.foundingStart = CreateFoundingStart();
+
+            bool loaded = StrategySaveSystem.TryDeserializeAndValidate(
+                JsonUtility.ToJson(legacy),
+                out StrategySaveData restored,
+                out string reason,
+                out bool migrated);
+
+            Assert.That(loaded, Is.True, reason);
+            Assert.That(migrated, Is.True);
+            Assert.That(restored.version, Is.EqualTo(StrategySaveData.CurrentVersion));
+            Assert.That(restored.foundingStart.hasStarterCamp, Is.False);
+            Assert.That(restored.foundingStart.hasStarterCartOrigin, Is.False);
+            Assert.That(restored.foundingStart.profileVersion, Is.Zero);
+            Assert.That(restored.foundingStart.profileId, Is.Empty);
+            Assert.That(restored.foundingStart.answers, Is.Empty);
+        }
+
+        [Test]
+        public void FoundingStartDataRoundTripsWithStableAnswerPairs()
+        {
+            StrategySaveData save = CreateValidSave();
+            save.foundingStart = CreateFoundingStart();
+
+            bool loaded = StrategySaveSystem.TryDeserializeAndValidate(
+                JsonUtility.ToJson(save),
+                out StrategySaveData restored,
+                out string reason,
+                out bool migrated);
+
+            Assert.That(loaded, Is.True, reason);
+            Assert.That(migrated, Is.False);
+            Assert.That(restored.foundingStart.hasStarterCamp, Is.True);
+            Assert.That(restored.foundingStart.starterCampX, Is.EqualTo(22));
+            Assert.That(restored.foundingStart.starterCampY, Is.EqualTo(31));
+            Assert.That(restored.foundingStart.hasStarterCartOrigin, Is.True);
+            Assert.That(restored.foundingStart.starterCartOriginX, Is.EqualTo(24));
+            Assert.That(restored.foundingStart.starterCartOriginY, Is.EqualTo(30));
+            Assert.That(restored.foundingStart.profileVersion, Is.EqualTo(1));
+            Assert.That(restored.foundingStart.profileId, Is.EqualTo("founding-v1"));
+            Assert.That(restored.foundingStart.answers, Has.Count.EqualTo(2));
+            Assert.That(restored.foundingStart.answers[0].questionId, Is.EqualTo("water"));
+            Assert.That(restored.foundingStart.answers[0].answerId, Is.EqualTo("near-river"));
+        }
+
+        [Test]
+        public void FoundingStartCoordinatesMustFitTheSavedMap()
+        {
+            StrategySaveData save = CreateValidSave();
+            save.foundingStart = CreateFoundingStart();
+            Assert.That(StrategySaveSystem.ValidateSaveData(save, out string validReason), Is.True, validReason);
+
+            save.foundingStart.starterCampX = save.mapWidth;
+            Assert.That(StrategySaveSystem.ValidateSaveData(save, out string campReason), Is.False);
+            Assert.That(campReason, Is.EqualTo("invalid_starter_camp_cell"));
+
+            save.foundingStart.starterCampX = 22;
+            save.foundingStart.starterCartOriginX = save.mapWidth - 2;
+            Assert.That(StrategySaveSystem.ValidateSaveData(save, out string cartReason), Is.False);
+            Assert.That(cartReason, Is.EqualTo("invalid_starter_cart_origin"));
+
+            save.foundingStart.starterCartOriginX = 24;
+            save.foundingStart.starterCartOriginY = save.mapHeight - 2;
+            Assert.That(StrategySaveSystem.ValidateSaveData(save, out string reservedRowReason), Is.False);
+            Assert.That(reservedRowReason, Is.EqualTo("invalid_starter_cart_origin"));
+        }
+
+        [Test]
+        public void FoundingAnswersRequireUniqueQuestionsAndStableIds()
+        {
+            StrategySaveData save = CreateValidSave();
+            save.foundingStart = CreateFoundingStart();
+            save.foundingStart.answers.Add(new StrategyFoundingAnswerSaveData
+            {
+                questionId = "water",
+                answerId = "inland"
+            });
+
+            Assert.That(StrategySaveSystem.ValidateSaveData(save, out string duplicateReason), Is.False);
+            Assert.That(duplicateReason, Is.EqualTo("invalid_founding_answer_2"));
+
+            save.foundingStart.answers[2].questionId = "unsafe question id";
+            Assert.That(StrategySaveSystem.ValidateSaveData(save, out string invalidIdReason), Is.False);
+            Assert.That(invalidIdReason, Is.EqualTo("invalid_founding_answer_2"));
+        }
+
+        [Test]
+        public void PendingFoundingStartDataIsReturnedAsADefensiveCopy()
+        {
+            StrategySaveData save = CreateValidSave();
+            save.foundingStart = CreateFoundingStart();
+            StrategySaveSystem.PreparePendingLoad(save);
+            try
+            {
+                Assert.That(StrategySaveSystem.TryGetPendingFoundingStartData(out StrategyFoundingStartSaveData first), Is.True);
+                first.starterCampX = 1;
+                first.answers[0].answerId = "inland";
+
+                Assert.That(StrategySaveSystem.TryGetPendingFoundingStartData(out StrategyFoundingStartSaveData second), Is.True);
+                Assert.That(second.starterCampX, Is.EqualTo(22));
+                Assert.That(second.answers[0].answerId, Is.EqualTo("near-river"));
+            }
+            finally
+            {
+                StrategySaveSystem.ClearPendingLoad();
+            }
+        }
+
+        [Test]
+        public void NeutralFoundingDataStillMarksPendingContinueBootstrap()
+        {
+            StrategySaveData save = CreateValidSave();
+            save.foundingStart = new StrategyFoundingStartSaveData();
+            StrategySaveSystem.PreparePendingLoad(save);
+            try
+            {
+                Assert.That(
+                    StrategySaveSystem.TryGetPendingFoundingStartData(out StrategyFoundingStartSaveData data),
+                    Is.True);
+                Assert.That(data.hasStarterCamp, Is.False);
+                Assert.That(data.profileVersion, Is.Zero);
+            }
+            finally
+            {
+                StrategySaveSystem.ClearPendingLoad();
+            }
         }
 
         [Test]
@@ -271,6 +407,32 @@ namespace ProjectUnknown.Strategy.EditorTests
                 worldY = 3.5f
             });
             return save;
+        }
+
+        private static StrategyFoundingStartSaveData CreateFoundingStart()
+        {
+            StrategyFoundingStartSaveData data = new()
+            {
+                hasStarterCamp = true,
+                starterCampX = 22,
+                starterCampY = 31,
+                hasStarterCartOrigin = true,
+                starterCartOriginX = 24,
+                starterCartOriginY = 30,
+                profileVersion = 1,
+                profileId = "founding-v1"
+            };
+            data.answers.Add(new StrategyFoundingAnswerSaveData
+            {
+                questionId = "water",
+                answerId = "near-river"
+            });
+            data.answers.Add(new StrategyFoundingAnswerSaveData
+            {
+                questionId = "landscape",
+                answerId = "forest-edge"
+            });
+            return data;
         }
 
         private static string CreateTemporaryDirectory()

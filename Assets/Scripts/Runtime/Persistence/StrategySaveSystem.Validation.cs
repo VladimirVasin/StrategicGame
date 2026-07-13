@@ -53,6 +53,11 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
+            if (!ValidateFoundingStart(data.foundingStart, data.mapWidth, data.mapHeight, out reason))
+            {
+                return false;
+            }
+
             if (data.buildings == null
                 || data.constructionSites == null
                 || data.residents == null

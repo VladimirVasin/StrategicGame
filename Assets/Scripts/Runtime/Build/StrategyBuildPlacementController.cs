@@ -131,12 +131,7 @@ namespace ProjectUnknown.Strategy
                 }
             }
 
-            StrategyBuildToolInfo toolInfo = new StrategyBuildToolInfo(
-                StrategyBuildTool.StarterCaravanCart,
-                "Caravan Cart",
-                new StrategyConstructionResourceCost(0, 0),
-                new Color(0.72f, 0.54f, 0.30f),
-                new Vector2Int(3, 2));
+            StrategyBuildToolInfo toolInfo = CreateStarterCaravanToolInfo();
 
             if (!TryFindStarterSupplyOrigin(nearCell, toolInfo, out Vector2Int origin))
             {
@@ -148,28 +143,13 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            StrategyPlacedBuilding building = PlaceTool(toolInfo, origin);
-            StrategyStarterCaravanCart cart = building != null ? building.GetComponent<StrategyStarterCaravanCart>() : null;
-            if (cart == null)
-            {
-                StrategyDebugLogger.Warn(
-                    "Build",
-                    "StarterCaravanCartRejected",
-                    StrategyDebugLogger.F("origin", origin),
-                    StrategyDebugLogger.F("reason", "cart_missing"));
-                return false;
-            }
-
-            cart.InitializeStarterStock(initialLogs, initialStone, starterFoodRations);
-            StrategyDebugLogger.Info(
-                "Build",
-                "StarterCaravanCartPlaced",
-                StrategyDebugLogger.F("origin", origin),
-                StrategyDebugLogger.F("nearCell", nearCell),
-                StrategyDebugLogger.F("initialLogs", initialLogs),
-                StrategyDebugLogger.F("initialStone", initialStone),
-                StrategyDebugLogger.F("targetFoodRations", starterFoodRations));
-            return true;
+            return PlaceStarterCaravanCart(
+                toolInfo,
+                origin,
+                nearCell,
+                initialLogs,
+                initialStone,
+                starterFoodRations);
         }
 
         private void UpdateBridgePreview(StrategyBuildToolInfo toolInfo)

@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Tests\EditMode\StrategyLogFileRotationTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyStartSiteSelectorTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyVerificationTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyInputRouterTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategySaveSystemTests.cs" />

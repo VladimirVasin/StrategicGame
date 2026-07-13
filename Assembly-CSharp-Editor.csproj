@@ -9,6 +9,7 @@
   </PropertyGroup>
   <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
   <ItemGroup>
+    <Compile Include="Assets\Tests\EditMode\StrategyStartSiteSelectorTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyLogFileRotationTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyVerificationTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategySaveSystemTests.cs" />
@@ -72,6 +73,7 @@
     <Compile Include="Assets\Editor\StrategyVisualCatalogBaker.cs" />
     <Compile Include="Assets\Editor\StrategyVisualCatalogBaker.Terrain.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.cs" />
+    <Compile Include="Assets\Editor\StrategyVerificationRunner.FoundingJourney.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.Visual.cs" />
     <Compile Include="Assets\Editor\StrategyVisualCatalogBaker.IO.cs" />
   </ItemGroup>

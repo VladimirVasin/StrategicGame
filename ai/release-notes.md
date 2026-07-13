@@ -1,11 +1,13 @@
 # Release Notes
 
-Last updated: 2026-06-10
+Last updated: 2026-07-13
 
-## Current State
+## Unreleased
 
-- No project version labels, changelog entries, or player-facing patch notes are documented yet.
-- This file is reserved for stable release baselines once the project starts shipping builds or meaningful milestones.
+- New Settlement now opens a separate pixel-art Founding Journey about families fleeing war and searching for a quiet valley.
+- Four founding choices guide the settlement toward preferred water, landscape, first livelihood, and construction/resource conditions while preserving safe playable starts.
+- The chosen camp and Caravan Cart location now persist with the save; Continue remains direct and does not replay the founding story.
+- Back/Skip, balanced defaults, preparation progress, and a reduced-motion option are available throughout the journey.
 
 ## Maintenance Rule
 

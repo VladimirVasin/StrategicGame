@@ -171,6 +171,7 @@ namespace ProjectUnknown.Strategy
                 int y = cellIndex / map.Width;
                 Vector2Int cell = new Vector2Int(x, y);
                 if (usedCells.Contains(cell)
+                    || IsInsideAdditionalExclusion(cell)
                     || IsTooCloseToStarter(cell, 3)
                     || !map.IsCellWalkable(cell)
                     || !map.TryGetCell(x, y, out CityMapCell mapCell)
@@ -226,6 +227,7 @@ namespace ProjectUnknown.Strategy
 
                         Vector2Int cell = starterCell + new Vector2Int(x, y);
                         if (usedCells.Contains(cell)
+                            || IsInsideAdditionalExclusion(cell)
                             || !map.IsCellWalkable(cell)
                             || !map.TryGetCell(cell.x, cell.y, out CityMapCell mapCell)
                             || !IsResourceAllowedOnTerrain(resource, mapCell.Kind))
@@ -267,7 +269,11 @@ namespace ProjectUnknown.Strategy
 
         private void CreateNode(Vector2Int cell, StrategyResourceType resource, int salt)
         {
-            if (map == null || forageRoot == null || usedCells.Contains(cell) || nodes.Count >= MaxForageNodes)
+            if (map == null
+                || forageRoot == null
+                || usedCells.Contains(cell)
+                || IsInsideAdditionalExclusion(cell)
+                || nodes.Count >= MaxForageNodes)
             {
                 return;
             }

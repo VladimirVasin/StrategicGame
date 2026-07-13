@@ -58,6 +58,7 @@
     <Compile Include="Assets\Editor\StrategyAudioMixerBuilder.cs" />
     <Compile Include="Assets\Editor\StrategyVisualCatalogBaker.Layers.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.Soak.cs" />
+    <Compile Include="Assets\Editor\StrategyVerificationRunner.FoundingJourney.cs" />
     <Compile Include="Assets\Editor\StrategyEditorAssemblyInfo.cs" />
     <Compile Include="Assets\Editor\StrategyVisualCatalogBaker.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.Errors.cs" />

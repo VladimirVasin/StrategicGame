@@ -149,12 +149,13 @@ Impact hints:
 
 Responsibilities:
 
-- Intro menu, gameplay scene, and reusable scene templates.
+- Intro menu, founding journey, gameplay scene, and reusable scene templates.
 - Build-scene order and scene-role separation.
 
 Primary files/assets:
 
 - `Assets/Scenes/MainMenu.unity`
+- `Assets/Scenes/FoundingJourney.unity`
 - `Assets/Scenes/SampleScene.unity`
 - `Assets/Scripts/Runtime/Menu/StrategySceneCatalog.cs`
 - `ProjectSettings/EditorBuildSettings.asset`
@@ -174,7 +175,8 @@ Responsibilities:
 - Present one dedicated generated static pixel-art key image instead of composing gameplay sprites or runtime backdrop layers.
 - Keep music disabled in the menu while retaining HUD SFX, and animate pointer/selection hover feedback on every command button.
 - Validate save availability and prepare one likely Continue/New map candidate while the menu remains interactive.
-- Prewarm starter visuals plus short HUD/footstep clips, report real generation progress, and transfer the prepared map into gameplay.
+- Route Continue directly into gameplay and New Settlement through `FoundingJourney` without duplicating the prepared map.
+- Prewarm starter visuals plus short HUD/footstep clips, report real generation progress, and transfer the prepared map into the founding/gameplay flow.
 - Persist master/music/effects volume and fullscreen state.
 
 Primary files/assets:
@@ -200,6 +202,42 @@ Impact hints:
 - Continue and New Settlement must cancel mismatched candidate work before starting a different seed.
 - Main-menu key art is independent from gameplay sprite factories; keep point filtering, cover-crop behavior, the dark left UI-safe area, and the single static-image ownership model when replacing it.
 - Do not create/configure `StrategyMusicController` or bulk-load long Music/Nature folders in the menu; hover feedback should remain one quiet, cooldown-limited HUD cue per pointer entry.
+
+### Founding Journey And Start-Site Selection
+
+Responsibilities:
+
+- Present four pre-game story panels and four stable-ID founding questions without starting gameplay simulation.
+- Support Back/Skip, balanced defaults, centralized UI input, subtle presentation motion, and a persistent reduced-motion option.
+- Capture the prepared map into defensive plain data, select a deterministic safe camp/cart layout, and expose fallback diagnostics.
+- Carry the selected profile/layout into population startup, nature/forage exclusions, exact starter-cart placement, persistence, and launch verification.
+
+Primary files/assets:
+
+- `Assets/Scenes/FoundingJourney.unity`
+- `Assets/Resources/Visual/Founding/`
+- `Assets/Scripts/Runtime/Menu/StrategyFoundingJourneyBootstrap.cs`
+- `Assets/Scripts/Runtime/Menu/StrategyFoundingJourneyController.cs`
+- `Assets/Scripts/Runtime/Menu/StrategyFoundingJourneyController.Flow.cs`
+- `Assets/Scripts/Runtime/Menu/StrategyFoundingJourneyController.View.cs`
+- `Assets/Scripts/Runtime/Menu/StrategyFoundingJourneyAtmosphere.cs`
+- `Assets/Scripts/Runtime/Founding/`
+- `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.Founding.cs`
+- `Assets/Scripts/Runtime/Population/StrategyPopulationController.Founding.cs`
+- `Assets/Scripts/Runtime/Build/StrategyBuildPlacementController.Founding.cs`
+- `Assets/Scripts/Runtime/Map/StrategyNaturePropController.Founding.cs`
+- `Assets/Scripts/Runtime/Map/StrategyForageResourceController.Founding.cs`
+- `Assets/Tests/EditMode/StrategyStartSiteSelectorTests.cs`
+- `Assets/Editor/StrategyVerificationRunner.FoundingJourney.cs`
+
+Impact hints:
+
+- Question/answer IDs and profile versions are persistence contracts; rename them only with an explicit save migration.
+- Safety, connected land, resident spawn capacity, and cart reservation remain hard constraints; preferences only rank valid candidates.
+- Keep `StrategyStartSiteSelector` deterministic and free of `UnityEngine.Random`; the same map seed and answers must return the same layout.
+- The reserved cart footprint is `3x3` even though the visible cart is `3x2`; population, nature, forage, placement, validation, and smoke checks must stay aligned.
+- Continue uses restored-state semantics: create the camp anchor required for bootstrap, but do not spawn transient new-game residents or a second starter cart before applying the save.
+- Story art stays Resources-backed Sprite/Single with point filtering; missing art must log and degrade without breaking scene navigation.
 
 ### Runtime Bootstrap
 
@@ -2432,6 +2470,7 @@ Responsibilities:
 - Capture and restore versioned runtime settlement snapshots with stable IDs and no raw Unity object references.
 - Write saves atomically and coordinate restoration only after runtime bootstrap has created all required systems.
 - Preserve F5 save and F8 load/restart controls while exposing read/validate/pending-load entry points to the intro menu Continue flow.
+- Preserve the founding profile, stable answer pairs, exact camp cell, and current starter-cart origin across save version 3.
 
 Primary files:
 
@@ -2442,7 +2481,9 @@ Primary files:
 - `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Validation.cs`
 - `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Capture.cs`
 - `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Apply.cs`
+- `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Founding.cs`
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.Persistence.cs`
+- `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.Founding.cs`
 - `Assets/Scripts/Runtime/Build/StrategyBuildPlacementController.Persistence.cs`
 - `Assets/Scripts/Runtime/Build/StrategyConstructionSite.Persistence.cs`
 - `Assets/Scripts/Runtime/Population/StrategyPopulationController.Persistence.cs`
@@ -2452,7 +2493,7 @@ Primary files:
 
 Impact hints:
 
-- Increment the save version and add an explicit migration whenever persisted DTO shape changes; validate migrated data before applying it.
+- Current persistence is version 3 with v1/v2 migration. Increment the version and add an explicit migration whenever persisted DTO shape changes; validate migrated data before applying it.
 - Keep primary/temp/backup replacement and backup recovery in the file seam so interrupted writes do not destroy the last valid save.
 - Reject save files above 32 MiB before reading and keep top-level plus resident-child/prepared-dish collection limits in validation.
 - Stable IDs are serialization contracts; never replace them with scene-instance IDs or object references.
@@ -2463,7 +2504,7 @@ Responsibilities:
 
 - Run deterministic logic checks from the Unity Editor.
 - Enforce source/config quality and assembly/project-file parity before Unity verification.
-- Enter real Play Mode to verify menu isolation, prepared menu-to-gameplay launch, and direct gameplay bootstrap.
+- Enter real Play Mode to verify menu isolation, prepared menu-to-founding-to-gameplay launch with founding-layout invariants, and direct gameplay bootstrap.
 - Apply wall-clock progress/stall watchdogs and collect unexpected Unity runtime errors with only narrow batch-mode infrastructure exceptions.
 - Verify explicit map seeds and procedural plus production-16px catalog terrain golden output.
 - Run a 45-game-second `QuickSoak` covering 3 in-game hours for pull requests and `main`, writing `Logs/QuickSoakSmoke.txt`.
@@ -2481,6 +2522,7 @@ Primary files:
 - `Assets/Editor/StrategyVerificationRunner.Quality.cs`
 - `Assets/Editor/StrategyVerificationRunner.Soak.cs`
 - `Assets/Editor/StrategyVerificationRunner.Watchdog.cs`
+- `Assets/Editor/StrategyVerificationRunner.FoundingJourney.cs`
 - `Assets/Tests/EditMode/`
 - `Tools/Verification/Invoke-TechnicalGates.ps1`
 - `Tools/Verification/Invoke-UnityVerification.ps1`

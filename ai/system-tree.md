@@ -35,9 +35,10 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 
 - Scene foundation
   - Build-index-0 `MainMenu` intro scene
-  - `SampleScene` gameplay scene
+  - Build-index-1 `FoundingJourney` narrative and founding-choice scene
+  - Build-index-2 `SampleScene` gameplay scene
   - URP 2D scene template assets
-  - Scene-role catalog separates menu and gameplay bootstrap
+  - Scene-role catalog separates menu, founding journey, and gameplay bootstrap
   - Persistent scene-loaded hook starts gameplay after runtime menu transitions
 
 - Intro menu and preload foundation
@@ -46,6 +47,10 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Main-menu buttons use pointer/selection hover movement, warm tint, gold accent, and throttled quiet HUD feedback
   - Main menu keeps music disabled and starts only the HUD SFX mix
   - Continue reads and validates the current save before launch; New Settlement keeps a separate candidate seed
+  - Continue opens gameplay directly; New Settlement opens `FoundingJourney` while the same hidden candidate continues preparing
+  - Four generated static pixel-art panels tell the departure/road/valley/council story with crossfade, restrained pan, ambient particles, and a reduced-motion setting
+  - Four stable-ID founding choices cover water, landscape, livelihood, and construction/resource priority; balanced defaults remain available
+  - A deterministic defensive-snapshot selector scores only safe playable cells, reserves the Caravan Cart `3x3` blocker, and reports explicit fallback diagnostics
   - Master, music, effects, and fullscreen settings persist through `PlayerPrefs`
   - Exactly one candidate map is prepared to cap memory usage
   - Cell generation is incremental; terrain pixels are painted in a cancellable parallel worker; Unity texture upload stays on the main thread
@@ -57,6 +62,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Creates one scene-local typed game context with explicit Created/Configuring/Ready/Failed/Disposed lifecycle state
     - Uses a context-owned bootstrap pause and a scene-local coroutine runner so deterministic nature/resource creation is spread across bounded frame batches before gameplay begins
     - Explicitly transfers menu-preloaded map ownership and disposes orphan candidates/static scene state on unload or return to menu
+    - Carries the selected founding profile and exact camp/cart geometry on the prepared map into gameplay
     - Creates and configures the strategy debug logger before other strategy systems
     - Creates `City Map` if none exists
     - Creates the shared budgeted navigation service after map/trail setup so residents and land agents reuse one path engine and walkability-version cache
@@ -78,7 +84,8 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Creates forage resources after nature generation so forage nodes avoid occupied/non-walkable cells
     - Creates and wires the runtime fog-of-war layer after population and placement controllers exist
     - Creates the F9 runtime debug panel after fog/weather are ready so testing can bypass player fog, force weather states, and enable instant free construction
-    - Places a temporary starter Caravan Cart near the campfire with initial Logs, Stone, and 3 days of randomized raw food after placement is configured
+    - Places a temporary starter Caravan Cart at its reserved founding origin, or uses the legacy nearby search when no reservation exists, with initial Logs, Stone, and 3 days of randomized raw food after placement is configured
+    - Keeps initial residents, nature props, and forage nodes outside the reserved cart blocker; Continue skips transient new-game residents/cart before applying the save
     - Creates and configures the 16x16 world chunk registry after starter placement so later systems can query camera-near, active-settlement, dirty, and spatially indexed world state
     - Creates and wires runtime wildlife after starter placement so deer, rabbits, fish, and birds spawn in valid terrain/water/habitat areas
     - Creates runtime time-scale controls for simulation speed hotkeys
@@ -667,7 +674,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Runtime, Editor, and EditMode tests compile in separate assembly definitions
   - `StrategyVerificationRunner` executes deterministic navigation, source-quality, input, save, audio, explicit-map-seed, and procedural/production-16px terrain-golden contracts
   - NUnit characterization tests cover resident task priority, game-context lifecycle, bounded save migration/validation/recovery, input routing/actions, and log rotation
-  - Separate Play Mode checks cover menu isolation, menu-to-prepared-gameplay launch, and direct gameplay bootstrap under wall-clock progress/stall watchdogs and unexpected-error collection
+  - Separate Play Mode checks cover menu isolation, the full menu-to-founding-to-prepared-gameplay launch with exact camp/cart/forage invariants, and direct gameplay bootstrap under wall-clock progress/stall watchdogs and unexpected-error collection
   - Pull requests and `main` run a 45-game-second `QuickSoak` covering 3 in-game hours and write `Logs/QuickSoakSmoke.txt`
   - The deterministic full soak runs for 720 game seconds / 2 in-game days only on the nightly 01:23 UTC schedule, manual `workflow_dispatch`, `release`/`release/**` branches, and `v*` tags; it writes `Logs/SoakSmoke.txt` and checks context, resident IDs/positions, navigation capacity, audio voices, refugee-modal input-context release, Unity errors, and final/peak 128 MiB memory growth
   - Fast PR/main concurrency cancels stale superseded runs; full-soak concurrency never cancels an in-progress evidence run
@@ -675,10 +682,10 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Gameplay can be rendered at deterministic Noon, Spring, Autumn, Night, and Winter states for visual comparison when a graphics device is available
 
 - Persistence
-  - Version-2 JSON save data with v1 migration, validation, atomic temporary-file replacement, and `.bak` recovery
+  - Version-3 JSON save data with v1/v2 migration, validation, atomic temporary-file replacement, and `.bak` recovery
   - F5 saves the current settlement; F8 loads it by restarting and restoring the runtime scene
   - Stable IDs reconnect placed buildings, residents, homes, parents, and children without serializing Unity object references
-  - Snapshot coverage includes map seed/time/weather, first-winter milestones, buildings, construction sites, resource and dish stock, residents and cold state, loose resources, explored fog, and route-road cells
+  - Snapshot coverage includes map seed/time/weather, founding profile answers and exact camp/current-cart origin, first-winter milestones, buildings, construction sites, resource and dish stock, residents and cold state, loose resources, explored fog, and route-road cells
 
 - AI collaboration memory
   - Root entry point: `AI.md`
@@ -689,7 +696,8 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 
 - Rendering settings affect all scenes using the URP pipeline.
 - Runtime bootstrap depends on scene role, one scene-local game context, explicit preload ownership transfer, and the presence of a usable `Main Camera` or permission to create one.
-- Intro menu launch depends on save validation, one persistent preload coordinator, deterministic map seed handling, and the gameplay scene-loaded bootstrap hook; prepared terrain keeps Unity object creation/upload on the main thread.
+- Intro menu launch depends on save validation, one persistent preload coordinator, deterministic map seed handling, the Founding Journey decision gate for New Settlement, and the gameplay scene-loaded bootstrap hook; prepared terrain keeps Unity object creation/upload on the main thread.
+- Founding Journey answers feed a pure selector over a captured map snapshot; its selected camp/cart cells feed population startup, nature/forage exclusions, exact starter-cart placement, save v3, and the initial camera focus.
 - Audio bootstrap depends on map generation, camera setup/orthographic zoom, strategy wind/weather values, `Resources/Audio` assets, the in-game music/work/HUD-SFX folders, resident walk animation frames, resident work impact/release frames, and runtime HUD interaction events.
 - Strategy camera bounds depend on generated map dimensions.
 - Input action IDs/names/bindings feed the central router, every runtime consumer, modal contexts, and the shared UI input module; update their contract tests with intentional changes.

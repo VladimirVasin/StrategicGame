@@ -11,6 +11,17 @@ namespace ProjectUnknown.Strategy
         Continue
     }
 
+    public enum StrategyPreloadPhase
+    {
+        PreparingCandidate,
+        OpeningFoundingJourney,
+        AwaitingFoundingDecision,
+        PreparingGameplay,
+        OpeningGameplay,
+        ReturningToMainMenu,
+        Completed
+    }
+
     [DisallowMultipleComponent]
     public sealed partial class StrategyMapPreloadCoordinator : MonoBehaviour
     {
@@ -23,6 +34,7 @@ namespace ProjectUnknown.Strategy
         private AsyncOperation sceneLoadOperation;
         private StrategyLaunchMode candidateMode;
         private StrategyLaunchMode requestedMode;
+        private StrategyPreloadPhase phase;
         private int newSettlementSeed;
         private int candidateSeed;
         private bool configured;
@@ -30,6 +42,7 @@ namespace ProjectUnknown.Strategy
         private bool synchronousFallbackStarted;
         private float contentProgress;
         private string contentStage = "Preparing content";
+        private string launchFailureReason = string.Empty;
 
         public static StrategyMapPreloadCoordinator Active { get; private set; }
 
@@ -38,8 +51,10 @@ namespace ProjectUnknown.Strategy
         public bool IsMapReady => preparedMap != null && preparedMap.IsGenerated;
         public StrategyLaunchMode CandidateMode => candidateMode;
         public StrategyLaunchMode RequestedMode => requestedMode;
+        public StrategyPreloadPhase Phase => phase;
         public string SaveSummary => BuildSaveSummary();
         public int PreparedSeed => candidateSeed;
+        public string LaunchFailureReason => launchFailureReason;
 
         public float Progress
         {
@@ -47,7 +62,10 @@ namespace ProjectUnknown.Strategy
             {
                 if (sceneLoadOperation != null)
                 {
-                    return Mathf.Lerp(0.96f, 1f, Mathf.Clamp01(sceneLoadOperation.progress / 0.9f));
+                    float sceneProgress = Mathf.Clamp01(sceneLoadOperation.progress / 0.9f);
+                    return phase == StrategyPreloadPhase.OpeningGameplay
+                        ? Mathf.Lerp(0.96f, 1f, sceneProgress)
+                        : sceneProgress;
                 }
 
                 float mapProgress = preparedMap != null ? preparedMap.GenerationProgress : 0f;
@@ -61,7 +79,12 @@ namespace ProjectUnknown.Strategy
             {
                 if (sceneLoadOperation != null)
                 {
-                    return "Opening settlement";
+                    return phase switch
+                    {
+                        StrategyPreloadPhase.OpeningFoundingJourney => "Opening founding journey",
+                        StrategyPreloadPhase.ReturningToMainMenu => "Returning to main menu",
+                        _ => "Opening settlement"
+                    };
                 }
 
                 if (preparedMap != null && preparedMap.GenerationProgress < 1f)
@@ -88,11 +111,15 @@ namespace ProjectUnknown.Strategy
 
             Active = this;
             configured = true;
+            phase = StrategyPreloadPhase.PreparingCandidate;
+            launchFailureReason = string.Empty;
             DontDestroyOnLoad(gameObject);
             SceneManager.sceneLoaded += HandleSceneLoaded;
 
             StrategySaveSystem.TryReadSave(out savedGame, out string saveReason);
-            newSettlementSeed = Random.Range(1, int.MaxValue);
+            newSettlementSeed = StrategyPerformanceBenchmarkOptions.TryGetForcedSeed(out int forcedSeed)
+                ? forcedSeed
+                : Random.Range(1, int.MaxValue);
             candidateMode = HasValidSave ? StrategyLaunchMode.Continue : StrategyLaunchMode.NewSettlement;
             int seed = HasValidSave ? savedGame.mapSeed : newSettlementSeed;
             StrategyVisualCatalogProvider.Prewarm();
@@ -116,8 +143,7 @@ namespace ProjectUnknown.Strategy
             }
 
             StrategySaveSystem.PreparePendingLoad(savedGame);
-            BeginLaunch(StrategyLaunchMode.Continue, savedGame.mapSeed);
-            return true;
+            return BeginGameplayLaunch(StrategyLaunchMode.Continue, savedGame.mapSeed);
         }
 
         public bool RequestNewSettlement()
@@ -128,8 +154,64 @@ namespace ProjectUnknown.Strategy
             }
 
             StrategySaveSystem.ClearPendingLoad();
-            BeginLaunch(StrategyLaunchMode.NewSettlement, newSettlementSeed);
+            return BeginFoundingJourney(newSettlementSeed);
+        }
+
+        public bool TryGetPreparedMap(out CityMapController map)
+        {
+            map = preparedMap;
+            return map != null && map.IsGenerated && !map.GenerationFailed;
+        }
+
+        public bool CompleteFoundingJourney()
+        {
+            if (!configured
+                || requestedMode != StrategyLaunchMode.NewSettlement
+                || phase != StrategyPreloadPhase.AwaitingFoundingDecision)
+            {
+                return false;
+            }
+
+            launchFailureReason = string.Empty;
+            phase = StrategyPreloadPhase.PreparingGameplay;
+            preparedMap?.SetGenerationFrameBudget(LaunchFrameBudgetMs);
+            StrategyDebugLogger.Info(
+                "Menu",
+                "FoundingJourneyCompleted",
+                StrategyDebugLogger.F("seed", candidateSeed),
+                StrategyDebugLogger.F("mapReady", IsMapReady));
             return true;
+        }
+
+        public bool CancelFoundingJourney()
+        {
+            if (!configured || phase != StrategyPreloadPhase.AwaitingFoundingDecision)
+            {
+                return false;
+            }
+
+            launchRequested = false;
+            requestedMode = StrategyLaunchMode.None;
+            phase = StrategyPreloadPhase.ReturningToMainMenu;
+            preparedMap?.SetGenerationFrameBudget(IdleFrameBudgetMs);
+            if (HasValidSave && (candidateMode != StrategyLaunchMode.Continue || candidateSeed != savedGame.mapSeed))
+            {
+                StartCandidate(StrategyLaunchMode.Continue, savedGame.mapSeed);
+            }
+
+            sceneLoadOperation = SceneManager.LoadSceneAsync(
+                StrategySceneCatalog.MainMenuSceneName,
+                LoadSceneMode.Single);
+            if (sceneLoadOperation == null)
+            {
+                launchRequested = true;
+                requestedMode = StrategyLaunchMode.NewSettlement;
+                phase = StrategyPreloadPhase.AwaitingFoundingDecision;
+                launchFailureReason = "The main menu scene could not be opened.";
+                StrategyDebugLogger.Error("Menu", "MainMenuSceneOpenRejected");
+            }
+            StrategyDebugLogger.Info("Menu", "FoundingJourneyCancelled");
+            return sceneLoadOperation != null;
         }
 
         private void Update()
@@ -143,7 +225,9 @@ namespace ProjectUnknown.Strategy
                 preparedMap.GenerateMap(candidateSeed);
             }
 
-            if (!launchRequested || sceneLoadOperation != null || !IsMapReady)
+            if (phase != StrategyPreloadPhase.PreparingGameplay
+                || sceneLoadOperation != null
+                || !IsMapReady)
             {
                 return;
             }
@@ -153,11 +237,65 @@ namespace ProjectUnknown.Strategy
                 "PreloadReadyForLaunch",
                 StrategyDebugLogger.F("mode", requestedMode),
                 StrategyDebugLogger.F("seed", preparedMap.ActiveSeed));
+            phase = StrategyPreloadPhase.OpeningGameplay;
             sceneLoadOperation = SceneManager.LoadSceneAsync(StrategySceneCatalog.GameplaySceneName, LoadSceneMode.Single);
+            if (sceneLoadOperation == null)
+            {
+                launchFailureReason = "The gameplay scene could not be opened.";
+                StrategyDebugLogger.Error(
+                    "Menu",
+                    "GameplaySceneOpenRejected",
+                    StrategyDebugLogger.F("mode", requestedMode));
+                if (requestedMode == StrategyLaunchMode.NewSettlement)
+                {
+                    phase = StrategyPreloadPhase.AwaitingFoundingDecision;
+                }
+                else
+                {
+                    launchRequested = false;
+                    requestedMode = StrategyLaunchMode.None;
+                    phase = StrategyPreloadPhase.PreparingCandidate;
+                }
+            }
         }
 
-        private void BeginLaunch(StrategyLaunchMode mode, int seed)
+        private bool BeginFoundingJourney(int seed)
         {
+            launchFailureReason = string.Empty;
+            bool preloadHit = candidateMode == StrategyLaunchMode.NewSettlement
+                && candidateSeed == seed
+                && preparedMap != null;
+            launchRequested = true;
+            requestedMode = StrategyLaunchMode.NewSettlement;
+            if (!preloadHit)
+            {
+                StartCandidate(StrategyLaunchMode.NewSettlement, seed);
+            }
+
+            preparedMap?.SetGenerationFrameBudget(IdleFrameBudgetMs);
+            phase = StrategyPreloadPhase.OpeningFoundingJourney;
+            sceneLoadOperation = SceneManager.LoadSceneAsync(
+                StrategySceneCatalog.FoundingJourneySceneName,
+                LoadSceneMode.Single);
+            if (sceneLoadOperation == null)
+            {
+                launchRequested = false;
+                requestedMode = StrategyLaunchMode.None;
+                phase = StrategyPreloadPhase.PreparingCandidate;
+                launchFailureReason = "The founding journey scene could not be opened.";
+                StrategyDebugLogger.Error("Menu", "FoundingJourneySceneOpenRejected");
+            }
+            StrategyDebugLogger.Info(
+                "Menu",
+                "FoundingJourneyRequested",
+                StrategyDebugLogger.F("seed", seed),
+                StrategyDebugLogger.F("preloadHit", preloadHit));
+            return sceneLoadOperation != null;
+        }
+
+        private bool BeginGameplayLaunch(StrategyLaunchMode mode, int seed)
+        {
+            launchFailureReason = string.Empty;
             bool preloadHit = candidateMode == mode && candidateSeed == seed && preparedMap != null;
             launchRequested = true;
             requestedMode = mode;
@@ -167,12 +305,14 @@ namespace ProjectUnknown.Strategy
             }
 
             preparedMap?.SetGenerationFrameBudget(LaunchFrameBudgetMs);
+            phase = StrategyPreloadPhase.PreparingGameplay;
             StrategyDebugLogger.Info(
                 "Menu",
                 "LaunchRequested",
                 StrategyDebugLogger.F("mode", mode),
                 StrategyDebugLogger.F("seed", seed),
                 StrategyDebugLogger.F("preloadHit", preloadHit));
+            return true;
         }
 
         private void StartCandidate(StrategyLaunchMode mode, int seed)
@@ -214,11 +354,33 @@ namespace ProjectUnknown.Strategy
 
         private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
         {
+            if (StrategySceneCatalog.IsFoundingJourneyScene(scene))
+            {
+                sceneLoadOperation = null;
+                phase = StrategyPreloadPhase.AwaitingFoundingDecision;
+                preparedMap?.SetGenerationFrameBudget(IdleFrameBudgetMs);
+                StrategyDebugLogger.Info(
+                    "Menu",
+                    "FoundingJourneyOpened",
+                    StrategyDebugLogger.F("seed", candidateSeed));
+                return;
+            }
+
+            if (StrategySceneCatalog.IsMainMenuScene(scene)
+                && phase == StrategyPreloadPhase.ReturningToMainMenu)
+            {
+                sceneLoadOperation = null;
+                phase = StrategyPreloadPhase.PreparingCandidate;
+                return;
+            }
+
             if (!StrategySceneCatalog.IsGameplayScene(scene))
             {
                 return;
             }
 
+            sceneLoadOperation = null;
+            phase = StrategyPreloadPhase.Completed;
             TryTransferPreparedMap(scene, out _);
             SceneManager.sceneLoaded -= HandleSceneLoaded;
             Destroy(gameObject);
@@ -229,7 +391,8 @@ namespace ProjectUnknown.Strategy
             map = null;
             if (preparedMap == null
                 || !targetScene.IsValid()
-                || !targetScene.isLoaded)
+                || !targetScene.isLoaded
+                || !StrategySceneCatalog.IsGameplayScene(targetScene))
             {
                 return false;
             }

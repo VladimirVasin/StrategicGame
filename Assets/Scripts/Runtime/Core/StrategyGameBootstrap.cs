@@ -38,6 +38,7 @@ namespace ProjectUnknown.Strategy
             }
 
             StrategyDebugLogger.Info("Bootstrap", "MapReady", StrategyDebugLogger.F("bounds", map.WorldBounds));
+            StrategyFoundingStartState foundingStart = ResolveFoundingStartState(map);
             StrategyInputRouter inputRouter = context.GetOrCreate<StrategyInputRouter>("Strategy Input Router");
             if (!inputRouter.Configure())
             {
@@ -151,6 +152,7 @@ namespace ProjectUnknown.Strategy
             buildMenu.SetInputRouter(inputRouter);
             placement.SetInputRouter(inputRouter);
 
+            population.SetFoundingStartState(foundingStart);
             population.Configure(map);
             cameraController.SetCampFocusSource(map, population);
 
@@ -165,6 +167,12 @@ namespace ProjectUnknown.Strategy
             }
 
             StrategyNaturePropController nature = context.GetOrCreate<StrategyNaturePropController>("Strategy Nature Props");
+            if (foundingStart != null && foundingStart.HasCaravanOrigin)
+            {
+                nature.SetAdditionalExclusion(
+                    foundingStart.CaravanOrigin,
+                    StrategyStartSiteSelector.CaravanReservedFootprint);
+            }
 
             if (population.TryGetCampCell(out Vector2Int campCell))
             {
@@ -188,6 +196,12 @@ namespace ProjectUnknown.Strategy
             }
 
             StrategyForageResourceController forage = context.GetOrCreate<StrategyForageResourceController>("Strategy Forage Resources");
+            if (foundingStart != null && foundingStart.HasCaravanOrigin)
+            {
+                forage.SetAdditionalExclusion(
+                    foundingStart.CaravanOrigin,
+                    StrategyStartSiteSelector.CaravanReservedFootprint);
+            }
 
             if (population.TryGetCampCell(out Vector2Int forageCampCell))
             {
@@ -209,14 +223,26 @@ namespace ProjectUnknown.Strategy
             fog.Configure(map, population, placement, weather);
             placement.Configure(map, buildMenu, mainCamera, population, fog, forestry, stone, upgrades);
             trails.ConfigureRouteNetwork(placement);
-            if (population.TryGetCampCell(out Vector2Int starterCartCampCell))
+            if ((foundingStart == null || !foundingStart.IsRestoredFromSave)
+                && population.TryGetCampCell(out Vector2Int starterCartCampCell))
             {
                 float starterFoodRations = CalculateStarterFoodRations(population, StarterFoodReserveDays);
-                placement.TryPlaceStarterCaravanCart(
-                    starterCartCampCell,
-                    InitialStarterLogs,
-                    InitialStarterStone,
-                    starterFoodRations);
+                bool cartPlaced = foundingStart != null
+                    && foundingStart.HasCaravanOrigin
+                    && placement.TryPlaceStarterCaravanCartAt(
+                        foundingStart.CaravanOrigin,
+                        starterCartCampCell,
+                        InitialStarterLogs,
+                        InitialStarterStone,
+                        starterFoodRations);
+                if (!cartPlaced)
+                {
+                    placement.TryPlaceStarterCaravanCart(
+                        starterCartCampCell,
+                        InitialStarterLogs,
+                        InitialStarterStone,
+                        starterFoodRations);
+                }
             }
 
             ConfigureWorldChunks(context, map, population, mainCamera);
@@ -293,7 +319,7 @@ namespace ProjectUnknown.Strategy
             StrategyDebugLogger.Info("Bootstrap", "RefugeesReady");
 
             ConfigurePerformanceDiagnostics(context, map, population, wildlife, weather, timeScale);
-            ConfigurePersistence(context, map, placement, population, inputRouter);
+            ConfigurePersistence(context, map, placement, population, inputRouter, foundingStart);
             StrategyDebugLogger.Info("Bootstrap", "Complete");
         }
 

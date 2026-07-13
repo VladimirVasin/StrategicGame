@@ -7,6 +7,7 @@ namespace ProjectUnknown.Strategy
     {
         private StrategySaveData CaptureSaveData()
         {
+            RefreshFoundingStartGeometry();
             StrategySaveData data = new()
             {
                 savedUtcTicks = DateTime.UtcNow.Ticks,
@@ -16,7 +17,8 @@ namespace ProjectUnknown.Strategy
                 elapsedSeconds = StrategyDayNightCycleController.CurrentElapsedSeconds,
                 weatherKind = StrategyWeatherController.Active != null
                     ? (int)StrategyWeatherController.Active.CurrentWeather
-                    : (int)StrategyWeatherKind.Clear
+                    : (int)StrategyWeatherKind.Clear,
+                foundingStart = CopyFoundingStartData(foundingStart)
             };
 
             StrategyFirstWinterController firstWinter = FindAnyObjectByType<StrategyFirstWinterController>();

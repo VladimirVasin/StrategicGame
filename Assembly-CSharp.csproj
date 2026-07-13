@@ -9,6 +9,22 @@
   </PropertyGroup>
   <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
   <ItemGroup>
+    <Compile Include="Assets\Scripts\Runtime\Founding\StrategyFoundingPreferences.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Founding\StrategyStarterLayout.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Founding\StrategyStartSiteFeatureMap.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Founding\StrategyStartSiteMapSnapshot.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Founding\StrategyStartSiteSelector.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Founding\StrategyStartSiteSelector.Scoring.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Founding\StrategyFoundingStartState.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Founding\StrategyFoundingJourneyCatalog.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Menu\StrategyFoundingJourneyController.Flow.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Menu\StrategyFoundingJourneyController.View.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Menu\StrategyFoundingJourneyAtmosphere.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Population\StrategyPopulationController.Founding.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Map\StrategyNaturePropController.Founding.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Map\StrategyForageResourceController.Founding.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildPlacementController.Founding.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Core\StrategyGameBootstrap.Founding.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyLogFileRotation.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyPerformanceMarkers.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentHouseholdCookingTask.cs" />
@@ -125,6 +141,8 @@
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyFogOfWarController.Chunks.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyProfessionHudController.Part06.cs" />
     <Compile Include="Assets\Scripts\Runtime\Menu\StrategySceneCatalog.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Menu\StrategyFoundingJourneyBootstrap.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Menu\StrategyFoundingJourneyController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyStorageYard.Part09.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingSpriteFactory.Part06.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyGameBootstrap.Navigation.cs" />
@@ -323,6 +341,7 @@
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyStorageYard.Part05.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part34.cs" />
     <Compile Include="Assets\Scripts\Runtime\Persistence\StrategySaveData.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Persistence\StrategySaveSystem.Founding.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part56.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyForagerCamp.Part02.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingSpriteFactory.Part02.cs" />
