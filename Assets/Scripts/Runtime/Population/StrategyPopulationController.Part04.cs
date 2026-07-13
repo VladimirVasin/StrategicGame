@@ -22,17 +22,38 @@ namespace ProjectUnknown.Strategy
                 return Mathf.Lerp(MortalityChanceAtAgeOne, MortalityChanceAtAccelerationAge, t * t);
             }
 
-            if (ageYears <= MortalityHighRiskAgeYears)
+            if (ageYears <= MortalityOldAgeYears)
             {
                 float t = Mathf.InverseLerp(
                     MortalityAccelerationAgeYears,
-                    MortalityHighRiskAgeYears,
+                    MortalityOldAgeYears,
                     ageYears);
-                return Mathf.Lerp(MortalityChanceAtAccelerationAge, MortalityChanceAtAgeFifty, t * t);
+                float shapedT = 0.25f * t + 0.75f * t * t;
+                return Mathf.Lerp(MortalityChanceAtAccelerationAge, MortalityChanceAtOldAge, shapedT);
             }
 
-            float lateAgeChance = MortalityChanceAtAgeFifty
-                + (ageYears - MortalityHighRiskAgeYears) * MortalityChanceAfterFiftyPerYear;
+            if (ageYears <= MortalityHighRiskAgeYears)
+            {
+                float t = Mathf.InverseLerp(
+                    MortalityOldAgeYears,
+                    MortalityHighRiskAgeYears,
+                    ageYears);
+                float shapedT = (t + 10f * t * t) / 11f;
+                return Mathf.Lerp(MortalityChanceAtOldAge, MortalityChanceAtHighRiskAge, shapedT);
+            }
+
+            if (ageYears <= MortalitySevereRiskAgeYears)
+            {
+                float t = Mathf.InverseLerp(
+                    MortalityHighRiskAgeYears,
+                    MortalitySevereRiskAgeYears,
+                    ageYears);
+                float shapedT = 0.5f * t + 0.5f * t * t;
+                return Mathf.Lerp(MortalityChanceAtHighRiskAge, MortalityChanceAtSevereRiskAge, shapedT);
+            }
+
+            float lateAgeChance = MortalityChanceAtSevereRiskAge
+                + (ageYears - MortalitySevereRiskAgeYears) * MortalityChanceAfterSevereRiskPerYear;
             return Mathf.Min(MortalityMaxAnnualChance, lateAgeChance);
         }
 

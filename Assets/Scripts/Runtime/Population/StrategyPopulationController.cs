@@ -22,12 +22,16 @@ namespace ProjectUnknown.Strategy
         private const float HouseholdMigrationCheckInterval = 4f;
         private const int MortalityStartAgeYears = 1;
         private const int MortalityAccelerationAgeYears = 40;
-        private const int MortalityHighRiskAgeYears = 50;
+        private const int MortalityOldAgeYears = 60;
+        private const int MortalityHighRiskAgeYears = 70;
+        private const int MortalitySevereRiskAgeYears = 80;
         private const float MortalityChanceAtAgeOne = 0.0002f;
         private const float MortalityChanceAtAccelerationAge = 0.002f;
-        private const float MortalityChanceAtAgeFifty = 0.04f;
-        private const float MortalityChanceAfterFiftyPerYear = 0.018f;
-        private const float MortalityMaxAnnualChance = 0.70f;
+        private const float MortalityChanceAtOldAge = 0.01f;
+        private const float MortalityChanceAtHighRiskAge = 0.12f;
+        private const float MortalityChanceAtSevereRiskAge = 0.60f;
+        private const float MortalityChanceAfterSevereRiskPerYear = 0.08f;
+        private const float MortalityMaxAnnualChance = 0.95f;
         private const float MalnutritionMortalityMaxAnnualChance = 0.95f;
         private const int ProtectedOpeningDayCount = 2;
 

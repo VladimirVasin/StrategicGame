@@ -1,5 +1,12 @@
 # Work Log
 
+### 2026-07-13 - Resident old-age mortality rescaling
+
+- Kept annual age-related mortality low through age 60, then introduced a stronger 60-70 rise and a still steeper 70-80 rise.
+- Set the annual baseline milestones to 1% at age 60, 12% at age 70, and 60% at age 80; after 80 it rises by 8 percentage points per year to a 95% cap.
+- Retained the existing annual birthday roll, opening two-day death protection, and nutrition multipliers.
+- Verification: `Assembly-CSharp.csproj` builds with 0 warnings and 0 errors; all affected C# files remain below 500 lines.
+
 ### 2026-07-13 - Mouse recovery cadence and unified Fisher Hut access
 
 - Added a randomized 20-40 game-second recovery delay after a cat catches a mouse, preventing the settlement fauna controller from immediately replacing every catch on its four-second population refresh.
