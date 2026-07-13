@@ -105,7 +105,9 @@ namespace ProjectUnknown.Strategy
                     ? 0
                     : candidate.Home == null
                         ? 1
-                        : int.MaxValue;
+                        : IsOnlyResidentInHouse(candidate)
+                            ? 2
+                            : int.MaxValue;
                 if (priority == int.MaxValue)
                 {
                     continue;
@@ -124,6 +126,15 @@ namespace ProjectUnknown.Strategy
             }
 
             return partner != null;
+        }
+
+        private static bool IsOnlyResidentInHouse(StrategyResidentAgent resident)
+        {
+            return resident != null
+                && resident.Home != null
+                && resident.Home.ResidentCount == 1
+                && resident.Home.Residents.Count > 0
+                && resident.Home.Residents[0] == resident;
         }
 
         private bool MoveResidentToHouse(StrategyResidentAgent resident, StrategyPlacedBuilding house)

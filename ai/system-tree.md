@@ -152,11 +152,11 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Neighbor-aware side and corner overlays for terrain transitions
     - Runtime water/shore overlay animates shallow/deep tint, river-flow streaks, lake sparkles, broken shoreline foam, wet shore edges, and weather-driven rain ripple hits over the static map texture
     - Seasonal surface overlay can cover land with snow and water with ice without changing map cell kinds or normal land/bridge walkability
-    - Runtime road layer records completed resident movement between two different non-Bridge buildings as immediate stable roads after one real traversal, trying a direct walkable route line before falling back to smoothed route cells
+    - Runtime road layer records repeated resident movement between two different non-Bridge buildings as stable roads after three completed traversals, trying a direct walkable route line before falling back to smoothed route cells
     - Runtime world chunk registry divides the generated map into 16x16 cell chunks, indexes buildings/construction sites/residents, and exposes camera-near, active-settlement, and dirty-chunk flags for incremental fog/weather visual repaint systems
     - Resident footfalls no longer create functional or visible roads, and automatic route-network convergence is disabled
     - Road cells stay until invalidated by map walkability or cell validity changes instead of decaying from disuse
-    - Route road cells render connected procedural sprites using cardinal N/E/S/W right-angle masks, wear levels, and deterministic variants; new branches stop at their first cardinal contact with the existing network, while repair searches penalize square completion and retain an original-route connectivity fallback
+    - Route road cells render connected procedural sprites using cardinal N/E/S/W right-angle masks, wear levels, and deterministic variants; new branches stop at their first cardinal contact with the existing network, while bounded repair searches penalize square completion and retain an original-route connectivity fallback
     - Route roads own a derived roadside-prop layer that places sparse non-blocking torches/lanterns on eligible straight road segments and refreshes them when roads or adjacent buildability change
     - Formed roads give residents a 15% movement-speed bonus and reduce resident pathfinding cost without becoming required routes
     - Runtime nature-props layer
@@ -510,7 +510,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Startup parents and adult children receive random Germanic/Nordic-style full names and age-appropriate adult ages
     - Residents have runtime IDs, age, life stage, parent links, and child links for kinship-aware family rules
     - Resident family records persist after death so kinship checks can still traverse dead parents/ancestors
-      - Completed `House` buildings first try to move in one whole homeless family that fits, then fall back to one random free man and one random free woman from camp instead of spawning new residents
+      - Completed `House` buildings first try to move in one whole unsettled refugee group or homeless family that fits, including a one-person accepted refugee group, then fall back to one random free man and one random free woman from camp instead of spawning new residents
       - Newly formed adult male/female household pairs apply the husband's family name to the wife while preserving biological parent/child IDs for kinship and Family Trees
     - Houses support up to 5 residents and attach a household state after residents move in
     - Adult male/female house pairs can have children after a randomized household cooldown when they are not close relatives
@@ -544,14 +544,15 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - After the scripted first arrival, a once-per-game-day dynamic refugee roll can start an earlier later-family arrival when accepted adults are below total finite worker slots from capped worksites plus active construction-site pressure
     - Refugee arrival intensity fades after 40 accepted residents and stops at 50 accepted residents; incoming family size is capped by remaining room below 50
     - Refugee families contain 1-3 members with 1-2 adult parents and optional children, using normal names, ages, visual variants, and parent/child kinship links when children are present
-    - Accepted refugees join the normal resident registry, keep their family block, and occupy the first available empty House as a whole family; if no house is available, the family remains an unsettled group and generic pair assignment cannot split it before all members share one house
+    - Accepted refugees join the normal resident registry, keep their family block, and occupy the first available empty House as a whole family; if no house is available, even a one-person family remains an unsettled group that receives priority for the next fitting empty House, while generic pair assignment cannot split multi-person groups before all members share one house
     - Rejected refugee families walk back toward their hidden in-map arrival staging point and are removed
     - Adult children continue aging and can move from a parental home into an empty house, oldest first
-    - Single adult-child households periodically search for an adult opposite-gender partner from another parental home or the free camp pool, with close-relative checks, and apply the same husband-family-name rule after partner move-in
+    - Single-adult households periodically search for an adult opposite-gender partner from another parental home, the free camp pool, or another one-adult House, with close-relative checks, and apply the same husband-family-name rule after partner move-in
     - Residents keep a reference to their home building once assigned
     - Residents store a random visual variant chosen at startup
     - Residents perform simple idle movement near their current camp/home using short walkable grid paths
     - Resident pathing can recover a blocked start cell by moving the resident to a nearby walkable cell and logging the recovery
+    - Resident logistics tests building perimeter cells for an entrance reachable by that resident and briefly caches failed resident/building pairs until retry time or a walkability-version change
     - Deferred resident path requests remain queued budget waits: planned-task scans yield without dropping construction assignments, reservations, or recording false unreachable failures; wildlife movement uses background navigation priority
     - Resident work normally starts during the shared Dawn-through-Dusk work window; nightfall defers new production, construction, logistics, hunting, fishing, household-food pickup, and household cooking while allowing carried resources and deposits/returns to finish
     - During `Night`, housed idle residents path to their home, hide inside the house, and wake at the home exit after night ends
@@ -700,7 +701,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Construction depends on Storage Yard resource reservations, loose construction pile reservations, idle Hauler construction-material fallback delivery, settlement Builder assignments, construction-site blockers, placed-building finalization, F9 instant-construction debug options, and the world-selection HUD.
 - Population uses placed-building records, construction sites, the generated map walkability/trail layers, and workplace assignments; home/family assignment is independent from work/construction assignment.
 - Resident footsteps depend on population agents and the non-generated grass footstep clip set.
-- Resident movement records completed building-to-building route traversals as immediate stable roads after real arrivals, shares road-aware 8-direction A* pathfinding with the road layer, tries direct road capture before falling back to smoothed travel waypoints, and reads formed roads for path-cost preference plus a 15% movement-speed bonus; ordinary footfalls and automatic route-network reinforcement no longer create roads, while roadside torch props are visual-only derivatives of existing road cells.
+- Resident movement records repeated completed building-to-building route traversals as stable roads after three real arrivals, shares road-aware 8-direction A* pathfinding with the road layer, tries direct road capture before falling back to smoothed travel waypoints, and reads formed roads for path-cost preference plus a 15% movement-speed bonus; ordinary footfalls and automatic route-network reinforcement no longer create roads, while roadside torch props are visual-only derivatives of existing road cells.
 - Time scale accelerates core simulation timers, while expensive visual/service systems use unscaled real-time cadences for fog, cinematic/weather/water/nature overlays, wildlife migration/caches/threat scans, population housekeeping, resident scheduled-work decision budgeting, and resident path-build budgeting.
 - World selection uses placed-building/resident/construction-site colliders, inspectable world-object sprite bounds, generated map cell data, fog state, the strategy camera, house resource state, and production-building upgrade state.
 - Profession HUD depends on population adults and current worksite components; it owns player-facing worker assignment/removal while existing worksite components still own capped role state and work loops, with settlement Haulers/Builders treated as uncapped population roles.

@@ -1,5 +1,27 @@
 # Work Log
 
+### 2026-07-13 - Reachable building access for logistics
+
+- Added resident-side building-access selection that checks every walkable perimeter cell instead of accepting one arbitrary dropoff cell, then builds the real movement path to the first reachable entrance.
+- Added a 15-second per-resident/per-building negative cache keyed by map walkability version so inaccessible buildings are skipped until the retry window expires or map access changes.
+- Storage Yard Log/Stone source selection now rejects unreachable camps before reserving stock, while production-input pickup and delivery use the same reachable entrance selection.
+- Building-access scans stop on the first navigation `Deferred` result and retry after a short 0.18-0.38 second delay, allowing the shared queue to warm its path cache without misreporting the pending request as `no_pickup_path` or scanning every remaining entrance in the same decision.
+- Existing fishing shore validation, hunting target cooldowns, and forage worksite reachability remain the profession-specific equivalents rather than duplicating another cache layer.
+- Verification: `Assembly-CSharp.csproj` builds with 0 warnings and 0 errors; all affected C# files remain at or below 500 lines.
+
+### 2026-07-13 - Refugee housing priority and single-household partnering
+
+- Kept accepted one-person refugee arrivals as unsettled refugee groups so the next fitting empty House prioritizes them before moving out an already housed adult child.
+- Allowed an adult living alone in one House to form a valid non-relative opposite-gender couple with an adult who also lives alone in another House; the selected partner moves into the destination household and the vacated House becomes available again.
+- Verification: `Assembly-CSharp.csproj` builds with 0 warnings and 0 errors; both affected C# files remain below 500 lines.
+
+### 2026-07-13 - Repeated-traversal road formation fix
+
+- Changed building-to-building routes to require three completed traversals before committing permanent level-3 road cells, preventing one-off work trips from immediately becoming roads.
+- Kept a branch that reaches the existing road network as complete instead of running endpoint integrity repair that restored its intentionally discarded route tail.
+- Limited full connectivity rebuilds to the source route length plus the existing small repair allowance, preventing disproportionately long replacement roads.
+- Verification: `Assembly-CSharp.csproj` builds with 0 warnings and 0 errors; all affected C# files remain below 500 lines.
+
 ### 2026-07-13 - Lumber production stall and diagnostic cleanup
 
 - Fixed lumberjack target selection so camps only reserve trees inside their work radius whose complete Logs yield fits the camp's remaining local storage; a smaller tree can now be selected when a large tree would overflow the stockpile.

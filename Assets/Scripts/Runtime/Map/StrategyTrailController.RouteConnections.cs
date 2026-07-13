@@ -29,6 +29,7 @@ namespace ProjectUnknown.Strategy
                 sourceCells = orderedRouteConnectionSource;
             }
 
+            bool joinedExistingNetwork = false;
             for (int i = 0; i < sourceCells.Count; i++)
             {
                 Vector2Int cell = sourceCells[i];
@@ -60,6 +61,7 @@ namespace ProjectUnknown.Strategy
 
                 if (targetCells.Count > 1 && TryJoinExistingRouteNetwork(targetCells, cell, out Vector2Int joinedCell))
                 {
+                    joinedExistingNetwork = true;
                     StrategyDebugLogger.Info(
                         "Map",
                         "TrailRouteJoinedExistingNetwork",
@@ -71,7 +73,10 @@ namespace ProjectUnknown.Strategy
 
             }
 
-            EnsureRouteConnectionIntegrity(sourceCells, targetCells);
+            if (!joinedExistingNetwork)
+            {
+                EnsureRouteConnectionIntegrity(sourceCells, targetCells);
+            }
         }
 
         private bool HasRouteNetworkContact(Vector2Int cell)

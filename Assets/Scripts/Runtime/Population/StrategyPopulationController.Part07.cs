@@ -12,7 +12,7 @@ namespace ProjectUnknown.Strategy
 
         private void TrackUnsettledRefugeeFamily(IReadOnlyList<StrategyResidentAgent> family)
         {
-            if (family == null || family.Count <= 1)
+            if (family == null || family.Count <= 0)
             {
                 return;
             }
@@ -31,7 +31,7 @@ namespace ProjectUnknown.Strategy
                 unsettledRefugeeFamilyByResidentId[resident.ResidentId] = groupId;
             }
 
-            if (memberIds.Count <= 1)
+            if (memberIds.Count <= 0)
             {
                 for (int i = 0; i < memberIds.Count; i++)
                 {
@@ -133,7 +133,7 @@ namespace ProjectUnknown.Strategy
                 members.Add(resident);
             }
 
-            if (members.Count <= 1)
+            if (members.Count <= 0)
             {
                 ClearUnsettledRefugeeFamily(groupId, "members_missing");
                 return false;

@@ -2002,14 +2002,14 @@ Responsibilities:
 - Create clickable grave sprites after burial and mark grave cells as not walkable.
 - Temporarily interrupt resident tasks for funeral activities without permanently removing workplace roles.
 - Move the oldest adult child still living with parents into empty houses.
-- Move an eligible adult opposite-gender partner into single-resident adult-child houses while blocking close relatives.
+- Move an eligible adult opposite-gender partner into a single-adult House while blocking close relatives; eligible partners may come from a parental household, the homeless pool, or another House where they live alone.
 - Create temporary refugee families with 1-3 members, 1-2 adult parents, and optional children.
 - Gate the first refugee family on the scripted evening of Day 2; schedule later families with the repeat interval, fading arrival intensity after 40 accepted residents and stopping arrivals at 50 accepted residents.
 - Run one dynamic refugee roll per game day after the scripted first family; the chance rises when accepted adult count is below total finite worker slots from capped worksites plus one construction slot per active construction site, while uncapped settlement Hauler/Builder capacity is ignored.
 - Spawn refugee arrivals inside the map about 4 cells beyond a random side of the daylight-visible fog boundary, with a walkable in-map edge fallback for debug/no-fog cases.
 - Keep pending refugees outside the normal resident registry until accepted.
 - Accept refugee families into the normal resident registry or destroy rejected temporary families after they return to the hidden in-map arrival staging point.
-- Track accepted refugee families that could not be housed immediately as unsettled groups, preventing generic pair assignment from splitting the group before all members share one house.
+- Track accepted refugee families that could not be housed immediately as unsettled groups, including one-person arrivals so they receive priority for the next fitting empty House, while preventing generic pair assignment from splitting multi-person groups before all members share one house.
 - Drive simple idle movement around the current camp/home through short walkable grid paths.
 - Route homeless residents without houses to reachable reserved sleep spots around the startup campfire during `Night`.
 - Let one homeless resident relight campfire embers with a visible kindling animation before the camp sleeps.
@@ -2035,6 +2035,7 @@ Responsibilities:
 - Route assigned Foragers to generated Berries/Roots/Mushrooms nodes, forage gather timing, carried forage visuals, and camp stock deposit.
 - Assign residents to settlement-level Hauler roles.
 - Route assigned Haulers to lumberjack camp stock, stored-Logs pickup, storage-yard delivery, and deposit.
+- Resolve Hauler building pickup/delivery access from a reachable perimeter cell, stop and briefly retry when navigation is budget-deferred, and skip briefly cached genuinely inaccessible source buildings before reserving their stock.
 - Route assigned Haulers to stonecutter camp stock, stored-Stone pickup, storage-yard delivery, and deposit.
 - Route assigned Haulers to Mine stock, stored-Iron pickup, storage-yard delivery, and deposit.
 - Route assigned Haulers to Coal Pit stock, stored-Coal pickup, storage-yard delivery, and deposit.
@@ -2206,7 +2207,7 @@ Impact hints:
 - Residents use the shared trail-aware 8-direction A* grid pathfinder with no diagonal corner cutting and post-path smoothing for idle, home, workplace, construction, logistics, and funeral travel while keeping frame-based sprite walk cycles.
 - Resident trail-aware path creation has a per-frame budget to avoid x2/x3 mass state-change spikes; excess attempts retry through normal task flow.
 - Resident scheduled-work task-start decisions have a per-frame budget in larger settlements; expensive household, logistics, construction, worksite, hunting, fishing, and child-play probes should remain behind this budget unless they are active-task continuation or carried-resource cleanup.
-- Resident movement records completed building-to-building route traversals as immediate stable roads after real arrivals, using a direct route-line attempt, smoothed route waypoint fallback, connected single-sided route-road connectors plus bounded local repair to the existing road network, and canonical per-building-pair reinforcement so raw A* detours do not create square road pockets or disconnected road tails; ordinary footfalls no longer create functional or visible roads, and formed roads apply a 15% speed bonus.
+- Resident movement records completed building-to-building route traversals and commits stable roads after three traversals of the same building pair, using a direct route-line attempt, smoothed route waypoint fallback, connected single-sided route-road connectors plus bounded local repair to the existing road network, and canonical per-building-pair reinforcement so raw A* detours do not create square road pockets or disconnected road tails; a branch that joins the existing network does not restore its discarded tail, ordinary footfalls no longer create functional or visible roads, and formed roads apply a 15% speed bonus.
 - Resident pathfinding can recover a blocked start cell by snapping to a nearby walkable cell and logging `PathStartRecovered`.
 - Resident scheduled work starts only during `StrategyDayNightCycleController.IsSettlementWorkTime`, which now covers Dawn through Dusk on every day. Keep carried-resource returns, deposits, and cleanup paths schedule-safe so nightfall cannot strand stock reservations.
 - Resident night sleep is separate from homebound young-child hiding: housed residents only enter the hidden home interior during `Night` when they are not carrying resources, in funeral duty, underground, or assigned to night lamp lighting, notify household food state for dinner readiness, then reappear at the home exit after night ends. Homeless residents instead reserve reachable campfire sleep spots, relight embers if needed, and sleep visibly around the startup campfire with a small `Zzz...` indicator.

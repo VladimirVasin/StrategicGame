@@ -294,12 +294,14 @@ namespace ProjectUnknown.Strategy
             }
 
             StrategyLumberjackCamp bestCamp = null;
+            StrategyResidentAgent resident = owner as StrategyResidentAgent;
             float bestDistance = float.MaxValue;
             List<StrategyLumberjackCamp> camps = GetActiveBuildingComponents(lumberjackCampQuery);
             for (int i = 0; i < camps.Count; i++)
             {
                 StrategyLumberjackCamp camp = camps[i];
-                if (camp == null || camp.AvailableLogs <= 0)
+                if (camp == null || camp.AvailableLogs <= 0
+                    || (resident != null && !resident.CanReachBuildingForReservation(camp)))
                 {
                     continue;
                 }
@@ -330,12 +332,14 @@ namespace ProjectUnknown.Strategy
             }
 
             StrategyStonecutterCamp bestCamp = null;
+            StrategyResidentAgent resident = owner as StrategyResidentAgent;
             float bestDistance = float.MaxValue;
             List<StrategyStonecutterCamp> camps = GetActiveBuildingComponents(stonecutterCampQuery);
             for (int i = 0; i < camps.Count; i++)
             {
                 StrategyStonecutterCamp camp = camps[i];
-                if (camp == null || camp.AvailableStone <= 0)
+                if (camp == null || camp.AvailableStone <= 0
+                    || (resident != null && !resident.CanReachBuildingForReservation(camp)))
                 {
                     continue;
                 }

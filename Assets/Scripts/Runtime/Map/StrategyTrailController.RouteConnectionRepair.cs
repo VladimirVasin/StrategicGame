@@ -316,7 +316,8 @@ namespace ProjectUnknown.Strategy
             }
 
             routeConnectivityEmptyCells.Clear();
-            if (TryFindRouteRepairPath(start, target, routeConnectivityEmptyCells))
+            if (TryFindRouteRepairPath(start, target, routeConnectivityEmptyCells)
+                && routeRepairPathCells.Count + 1 <= sourceCells.Count + RouteRepairMaxExtraCells)
             {
                 targetCells.Clear();
                 targetCells.Add(start);

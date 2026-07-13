@@ -5,6 +5,8 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyTrailController
     {
+        private const int RouteTraversalsRequired = 3;
+
         private readonly Dictionary<string, int> routeTraversalCounts = new();
         private readonly Dictionary<string, List<Vector2Int>> canonicalRouteCells = new();
         private readonly HashSet<int> activeRouteCells = new();
@@ -39,6 +41,11 @@ namespace ProjectUnknown.Strategy
             int newCount = oldCount + 1;
             routeTraversalCounts[routeKey] = newCount;
             IReadOnlyList<Vector2Int> cellsToRecord = GetCanonicalRouteCells(routeKey, routeCells);
+            if (newCount < RouteTraversalsRequired)
+            {
+                return;
+            }
+
             BuildSingleSidedRouteCells(cellsToRecord, routeConnectionCells);
             if (routeConnectionCells.Count < 2)
             {
@@ -60,7 +67,7 @@ namespace ProjectUnknown.Strategy
             }
 
             routeTraversalsSinceStats++;
-            if (newCount == 1 || newCount % 8 == 0)
+            if (newCount == RouteTraversalsRequired || newCount % 8 == 0)
             {
                 StrategyDebugLogger.Info(
                     "Map",
@@ -75,7 +82,8 @@ namespace ProjectUnknown.Strategy
                     StrategyDebugLogger.F("connectedCells", routeConnectionCells.Count),
                     StrategyDebugLogger.F("canonicalRoute", cellsToRecord != routeCells),
                     StrategyDebugLogger.F("roadLevel", 3),
-                    StrategyDebugLogger.F("instantRoad", true));
+                    StrategyDebugLogger.F("instantRoad", false),
+                    StrategyDebugLogger.F("requiredTraversals", RouteTraversalsRequired));
             }
         }
 
