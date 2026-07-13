@@ -160,6 +160,7 @@ namespace ProjectUnknown.Strategy
             List<Vector2Int> rawCells,
             List<Vector2Int> smoothedCells)
         {
+            using var profilerScope = StrategyPerformanceMarkers.NavigationCompute.Auto();
             BeginFrameBudget();
             computationsThisFrame++;
             StrategyNavigationStatus status = pathfinder.TryBuildPath(map, query, rawScratch, smoothedScratch);

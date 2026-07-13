@@ -32,6 +32,10 @@ namespace ProjectUnknown.Strategy
 
     internal sealed class StrategyResidentTaskState : IStrategyResidentTask
     {
+        internal const int ProfiledActivityCount = 153;
+
+        private bool hasAuthoritativeKind;
+
         public StrategyResidentTaskKind Kind { get; private set; } = StrategyResidentTaskKind.Rest;
         public StrategyResidentAgent.ResidentActivity Activity { get; private set; }
         public bool IsWork => Kind == StrategyResidentTaskKind.Forestry
@@ -52,8 +56,15 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            StrategyResidentTaskKind nextKind = Classify(activity);
             Activity = activity;
+            if (IsRestActivity(activity))
+            {
+                hasAuthoritativeKind = false;
+            }
+
+            StrategyResidentTaskKind nextKind = hasAuthoritativeKind && !IsExternalOverride(activity)
+                ? Kind
+                : Classify(activity);
             if (Kind != nextKind)
             {
                 Kind = nextKind;
@@ -64,10 +75,50 @@ namespace ProjectUnknown.Strategy
 
         public void Reset()
         {
+            hasAuthoritativeKind = false;
             Kind = StrategyResidentTaskKind.Rest;
             Activity = StrategyResidentAgent.ResidentActivity.Idle;
             TransitionId++;
             StartedAt = Time.time;
+        }
+
+        public void BeginPlannedTask(StrategyResidentTaskKind kind)
+        {
+            hasAuthoritativeKind = true;
+            if (Kind == kind)
+            {
+                return;
+            }
+
+            Kind = kind;
+            TransitionId++;
+            StartedAt = Time.time;
+        }
+
+        internal static StrategyResidentTaskKind GetFallbackKind(ResidentActivity activity)
+        {
+            return Classify(activity);
+        }
+
+        private static bool IsRestActivity(ResidentActivity activity)
+        {
+            return activity is ResidentActivity.Idle
+                or ResidentActivity.TendingHousehold
+                or ResidentActivity.StayingInsideHome
+                or ResidentActivity.MovingHome
+                or ResidentActivity.MovingToCampfireSleep
+                or ResidentActivity.LightingCampfire
+                or ResidentActivity.SleepingByCampfire;
+        }
+
+        private static bool IsExternalOverride(ResidentActivity activity)
+        {
+            return activity is ResidentActivity.ArrivingAsRefugee
+                or ResidentActivity.LeavingSettlement
+                or ResidentActivity.MovingToNightLight
+                or ResidentActivity.LightingNightLight
+                || activity is >= ResidentActivity.MovingToFuneral
+                    and <= ResidentActivity.WaitingAtFuneral;
         }
 
         private static StrategyResidentTaskKind Classify(ResidentActivity activity)
@@ -90,6 +141,11 @@ namespace ProjectUnknown.Strategy
             if (activity is >= ResidentActivity.MovingToChildPlay and <= ResidentActivity.PlayingTag)
             {
                 return StrategyResidentTaskKind.Social;
+            }
+
+            if (IsStorageLogistics(activity))
+            {
+                return StrategyResidentTaskKind.Logistics;
             }
 
             if (activity is >= ResidentActivity.MovingToTree and <= ResidentActivity.PlantingTree)
@@ -127,8 +183,7 @@ namespace ProjectUnknown.Strategy
                 return StrategyResidentTaskKind.Construction;
             }
 
-            if (IsStorageLogistics(activity)
-                || activity is >= ResidentActivity.MovingToGranaryGamePickup and <= ResidentActivity.DepositingGranaryForage
+            if (activity is >= ResidentActivity.MovingToGranaryGamePickup and <= ResidentActivity.DepositingGranaryForage
                 || activity is >= ResidentActivity.ReturningLogsToStorage and <= ResidentActivity.ReturningForageToGranary
                 || activity is >= ResidentActivity.MovingToProductionInputPickup and <= ResidentActivity.DepositingProductionInput)
             {

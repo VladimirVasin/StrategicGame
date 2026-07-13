@@ -22,7 +22,8 @@ namespace ProjectUnknown.Strategy
                 if (node == null
                     || !node.TryGetOutputPickupRequest(out StrategyResourceType resource, out int available)
                     || resource != StrategyResourceType.Tools
-                    || available <= 0)
+                    || available <= 0
+                    || !CanOwnerReachReservationNode(owner, node))
                 {
                     continue;
                 }

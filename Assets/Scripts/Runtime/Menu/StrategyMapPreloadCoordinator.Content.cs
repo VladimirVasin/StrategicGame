@@ -51,15 +51,9 @@ namespace ProjectUnknown.Strategy
             contentProgress = 0.75f;
             yield return null;
 
-            contentStage = "Preparing audio";
-            Resources.LoadAll<AudioClip>("Audio/Music");
-            contentProgress = 0.82f;
-            yield return null;
+            contentStage = "Preparing interface audio";
             Resources.LoadAll<AudioClip>("Audio/HudSfx");
             contentProgress = 0.88f;
-            yield return null;
-            Resources.LoadAll<AudioClip>("Audio/Nature");
-            contentProgress = 0.94f;
             yield return null;
             Resources.LoadAll<AudioClip>("Audio/Footsteps");
             contentProgress = 1f;

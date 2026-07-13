@@ -206,56 +206,75 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            bool stoneFirst = storageWorkplace.ShouldPrioritizeStonePickup();
-            if (stoneFirst && TryStartStorageStonePickup())
+            if (!CanReachBuildingForReservation(storageWorkplace))
             {
-                return true;
+                if (TryStartGranaryTask() || TryStartHaulerConstructionDeliveryTask()) return true;
+                logisticsWorkCooldown = WasLastPathBuildDeferred
+                    ? Random.Range(0.18f, 0.38f)
+                    : Random.Range(2.5f, 5.5f);
+                return false;
+            }
+
+            bool stoneFirst = storageWorkplace.ShouldPrioritizeStonePickup();
+            if (stoneFirst)
+            {
+                if (TryStartStorageStonePickup()) return true;
+                if (ShouldStopStorageTaskSelection) return false;
             }
 
             if (TryStartProductionInputDelivery())
             {
                 return true;
             }
+            if (ShouldStopStorageTaskSelection) return false;
 
             if (TryStartStorageLogPickup())
             {
                 return true;
             }
+            if (ShouldStopStorageTaskSelection) return false;
 
-            if (!stoneFirst && TryStartStorageStonePickup())
+            if (!stoneFirst)
             {
-                return true;
+                if (TryStartStorageStonePickup()) return true;
+                if (ShouldStopStorageTaskSelection) return false;
             }
 
             if (TryStartStorageIronPickup())
             {
                 return true;
             }
+            if (ShouldStopStorageTaskSelection) return false;
 
             if (TryStartStorageCoalPickup())
             {
                 return true;
             }
+            if (ShouldStopStorageTaskSelection) return false;
 
             if (TryStartStorageClayPickup())
             {
                 return true;
             }
+            if (ShouldStopStorageTaskSelection) return false;
 
             if (TryStartStoragePlanksPickup())
             {
                 return true;
             }
+            if (ShouldStopStorageTaskSelection) return false;
 
             if (TryStartStoragePotteryPickup())
             {
                 return true;
             }
+            if (ShouldStopStorageTaskSelection) return false;
 
             if (TryStartStorageToolsPickup())
             {
                 return true;
             }
+            if (ShouldStopStorageTaskSelection) return false;
 
             if (TryStartGranaryTask())
             {

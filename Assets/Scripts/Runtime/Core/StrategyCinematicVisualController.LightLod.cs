@@ -14,6 +14,7 @@ namespace ProjectUnknown.Strategy
 
         private void ScanLightEmitters()
         {
+            using var profilerScope = StrategyPerformanceMarkers.CinematicLightsScan.Auto();
             if (!StrategyRuntimeObjectCreationGuard.CanCreateSceneObjects)
             {
                 return;
@@ -86,6 +87,7 @@ namespace ProjectUnknown.Strategy
 
         private void RefreshEmitterLods(Rect view)
         {
+            using var profilerScope = StrategyPerformanceMarkers.CinematicLightsRefreshLods.Auto();
             cinematicVisibleEmitters.Clear();
             nightMaskEmitters.Clear();
             if (emitters.Count == 0)

@@ -1,8 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
 
 namespace ProjectUnknown.Strategy
@@ -33,6 +30,16 @@ namespace ProjectUnknown.Strategy
         private Text refugeeStatusText;
         private bool initialized;
         private bool isOpen;
+        private StrategyInputRouter inputRouter;
+        private StrategyInputContextHandle inputContext;
+
+        public void SetInputRouter(StrategyInputRouter router)
+        {
+            inputContext?.Dispose();
+            inputContext = null;
+            inputRouter = router;
+            RefreshInputContext();
+        }
 
         public void Configure(
             StrategyFogOfWarController fogController,
@@ -71,17 +78,17 @@ namespace ProjectUnknown.Strategy
                 Configure(null, null);
             }
 
-            Keyboard keyboard = Keyboard.current;
-            if (keyboard == null)
+            RefreshInputContext();
+            if (inputRouter == null)
             {
                 return;
             }
 
-            if (keyboard.f9Key.wasPressedThisFrame)
+            if (inputRouter.DebugTogglePressed)
             {
                 SetOpen(!isOpen);
             }
-            else if (isOpen && keyboard.escapeKey.wasPressedThisFrame)
+            else if (isOpen && inputRouter.TryConsumeCancel(this))
             {
                 SetOpen(false);
             }
@@ -100,6 +107,7 @@ namespace ProjectUnknown.Strategy
             }
 
             isOpen = open;
+            RefreshInputContext();
             if (rootGroup == null)
             {
                 return;
@@ -116,6 +124,33 @@ namespace ProjectUnknown.Strategy
             }
 
             StrategyDebugLogger.Info("DebugPanel", isOpen ? "Opened" : "Closed");
+        }
+
+        private void RefreshInputContext()
+        {
+            if (!isOpen || inputRouter == null || !inputRouter.IsAvailable)
+            {
+                inputContext?.Dispose();
+                inputContext = null;
+                return;
+            }
+
+            if (inputContext == null || inputContext.IsDisposed)
+            {
+                inputContext = inputRouter.PushContext(
+                    this,
+                    StrategyInputChannel.Global
+                    | StrategyInputChannel.Camera
+                    | StrategyInputChannel.Gameplay
+                    | StrategyInputChannel.Build,
+                    StrategyCancelMode.Close);
+            }
+        }
+
+        private void OnDisable()
+        {
+            inputContext?.Dispose();
+            inputContext = null;
         }
 
         private void BuildUi()
@@ -349,26 +384,7 @@ namespace ProjectUnknown.Strategy
 
         private static void EnsureEventSystem()
         {
-            EventSystem eventSystem = EventSystem.current;
-            if (eventSystem == null)
-            {
-                GameObject eventSystemObject = new GameObject("EventSystem", typeof(EventSystem));
-                eventSystem = eventSystemObject.GetComponent<EventSystem>();
-            }
-
-            StandaloneInputModule standalone = eventSystem.GetComponent<StandaloneInputModule>();
-            if (standalone != null)
-            {
-                Destroy(standalone);
-            }
-
-            InputSystemUIInputModule inputModule = eventSystem.GetComponent<InputSystemUIInputModule>();
-            if (inputModule == null)
-            {
-                inputModule = eventSystem.gameObject.AddComponent<InputSystemUIInputModule>();
-            }
-
-            inputModule.enabled = true;
+            StrategyUiInputModuleBootstrap.Ensure();
         }
 
         private static void SetCentered(RectTransform rect, float width, float height)

@@ -154,6 +154,7 @@ namespace ProjectUnknown.Strategy
 
         private void RunAssignmentTick()
         {
+            using var profilerScope = StrategyPerformanceMarkers.AutoWorkforceTick.Auto();
             float tickStartedAt = Time.realtimeSinceStartup;
             CleanupManualLocks();
             CollectFreeCandidates();

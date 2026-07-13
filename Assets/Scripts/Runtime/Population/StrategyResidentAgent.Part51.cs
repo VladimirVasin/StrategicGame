@@ -14,9 +14,16 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            if (!source.TryFindDropoffCell(out Vector2Int pickupCell) || !TryBuildPathTo(pickupCell))
+            if (source is not Component sourceComponent
+                || !TryBuildPathToBuildingAccess(sourceComponent, out Vector2Int pickupCell))
             {
                 source.ReleaseOutputPickupReservation(StrategyResourceType.Tools, this);
+                if (WasLastPathBuildDeferred)
+                {
+                    logisticsWorkCooldown = Random.Range(0.18f, 0.38f);
+                    return false;
+                }
+
                 logisticsWorkCooldown = Random.Range(2.0f, 4.0f);
                 StrategyDebugLogger.Warn(
                     "Logistics",
@@ -62,8 +69,7 @@ namespace ProjectUnknown.Strategy
 
             if (activeToolsSource == null
                 || storageWorkplace == null
-                || !storageWorkplace.TryFindDropoffCell(out Vector2Int dropoffCell)
-                || !TryBuildPathTo(dropoffCell)
+                || !TryBuildPathToBuildingAccess(storageWorkplace, out Vector2Int dropoffCell)
                 || !activeToolsSource.TryTakeReservedOutput(StrategyResourceType.Tools, this, out carriedToolsAmount))
             {
                 activeToolsSource?.ReleaseOutputPickupReservation(StrategyResourceType.Tools, this);

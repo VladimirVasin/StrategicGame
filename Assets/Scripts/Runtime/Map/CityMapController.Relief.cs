@@ -32,7 +32,7 @@ namespace ProjectUnknown.Strategy
                 Mathf.Min(x, width - 1 - x),
                 Mathf.Min(y, height - 1 - y));
             float edgeLift = Mathf.Clamp01(1f - edgeDistance / Mathf.Max(1f, Mathf.Min(width, height) * 0.30f));
-            float waterLowland = CalculateWaterLowland(x, y, profile);
+            float waterLowland = CalculateWaterLowland(x, y);
             float relief = 0.16f
                 + broad * 0.55f
                 + ridges * 0.28f
@@ -55,7 +55,7 @@ namespace ProjectUnknown.Strategy
             return Mathf.Clamp01(relief);
         }
 
-        private float CalculateWaterLowland(int x, int y, MapGenerationProfile profile)
+        private float CalculateWaterLowland(int x, int y)
         {
             const int radius = 6;
             float nearest = radius + 1f;
@@ -70,8 +70,7 @@ namespace ProjectUnknown.Strategy
                         continue;
                     }
 
-                    if (!TryPickWaterKind(nx, ny, profile, out CityMapCellKind waterKind, out _)
-                        || waterKind != CityMapCellKind.Water)
+                    if (!cells[nx, ny].IsWater)
                     {
                         continue;
                     }

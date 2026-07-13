@@ -1,17 +1,19 @@
 # System Tree
 
-Last updated: 2026-07-12
+Last updated: 2026-07-13
 
 This is a conceptual map of the current project. Keep concrete file ownership in `ai/systems-map.md`.
 
 ## Project Root
 
 - Unity project foundation
-  - Unity Editor `6000.5.2f1`
+  - Unity Editor `6000.5.3f1`
   - Package-managed dependencies in `Packages/manifest.json`
   - Project settings in `ProjectSettings/`
   - Generated/local Unity state in `Library/`, `Temp/`, `Logs/`, and `UserSettings/`
   - C# source files are kept at or below 500 lines, with oversized runtime classes split into same-owner `.PartNN.cs` partial files when needed
+  - Assembly boundaries isolate Runtime, Editor tooling, and EditMode tests
+  - Local/CI technical gates enforce UTF-8, `.meta` coverage, source size, input ownership, project parity, sequential builds, Unity tests, smoke checks, and soak checks
 
 - Rendering foundation
   - Universal Render Pipeline `17.5.0`
@@ -26,7 +28,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Runtime procedural 2D shadow caster supplies soft ground/cast shadows below world sprites
   - Runtime short-lived world effect layer supplies reusable dust, sawdust, chip, spark, splash, and resource pop/fade effects
   - Resources-backed visual catalog and Editor baker provide editable PNGs for buildings, resident pose atlases, nature, terrain, construction, roads, production work, and stock layers while retaining procedural fallback
-  - Generated terrain hides the cell grid, reads main-thread-prewarmed authored swatches in its parallel painter, and blends seeded palette variation over broad spatial patches
+  - Generated terrain hides the cell grid, classifies kind/water before reusing that mask for relief, reads main-thread-prewarmed authored swatches in its parallel painter, and caches one paint/catalog context per tile outside the inner pixel loop
   - Non-Bridge placed buildings add a catalog-overridable trampled-ground layer beneath their Y-sorted body and shadow
   - Spring/autumn camera-area details and centralized vegetation tinting make seasonal changes readable without per-prop Update components
   - Shared HUD theme supplies readable Inter typography plus sliced pixel panel/button frames through bounded scene-start scans
@@ -47,12 +49,14 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Master, music, effects, and fullscreen settings persist through `PlayerPrefs`
   - Exactly one candidate map is prepared to cap memory usage
   - Cell generation is incremental; terrain pixels are painted in a cancellable parallel worker; Unity texture upload stays on the main thread
-  - Starter building/resident/nature sprites and audio folders warm while the menu remains interactive
+  - Starter building/resident/nature sprites plus short HUD/footstep clips warm while the menu remains interactive; long Music/Nature folders remain deferred to gameplay owners
   - Real preload stage/progress is shown before the gameplay scene opens
 
 - MVP strategy foundation
   - Runtime bootstrap
-    - Uses a short bootstrap pause and a scene-local coroutine runner so deterministic nature/resource creation is spread across bounded frame batches before gameplay begins
+    - Creates one scene-local typed game context with explicit Created/Configuring/Ready/Failed/Disposed lifecycle state
+    - Uses a context-owned bootstrap pause and a scene-local coroutine runner so deterministic nature/resource creation is spread across bounded frame batches before gameplay begins
+    - Explicitly transfers menu-preloaded map ownership and disposes orphan candidates/static scene state on unload or return to menu
     - Creates and configures the strategy debug logger before other strategy systems
     - Creates `City Map` if none exists
     - Creates the shared budgeted navigation service after map/trail setup so residents and land agents reuse one path engine and walkability-version cache
@@ -87,18 +91,26 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Strategy debug logging
     - Writes structured session logs to `debug.log`
     - Uses the project root path in the Unity Editor and persistent data in player builds
+    - Preserves previous sessions, rotates at 8 MiB, and retains three archives under `Logs/StrategyDebug`
+    - Falls back to a UTC/PID live file when another process locks the canonical path
     - Mirrors Unity logs, warnings, errors, and exceptions
     - Logs bootstrap, audio, map, nature, Stone, build menu, placement, population, forestry, lumberjack camp, selection, trade, and time-scale events
   - Strategy performance diagnostics
     - Records 10-second windows only while simulation is unpaused and resets windows when population band, time phase, weather, or speed changes
     - Logs average and 1%-low FPS, p95/p99/max frame time, hitch counts, memory/GC, residents/workforce, buildings/sites, wildlife/lights, and resident path/decision counters
     - Uses startup plus 15/30/50-resident population bands and supports deterministic benchmark map seeds through `-strategyBenchmarkSeed`
+    - Adds fixed Unity Profiler samples for navigation/A*, resident task selection, AutoWorkforce, cinematic-light scan/LOD refresh, and terrain painting
   - Strategy navigation
     - Reuses array-backed A* working memory instead of allocating BFS collections per agent route
     - Preserves resident trail weighting, diagonal corner rules, and route smoothing
     - Preserves land-wildlife River transit and settlement structure buffers
     - Coalesces deferred duplicate requests under a per-frame count/time budget
     - Invalidates short path/reachability caches whenever map walkability changes
+  - Strategy input
+    - Uses canonical Global, Camera, Gameplay, Build, Debug, and UI action maps
+    - Routes runtime input through one typed router instead of direct keyboard/mouse polling
+    - Uses scoped modal contexts for deterministic blocking, cancel ownership, and secondary-pointer ownership
+    - Guarantees one shared EventSystem/Input System UI module per scene
   - Strategy time scale
     - Runtime-created time control component
     - F1 sets x1 simulation speed
@@ -147,7 +159,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Generated rivers expose `RiverFlowDirection`, used by river water animation and one-way river fish movement
     - Multi-octave noise creates broader forest, meadow, grass, and dirt clusters
     - Light land-only smoothing reduces isolated terrain noise without changing water/shore boundaries
-    - Procedural 16px pixel-art terrain tile painter
+    - Cancellable parallel 16px pixel-art terrain painter with cached per-tile catalog/context data and main-thread texture upload
     - Multiple deterministic variants per terrain kind
     - Neighbor-aware side and corner overlays for terrain transitions
     - Runtime water/shore overlay animates shallow/deep tint, river-flow streaks, lake sparkles, broken shoreline foam, wet shore edges, and weather-driven rain ripple hits over the static map texture
@@ -652,13 +664,18 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 
 - Testing foundation
   - Unity Test Framework package installed
-  - `StrategyVerificationRunner` executes eight deterministic Edit Mode checks, including navigation priority and visual-catalog availability
-  - Separate Play Mode checks cover menu isolation, menu-to-prepared-gameplay launch, and direct gameplay bootstrap
+  - Runtime, Editor, and EditMode tests compile in separate assembly definitions
+  - `StrategyVerificationRunner` executes deterministic navigation, source-quality, input, save, audio, explicit-map-seed, and procedural/production-16px terrain-golden contracts
+  - NUnit characterization tests cover resident task priority, game-context lifecycle, bounded save migration/validation/recovery, input routing/actions, and log rotation
+  - Separate Play Mode checks cover menu isolation, menu-to-prepared-gameplay launch, and direct gameplay bootstrap under wall-clock progress/stall watchdogs and unexpected-error collection
+  - Pull requests and `main` run a 45-game-second `QuickSoak` covering 3 in-game hours and write `Logs/QuickSoakSmoke.txt`
+  - The deterministic full soak runs for 720 game seconds / 2 in-game days only on the nightly 01:23 UTC schedule, manual `workflow_dispatch`, `release`/`release/**` branches, and `v*` tags; it writes `Logs/SoakSmoke.txt` and checks context, resident IDs/positions, navigation capacity, audio voices, refugee-modal input-context release, Unity errors, and final/peak 128 MiB memory growth
+  - Fast PR/main concurrency cancels stale superseded runs; full-soak concurrency never cancels an in-progress evidence run
   - Main menu layout can be rendered to a deterministic 1600x900 inspection image
-  - Gameplay can be rendered at deterministic Noon, Night, and Winter states for visual comparison when a graphics device is available
+  - Gameplay can be rendered at deterministic Noon, Spring, Autumn, Night, and Winter states for visual comparison when a graphics device is available
 
 - Persistence
-  - Versioned JSON save data with atomic file replacement
+  - Version-2 JSON save data with v1 migration, validation, atomic temporary-file replacement, and `.bak` recovery
   - F5 saves the current settlement; F8 loads it by restarting and restoring the runtime scene
   - Stable IDs reconnect placed buildings, residents, homes, parents, and children without serializing Unity object references
   - Snapshot coverage includes map seed/time/weather, first-winter milestones, buildings, construction sites, resource and dish stock, residents and cold state, loose resources, explored fog, and route-road cells
@@ -671,11 +688,11 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 ## Cross-System Links
 
 - Rendering settings affect all scenes using the URP pipeline.
-- Runtime bootstrap depends on scene load order and the presence of a usable `Main Camera` or permission to create one.
+- Runtime bootstrap depends on scene role, one scene-local game context, explicit preload ownership transfer, and the presence of a usable `Main Camera` or permission to create one.
 - Intro menu launch depends on save validation, one persistent preload coordinator, deterministic map seed handling, and the gameplay scene-loaded bootstrap hook; prepared terrain keeps Unity object creation/upload on the main thread.
 - Audio bootstrap depends on map generation, camera setup/orthographic zoom, strategy wind/weather values, `Resources/Audio` assets, the in-game music/work/HUD-SFX folders, resident walk animation frames, resident work impact/release frames, and runtime HUD interaction events.
 - Strategy camera bounds depend on generated map dimensions.
-- Input action changes do not affect current camera controls yet because MVP controls read direct Input System devices.
+- Input action IDs/names/bindings feed the central router, every runtime consumer, modal contexts, and the shared UI input module; update their contract tests with intentional changes.
 - Build menu active tool state drives the placement controller when catalog tools exist.
 - Placement uses generated map cells and buildability data.
 - Fog of war uses population, residents, placed-building records, the shared day/night phase, and weather Fog intensity as visibility inputs; placement and world selection consult fog exploration state, refugee arrivals use daylight-range visible boundaries for in-map entry staging, while the F9 debug panel can bypass player fog for testing.

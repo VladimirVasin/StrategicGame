@@ -30,7 +30,8 @@ namespace ProjectUnknown.Strategy
                 if (node == null
                     || !node.TryGetInputDeliveryRequest(out StrategyResourceType requestedResource, out int maxAmount)
                     || requestedResource == StrategyResourceType.None
-                    || StrategyFoodNutrition.IsFood(requestedResource))
+                    || StrategyFoodNutrition.IsFood(requestedResource)
+                    || !CanOwnerReachReservationNode(owner, node))
                 {
                     continue;
                 }

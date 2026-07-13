@@ -1,6 +1,5 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace ProjectUnknown.Strategy
@@ -29,8 +28,18 @@ namespace ProjectUnknown.Strategy
         private Toggle fullscreenToggle;
         private bool configured;
         private bool settingsOpen;
+        private StrategyInputRouter inputRouter;
+        private StrategyInputContextHandle inputContext;
 
         public bool IsConfigured => configured;
+
+        public void SetInputRouter(StrategyInputRouter router)
+        {
+            inputContext?.Dispose();
+            inputContext = null;
+            inputRouter = router;
+            RefreshInputContext();
+        }
 
         public void Configure(StrategyMapPreloadCoordinator preloadCoordinator, Camera camera)
         {
@@ -56,7 +65,8 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame && settingsOpen)
+            RefreshInputContext();
+            if (settingsOpen && inputRouter != null && inputRouter.TryConsumeCancel(this))
             {
                 CloseSettings();
             }
@@ -118,6 +128,7 @@ namespace ProjectUnknown.Strategy
             }
 
             settingsOpen = false;
+            RefreshInputContext();
             StrategyHudSfxAudio.Play(StrategyHudSfxKind.Confirm);
         }
 
@@ -130,12 +141,14 @@ namespace ProjectUnknown.Strategy
             }
 
             settingsOpen = false;
+            RefreshInputContext();
             StrategyHudSfxAudio.Play(StrategyHudSfxKind.Confirm);
         }
 
         private void OpenSettings()
         {
             settingsOpen = true;
+            RefreshInputContext();
             RefreshSettingsControls();
             StrategyHudSfxAudio.Play(StrategyHudSfxKind.Open);
         }
@@ -143,7 +156,32 @@ namespace ProjectUnknown.Strategy
         private void CloseSettings()
         {
             settingsOpen = false;
+            RefreshInputContext();
             StrategyHudSfxAudio.Play(StrategyHudSfxKind.Close);
+        }
+
+        private void RefreshInputContext()
+        {
+            if (!settingsOpen || inputRouter == null || !inputRouter.IsAvailable)
+            {
+                inputContext?.Dispose();
+                inputContext = null;
+                return;
+            }
+
+            if (inputContext == null || inputContext.IsDisposed)
+            {
+                inputContext = inputRouter.PushContext(
+                    this,
+                    StrategyInputChannel.All,
+                    StrategyCancelMode.Close);
+            }
+        }
+
+        private void OnDisable()
+        {
+            inputContext?.Dispose();
+            inputContext = null;
         }
 
         private static void QuitGame()

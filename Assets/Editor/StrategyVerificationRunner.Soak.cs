@@ -1,0 +1,259 @@
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using UnityEditor;
+using UnityEngine;
+using UnityEngine.Profiling;
+using UnityEngine.UI;
+
+namespace ProjectUnknown.Strategy.EditorTests
+{
+    public static partial class StrategyVerificationRunner
+    {
+        private const int DefaultSoakSeed = 74123;
+        private const float FullSoakGameSeconds = 720f;
+        private const float QuickSoakGameSeconds = 45f;
+        private const int SoakCaptureFramerate = 60;
+        private const int SoakSampleIntervalFrames = 60;
+        private const int FullSoakMaximumFrames = 18000;
+        private const int QuickSoakMaximumFrames = 1200;
+        private const long SoakMemoryGrowthBudgetBytes = 128L * 1024L * 1024L;
+        private static readonly HashSet<int> SoakResidentIds = new();
+        private static bool soakInitialized;
+        private static int soakSeed;
+        private static int soakFrames;
+        private static int soakMinimumResidents;
+        private static int soakMaximumResidents;
+        private static int soakMaximumBuildings;
+        private static int soakMaximumNavigationPending;
+        private static int soakResolvedRefugeeDialogs;
+        private static long soakStartMemory;
+        private static long soakMaximumMemory;
+        private static float soakStartElapsed;
+        private static float soakTargetGameSeconds;
+        private static int soakFrameLimit;
+
+        public static void RunSoakSmoke()
+        {
+            StartSoakSmoke(SmokeKind.Soak, "SoakSmoke.txt");
+        }
+
+        public static void RunQuickSoakSmoke()
+        {
+            StartSoakSmoke(SmokeKind.QuickSoak, "QuickSoakSmoke.txt");
+        }
+
+        private static void StartSoakSmoke(SmokeKind kind, string resultFileName)
+        {
+            File.WriteAllText(GetResultPath(resultFileName), "RUNNING");
+            ResetSoakState();
+            ConfigureSoak(kind);
+            soakSeed = StrategyPerformanceBenchmarkOptions.TryGetForcedSeed(out int forcedSeed)
+                ? forcedSeed
+                : DefaultSoakSeed;
+            UnityEngine.Random.InitState(soakSeed);
+            Time.captureFramerate = SoakCaptureFramerate;
+            StartPlayModeSmoke(kind, GameplayScenePath);
+        }
+
+        private static void RestoreSoakAfterDomainReload()
+        {
+            ResetSoakState();
+            ConfigureSoak(smokeKind);
+            soakSeed = StrategyPerformanceBenchmarkOptions.TryGetForcedSeed(out int forcedSeed)
+                ? forcedSeed
+                : DefaultSoakSeed;
+            UnityEngine.Random.InitState(soakSeed);
+            Time.captureFramerate = SoakCaptureFramerate;
+        }
+
+        private static void UpdateSoakSmoke(
+            CityMapController map,
+            StrategyPopulationController population)
+        {
+            if (!soakInitialized)
+            {
+                InitializeSoak(map, population);
+            }
+
+            ResolveSoakModalInput();
+            soakFrames++;
+            Require(soakFrames <= soakFrameLimit, "Soak exceeded its deterministic frame budget");
+            if (soakFrames % SoakSampleIntervalFrames == 0)
+            {
+                VerifySoakSnapshot(map, population);
+            }
+
+            float elapsed = StrategyDayNightCycleController.CurrentElapsedSeconds - soakStartElapsed;
+            if (elapsed < soakTargetGameSeconds)
+            {
+                return;
+            }
+
+            VerifySoakSnapshot(map, population);
+            int errorCount = GetSmokeErrorCount();
+            Require(errorCount == 0, "Unity emitted " + errorCount + " error(s) during soak");
+            long memoryDelta = Profiler.GetTotalAllocatedMemoryLong() - soakStartMemory;
+            Require(
+                memoryDelta <= SoakMemoryGrowthBudgetBytes,
+                $"Soak memory grew by {memoryDelta} bytes; budget is {SoakMemoryGrowthBudgetBytes} bytes");
+            long peakMemoryGrowth = soakMaximumMemory - soakStartMemory;
+            Require(
+                peakMemoryGrowth <= SoakMemoryGrowthBudgetBytes,
+                $"Soak peak memory grew by {peakMemoryGrowth} bytes; budget is {SoakMemoryGrowthBudgetBytes} bytes");
+            string result = string.Format(
+                CultureInfo.InvariantCulture,
+                "PASS: seed={0} frames={1} gameSeconds={2:0.0} residents={3}-{4} buildingsMax={5} navPendingMax={6} dialogsResolved={7} errors={8} memoryDeltaBytes={9} memoryPeakGrowthBytes={10} memoryMaxBytes={11} memoryBudgetBytes={12}",
+                soakSeed,
+                soakFrames,
+                elapsed,
+                soakMinimumResidents,
+                soakMaximumResidents,
+                soakMaximumBuildings,
+                soakMaximumNavigationPending,
+                soakResolvedRefugeeDialogs,
+                errorCount,
+                memoryDelta,
+                peakMemoryGrowth,
+                soakMaximumMemory,
+                SoakMemoryGrowthBudgetBytes);
+            CompletePlayMode(true, result);
+        }
+
+        private static void InitializeSoak(
+            CityMapController map,
+            StrategyPopulationController population)
+        {
+            Require(map.ActiveSeed == soakSeed, "Soak map did not use the requested deterministic seed");
+            StrategyTimeScaleController timeScale =
+                UnityEngine.Object.FindAnyObjectByType<StrategyTimeScaleController>();
+            Require(timeScale != null, "Time-scale controller is missing during soak");
+            Require(!timeScale.IsPausedByLock, "Soak started with an unexpected pause lock");
+            timeScale.SetRequestedScale(3f);
+
+            soakInitialized = true;
+            soakStartElapsed = StrategyDayNightCycleController.CurrentElapsedSeconds;
+            soakStartMemory = Profiler.GetTotalAllocatedMemoryLong();
+            soakMaximumMemory = soakStartMemory;
+            soakMinimumResidents = int.MaxValue;
+            VerifySoakSnapshot(map, population);
+        }
+
+        private static void VerifySoakSnapshot(
+            CityMapController map,
+            StrategyPopulationController population)
+        {
+            StrategyGameContext context = StrategyGameContext.Current;
+            Require(context != null && context.IsReady, "Game context left Ready state during soak");
+            Require(map != null && map.IsGenerated, "Map became unavailable during soak");
+            Require(population != null && population.TotalResidentCount > 0, "Population became empty during soak");
+            Require(
+                StrategyAudioVoicePool.ActiveVoiceCount <= StrategyAudioVoicePool.Capacity,
+                "Audio voice budget exceeded during soak");
+
+            StrategyNavigationService navigation =
+                UnityEngine.Object.FindAnyObjectByType<StrategyNavigationService>();
+            Require(navigation != null, "Navigation service is missing during soak");
+            Require(navigation.PendingCount <= 256, "Navigation queue exceeded its hard capacity");
+
+            SoakResidentIds.Clear();
+            IReadOnlyList<StrategyResidentAgent> residents = population.Residents;
+            for (int i = 0; i < residents.Count; i++)
+            {
+                StrategyResidentAgent resident = residents[i];
+                Require(resident != null, "Population contains a null resident");
+                Require(resident.ResidentId > 0, "Population contains a non-positive resident ID");
+                Require(SoakResidentIds.Add(resident.ResidentId), "Population contains a duplicate resident ID");
+                Vector3 position = resident.transform.position;
+                Require(IsFinite(position.x) && IsFinite(position.y) && IsFinite(position.z),
+                    "Resident position became non-finite");
+            }
+
+            int residentCount = population.TotalResidentCount;
+            soakMinimumResidents = Mathf.Min(soakMinimumResidents, residentCount);
+            soakMaximumResidents = Mathf.Max(soakMaximumResidents, residentCount);
+            soakMaximumBuildings = Mathf.Max(
+                soakMaximumBuildings,
+                StrategyPlacedBuilding.ActiveBuildings.Count);
+            soakMaximumNavigationPending = Mathf.Max(
+                soakMaximumNavigationPending,
+                navigation.PendingCount);
+            soakMaximumMemory = Math.Max(soakMaximumMemory, Profiler.GetTotalAllocatedMemoryLong());
+        }
+
+        private static void ResolveSoakModalInput()
+        {
+            StrategyInputRouter router = UnityEngine.Object.FindAnyObjectByType<StrategyInputRouter>();
+            Require(router != null, "Input router is missing during soak");
+            StrategyRefugeeDialogController dialog =
+                UnityEngine.Object.FindAnyObjectByType<StrategyRefugeeDialogController>();
+            if (dialog == null || !dialog.IsOpen)
+            {
+                Require(router.ActiveContextCount == 0, "Input contexts leaked outside an active modal dialog");
+                return;
+            }
+
+            Require(router.ActiveContextCount == 1, "Refugee dialog created an unexpected input-context stack");
+            Require(router.BlockedChannels == StrategyInputChannel.All, "Refugee dialog did not block all input channels");
+            Require(router.TopCancelMode == StrategyCancelMode.Swallow, "Refugee dialog did not swallow cancellation");
+
+            Button rejectButton = null;
+            int rejectButtonCount = 0;
+            Button[] buttons = dialog.GetComponentsInChildren<Button>(true);
+            for (int i = 0; i < buttons.Length; i++)
+            {
+                if (buttons[i] != null && buttons[i].gameObject.name == "Reject")
+                {
+                    rejectButton = buttons[i];
+                    rejectButtonCount++;
+                }
+            }
+
+            Require(rejectButtonCount == 1, "Refugee dialog must expose exactly one reject action");
+            rejectButton.onClick.Invoke();
+            soakResolvedRefugeeDialogs++;
+            Require(!dialog.IsOpen, "Refugee dialog remained open after its reject action");
+            Require(router.ActiveContextCount == 0, "Refugee dialog input context was not released");
+        }
+
+        private static void CleanupSoak()
+        {
+            Time.captureFramerate = 0;
+            Time.timeScale = 1f;
+            ResetSoakState();
+        }
+
+        private static void ResetSoakState()
+        {
+            soakInitialized = false;
+            soakFrames = 0;
+            soakMinimumResidents = 0;
+            soakMaximumResidents = 0;
+            soakMaximumBuildings = 0;
+            soakMaximumNavigationPending = 0;
+            soakResolvedRefugeeDialogs = 0;
+            soakStartMemory = 0;
+            soakMaximumMemory = 0;
+            soakStartElapsed = 0f;
+            SoakResidentIds.Clear();
+        }
+
+        private static void ConfigureSoak(SmokeKind kind)
+        {
+            bool quick = kind == SmokeKind.QuickSoak;
+            soakTargetGameSeconds = quick ? QuickSoakGameSeconds : FullSoakGameSeconds;
+            soakFrameLimit = quick ? QuickSoakMaximumFrames : FullSoakMaximumFrames;
+        }
+
+        private static bool IsSoakKind(SmokeKind kind)
+        {
+            return kind == SmokeKind.Soak || kind == SmokeKind.QuickSoak;
+        }
+
+        private static bool IsFinite(float value)
+        {
+            return !float.IsNaN(value) && !float.IsInfinity(value);
+        }
+    }
+}

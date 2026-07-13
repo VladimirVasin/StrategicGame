@@ -327,6 +327,7 @@ namespace ProjectUnknown.Strategy
 
             if (IsHouseholdFoodActivity(activity))
             {
+                householdCookingTask.Cancel();
                 ResetHouseholdFoodWorkToIdle(storeCarriedFood, reason);
                 return;
             }

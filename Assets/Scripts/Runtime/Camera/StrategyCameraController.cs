@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
 
 namespace ProjectUnknown.Strategy
 {
@@ -26,6 +25,7 @@ namespace ProjectUnknown.Strategy
 
         private CityMapController map;
         private StrategyPopulationController population;
+        private StrategyInputRouter inputRouter;
         private Camera strategyCamera;
         private Bounds? movementBounds;
         private Vector3 heldFocusCenter;
@@ -80,6 +80,11 @@ namespace ProjectUnknown.Strategy
             EnsureCameraReference();
             movementBounds = bounds;
             ClampToBounds();
+        }
+
+        public void SetInputRouter(StrategyInputRouter router)
+        {
+            inputRouter = router;
         }
 
         public void SetCampFocusSource(
@@ -160,8 +165,7 @@ namespace ProjectUnknown.Strategy
 
         private bool HandleCampFocusShortcut()
         {
-            Keyboard keyboard = Keyboard.current;
-            if (keyboard == null || !keyboard.spaceKey.wasPressedThisFrame)
+            if (inputRouter == null || !inputRouter.CameraFocusCampPressed)
             {
                 return false;
             }
@@ -186,45 +190,22 @@ namespace ProjectUnknown.Strategy
 
         private Vector2 ReadKeyboardPan()
         {
-            Keyboard keyboard = Keyboard.current;
-            if (keyboard == null)
-            {
-                return Vector2.zero;
-            }
-
-            Vector2 pan = Vector2.zero;
-
-            if (keyboard.aKey.isPressed || keyboard.leftArrowKey.isPressed)
-            {
-                pan.x -= 1f;
-            }
-
-            if (keyboard.dKey.isPressed || keyboard.rightArrowKey.isPressed)
-            {
-                pan.x += 1f;
-            }
-
-            if (keyboard.sKey.isPressed || keyboard.downArrowKey.isPressed)
-            {
-                pan.y -= 1f;
-            }
-
-            if (keyboard.wKey.isPressed || keyboard.upArrowKey.isPressed)
-            {
-                pan.y += 1f;
-            }
-
-            return pan;
+            return inputRouter != null ? inputRouter.CameraPan : Vector2.zero;
         }
 
         private Vector2 ReadEdgePan()
         {
-            if (!edgePanEnabled || IsPointerOverUi() || Mouse.current == null || Screen.width <= 0 || Screen.height <= 0)
+            if (!edgePanEnabled
+                || inputRouter == null
+                || !inputRouter.IsChannelEnabled(StrategyInputChannel.Camera)
+                || IsPointerOverUi()
+                || Screen.width <= 0
+                || Screen.height <= 0)
             {
                 return Vector2.zero;
             }
 
-            Vector2 position = Mouse.current.position.ReadValue();
+            Vector2 position = inputRouter.CameraPointerPosition;
             if (position.x < 0f || position.y < 0f || position.x > Screen.width || position.y > Screen.height)
             {
                 return Vector2.zero;
@@ -257,13 +238,14 @@ namespace ProjectUnknown.Strategy
 
         private Vector3 ReadDragPan()
         {
-            Mouse mouse = Mouse.current;
-            if (mouse == null || IsPointerOverUi() || (!mouse.middleButton.isPressed && !mouse.rightButton.isPressed))
+            if (inputRouter == null
+                || IsPointerOverUi()
+                || (!inputRouter.CameraMiddleDragHeld && !inputRouter.CameraRightDragHeld))
             {
                 return Vector3.zero;
             }
 
-            Vector2 delta = mouse.delta.ReadValue();
+            Vector2 delta = inputRouter.CameraPointerDelta;
             if (delta.sqrMagnitude <= 0f)
             {
                 return Vector3.zero;
@@ -299,28 +281,18 @@ namespace ProjectUnknown.Strategy
             float zoomDelta = 0f;
             float zoomScale = GetZoomScale();
 
-            Mouse mouse = Mouse.current;
-            if (mouse != null && !IsPointerOverUi())
+            if (inputRouter != null && !IsPointerOverUi())
             {
-                float wheel = mouse.scroll.ReadValue().y;
+                float wheel = inputRouter.CameraScroll.y;
                 if (!Mathf.Approximately(wheel, 0f))
                 {
                     zoomDelta += Mathf.Sign(wheel) * wheelZoomStep * zoomScale;
                 }
             }
 
-            Keyboard keyboard = Keyboard.current;
-            if (keyboard != null)
+            if (inputRouter != null)
             {
-                if (keyboard.qKey.isPressed || keyboard.minusKey.isPressed || keyboard.numpadMinusKey.isPressed)
-                {
-                    zoomDelta -= keyZoomSpeed * zoomScale * Time.unscaledDeltaTime;
-                }
-
-                if (keyboard.eKey.isPressed || keyboard.equalsKey.isPressed || keyboard.numpadPlusKey.isPressed)
-                {
-                    zoomDelta += keyZoomSpeed * zoomScale * Time.unscaledDeltaTime;
-                }
+                zoomDelta += inputRouter.CameraZoomKeys * keyZoomSpeed * zoomScale * Time.unscaledDeltaTime;
             }
 
             return zoomDelta;
@@ -338,13 +310,14 @@ namespace ProjectUnknown.Strategy
 
         private Vector3? TryReadMouseWorldPosition()
         {
-            Mouse mouse = Mouse.current;
-            if (mouse == null || IsPointerOverUi())
+            if (inputRouter == null
+                || !inputRouter.IsChannelEnabled(StrategyInputChannel.Camera)
+                || IsPointerOverUi())
             {
                 return null;
             }
 
-            Vector2 screen = mouse.position.ReadValue();
+            Vector2 screen = inputRouter.CameraPointerPosition;
             if (screen.x < 0f || screen.y < 0f || screen.x > Screen.width || screen.y > Screen.height)
             {
                 return null;

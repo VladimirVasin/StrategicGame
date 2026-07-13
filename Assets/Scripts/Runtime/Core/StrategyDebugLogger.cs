@@ -17,9 +17,12 @@ namespace ProjectUnknown.Strategy
 
         private bool configured;
         private bool fileWriteDisabled;
+        private string canonicalLogPath;
         private string logPath;
         private StreamWriter writer;
+        private int processId;
         private int pendingFlushLines;
+        private long activeByteCount;
         private float nextFlushTime;
 
         public static StrategyDebugLogger Active { get; private set; }
@@ -33,27 +36,27 @@ namespace ProjectUnknown.Strategy
             }
 
             Active = this;
-            logPath = ResolveLogPath();
+            canonicalLogPath = ResolveLogPath();
+            logPath = canonicalLogPath;
+            processId = ResolveProcessId();
             configured = true;
             fileWriteDisabled = false;
 
-            try
-            {
-                Directory.CreateDirectory(Path.GetDirectoryName(logPath) ?? ".");
-                File.WriteAllText(logPath, string.Empty, Utf8NoBom);
-                writer = new StreamWriter(logPath, true, Utf8NoBom)
-                {
-                    AutoFlush = false
-                };
-
-                nextFlushTime = Time.realtimeSinceStartup + FlushIntervalSeconds;
-            }
-            catch
+            if (!StrategyLogFileRotation.TryOpenSession(
+                    canonicalLogPath,
+                    DateTime.UtcNow,
+                    processId,
+                    Utf8NoBom,
+                    out writer,
+                    out logPath))
             {
                 fileWriteDisabled = true;
                 DisposeWriter();
                 return;
             }
+
+            activeByteCount = ResolveWriterLength();
+            nextFlushTime = Time.realtimeSinceStartup + FlushIntervalSeconds;
 
             Application.logMessageReceived -= HandleUnityLogMessage;
             Application.logMessageReceived += HandleUnityLogMessage;
@@ -135,26 +138,90 @@ namespace ProjectUnknown.Strategy
                 {
                     if (writer == null)
                     {
-                        fileWriteDisabled = true;
+                        RecoverWithFallback();
+                        if (writer == null)
+                        {
+                            return;
+                        }
+                    }
+
+                    long lineByteCount = Utf8NoBom.GetByteCount(line)
+                        + Utf8NoBom.GetByteCount(writer.NewLine);
+                    float now = Time.realtimeSinceStartup;
+                    if (activeByteCount > 0L
+                        && activeByteCount + lineByteCount > StrategyLogFileRotation.MaxActiveBytes
+                        && !FlushAndRotate(now, true))
+                    {
                         return;
                     }
 
                     writer.WriteLine(line);
+                    activeByteCount += lineByteCount;
                     pendingFlushLines++;
-                    float now = Time.realtimeSinceStartup;
-                    if (pendingFlushLines >= FlushLineThreshold || now >= nextFlushTime)
+                    bool sizeReached = StrategyLogFileRotation.ShouldRotate(activeByteCount);
+                    if (sizeReached || pendingFlushLines >= FlushLineThreshold || now >= nextFlushTime)
                     {
-                        writer.Flush();
-                        pendingFlushLines = 0;
-                        nextFlushTime = now + FlushIntervalSeconds;
+                        FlushAndRotate(now, sizeReached);
                     }
                 }
             }
             catch
             {
-                fileWriteDisabled = true;
                 DisposeWriter();
+                RecoverWithFallback();
             }
+        }
+
+        private bool FlushAndRotate(float now, bool rotationRequested)
+        {
+            writer.Flush();
+            pendingFlushLines = 0;
+            nextFlushTime = now + FlushIntervalSeconds;
+            activeByteCount = ResolveWriterLength();
+            if (!rotationRequested && !StrategyLogFileRotation.ShouldRotate(activeByteCount))
+            {
+                return true;
+            }
+
+            writer.Dispose();
+            writer = null;
+            if (!StrategyLogFileRotation.TryRotateAndReopen(
+                    logPath,
+                    canonicalLogPath,
+                    DateTime.UtcNow,
+                    processId,
+                    Utf8NoBom,
+                    out writer,
+                    out logPath))
+            {
+                fileWriteDisabled = true;
+                activeByteCount = 0L;
+                return false;
+            }
+
+            activeByteCount = ResolveWriterLength();
+            return true;
+        }
+
+        private void RecoverWithFallback()
+        {
+            if (!StrategyLogFileRotation.TryOpenFallback(
+                    canonicalLogPath,
+                    DateTime.UtcNow,
+                    processId,
+                    Utf8NoBom,
+                    out writer,
+                    out logPath))
+            {
+                fileWriteDisabled = true;
+                activeByteCount = 0L;
+                return;
+            }
+
+            fileWriteDisabled = false;
+            activeByteCount = ResolveWriterLength();
+            pendingFlushLines = 0;
+            nextFlushTime = Time.realtimeSinceStartup + FlushIntervalSeconds;
         }
 
         private void HandleUnityLogMessage(string condition, string stackTrace, LogType type)
@@ -211,6 +278,7 @@ namespace ProjectUnknown.Strategy
                 lock (SyncRoot)
                 {
                     writer?.Flush();
+                    activeByteCount = ResolveWriterLength();
                     pendingFlushLines = 0;
                     nextFlushTime = Time.realtimeSinceStartup + FlushIntervalSeconds;
                 }
@@ -230,11 +298,25 @@ namespace ProjectUnknown.Strategy
                     writer?.Dispose();
                     writer = null;
                     pendingFlushLines = 0;
+                    activeByteCount = 0L;
                 }
             }
             catch
             {
                 writer = null;
+                activeByteCount = 0L;
+            }
+        }
+
+        private long ResolveWriterLength()
+        {
+            try
+            {
+                return writer?.BaseStream.Length ?? 0L;
+            }
+            catch
+            {
+                return activeByteCount;
             }
         }
 
@@ -246,6 +328,18 @@ namespace ProjectUnknown.Strategy
 #else
             return Path.Combine(Application.persistentDataPath, "debug.log");
 #endif
+        }
+
+        private static int ResolveProcessId()
+        {
+            try
+            {
+                return System.Diagnostics.Process.GetCurrentProcess().Id;
+            }
+            catch
+            {
+                return 0;
+            }
         }
 
         private static string FormatValue(object value)

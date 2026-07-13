@@ -11,9 +11,15 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            if (!source.TryFindDropoffCell(out Vector2Int pickupCell) || !TryBuildPathTo(pickupCell))
+            if (!TryBuildPathToBuildingAccess(source, out Vector2Int pickupCell))
             {
                 source.ReleaseStoredCoalReservation(this);
+                if (WasLastPathBuildDeferred)
+                {
+                    logisticsWorkCooldown = Random.Range(0.18f, 0.38f);
+                    return false;
+                }
+
                 logisticsWorkCooldown = Random.Range(2.0f, 4.0f);
                 StrategyDebugLogger.Warn(
                     "Logistics",
@@ -59,8 +65,7 @@ namespace ProjectUnknown.Strategy
 
             if (activeCoalSource == null
                 || storageWorkplace == null
-                || !storageWorkplace.TryFindDropoffCell(out Vector2Int dropoffCell)
-                || !TryBuildPathTo(dropoffCell)
+                || !TryBuildPathToBuildingAccess(storageWorkplace, out Vector2Int dropoffCell)
                 || !activeCoalSource.TryTakeReservedCoal(this, out carriedCoalAmount))
             {
                 activeCoalSource?.ReleaseStoredCoalReservation(this);

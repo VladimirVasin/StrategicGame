@@ -19,7 +19,9 @@ namespace ProjectUnknown.Strategy
             for (int i = 0; i < mines.Count; i++)
             {
                 StrategyMine mine = mines[i];
-                if (mine == null || mine.AvailableIron <= 0)
+                if (mine == null
+                    || mine.AvailableIron <= 0
+                    || !CanOwnerReachReservationBuilding(owner, mine))
                 {
                     continue;
                 }
@@ -55,7 +57,9 @@ namespace ProjectUnknown.Strategy
             for (int i = 0; i < pits.Count; i++)
             {
                 StrategyCoalPit pit = pits[i];
-                if (pit == null || pit.AvailableCoal <= 0)
+                if (pit == null
+                    || pit.AvailableCoal <= 0
+                    || !CanOwnerReachReservationBuilding(owner, pit))
                 {
                     continue;
                 }
@@ -91,7 +95,9 @@ namespace ProjectUnknown.Strategy
             for (int i = 0; i < pits.Count; i++)
             {
                 StrategyClayPit pit = pits[i];
-                if (pit == null || pit.AvailableClay <= 0)
+                if (pit == null
+                    || pit.AvailableClay <= 0
+                    || !CanOwnerReachReservationBuilding(owner, pit))
                 {
                     continue;
                 }

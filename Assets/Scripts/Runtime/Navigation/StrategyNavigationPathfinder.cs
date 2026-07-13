@@ -44,6 +44,7 @@ namespace ProjectUnknown.Strategy
             List<Vector2Int> rawCells,
             List<Vector2Int> smoothedCells)
         {
+            using var profilerScope = StrategyPerformanceMarkers.NavigationAStar.Auto();
             rawCells.Clear();
             smoothedCells.Clear();
             if (map == null || !IsInside(map, query.Start) || !IsInside(map, query.Target))

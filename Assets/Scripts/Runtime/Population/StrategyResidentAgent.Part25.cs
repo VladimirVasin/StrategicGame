@@ -17,9 +17,16 @@ namespace ProjectUnknown.Strategy
 
             if (storageWorkplace.TryReservePlanksSource(this, out IStrategyProductionLogisticsNode source))
             {
-                if (!source.TryFindDropoffCell(out Vector2Int pickupCell) || !TryBuildPathTo(pickupCell))
+                if (source is not Component sourceComponent
+                    || !TryBuildPathToBuildingAccess(sourceComponent, out Vector2Int pickupCell))
                 {
                     source.ReleaseOutputPickupReservation(StrategyResourceType.Planks, this);
+                    if (WasLastPathBuildDeferred)
+                    {
+                        logisticsWorkCooldown = Random.Range(0.18f, 0.38f);
+                        return false;
+                    }
+
                     logisticsWorkCooldown = Random.Range(2.0f, 4.0f);
                     StrategyDebugLogger.Warn(
                         "Logistics",
@@ -95,8 +102,7 @@ namespace ProjectUnknown.Strategy
 
             if ((activePlanksSource == null && activeLoosePlanksSource == null)
                 || storageWorkplace == null
-                || !storageWorkplace.TryFindDropoffCell(out Vector2Int dropoffCell)
-                || !TryBuildPathTo(dropoffCell)
+                || !TryBuildPathToBuildingAccess(storageWorkplace, out Vector2Int dropoffCell)
                 || !TryTakeReservedStoragePlanks())
             {
                 activePlanksSource?.ReleaseOutputPickupReservation(StrategyResourceType.Planks, this);

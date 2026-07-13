@@ -12,109 +12,82 @@ namespace ProjectUnknown.Strategy
         private const int InitialStarterStone = 20;
         private const float StarterFoodReserveDays = 3f;
 
-        private static IEnumerator BootstrapScene()
+        private static IEnumerator BootstrapScene(StrategyGameContext context)
         {
             StrategyGameSettings.ApplyAtStartup();
-            CityMapController map = ConfigureDebugLoggingAndMap();
-
-            StrategyWaterAnimationController water = Object.FindAnyObjectByType<StrategyWaterAnimationController>();
-            if (water == null)
+            CityMapController map = ConfigureDebugLoggingAndMap(context, out bool requiresGeneration);
+            if (requiresGeneration)
             {
-                GameObject waterObject = new GameObject("Strategy Water Animation");
-                water = waterObject.AddComponent<StrategyWaterAnimationController>();
+                int requestedSeed = map.ResolveBootstrapSeed();
+                yield return map.GenerateMapIncremental(requestedSeed);
+                if (map.GenerationFailed)
+                {
+                    StrategyDebugLogger.Warn(
+                        "Bootstrap",
+                        "IncrementalMapFallback",
+                        StrategyDebugLogger.F("seed", requestedSeed));
+                    map.GenerateMap(requestedSeed);
+                }
+
+                if (!map.IsGenerated)
+                {
+                    throw new System.InvalidOperationException("Map generation did not complete.");
+                }
+
+                map.SetPresentationVisible(true);
             }
 
+            StrategyDebugLogger.Info("Bootstrap", "MapReady", StrategyDebugLogger.F("bounds", map.WorldBounds));
+            StrategyInputRouter inputRouter = context.GetOrCreate<StrategyInputRouter>("Strategy Input Router");
+            if (!inputRouter.Configure())
+            {
+                throw new System.InvalidOperationException(inputRouter.ConfigurationError);
+            }
+
+            StrategyUiInputModuleBootstrap.Ensure();
+            StrategyDebugLogger.Info("Bootstrap", "InputReady");
+
+            StrategyWaterAnimationController water = context.GetOrCreate<StrategyWaterAnimationController>("Strategy Water Animation");
             water.Configure(map);
             StrategyDebugLogger.Info("Bootstrap", "WaterReady");
 
-            StrategyTrailController trails = Object.FindAnyObjectByType<StrategyTrailController>();
-            if (trails == null)
-            {
-                GameObject trailsObject = new GameObject("Strategy Trails");
-                trails = trailsObject.AddComponent<StrategyTrailController>();
-            }
-
+            StrategyTrailController trails = context.GetOrCreate<StrategyTrailController>("Strategy Trails");
             trails.Configure(map);
             StrategyDebugLogger.Info("Bootstrap", "TrailsReady");
-            ConfigureNavigation(map);
-            StrategyWindController wind = Object.FindAnyObjectByType<StrategyWindController>();
-            if (wind == null)
-            {
-                GameObject windObject = new GameObject("Strategy Wind");
-                wind = windObject.AddComponent<StrategyWindController>();
-            }
+            ConfigureNavigation(context, map);
+            StrategyWindController wind = context.GetOrCreate<StrategyWindController>("Strategy Wind");
 
             wind.ConfigureDefault();
             StrategyDebugLogger.Info("Bootstrap", "WindReady");
 
-            StrategyTimeScaleController timeScale = Object.FindAnyObjectByType<StrategyTimeScaleController>();
-            if (timeScale == null)
-            {
-                GameObject timeScaleObject = new GameObject("Strategy Time Scale");
-                timeScale = timeScaleObject.AddComponent<StrategyTimeScaleController>();
-            }
-
+            StrategyTimeScaleController timeScale = context.GetOrCreate<StrategyTimeScaleController>("Strategy Time Scale");
+            timeScale.SetInputRouter(inputRouter);
             timeScale.Configure();
-            timeScale.PushPauseLock("Bootstrap");
+            context.HoldBootstrapPause(timeScale);
             StrategyDebugLogger.Info("Bootstrap", "TimeScaleReady");
 
-            StrategyForestryController forestry = Object.FindAnyObjectByType<StrategyForestryController>();
-            if (forestry == null)
-            {
-                GameObject forestryObject = new GameObject("Strategy Forestry");
-                forestry = forestryObject.AddComponent<StrategyForestryController>();
-            }
-
+            StrategyForestryController forestry = context.GetOrCreate<StrategyForestryController>("Strategy Forestry");
             forestry.Configure(map, wind);
             StrategyDebugLogger.Info("Bootstrap", "ForestryReady");
 
-            StrategyStoneResourceController stone = Object.FindAnyObjectByType<StrategyStoneResourceController>();
-            if (stone == null)
-            {
-                GameObject stoneObject = new GameObject("Strategy Stone Resources");
-                stone = stoneObject.AddComponent<StrategyStoneResourceController>();
-            }
-
+            StrategyStoneResourceController stone = context.GetOrCreate<StrategyStoneResourceController>("Strategy Stone Resources");
             stone.Configure(map);
             StrategyDebugLogger.Info("Bootstrap", "StoneResourcesReady");
 
-            StrategyIronResourceController iron = Object.FindAnyObjectByType<StrategyIronResourceController>();
-            if (iron == null)
-            {
-                GameObject ironObject = new GameObject("Strategy Iron Resources");
-                iron = ironObject.AddComponent<StrategyIronResourceController>();
-            }
-
+            StrategyIronResourceController iron = context.GetOrCreate<StrategyIronResourceController>("Strategy Iron Resources");
             iron.Configure(map);
             StrategyDebugLogger.Info("Bootstrap", "IronResourcesReady");
 
-            StrategyCoalResourceController coal = Object.FindAnyObjectByType<StrategyCoalResourceController>();
-            if (coal == null)
-            {
-                GameObject coalObject = new GameObject("Strategy Coal Resources");
-                coal = coalObject.AddComponent<StrategyCoalResourceController>();
-            }
-
+            StrategyCoalResourceController coal = context.GetOrCreate<StrategyCoalResourceController>("Strategy Coal Resources");
             coal.Configure(map);
             StrategyDebugLogger.Info("Bootstrap", "CoalResourcesReady");
 
-            StrategyClayResourceController clay = Object.FindAnyObjectByType<StrategyClayResourceController>();
-            if (clay == null)
-            {
-                GameObject clayObject = new GameObject("Strategy Clay Resources");
-                clay = clayObject.AddComponent<StrategyClayResourceController>();
-            }
-
+            StrategyClayResourceController clay = context.GetOrCreate<StrategyClayResourceController>("Strategy Clay Resources");
             clay.Configure(map);
             StrategyDebugLogger.Info("Bootstrap", "ClayResourcesReady");
 
-            Camera mainCamera = Camera.main;
-            if (mainCamera == null)
-            {
-                GameObject cameraObject = new GameObject("Main Camera");
-                cameraObject.tag = "MainCamera";
-                mainCamera = cameraObject.AddComponent<Camera>();
-            }
+            Camera mainCamera = context.GetOrCreate<Camera>("Main Camera");
+            mainCamera.gameObject.tag = "MainCamera";
 
             mainCamera.orthographic = true;
             mainCamera.clearFlags = CameraClearFlags.SolidColor;
@@ -130,6 +103,8 @@ namespace ProjectUnknown.Strategy
                 cameraController = mainCamera.gameObject.AddComponent<StrategyCameraController>();
             }
 
+            context.Register(cameraController);
+            cameraController.SetInputRouter(inputRouter);
             cameraController.SetBounds(map.WorldBounds);
             cameraController.FocusOn(map.WorldBounds.center, InitialCameraSize);
             StrategyCameraFeedbackController cameraFeedback = mainCamera.GetComponent<StrategyCameraFeedbackController>();
@@ -138,110 +113,48 @@ namespace ProjectUnknown.Strategy
                 cameraFeedback = mainCamera.gameObject.AddComponent<StrategyCameraFeedbackController>();
             }
 
+            context.Register(cameraFeedback);
             cameraFeedback.Configure(mainCamera);
             StrategyDebugLogger.Info("Bootstrap", "CameraReady", StrategyDebugLogger.F("position", mainCamera.transform.position));
 
-            StrategyDayNightCycleController dayNight = Object.FindAnyObjectByType<StrategyDayNightCycleController>();
-            if (dayNight == null)
-            {
-                GameObject dayNightObject = new GameObject("Strategy Day Night Cycle");
-                dayNight = dayNightObject.AddComponent<StrategyDayNightCycleController>();
-            }
-
+            StrategyDayNightCycleController dayNight = context.GetOrCreate<StrategyDayNightCycleController>("Strategy Day Night Cycle");
             dayNight.Configure(map, mainCamera);
             StrategyDebugLogger.Info("Bootstrap", "DayNightReady");
 
-            StrategyWeatherController weather = Object.FindAnyObjectByType<StrategyWeatherController>();
-            if (weather == null)
-            {
-                GameObject weatherObject = new GameObject("Strategy Weather");
-                weather = weatherObject.AddComponent<StrategyWeatherController>();
-            }
-
+            StrategyWeatherController weather = context.GetOrCreate<StrategyWeatherController>("Strategy Weather");
             weather.Configure(map, wind);
 
-            StrategyWeatherVisualController weatherVisuals = Object.FindAnyObjectByType<StrategyWeatherVisualController>();
-            if (weatherVisuals == null)
-            {
-                GameObject weatherVisualsObject = new GameObject("Strategy Weather Visuals");
-                weatherVisuals = weatherVisualsObject.AddComponent<StrategyWeatherVisualController>();
-            }
-
+            StrategyWeatherVisualController weatherVisuals = context.GetOrCreate<StrategyWeatherVisualController>("Strategy Weather Visuals");
             weatherVisuals.Configure(map, mainCamera, weather, wind);
 
-            StrategySeasonAmbientDetailController seasonDetails = Object.FindAnyObjectByType<StrategySeasonAmbientDetailController>();
-            if (seasonDetails == null)
-            {
-                GameObject seasonDetailsObject = new GameObject("Strategy Season Ambient Details");
-                seasonDetails = seasonDetailsObject.AddComponent<StrategySeasonAmbientDetailController>();
-            }
-
+            StrategySeasonAmbientDetailController seasonDetails = context.GetOrCreate<StrategySeasonAmbientDetailController>("Strategy Season Ambient Details");
             seasonDetails.Configure(mainCamera, weather, wind);
 
-            StrategySeasonalSurfaceController seasonalSurfaces = Object.FindAnyObjectByType<StrategySeasonalSurfaceController>();
-            if (seasonalSurfaces == null)
-            {
-                GameObject seasonalSurfacesObject = new GameObject("Strategy Seasonal Surfaces");
-                seasonalSurfaces = seasonalSurfacesObject.AddComponent<StrategySeasonalSurfaceController>();
-            }
-
+            StrategySeasonalSurfaceController seasonalSurfaces = context.GetOrCreate<StrategySeasonalSurfaceController>("Strategy Seasonal Surfaces");
             seasonalSurfaces.Configure(map, weather);
             StrategyDebugLogger.Info("Bootstrap", "WeatherReady");
 
-            StrategyPostProcessController postProcess = Object.FindAnyObjectByType<StrategyPostProcessController>();
-            if (postProcess == null)
-            {
-                GameObject postProcessObject = new GameObject("Strategy Post Process");
-                postProcess = postProcessObject.AddComponent<StrategyPostProcessController>();
-            }
-
+            StrategyPostProcessController postProcess = context.GetOrCreate<StrategyPostProcessController>("Strategy Post Process");
             postProcess.Configure(mainCamera, dayNight, weather);
             StrategyDebugLogger.Info("Bootstrap", "PostProcessReady");
 
-            StrategyCinematicVisualController cinematicVisuals = Object.FindAnyObjectByType<StrategyCinematicVisualController>();
-            if (cinematicVisuals == null)
-            {
-                GameObject cinematicVisualsObject = new GameObject("Strategy Cinematic Visuals");
-                cinematicVisuals = cinematicVisualsObject.AddComponent<StrategyCinematicVisualController>();
-            }
-
+            StrategyCinematicVisualController cinematicVisuals = context.GetOrCreate<StrategyCinematicVisualController>("Strategy Cinematic Visuals");
             cinematicVisuals.Configure(map, mainCamera, dayNight, weather, wind);
             StrategyDebugLogger.Info("Bootstrap", "CinematicVisualsReady");
 
-            ConfigureAudio(map, mainCamera);
+            ConfigureAudio(context, map, mainCamera);
             yield return null;
 
-            StrategyBuildMenuController buildMenu = Object.FindAnyObjectByType<StrategyBuildMenuController>();
-            if (buildMenu == null)
-            {
-                GameObject buildMenuObject = new GameObject("Strategy Build Menu");
-                buildMenu = buildMenuObject.AddComponent<StrategyBuildMenuController>();
-            }
-
-            StrategyBuildPlacementController placement = Object.FindAnyObjectByType<StrategyBuildPlacementController>();
-            if (placement == null)
-            {
-                GameObject placementObject = new GameObject("Strategy Build Placement");
-                placement = placementObject.AddComponent<StrategyBuildPlacementController>();
-            }
-
-            StrategyPopulationController population = Object.FindAnyObjectByType<StrategyPopulationController>();
-            if (population == null)
-            {
-                GameObject populationObject = new GameObject("Strategy Population");
-                population = populationObject.AddComponent<StrategyPopulationController>();
-            }
+            StrategyBuildMenuController buildMenu = context.GetOrCreate<StrategyBuildMenuController>("Strategy Build Menu");
+            StrategyBuildPlacementController placement = context.GetOrCreate<StrategyBuildPlacementController>("Strategy Build Placement");
+            StrategyPopulationController population = context.GetOrCreate<StrategyPopulationController>("Strategy Population");
+            buildMenu.SetInputRouter(inputRouter);
+            placement.SetInputRouter(inputRouter);
 
             population.Configure(map);
             cameraController.SetCampFocusSource(map, population);
 
-            StrategyNightLightTaskController nightLights = Object.FindAnyObjectByType<StrategyNightLightTaskController>();
-            if (nightLights == null)
-            {
-                GameObject nightLightsObject = new GameObject("Strategy Night Light Tasks");
-                nightLights = nightLightsObject.AddComponent<StrategyNightLightTaskController>();
-            }
-
+            StrategyNightLightTaskController nightLights = context.GetOrCreate<StrategyNightLightTaskController>("Strategy Night Light Tasks");
             nightLights.Configure(map, population);
             StrategyDebugLogger.Info("Bootstrap", "NightLightTasksReady");
 
@@ -251,12 +164,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.Info("Bootstrap", "CameraFocusedOnCamp", StrategyDebugLogger.F("world", campWorld));
             }
 
-            StrategyNaturePropController nature = Object.FindAnyObjectByType<StrategyNaturePropController>();
-            if (nature == null)
-            {
-                GameObject natureObject = new GameObject("Strategy Nature Props");
-                nature = natureObject.AddComponent<StrategyNaturePropController>();
-            }
+            StrategyNaturePropController nature = context.GetOrCreate<StrategyNaturePropController>("Strategy Nature Props");
 
             if (population.TryGetCampCell(out Vector2Int campCell))
             {
@@ -279,12 +187,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.Info("Bootstrap", "NatureReady", StrategyDebugLogger.F("excluded", false));
             }
 
-            StrategyForageResourceController forage = Object.FindAnyObjectByType<StrategyForageResourceController>();
-            if (forage == null)
-            {
-                GameObject forageObject = new GameObject("Strategy Forage Resources");
-                forage = forageObject.AddComponent<StrategyForageResourceController>();
-            }
+            StrategyForageResourceController forage = context.GetOrCreate<StrategyForageResourceController>("Strategy Forage Resources");
 
             if (population.TryGetCampCell(out Vector2Int forageCampCell))
             {
@@ -297,19 +200,8 @@ namespace ProjectUnknown.Strategy
 
             StrategyDebugLogger.Info("Bootstrap", "ForageReady");
 
-            StrategyFogOfWarController fog = Object.FindAnyObjectByType<StrategyFogOfWarController>();
-            if (fog == null)
-            {
-                GameObject fogObject = new GameObject("Strategy Fog Of War");
-                fog = fogObject.AddComponent<StrategyFogOfWarController>();
-            }
-
-            StrategyBuildingUpgradeController upgrades = Object.FindAnyObjectByType<StrategyBuildingUpgradeController>();
-            if (upgrades == null)
-            {
-                GameObject upgradesObject = new GameObject("Strategy Building Upgrades");
-                upgrades = upgradesObject.AddComponent<StrategyBuildingUpgradeController>();
-            }
+            StrategyFogOfWarController fog = context.GetOrCreate<StrategyFogOfWarController>("Strategy Fog Of War");
+            StrategyBuildingUpgradeController upgrades = context.GetOrCreate<StrategyBuildingUpgradeController>("Strategy Building Upgrades");
 
             upgrades.Configure(map);
             StrategyDebugLogger.Info("Bootstrap", "UpgradesReady");
@@ -327,155 +219,81 @@ namespace ProjectUnknown.Strategy
                     starterFoodRations);
             }
 
-            ConfigureWorldChunks(map, population, mainCamera);
+            ConfigureWorldChunks(context, map, population, mainCamera);
             cinematicVisuals.RefreshSceneLightingNow();
             StrategyDebugLogger.Info("Bootstrap", "FogAndPlacementReady");
 
-            StrategyDebugPanelController debugPanel = Object.FindAnyObjectByType<StrategyDebugPanelController>();
-            if (debugPanel == null)
-            {
-                GameObject debugPanelObject = new GameObject("Strategy Debug Panel");
-                debugPanel = debugPanelObject.AddComponent<StrategyDebugPanelController>();
-            }
-
+            StrategyDebugPanelController debugPanel = context.GetOrCreate<StrategyDebugPanelController>("Strategy Debug Panel");
+            debugPanel.SetInputRouter(inputRouter);
             debugPanel.Configure(fog, weather);
             StrategyDebugLogger.Info("Bootstrap", "DebugPanelReady");
 
-            StrategySettlementTreasury treasury = Object.FindAnyObjectByType<StrategySettlementTreasury>();
-            if (treasury == null)
-            {
-                GameObject treasuryObject = new GameObject("Strategy Settlement Treasury");
-                treasury = treasuryObject.AddComponent<StrategySettlementTreasury>();
-            }
-
+            StrategySettlementTreasury treasury = context.GetOrCreate<StrategySettlementTreasury>("Strategy Settlement Treasury");
             treasury.Configure(0);
             StrategyDebugLogger.Info("Bootstrap", "TreasuryReady");
 
-            StrategyTradeCaravanController tradeCaravans = Object.FindAnyObjectByType<StrategyTradeCaravanController>();
-            if (tradeCaravans == null)
-            {
-                GameObject tradeCaravansObject = new GameObject("Strategy Trade Caravans");
-                tradeCaravans = tradeCaravansObject.AddComponent<StrategyTradeCaravanController>();
-            }
-
+            StrategyTradeCaravanController tradeCaravans = context.GetOrCreate<StrategyTradeCaravanController>("Strategy Trade Caravans");
             tradeCaravans.Configure(map);
             StrategyDebugLogger.Info("Bootstrap", "TradeCaravansReady");
 
-            StrategyWildlifeController wildlife = Object.FindAnyObjectByType<StrategyWildlifeController>();
-            if (wildlife == null)
-            {
-                GameObject wildlifeObject = new GameObject("Strategy Wildlife");
-                wildlife = wildlifeObject.AddComponent<StrategyWildlifeController>();
-            }
-
+            StrategyWildlifeController wildlife = context.GetOrCreate<StrategyWildlifeController>("Strategy Wildlife");
             wildlife.Configure(map, population, fog);
             StrategyDebugLogger.Info("Bootstrap", "WildlifeReady");
 
-            StrategySettlementFaunaController settlementFauna = Object.FindAnyObjectByType<StrategySettlementFaunaController>();
-            if (settlementFauna == null)
-            {
-                GameObject faunaObject = new GameObject("Strategy Settlement Fauna");
-                settlementFauna = faunaObject.AddComponent<StrategySettlementFaunaController>();
-            }
-
+            StrategySettlementFaunaController settlementFauna = context.GetOrCreate<StrategySettlementFaunaController>("Strategy Settlement Fauna");
             settlementFauna.Configure(map, population, fog, placement);
             StrategyDebugLogger.Info("Bootstrap", "SettlementFaunaReady");
             yield return null;
 
-            StrategyConfirmationDialogController confirmationDialog = Object.FindAnyObjectByType<StrategyConfirmationDialogController>();
-            if (confirmationDialog == null)
-            {
-                GameObject confirmationDialogObject = new GameObject("Strategy Confirmation Dialog");
-                confirmationDialog = confirmationDialogObject.AddComponent<StrategyConfirmationDialogController>();
-            }
-
+            StrategyConfirmationDialogController confirmationDialog = context.GetOrCreate<StrategyConfirmationDialogController>("Strategy Confirmation Dialog");
+            confirmationDialog.SetInputRouter(inputRouter);
             confirmationDialog.Configure();
 
-            StrategyWorldSelectionController selection = Object.FindAnyObjectByType<StrategyWorldSelectionController>();
-            if (selection == null)
-            {
-                GameObject selectionObject = new GameObject("Strategy World Selection");
-                selection = selectionObject.AddComponent<StrategyWorldSelectionController>();
-            }
-
+            StrategyWorldSelectionController selection = context.GetOrCreate<StrategyWorldSelectionController>("Strategy World Selection");
+            selection.SetInputRouter(inputRouter);
             selection.Configure(mainCamera, buildMenu, upgrades, fog, population, forestry, placement, confirmationDialog, map);
             StrategyDebugLogger.Info("Bootstrap", "SelectionReady");
 
-            StrategyAutoWorkforceController autoWorkforce = Object.FindAnyObjectByType<StrategyAutoWorkforceController>();
-            if (autoWorkforce == null)
-            {
-                GameObject autoWorkforceObject = new GameObject("Strategy Auto Workforce");
-                autoWorkforce = autoWorkforceObject.AddComponent<StrategyAutoWorkforceController>();
-            }
-
+            StrategyAutoWorkforceController autoWorkforce = context.GetOrCreate<StrategyAutoWorkforceController>("Strategy Auto Workforce");
             autoWorkforce.Configure(population);
             StrategyDebugLogger.Info("Bootstrap", "AutoWorkforceReady");
 
-            StrategyProfessionHudController professionHud = Object.FindAnyObjectByType<StrategyProfessionHudController>();
-            if (professionHud == null)
-            {
-                GameObject professionHudObject = new GameObject("Strategy Profession HUD");
-                professionHud = professionHudObject.AddComponent<StrategyProfessionHudController>();
-            }
-
+            StrategyProfessionHudController professionHud = context.GetOrCreate<StrategyProfessionHudController>("Strategy Profession HUD");
+            professionHud.SetInputRouter(inputRouter);
             professionHud.Configure(population, autoWorkforce);
             StrategyDebugLogger.Info("Bootstrap", "ProfessionHudReady");
 
-            StrategyPopulationRosterHudController populationRosterHud = Object.FindAnyObjectByType<StrategyPopulationRosterHudController>();
-            if (populationRosterHud == null)
-            {
-                GameObject populationRosterHudObject = new GameObject("Strategy Population Roster HUD");
-                populationRosterHud = populationRosterHudObject.AddComponent<StrategyPopulationRosterHudController>();
-            }
-
+            StrategyPopulationRosterHudController populationRosterHud = context.GetOrCreate<StrategyPopulationRosterHudController>("Strategy Population Roster HUD");
+            populationRosterHud.SetInputRouter(inputRouter);
             populationRosterHud.Configure(population);
+            StrategyFamilyTreeHudController familyTreeHud = context.GetOrCreate<StrategyFamilyTreeHudController>("Strategy Family Tree HUD");
+            familyTreeHud.SetInputRouter(inputRouter);
+            familyTreeHud.Configure(population, timeScale);
+            familyTreeHud.SetOpen(false);
+            populationRosterHud.SetFamilyTreeHud(familyTreeHud);
             StrategyDebugLogger.Info("Bootstrap", "PopulationRosterHudReady");
 
-            StrategyTopStatusHudController topStatusHud = Object.FindAnyObjectByType<StrategyTopStatusHudController>();
-            if (topStatusHud == null)
-            {
-                GameObject topStatusHudObject = new GameObject("Strategy Top Status HUD");
-                topStatusHud = topStatusHudObject.AddComponent<StrategyTopStatusHudController>();
-            }
-
+            StrategyTopStatusHudController topStatusHud = context.GetOrCreate<StrategyTopStatusHudController>("Strategy Top Status HUD");
             topStatusHud.Configure(population, populationRosterHud, dayNight);
             StrategyDebugLogger.Info("Bootstrap", "TopStatusHudReady");
 
-            StrategyEventLogHudController eventLogHud = Object.FindAnyObjectByType<StrategyEventLogHudController>();
-            if (eventLogHud == null)
-            {
-                GameObject eventLogHudObject = new GameObject("Strategy Event Log HUD");
-                eventLogHud = eventLogHudObject.AddComponent<StrategyEventLogHudController>();
-            }
-
+            StrategyEventLogHudController eventLogHud = context.GetOrCreate<StrategyEventLogHudController>("Strategy Event Log HUD");
             eventLogHud.Configure();
             StrategyDebugLogger.Info("Bootstrap", "EventLogHudReady");
 
-            ConfigureProgression(buildMenu, placement, population);
+            ConfigureProgression(context, buildMenu, placement, population);
 
-            StrategyRefugeeDialogController refugeeDialog = Object.FindAnyObjectByType<StrategyRefugeeDialogController>();
-            if (refugeeDialog == null)
-            {
-                GameObject refugeeDialogObject = new GameObject("Strategy Refugee Dialog");
-                refugeeDialog = refugeeDialogObject.AddComponent<StrategyRefugeeDialogController>();
-            }
-
+            StrategyRefugeeDialogController refugeeDialog = context.GetOrCreate<StrategyRefugeeDialogController>("Strategy Refugee Dialog");
+            refugeeDialog.SetInputRouter(inputRouter);
             refugeeDialog.Configure();
 
-            StrategyRefugeeArrivalController refugees = Object.FindAnyObjectByType<StrategyRefugeeArrivalController>();
-            if (refugees == null)
-            {
-                GameObject refugeesObject = new GameObject("Strategy Refugee Arrivals");
-                refugees = refugeesObject.AddComponent<StrategyRefugeeArrivalController>();
-            }
-
+            StrategyRefugeeArrivalController refugees = context.GetOrCreate<StrategyRefugeeArrivalController>("Strategy Refugee Arrivals");
             refugees.Configure(map, population, timeScale, refugeeDialog, fog);
             debugPanel.Configure(fog, weather, refugees);
             StrategyDebugLogger.Info("Bootstrap", "RefugeesReady");
 
-            ConfigurePerformanceDiagnostics(map, population, wildlife, weather, timeScale);
-            ConfigurePersistence(map, placement, population);
-            timeScale.PopPauseLock("Bootstrap");
+            ConfigurePerformanceDiagnostics(context, map, population, wildlife, weather, timeScale);
+            ConfigurePersistence(context, map, placement, population, inputRouter);
             StrategyDebugLogger.Info("Bootstrap", "Complete");
         }
 

@@ -139,6 +139,7 @@ namespace ProjectUnknown.Strategy
         private readonly List<Vector2Int> constructionWorkCellCandidates = new();
         private readonly StrategyResidentTaskState taskState = new();
         private readonly StrategyResidentTaskExecution taskExecution = new();
+        private readonly StrategyResidentHouseholdCookingTask householdCookingTask = new();
         private StrategyNavigationStatus lastPathBuildStatus = StrategyNavigationStatus.Invalid;
         private bool evaluatingPlannedTasks;
         private bool pathBuildDeferredDuringDecision;

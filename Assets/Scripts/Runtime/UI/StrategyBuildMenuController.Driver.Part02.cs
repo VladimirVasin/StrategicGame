@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
 
 namespace ProjectUnknown.Strategy
@@ -54,25 +52,6 @@ namespace ProjectUnknown.Strategy
         {
             HoverRelay relay = target.AddComponent<HoverRelay>();
             relay.OnHoverChanged = onHoverChanged;
-        }
-
-        private static bool WasPressed(UnityEngine.InputSystem.Controls.KeyControl key)
-        {
-            return key != null && key.wasPressedThisFrame;
-        }
-
-        private static int GetPressedNumber(Keyboard keyboard)
-        {
-            if (WasPressed(keyboard.digit1Key) || WasPressed(keyboard.numpad1Key)) return 1;
-            if (WasPressed(keyboard.digit2Key) || WasPressed(keyboard.numpad2Key)) return 2;
-            if (WasPressed(keyboard.digit3Key) || WasPressed(keyboard.numpad3Key)) return 3;
-            if (WasPressed(keyboard.digit4Key) || WasPressed(keyboard.numpad4Key)) return 4;
-            if (WasPressed(keyboard.digit5Key) || WasPressed(keyboard.numpad5Key)) return 5;
-            if (WasPressed(keyboard.digit6Key) || WasPressed(keyboard.numpad6Key)) return 6;
-            if (WasPressed(keyboard.digit7Key) || WasPressed(keyboard.numpad7Key)) return 7;
-            if (WasPressed(keyboard.digit8Key) || WasPressed(keyboard.numpad8Key)) return 8;
-            if (WasPressed(keyboard.digit9Key) || WasPressed(keyboard.numpad9Key)) return 9;
-            return 0;
         }
 
         private static float Smooth01(float t)

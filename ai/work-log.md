@@ -1,5 +1,30 @@
 # Work Log
 
+### 2026-07-13 - Tiered CI soak verification
+
+- Split CI soak coverage into a 45-game-second `QuickSoak` (3 in-game hours) for pull requests and `main`, plus the deterministic 720-game-second full soak (2 in-game days) for the nightly 01:23 UTC schedule, manual `workflow_dispatch`, `release`/`release/**` branches, and `v*` tags.
+- Kept quick and full evidence separate in `Logs/QuickSoakSmoke.txt` and `Logs/SoakSmoke.txt`.
+- Fast PR/main concurrency cancels stale superseded runs, while full-soak concurrency never cancels an in-progress evidence run.
+- Verification: static gates PASS; `Assembly-CSharp`, `Assembly-CSharp-Editor`, `ProjectUnknown.Runtime`, `ProjectUnknown.Editor`, and `ProjectUnknown.EditModeTests` built sequentially with 0 warnings and 0 errors; an isolated clean-project `QuickSoak` passed seed 74123 at 901 frames / 45.0 game seconds with 10-10 residents, maximum navigation pending 1, 0 Unity errors, 11,599,126-byte final growth, and 11,922,888-byte peak growth under the 134,217,728-byte budget.
+
+### 2026-07-13 - Full technical-polish pass
+
+- Added local/CI technical gates for strict UTF-8, `.meta` coverage, the 500-line C# limit, centralized-input ownership, asmdef/package/project parity, sequential C# builds, fresh Unity NUnit results, Play Mode smokes, and a deterministic soak.
+- Split remaining oversized terrain/wildlife/build/selection/UI sources and kept every C# file at or below 500 lines.
+- Hardened logistics reachability and retry behavior so deferred/unreachable pickup/dropoff paths do not create reservation/rejection loops.
+- Added resident characterization tests, made planned task kind/order authoritative, and extracted task-arrival plus household-cooking orchestration from the resident agent.
+- Upgraded persistence to save version 2 with v1 migration, a 32 MiB file guard, bounded top-level/resident-child/prepared-dish validation, atomic temp replacement, `.bak` recovery, and dedicated tests.
+- Added `StrategyGameContext` with typed scene services and explicit Created/Configuring/Ready/Failed/Disposed lifecycle; bootstrap failure/cancellation, preload transfer, scene unload, return-to-menu, forage static state, and pause ownership now clean up explicitly.
+- Centralized all runtime controls in `StrategyInputRouter`, introduced scoped modal input contexts, preserved the canonical UI map contract, and guaranteed one shared Input System UI module per scene; direct runtime device polling was removed.
+- Isolated Runtime, Editor tooling, and EditMode tests into `ProjectUnknown.Runtime`, `ProjectUnknown.Editor`, and `ProjectUnknown.EditModeTests` assembly definitions.
+- Added fixed Profiler markers for navigation/A*, resident task selection, AutoWorkforce, cinematic-light work, and terrain painting; added an invariant-driven fixed-seed two-game-day soak.
+- Moved normal menu and direct bootstrap map preparation to cancellable worker painting, reused kind/water classification during relief, and cached one painter context per tile; final menu/direct map preparation measured 2578/2317 ms versus the former roughly 11-second synchronous path.
+- Limited menu warming to starter visuals plus short HUD/footstep clips, kept Music on Streaming and Nature on Compressed In Memory owner loads, and verified the named AudioMixer hierarchy/import profiles.
+- Added wall-clock progress/stall watchdogs, narrow unexpected-Unity-error capture, explicit-seed and procedural/production-16px terrain golden checks, refugee-modal input-context exercise, and final/peak 128 MiB soak memory gates.
+- Added 8 MiB debug-log rotation with three retained archives and UTC/PID fallback files, plus six file/retention/lock tests.
+- Removed ten unused direct Unity packages and the orphaned 2D Common dependency; manifest/lock reachability and shadow project references are clean.
+- Verification: static gates passed; `Assembly-CSharp`, `Assembly-CSharp-Editor`, `ProjectUnknown.Runtime`, `ProjectUnknown.Editor`, and `ProjectUnknown.EditModeTests` built sequentially with 0 warnings and 0 errors; Unity EditMode passed 54/54; MainMenu, MainMenuLaunch, and direct PlayMode smokes passed; the fixed-seed 720-game-second soak passed 14,401 frames with 10-10 residents, max navigation pending 2, one refugee dialog resolved, 0 Unity errors, 21,187,285-byte final growth, and 21,224,286-byte peak growth under the 134,217,728-byte budget. The open main Unity Editor log has no recent C# compilation errors.
+
 ### 2026-07-13 - Reachable building access for logistics
 
 - Added resident-side building-access selection that checks every walkable perimeter cell instead of accepting one arbitrary dropoff cell, then builds the real movement path to the first reachable entrance.

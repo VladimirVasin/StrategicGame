@@ -140,7 +140,7 @@ namespace ProjectUnknown.Strategy
                 && !synchronousFallbackStarted)
             {
                 synchronousFallbackStarted = true;
-                preparedMap.GenerateMap();
+                preparedMap.GenerateMap(candidateSeed);
             }
 
             if (!launchRequested || sceneLoadOperation != null || !IsMapReady)
@@ -219,13 +219,55 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            TryTransferPreparedMap(scene, out _);
             SceneManager.sceneLoaded -= HandleSceneLoaded;
             Destroy(gameObject);
+        }
+
+        public bool TryTransferPreparedMap(Scene targetScene, out CityMapController map)
+        {
+            map = null;
+            if (preparedMap == null
+                || !targetScene.IsValid()
+                || !targetScene.isLoaded)
+            {
+                return false;
+            }
+
+            if (mapGenerationRoutine != null)
+            {
+                StopCoroutine(mapGenerationRoutine);
+                mapGenerationRoutine = null;
+            }
+
+            map = preparedMap;
+            preparedMap = null;
+            SceneManager.MoveGameObjectToScene(map.gameObject, targetScene);
+            map.SetPresentationVisible(true);
+            StrategyDebugLogger.Info(
+                "Menu",
+                "PreloadedMapTransferred",
+                StrategyDebugLogger.F("seed", map.ActiveSeed),
+                StrategyDebugLogger.F("scene", targetScene.name));
+            return true;
         }
 
         private void OnDestroy()
         {
             SceneManager.sceneLoaded -= HandleSceneLoaded;
+            if (mapGenerationRoutine != null)
+            {
+                StopCoroutine(mapGenerationRoutine);
+                mapGenerationRoutine = null;
+            }
+
+            if (preparedMap != null)
+            {
+                preparedMap.CancelIncrementalGeneration();
+                Destroy(preparedMap.gameObject);
+                preparedMap = null;
+            }
+
             if (Active == this)
             {
                 Active = null;

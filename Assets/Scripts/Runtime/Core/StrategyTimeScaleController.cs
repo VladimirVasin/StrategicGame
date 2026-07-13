@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace ProjectUnknown.Strategy
 {
@@ -12,9 +11,15 @@ namespace ProjectUnknown.Strategy
 
         private float baseFixedDeltaTime;
         private int pauseLockCount;
+        private StrategyInputRouter inputRouter;
 
         public float CurrentScale { get; private set; } = NormalScale;
         public bool IsPausedByLock => pauseLockCount > 0;
+
+        public void SetInputRouter(StrategyInputRouter router)
+        {
+            inputRouter = router;
+        }
 
         public void Configure()
         {
@@ -32,21 +37,20 @@ namespace ProjectUnknown.Strategy
 
         private void Update()
         {
-            Keyboard keyboard = Keyboard.current;
-            if (keyboard == null)
+            if (inputRouter == null)
             {
                 return;
             }
 
-            if (keyboard.f1Key.wasPressedThisFrame)
+            if (inputRouter.GlobalSpeed1Pressed)
             {
                 SetRequestedScale(NormalScale);
             }
-            else if (keyboard.f2Key.wasPressedThisFrame)
+            else if (inputRouter.GlobalSpeed2Pressed)
             {
                 SetRequestedScale(DoubleScale);
             }
-            else if (keyboard.f3Key.wasPressedThisFrame)
+            else if (inputRouter.GlobalSpeed3Pressed)
             {
                 SetRequestedScale(TripleScale);
             }

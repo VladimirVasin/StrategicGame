@@ -21,6 +21,7 @@ namespace ProjectUnknown.Strategy
         public void SetAllowedTools(IEnumerable<StrategyBuildTool> tools) => Driver.SetAllowedTools(tools);
         public void ClearAllowedTools() => Driver.ClearAllowedTools();
         public bool IsToolAllowed(StrategyBuildTool tool) => Driver.IsToolAllowedForBuild(tool);
+        public void SetInputRouter(StrategyInputRouter router) => Driver.SetInputRouter(router);
 
         private StrategyBuildMenuControllerDriver Driver
         {
@@ -44,6 +45,11 @@ namespace ProjectUnknown.Strategy
         private void Update()
         {
             driver?.Tick();
+        }
+
+        private void OnDisable()
+        {
+            driver?.ReleaseInputContext();
         }
     }
 }

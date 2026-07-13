@@ -4,6 +4,7 @@ namespace ProjectUnknown.Strategy
     {
         private void ConfigureTaskExecution()
         {
+            taskExecution.Reset();
             taskExecution.Register(
                 ResidentActivity.LightingNightLight,
                 StrategyResidentTaskExecutionPhase.BeforeHomeSchedule,
@@ -95,11 +96,20 @@ namespace ProjectUnknown.Strategy
             taskExecution.RegisterPlannedTask(StrategyResidentTaskKind.Construction, TryStartConstructionTask);
             taskExecution.RegisterPlannedTask(StrategyResidentTaskKind.Hunting, TryStartHunterTask);
             taskExecution.RegisterPlannedTask(StrategyResidentTaskKind.Fishing, TryStartFisherTask);
+            ConfigureTaskArrivalExecution();
         }
 
         private void RegisterNormalTask(ResidentActivity activity, System.Action handler)
         {
             taskExecution.Register(activity, StrategyResidentTaskExecutionPhase.Normal, handler);
+        }
+
+        private void RegisterTaskArrival(ResidentActivity activity, System.Action handler)
+        {
+            taskExecution.Register(
+                activity,
+                StrategyResidentTaskExecutionPhase.PathCompleted,
+                handler);
         }
     }
 }

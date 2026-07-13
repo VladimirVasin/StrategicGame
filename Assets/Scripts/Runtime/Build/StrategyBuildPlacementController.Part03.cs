@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
 
 namespace ProjectUnknown.Strategy
 {
@@ -232,13 +231,12 @@ namespace ProjectUnknown.Strategy
         private bool TryGetMouseWorld(out Vector3 world)
         {
             world = default;
-            Mouse mouse = Mouse.current;
-            if (mouse == null || IsPointerOverUi())
+            if (inputRouter == null || !inputRouter.CameraHasPointer || IsPointerOverUi())
             {
                 return false;
             }
 
-            Vector2 screen = mouse.position.ReadValue();
+            Vector2 screen = inputRouter.CameraPointerPosition;
             if (screen.x < 0f || screen.y < 0f || screen.x > Screen.width || screen.y > Screen.height)
             {
                 return false;

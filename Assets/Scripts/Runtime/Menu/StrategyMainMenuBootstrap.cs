@@ -5,10 +5,33 @@ namespace ProjectUnknown.Strategy
 {
     public static class StrategyMainMenuBootstrap
     {
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetSceneHook()
+        {
+            SceneManager.sceneLoaded -= HandleSceneLoaded;
+        }
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void InstallSceneHook()
+        {
+            SceneManager.sceneLoaded -= HandleSceneLoaded;
+            SceneManager.sceneLoaded += HandleSceneLoaded;
+        }
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void BootstrapMenu()
         {
-            if (!StrategySceneCatalog.IsMainMenuScene(SceneManager.GetActiveScene()))
+            BootstrapMenu(SceneManager.GetActiveScene());
+        }
+
+        private static void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            BootstrapMenu(scene);
+        }
+
+        private static void BootstrapMenu(Scene scene)
+        {
+            if (!StrategySceneCatalog.IsMainMenuScene(scene))
             {
                 return;
             }
@@ -37,6 +60,15 @@ namespace ProjectUnknown.Strategy
             menuCamera.backgroundColor = new Color(0.025f, 0.04f, 0.035f);
             menuCamera.transform.position = new Vector3(0f, 0f, -10f);
 
+            StrategyInputRouter inputRouter = Object.FindAnyObjectByType<StrategyInputRouter>();
+            if (inputRouter == null)
+            {
+                inputRouter = new GameObject("Strategy Input Router").AddComponent<StrategyInputRouter>();
+            }
+
+            inputRouter.Configure();
+            StrategyUiInputModuleBootstrap.Ensure();
+
             StrategyMainMenuBackdrop backdrop = Object.FindAnyObjectByType<StrategyMainMenuBackdrop>();
             if (backdrop == null)
             {
@@ -59,6 +91,7 @@ namespace ProjectUnknown.Strategy
                 menu = new GameObject("Strategy Main Menu").AddComponent<StrategyMainMenuController>();
             }
 
+            menu.SetInputRouter(inputRouter);
             menu.Configure(preloader, menuCamera);
             StrategyDebugLogger.Info("Menu", "Interactive");
         }

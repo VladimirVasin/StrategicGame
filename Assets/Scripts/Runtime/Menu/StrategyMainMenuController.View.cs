@@ -1,6 +1,4 @@
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
 
 namespace ProjectUnknown.Strategy
@@ -267,22 +265,7 @@ namespace ProjectUnknown.Strategy
 
         private static void EnsureEventSystem()
         {
-            EventSystem eventSystem = Object.FindAnyObjectByType<EventSystem>();
-            if (eventSystem == null)
-            {
-                eventSystem = new GameObject("EventSystem", typeof(EventSystem)).GetComponent<EventSystem>();
-            }
-
-            StandaloneInputModule legacy = eventSystem.GetComponent<StandaloneInputModule>();
-            if (legacy != null)
-            {
-                Object.Destroy(legacy);
-            }
-
-            if (eventSystem.GetComponent<InputSystemUIInputModule>() == null)
-            {
-                eventSystem.gameObject.AddComponent<InputSystemUIInputModule>();
-            }
+            StrategyUiInputModuleBootstrap.Ensure();
         }
     }
 }

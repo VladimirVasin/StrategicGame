@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace ProjectUnknown.Strategy
@@ -150,45 +149,6 @@ namespace ProjectUnknown.Strategy
             EnsureInspectHud();
         }
 
-        private void Update()
-        {
-            if (strategyCamera == null)
-            {
-                return;
-            }
-
-            HandleDeleteInput();
-            HandleSelectionInput();
-            UpdateHudAnimation();
-        }
-
-        private void HandleDeleteInput()
-        {
-            Keyboard keyboard = Keyboard.current;
-            if (keyboard == null
-                || !keyboard.deleteKey.wasPressedThisFrame
-                || selectedTransform == null
-                || placementController == null
-                || confirmationDialog == null
-                || confirmationDialog.IsOpen)
-            {
-                return;
-            }
-
-            StrategyConstructionSite constructionSite = selectedTransform.GetComponent<StrategyConstructionSite>();
-            if (constructionSite != null)
-            {
-                RequestConstructionCancel(constructionSite);
-                return;
-            }
-
-            StrategyPlacedBuilding building = selectedTransform.GetComponent<StrategyPlacedBuilding>();
-            if (building != null)
-            {
-                RequestBuildingDemolition(building);
-            }
-        }
-
         private void RequestConstructionCancel(StrategyConstructionSite site)
         {
             if (site == null)
@@ -240,40 +200,6 @@ namespace ProjectUnknown.Strategy
                         ClearSelection();
                     }
                 });
-        }
-
-        private void HandleSelectionInput()
-        {
-            Mouse mouse = Mouse.current;
-            if (mouse == null || !mouse.leftButton.wasPressedThisFrame || IsPointerOverUi())
-            {
-                return;
-            }
-
-            if (buildMenu != null && buildMenu.LastPlacementFrame == Time.frameCount)
-            {
-                return;
-            }
-
-            if (buildMenu != null && buildMenu.ActiveTool != StrategyBuildTool.None)
-            {
-                return;
-            }
-
-            Vector2 screen = mouse.position.ReadValue();
-            Vector3 world = strategyCamera.ScreenToWorldPoint(new Vector3(screen.x, screen.y, Mathf.Abs(strategyCamera.transform.position.z)));
-            if (fog != null && !fog.IsWorldExplored(world))
-            {
-                ClearSelection();
-                inspectHud?.Hide();
-                return;
-            }
-
-            Physics2D.SyncTransforms();
-
-            Collider2D[] hits = Physics2D.OverlapPointAll(new Vector2(world.x, world.y));
-            UpdateInspectHud(world, hits);
-            SelectBestHit(hits);
         }
 
         private void SelectBestHit(Collider2D[] hits)

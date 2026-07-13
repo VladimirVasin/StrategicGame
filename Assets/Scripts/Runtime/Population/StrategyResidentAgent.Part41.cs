@@ -42,12 +42,19 @@ namespace ProjectUnknown.Strategy
 
             pathBuildDeferredDuringDecision = false;
             evaluatingPlannedTasks = true;
-            bool started = taskExecution.TryStartPlannedTask(() => pathBuildDeferredDuringDecision);
+            bool started = taskExecution.TryStartPlannedTask(
+                () => pathBuildDeferredDuringDecision,
+                out StrategyResidentTaskKind startedKind);
             evaluatingPlannedTasks = false;
             if (pathBuildDeferredDuringDecision)
             {
                 waitTimer = Random.Range(0.18f, 0.38f);
                 return true;
+            }
+
+            if (started)
+            {
+                taskState.BeginPlannedTask(startedKind);
             }
 
             return started;

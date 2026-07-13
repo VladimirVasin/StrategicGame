@@ -4,15 +4,9 @@ namespace ProjectUnknown.Strategy
 {
     public static partial class StrategyGameBootstrap
     {
-        private static void ConfigureNavigation(CityMapController map)
+        private static void ConfigureNavigation(StrategyGameContext context, CityMapController map)
         {
-            StrategyNavigationService navigation = Object.FindAnyObjectByType<StrategyNavigationService>();
-            if (navigation == null)
-            {
-                GameObject navigationObject = new GameObject("Strategy Navigation");
-                navigation = navigationObject.AddComponent<StrategyNavigationService>();
-            }
-
+            StrategyNavigationService navigation = context.GetOrCreate<StrategyNavigationService>("Strategy Navigation");
             navigation.Configure(map);
             StrategyDebugLogger.Info("Bootstrap", "NavigationReady");
         }

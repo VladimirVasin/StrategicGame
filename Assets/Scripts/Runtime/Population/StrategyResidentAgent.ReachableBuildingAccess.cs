@@ -9,6 +9,9 @@ namespace ProjectUnknown.Strategy
 
         private readonly Dictionary<EntityId, BuildingAccessFailure> buildingAccessFailures = new();
 
+        private bool ShouldStopStorageTaskSelection =>
+            pathBuildDeferredDuringDecision || logisticsWorkCooldown > 0f;
+
         public bool CanReachBuildingForReservation(Component source)
         {
             return TryFindReachableBuildingAccess(source, false, out _);
@@ -27,12 +30,14 @@ namespace ProjectUnknown.Strategy
             accessCell = default;
             if (map == null || source == null)
             {
+                lastPathBuildStatus = StrategyNavigationStatus.Invalid;
                 return false;
             }
 
             StrategyPlacedBuilding building = source.GetComponent<StrategyPlacedBuilding>();
             if (building == null)
             {
+                lastPathBuildStatus = StrategyNavigationStatus.Invalid;
                 return false;
             }
 
@@ -41,6 +46,7 @@ namespace ProjectUnknown.Strategy
             {
                 if (failure.WalkabilityVersion == map.WalkabilityVersion && Time.time < failure.RetryTime)
                 {
+                    lastPathBuildStatus = StrategyNavigationStatus.Unreachable;
                     return false;
                 }
 
@@ -84,6 +90,7 @@ namespace ProjectUnknown.Strategy
                         }
 
                         buildingAccessFailures.Remove(key);
+                        lastPathBuildStatus = StrategyNavigationStatus.Success;
                         accessCell = candidate;
                         return true;
                     }
@@ -92,6 +99,7 @@ namespace ProjectUnknown.Strategy
 
             if (!WasLastPathBuildDeferred)
             {
+                lastPathBuildStatus = StrategyNavigationStatus.Unreachable;
                 buildingAccessFailures[key] = new BuildingAccessFailure(
                     map.WalkabilityVersion,
                     Time.time + UnreachableBuildingAccessCooldownSeconds);

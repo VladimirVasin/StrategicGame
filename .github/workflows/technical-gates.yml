@@ -1,0 +1,74 @@
+name: Technical Gates
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '23 1 * * *'
+  pull_request:
+  push:
+    branches:
+      - main
+      - release
+      - 'release/**'
+    tags:
+      - 'v*'
+
+concurrency:
+  group: technical-gates-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main') }}
+
+jobs:
+  verify:
+    runs-on: [self-hosted, Windows, X64, unity]
+    timeout-minutes: 150
+    env:
+      RUN_FULL_SOAK: >-
+        ${{ github.event_name == 'schedule' ||
+            github.event_name == 'workflow_dispatch' ||
+            github.ref == 'refs/heads/release' ||
+            startsWith(github.ref, 'refs/heads/release/') ||
+            startsWith(github.ref, 'refs/tags/v') }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+      - name: Static gates
+        shell: pwsh
+        timeout-minutes: 5
+        run: ./Tools/Verification/Invoke-TechnicalGates.ps1 -SkipBuild
+      - name: Unity Edit Mode verification
+        shell: pwsh
+        timeout-minutes: 20
+        run: ./Tools/Verification/Invoke-UnityVerification.ps1 -Kind EditMode
+      - name: C# builds
+        shell: pwsh
+        timeout-minutes: 10
+        run: ./Tools/Verification/Invoke-TechnicalGates.ps1
+      - name: Main-menu smoke
+        shell: pwsh
+        timeout-minutes: 15
+        run: ./Tools/Verification/Invoke-UnityVerification.ps1 -Kind MainMenu
+      - name: Main-menu launch smoke
+        shell: pwsh
+        timeout-minutes: 20
+        run: ./Tools/Verification/Invoke-UnityVerification.ps1 -Kind MainMenuLaunch
+      - name: Gameplay smoke
+        shell: pwsh
+        timeout-minutes: 20
+        run: ./Tools/Verification/Invoke-UnityVerification.ps1 -Kind PlayMode
+      - name: Quick gameplay soak
+        if: env.RUN_FULL_SOAK != 'true'
+        shell: pwsh
+        timeout-minutes: 15
+        run: ./Tools/Verification/Invoke-UnityVerification.ps1 -Kind QuickSoak
+      - name: Full gameplay soak
+        if: env.RUN_FULL_SOAK == 'true'
+        shell: pwsh
+        timeout-minutes: 40
+        run: ./Tools/Verification/Invoke-UnityVerification.ps1 -Kind Soak
+      - name: Upload verification logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unity-verification-logs
+          path: Logs/

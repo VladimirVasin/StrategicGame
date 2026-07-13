@@ -1,7 +1,4 @@
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
 
 namespace ProjectUnknown.Strategy
@@ -35,18 +32,19 @@ namespace ProjectUnknown.Strategy
                 || panelRoot == null
                 || viewportRoot == null
                 || contentRoot == null
-                || Mouse.current == null)
+                || inputRouter == null
+                || !inputRouter.CameraHasPointer)
             {
                 return;
             }
 
-            Vector2 pointer = Mouse.current.position.ReadValue();
+            Vector2 pointer = inputRouter.CameraPointerPosition;
             if (!RectTransformUtility.RectangleContainsScreenPoint(panelRoot, pointer))
             {
                 return;
             }
 
-            float wheel = Mouse.current.scroll.ReadValue().y;
+            float wheel = inputRouter.CameraScroll.y;
             if (Mathf.Abs(wheel) <= 0.01f)
             {
                 return;
@@ -65,29 +63,7 @@ namespace ProjectUnknown.Strategy
 
         private static void EnsureEventSystem()
         {
-            EventSystem eventSystem = EventSystem.current;
-            if (eventSystem == null)
-            {
-                GameObject eventSystemObject = new GameObject("EventSystem", typeof(EventSystem));
-                eventSystem = eventSystemObject.GetComponent<EventSystem>();
-            }
-
-            StandaloneInputModule standalone = eventSystem.GetComponent<StandaloneInputModule>();
-            if (standalone != null)
-            {
-                UnityEngine.Object.Destroy(standalone);
-            }
-
-            InputSystemUIInputModule inputModule = eventSystem.GetComponent<InputSystemUIInputModule>();
-            if (inputModule == null)
-            {
-                inputModule = eventSystem.gameObject.AddComponent<InputSystemUIInputModule>();
-            }
-
-            if (inputModule.actionsAsset == null)
-            {
-                inputModule.AssignDefaultActions();
-            }
+            StrategyUiInputModuleBootstrap.Ensure();
         }
 
         private static Text CreateText(string name, Transform parent, string value, int size, TextAnchor anchor, Color color)

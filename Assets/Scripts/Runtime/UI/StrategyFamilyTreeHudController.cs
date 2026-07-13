@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace ProjectUnknown.Strategy
@@ -50,6 +49,16 @@ namespace ProjectUnknown.Strategy
         private bool initialized;
         private bool isOpen;
         private bool pausePushed;
+        private StrategyInputRouter inputRouter;
+        private StrategyInputContextHandle inputContext;
+
+        public void SetInputRouter(StrategyInputRouter router)
+        {
+            inputContext?.Dispose();
+            inputContext = null;
+            inputRouter = router;
+            RefreshInputContext();
+        }
 
         public void Configure(StrategyPopulationController populationController, StrategyTimeScaleController timeScaleController)
         {
@@ -76,6 +85,7 @@ namespace ProjectUnknown.Strategy
 
             bool changed = isOpen != open;
             isOpen = open;
+            RefreshInputContext();
             panel.gameObject.SetActive(open);
 
             if (open)
@@ -102,19 +112,40 @@ namespace ProjectUnknown.Strategy
 
         private void OnDisable()
         {
+            inputContext?.Dispose();
+            inputContext = null;
             ReleasePause();
         }
 
         private void Update()
         {
+            RefreshInputContext();
             if (!isOpen)
             {
                 return;
             }
 
-            if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
+            if (inputRouter != null && inputRouter.TryConsumeCancel(this))
             {
                 SetOpen(false);
+            }
+        }
+
+        private void RefreshInputContext()
+        {
+            if (!isOpen || inputRouter == null || !inputRouter.IsAvailable)
+            {
+                inputContext?.Dispose();
+                inputContext = null;
+                return;
+            }
+
+            if (inputContext == null || inputContext.IsDisposed)
+            {
+                inputContext = inputRouter.PushContext(
+                    this,
+                    StrategyInputChannel.All,
+                    StrategyCancelMode.Close);
             }
         }
 

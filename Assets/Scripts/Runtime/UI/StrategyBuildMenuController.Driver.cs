@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
 
 namespace ProjectUnknown.Strategy
@@ -149,8 +147,10 @@ namespace ProjectUnknown.Strategy
         public void Tick()
         {
             Initialize();
+            RefreshInputContext();
             HandleHotkeys();
             HandlePointerDismissal();
+            RefreshInputContext();
             UpdateAnimation();
 
             if (TryRefreshBuildHud())
@@ -175,21 +175,6 @@ namespace ProjectUnknown.Strategy
 
             isDirty = true;
             StrategyHudSfxAudio.Play(StrategyHudSfxKind.Open);
-        }
-
-        private void HandlePointerDismissal()
-        {
-            Mouse mouse = Mouse.current;
-            if (!isOpen
-                || mouse == null
-                || !mouse.leftButton.wasPressedThisFrame
-                || IsPointerOverBuildUi()
-                || ActiveTool != StrategyBuildTool.None)
-            {
-                return;
-            }
-
-            CloseAll();
         }
 
         private void SelectCategory(CategoryUi category, bool allowToggle)
@@ -318,57 +303,6 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("cost", item.Cost),
                 StrategyDebugLogger.F("available", StrategyStorageYard.GetTotalConstructionResources()));
             isDirty = true;
-        }
-
-        private void HandleHotkeys()
-        {
-            Keyboard keyboard = Keyboard.current;
-            if (keyboard == null)
-            {
-                return;
-            }
-
-            if (WasPressed(keyboard.bKey))
-            {
-                ToggleOpen();
-                return;
-            }
-
-            if (!isOpen)
-            {
-                return;
-            }
-
-            if (WasPressed(keyboard.escapeKey))
-            {
-                CancelOneLayer();
-                return;
-            }
-
-            Mouse mouse = Mouse.current;
-            if (mouse != null && mouse.rightButton.wasPressedThisFrame && IsPointerOverBuildUi())
-            {
-                CancelOneLayer();
-                return;
-            }
-
-            int number = GetPressedNumber(keyboard);
-            if (number <= 0)
-            {
-                return;
-            }
-
-            if (selectedCategoryIndex >= 0 && TryActivateItemHotkey(number))
-            {
-                return;
-            }
-
-            if (selectedCategoryIndex >= 0 && TrySelectSubcategoryHotkey(number))
-            {
-                return;
-            }
-
-            TrySelectCategoryHotkey(number);
         }
 
         private void CancelOneLayer()

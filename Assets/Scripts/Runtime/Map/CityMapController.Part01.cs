@@ -190,10 +190,7 @@ namespace ProjectUnknown.Strategy
 
         private void ApplyTexturePixels(Color32[] pixels, int textureWidth, int textureHeight)
         {
-            if (mapTexture != null)
-            {
-                Destroy(mapTexture);
-            }
+            ReleaseGeneratedVisuals();
 
             mapTexture = new Texture2D(textureWidth, textureHeight, TextureFormat.RGBA32, false)
             {
@@ -230,10 +227,41 @@ namespace ProjectUnknown.Strategy
         private void OnDestroy()
         {
             CancelIncrementalGeneration();
+            ReleaseGeneratedVisuals();
+        }
+
+        private void ReleaseGeneratedVisuals()
+        {
+            if (spriteRenderer != null
+                && spriteRenderer.sprite != null
+                && spriteRenderer.sprite.name == "Generated City Map Sprite")
+            {
+                Sprite generatedSprite = spriteRenderer.sprite;
+                spriteRenderer.sprite = null;
+                DestroyGeneratedObject(generatedSprite);
+            }
+
             if (mapTexture != null)
             {
-                Destroy(mapTexture);
+                DestroyGeneratedObject(mapTexture);
                 mapTexture = null;
+            }
+        }
+
+        private static void DestroyGeneratedObject(Object target)
+        {
+            if (target == null)
+            {
+                return;
+            }
+
+            if (Application.isPlaying)
+            {
+                Destroy(target);
+            }
+            else
+            {
+                DestroyImmediate(target);
             }
         }
 
@@ -257,6 +285,11 @@ namespace ProjectUnknown.Strategy
             }
 
             return Mathf.Max(1, seed);
+        }
+
+        internal int ResolveBootstrapSeed()
+        {
+            return activeSeed > 0 ? activeSeed : ResolveActiveSeed();
         }
 
         private MapGenerationProfile CreateGenerationProfile(int generationSeed)

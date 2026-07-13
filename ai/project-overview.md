@@ -1,12 +1,12 @@
 # Project Overview
 
-Last updated: 2026-07-12
+Last updated: 2026-07-13
 
 ## Identity
 
 - Project name: `ProjectUnknown`
 - Engine: Unity
-- Unity Editor version: `6000.5.2f1`
+- Unity Editor version: `6000.5.3f1`
 - Current baseline: playable runtime-generated settlement simulation with a First Winter vertical slice
 
 ## Current Shape
@@ -17,7 +17,9 @@ Last updated: 2026-07-12
   Runtime C# scripts for the strategy foundation, navigation, map, economy, population, seasons, persistence, audio, and UI.
   Runtime `.cs` files must stay at or below 500 lines; oversized classes are split into same-owner `.PartNN.cs` partial files or extracted when a real service/type boundary exists.
 - `Assets/Editor/`
-  Deterministic Edit Mode verification and a real Play Mode bootstrap smoke runner.
+  Editor-only verification runners and Unity tooling.
+- `Assets/Tests/EditMode/`
+  NUnit characterization, save, input, lifecycle, logging, and verification tests in a dedicated test assembly.
 - `Assets/Resources/Audio/`
   Runtime-loadable non-generated ambience, footstep, and in-game music audio.
 - `Assets/Resources/Visual/`
@@ -25,11 +27,11 @@ Last updated: 2026-07-12
 - `Assets/Resources/Fonts/`
   Licensed Inter runtime UI font and its OFL license.
 - `Assets/Scenes/MainMenu.unity`
-  Build-index-0 intro menu scene with generated animated pixel-art key art and background map preparation.
+  Build-index-0 intro menu scene with generated static pixel-art key art and background map preparation.
 - `Assets/Scenes/SampleScene.unity`
   Gameplay settlement scene.
 - `Assets/InputSystem_Actions.inputactions`
-  Default Input System action asset.
+  Canonical Global/Camera/Gameplay/Build/Debug/UI action maps used by the centralized input router.
 - `Assets/Settings/`
   URP 2D renderer, URP pipeline asset, and template scene settings.
 - `Assets/DefaultVolumeProfile.asset`
@@ -38,6 +40,8 @@ Last updated: 2026-07-12
   Unity package dependencies.
 - `ProjectSettings/`
   Unity project settings and editor version.
+- `Tools/Verification/`, `.github/workflows/technical-gates.yml`
+  Local/CI static gates, sequential C# builds, Unity tests, smoke checks, and tiered deterministic soak entry points.
 - `AI.md`, `AGENTS.md`, `ai/`
   AI collaboration and memory infrastructure.
 
@@ -54,26 +58,28 @@ Confirmed from `Packages/manifest.json`:
 
 - Universal Render Pipeline: `com.unity.render-pipelines.universal` `17.5.0`
 - Input System: `com.unity.inputsystem` `1.19.0`
-- 2D package set: animation, Aseprite import, PSD import, sprites, SpriteShape, tilemap, tilemap extras, tooling
-- UI: `com.unity.ugui` `2.0.0`
-- Visual Scripting: `com.unity.visualscripting` `1.9.11`
+- 2D editor foundations retained for sprites and tilemaps; unused animation/import/SpriteShape/tooling packages were removed
+- UI: `com.unity.ugui` `2.5.0`
 - Test Framework: `com.unity.test-framework` `1.7.0`
 
 ## Implemented Gameplay
 
 - Application startup opens a full-screen intro menu with Continue/New Settlement/Settings/Quit, one dedicated static generated pixel-art key image, animated pointer/selection button hover, persistent audio/display settings, save-aware status, and actual map/content preload progress. Menu music stays disabled while HUD SFX remain available. The menu prepares one deterministic map candidate and transfers it into gameplay so `SampleScene` skips duplicate terrain generation.
-- Runtime bootstrap creates the first MVP strategy scene layer on play, holds a temporary simulation pause, and spreads deterministic full-map nature creation across bounded frame batches before releasing gameplay; it includes a Unity `WindZone`-backed strategy wind source, runtime Stone/Iron/Coal/Clay resource registries, runtime weather, and runtime ambience audio.
+- Runtime bootstrap creates the first MVP strategy scene layer inside a scene-local `StrategyGameContext`, exposes explicit Created/Configuring/Ready/Failed/Disposed lifecycle state, holds a temporary simulation pause, and spreads deterministic full-map nature creation across bounded frame batches before releasing gameplay; it includes a Unity `WindZone`-backed strategy wind source, runtime Stone/Iron/Coal/Clay resource registries, runtime weather, and runtime ambience audio.
 - Runtime rendering includes catalog-first authored sprites for terrain/buildings/residents/nature/roads/work/stock with procedural fallback, gridless macro-varied terrain, building ground detail, calendar-aware day/night, pooled weather and spring/autumn details, coherent snow/ice/building caps, seasonal vegetation palettes, URP post-processing, LOD-capped lights, emissive masks, a cached nighttime darkness mask, wet puddles, lightning, subtle event camera feedback, foreground depth props, shared shadows, and reusable world effects.
 - Runtime fog of war tracks persistent explored cells separately from current visibility; camp, residents, and placed buildings reveal less during Dusk/Night/Dawn and even less during dense Fog weather, explored-but-not-visible cells become darker at night or turn into layered weather fog around visible zones, and wildlife spawn checks use a daylight-range visibility mask so temporary darkness does not create extra near-settlement spawn openings.
 - Runtime debug panel opens with F9 and provides a player-fog bypass checkbox plus forced weather-state buttons for Clear, Cloudy, Light Rain, Heavy Rain, Fog, Storm, Snow, and Blizzard.
-- Runtime debug logging writes structured gameplay diagnostics to `debug.log`, including bootstrap, audio, map, nature, wildlife, Stone, Iron, Coal, Clay, build, population, forestry, selection, time-scale, and Unity warning/error events.
-- A generated 192x192 2D city map appears at runtime with randomized seed-driven terrain generation and catalog-prewarmed pixel-art terrain swatches blended by a worker-safe procedural transition/relief painter.
+- Runtime debug logging writes structured gameplay diagnostics to `debug.log`, preserves previous sessions, rotates at 8 MiB, retains three archives, and falls back to a process-unique live log when the canonical file is locked.
+- A generated 192x192 2D city map appears at runtime with randomized seed-driven terrain generation and catalog-prewarmed pixel-art swatches blended by a cancellable parallel transition/relief painter with cached per-tile context; both normal menu and direct bootstrap use the worker path.
 - A runtime 16x16 world chunk registry indexes placed buildings, active construction sites, and residents, and exposes camera-near, active-settlement, and dirty-chunk state for incremental performance work.
 - A shared budgeted navigation service owns resident, wildlife, refugee, caravan, and road-route pathfinding, with duplicate coalescing, short-lived caches, and walkability-version invalidation.
 - Shared physical resource stores and settlement queries unify construction affordability, HUD totals, logistics reservations, household supplies, production stock, and winter readiness while excluding resources already being carried.
 - Starter onboarding now leads into a First Winter preparation/endurance slice with food and fuel goals, house warmth, resident cold exposure, and season/housing-aware refugee pressure. The first winter ends by returning to unrestricted sandbox play; victory and defeat are intentionally absent.
-- Versioned JSON persistence uses stable building/resident IDs and atomic writes; F5 saves and F8 reloads the map seed/time/weather, first-winter milestones, buildings/construction, resources/dishes, residents/kinship/cold, loose resources, fog exploration, and route roads.
-- A runtime road/trail layer records completed building-to-building route traversals for immediate stable visible route roads, renders connected procedural right-angle cardinal trail sprites, treats 2x2 squares as a high repair cost instead of permission to disconnect, verifies final endpoint connectivity, derives sparse non-blocking roadside torch props from eligible straight road cells, gives formed roads a 15% resident movement-speed bonus, and makes resident pathfinding prefer roads when practical.
+- Version-2 JSON persistence uses stable building/resident IDs, explicit migrations/validation, a 32 MiB file guard, bounded top-level/resident-child/prepared-dish collections, atomic temporary-file replacement, and backup recovery; F5 saves and F8 reloads the map seed/time/weather, first-winter milestones, buildings/construction, resources/dishes, residents/kinship/cold, loose resources, fog exploration, and route roads.
+- Runtime input is centralized in `StrategyInputRouter`; modal UI owns scoped input contexts, all runtime consumers use actions rather than direct device polling, and one shared `InputSystemUIInputModule` serves each scene.
+- Runtime, Editor tooling, and EditMode tests are isolated into `ProjectUnknown.Runtime`, `ProjectUnknown.Editor`, and `ProjectUnknown.EditModeTests` assemblies. Technical gates enforce UTF-8, `.meta` coverage, the 500-line C# limit, input ownership, project-file parity, and sequential verification.
+- CI soak verification is tiered: pull requests and `main` run a 45-game-second `QuickSoak` covering 3 in-game hours and write `Logs/QuickSoakSmoke.txt`; the deterministic 720-game-second full soak covers 2 in-game days and writes `Logs/SoakSmoke.txt` only for the nightly 01:23 UTC schedule, manual `workflow_dispatch`, `release`/`release/**` branches, and `v*` tags. Fast PR/main concurrency cancels stale runs, while full-soak runs are never cancelled in progress.
+- A runtime road/trail layer commits stable visible route roads after three completed traversals of the same building pair, renders connected procedural right-angle cardinal trail sprites, treats 2x2 squares as a high repair cost instead of permission to disconnect, verifies final endpoint connectivity, derives sparse non-blocking roadside torch props from eligible straight road cells, gives formed roads a 15% resident movement-speed bonus, and makes resident pathfinding prefer roads when practical.
 - Current terrain generation covers grass, meadow, forest, dirt, shore, and water with randomized rivers/water blobs, clustered land biomes, seeded texture variants, and transition overlays; generated water/shore cells are tagged as River or Lake for technical gameplay distinction, and generated rivers expose a technical flow direction used by river animation and river fish. The runtime water overlay adds depth tint, directional river streaks, lake sparkles, shoreline foam, wet shore edges, and weather-driven rain ripples, while the seasonal surface overlay can gradually cover water with ice without changing map cell identity.
 - A runtime nature-props layer uses seeded full-map shuffled placement plus macro cluster weighting to place 2.5D trees, forest groups, bushes, Stone deposits, walkable but not normally buildable mineable underground Iron/Coal fields, and near-water walkable Clay fields; vegetation receives centralized spring/autumn/winter palette changes while evergreen variants remain distinct.
 - A runtime wildlife layer spawns compact deer herds, rabbit groups, lake fish shoals, river fish entry points, wolf packs, and decorative birds only in currently hidden cells that remain within a broad ring around completed buildings or active construction sites, with the startup camp used only as a fallback anchor if no building anchor exists. A separate settlement-fauna layer gradually adds hiding/scurrying mice around food buildings and coat/temperament-varied cats that patrol and hunt mice as the town grows. Current wildlife has procedural 2.5D/pixel-art sprites, frame-based ambient/threat/work animations, and reacts to nearby residents without revealing fog or blocking cells. Deer, rabbits, and wolves can cross generated River cells with slowed swimming movement and ripples, but River cells are transit-only for them: final path targets, homes, relaxed/flee targets, and hunter/wolf prey reservations stay on land cells while land travel avoids placed buildings, active construction sites, and the campfire within a 4-cell structure buffer. Land migrations retain one route per group/pack and rebuild it on walkability revision changes; all wildlife simulation decisions stop under modal pause locks. Deer, rabbits, and lake fish have global and per-group reproduction/growth caps, and births/migration centers must also use hidden near-settlement cells; river fish do not reproduce and despawn at the route end; wolves now hunt rabbits/deer only when population surplus is above control thresholds, birds are decorative-only, while adult rabbits can be reserved and hunted by Hunter Camp workers for local `Game`, and adult fish can be reserved and caught by Fisher Hut workers for local `Fish`.
@@ -164,7 +170,7 @@ Confirmed from `Packages/manifest.json`:
 - Generated Iron fields stay walkable because ore is underground, block normal building placement, and can be reserved/mined into local Iron stock by Mines built over them.
 - Generated Coal fields stay walkable because coal is underground, block normal building placement, and can be reserved/mined into local Coal stock by Coal Pits built over them.
 - Generated Clay fields stay walkable, spawn only near water, block normal building placement, and can be mined by Clay Pits built over them.
-- No save system or full UI shell is implemented yet; production buildings have capped local buffers, hunter-camp `Game`, fisher-hut `Fish`, and forager-camp forage food can be hauled to Granaries or picked up directly by Householders when no stored food is available, moved into houses, cooked with house Pottery into recipe-based prepared dishes, and consumed by household dinners with house-local ingredient fallback, Sawmill Planks can be hauled to Storage Yards and consumed by late construction costs, Coal and Clay can be consumed by Kilns to produce Pottery, Pottery can be hauled to Storage Yards then picked up by Householders for household cooking, Iron/Coal/Logs can be consumed by Forges to produce Tools, and Trading Posts can exchange stored goods with visiting caravans for settlement Coins.
+- No full UI shell or global economy is implemented yet; production buildings have capped local buffers, hunter-camp `Game`, fisher-hut `Fish`, and forager-camp forage food can be hauled to Granaries or picked up directly by Householders when no stored food is available, moved into houses, cooked with house Pottery into recipe-based prepared dishes, and consumed by household dinners with house-local ingredient fallback, Sawmill Planks can be hauled to Storage Yards and consumed by late construction costs, Coal and Clay can be consumed by Kilns to produce Pottery, Pottery can be hauled to Storage Yards then picked up by Householders for household cooking, Iron/Coal/Logs can be consumed by Forges to produce Tools, and Trading Posts can exchange stored goods with visiting caravans for settlement Coins.
 
 ## Source Of Truth
 

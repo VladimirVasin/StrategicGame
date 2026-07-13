@@ -18,7 +18,7 @@ namespace ProjectUnknown.Strategy.EditorTests
             StartPlayModeSmoke(SmokeKind.GameplayVisualCapture, GameplayScenePath);
         }
 
-        private static void VerifyVisualCatalog()
+        internal static void VerifyVisualCatalog()
         {
             StrategyVisualCatalog catalog = Resources.Load<StrategyVisualCatalog>("Visual/StrategyVisualCatalog");
             Require(catalog != null, "Visual catalog resource is missing");
@@ -57,13 +57,135 @@ namespace ProjectUnknown.Strategy.EditorTests
                 "Generated point-filtered main-menu key art is missing");
         }
 
-        private static void VerifyAudioImportProfiles()
+        internal static void VerifyTerrainPainterCharacterization()
+        {
+            System.Reflection.MethodInfo resetCatalog = typeof(StrategyTerrainTexturePainter).GetMethod(
+                "ResetCatalogCache",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+            Require(resetCatalog != null, "Terrain painter catalog reset hook is missing");
+            try
+            {
+                resetCatalog.Invoke(null, null);
+
+            CityMapCell[,] cells =
+            {
+                {
+                    new CityMapCell(0, 0, CityMapCellKind.Water, CityMapWaterKind.River, 0.02f),
+                    new CityMapCell(0, 1, CityMapCellKind.Forest, CityMapWaterKind.None, 0.66f),
+                    new CityMapCell(0, 2, CityMapCellKind.Meadow, CityMapWaterKind.None, 0.31f)
+                },
+                {
+                    new CityMapCell(1, 0, CityMapCellKind.Shore, CityMapWaterKind.River, 0.08f),
+                    new CityMapCell(1, 1, CityMapCellKind.Grass, CityMapWaterKind.None, 0.78f),
+                    new CityMapCell(1, 2, CityMapCellKind.Dirt, CityMapWaterKind.None, 0.42f)
+                },
+                {
+                    new CityMapCell(2, 0, CityMapCellKind.Dirt, CityMapWaterKind.None, 0.25f),
+                    new CityMapCell(2, 1, CityMapCellKind.Meadow, CityMapWaterKind.None, 0.54f),
+                    new CityMapCell(2, 2, CityMapCellKind.Forest, CityMapWaterKind.None, 0.87f)
+                }
+            };
+            const int tilePixels = 8;
+            const int textureWidth = tilePixels * 3;
+            Color32[] pixels = new Color32[textureWidth * textureWidth];
+            StrategyTerrainTexturePainter.PaintTile(
+                pixels,
+                textureWidth,
+                cells,
+                1,
+                1,
+                tilePixels,
+                74123,
+                true);
+
+            ulong hash = 14695981039346656037UL;
+            for (int y = tilePixels; y < tilePixels * 2; y++)
+            {
+                for (int x = tilePixels; x < tilePixels * 2; x++)
+                {
+                    Color32 pixel = pixels[y * textureWidth + x];
+                    hash = (hash ^ pixel.r) * 1099511628211UL;
+                    hash = (hash ^ pixel.g) * 1099511628211UL;
+                    hash = (hash ^ pixel.b) * 1099511628211UL;
+                    hash = (hash ^ pixel.a) * 1099511628211UL;
+                }
+            }
+
+            const ulong expectedHash = 2423015668320230376UL;
+            Require(
+                hash == expectedHash,
+                $"Terrain painter output changed: expected {expectedHash}, got {hash}");
+            Debug.Log("TerrainPainterCharacterizationHash=" + hash);
+
+            resetCatalog.Invoke(null, null);
+            StrategyVisualCatalogProvider.Prewarm();
+            const int catalogTilePixels = 16;
+            const int catalogTextureWidth = catalogTilePixels * 3;
+            Color32[] catalogPixels = new Color32[catalogTextureWidth * catalogTextureWidth];
+            for (int y = 0; y < 3; y++)
+            {
+                for (int x = 0; x < 3; x++)
+                {
+                    StrategyTerrainTexturePainter.PaintTile(
+                        catalogPixels,
+                        catalogTextureWidth,
+                        cells,
+                        x,
+                        y,
+                        catalogTilePixels,
+                        74123,
+                        true);
+                }
+            }
+
+            ulong catalogHash = 14695981039346656037UL;
+            for (int i = 0; i < catalogPixels.Length; i++)
+            {
+                Color32 pixel = catalogPixels[i];
+                catalogHash = (catalogHash ^ pixel.r) * 1099511628211UL;
+                catalogHash = (catalogHash ^ pixel.g) * 1099511628211UL;
+                catalogHash = (catalogHash ^ pixel.b) * 1099511628211UL;
+                catalogHash = (catalogHash ^ pixel.a) * 1099511628211UL;
+            }
+
+            const ulong expectedCatalogHash = 3868434508176179381UL;
+            Require(
+                catalogHash == expectedCatalogHash,
+                $"Catalog terrain painter output changed: expected {expectedCatalogHash}, got {catalogHash}");
+            Debug.Log("TerrainPainterCatalogHash=" + catalogHash);
+            }
+            finally
+            {
+                resetCatalog.Invoke(null, null);
+                StrategyVisualCatalogProvider.Prewarm();
+            }
+        }
+
+        internal static void VerifyTerrainNoiseThroughput()
+        {
+            const int sampleCount = 4096;
+            float checksum = 0f;
+            System.Diagnostics.Stopwatch timer = System.Diagnostics.Stopwatch.StartNew();
+            for (int i = 0; i < sampleCount; i++)
+            {
+                checksum += Mathf.PerlinNoise(i * 0.0137f, i * 0.0211f);
+            }
+
+            timer.Stop();
+            Require(float.IsFinite(checksum), "Terrain noise produced a non-finite value");
+            Require(
+                timer.Elapsed.TotalSeconds < 2d,
+                $"Terrain noise throughput regressed: {sampleCount} samples took {timer.Elapsed.TotalSeconds:F2}s");
+            Debug.Log($"TerrainNoiseThroughput samples={sampleCount} durationMs={timer.Elapsed.TotalMilliseconds:F2}");
+        }
+
+        internal static void VerifyAudioImportProfiles()
         {
             VerifyAudioFolderLoadType("Assets/Resources/Audio/Music", AudioClipLoadType.Streaming);
             VerifyAudioFolderLoadType("Assets/Resources/Audio/Nature", AudioClipLoadType.CompressedInMemory);
         }
 
-        private static void VerifyAudioArchitecture()
+        internal static void VerifyAudioArchitecture()
         {
             AudioMixer mixer = Resources.Load<AudioMixer>("Audio/StrategyAudioMixer");
             Require(mixer != null, "Strategy AudioMixer resource is missing");

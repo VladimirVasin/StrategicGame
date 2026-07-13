@@ -16,18 +16,36 @@ namespace ProjectUnknown.Strategy
             int seed,
             bool drawGrid)
         {
-            CityMapCellKind kind = cells[cellX, cellY].Kind;
+            CityMapCell cell = cells[cellX, cellY];
+            CityMapCellKind kind = cell.Kind;
             int startX = cellX * tilePixels;
             int startY = cellY * tilePixels;
             int variant = Hash(seed, cellX, cellY, (int)kind, 19) % VariantCount;
             float macroVariation = SampleMacroVariation(seed, cellX, cellY, kind);
+            float macroShift = (macroVariation - 0.5f) * GetMacroStrength(kind);
+            TilePaintContext context = CreateTilePaintContext(
+                cells,
+                cell,
+                cellX,
+                cellY,
+                tilePixels,
+                kind,
+                variant);
+            CatalogTileSample catalog = context.Catalog;
+            bool hasCatalog = catalog.IsAvailable;
+            ReliefPaintContext relief = context.Relief;
 
             for (int py = 0; py < tilePixels; py++)
             {
+                int pixelIndex = (startY + py) * textureWidth + startX;
+                int catalogRow = hasCatalog ? catalog.GetRowOffset(py, tilePixels) : 0;
                 for (int px = 0; px < tilePixels; px++)
                 {
                     Color pixel = PaintBasePixel(
                         kind,
+                        in catalog,
+                        catalogRow,
+                        macroShift,
                         variant,
                         macroVariation,
                         seed,
@@ -36,8 +54,8 @@ namespace ProjectUnknown.Strategy
                         px,
                         py,
                         tilePixels);
-                    pixel = ApplyNeighborTransitions(pixel, cells, cellX, cellY, px, py, tilePixels, seed);
-                    pixel = ApplyReliefShading(pixel, cells, cellX, cellY, px, py, tilePixels, seed);
+                    pixel = ApplyNeighborTransitions(pixel, in context, cellX, cellY, px, py, seed);
+                    pixel = ApplyReliefShading(pixel, in relief, cellX, cellY, px, py, tilePixels, seed);
 
                     if (drawGrid && (px == 0 || py == 0))
                     {
@@ -45,13 +63,16 @@ namespace ProjectUnknown.Strategy
                     }
 
                     pixel.a = 1f;
-                    pixels[(startY + py) * textureWidth + startX + px] = pixel;
+                    pixels[pixelIndex + px] = pixel;
                 }
             }
         }
 
         private static Color PaintBasePixel(
             CityMapCellKind kind,
+            in CatalogTileSample catalog,
+            int catalogRow,
+            float macroShift,
             int variant,
             float macroVariation,
             int seed,
@@ -61,9 +82,9 @@ namespace ProjectUnknown.Strategy
             int py,
             int tilePixels)
         {
-            if (TrySampleCatalog(kind, variant, px, py, tilePixels, out Color catalogColor))
+            if (catalog.IsAvailable)
             {
-                return Shift(catalogColor, (macroVariation - 0.5f) * GetMacroStrength(kind));
+                return Shift(catalog.Sample(catalogRow, px, tilePixels), macroShift);
             }
 
             return PaintProceduralBasePixel(
@@ -257,26 +278,60 @@ namespace ProjectUnknown.Strategy
 
         private static Color ApplyNeighborTransitions(
             Color color,
-            CityMapCell[,] cells,
+            in TilePaintContext context,
             int cellX,
             int cellY,
             int px,
             int py,
-            int tilePixels,
             int seed)
         {
-            CityMapCellKind kind = cells[cellX, cellY].Kind;
-            int max = tilePixels - 1;
+            if (!context.HasTransitions)
+            {
+                return color;
+            }
 
-            color = BlendSide(color, kind, GetKind(cells, cellX, cellY + 1, kind), max - py, tilePixels, seed, cellX, cellY, px, py, 11);
-            color = BlendSide(color, kind, GetKind(cells, cellX, cellY - 1, kind), py, tilePixels, seed, cellX, cellY, px, py, 13);
-            color = BlendSide(color, kind, GetKind(cells, cellX - 1, cellY, kind), px, tilePixels, seed, cellX, cellY, px, py, 17);
-            color = BlendSide(color, kind, GetKind(cells, cellX + 1, cellY, kind), max - px, tilePixels, seed, cellX, cellY, px, py, 19);
+            CityMapCellKind kind = context.Kind;
+            int max = context.MaxPixel;
+            if (context.North != kind)
+            {
+                color = BlendSide(color, kind, context.North, max - py, context.SideWidth, seed, cellX, cellY, px, py, 11);
+            }
 
-            color = BlendCorner(color, kind, GetKind(cells, cellX - 1, cellY + 1, kind), px, max - py, tilePixels, seed, cellX, cellY, px, py, 23);
-            color = BlendCorner(color, kind, GetKind(cells, cellX + 1, cellY + 1, kind), max - px, max - py, tilePixels, seed, cellX, cellY, px, py, 29);
-            color = BlendCorner(color, kind, GetKind(cells, cellX - 1, cellY - 1, kind), px, py, tilePixels, seed, cellX, cellY, px, py, 31);
-            color = BlendCorner(color, kind, GetKind(cells, cellX + 1, cellY - 1, kind), max - px, py, tilePixels, seed, cellX, cellY, px, py, 37);
+            if (context.South != kind)
+            {
+                color = BlendSide(color, kind, context.South, py, context.SideWidth, seed, cellX, cellY, px, py, 13);
+            }
+
+            if (context.West != kind)
+            {
+                color = BlendSide(color, kind, context.West, px, context.SideWidth, seed, cellX, cellY, px, py, 17);
+            }
+
+            if (context.East != kind)
+            {
+                color = BlendSide(color, kind, context.East, max - px, context.SideWidth, seed, cellX, cellY, px, py, 19);
+            }
+
+            if (context.NorthWest != kind)
+            {
+                color = BlendCorner(color, kind, context.NorthWest, px, max - py, context.CornerWidth, seed, cellX, cellY, px, py, 23);
+            }
+
+            if (context.NorthEast != kind)
+            {
+                color = BlendCorner(color, kind, context.NorthEast, max - px, max - py, context.CornerWidth, seed, cellX, cellY, px, py, 29);
+            }
+
+            if (context.SouthWest != kind)
+            {
+                color = BlendCorner(color, kind, context.SouthWest, px, py, context.CornerWidth, seed, cellX, cellY, px, py, 31);
+            }
+
+            if (context.SouthEast != kind)
+            {
+                color = BlendCorner(color, kind, context.SouthEast, max - px, py, context.CornerWidth, seed, cellX, cellY, px, py, 37);
+            }
+
             return color;
         }
 
@@ -285,7 +340,7 @@ namespace ProjectUnknown.Strategy
             CityMapCellKind kind,
             CityMapCellKind neighbor,
             int distanceToEdge,
-            int tilePixels,
+            int width,
             int seed,
             int cellX,
             int cellY,
@@ -298,7 +353,6 @@ namespace ProjectUnknown.Strategy
                 return color;
             }
 
-            int width = Mathf.Max(3, tilePixels / 4);
             if (distanceToEdge >= width)
             {
                 return color;
@@ -341,7 +395,7 @@ namespace ProjectUnknown.Strategy
             CityMapCellKind neighbor,
             int distanceX,
             int distanceY,
-            int tilePixels,
+            int width,
             int seed,
             int cellX,
             int cellY,
@@ -354,7 +408,6 @@ namespace ProjectUnknown.Strategy
                 return color;
             }
 
-            int width = Mathf.Max(3, tilePixels / 5);
             if (distanceX >= width || distanceY >= width)
             {
                 return color;
@@ -373,146 +426,5 @@ namespace ProjectUnknown.Strategy
             return Color.Lerp(color, transition, Mathf.Clamp01(corner * 0.24f));
         }
 
-        private static CityMapCellKind GetKind(CityMapCell[,] cells, int x, int y, CityMapCellKind fallback)
-        {
-            return x >= 0 && y >= 0 && x < cells.GetLength(0) && y < cells.GetLength(1)
-                ? cells[x, y].Kind
-                : fallback;
-        }
-
-        private static Color GetBaseColor(CityMapCellKind kind, int variant)
-        {
-            int v = Mathf.Abs(variant) % VariantCount;
-            return kind switch
-            {
-                CityMapCellKind.Water => v switch
-                {
-                    0 => Rgb(38, 105, 157),
-                    1 => Rgb(43, 116, 169),
-                    2 => Rgb(32, 96, 148),
-                    3 => Rgb(50, 124, 171),
-                    4 => Rgb(35, 89, 136),
-                    _ => Rgb(45, 109, 161)
-                },
-                CityMapCellKind.Shore => v switch
-                {
-                    0 => Rgb(155, 158, 83),
-                    1 => Rgb(173, 155, 90),
-                    2 => Rgb(144, 151, 78),
-                    3 => Rgb(186, 170, 104),
-                    4 => Rgb(136, 148, 86),
-                    _ => Rgb(164, 159, 94)
-                },
-                CityMapCellKind.Forest => v switch
-                {
-                    0 => Rgb(40, 83, 43),
-                    1 => Rgb(35, 77, 39),
-                    2 => Rgb(46, 90, 48),
-                    3 => Rgb(33, 68, 38),
-                    4 => Rgb(50, 87, 42),
-                    _ => Rgb(39, 80, 45)
-                },
-                CityMapCellKind.Meadow => v switch
-                {
-                    0 => Rgb(103, 151, 70),
-                    1 => Rgb(112, 164, 75),
-                    2 => Rgb(96, 145, 67),
-                    3 => Rgb(123, 169, 80),
-                    4 => Rgb(91, 138, 65),
-                    _ => Rgb(109, 157, 73)
-                },
-                CityMapCellKind.Dirt => v switch
-                {
-                    0 => Rgb(128, 90, 55),
-                    1 => Rgb(141, 101, 61),
-                    2 => Rgb(112, 80, 50),
-                    3 => Rgb(153, 111, 67),
-                    4 => Rgb(120, 86, 58),
-                    _ => Rgb(136, 96, 58)
-                },
-                _ => v switch
-                {
-                    0 => Rgb(72, 125, 58),
-                    1 => Rgb(81, 133, 62),
-                    2 => Rgb(65, 116, 54),
-                    3 => Rgb(88, 140, 66),
-                    4 => Rgb(69, 120, 57),
-                    _ => Rgb(78, 130, 61)
-                }
-            };
-        }
-
-        private static Color GetTransitionColor(CityMapCellKind kind, CityMapCellKind neighbor)
-        {
-            if (kind == CityMapCellKind.Shore || neighbor == CityMapCellKind.Shore)
-            {
-                return Rgb(174, 160, 96);
-            }
-
-            if (kind == CityMapCellKind.Dirt || neighbor == CityMapCellKind.Dirt)
-            {
-                return Rgb(119, 99, 58);
-            }
-
-            if (kind == CityMapCellKind.Forest || neighbor == CityMapCellKind.Forest)
-            {
-                return Rgb(54, 93, 47);
-            }
-
-            if (kind == CityMapCellKind.Meadow || neighbor == CityMapCellKind.Meadow)
-            {
-                return Rgb(111, 154, 72);
-            }
-
-            return Rgb(75, 128, 61);
-        }
-
-        private static float GetNoiseStrength(CityMapCellKind kind)
-        {
-            return kind switch
-            {
-                CityMapCellKind.Water => 0.08f,
-                CityMapCellKind.Shore => 0.12f,
-                CityMapCellKind.Forest => 0.14f,
-                CityMapCellKind.Dirt => 0.16f,
-                CityMapCellKind.Meadow => 0.13f,
-                _ => 0.11f
-            };
-        }
-
-        private static Color Shift(Color color, float amount)
-        {
-            return new Color(
-                Mathf.Clamp01(color.r + amount),
-                Mathf.Clamp01(color.g + amount),
-                Mathf.Clamp01(color.b + amount),
-                1f);
-        }
-
-        private static float Hash01(int seed, int cellX, int cellY, int px, int py, int salt)
-        {
-            return Hash(seed, cellX * 31 + px, cellY * 31 + py, salt, px * 7 + py * 13) / (float)int.MaxValue;
-        }
-
-        private static int Hash(int seed, int a, int b, int c, int d)
-        {
-            unchecked
-            {
-                int h = seed;
-                h = h * 374761393 + a * 668265263;
-                h = h * 1274126177 + b * 461845907;
-                h = h * 1103515245 + c * 12345;
-                h = h * 1597334677 + d * 381201580;
-                h ^= h >> 13;
-                h *= 1274126177;
-                h ^= h >> 16;
-                return h & int.MaxValue;
-            }
-        }
-
-        private static Color Rgb(byte r, byte g, byte b)
-        {
-            return new Color32(r, g, b, 255);
-        }
     }
 }

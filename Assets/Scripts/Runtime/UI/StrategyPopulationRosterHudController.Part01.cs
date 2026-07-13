@@ -14,16 +14,18 @@ namespace ProjectUnknown.Strategy
 
         private void OpenFamilyTrees()
         {
-            StrategyFamilyTreeHudController familyTreeHud = Object.FindAnyObjectByType<StrategyFamilyTreeHudController>();
-            if (familyTreeHud == null)
+            StrategyFamilyTreeHudController controller = familyTreeHud;
+            if (controller == null)
             {
                 GameObject familyTreeObject = new GameObject("Strategy Family Tree HUD");
-                familyTreeHud = familyTreeObject.AddComponent<StrategyFamilyTreeHudController>();
+                controller = familyTreeObject.AddComponent<StrategyFamilyTreeHudController>();
+                familyTreeHud = controller;
             }
 
-            familyTreeHud.Configure(population, Object.FindAnyObjectByType<StrategyTimeScaleController>());
+            controller.SetInputRouter(inputRouter);
+            controller.Configure(population, Object.FindAnyObjectByType<StrategyTimeScaleController>());
             SetOpen(false);
-            familyTreeHud.SetOpen(true);
+            controller.SetOpen(true);
         }
     }
 }

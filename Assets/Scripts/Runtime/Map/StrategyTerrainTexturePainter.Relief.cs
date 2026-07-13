@@ -9,7 +9,7 @@ namespace ProjectUnknown.Strategy
 
         private static Color ApplyReliefShading(
             Color color,
-            CityMapCell[,] cells,
+            in ReliefPaintContext context,
             int cellX,
             int cellY,
             int px,
@@ -17,33 +17,53 @@ namespace ProjectUnknown.Strategy
             int tilePixels,
             int seed)
         {
-            CityMapCell cell = cells[cellX, cellY];
-            if (cell.IsWater)
+            if (!context.IsEnabled)
             {
                 return color;
             }
 
-            float height = cell.ReliefHeight;
-            if (height < 0.12f)
-            {
-                return color;
-            }
-
-            float west = GetRelief(cells, cellX - 1, cellY, height);
-            float east = GetRelief(cells, cellX + 1, cellY, height);
-            float north = GetRelief(cells, cellX, cellY + 1, height);
-            float south = GetRelief(cells, cellX, cellY - 1, height);
             float pxn = tilePixels <= 1 ? 0f : px / (float)(tilePixels - 1);
             float pyn = tilePixels <= 1 ? 0f : py / (float)(tilePixels - 1);
-            float hill = SmoothStep01(0.24f, HillReliefThreshold, height);
-            float mountain = SmoothStep01(MountainReliefThreshold - 0.10f, 0.92f, height);
-            float light = (west - east) * 0.18f + (north - south) * 0.14f;
-            color = Shift(color, light + hill * 0.035f);
-            color = ApplyReliefBodyTint(color, height, hill, mountain);
-            color = ApplyHillFacePattern(color, height, cellX, cellY, px, py, tilePixels, seed, hill);
-            color = ApplySlopeEdge(color, height, west, east, north, south, pxn, pyn);
-            color = ApplyContourBands(color, height, cellX, cellY, px, py, tilePixels, seed, hill);
-            color = ApplyMountainRock(color, height, cellX, cellY, px, py, seed, mountain);
+            color = Shift(color, context.Light + context.Hill * 0.035f);
+            color = ApplyReliefBodyTint(color, context.Height, context.Hill, context.Mountain);
+            color = ApplyHillFacePattern(
+                color,
+                context.Height,
+                cellX,
+                cellY,
+                px,
+                py,
+                seed,
+                context.Hill,
+                pxn,
+                pyn);
+            color = ApplySlopeEdge(
+                color,
+                context.DropEast,
+                context.DropSouth,
+                context.RiseWest,
+                context.RiseNorth,
+                pxn,
+                pyn);
+            color = ApplyContourBands(
+                color,
+                context.Height,
+                cellX,
+                cellY,
+                px,
+                py,
+                tilePixels,
+                seed,
+                context.Hill);
+            color = ApplyMountainRock(
+                color,
+                context.Height,
+                cellX,
+                cellY,
+                px,
+                py,
+                seed,
+                context.Mountain);
             return color;
         }
 
@@ -69,17 +89,16 @@ namespace ProjectUnknown.Strategy
             int cellY,
             int px,
             int py,
-            int tilePixels,
             int seed,
-            float hill)
+            float hill,
+            float pxn,
+            float pyn)
         {
             if (hill <= 0.08f)
             {
                 return color;
             }
 
-            float pxn = tilePixels <= 1 ? 0f : px / (float)(tilePixels - 1);
-            float pyn = tilePixels <= 1 ? 0f : py / (float)(tilePixels - 1);
             float roll = Hash01(seed, cellX, cellY, px, py, 67);
             float shoulder = SmoothStep01(0.54f, 1f, pyn) * (1f - SmoothStep01(0.0f, 0.26f, pxn));
             float foot = (1f - SmoothStep01(0.0f, 0.38f, pyn)) * SmoothStep01(0.46f, 1f, pxn);
@@ -97,18 +116,13 @@ namespace ProjectUnknown.Strategy
 
         private static Color ApplySlopeEdge(
             Color color,
-            float height,
-            float west,
-            float east,
-            float north,
-            float south,
+            float dropEast,
+            float dropSouth,
+            float riseWest,
+            float riseNorth,
             float pxn,
             float pyn)
         {
-            float dropEast = Mathf.Clamp01((height - east) * 4.6f);
-            float dropSouth = Mathf.Clamp01((height - south) * 4.6f);
-            float riseWest = Mathf.Clamp01((height - west) * 3.4f);
-            float riseNorth = Mathf.Clamp01((height - north) * 3.4f);
             float eastShadow = SmoothStep01(0.56f, 1f, pxn) * dropEast;
             float southShadow = (1f - SmoothStep01(0f, 0.42f, pyn)) * dropSouth;
             float westLight = (1f - SmoothStep01(0f, 0.42f, pxn)) * riseWest;
@@ -182,15 +196,92 @@ namespace ProjectUnknown.Strategy
             return color;
         }
 
-        private static float GetRelief(CityMapCell[,] cells, int x, int y, float fallback)
+        private static ReliefPaintContext CreateReliefContext(
+            CityMapCell[,] cells,
+            CityMapCell cell,
+            int cellX,
+            int cellY,
+            int mapWidth,
+            int mapHeight)
         {
-            if (x < 0 || y < 0 || x >= cells.GetLength(0) || y >= cells.GetLength(1))
+            if (cell.IsWater)
+            {
+                return default;
+            }
+
+            float height = cell.ReliefHeight;
+            if (height < 0.12f)
+            {
+                return default;
+            }
+
+            float west = GetRelief(cells, cellX - 1, cellY, mapWidth, mapHeight, height);
+            float east = GetRelief(cells, cellX + 1, cellY, mapWidth, mapHeight, height);
+            float north = GetRelief(cells, cellX, cellY + 1, mapWidth, mapHeight, height);
+            float south = GetRelief(cells, cellX, cellY - 1, mapWidth, mapHeight, height);
+            float hill = SmoothStep01(0.24f, HillReliefThreshold, height);
+            float mountain = SmoothStep01(MountainReliefThreshold - 0.10f, 0.92f, height);
+            float light = (west - east) * 0.18f + (north - south) * 0.14f;
+            return new ReliefPaintContext(
+                height,
+                hill,
+                mountain,
+                light,
+                Mathf.Clamp01((height - east) * 4.6f),
+                Mathf.Clamp01((height - south) * 4.6f),
+                Mathf.Clamp01((height - west) * 3.4f),
+                Mathf.Clamp01((height - north) * 3.4f));
+        }
+
+        private static float GetRelief(
+            CityMapCell[,] cells,
+            int x,
+            int y,
+            int mapWidth,
+            int mapHeight,
+            float fallback)
+        {
+            if (x < 0 || y < 0 || x >= mapWidth || y >= mapHeight)
             {
                 return fallback;
             }
 
             CityMapCell cell = cells[x, y];
             return cell.IsWater ? 0.02f : cell.ReliefHeight;
+        }
+
+        private readonly struct ReliefPaintContext
+        {
+            public ReliefPaintContext(
+                float height,
+                float hill,
+                float mountain,
+                float light,
+                float dropEast,
+                float dropSouth,
+                float riseWest,
+                float riseNorth)
+            {
+                Height = height;
+                Hill = hill;
+                Mountain = mountain;
+                Light = light;
+                DropEast = dropEast;
+                DropSouth = dropSouth;
+                RiseWest = riseWest;
+                RiseNorth = riseNorth;
+                IsEnabled = true;
+            }
+
+            public float Height { get; }
+            public float Hill { get; }
+            public float Mountain { get; }
+            public float Light { get; }
+            public float DropEast { get; }
+            public float DropSouth { get; }
+            public float RiseWest { get; }
+            public float RiseNorth { get; }
+            public bool IsEnabled { get; }
         }
 
         private static float SmoothStep01(float min, float max, float value)

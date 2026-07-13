@@ -6,7 +6,8 @@ namespace ProjectUnknown.Strategy
     internal enum StrategyResidentTaskExecutionPhase
     {
         BeforeHomeSchedule,
-        Normal
+        Normal,
+        PathCompleted
     }
 
     internal sealed class StrategyResidentTaskExecution
@@ -16,7 +17,18 @@ namespace ProjectUnknown.Strategy
 
         private readonly Action[] preHomeHandlers = new Action[ActivityCount];
         private readonly Action[] normalHandlers = new Action[ActivityCount];
+        private readonly Action[] pathCompletedHandlers = new Action[ActivityCount];
         private readonly List<PlannedTask> plannedTasks = new();
+
+        public int PlannedTaskCount => plannedTasks.Count;
+
+        public void Reset()
+        {
+            Array.Clear(preHomeHandlers, 0, preHomeHandlers.Length);
+            Array.Clear(normalHandlers, 0, normalHandlers.Length);
+            Array.Clear(pathCompletedHandlers, 0, pathCompletedHandlers.Length);
+            plannedTasks.Clear();
+        }
 
         public void Register(
             StrategyResidentAgent.ResidentActivity activity,
@@ -32,6 +44,10 @@ namespace ProjectUnknown.Strategy
             if (phase == StrategyResidentTaskExecutionPhase.BeforeHomeSchedule)
             {
                 preHomeHandlers[index] = handler;
+            }
+            else if (phase == StrategyResidentTaskExecutionPhase.PathCompleted)
+            {
+                pathCompletedHandlers[index] = handler;
             }
             else
             {
@@ -57,9 +73,12 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            Action handler = phase == StrategyResidentTaskExecutionPhase.BeforeHomeSchedule
-                ? preHomeHandlers[index]
-                : normalHandlers[index];
+            Action handler = phase switch
+            {
+                StrategyResidentTaskExecutionPhase.BeforeHomeSchedule => preHomeHandlers[index],
+                StrategyResidentTaskExecutionPhase.PathCompleted => pathCompletedHandlers[index],
+                _ => normalHandlers[index]
+            };
             if (handler == null)
             {
                 return false;
@@ -69,12 +88,17 @@ namespace ProjectUnknown.Strategy
             return true;
         }
 
-        public bool TryStartPlannedTask(Func<bool> shouldStop)
+        public bool TryStartPlannedTask(
+            Func<bool> shouldStop,
+            out StrategyResidentTaskKind startedKind)
         {
+            using var profilerScope = StrategyPerformanceMarkers.ResidentTaskSelection.Auto();
+            startedKind = StrategyResidentTaskKind.Rest;
             for (int i = 0; i < plannedTasks.Count; i++)
             {
                 if (plannedTasks[i].TryStart())
                 {
+                    startedKind = plannedTasks[i].Kind;
                     return true;
                 }
 

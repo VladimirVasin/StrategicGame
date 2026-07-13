@@ -47,6 +47,14 @@ namespace ProjectUnknown.Strategy
             GenerateForage();
         }
 
+        private void OnDestroy()
+        {
+            if (Active == this)
+            {
+                Active = null;
+            }
+        }
+
         public void RegisterNode(StrategyForageNode node)
         {
             if (node != null && !nodes.Contains(node))

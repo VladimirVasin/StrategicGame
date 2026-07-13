@@ -1,8 +1,6 @@
 using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
 
 namespace ProjectUnknown.Strategy
@@ -77,6 +75,7 @@ namespace ProjectUnknown.Strategy
                 Configure(null);
             }
 
+            RefreshInputContext();
             HandleInput();
             HandleManualScroll();
             UpdateAnimation();
@@ -90,6 +89,7 @@ namespace ProjectUnknown.Strategy
         private void ToggleOpen()
         {
             isOpen = !isOpen;
+            RefreshInputContext();
             isDirty = true;
             if (isOpen && professionScroll != null)
             {
@@ -110,28 +110,10 @@ namespace ProjectUnknown.Strategy
             }
 
             isOpen = false;
+            RefreshInputContext();
             isDirty = true;
             StrategyHudSfxAudio.Play(StrategyHudSfxKind.Close);
             StrategyDebugLogger.Info("ProfessionHud", "Closed");
-        }
-
-        private void HandleInput()
-        {
-            Keyboard keyboard = Keyboard.current;
-            if (keyboard != null && keyboard.escapeKey.wasPressedThisFrame && isOpen)
-            {
-                Close();
-            }
-
-            Mouse mouse = Mouse.current;
-            if (mouse != null
-                && mouse.leftButton.wasPressedThisFrame
-                && isOpen
-                && EventSystem.current != null
-                && !EventSystem.current.IsPointerOverGameObject())
-            {
-                Close();
-            }
         }
 
         private void BuildUi()

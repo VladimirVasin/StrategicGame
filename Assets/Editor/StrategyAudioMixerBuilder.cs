@@ -55,14 +55,21 @@ namespace ProjectUnknown.Strategy.EditorTools
                 }
 
                 string[] groupNames = Enum.GetNames(typeof(StrategyAudioBus));
+                object[] childGroups = new object[groupNames.Length - 1];
+                int childIndex = 0;
                 for (int i = 0; i < groupNames.Length; i++)
                 {
                     if (groupNames[i] != nameof(StrategyAudioBus.Master))
                     {
-                        createGroup.Invoke(controller, BuildCreateGroupArguments(createGroup, groupNames[i]));
+                        object child = createGroup.Invoke(
+                            controller,
+                            BuildCreateGroupArguments(createGroup, groupNames[i]));
+                        childGroups[childIndex++] = child
+                            ?? throw new InvalidOperationException("Mixer group creation returned null: " + groupNames[i]);
                     }
                 }
 
+                AttachGroupsToMaster(controllerType, controller, childGroups);
                 AssetDatabase.SaveAssets();
                 AssetDatabase.ImportAsset(MixerPath, ImportAssetOptions.ForceSynchronousImport);
                 Debug.Log("Strategy audio mixer created with " + groupNames.Length + " routed buses.");
@@ -104,6 +111,39 @@ namespace ProjectUnknown.Strategy.EditorTools
             }
 
             return null;
+        }
+
+        private static void AttachGroupsToMaster(Type controllerType, object controller, object[] childGroups)
+        {
+            PropertyInfo masterProperty = controllerType.GetProperty("masterGroup", Flags)
+                ?? throw new MissingMemberException(controllerType.FullName, "masterGroup");
+            object masterGroup = masterProperty.GetValue(controller)
+                ?? throw new InvalidOperationException("Mixer master group is unavailable.");
+            PropertyInfo childrenProperty = masterGroup.GetType().GetProperty("children", Flags)
+                ?? throw new MissingMemberException(masterGroup.GetType().FullName, "children");
+            Type elementType = childrenProperty.PropertyType.GetElementType()
+                ?? throw new InvalidOperationException("Mixer children property is not an array.");
+            Array children = Array.CreateInstance(elementType, childGroups.Length);
+            for (int i = 0; i < childGroups.Length; i++)
+            {
+                if (!elementType.IsInstanceOfType(childGroups[i]))
+                {
+                    throw new InvalidOperationException("Mixer group type does not match the Master children contract.");
+                }
+
+                children.SetValue(childGroups[i], i);
+            }
+
+            childrenProperty.SetValue(masterGroup, children);
+            if (masterGroup is UnityEngine.Object masterObject)
+            {
+                EditorUtility.SetDirty(masterObject);
+            }
+
+            if (controller is UnityEngine.Object controllerObject)
+            {
+                EditorUtility.SetDirty(controllerObject);
+            }
         }
 
         private static object[] BuildCreateGroupArguments(MethodInfo method, string groupName)

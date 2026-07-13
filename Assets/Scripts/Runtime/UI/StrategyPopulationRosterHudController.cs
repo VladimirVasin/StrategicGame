@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace ProjectUnknown.Strategy
@@ -22,6 +21,7 @@ namespace ProjectUnknown.Strategy
         private bool isOpen;
         private float refreshTimer;
         private ResidentFilter activeFilter;
+        private StrategyFamilyTreeHudController familyTreeHud;
 
         private enum ResidentFilter
         {
@@ -34,6 +34,11 @@ namespace ProjectUnknown.Strategy
         }
 
         public bool IsOpen => isOpen;
+
+        public void SetFamilyTreeHud(StrategyFamilyTreeHudController controller)
+        {
+            familyTreeHud = controller;
+        }
 
         public void Configure(StrategyPopulationController populationController)
         {
@@ -64,6 +69,7 @@ namespace ProjectUnknown.Strategy
 
             bool changed = isOpen != open;
             isOpen = open;
+            RefreshInputContext();
             if (panel != null)
             {
                 panel.gameObject.SetActive(open);
@@ -94,12 +100,13 @@ namespace ProjectUnknown.Strategy
                 Configure(null);
             }
 
+            RefreshInputContext();
             if (!isOpen)
             {
                 return;
             }
 
-            if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
+            if (inputRouter != null && inputRouter.TryConsumeCancel(this))
             {
                 SetOpen(false);
                 return;

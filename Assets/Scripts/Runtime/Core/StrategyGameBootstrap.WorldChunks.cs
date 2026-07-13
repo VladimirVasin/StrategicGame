@@ -5,29 +5,26 @@ namespace ProjectUnknown.Strategy
 {
     public static partial class StrategyGameBootstrap
     {
-        private static CityMapController ConfigureDebugLoggingAndMap()
+        private static CityMapController ConfigureDebugLoggingAndMap(
+            StrategyGameContext context,
+            out bool requiresGeneration)
         {
-            StrategyDebugLogger debugLogger = Object.FindAnyObjectByType<StrategyDebugLogger>();
+            StrategyDebugLogger debugLogger = StrategyDebugLogger.Active;
             if (debugLogger == null)
             {
                 GameObject debugLoggerObject = new GameObject("Strategy Debug Logger");
                 debugLogger = debugLoggerObject.AddComponent<StrategyDebugLogger>();
             }
 
+            context.Register(debugLogger);
             debugLogger.Configure();
             StrategyDebugLogger.Info("Bootstrap", "Start");
 
-            CityMapController map = Object.FindAnyObjectByType<CityMapController>();
-            if (map == null)
-            {
-                GameObject mapObject = new GameObject("City Map");
-                map = mapObject.AddComponent<CityMapController>();
-            }
-
-            if (!map.IsGenerated)
+            CityMapController map = context.GetOrCreate<CityMapController>("City Map");
+            requiresGeneration = !map.IsGenerated;
+            if (requiresGeneration)
             {
                 map.CancelIncrementalGeneration();
-                map.GenerateMap();
             }
             else
             {
@@ -44,22 +41,16 @@ namespace ProjectUnknown.Strategy
                     StrategyDebugLogger.F("seed", map.ActiveSeed));
             }
 
-            StrategyDebugLogger.Info("Bootstrap", "MapReady", StrategyDebugLogger.F("bounds", map.WorldBounds));
             return map;
         }
 
         private static void ConfigureWorldChunks(
+            StrategyGameContext context,
             CityMapController map,
             StrategyPopulationController population,
             Camera mainCamera)
         {
-            StrategyWorldChunkRegistry chunks = Object.FindAnyObjectByType<StrategyWorldChunkRegistry>();
-            if (chunks == null)
-            {
-                GameObject chunksObject = new GameObject("Strategy World Chunks");
-                chunks = chunksObject.AddComponent<StrategyWorldChunkRegistry>();
-            }
-
+            StrategyWorldChunkRegistry chunks = context.GetOrCreate<StrategyWorldChunkRegistry>("Strategy World Chunks");
             chunks.Configure(map, population, mainCamera);
             StrategyDebugLogger.Info(
                 "Bootstrap",

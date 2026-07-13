@@ -5,19 +5,14 @@ namespace ProjectUnknown.Strategy
     public static partial class StrategyGameBootstrap
     {
         private static void ConfigurePerformanceDiagnostics(
+            StrategyGameContext context,
             CityMapController map,
             StrategyPopulationController population,
             StrategyWildlifeController wildlife,
             StrategyWeatherController weather,
             StrategyTimeScaleController timeScale)
         {
-            StrategyPerformanceDiagnostics diagnostics = Object.FindAnyObjectByType<StrategyPerformanceDiagnostics>();
-            if (diagnostics == null)
-            {
-                GameObject diagnosticsObject = new GameObject("Strategy Performance Diagnostics");
-                diagnostics = diagnosticsObject.AddComponent<StrategyPerformanceDiagnostics>();
-            }
-
+            StrategyPerformanceDiagnostics diagnostics = context.GetOrCreate<StrategyPerformanceDiagnostics>("Strategy Performance Diagnostics");
             diagnostics.Configure(map, population, wildlife, weather, timeScale);
             StrategyDebugLogger.Info("Bootstrap", "PerformanceDiagnosticsReady");
         }

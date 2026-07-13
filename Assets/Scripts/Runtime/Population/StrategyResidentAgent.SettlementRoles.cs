@@ -80,11 +80,19 @@ namespace ProjectUnknown.Strategy
         {
             if (storageWorkplace != null)
             {
-                return true;
+                if (!settlementHaulerRole || CanReachBuildingForReservation(storageWorkplace))
+                {
+                    return true;
+                }
+
+                storageWorkplace = null;
             }
 
             return settlementHaulerRole
-                && StrategyStorageYard.TryFindNearestStorageYard(transform.position, out storageWorkplace);
+                && StrategyStorageYard.TryFindNearestReachableStorageYard(
+                    transform.position,
+                    this,
+                    out storageWorkplace);
         }
 
         private bool CanStartHaulerConstructionDelivery()

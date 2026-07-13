@@ -279,7 +279,9 @@ namespace ProjectUnknown.Strategy
             }
 
             preparedDishAmounts.TryGetValue(recipe.Id, out int current);
-            preparedDishAmounts[recipe.Id] = current + amount;
+            preparedDishAmounts[recipe.Id] = current > int.MaxValue - amount
+                ? int.MaxValue
+                : current + amount;
         }
 
         private int CountCookableDishUnits(float targetRations)

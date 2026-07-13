@@ -4,48 +4,31 @@ namespace ProjectUnknown.Strategy
 {
     public static partial class StrategyGameBootstrap
     {
-        private static void ConfigureAudio(CityMapController map, Camera mainCamera)
+        private static void ConfigureAudio(StrategyGameContext context, CityMapController map, Camera mainCamera)
         {
-            StrategyAudioMixController audioMix = Object.FindAnyObjectByType<StrategyAudioMixController>();
+            StrategyAudioMixController audioMix = StrategyAudioMixController.Active;
             if (audioMix == null)
             {
                 GameObject audioMixObject = new GameObject("Strategy Audio Mix");
                 audioMix = audioMixObject.AddComponent<StrategyAudioMixController>();
             }
 
+            context.Register(audioMix);
             audioMix.Configure(mainCamera);
             StrategyDebugLogger.Info("Bootstrap", "AudioMixReady");
 
-            StrategyAmbientAudioController ambientAudio = Object.FindAnyObjectByType<StrategyAmbientAudioController>();
-            if (ambientAudio == null)
-            {
-                GameObject ambientAudioObject = new GameObject("Strategy Ambient Audio");
-                ambientAudio = ambientAudioObject.AddComponent<StrategyAmbientAudioController>();
-            }
-
+            StrategyAmbientAudioController ambientAudio = context.GetOrCreate<StrategyAmbientAudioController>("Strategy Ambient Audio");
             ambientAudio.Configure(map, mainCamera);
             StrategyDebugLogger.Info(
                 "Bootstrap",
                 "AmbientAudioReady",
                 StrategyDebugLogger.F("footstepClips", StrategyResidentFootstepAudio.LoadedClipCount));
 
-            StrategyWorldAudioDirector worldAudio = Object.FindAnyObjectByType<StrategyWorldAudioDirector>();
-            if (worldAudio == null)
-            {
-                GameObject worldAudioObject = new GameObject("Strategy World Audio Director");
-                worldAudio = worldAudioObject.AddComponent<StrategyWorldAudioDirector>();
-            }
-
+            StrategyWorldAudioDirector worldAudio = context.GetOrCreate<StrategyWorldAudioDirector>("Strategy World Audio Director");
             worldAudio.Configure(map, mainCamera);
             StrategyDebugLogger.Info("Bootstrap", "WorldAudioReady");
 
-            StrategyMusicController music = Object.FindAnyObjectByType<StrategyMusicController>();
-            if (music == null)
-            {
-                GameObject musicObject = new GameObject("Strategy Music");
-                music = musicObject.AddComponent<StrategyMusicController>();
-            }
-
+            StrategyMusicController music = context.GetOrCreate<StrategyMusicController>("Strategy Music");
             music.Configure();
             StrategyDebugLogger.Info("Bootstrap", "MusicReady");
         }

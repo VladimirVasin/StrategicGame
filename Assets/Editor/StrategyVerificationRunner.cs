@@ -12,7 +12,7 @@ namespace ProjectUnknown.Strategy.EditorTests
         private const string GameplayScenePath = "Assets/Scenes/SampleScene.unity";
         private const string MainMenuScenePath = "Assets/Scenes/MainMenu.unity";
         private const int RequiredPlayFrames = 4;
-        private const int BootstrapWaitFrameLimit = 600;
+        private const double RefugeeRouteTimeoutSeconds = 30d;
         private const string PlayModeSessionKey = "ProjectUnknown.PlayModeSmokeActive";
         private const string PlayModeKindSessionKey = "ProjectUnknown.PlayModeSmokeKind";
 
@@ -20,12 +20,20 @@ namespace ProjectUnknown.Strategy.EditorTests
         private static SmokeKind smokeKind;
         private static bool launchRequestedBySmoke;
         private static int gameplayFramesAfterLaunch;
+        private static double gameplayActionStartedAt;
 
         static StrategyVerificationRunner()
         {
             if (SessionState.GetBool(PlayModeSessionKey, false))
             {
                 smokeKind = (SmokeKind)SessionState.GetInt(PlayModeKindSessionKey, (int)SmokeKind.Gameplay);
+                ResetSmokeWatchdog();
+                RestoreSmokeErrorCapture();
+                if (IsSoakKind(smokeKind))
+                {
+                    RestoreSoakAfterDomainReload();
+                }
+
                 EditorApplication.update -= UpdatePlayMode;
                 EditorApplication.update += UpdatePlayMode;
             }
@@ -44,9 +52,11 @@ namespace ProjectUnknown.Strategy.EditorTests
                 VerifyBuildScenes();
                 VerifyNavigationPriorities();
                 VerifyVisualCatalog();
+                VerifyExplicitMapSeed();
                 VerifyAudioImportProfiles();
                 VerifyAudioArchitecture();
-                File.WriteAllText(resultPath, "PASS: 10 checks");
+                VerifySourceQuality();
+                File.WriteAllText(resultPath, "PASS: technical verification checks");
                 EditorApplication.Exit(0);
             }
             catch (Exception exception)
@@ -88,6 +98,12 @@ namespace ProjectUnknown.Strategy.EditorTests
                 return;
             }
 
+            if (EditorApplication.isPaused)
+            {
+                Debug.LogWarning("Verification resumed play mode after an unexpected Editor pause.");
+                EditorApplication.isPaused = false;
+            }
+
             if (++playFrames < RequiredPlayFrames)
             {
                 return;
@@ -125,14 +141,16 @@ namespace ProjectUnknown.Strategy.EditorTests
                         UnityEngine.Object.FindObjectsByType<StrategyMainMenuButtonHover>(
                             FindObjectsInactive.Include).Length >= 5,
                         "Main-menu button hover controllers are missing");
+                    VerifyRuntimeInput(null);
                     CompletePlayMode(true, "PASS: menu systems ready");
                     return;
                 }
 
-                StrategyBootstrapRunner bootstrapRunner = UnityEngine.Object.FindAnyObjectByType<StrategyBootstrapRunner>();
-                Require(bootstrapRunner == null || playFrames <= BootstrapWaitFrameLimit, "Incremental gameplay bootstrap timed out");
-                if (bootstrapRunner != null)
+                StrategyGameContext context = StrategyGameContext.Current;
+                Require(context == null || context.State != StrategyGameContextState.Failed, "Gameplay bootstrap failed: " + context?.FailureReason);
+                if (context == null || !context.IsReady)
                 {
+                    VerifyGameplayBootstrapWatchdog(context);
                     return;
                 }
 
@@ -145,10 +163,17 @@ namespace ProjectUnknown.Strategy.EditorTests
                 Require(UnityEngine.Object.FindAnyObjectByType<StrategyWorldAudioDirector>() != null, "World audio director bootstrap failed");
                 Require(StrategyAudioVoicePool.ActiveVoiceCount <= StrategyAudioVoicePool.Capacity, "World audio voice budget exceeded");
                 Require(StrategyTrailController.Active != null, "Trail bootstrap failed");
+                VerifyRuntimeInput(context, !IsSoakKind(smokeKind));
                 VerifyBuildingGroundDetails();
                 if (smokeKind == SmokeKind.GameplayVisualCapture)
                 {
                     UpdateGameplayVisualCapture(map, population);
+                    return;
+                }
+
+                if (IsSoakKind(smokeKind))
+                {
+                    UpdateSoakSmoke(map, population);
                     return;
                 }
 
@@ -160,6 +185,7 @@ namespace ProjectUnknown.Strategy.EditorTests
                     Require(refugees.DebugStartArrival(), "Refugee route preparation did not start");
                     launchRequestedBySmoke = true;
                     gameplayFramesAfterLaunch = 0;
+                    gameplayActionStartedAt = EditorApplication.timeSinceStartup;
                     return;
                 }
 
@@ -169,7 +195,9 @@ namespace ProjectUnknown.Strategy.EditorTests
                     return;
                 }
 
-                Require(++gameplayFramesAfterLaunch <= 300, "Refugee route preparation timed out");
+                Require(
+                    EditorApplication.timeSinceStartup - gameplayActionStartedAt <= RefugeeRouteTimeoutSeconds,
+                    $"Refugee route preparation exceeded {RefugeeRouteTimeoutSeconds:0}s");
             }
             catch (Exception exception)
             {
@@ -177,7 +205,7 @@ namespace ProjectUnknown.Strategy.EditorTests
             }
         }
 
-        private static void VerifyCalendar()
+        internal static void VerifyCalendar()
         {
             Require(StrategySeasonCalendar.GetSeason(0) == StrategySeason.Summer, "Day 1 must be Summer");
             Require(StrategySeasonCalendar.GetSeason(7) == StrategySeason.Spring, "Day 8 must be Spring");
@@ -186,7 +214,7 @@ namespace ProjectUnknown.Strategy.EditorTests
             Require(StrategySeasonCalendar.GetYear(28) == 2, "Day 29 must begin year 2");
         }
 
-        private static void VerifyResourceStore()
+        internal static void VerifyResourceStore()
         {
             StrategyResourceStore store = new();
             object owner = new();
@@ -207,7 +235,7 @@ namespace ProjectUnknown.Strategy.EditorTests
             Require(store.GetReserved(StrategyResourceType.Logs) == 0, "Reservations survived restore");
         }
 
-        private static void VerifyColdState()
+        internal static void VerifyColdState()
         {
             StrategyResidentColdState state = new();
             state.ApplyNight(-8f, 1, 1f, out _);
@@ -219,7 +247,7 @@ namespace ProjectUnknown.Strategy.EditorTests
             Require(state.Condition == StrategyResidentColdCondition.Healthy, "Warm recovery failed");
         }
 
-        private static void VerifySaveRoundTrip()
+        internal static void VerifySaveRoundTrip()
         {
             StrategySaveData source = new()
             {
@@ -232,6 +260,10 @@ namespace ProjectUnknown.Strategy.EditorTests
             {
                 stableId = "building-a",
                 tool = (int)StrategyBuildTool.House,
+                originX = 2,
+                originY = 3,
+                footprintX = 2,
+                footprintY = 2,
                 resourceAmounts = new[] { 0, 0, 2, 3 }
             });
             source.residents.Add(new StrategyResidentSaveData
@@ -244,9 +276,12 @@ namespace ProjectUnknown.Strategy.EditorTests
             Require(restored.buildings[0].stableId == "building-a", "Building stable ID was lost");
             Require(restored.buildings[0].resourceAmounts[2] == 2, "Stored resources were lost");
             Require(restored.residents[0].homeStableId == "building-a", "Resident home link was lost");
+            Require(
+                StrategySaveSystem.ValidateSaveData(restored, out string reason),
+                "Round-tripped save failed validation: " + reason);
         }
 
-        private static void VerifyRefugeeBalance()
+        internal static void VerifyRefugeeBalance()
         {
             Require(
                 StrategyFirstYearBalance.GetRefugeeHousingMultiplier(0)
@@ -258,7 +293,7 @@ namespace ProjectUnknown.Strategy.EditorTests
                 "Winter must reduce arrivals");
         }
 
-        private static void VerifyBuildScenes()
+        internal static void VerifyBuildScenes()
         {
             EditorBuildSettingsScene[] scenes = EditorBuildSettings.scenes;
             Require(scenes.Length >= 2, "Menu and gameplay scenes must be in Build Settings");
@@ -266,7 +301,7 @@ namespace ProjectUnknown.Strategy.EditorTests
             Require(scenes[1].enabled && scenes[1].path == GameplayScenePath, "Gameplay scene must follow the main menu");
         }
 
-        private static void VerifyNavigationPriorities()
+        internal static void VerifyNavigationPriorities()
         {
             StrategyNavigationQuery wildlife = new(
                 Vector2Int.zero,
@@ -311,6 +346,9 @@ namespace ProjectUnknown.Strategy.EditorTests
             playFrames = 0;
             launchRequestedBySmoke = false;
             gameplayFramesAfterLaunch = 0;
+            gameplayActionStartedAt = 0d;
+            ResetSmokeWatchdog();
+            ResetSmokeErrorCapture();
             SessionState.SetInt(PlayModeKindSessionKey, (int)kind);
             SessionState.SetBool(PlayModeSessionKey, true);
             EditorApplication.update -= UpdatePlayMode;
@@ -321,18 +359,27 @@ namespace ProjectUnknown.Strategy.EditorTests
 
         private static void CompletePlayMode(bool passed, string result)
         {
+            ApplySmokeErrors(ref passed, ref result);
             string resultFile = smokeKind switch
             {
                 SmokeKind.MainMenu => "MainMenuSmoke.txt",
                 SmokeKind.MainMenuLaunch => "MainMenuLaunchSmoke.txt",
                 SmokeKind.MainMenuRenderCapture => "MainMenuRenderCapture.txt",
                 SmokeKind.GameplayVisualCapture => "GameplayVisualCapture.txt",
+                SmokeKind.Soak => "SoakSmoke.txt",
+                SmokeKind.QuickSoak => "QuickSoakSmoke.txt",
                 _ => "PlayModeSmoke.txt"
             };
             File.WriteAllText(GetResultPath(resultFile), result);
+            if (IsSoakKind(smokeKind))
+            {
+                CleanupSoak();
+            }
+
             SessionState.SetBool(PlayModeSessionKey, false);
             SessionState.EraseInt(PlayModeKindSessionKey);
             EditorApplication.update -= UpdatePlayMode;
+            CleanupSmokeErrorCapture();
             EditorApplication.isPlaying = false;
             EditorApplication.Exit(passed ? 0 : 1);
         }
@@ -358,6 +405,7 @@ namespace ProjectUnknown.Strategy.EditorTests
             {
                 StrategyMapPreloadCoordinator preloader = UnityEngine.Object.FindAnyObjectByType<StrategyMapPreloadCoordinator>();
                 Require(preloader != null, "Menu preloader failed before launch");
+                VerifyMainMenuLaunchWatchdog(preloader);
                 if (!launchRequestedBySmoke)
                 {
                     Require(preloader.RequestNewSettlement(), "New settlement launch request was rejected");
@@ -368,10 +416,11 @@ namespace ProjectUnknown.Strategy.EditorTests
             }
 
             Require(StrategySceneCatalog.IsGameplayScene(EditorSceneManager.GetActiveScene()), "Launch opened an unexpected scene");
-            StrategyBootstrapRunner bootstrapRunner = UnityEngine.Object.FindAnyObjectByType<StrategyBootstrapRunner>();
-            if (bootstrapRunner != null)
+            StrategyGameContext context = StrategyGameContext.Current;
+            Require(context == null || context.State != StrategyGameContextState.Failed, "Prepared gameplay bootstrap failed: " + context?.FailureReason);
+            if (context == null || !context.IsReady)
             {
-                Require(++gameplayFramesAfterLaunch <= BootstrapWaitFrameLimit, "Prepared gameplay bootstrap timed out");
+                VerifyGameplayBootstrapWatchdog(context);
                 return;
             }
 
@@ -385,6 +434,7 @@ namespace ProjectUnknown.Strategy.EditorTests
             Require(map != null && map.IsGenerated, "Prepared map was not accepted by gameplay");
             Require(population != null && population.TotalResidentCount > 0, "Gameplay did not start after menu launch");
             Require(StrategyMapPreloadCoordinator.Active == null, "Menu preloader survived gameplay bootstrap");
+            VerifyRuntimeInput(context);
             CompletePlayMode(true, "PASS: menu launched prepared gameplay");
         }
 
@@ -431,7 +481,9 @@ namespace ProjectUnknown.Strategy.EditorTests
             MainMenu,
             MainMenuLaunch,
             MainMenuRenderCapture,
-            GameplayVisualCapture
+            GameplayVisualCapture,
+            Soak,
+            QuickSoak
         }
     }
 }

@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
 
 namespace ProjectUnknown.Strategy
@@ -17,6 +15,18 @@ namespace ProjectUnknown.Strategy
         private Action<bool> decisionCallback;
         private bool initialized;
         private bool decisionLocked;
+        private StrategyInputRouter inputRouter;
+        private StrategyInputContextHandle inputContext;
+
+        public bool IsOpen => rootGroup != null && rootGroup.blocksRaycasts;
+
+        public void SetInputRouter(StrategyInputRouter router)
+        {
+            inputContext?.Dispose();
+            inputContext = null;
+            inputRouter = router;
+            RefreshInputContext(IsOpen);
+        }
 
         public void Configure()
         {
@@ -34,6 +44,11 @@ namespace ProjectUnknown.Strategy
         private void Awake()
         {
             Configure();
+        }
+
+        private void Update()
+        {
+            RefreshInputContext(IsOpen);
         }
 
         public void Show(IReadOnlyList<StrategyResidentAgent> family, Action<bool> onDecision)
@@ -54,6 +69,7 @@ namespace ProjectUnknown.Strategy
             rootGroup.alpha = 1f;
             rootGroup.interactable = true;
             rootGroup.blocksRaycasts = true;
+            RefreshInputContext(true);
             StrategyHudSfxAudio.Play(StrategyHudSfxKind.Notify);
             StrategyDebugLogger.Info(
                 "Refugees",
@@ -71,6 +87,31 @@ namespace ProjectUnknown.Strategy
             rootGroup.alpha = 0f;
             rootGroup.interactable = false;
             rootGroup.blocksRaycasts = false;
+            RefreshInputContext(false);
+        }
+
+        private void RefreshInputContext(bool open)
+        {
+            if (!open || inputRouter == null || !inputRouter.IsAvailable)
+            {
+                inputContext?.Dispose();
+                inputContext = null;
+                return;
+            }
+
+            if (inputContext == null || inputContext.IsDisposed)
+            {
+                inputContext = inputRouter.PushContext(
+                    this,
+                    StrategyInputChannel.All,
+                    StrategyCancelMode.Swallow);
+            }
+        }
+
+        private void OnDisable()
+        {
+            inputContext?.Dispose();
+            inputContext = null;
         }
 
         private void Choose(bool accepted)
@@ -300,26 +341,7 @@ namespace ProjectUnknown.Strategy
 
         private static void EnsureEventSystem()
         {
-            EventSystem eventSystem = EventSystem.current;
-            if (eventSystem == null)
-            {
-                GameObject eventSystemObject = new GameObject("EventSystem", typeof(EventSystem));
-                eventSystem = eventSystemObject.GetComponent<EventSystem>();
-            }
-
-            StandaloneInputModule standalone = eventSystem.GetComponent<StandaloneInputModule>();
-            if (standalone != null)
-            {
-                Destroy(standalone);
-            }
-
-            InputSystemUIInputModule inputModule = eventSystem.GetComponent<InputSystemUIInputModule>();
-            if (inputModule == null)
-            {
-                inputModule = eventSystem.gameObject.AddComponent<InputSystemUIInputModule>();
-            }
-
-            inputModule.enabled = true;
+            StrategyUiInputModuleBootstrap.Ensure();
         }
     }
 }

@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 namespace ProjectUnknown.Strategy
@@ -16,10 +15,17 @@ namespace ProjectUnknown.Strategy
         private CityMapController map;
         private StrategyBuildPlacementController placement;
         private StrategyPopulationController population;
+        private StrategyInputRouter inputRouter;
         private bool configured;
 
         public static string SavePath => Path.Combine(Application.persistentDataPath, SaveFileName);
+        public static string BackupPath => SavePath + ".bak";
         public static bool HasPendingLoad => pendingLoad != null;
+
+        public void SetInputRouter(StrategyInputRouter router)
+        {
+            inputRouter = router;
+        }
 
         public void Configure(
             CityMapController mapController,
@@ -38,16 +44,16 @@ namespace ProjectUnknown.Strategy
 
         private void Update()
         {
-            if (!configured || Keyboard.current == null)
+            if (!configured || inputRouter == null)
             {
                 return;
             }
 
-            if (Keyboard.current.f5Key.wasPressedThisFrame)
+            if (inputRouter.GlobalSavePressed)
             {
                 SaveNow();
             }
-            else if (Keyboard.current.f8Key.wasPressedThisFrame)
+            else if (inputRouter.GlobalLoadPressed)
             {
                 RequestLoad();
             }
@@ -63,17 +69,13 @@ namespace ProjectUnknown.Strategy
             try
             {
                 StrategySaveData data = CaptureSaveData();
+                if (!ValidateSaveData(data, out string validationReason))
+                {
+                    throw new InvalidDataException("Captured save is invalid: " + validationReason);
+                }
+
                 string json = JsonUtility.ToJson(data, true);
-                string temporaryPath = SavePath + ".tmp";
-                File.WriteAllText(temporaryPath, json);
-                if (File.Exists(SavePath))
-                {
-                    File.Replace(temporaryPath, SavePath, null);
-                }
-                else
-                {
-                    File.Move(temporaryPath, SavePath);
-                }
+                WriteSaveAtomically(json, SavePath, BackupPath);
 
                 StrategyEventLogHudController.Notify("Game saved", new Color(0.58f, 0.86f, 0.66f));
                 StrategyDebugLogger.Info(
@@ -112,30 +114,17 @@ namespace ProjectUnknown.Strategy
 
         public static bool TryReadSave(out StrategySaveData data, out string reason)
         {
-            data = null;
-            if (!File.Exists(SavePath))
+            bool loaded = TryReadSaveFromPaths(SavePath, BackupPath, out data, out reason, out bool usedBackup);
+            if (loaded && usedBackup)
             {
-                reason = "save_not_found";
-                return false;
+                StrategyDebugLogger.Warn(
+                    "Save",
+                    "RecoveredFromBackup",
+                    StrategyDebugLogger.F("primaryPath", SavePath),
+                    StrategyDebugLogger.F("backupPath", BackupPath));
             }
 
-            try
-            {
-                data = JsonUtility.FromJson<StrategySaveData>(File.ReadAllText(SavePath));
-                if (ValidateSaveData(data, out reason))
-                {
-                    return true;
-                }
-
-                data = null;
-                return false;
-            }
-            catch (Exception exception)
-            {
-                data = null;
-                reason = "read_failed_" + exception.GetType().Name;
-                return false;
-            }
+            return loaded;
         }
 
         public static void PreparePendingLoad(StrategySaveData data)
@@ -154,28 +143,5 @@ namespace ProjectUnknown.Strategy
             return seed > 0;
         }
 
-        private static bool ValidateSaveData(StrategySaveData data, out string reason)
-        {
-            if (data == null)
-            {
-                reason = "empty_or_invalid_json";
-                return false;
-            }
-
-            if (data.version != StrategySaveData.CurrentVersion)
-            {
-                reason = "unsupported_version_" + data.version;
-                return false;
-            }
-
-            if (data.mapSeed <= 0 || data.mapWidth <= 0 || data.mapHeight <= 0)
-            {
-                reason = "invalid_map_metadata";
-                return false;
-            }
-
-            reason = string.Empty;
-            return true;
-        }
     }
 }

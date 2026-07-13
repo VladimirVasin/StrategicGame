@@ -6,7 +6,10 @@ namespace ProjectUnknown.Strategy
     {
         private static bool runtimeShuttingDown;
 
-        public static bool CanCreateSceneObjects => Application.isPlaying && !runtimeShuttingDown;
+        public static bool CanCreateSceneObjects => Application.isPlaying
+            && !runtimeShuttingDown
+            && (StrategyGameContext.Current == null
+                || StrategyGameContext.Current.State != StrategyGameContextState.Disposed);
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetState()

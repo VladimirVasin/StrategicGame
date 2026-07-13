@@ -85,6 +85,12 @@ namespace ProjectUnknown.Strategy
 
         public void GenerateMap()
         {
+            GenerateMap(ResolveActiveSeed());
+        }
+
+        public void GenerateMap(int requestedSeed)
+        {
+            CancelIncrementalGeneration();
             StrategyVisualCatalogProvider.Prewarm();
             IsGenerating = true;
             IsGenerated = false;
@@ -95,7 +101,8 @@ namespace ProjectUnknown.Strategy
             height = Mathf.Max(8, height);
             cellSize = Mathf.Max(0.25f, cellSize);
             tilePixels = Mathf.Clamp(tilePixels, 8, 32);
-            activeSeed = ResolveActiveSeed();
+            activeSeed = Mathf.Max(1, requestedSeed);
+            seed = activeSeed;
 
             cells = new CityMapCell[width, height];
             blockedWalkCounts = new int[width, height];
@@ -319,8 +326,17 @@ namespace ProjectUnknown.Strategy
                 for (int x = 0; x < width; x++)
                 {
                     CityMapCellKind kind = PickCellKind(x, y, profile, out CityMapWaterKind waterKind);
-                    float reliefHeight = PickReliefHeight(x, y, profile, kind, waterKind);
-                    cells[x, y] = new CityMapCell(x, y, kind, waterKind, reliefHeight);
+                    cells[x, y] = new CityMapCell(x, y, kind, waterKind);
+                }
+            }
+
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    CityMapCell cell = cells[x, y];
+                    float reliefHeight = PickReliefHeight(x, y, profile, cell.Kind, cell.WaterKind);
+                    cells[x, y] = new CityMapCell(x, y, cell.Kind, cell.WaterKind, reliefHeight);
                 }
             }
 

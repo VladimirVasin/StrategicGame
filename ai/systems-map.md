@@ -1,6 +1,6 @@
 # Systems Map
 
-Last updated: 2026-07-12
+Last updated: 2026-07-13
 
 Use this file as the first navigation pass before broad searches. Owner cards are starting points, not hard boundaries.
 
@@ -22,6 +22,11 @@ Primary files/assets:
 - `ProjectSettings/`
 - `Packages/manifest.json`
 - `Packages/packages-lock.json` if present
+- `Assets/Scripts/Runtime/ProjectUnknown.Runtime.asmdef`
+- `Assets/Editor/ProjectUnknown.Editor.asmdef`
+- `Assets/Tests/EditMode/ProjectUnknown.EditModeTests.asmdef`
+- `Tools/Verification/`
+- `.github/workflows/technical-gates.yml`
 - `ProjectUnknown.slnx`
 
 Impact hints:
@@ -169,7 +174,7 @@ Responsibilities:
 - Present one dedicated generated static pixel-art key image instead of composing gameplay sprites or runtime backdrop layers.
 - Keep music disabled in the menu while retaining HUD SFX, and animate pointer/selection hover feedback on every command button.
 - Validate save availability and prepare one likely Continue/New map candidate while the menu remains interactive.
-- Prewarm starter visual/audio caches, report real generation progress, and transfer the prepared map into gameplay.
+- Prewarm starter visuals plus short HUD/footstep clips, report real generation progress, and transfer the prepared map into gameplay.
 - Persist master/music/effects volume and fullscreen state.
 
 Primary files/assets:
@@ -194,13 +199,15 @@ Impact hints:
 - Map cells and progress can be staged, and pure terrain pixels can run on workers; `Texture2D`, `Sprite`, scene changes, and all other Unity objects stay on the main thread.
 - Continue and New Settlement must cancel mismatched candidate work before starting a different seed.
 - Main-menu key art is independent from gameplay sprite factories; keep point filtering, cover-crop behavior, the dark left UI-safe area, and the single static-image ownership model when replacing it.
-- Do not create/configure `StrategyMusicController` in the menu; hover feedback should remain one quiet, cooldown-limited HUD cue per pointer entry.
+- Do not create/configure `StrategyMusicController` or bulk-load long Music/Nature folders in the menu; hover feedback should remain one quiet, cooldown-limited HUD cue per pointer entry.
 
 ### Runtime Bootstrap
 
 Responsibilities:
 
 - Install the scene-loaded hook and start the strategy layer only for the gameplay scene.
+- Own one typed scene-local service context and explicit bootstrap lifecycle/failure/disposal state.
+- Transfer prepared map ownership explicitly and clear scene statics on unload/return to menu.
 - Configure the strategy debug logger before other runtime systems start.
 - Ensure a city map exists.
 - Ensure a Unity `WindZone`-backed strategy wind source exists.
@@ -239,6 +246,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.cs`
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.SceneFlow.cs`
 - `Assets/Scripts/Runtime/Core/StrategyBootstrapRunner.cs`
+- `Assets/Scripts/Runtime/Core/StrategyGameContext.cs`
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.StarterResources.cs`
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.WorldChunks.cs`
 - `Assets/Scripts/Runtime/Core/StrategyDebugLogger.cs`
@@ -323,7 +331,7 @@ Primary files/assets:
 
 Impact hints:
 
-- Bootstrap registers through `RuntimeInitializeOnLoadMethod`, then handles initial and runtime gameplay loads through `SceneManager.sceneLoaded` without requiring scene YAML wiring. A scene-local runner holds a bootstrap pause and spreads deterministic nature generation across bounded frame batches before releasing gameplay.
+- Bootstrap registers through `RuntimeInitializeOnLoadMethod`, then handles initial/runtime gameplay loads and unload cleanup without requiring scene YAML wiring. A scene-local context owns service registration, lifecycle state, and the bootstrap pause while the runner spreads deterministic nature generation across bounded frame batches.
 - Audio bootstrap expects non-generated clips under `Assets/Resources/Audio`; missing ambience or music clips should degrade quietly rather than blocking scene startup.
 - New scenes must declare their role through `StrategySceneCatalog` or migrate the catalog to a data-driven scene-role system.
 
@@ -332,6 +340,7 @@ Impact hints:
 Responsibilities:
 
 - Create a structured runtime `debug.log` for gameplay debugging.
+- Preserve prior sessions, rotate bounded logs, retain recent archives, and survive canonical-file locks from another process.
 - Mirror Unity log messages, warnings, errors, and exceptions into the same file.
 - Provide static event helpers for strategy systems without forcing scene references.
 - Record important events and failure reasons for bootstrap, map generation, nature/Stone generation, build menu/tool flow, placement, population, refugees, forestry, wildlife, lumberjack camps, selection, and time-scale changes.
@@ -339,6 +348,7 @@ Responsibilities:
 Primary files/assets:
 
 - `Assets/Scripts/Runtime/Core/StrategyDebugLogger.cs`
+- `Assets/Scripts/Runtime/Core/StrategyLogFileRotation.cs`
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.cs`
 - `.gitignore`
 - `Assembly-CSharp.csproj`
@@ -356,16 +366,18 @@ Responsibilities:
 - Record low-overhead frame samples in stable 10-second runtime windows.
 - Separate startup and 15/30/50-resident results by time phase, weather, and requested simulation speed.
 - Log frame-time percentiles, hitch counts, memory/GC, active simulation counts, and resident path/decision workload.
+- Expose stable Unity Profiler samples for known hot paths, including terrain paint, without dynamic marker names.
 - Allow repeat benchmark sessions to force the generated map seed with `-strategyBenchmarkSeed`.
 
 Primary files/assets:
 
 - `Assets/Scripts/Runtime/Core/StrategyPerformanceDiagnostics.cs`
+- `Assets/Scripts/Runtime/Core/StrategyPerformanceMarkers.cs`
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.Diagnostics.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentPerformanceCounters.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part36.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part41.cs`
-- `Assets/Scripts/Runtime/Map/CityMapController.Part01.cs`
+- `Assets/Scripts/Runtime/Map/CityMapController.Generation.cs`
 - `Assembly-CSharp.csproj`
 
 Impact hints:
@@ -413,6 +425,11 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.Audio.cs`
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentTask.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentTaskExecution.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.TaskArrival.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentHouseholdCookingTask.cs`
+- `Assets/Tests/EditMode/StrategyResidentCharacterizationTests.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.WorkSfx.cs`
 - `Assets/Scripts/Runtime/Audio/StrategyResidentFootstepAudio.cs`
 - `Assets/Resources/Audio/Nature/`
@@ -525,7 +542,7 @@ Responsibilities:
 - Expose `RiverFlowDirection` for systems that need to move or animate along the generated river current.
 - Paint procedural pixel-art terrain textures for generated map cells.
 - Render animated water waves, sparkles, shoreline foam, and weather-driven rain ripple hits as a transparent overlay.
-- Track completed resident movement between different non-Bridge placed buildings as immediate stable road cells after one real traversal.
+- Commit stable road cells after three completed traversals of the same non-Bridge building pair.
 - Keep resident footfalls from creating functional or visible roads, and keep automatic route-network convergence disabled.
 - Keep route-road recording connected by rejecting route tails left behind after square-prone cells are skipped and using a bounded local repair search when a no-square obstacle detour exists.
 - Prune road cells only when map walkability or cell validity invalidates them; roads do not decay from disuse.
@@ -548,6 +565,8 @@ Responsibilities:
 Primary files/assets:
 
 - `Assets/Scripts/Runtime/Map/CityMapController.cs`
+- `Assets/Scripts/Runtime/Map/CityMapController.Generation.cs`
+- `Assets/Scripts/Runtime/Map/CityMapController.Part01.cs`
 - `Assets/Scripts/Runtime/Map/CityMapController.Relief.cs`
 - `Assets/Scripts/Runtime/Map/StrategyFogOfWarController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyFogOfWarController.Chunks.cs`
@@ -572,7 +591,9 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Map/StrategyRoadsidePropPlanner.cs`
 - `Assets/Scripts/Runtime/Map/StrategyMapDistributionUtility.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTerrainTexturePainter.cs`
+- `Assets/Scripts/Runtime/Map/StrategyTerrainTexturePainter.Catalog.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTerrainTexturePainter.Macro.cs`
+- `Assets/Scripts/Runtime/Map/StrategyTerrainTexturePainter.Palette.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTerrainTexturePainter.Relief.cs`
 - `Assets/Scripts/Runtime/Map/CityMapController.Buildability.cs`
 - `Assets/Scripts/Runtime/Map/StrategyNaturePropController.cs`
@@ -599,7 +620,7 @@ Primary files/assets:
 Impact hints:
 
 - Current map is runtime-generated with a randomized active seed by default; save loading restores that seed before generation so terrain identity is deterministic.
-- Current terrain painter covers Grass, Meadow, Forest, Dirt, Shore, and Water with a hidden default grid, broad seeded macro palette variation, neighbor transition overlays, and visual hill/mountain relief shading.
+- Current terrain painter covers Grass, Meadow, Forest, Dirt, Shore, and Water with a hidden default grid, broad seeded macro palette variation, neighbor transition overlays, visual relief shading, and one cached per-tile paint/catalog context outside the inner pixel loop. Map generation classifies kind/water first and reuses that water mask when calculating relief.
 - `CityMapCell.ReliefHeight` is a visual-only value; do not use it as a walkability, buildability, or resource-reachability rule without an explicit gameplay design pass.
 - Water source identity is stored on `CityMapCell.WaterKind`; future systems should query that instead of guessing river/lake from geometry.
 - River current direction is stored on `CityMapController.RiverFlowDirection`; river-specific ambience/gameplay should follow that instead of creating independent direction timers.
@@ -1044,10 +1065,11 @@ Responsibilities:
 Primary files/assets:
 
 - `Assets/Scripts/Runtime/Camera/StrategyCameraController.cs`
+- `Assets/Scripts/Runtime/Input/StrategyInputRouter.cs`
 
 Impact hints:
 
-- Controls currently read direct Input System devices, not generated input actions.
+- Controls read Camera/Global actions through `StrategyInputRouter`; modal contexts can block camera motion without disabling the project action asset.
 - Mouse zoom/drag/edge pan are suppressed while the pointer is over UI.
 - UI, placement, and selection systems should coordinate with right/middle drag and edge-pan behavior when added.
 
@@ -1065,12 +1087,13 @@ Responsibilities:
 Primary files/assets:
 
 - `Assets/Scripts/Runtime/Core/StrategyTimeScaleController.cs`
+- `Assets/Scripts/Runtime/Input/StrategyInputRouter.cs`
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.cs`
 - `Assembly-CSharp.csproj`
 
 Impact hints:
 
-- Current controls read direct Input System keyboard state, not generated input actions.
+- F1/F2/F3 read Global actions through `StrategyInputRouter`; keep action ownership centralized when adding shortcuts.
 - The Build HUD also calls this controller from x1/x2/x3 buttons under the top-left construction resource panel.
 - Time scale affects gameplay timers using scaled `Time.deltaTime`; UI, visual overlays, service caches, diagnostics throttles, and expensive maintenance loops should use unscaled time/realtime when their cadence should remain stable at x2/x3.
 - Future pause, speed HUD, or settings should extend this controller instead of adding separate `Time.timeScale` writes.
@@ -2336,18 +2359,26 @@ Impact hints:
 
 Responsibilities:
 
-- Input System package and action definitions.
-- Future player input mapping once gameplay grows beyond direct MVP camera/menu controls.
+- Own canonical Global/Camera/Gameplay/Build/Debug/UI action definitions.
+- Route all runtime controls through typed actions without direct device polling.
+- Own modal channel blocking, cancel handling, and secondary-pointer ownership.
+- Keep exactly one shared EventSystem/Input System UI module per scene.
 
 Primary files/assets:
 
 - `Assets/InputSystem_Actions.inputactions`
+- `Assets/Scripts/Runtime/Input/StrategyInputRouter.cs`
+- `Assets/Scripts/Runtime/Input/StrategyInputContext.cs`
+- `Assets/Scripts/Runtime/UI/StrategyUiInputModuleBootstrap.cs`
+- `Assets/Tests/EditMode/StrategyInputActionsContractTests.cs`
+- `Assets/Tests/EditMode/StrategyInputRouterTests.cs`
 - `Packages/manifest.json`
 
 Impact hints:
 
-- Action map changes do not affect the current MVP camera/Build menu until controls are migrated to actions.
-- Keep action names stable once code depends on generated wrappers or string keys.
+- Action names, IDs, canonical UI bindings, and control schemes are contracts enforced by tests.
+- Modal UI must own/dispose a scoped context so blocked gameplay/camera/build input cannot leak after close or scene unload.
+- Add runtime controls to the router/action asset rather than reading `Keyboard.current`, `Mouse.current`, or `KeyControl` in consumers.
 
 ### Shared Resource Stores And Queries
 
@@ -2406,6 +2437,9 @@ Primary files:
 
 - `Assets/Scripts/Runtime/Persistence/StrategySaveData.cs`
 - `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.cs`
+- `Assets/Scripts/Runtime/Persistence/StrategySaveMigration.cs`
+- `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Files.cs`
+- `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Validation.cs`
 - `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Capture.cs`
 - `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Apply.cs`
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.Persistence.cs`
@@ -2414,10 +2448,13 @@ Primary files:
 - `Assets/Scripts/Runtime/Population/StrategyPopulationController.Persistence.cs`
 - `Assets/Scripts/Runtime/Map/StrategyFogOfWarController.Persistence.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.Persistence.cs`
+- `Assets/Tests/EditMode/StrategySaveSystemTests.cs`
 
 Impact hints:
 
-- Increment the save version and add backward-compatible defaults whenever persisted DTO shape changes.
+- Increment the save version and add an explicit migration whenever persisted DTO shape changes; validate migrated data before applying it.
+- Keep primary/temp/backup replacement and backup recovery in the file seam so interrupted writes do not destroy the last valid save.
+- Reject save files above 32 MiB before reading and keep top-level plus resident-child/prepared-dish collection limits in validation.
 - Stable IDs are serialization contracts; never replace them with scene-instance IDs or object references.
 
 ### Verification
@@ -2425,24 +2462,43 @@ Impact hints:
 Responsibilities:
 
 - Run deterministic logic checks from the Unity Editor.
+- Enforce source/config quality and assembly/project-file parity before Unity verification.
 - Enter real Play Mode to verify menu isolation, prepared menu-to-gameplay launch, and direct gameplay bootstrap.
+- Apply wall-clock progress/stall watchdogs and collect unexpected Unity runtime errors with only narrow batch-mode infrastructure exceptions.
+- Verify explicit map seeds and procedural plus production-16px catalog terrain golden output.
+- Run a 45-game-second `QuickSoak` covering 3 in-game hours for pull requests and `main`, writing `Logs/QuickSoakSmoke.txt`.
+- Run the deterministic 720-game-second full soak covering 2 in-game days only for the nightly 01:23 UTC schedule, manual `workflow_dispatch`, `release`/`release/**` branches, and `v*` tags; keep its modal input-context invariants, final/peak memory budgets, and `Logs/SoakSmoke.txt` evidence.
 - Render the menu at 1600x900 for visual layout inspection.
-- Render deterministic Noon, Night, and Winter gameplay frames for visual comparison on a real graphics device.
+- Render deterministic Noon, Spring, Autumn, Night, and Winter gameplay frames for visual comparison on a real graphics device.
 
 Primary files:
 
 - `Assets/Editor/StrategyVerificationRunner.cs`
+- `Assets/Editor/StrategyVerificationRunner.Errors.cs`
 - `Assets/Editor/StrategyVerificationRunner.Visual.cs`
+- `Assets/Editor/StrategyVerificationRunner.Input.cs`
+- `Assets/Editor/StrategyVerificationRunner.Map.cs`
+- `Assets/Editor/StrategyVerificationRunner.Quality.cs`
+- `Assets/Editor/StrategyVerificationRunner.Soak.cs`
+- `Assets/Editor/StrategyVerificationRunner.Watchdog.cs`
+- `Assets/Tests/EditMode/`
+- `Tools/Verification/Invoke-TechnicalGates.ps1`
+- `Tools/Verification/Invoke-UnityVerification.ps1`
+- `.github/workflows/technical-gates.yml`
 - `Logs/EditModeVerification.txt`
 - `Logs/MainMenuSmoke.txt`
 - `Logs/MainMenuLaunchSmoke.txt`
 - `Logs/PlayModeSmoke.txt`
 - `Logs/GameplayVisualCapture.txt`
+- `Logs/QuickSoakSmoke.txt`
+- `Logs/SoakSmoke.txt`
 
 Impact hints:
 
-- Extend deterministic checks when calendar, resources, cold, persistence, or refugee balance changes.
+- Extend deterministic/NUnit checks when calendar, resources, resident priority, lifecycle, input, persistence, logging, or refugee balance changes.
 - Keep Play Mode checks focused on scene ownership and system readiness so they remain reliable in batch mode.
+- Let fast PR/main concurrency cancel stale superseded runs, but never cancel an in-progress full-soak run.
+- Unity verification deletes stale artifacts, requires fresh PASS/XML output, and must refuse to start while the same project is open in a main Editor process.
 - Do not run gameplay `Camera.Render()` capture with `-nographics`; URP requires a non-Null graphics device for this path.
 
 ### AI Memory Infrastructure

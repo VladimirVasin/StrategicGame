@@ -20,6 +20,11 @@ namespace ProjectUnknown.Strategy
 
         public static StrategyEventLogHudController Active { get; private set; }
 
+        internal static void ResetSessionState()
+        {
+            PendingEvents.Clear();
+        }
+
         public static void Notify(string message, Color color)
         {
             if (string.IsNullOrWhiteSpace(message))

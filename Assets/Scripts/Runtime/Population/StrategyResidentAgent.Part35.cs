@@ -7,6 +7,7 @@ namespace ProjectUnknown.Strategy
         private bool TryStartProductionInputDelivery()
         {
             if (storageWorkplace == null
+                || !CanReachBuildingForReservation(storageWorkplace)
                 || !storageWorkplace.TryReserveProductionInputDelivery(
                     this,
                     out IStrategyProductionLogisticsNode target,

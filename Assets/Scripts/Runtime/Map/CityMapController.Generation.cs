@@ -54,6 +54,10 @@ namespace ProjectUnknown.Strategy
             int token = ++generationToken;
             PrepareIncrementalGeneration(requestedSeed);
             yield return null;
+            if (token != generationToken)
+            {
+                yield break;
+            }
 
             Stopwatch totalTimer = Stopwatch.StartNew();
             Stopwatch frameTimer = Stopwatch.StartNew();
@@ -66,11 +70,10 @@ namespace ProjectUnknown.Strategy
                 for (int x = 0; x < width; x++)
                 {
                     CityMapCellKind kind = PickCellKind(x, y, profile, out CityMapWaterKind waterKind);
-                    float reliefHeight = PickReliefHeight(x, y, profile, kind, waterKind);
-                    cells[x, y] = new CityMapCell(x, y, kind, waterKind, reliefHeight);
+                    cells[x, y] = new CityMapCell(x, y, kind, waterKind);
                 }
 
-                GenerationProgress = Mathf.Lerp(0f, 0.12f, (y + 1f) / height);
+                GenerationProgress = Mathf.Lerp(0f, 0.08f, (y + 1f) / height);
                 if (ShouldYield(frameTimer))
                 {
                     if (token != generationToken)
@@ -79,6 +82,39 @@ namespace ProjectUnknown.Strategy
                     }
 
                     yield return null;
+                    if (token != generationToken)
+                    {
+                        yield break;
+                    }
+
+                    frameTimer.Restart();
+                }
+            }
+
+            GenerationStage = "Raising terrain";
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    CityMapCell cell = cells[x, y];
+                    float reliefHeight = PickReliefHeight(x, y, profile, cell.Kind, cell.WaterKind);
+                    cells[x, y] = new CityMapCell(x, y, cell.Kind, cell.WaterKind, reliefHeight);
+                }
+
+                GenerationProgress = Mathf.Lerp(0.08f, 0.12f, (y + 1f) / height);
+                if (ShouldYield(frameTimer))
+                {
+                    if (token != generationToken)
+                    {
+                        yield break;
+                    }
+
+                    yield return null;
+                    if (token != generationToken)
+                    {
+                        yield break;
+                    }
+
                     frameTimer.Restart();
                 }
             }
@@ -109,6 +145,11 @@ namespace ProjectUnknown.Strategy
                     }
 
                     yield return null;
+                    if (token != generationToken)
+                    {
+                        yield break;
+                    }
+
                     frameTimer.Restart();
                 }
             }
@@ -129,6 +170,11 @@ namespace ProjectUnknown.Strategy
                     }
 
                     yield return null;
+                    if (token != generationToken)
+                    {
+                        yield break;
+                    }
+
                     frameTimer.Restart();
                 }
             }
@@ -140,30 +186,37 @@ namespace ProjectUnknown.Strategy
             }
 
             GenerationStage = "Painting terrain";
-            int textureWidth = width * tilePixels;
-            int textureHeight = height * tilePixels;
+            CityMapCell[,] paintCells = cells;
+            int paintWidth = width;
+            int paintHeight = height;
+            int paintTilePixels = tilePixels;
+            int paintSeed = activeSeed;
+            bool paintGrid = drawGrid;
+            int textureWidth = paintWidth * paintTilePixels;
+            int textureHeight = paintHeight * paintTilePixels;
             CancellationToken cancellationToken = generationCancellation.Token;
             int paintedRows = 0;
             Task<Color32[]> paintTask = Task.Run(() =>
             {
+                using var profilerScope = StrategyPerformanceMarkers.TerrainPaint.Auto();
                 Color32[] result = new Color32[textureWidth * textureHeight];
                 Parallel.For(
                     0,
-                    height,
+                    paintHeight,
                     new ParallelOptions { CancellationToken = cancellationToken },
                     y =>
                     {
-                        for (int x = 0; x < width; x++)
+                        for (int x = 0; x < paintWidth; x++)
                         {
                             StrategyTerrainTexturePainter.PaintTile(
                                 result,
                                 textureWidth,
-                                cells,
+                                paintCells,
                                 x,
                                 y,
-                                tilePixels,
-                                activeSeed,
-                                drawGrid);
+                                paintTilePixels,
+                                paintSeed,
+                                paintGrid);
                         }
 
                         Interlocked.Increment(ref paintedRows);
@@ -173,7 +226,10 @@ namespace ProjectUnknown.Strategy
 
             while (!paintTask.IsCompleted)
             {
-                GenerationProgress = Mathf.Lerp(0.16f, 0.96f, Volatile.Read(ref paintedRows) / (float)height);
+                GenerationProgress = Mathf.Lerp(
+                    0.16f,
+                    0.96f,
+                    Volatile.Read(ref paintedRows) / (float)paintHeight);
                 if (token != generationToken || cancellationToken.IsCancellationRequested)
                 {
                     yield break;
@@ -214,9 +270,9 @@ namespace ProjectUnknown.Strategy
             StrategyDebugLogger.Info(
                 "Map",
                 "Preloaded",
-                StrategyDebugLogger.F("seed", activeSeed),
-                StrategyDebugLogger.F("width", width),
-                StrategyDebugLogger.F("height", height),
+                StrategyDebugLogger.F("seed", paintSeed),
+                StrategyDebugLogger.F("width", paintWidth),
+                StrategyDebugLogger.F("height", paintHeight),
                 StrategyDebugLogger.F("durationMs", totalTimer.ElapsedMilliseconds));
         }
 

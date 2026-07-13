@@ -42,8 +42,7 @@ namespace ProjectUnknown.Strategy
 
             if ((activeLogSource == null && activeLooseLogSource == null)
                 || storageWorkplace == null
-                || !storageWorkplace.TryFindDropoffCell(out Vector2Int dropoffCell)
-                || !TryBuildPathTo(dropoffCell))
+                || !TryBuildPathToBuildingAccess(storageWorkplace, out Vector2Int dropoffCell))
             {
                 if (activeLogSource != null)
                 {
@@ -181,8 +180,7 @@ namespace ProjectUnknown.Strategy
 
             if ((activeStoneSource == null && activeLooseStoneSource == null)
                 || storageWorkplace == null
-                || !storageWorkplace.TryFindDropoffCell(out Vector2Int dropoffCell)
-                || !TryBuildPathTo(dropoffCell))
+                || !TryBuildPathToBuildingAccess(storageWorkplace, out Vector2Int dropoffCell))
             {
                 if (activeStoneSource != null)
                 {
