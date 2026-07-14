@@ -1,5 +1,22 @@
 # Work Log
 
+### 2026-07-14 - House chimney smoke and window-light realignment
+
+- Replaced the legacy combined `80x80` House ambient overlay with eight shared compact smoke frames attached to the measured mouth of each authored V01-V05 chimney; their half-pixel pivot and base-touching motion keep every puff connected and unclipped.
+- Removed the always-on legacy window rectangles and the detached cinematic interior-shadow strip.
+- Added five full-sprite cinematic lower-window masks aligned to the authored House `(40,8)` pixel pivot and restored subtle House-only light flicker; existing dusk/night, occupancy, manual lamp-lighting, external wall-torch, Light2D, and darkness-cutout behavior remains authoritative.
+- Added EditMode contracts that compare all five chimney anchors and lower-window masks against the authored House PNGs, cover every smoke frame's bounds/pivot/sorting, and document the effect-profile dependency for future House redraws.
+- Verification: technical gates passed; runtime, editor, and EditMode-test projects built with 0 warnings/errors; isolated House visual-effect tests passed 2/2; direct PlayMode smoke passed.
+
+### 2026-07-14 - Authored House construction animation family
+
+- Added five authored `644x82` House construction atlases under `Visual/Authored/Construction/House`, each with seven `92x82` bottom-centered stages that progress from survey stakes through foundation, frame, walls, roof, and the matching completed House variant.
+- Added `Tools/Art/Build-HouseConstructionAtlas.ps1` to normalize transparent 4x2 storyboards into the runtime atlas contract while preserving the accepted completed House pixels exactly in stage 6.
+- Extended the visual catalog baker with durable authored construction-sequence overrides; procedural `Visual/Baked` atlases remain deterministic fallbacks, while matching authored atlases replace only the texture and preserve generated IDs, frame geometry, PPU, and pivot.
+- Made construction visual progression monotonic across material delivery and work progress so a fully supplied site cannot visually move backward after the first work hit.
+- Added strict House construction-family verification for atlas/import settings, frame layout, catalog ownership, PPU, and pivot, and documented the authored construction pipeline and ownership boundaries.
+- Verification: technical gates passed; `Assembly-CSharp` and `Assembly-CSharp-Editor` built with 0 warnings/errors; the full visual catalog bake passed with 132 sequences; the isolated VisualCatalog EditMode test passed 1/1; direct PlayMode smoke passed. The full EditMode run passed 70/74, with four unrelated existing failures in input-router and shared/main-menu hover-audio tests.
+
 ### 2026-07-14 - Authored House visual direction pass
 
 - Replaced all five completed House body sprites with richer `80x80` pixel-art variants derived from the menu architecture while preserving `24 PPU`, the bottom-center pivot, neutral daylight values, variant identity, and existing runtime lighting/weather ownership.

@@ -56,6 +56,7 @@ namespace ProjectUnknown.Strategy.EditorTests
                     && menuArt.texture.width >= 1280,
                 "Generated point-filtered main-menu key art is missing");
             VerifyAuthoredHouseFamily();
+            VerifyAuthoredHouseConstructionFamily(catalog);
         }
 
         private static void VerifyAuthoredHouseFamily()
@@ -85,6 +86,103 @@ namespace ProjectUnknown.Strategy.EditorTests
                 Require(
                     importer.textureCompression == TextureImporterCompression.Uncompressed,
                     "Authored House texture must stay uncompressed: " + assetPath);
+            }
+        }
+
+        private static void VerifyAuthoredHouseConstructionFamily(StrategyVisualCatalog catalog)
+        {
+            const int frameWidth = 92;
+            const int frameHeight = 82;
+            const int frameCount = 7;
+            Vector2 expectedPivot = new(46f, 8.2f);
+            for (int variant = 0; variant < StrategyBuildingSpriteFactory.HouseVariantCount; variant++)
+            {
+                string resourcePath = $"Visual/Authored/Construction/House/V{variant + 1:00}";
+                Texture2D atlas = Resources.Load<Texture2D>(resourcePath);
+                Require(atlas != null, "Authored House construction atlas is missing: " + resourcePath);
+                Require(
+                    atlas.width == frameWidth * frameCount && atlas.height == frameHeight,
+                    "Authored House construction atlas dimensions changed: " + resourcePath);
+                Require(
+                    atlas.filterMode == FilterMode.Point,
+                    "Authored House construction atlas must use Point filtering: " + resourcePath);
+
+                string assetPath = AssetDatabase.GetAssetPath(atlas);
+                TextureImporter importer = AssetImporter.GetAtPath(assetPath) as TextureImporter;
+                Require(importer != null, "Authored House construction importer is missing: " + assetPath);
+                Require(
+                    importer.textureType == TextureImporterType.Sprite
+                        && importer.spriteImportMode == SpriteImportMode.Single,
+                    "Authored House construction atlas must stay Sprite/Single: " + assetPath);
+                Require(!importer.mipmapEnabled, "Authored House construction mipmaps must stay disabled: " + assetPath);
+                Require(!importer.isReadable, "Authored House construction atlas must stay read-disabled: " + assetPath);
+                Require(
+                    importer.textureCompression == TextureImporterCompression.Uncompressed,
+                    "Authored House construction atlas must stay uncompressed: " + assetPath);
+                Require(importer.npotScale == TextureImporterNPOTScale.None, "Authored House construction atlas must preserve NPOT size: " + assetPath);
+
+                string sequenceId = $"Construction/{StrategyBuildTool.House}/V{variant}";
+                for (int frame = 0; frame < frameCount; frame++)
+                {
+                    Require(
+                        catalog.TryGetSequenceSprite(sequenceId, frame, out Sprite sprite) && sprite != null,
+                        $"Authored House construction frame is missing: {sequenceId}/{frame}");
+                    Require(
+                        sprite.texture == atlas,
+                        $"House construction frame does not reference authored texture: {sequenceId}/{frame}");
+                    Require(
+                        Mathf.RoundToInt(sprite.rect.x) == frame * frameWidth
+                            && Mathf.RoundToInt(sprite.rect.y) == 0
+                            && Mathf.RoundToInt(sprite.rect.width) == frameWidth
+                            && Mathf.RoundToInt(sprite.rect.height) == frameHeight,
+                        $"Authored House construction frame rect changed: {sequenceId}/{frame}");
+                    Require(
+                        Mathf.Approximately(sprite.pixelsPerUnit, 24f)
+                            && Vector2.Distance(sprite.pivot, expectedPivot) < 0.01f,
+                        $"Authored House construction frame scale or pivot changed: {sequenceId}/{frame}");
+                }
+
+                VerifyEmbeddedFinalHousePixels(atlas, variant, frameWidth);
+            }
+        }
+
+        private static void VerifyEmbeddedFinalHousePixels(
+            Texture2D atlas,
+            int variant,
+            int frameWidth)
+        {
+            string housePath = $"Assets/Resources/Visual/Authored/Buildings/House/V{variant + 1:00}.png";
+            Texture2D source = new(2, 2, TextureFormat.RGBA32, false);
+            Texture2D atlasCopy = new(2, 2, TextureFormat.RGBA32, false);
+            try
+            {
+                Require(ImageConversion.LoadImage(source, File.ReadAllBytes(housePath), false), "Could not read " + housePath);
+                string atlasPath = AssetDatabase.GetAssetPath(atlas);
+                Require(ImageConversion.LoadImage(atlasCopy, File.ReadAllBytes(atlasPath), false), "Could not read " + atlasPath);
+                Require(source.width == 80 && source.height == 80, "Completed House dimensions changed: " + housePath);
+
+                Color32[] sourcePixels = source.GetPixels32();
+                Color32[] atlasPixels = atlasCopy.GetPixels32();
+                int atlasX = 6 * frameWidth + 6;
+                for (int y = 0; y < source.height; y++)
+                {
+                    for (int x = 0; x < source.width; x++)
+                    {
+                        Color32 expected = sourcePixels[y * source.width + x];
+                        if (expected.a == 0)
+                        {
+                            continue;
+                        }
+
+                        Color32 actual = atlasPixels[y * atlasCopy.width + atlasX + x];
+                        Require(actual.Equals(expected), $"Construction stage 6 shifted or changed: House V{variant + 1:00} at {x},{y}");
+                    }
+                }
+            }
+            finally
+            {
+                Object.DestroyImmediate(source);
+                Object.DestroyImmediate(atlasCopy);
             }
         }
 

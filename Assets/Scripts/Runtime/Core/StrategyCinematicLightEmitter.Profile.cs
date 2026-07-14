@@ -150,13 +150,14 @@ namespace ProjectUnknown.Strategy
 
         private Vector2 GetCoreScale() => kind switch
         {
-            StrategyCinematicLightKind.House => new Vector2(0.78f, 0.34f),
+            StrategyCinematicLightKind.House => Vector2.one,
             StrategyCinematicLightKind.RoadsideTorch => new Vector2(0.30f, 0.26f),
             _ => new Vector2(0.32f, 0.26f)
         };
 
         private Sprite GetCoreSprite() => kind == StrategyCinematicLightKind.House
-            ? StrategyCinematicVisualSprites.GetWindowMaskSprite()
+            ? StrategyHouseAmbientSpriteFactory.GetWindowMaskSprite(
+                building != null ? building.VisualVariant : 0)
             : StrategyCinematicVisualSprites.GetLampCoreSprite();
 
         private static StrategyCinematicLightKind GetKind(StrategyBuildTool tool) => tool switch

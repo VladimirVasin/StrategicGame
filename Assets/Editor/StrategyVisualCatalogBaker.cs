@@ -142,8 +142,9 @@ namespace ProjectUnknown.Strategy.EditorTools
                     }
 
                     string id = $"Construction/{building.Tool}/V{variant}";
-                    string path = $"{BakedRoot}/Construction/{building.Tool}/V{variant + 1:00}.png";
-                    sequences.Add(BakeSequenceAsset(id, frames, path));
+                    string relativePath = $"Construction/{building.Tool}/V{variant + 1:00}.png";
+                    string path = $"{BakedRoot}/{relativePath}";
+                    sequences.Add(BakeSequenceAsset(id, frames, path, relativePath));
                 }
             }
         }

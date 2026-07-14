@@ -27,7 +27,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Runtime cinematic visual layer adds 2D global/local light with chunk/active-registry emitter scans, LOD-capped point lights, emissive pixel masks, animated building torch/lantern source sprites with manual lit state for building/roadside lights, active hand-carried resident torch lights, cached camera-area night-mask light cutouts, wet puddle glints, lightning flashes, and subtle foreground depth props
   - Runtime procedural 2D shadow caster supplies soft ground/cast shadows below world sprites
   - Runtime short-lived world effect layer supplies reusable dust, sawdust, chip, spark, splash, and resource pop/fade effects
-  - Resources-backed visual catalog and Editor baker provide editable PNGs for buildings, resident pose atlases, nature, terrain, construction, roads, production work, and stock layers while retaining procedural fallback; durable building replacements mirror their `Baked` path under `Visual/Authored` and override the rebuilt catalog automatically
+  - Resources-backed visual catalog and Editor baker provide editable PNGs for buildings, resident pose atlases, nature, terrain, construction, roads, production work, and stock layers while retaining procedural fallback; durable building and construction-sequence replacements mirror their `Baked` path under `Visual/Authored` and override the rebuilt catalog automatically
   - Generated terrain hides the cell grid, classifies kind/water before reusing that mask for relief, reads main-thread-prewarmed authored swatches in its parallel painter, and caches one paint/catalog context per tile outside the inner pixel loop
   - Non-Bridge placed buildings add a catalog-overridable trampled-ground layer beneath their Y-sorted body and shadow
   - Spring/autumn camera-area details and centralized vegetation tinting make seasonal changes readable without per-prop Update components
@@ -414,7 +414,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Generates staged bridge construction sprites sized to the selected span
     - Reuses a stable default sprite for Build menu icon and ghost preview
     - Chooses a random building visual variant for each successfully placed supported building
-    - Placed houses add ambient smoke/window-light overlay animation without changing colliders
+    - Placed houses attach variant-aligned chimney smoke without changing colliders; dusk/night window glow uses variant-aligned pane masks owned by the cinematic light layer
     - Completed buildings get animated torch, lantern, brazier, or bridge-lamp source sprites with opaque base bodies and separate flame layers that are manually lit at night and shrink out from `Dawn` to the start of `Noon` through the cinematic light emitter layer
     - Completed buildings, construction sites, and loose construction resource piles attach shared procedural ground/cast shadows
   - House visual upgrades (legacy inactive)

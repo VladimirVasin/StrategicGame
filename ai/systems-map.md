@@ -136,11 +136,12 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Build/StrategyBuildingSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Menu/StrategyMapPreloadCoordinator.Content.cs`
+- `Tools/Art/Build-HouseConstructionAtlas.ps1`
 
 Impact hints:
 
 - Catalog entries are optional; missing sets, variants, or frames must continue into the existing procedural fallback.
-- The baker deletes and recreates only `Visual/Baked`; matching building paths under `Visual/Authored/Buildings` replace their generated counterparts in the rebuilt catalog after dimension/scale/pivot validation.
+- The baker deletes and recreates only `Visual/Baked`; matching building paths under `Visual/Authored/Buildings` and construction atlases under `Visual/Authored/Construction` replace generated catalog entries after exact sprite or sequence-layout validation.
 - Imported authored sprites should use point filtering, a consistent pixels-per-unit contract, bottom-center world pivots where applicable, and the existing Y-based sorting path.
 - Atlas textures must stay `Sprite/Single`; automatic Multiple slicing breaks runtime rectangular frame extraction.
 - Worker terrain code must consume only the prewarmed managed swatch cache, never Unity textures or sprites directly.
@@ -1469,7 +1470,7 @@ Responsibilities:
 - Choose random coal pit visual variants for placed pits while keeping menu/preview art stable.
 - Choose random granary visual variants for placed granaries while keeping menu/preview art stable.
 - Choose random trading post visual variants for placed trading posts while keeping menu/preview art stable.
-- Add ambient smoke/window-light overlays to placed houses.
+- Attach variant-aligned chimney smoke to placed houses and expose matching lower-window masks to the cinematic dusk/night light layer.
 - Reserve construction Logs/Stone/Planks through the shared storage facade before accepting a construction site, including loose piles, Storage Yards, production-local construction stock, and the low-priority starter Caravan Cart.
 - Mark occupied cells when construction sites are accepted.
 - Support Bridge as a special two-click placement tool: select one valid river bank, highlight opposite-bank candidates across contiguous River water, then create a construction site from the selected span.
@@ -1536,6 +1537,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Build/StrategyTradingPost.cs`
 - `Assets/Scripts/Runtime/Build/StrategyHouseAmbientAnimator.cs`
 - `Assets/Scripts/Runtime/Build/StrategyHouseAmbientSpriteFactory.cs`
+- `Assets/Tests/EditMode/StrategyHouseVisualEffectTests.cs`
 - `Assets/Scripts/Runtime/Population/StrategyPopulationController.cs`
 - `Assets/Scripts/Runtime/Map/CityMapController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyFogOfWarController.cs`
@@ -1553,7 +1555,7 @@ Impact hints:
 - Completed buildings, active construction sites, progress, delivered resources, and blockers participate in versioned persistence.
 - Placed objects use tool-specific sprites when available; unknown future tools still fall back to colored sprites/TextMesh labels.
 - Build placement consults fog exploration state, so early expansion starts around the camp and other revealed areas unless player fog is disabled from the F9 debug panel.
-- House ambient overlays are visual-only child sprites and should not be used for footprint/collider calculations.
+- House chimney smoke is a visual-only child sprite, while House window masks are full-sprite overlays aligned to the authored `(40,8)` pixel pivot; neither should be used for footprint/collider calculations. When House geometry changes, update the per-variant chimney/window profiles and their EditMode contract together.
 - Bridge placement requires two valid explored, unoccupied, walkable river-bank endpoint cells with a straight contiguous River water span between them; Lake water is rejected.
 - With the current catalog, `House`, `Lumberjack Camp`, `Stonecutter Camp`, `Sawmill`, `Kiln`, `Forge`, `Hunter Camp`, `Fisher Hut`, `Forager Camp`, `Mine`, `Coal Pit`, `Clay Pit`, `Storage Yard`, and `Granary` can be selected and placed only where their technical foundation is fully walkable/buildable/explored, their future final 2.5D blocker can be reserved on buildable/explored/unoccupied cells, and builders have a nearby walkable work cell; Mine, Coal Pit, and Clay Pit are the only tools allowed to use matching Iron/Coal/Clay build-blocked resource cells.
 - Final blocker reservation no longer requires every future visual blocker cell to be walkable at construction-site placement time.

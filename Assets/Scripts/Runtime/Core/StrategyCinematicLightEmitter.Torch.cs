@@ -183,6 +183,11 @@ namespace ProjectUnknown.Strategy
 
         private Vector3 GetCoreVisualWorld(Vector3 defaultWorld)
         {
+            if (kind == StrategyCinematicLightKind.House && building != null)
+            {
+                return building.transform.position;
+            }
+
             return CanRenderTorch() && kind != StrategyCinematicLightKind.House
                 ? GetTorchAnchorWorld()
                 : defaultWorld;

@@ -79,7 +79,8 @@ namespace ProjectUnknown.Strategy.EditorTools
         private static StrategyVisualCatalog.VisualSequenceSet BakeSequenceAsset(
             string id,
             Sprite[] frames,
-            string assetPath)
+            string assetPath,
+            string authoredRelativePath = null)
         {
             CalculateFrameLayout(frames, out int width, out int height, out Vector2 pivotPixels);
             Color32[] atlasPixels = new Color32[width * frames.Length * height];
@@ -96,6 +97,15 @@ namespace ProjectUnknown.Strategy.EditorTools
                 throw new InvalidOperationException("Atlas import failed: " + assetPath);
             }
 
+            if (!string.IsNullOrWhiteSpace(authoredRelativePath))
+            {
+                atlas = ResolveAuthoredSequenceAtlas(
+                    authoredRelativePath,
+                    atlas,
+                    width * frames.Length,
+                    height);
+            }
+
             Vector2 pivot = new(pivotPixels.x / width, pivotPixels.y / height);
             return new StrategyVisualCatalog.VisualSequenceSet(
                 id,
@@ -105,6 +115,42 @@ namespace ProjectUnknown.Strategy.EditorTools
                 frames.Length,
                 frames[0].pixelsPerUnit,
                 pivot);
+        }
+
+        private static Texture2D ResolveAuthoredSequenceAtlas(
+            string relativePath,
+            Texture2D fallback,
+            int expectedWidth,
+            int expectedHeight)
+        {
+            if (fallback == null)
+            {
+                throw new InvalidOperationException(
+                    "Cannot resolve an authored sequence atlas without a fallback texture: " + relativePath);
+            }
+
+            string assetPath = $"{AuthoredRoot}/{relativePath}";
+            if (!File.Exists(ToAbsolutePath(assetPath)))
+            {
+                return fallback;
+            }
+
+            AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceSynchronousImport);
+            ConfigureAtlasImporter(assetPath);
+            Texture2D authored = AssetDatabase.LoadAssetAtPath<Texture2D>(assetPath);
+            if (authored == null)
+            {
+                throw new InvalidOperationException("Authored sequence atlas import failed: " + assetPath);
+            }
+
+            if (authored.width != expectedWidth || authored.height != expectedHeight)
+            {
+                throw new InvalidOperationException(
+                    $"Authored sequence atlas dimensions must remain {expectedWidth}x{expectedHeight}: "
+                    + $"{assetPath} is {authored.width}x{authored.height}");
+            }
+
+            return authored;
         }
 
         private static void CalculateFrameLayout(

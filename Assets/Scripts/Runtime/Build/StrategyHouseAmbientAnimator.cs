@@ -18,6 +18,11 @@ namespace ProjectUnknown.Strategy
             frameIndex = Random.Range(0, StrategyHouseAmbientSpriteFactory.FrameCount);
             frameTimer = Random.Range(0f, FrameDuration);
             EnsureOverlay(baseRenderer);
+            if (overlayRenderer != null)
+            {
+                overlayRenderer.transform.localPosition =
+                    StrategyHouseAmbientSpriteFactory.GetChimneyLocalPosition(visualVariant);
+            }
             ApplyFrame();
         }
 
@@ -46,7 +51,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            GameObject overlay = new GameObject("House Ambient Overlay");
+            GameObject overlay = new GameObject("House Chimney Smoke");
             overlay.transform.SetParent(transform, false);
             overlay.transform.localPosition = Vector3.zero;
             overlay.transform.localScale = Vector3.one;

@@ -1086,35 +1086,35 @@ MonoBehaviour:
     - {fileID: 21300000, guid: b6b55c886a5074c428c4e67e59ad62ee, type: 3}
   visualSequences:
   - id: Construction/House/V0
-    atlas: {fileID: 2800000, guid: 78c2071ce3e965c4da6244a47db2a608, type: 3}
+    atlas: {fileID: 2800000, guid: ee9021981cf1d3e43ba8e261c0d58891, type: 3}
     frameWidth: 92
     frameHeight: 82
     frameCount: 7
     pixelsPerUnit: 24
     pivot: {x: 0.5, y: 0.099999994}
   - id: Construction/House/V1
-    atlas: {fileID: 2800000, guid: 0608e88deb0104742a1d74876e527cc1, type: 3}
+    atlas: {fileID: 2800000, guid: fc26755a33443794ca436df232c731ea, type: 3}
     frameWidth: 92
     frameHeight: 82
     frameCount: 7
     pixelsPerUnit: 24
     pivot: {x: 0.5, y: 0.099999994}
   - id: Construction/House/V2
-    atlas: {fileID: 2800000, guid: f8ea2d4f65758d041817b2aa7606802e, type: 3}
+    atlas: {fileID: 2800000, guid: 966f9116878b90a4990132436070c389, type: 3}
     frameWidth: 92
     frameHeight: 82
     frameCount: 7
     pixelsPerUnit: 24
     pivot: {x: 0.5, y: 0.099999994}
   - id: Construction/House/V3
-    atlas: {fileID: 2800000, guid: 15571f0d86e6ec64eab51e595b7c3cdf, type: 3}
+    atlas: {fileID: 2800000, guid: 31c3e451ca3c9284ba1daf08d1200fd1, type: 3}
     frameWidth: 92
     frameHeight: 82
     frameCount: 7
     pixelsPerUnit: 24
     pivot: {x: 0.5, y: 0.099999994}
   - id: Construction/House/V4
-    atlas: {fileID: 2800000, guid: 8e8f7ea4acceb384794201575396ecdb, type: 3}
+    atlas: {fileID: 2800000, guid: 74ab6adaaaced9a40ba779d7f261f5b1, type: 3}
     frameWidth: 92
     frameHeight: 82
     frameCount: 7
@@ -2061,11 +2061,11 @@ MonoBehaviour:
   buildingSprites:
   - tool: 1
     variants:
-    - {fileID: 21300000, guid: 5aae19180537bad47ae90c8509336618, type: 3}
-    - {fileID: 21300000, guid: d15d83298306b67408ca0215022828eb, type: 3}
-    - {fileID: 21300000, guid: ad42a2bf7b5e726409e0198febe0868f, type: 3}
-    - {fileID: 21300000, guid: 11ccdb8503797d04d891d55273cba799, type: 3}
-    - {fileID: 21300000, guid: 0b8fecc953b54f54fa8e00d635eba318, type: 3}
+    - {fileID: 21300000, guid: c6271b052da1417496f130cd03be341e, type: 3}
+    - {fileID: 21300000, guid: f8f16d22c4c64025bc6c85fca41bbd66, type: 3}
+    - {fileID: 21300000, guid: 3ddcd9490b7241549bfd3f4f58784025, type: 3}
+    - {fileID: 21300000, guid: 165c18f1dd084218b4694fe13f2eca63, type: 3}
+    - {fileID: 21300000, guid: 5beeae52410349cca93accf4f59610e8, type: 3}
   - tool: 2
     variants:
     - {fileID: 21300000, guid: a8437e36b9698204c9dbf64dcba3f97e, type: 3}

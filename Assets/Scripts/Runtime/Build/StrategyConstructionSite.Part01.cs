@@ -62,7 +62,7 @@ namespace ProjectUnknown.Strategy
                 int progressStage = Progress > 0f
                     ? Mathf.Clamp(1 + Mathf.FloorToInt(Progress * (StrategyConstructionSpriteFactory.StageCount - 1)), 1, StrategyConstructionSpriteFactory.StageCount - 1)
                     : materialStage;
-                int stage = ResourcesComplete ? progressStage : Mathf.Max(materialStage, progressStage);
+                int stage = Mathf.Max(materialStage, progressStage);
                 spriteRenderer.sprite = tool == StrategyBuildTool.Bridge
                     ? StrategyConstructionSpriteFactory.GetBridgeConstructionSprite(footprint, stage)
                     : StrategyConstructionSpriteFactory.GetConstructionSprite(tool, visualVariant, stage);

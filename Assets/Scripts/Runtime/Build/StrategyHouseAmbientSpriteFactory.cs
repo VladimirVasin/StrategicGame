@@ -6,98 +6,166 @@ namespace ProjectUnknown.Strategy
     internal static class StrategyHouseAmbientSpriteFactory
     {
         private const float PixelsPerUnit = 24f;
+        private const int HouseSpriteSize = 80;
+        private const int SmokeTextureWidth = 32;
+        private const int SmokeTextureHeight = 24;
+        private const float HousePivotX = 40f;
+        private const float HousePivotY = 8f;
         public const int FrameCount = 8;
 
-        private static readonly Dictionary<int, Sprite> CachedSprites = new();
+        private static readonly Dictionary<int, Sprite> CachedSmokeSprites = new();
+        private static readonly Dictionary<int, Sprite> CachedWindowMasks = new();
 
         public static Sprite GetSprite(int variant, int frame)
         {
-            int normalizedVariant = Normalize(variant, StrategyBuildingSpriteFactory.HouseVariantCount);
             int normalizedFrame = Normalize(frame, FrameCount);
-            int cacheKey = normalizedVariant * 32 + normalizedFrame;
-            if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
+            if (!CachedSmokeSprites.TryGetValue(normalizedFrame, out Sprite sprite) || sprite == null)
             {
-                sprite = CreateSprite(normalizedVariant, normalizedFrame);
-                CachedSprites[cacheKey] = sprite;
+                sprite = CreateSmokeSprite(normalizedFrame);
+                CachedSmokeSprites[normalizedFrame] = sprite;
             }
 
             return sprite;
         }
 
-        private static Sprite CreateSprite(int variant, int frame)
+        public static Sprite GetWindowMaskSprite(int variant)
         {
-            Texture2D texture = new Texture2D(80, 80, TextureFormat.RGBA32, false)
+            int normalizedVariant = Normalize(variant, StrategyBuildingSpriteFactory.HouseVariantCount);
+            if (!CachedWindowMasks.TryGetValue(normalizedVariant, out Sprite sprite) || sprite == null)
             {
-                name = $"House Ambient {variant + 1}-{frame + 1}",
+                sprite = CreateWindowMaskSprite(normalizedVariant);
+                CachedWindowMasks[normalizedVariant] = sprite;
+            }
+
+            return sprite;
+        }
+
+        public static Vector3 GetChimneyLocalPosition(int variant)
+        {
+            Vector2 mouth = Normalize(variant, StrategyBuildingSpriteFactory.HouseVariantCount) switch
+            {
+                1 => new Vector2(52.5f, 76f),
+                2 => new Vector2(49.5f, 76f),
+                3 => new Vector2(50f, 75f),
+                4 => new Vector2(53.5f, 75f),
+                _ => new Vector2(51.5f, 76f)
+            };
+            return new Vector3(
+                (mouth.x - HousePivotX) / PixelsPerUnit,
+                (mouth.y - HousePivotY) / PixelsPerUnit,
+                0f);
+        }
+
+        private static Sprite CreateSmokeSprite(int frame)
+        {
+            Texture2D texture = CreateClearTexture(
+                SmokeTextureWidth,
+                SmokeTextureHeight,
+                $"House Smoke {frame + 1}");
+            DrawSmoke(texture, frame);
+            texture.Apply(false, false);
+            return Sprite.Create(
+                texture,
+                new Rect(0f, 0f, SmokeTextureWidth, SmokeTextureHeight),
+                new Vector2(16.5f / SmokeTextureWidth, 0f),
+                PixelsPerUnit);
+        }
+
+        private static Sprite CreateWindowMaskSprite(int variant)
+        {
+            Texture2D texture = CreateClearTexture(
+                HouseSpriteSize,
+                HouseSpriteSize,
+                $"House Window Mask {variant + 1}");
+            DrawWindowMask(texture, variant);
+            texture.Apply(false, false);
+            return Sprite.Create(
+                texture,
+                new Rect(0f, 0f, HouseSpriteSize, HouseSpriteSize),
+                new Vector2(0.5f, 0.10f),
+                PixelsPerUnit);
+        }
+
+        private static Texture2D CreateClearTexture(int width, int height, string textureName)
+        {
+            Texture2D texture = new(width, height, TextureFormat.RGBA32, false)
+            {
+                name = textureName,
                 filterMode = FilterMode.Point,
                 wrapMode = TextureWrapMode.Clamp
             };
-            texture.SetPixels(new Color[80 * 80]);
-
-            DrawSmoke(texture, variant, frame);
-            DrawWindowGlow(texture, variant, frame);
-
-            texture.Apply(false, false);
-            return Sprite.Create(texture, new Rect(0f, 0f, 80f, 80f), new Vector2(0.5f, 0.10f), PixelsPerUnit);
+            texture.SetPixels(new Color[width * height]);
+            return texture;
         }
 
-        private static void DrawSmoke(Texture2D texture, int variant, int frame)
+        private static void DrawSmoke(Texture2D texture, int frame)
         {
-            int chimneyX = variant switch
-            {
-                1 => 56,
-                2 => 49,
-                3 => 52,
-                4 => 51,
-                _ => 50
-            };
-            int chimneyY = variant == 3 ? 71 : 67;
-            Color smoke = new Color(0.62f, 0.64f, 0.61f, 0.28f);
-            Color smokeLight = new Color(0.78f, 0.79f, 0.74f, 0.18f);
+            const int centerX = SmokeTextureWidth / 2;
+            Color smoke = new(0.62f, 0.64f, 0.61f, 0.28f);
+            Color smokeLight = new(0.78f, 0.79f, 0.74f, 0.18f);
             int drift = frame <= 3 ? frame : 7 - frame;
             int side = frame < 4 ? -1 : 1;
 
-            FillEllipse(texture, chimneyX + side * drift, chimneyY + frame / 2, 3, 2, smoke);
-            FillEllipse(texture, chimneyX - 2 + side * (drift + 1), chimneyY + 5 + frame / 2, 4, 3, smokeLight);
+            FillEllipse(texture, centerX + side * drift, 2, 3, 2, smoke);
+            FillEllipse(texture, centerX - 2 + side * (drift + 1), 7 + frame / 2, 4, 3, smokeLight);
             if (frame % 2 == 0)
             {
-                FillEllipse(texture, chimneyX + 2 + side * drift, chimneyY + 10, 3, 2, smokeLight);
+                FillEllipse(texture, centerX + 2 + side * drift, 12, 3, 2, smokeLight);
             }
         }
 
-        private static void DrawWindowGlow(Texture2D texture, int variant, int frame)
+        private static void DrawWindowMask(Texture2D texture, int variant)
         {
-            float pulse = frame switch
+            switch (variant)
             {
-                1 => 0.75f,
-                2 => 0.95f,
-                3 => 0.82f,
-                5 => 0.68f,
-                6 => 0.88f,
-                _ => 0.58f
-            };
-            Color glow = new Color(1f, 0.78f, 0.34f, 0.20f + pulse * 0.28f);
-            Color glowHot = new Color(1f, 0.93f, 0.55f, 0.30f + pulse * 0.18f);
-
-            if (variant == 3)
-            {
-                FillRect(texture, 23, 30, 6, 6, glow);
-                FillRect(texture, 43, 30, 6, 6, glow);
-                SetPixelSafe(texture, 26, 34, glowHot);
-                SetPixelSafe(texture, 46, 34, glowHot);
-                return;
+                case 1:
+                    DrawWindowPair(texture, new RectInt(35, 21, 3, 6), new RectInt(52, 20, 4, 7), 1);
+                    break;
+                case 2:
+                    DrawWindowPair(texture, new RectInt(32, 21, 4, 6), new RectInt(49, 20, 4, 7));
+                    break;
+                case 3:
+                    DrawWindowPair(texture, new RectInt(33, 20, 3, 6), new RectInt(50, 19, 4, 7), 1);
+                    break;
+                case 4:
+                    DrawWindowPair(texture, new RectInt(35, 20, 3, 6), new RectInt(52, 19, 4, 7));
+                    break;
+                default:
+                    DrawWindowPair(texture, new RectInt(34, 21, 3, 6), new RectInt(50, 20, 4, 7));
+                    break;
             }
+        }
 
-            if (variant == 4)
-            {
-                FillRect(texture, 44, 28, 7, 6, glow);
-                SetPixelSafe(texture, 47, 32, glowHot);
-                return;
-            }
+        private static void DrawWindowPair(
+            Texture2D texture,
+            RectInt left,
+            RectInt right,
+            int rightMullionOffset = -1)
+        {
+            DrawWindow(texture, left, left.width / 2);
+            DrawWindow(
+                texture,
+                right,
+                rightMullionOffset >= 0 ? rightMullionOffset : right.width / 2);
+        }
 
-            FillRect(texture, 41, 28, 7, 6, glow);
-            FillRect(texture, 56, 28, 6, 6, new Color(1f, 0.70f, 0.28f, glow.a * 0.7f));
-            SetPixelSafe(texture, 44, 32, glowHot);
+        private static void DrawWindow(Texture2D texture, RectInt rect, int mullionOffset)
+        {
+            FillRect(texture, rect.x, rect.y, rect.width, rect.height, Color.white);
+            FillRect(
+                texture,
+                rect.x + mullionOffset,
+                rect.y,
+                1,
+                rect.height,
+                new Color(1f, 1f, 1f, 0.30f));
+            FillRect(
+                texture,
+                rect.x,
+                rect.y + rect.height / 2,
+                rect.width,
+                1,
+                new Color(1f, 1f, 1f, 0.36f));
         }
 
         private static void FillRect(Texture2D texture, int x, int y, int width, int height, Color color)
@@ -111,7 +179,13 @@ namespace ProjectUnknown.Strategy
             }
         }
 
-        private static void FillEllipse(Texture2D texture, int centerX, int centerY, int radiusX, int radiusY, Color color)
+        private static void FillEllipse(
+            Texture2D texture,
+            int centerX,
+            int centerY,
+            int radiusX,
+            int radiusY,
+            Color color)
         {
             int radiusXSqr = radiusX * radiusX;
             int radiusYSqr = radiusY * radiusY;

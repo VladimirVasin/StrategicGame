@@ -17,7 +17,6 @@ namespace ProjectUnknown.Strategy
         private Light2D pointLight;
         private SpriteRenderer glowRenderer;
         private SpriteRenderer coreRenderer;
-        private SpriteRenderer interiorRenderer;
         private float flickerSeed;
         private float flickerTimeOffset;
         private float flickerFastSpeed = 3.4f;
@@ -163,15 +162,11 @@ namespace ProjectUnknown.Strategy
             }
 
             glowRenderer ??= CreateRenderer("Cinematic Pixel Glow", StrategyCinematicVisualSprites.GetGlowSprite(), 18);
-            coreRenderer ??= CreateRenderer("Cinematic Emissive Core", GetCoreSprite(), 19);
+            coreRenderer ??= CreateRenderer(
+                "Cinematic Emissive Core",
+                GetCoreSprite(),
+                kind == StrategyCinematicLightKind.House ? 1 : 19);
             EnsureTorchVisuals();
-            if (kind == StrategyCinematicLightKind.House)
-            {
-                interiorRenderer ??= CreateRenderer(
-                    "Cinematic Interior Shadow",
-                    StrategyCinematicVisualSprites.GetInteriorShadowSprite(),
-                    20);
-            }
         }
 
         private SpriteRenderer CreateRenderer(string objectName, Sprite sprite, int orderOffset)
@@ -196,8 +191,10 @@ namespace ProjectUnknown.Strategy
             }
 
             PositionRenderer(glowRenderer, lightWorld, 18);
-            PositionRenderer(coreRenderer, GetCoreVisualWorld(world), 19);
-            PositionRenderer(interiorRenderer, world + GetInteriorOffset(), 20);
+            PositionRenderer(
+                coreRenderer,
+                GetCoreVisualWorld(world),
+                kind == StrategyCinematicLightKind.House ? 1 : 19);
             UpdateTorchAnchor();
             RefreshNightLightSource();
         }
@@ -251,9 +248,9 @@ namespace ProjectUnknown.Strategy
                 pointLight.pointLightInnerRadius = Mathf.Max(0.05f, radius * 0.18f);
             }
 
+            float coreFlicker = kind == StrategyCinematicLightKind.House ? flicker : 1f;
             ApplyRenderer(glowRenderer, color, intensity * GetGlowAlpha(), GetGlowScale(radius));
-            ApplyRenderer(coreRenderer, color, intensity * GetCoreAlpha(), GetCoreScale());
-            ApplyInteriorShadow(activity, night);
+            ApplyRenderer(coreRenderer, color, intensity * GetCoreAlpha() * coreFlicker, GetCoreScale());
             ApplyTorchLighting(color, activity, flicker);
         }
 
@@ -284,21 +281,6 @@ namespace ProjectUnknown.Strategy
             renderer.enabled = alpha > 0.01f;
             renderer.color = new Color(color.r, color.g, color.b, Mathf.Clamp01(alpha));
             renderer.transform.localScale = new Vector3(scale.x, scale.y, 1f);
-        }
-
-        private void ApplyInteriorShadow(float activity, float night)
-        {
-            if (interiorRenderer == null)
-            {
-                return;
-            }
-
-            bool occupied = building != null && building.ResidentCount > 0;
-            float pulse = Mathf.Sin(Time.unscaledTime * 0.85f + flickerSeed) * 0.5f + 0.5f;
-            float alpha = occupied ? activity * night * pulse * 0.34f : 0f;
-            interiorRenderer.enabled = alpha > 0.025f;
-            interiorRenderer.color = new Color(0.05f, 0.025f, 0.01f, alpha);
-            interiorRenderer.transform.localScale = new Vector3(0.62f + pulse * 0.10f, 0.80f, 1f);
         }
 
         private void TrySpawnAmbientParticles(float elapsed)
@@ -360,7 +342,6 @@ namespace ProjectUnknown.Strategy
 
             SetRendererEnabled(glowRenderer, false);
             SetRendererEnabled(coreRenderer, false);
-            SetRendererEnabled(interiorRenderer, false);
             DisableTorchVisuals();
             visualsDisabled = true;
         }
@@ -401,15 +382,5 @@ namespace ProjectUnknown.Strategy
             return transform.position + new Vector3(0f, 0.20f, -0.22f);
         }
 
-        private Vector3 GetInteriorOffset()
-        {
-            if (kind != StrategyCinematicLightKind.House)
-            {
-                return Vector3.zero;
-            }
-
-            float x = Mathf.Sin(Time.unscaledTime * 0.55f + flickerSeed) * 0.18f;
-            return new Vector3(x, -0.01f, 0f);
-        }
     }
 }

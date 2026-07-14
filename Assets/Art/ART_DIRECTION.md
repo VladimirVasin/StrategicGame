@@ -31,13 +31,21 @@
 - `Assets/Resources/Visual/Authored` contains durable hand-improved replacements and mirrors the relative `Baked` paths it overrides.
 - Runtime factories remain fallback and source-of-truth for rebaking until a sprite is manually replaced.
 - Manually improved PNG assets must keep their `.meta`, dimensions, PPU, pivot, and catalog slot stable.
-- Rebuilding the baseline replaces only `Visual/Baked`; building sprites with a matching `Visual/Authored/Buildings/...` path are validated and assigned to the catalog automatically.
+- Rebuilding the baseline replaces only `Visual/Baked`; building sprites and construction atlases with matching `Visual/Authored/Buildings/...` or `Visual/Authored/Construction/...` paths are validated and assigned to the catalog automatically.
 
 ## Authored House Family
 
 - The five `80x80` House variants translate the menu architecture into gameplay scale through steeper roof masses, denser half-timber framing, stone plinths, and cool-shadow/warm-material contrast.
 - Houses remain neutral daylight assets at `24 PPU` with a bottom-center `(0.5, 0.1)` pivot; runtime systems continue to own night tint, window light, weather, snow, and cast shadows.
+- Each variant's chimney mouth and lower window panes have matching runtime effect anchors/masks in `StrategyHouseAmbientSpriteFactory`; update those profiles and their EditMode coverage whenever the authored House geometry changes.
 - Fine cinematic texture must collapse into large readable pixel clusters at common gameplay zoom instead of adding painterly noise.
+
+## Authored House Construction
+
+- Each House variant owns one `644x82` atlas containing seven horizontal `92x82` stages at `24 PPU` with a bottom-center `(0.5, 0.1)` pivot.
+- Stages grow monotonically from survey marks through foundation, frame, walls, and roofing; stages 3-6 progressively inherit the selected House variant's structure and roof material.
+- Stage 6 uses the accepted final House pixels with only removable scaffolding around them, so completion changes construction dressing instead of replacing the building silhouette.
+- Runtime systems own delivered resource piles, workers, hammer effects, cast shadows, weather, snow, and night lighting; construction atlases must not duplicate those layers.
 
 ## Verification Views
 
