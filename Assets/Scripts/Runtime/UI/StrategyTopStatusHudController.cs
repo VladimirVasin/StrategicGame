@@ -111,6 +111,7 @@ namespace ProjectUnknown.Strategy
             Button button = panel.gameObject.AddComponent<Button>();
             button.targetGraphic = background;
             button.onClick.AddListener(TogglePopulationRoster);
+            StrategyUiButtonFeedback.Attach(button);
 
             populationText = CreateText("PopulationText", panel, string.Empty, 15, TextAnchor.MiddleCenter, new Color(0.95f, 0.88f, 0.62f));
             populationText.fontStyle = FontStyle.Bold;
@@ -326,7 +327,6 @@ namespace ProjectUnknown.Strategy
 
             rosterHud.Configure(population);
             rosterHud.Toggle();
-            StrategyHudSfxAudio.Play(StrategyHudSfxKind.Click);
         }
 
         private static GameObject CreateUiObject(string name, Transform parent)

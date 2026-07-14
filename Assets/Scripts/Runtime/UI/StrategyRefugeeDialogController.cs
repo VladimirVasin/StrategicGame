@@ -12,20 +12,23 @@ namespace ProjectUnknown.Strategy
         private CanvasGroup rootGroup;
         private Text bodyText;
         private Text familyText;
+        private StrategyUiPanelTransition panelTransition;
         private Action<bool> decisionCallback;
         private bool initialized;
         private bool decisionLocked;
         private StrategyInputRouter inputRouter;
         private StrategyInputContextHandle inputContext;
 
-        public bool IsOpen => rootGroup != null && rootGroup.blocksRaycasts;
+        public bool IsOpen => panelTransition != null
+            ? panelTransition.TargetVisible
+            : rootGroup != null && rootGroup.blocksRaycasts;
 
         public void SetInputRouter(StrategyInputRouter router)
         {
             inputContext?.Dispose();
             inputContext = null;
             inputRouter = router;
-            RefreshInputContext(IsOpen);
+            RefreshInputContext(ShouldHoldInputContext);
         }
 
         public void Configure()
@@ -48,7 +51,7 @@ namespace ProjectUnknown.Strategy
 
         private void Update()
         {
-            RefreshInputContext(IsOpen);
+            RefreshInputContext(ShouldHoldInputContext);
         }
 
         public void Show(IReadOnlyList<StrategyResidentAgent> family, Action<bool> onDecision)
@@ -66,9 +69,7 @@ namespace ProjectUnknown.Strategy
                 familyText.text = BuildFamilyText(family);
             }
 
-            rootGroup.alpha = 1f;
-            rootGroup.interactable = true;
-            rootGroup.blocksRaycasts = true;
+            panelTransition.SetVisible(true);
             RefreshInputContext(true);
             StrategyHudSfxAudio.Play(StrategyHudSfxKind.Notify);
             StrategyDebugLogger.Info(
@@ -84,11 +85,12 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            rootGroup.alpha = 0f;
-            rootGroup.interactable = false;
-            rootGroup.blocksRaycasts = false;
-            RefreshInputContext(false);
+            panelTransition.SetVisible(false);
+            RefreshInputContext(ShouldHoldInputContext);
         }
+
+        private bool ShouldHoldInputContext => IsOpen
+            || (panelTransition != null && panelTransition.IsInputShieldActive);
 
         private void RefreshInputContext(bool open)
         {
@@ -112,6 +114,7 @@ namespace ProjectUnknown.Strategy
         {
             inputContext?.Dispose();
             inputContext = null;
+            panelTransition?.SetVisible(false, true);
         }
 
         private void Choose(bool accepted)
@@ -122,13 +125,14 @@ namespace ProjectUnknown.Strategy
             }
 
             decisionLocked = true;
+            Action<bool> callback = decisionCallback;
+            decisionCallback = null;
             Hide();
             StrategyHudSfxAudio.Play(accepted ? StrategyHudSfxKind.Confirm : StrategyHudSfxKind.Cancel);
             StrategyDebugLogger.Info(
                 "Refugees",
                 accepted ? "DialogAccepted" : "DialogRejected");
-            decisionCallback?.Invoke(accepted);
-            decisionCallback = null;
+            callback?.Invoke(accepted);
         }
 
         private void BuildUi()
@@ -208,6 +212,10 @@ namespace ProjectUnknown.Strategy
 
             CreateDecisionButton(panel, "Accept", "Accept", new Vector2(-112f, 28f), new Color(0.22f, 0.39f, 0.30f, 0.98f), true);
             CreateDecisionButton(panel, "Reject", "Refuse", new Vector2(112f, 28f), new Color(0.34f, 0.18f, 0.17f, 0.98f), false);
+
+            panelTransition = root.gameObject.AddComponent<StrategyUiPanelTransition>();
+            panelTransition.Configure(rootGroup, panel, new Vector2(0f, -18f), 0.96f, 0.20f, 0.14f);
+            panelTransition.SetVisible(false, true);
         }
 
         private void CreateDecisionButton(RectTransform parent, string name, string label, Vector2 anchoredPosition, Color color, bool accepted)
@@ -232,6 +240,7 @@ namespace ProjectUnknown.Strategy
             colors.selectedColor = colors.highlightedColor;
             colors.disabledColor = new Color(color.r, color.g, color.b, 0.45f);
             button.colors = colors;
+            StrategyUiButtonFeedback.Attach(button, StrategyUiButtonFeedbackProfile.Standard, null);
 
             Text text = CreateText("Label", root, label, 16, TextAnchor.MiddleCenter, Color.white);
             text.fontStyle = FontStyle.Bold;

@@ -1,6 +1,6 @@
 # Tutorial Scenario
 
-Last updated: 2026-07-13
+Last updated: 2026-07-14
 
 ## Current State
 
@@ -22,7 +22,7 @@ When a real tutorial or onboarding flow is implemented:
 
 - Application startup first opens `MainMenu`: `Continue` is enabled only for a valid save and opens gameplay directly, while `New Settlement` opens `FoundingJourney`.
 - The menu prepares the likely saved/new map seed in the background. The same New Settlement candidate continues preparing while the founding story is shown; no second map is generated.
-- Four story panels describe the families leaving a war-torn home, crossing the long road, discovering a quiet valley, and gathering for their first decision. The player can move Back, Skip the story, use normal UI submit/navigation controls, or enable persistent reduced motion.
+- Four story panels describe the families leaving a war-torn home, crossing the long road, discovering a quiet valley, and gathering for their first decision. Each uses an authored cover-cropped shot, cinematic shot/atmosphere crossfade, staged reveal, normalized artwork-bound effects, and scene-local wind/rain/fire ambience; persistent reduced motion removes the travel/particle motion and shortens transitions. The player can move Back, Skip the story, or use normal UI submit/navigation controls.
 - The player answers four questions: preferred water landmark (River/Lake/High Dry Ground), surrounding landscape (Forest Edge/Open Meadow/Mixed), first livelihood (Hunting/Fishing/Foraging), and immediate priority (Construction/Resources/Balanced). `Use balanced defaults` skips individual answers with a neutral profile.
 - The answers rank safe cells on the already prepared map. They never override water clearance, connected-land, resident-spawn, buildability, or Caravan Cart reservation requirements; explicit relaxed/legacy fallbacks keep unusually constrained maps playable.
 - The summary lets the player change answers or begin. Beginning selects one deterministic camp cell and an exact `3x3` reserved Caravan Cart blocker, then opens gameplay.

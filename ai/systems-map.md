@@ -1,6 +1,6 @@
 # Systems Map
 
-Last updated: 2026-07-13
+Last updated: 2026-07-14
 
 Use this file as the first navigation pass before broad searches. Owner cards are starting points, not hard boundaries.
 
@@ -208,7 +208,7 @@ Impact hints:
 Responsibilities:
 
 - Present four pre-game story panels and four stable-ID founding questions without starting gameplay simulation.
-- Support Back/Skip, balanced defaults, centralized UI input, subtle presentation motion, and a persistent reduced-motion option.
+- Support Back/Skip, balanced defaults, centralized UI input, authored cover-cropped shots, cinematic chrome/staged reveals, artwork-bound atmosphere, scene-owned ambience, and a persistent reduced-motion option.
 - Capture the prepared map into defensive plain data, select a deterministic safe camp/cart layout, and expose fallback diagnostics.
 - Carry the selected profile/layout into population startup, nature/forage exclusions, exact starter-cart placement, persistence, and launch verification.
 
@@ -220,7 +220,10 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Menu/StrategyFoundingJourneyController.cs`
 - `Assets/Scripts/Runtime/Menu/StrategyFoundingJourneyController.Flow.cs`
 - `Assets/Scripts/Runtime/Menu/StrategyFoundingJourneyController.View.cs`
+- `Assets/Scripts/Runtime/Menu/StrategyFoundingJourneyController.Chrome.cs`
 - `Assets/Scripts/Runtime/Menu/StrategyFoundingJourneyAtmosphere.cs`
+- `Assets/Scripts/Runtime/Menu/StrategyFoundingJourneyPresentation.cs`
+- `Assets/Scripts/Runtime/Menu/StrategyFoundingJourneyAudio.cs`
 - `Assets/Scripts/Runtime/Founding/`
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.Founding.cs`
 - `Assets/Scripts/Runtime/Population/StrategyPopulationController.Founding.cs`
@@ -238,6 +241,7 @@ Impact hints:
 - The reserved cart footprint is `3x3` even though the visible cart is `3x2`; population, nature, forage, placement, validation, and smoke checks must stay aligned.
 - Continue uses restored-state semantics: create the camp anchor required for bootstrap, but do not spawn transient new-game residents or a second starter cart before applying the save.
 - Story art stays Resources-backed Sprite/Single with point filtering; missing art must log and degrade without breaking scene navigation.
+- Presentation owns shot/crossfade/reveal transforms, atmosphere follows the active artwork transform, and the journey audio component owns only scene-local Weather/Fire loops; keep those lifetimes inside `FoundingJourney`.
 
 ### Runtime Bootstrap
 
@@ -443,7 +447,8 @@ Responsibilities:
 - Shape resident walk frames into grass/forest/dirt/road/snow profiles and submit them to the shared voice pool.
 - Add spatial resident work SFX for axe, pickaxe, construction hammer, fishing, and bow actions on animation impact/release frames.
 - Add pooled spatial forestry SFX for `StrategyForestryTree` fall and split-Logs completion events.
-- Add non-spatial HUD SFX for accepted, rejected, modal, roster, profession, build-menu, and speed-control interactions.
+- Add non-spatial HUD SFX for accepted, rejected, modal, roster, profession, build-menu, speed-control, and quiet hover interactions.
+- Route Founding Journey wind/rain/fire loops through the existing Weather/Fire buses without starting the gameplay ambience or music owners.
 - Add bounded procedural settlement/fire/winter layers and event details for completion, delivery, lamp ignition, wolf howl, and burial.
 
 Primary files/assets:
@@ -455,6 +460,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Audio/StrategyWorldAudioDirector.cs`
 - `Assets/Scripts/Runtime/Audio/StrategyMusicController.cs`
 - `Assets/Scripts/Runtime/Audio/StrategyHudSfxAudio.cs`
+- `Assets/Scripts/Runtime/Menu/StrategyFoundingJourneyAudio.cs`
 - `Assets/Scripts/Runtime/Audio/StrategyResidentFootstepAudio.cs`
 - `Assets/Scripts/Runtime/Audio/StrategyResidentWorkSfxAudio.cs`
 - `Assets/Scripts/Runtime/Audio/StrategyForestrySfxAudio.cs`
@@ -486,7 +492,7 @@ Impact hints:
 - Footsteps are tied to resident walk sprite frames 1 and 5; changing walk frame counts or animation pacing should retune footstep phases.
 - Work SFX are tied to resident impact/release frames (`WoodcutImpactFrame`, `ConstructionImpactFrame`, `FishingHookFrame`, `FishingReelFrame`, and `BowReleaseFrame`); changing those animation timelines should retune SFX triggers.
 - Forestry SFX are tree-owned rather than resident-owned: `StartFalling()` plays tree-fall audio and `CompleteBucking()` plays split-Logs audio from the tree position.
-- HUD SFX are event-driven from runtime UI controllers and use a singleton non-spatial source with small cooldowns; avoid per-hover playback unless a future pass adds stronger throttling.
+- HUD SFX are event-driven from runtime UI controllers and use a singleton non-spatial source with small cooldowns; hover reuses a quiet cue with separate local/global throttling and never replaces semantic click/open/close/confirm sounds.
 - `StrategyAudioMixController` is the shared mix/routing layer; keep new audio on a named `StrategyAudioBus` and use `StrategyAudioVoicePool` for spatial one-shots instead of creating AudioSources.
 - The 18-voice pool is a hard performance budget. Add new sounds through concurrency keys/priorities and only raise capacity after benchmark evidence.
 - Keep imported ambience/footstep/work/HUD clips under `Resources/Audio` unless the loading path is updated at the same time.
@@ -1137,6 +1143,25 @@ Impact hints:
 - Future pause, speed HUD, or settings should extend this controller instead of adding separate `Time.timeScale` writes.
 - Modal systems should use pause locks instead of writing `Time.timeScale = 0` directly.
 
+### Shared Runtime UI Feedback
+
+Responsibilities:
+
+- Attach consistent unscaled pointer, keyboard/controller focus, press tint/motion, and quiet hover audio to code-built player-facing buttons.
+- Animate code-built panels with interruptible unscaled fade/slide/scale while preserving input/raycast safety and persistent reduced motion.
+
+Primary files/assets:
+
+- `Assets/Scripts/Runtime/UI/StrategyUiButtonFeedback.cs`
+- `Assets/Scripts/Runtime/UI/StrategyUiPanelTransition.cs`
+- `Assets/Scripts/Runtime/Audio/StrategyHudSfxAudio.cs`
+
+Impact hints:
+
+- Attach button feedback after final layout; use `SoundOnly` when another owner already animates the button transform, or wrap the competing animation on a separate transform.
+- Keep semantic click/open/close/confirm SFX in the owning action. The shared layer owns hover and only adds generic click audio when an action had none.
+- Closing modal panels must disable their controls immediately but keep raycast and modal-input shielding until the visual fade completes.
+
 ### Build Menu HUD
 
 Responsibilities:
@@ -1221,6 +1246,7 @@ Responsibilities:
 - Show a larger residents roster HUD with settlement stats plus filterable rows for name, age, home/camp state, role, current status, and food status.
 - Expose a `Family Trees` button from the residents roster.
 - Show a fullscreen modal Family Trees HUD that pauses simulation, has permanent horizontal/vertical scrollbars, groups recorded members into connected same-surname family cards, lays those cards out as affinity-ordered left-to-right columns with compact generation rows, and draws parent-child portrait-card trees plus cross-family relationship lines with distinct deceased cards, gender symbols, and hover relationship labels.
+- Animate roster and Family Trees opening/closing through the shared interruptible panel transition.
 - Share resident role/status/home/food label formatting through `StrategyResidentHudText`.
 - Show compact birth, death, adoption, dawn, nightfall, season-start, and late-Autumn winter-warning messages through a separate event-log canvas.
 - Refresh counts from `StrategyPopulationController` without owning population state.
@@ -1235,12 +1261,16 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyPopulationController.SeasonReadiness.cs`
 - `Assets/Scripts/Runtime/UI/StrategyPopulationRosterHudController.cs`
 - `Assets/Scripts/Runtime/UI/StrategyPopulationRosterHudController.Part01.cs`
+- `Assets/Scripts/Runtime/UI/StrategyPopulationRosterHudController.Input.cs`
+- `Assets/Scripts/Runtime/UI/StrategyPopulationRosterHudController.Part02.cs`
+- `Assets/Scripts/Runtime/UI/StrategyPopulationRosterHudController.Transition.cs`
 - `Assets/Scripts/Runtime/UI/StrategyFamilyTreeHudController.cs`
 - `Assets/Scripts/Runtime/UI/StrategyFamilyTreeHudController.Part01.cs`
 - `Assets/Scripts/Runtime/UI/StrategyFamilyTreeHudController.Part02.cs`
 - `Assets/Scripts/Runtime/UI/StrategyFamilyTreeHudController.Part03.cs`
 - `Assets/Scripts/Runtime/UI/StrategyFamilyTreeHudController.Part04.cs`
 - `Assets/Scripts/Runtime/UI/StrategyFamilyTreeHudController.Part05.cs`
+- `Assets/Scripts/Runtime/UI/StrategyFamilyTreeHudController.Transition.cs`
 - `Assets/Scripts/Runtime/UI/StrategyPopulationRosterRowView.cs`
 - `Assets/Scripts/Runtime/UI/StrategyResidentHudText.cs`
 - `Assets/Scripts/Runtime/UI/StrategyEventLogHudController.cs`
@@ -1291,6 +1321,7 @@ Responsibilities:
 - Runtime-created modal decision canvas for arriving refugee families.
 - Show a family summary with names, roles, and ages.
 - Block world interaction while visible and return accept/reject decisions to the refugee-arrival controller.
+- Use the shared modal transition and retain raycast shielding through the closing fade.
 
 Primary files/assets:
 
@@ -2332,6 +2363,7 @@ Responsibilities:
 - Show selected-resident full name, portrait, profile, age/life stage, current activity, and home/camp assignment.
 - Show selected-grave deceased name, epitaph, age, final profession, family role, and memory text.
 - Listen for `Delete` on selected construction sites/buildings and open the reusable confirmation dialog before cancellation or demolition.
+- Use shared button feedback for selection actions and the shared protected modal transition for confirmation prompts.
 
 Primary files/assets:
 

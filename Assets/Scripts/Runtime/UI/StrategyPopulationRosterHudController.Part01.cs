@@ -10,6 +10,7 @@ namespace ProjectUnknown.Strategy
             Button button = CreateButton("FamilyTreesButton", panel, "Family Trees", 13, new Color(0.16f, 0.18f, 0.20f, 1f));
             button.onClick.AddListener(OpenFamilyTrees);
             SetTopRight(button.GetComponent<RectTransform>(), 70f, 18f, 128f, 34f);
+            StrategyUiButtonFeedback.Attach(button, StrategyUiButtonFeedbackProfile.Compact, null);
         }
 
         private void OpenFamilyTrees()
@@ -24,8 +25,8 @@ namespace ProjectUnknown.Strategy
 
             controller.SetInputRouter(inputRouter);
             controller.Configure(population, Object.FindAnyObjectByType<StrategyTimeScaleController>());
-            SetOpen(false);
             controller.SetOpen(true);
+            SetOpen(false, false);
         }
     }
 }

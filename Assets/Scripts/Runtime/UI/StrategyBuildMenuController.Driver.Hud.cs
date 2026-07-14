@@ -79,6 +79,7 @@ namespace ProjectUnknown.Strategy
                 button.targetGraphic = image;
                 button.onClick.AddListener(() => SetSpeedFromHud(index + 1));
                 ConfigureButtonColors(button);
+                StrategyUiButtonFeedback.Attach(button, StrategyUiButtonFeedbackProfile.SoundOnly);
 
                 Text label = CreateText("Label", buttonRoot, "x" + (i + 1), 13, TextAnchor.MiddleCenter, Color.white);
                 label.fontStyle = FontStyle.Bold;

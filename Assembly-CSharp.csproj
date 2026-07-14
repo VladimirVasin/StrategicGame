@@ -17,9 +17,16 @@
     <Compile Include="Assets\Scripts\Runtime\Founding\StrategyStartSiteSelector.Scoring.cs" />
     <Compile Include="Assets\Scripts\Runtime\Founding\StrategyFoundingStartState.cs" />
     <Compile Include="Assets\Scripts\Runtime\Founding\StrategyFoundingJourneyCatalog.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Menu\StrategyFoundingJourneyAudio.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Menu\StrategyFoundingJourneyController.Chrome.cs" />
     <Compile Include="Assets\Scripts\Runtime\Menu\StrategyFoundingJourneyController.Flow.cs" />
     <Compile Include="Assets\Scripts\Runtime\Menu\StrategyFoundingJourneyController.View.cs" />
     <Compile Include="Assets\Scripts\Runtime\Menu\StrategyFoundingJourneyAtmosphere.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Menu\StrategyFoundingJourneyPresentation.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyFamilyTreeHudController.Transition.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyPopulationRosterHudController.Transition.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyUiButtonFeedback.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyUiPanelTransition.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyPopulationController.Founding.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyNaturePropController.Founding.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyForageResourceController.Founding.cs" />

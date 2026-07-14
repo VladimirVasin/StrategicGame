@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,19 +5,15 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyFoundingJourneyController
     {
-        private static readonly Color JourneyPanelColor = new(0.018f, 0.030f, 0.030f, 0.88f);
+        private static readonly Color JourneyPanelColor = new(0.018f, 0.030f, 0.030f, 0.025f);
         private static readonly Color JourneyButtonColor = new(0.105f, 0.145f, 0.135f, 0.98f);
         private static readonly Color JourneyButtonHoverColor = new(0.16f, 0.235f, 0.205f, 1f);
         private static readonly Color JourneySelectedColor = new(0.20f, 0.285f, 0.225f, 1f);
         private static readonly Color JourneyGoldColor = new(0.90f, 0.70f, 0.35f, 1f);
         private static readonly Color JourneyMutedColor = new(0.72f, 0.80f, 0.76f, 1f);
 
-        private RectTransform backgroundMotionRoot;
-        private Image backgroundA;
-        private Image backgroundB;
-        private bool backgroundAActive = true;
-        private string currentBackgroundPath;
-        private Coroutine backgroundFadeRoutine;
+        private StrategyFoundingJourneyPresentation presentationController;
+        private StrategyFoundingJourneyAudio journeyAudioController;
         private StrategyFoundingJourneyAtmosphere atmosphereController;
         private GameObject storyRoot;
         private GameObject questionRoot;
@@ -74,39 +69,28 @@ namespace ProjectUnknown.Strategy
             Stretch(backdrop);
             backdrop.gameObject.AddComponent<Image>().color = new Color(0.01f, 0.015f, 0.018f, 1f);
 
-            backgroundMotionRoot = CreateRect("BackgroundMotion", canvasObject.transform);
-            Stretch(backgroundMotionRoot, new Vector2(-20f, -20f), new Vector2(20f, 20f));
-            backgroundA = CreateBackground("BackgroundA", backgroundMotionRoot);
-            backgroundB = CreateBackground("BackgroundB", backgroundMotionRoot);
+            RectTransform backgroundStage = CreateRect("BackgroundStage", canvasObject.transform);
+            Stretch(backgroundStage, new Vector2(-36f, -24f), new Vector2(36f, 24f));
+            Image backgroundA = CreateBackground("BackgroundA", backgroundStage);
+            Image backgroundB = CreateBackground("BackgroundB", backgroundStage);
             backgroundB.color = new Color(1f, 1f, 1f, 0f);
 
             RectTransform shade = CreateRect("CinematicShade", canvasObject.transform);
             Stretch(shade);
             shade.gameObject.AddComponent<Image>().color = new Color(0.005f, 0.012f, 0.014f, 0.14f);
 
-            RectTransform atmosphereRoot = CreateRect("Atmosphere", canvasObject.transform);
+            RectTransform atmosphereRoot = CreateRect("Atmosphere", backgroundStage);
             Stretch(atmosphereRoot);
             atmosphereController = atmosphereRoot.gameObject.AddComponent<StrategyFoundingJourneyAtmosphere>();
             atmosphereController.Configure(atmosphereRoot, reducedMotion);
 
             RectTransform panel = CreateRect("JourneyPanel", canvasObject.transform);
             panel.anchorMin = Vector2.zero;
-            panel.anchorMax = new Vector2(0.47f, 1f);
+            panel.anchorMax = new Vector2(0.45f, 1f);
             panel.offsetMin = Vector2.zero;
             panel.offsetMax = Vector2.zero;
             panel.gameObject.AddComponent<Image>().color = JourneyPanelColor;
-
-            RectTransform accent = CreateRect("JourneyAccent", panel);
-            accent.anchorMin = new Vector2(1f, 0f);
-            accent.anchorMax = Vector2.one;
-            accent.pivot = new Vector2(1f, 0.5f);
-            accent.sizeDelta = new Vector2(4f, 0f);
-            accent.anchoredPosition = Vector2.zero;
-            accent.gameObject.AddComponent<Image>().color = new Color(
-                JourneyGoldColor.r,
-                JourneyGoldColor.g,
-                JourneyGoldColor.b,
-                0.72f);
+            BuildNarrativeGradient(panel);
 
             BuildStoryPanel(panel);
             BuildQuestionPanel(panel);
@@ -114,7 +98,7 @@ namespace ProjectUnknown.Strategy
             BuildLoadingPanel(panel);
 
             backButton = CreateButton("BackButton", panel, "Back", 15, JourneyButtonColor, out _);
-            SetRect(backButton.GetComponent<RectTransform>(), Vector2.zero, Vector2.zero, new Vector2(54f, 42f), new Vector2(142f, 48f));
+            SetRect(backButton.GetComponent<RectTransform>(), Vector2.zero, Vector2.zero, new Vector2(54f, 54f), new Vector2(142f, 48f));
 
             preparationText = CreateText(
                 "PreparationStatus",
@@ -123,8 +107,37 @@ namespace ProjectUnknown.Strategy
                 12,
                 TextAnchor.UpperRight,
                 new Color(0.82f, 0.88f, 0.84f, 0.78f));
-            SetRect(preparationText.rectTransform, Vector2.one, Vector2.one, new Vector2(-230f, -28f), new Vector2(410f, 26f));
+            SetRect(preparationText.rectTransform, Vector2.one, Vector2.one, new Vector2(-230f, -44f), new Vector2(410f, 26f));
             reducedMotionToggle = CreateReducedMotionToggle(canvasObject.transform);
+            BuildCinematicChrome(canvasObject.transform);
+
+            RectTransform curtainRoot = CreateRect("OpeningCurtain", canvasObject.transform);
+            Stretch(curtainRoot);
+            Image curtainImage = curtainRoot.gameObject.AddComponent<Image>();
+            curtainImage.color = Color.black;
+            curtainImage.raycastTarget = true;
+            CanvasGroup curtain = curtainRoot.gameObject.AddComponent<CanvasGroup>();
+
+            CanvasGroup[] storyRevealGroups =
+            {
+                storyChapterText.gameObject.AddComponent<CanvasGroup>(),
+                storyTitleText.gameObject.AddComponent<CanvasGroup>(),
+                storyBodyText.gameObject.AddComponent<CanvasGroup>(),
+                storyProgressText.gameObject.AddComponent<CanvasGroup>(),
+                WrapButtonForReveal(nextButton),
+                WrapButtonForReveal(skipStoryButton)
+            };
+            presentationController = canvasObject.AddComponent<StrategyFoundingJourneyPresentation>();
+            presentationController.Configure(
+                backgroundA,
+                backgroundB,
+                atmosphereRoot,
+                curtain,
+                storyRevealGroups,
+                reducedMotion);
+            AttachJourneyButtonFeedback();
+            journeyAudioController = gameObject.AddComponent<StrategyFoundingJourneyAudio>();
+            journeyAudioController.Configure(journeyCamera);
             StrategyUiInputModuleBootstrap.Ensure();
         }
 
@@ -255,11 +268,16 @@ namespace ProjectUnknown.Strategy
 
         private static Image CreateBackground(string name, Transform parent)
         {
-            RectTransform rect = CreateRect(name, parent);
-            Stretch(rect);
-            Image image = rect.gameObject.AddComponent<Image>();
-            image.preserveAspect = true;
+            RectTransform shotRoot = CreateRect(name, parent);
+            Stretch(shotRoot);
+            RectTransform visual = CreateRect("Artwork", shotRoot);
+            Stretch(visual);
+            Image image = visual.gameObject.AddComponent<Image>();
+            image.preserveAspect = false;
             image.raycastTarget = false;
+            AspectRatioFitter fitter = visual.gameObject.AddComponent<AspectRatioFitter>();
+            fitter.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+            fitter.aspectRatio = 16f / 9f;
             return image;
         }
 
@@ -301,7 +319,7 @@ namespace ProjectUnknown.Strategy
         private Toggle CreateReducedMotionToggle(Transform parent)
         {
             RectTransform root = CreateRect("ReducedMotion", parent);
-            SetRect(root, Vector2.one, Vector2.one, new Vector2(-122f, -66f), new Vector2(220f, 30f));
+            SetRect(root, Vector2.one, Vector2.one, new Vector2(-122f, -80f), new Vector2(220f, 30f));
             Toggle toggle = root.gameObject.AddComponent<Toggle>();
             RectTransform box = CreateRect("Box", root);
             box.anchorMin = new Vector2(0f, 0.5f);
@@ -379,72 +397,8 @@ namespace ProjectUnknown.Strategy
 
         private void SetJourneyBackground(StrategyFoundingStoryPanel panel, bool immediate)
         {
-            atmosphereController.ConfigureAtmosphere(panel.Atmosphere);
-            if (currentBackgroundPath == panel.ResourcePath)
-            {
-                return;
-            }
-
-            Sprite sprite = Resources.Load<Sprite>(panel.ResourcePath);
-            if (sprite == null)
-            {
-                StrategyDebugLogger.Warn("FoundingJourney", "StoryArtMissing", StrategyDebugLogger.F("path", panel.ResourcePath));
-                return;
-            }
-
-            currentBackgroundPath = panel.ResourcePath;
-            if (immediate || backgroundA.sprite == null)
-            {
-                backgroundA.sprite = sprite;
-                backgroundA.color = Color.white;
-                backgroundB.color = new Color(1f, 1f, 1f, 0f);
-                backgroundAActive = true;
-                return;
-            }
-
-            if (backgroundFadeRoutine != null)
-            {
-                StopCoroutine(backgroundFadeRoutine);
-            }
-
-            backgroundFadeRoutine = StartCoroutine(FadeBackground(sprite));
-        }
-
-        private IEnumerator FadeBackground(Sprite sprite)
-        {
-            Image incoming = backgroundAActive ? backgroundB : backgroundA;
-            Image outgoing = backgroundAActive ? backgroundA : backgroundB;
-            incoming.sprite = sprite;
-            incoming.color = new Color(1f, 1f, 1f, 0f);
-            float duration = reducedMotion ? 0.05f : 0.36f;
-            float elapsed = 0f;
-            while (elapsed < duration)
-            {
-                elapsed += Time.unscaledDeltaTime;
-                float t = Mathf.Clamp01(elapsed / duration);
-                incoming.color = new Color(1f, 1f, 1f, t);
-                outgoing.color = new Color(1f, 1f, 1f, 1f - t);
-                yield return null;
-            }
-
-            incoming.color = Color.white;
-            outgoing.color = new Color(1f, 1f, 1f, 0f);
-            backgroundAActive = !backgroundAActive;
-            backgroundFadeRoutine = null;
-        }
-
-        private void UpdateBackgroundMotion()
-        {
-            if (reducedMotion)
-            {
-                return;
-            }
-
-            float time = Time.unscaledTime;
-            backgroundMotionRoot.localScale = Vector3.one * (1.018f + Mathf.Sin(time * 0.13f) * 0.004f);
-            backgroundMotionRoot.anchoredPosition = new Vector2(
-                Mathf.Sin(time * 0.09f) * 7f,
-                Mathf.Cos(time * 0.07f) * 4f);
+            presentationController.ShowBackground(panel, immediate);
+            journeyAudioController.SetPanel(panel);
         }
 
         private void RefreshPreparationStatus()

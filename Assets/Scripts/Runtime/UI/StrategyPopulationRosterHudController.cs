@@ -60,7 +60,7 @@ namespace ProjectUnknown.Strategy
             SetOpen(!isOpen);
         }
 
-        public void SetOpen(bool open)
+        public void SetOpen(bool open, bool playSfx = true)
         {
             if (!initialized)
             {
@@ -72,7 +72,7 @@ namespace ProjectUnknown.Strategy
             RefreshInputContext();
             if (panel != null)
             {
-                panel.gameObject.SetActive(open);
+                SetPanelTransitionOpen(open);
             }
 
             refreshTimer = 0f;
@@ -81,7 +81,7 @@ namespace ProjectUnknown.Strategy
                 RefreshNow();
             }
 
-            if (changed)
+            if (changed && playSfx)
             {
                 StrategyHudSfxAudio.Play(open ? StrategyHudSfxKind.Open : StrategyHudSfxKind.Close);
             }
@@ -158,6 +158,7 @@ namespace ProjectUnknown.Strategy
             Button closeButton = CreateButton("CloseButton", panel, "X", 18, new Color(0.18f, 0.20f, 0.22f, 1f));
             closeButton.onClick.AddListener(() => SetOpen(false));
             SetTopRight(closeButton.GetComponent<RectTransform>(), 18f, 18f, 42f, 34f);
+            StrategyUiButtonFeedback.Attach(closeButton, StrategyUiButtonFeedbackProfile.Compact, null);
             BuildFamilyTreeButton();
 
             statsText = CreateText("Stats", panel, string.Empty, 13, TextAnchor.MiddleLeft, new Color(0.78f, 0.86f, 0.82f));
@@ -166,7 +167,7 @@ namespace ProjectUnknown.Strategy
             BuildFilters();
             BuildHeader();
             BuildScrollArea();
-            panel.gameObject.SetActive(false);
+            ConfigurePanelTransition();
         }
 
         private void BuildFilters()
@@ -359,6 +360,7 @@ namespace ProjectUnknown.Strategy
             Button button = CreateButton("Filter_" + label, root, label, 12, new Color(0.12f, 0.15f, 0.16f, 1f));
             button.onClick.AddListener(() => SetFilter(filter));
             SetTopLeft(button.GetComponent<RectTransform>(), index * 105f, 0f, 96f, 30f);
+            StrategyUiButtonFeedback.Attach(button, StrategyUiButtonFeedbackProfile.Compact, null);
             filterButtons.Add(button);
         }
 

@@ -86,7 +86,7 @@ namespace ProjectUnknown.Strategy
             bool changed = isOpen != open;
             isOpen = open;
             RefreshInputContext();
-            panel.gameObject.SetActive(open);
+            SetPanelTransitionOpen(open);
 
             if (open)
             {
@@ -115,6 +115,7 @@ namespace ProjectUnknown.Strategy
             inputContext?.Dispose();
             inputContext = null;
             ReleasePause();
+            ResetPanelTransition();
         }
 
         private void Update()
@@ -200,12 +201,13 @@ namespace ProjectUnknown.Strategy
             Button close = CreateButton("BackButton", panel, "Back", 15, new Color(0.18f, 0.20f, 0.22f, 1f));
             close.onClick.AddListener(() => SetOpen(false));
             SetTopRight(close.GetComponent<RectTransform>(), 30f, 24f, 86f, 36f);
+            StrategyUiButtonFeedback.Attach(close, StrategyUiButtonFeedbackProfile.Standard, null);
 
             summaryText = CreateText("Summary", panel, string.Empty, 13, TextAnchor.MiddleLeft, new Color(0.78f, 0.86f, 0.82f));
             SetTopLeft(summaryText.rectTransform, 30f, 66f, 1080f, 24f);
 
             BuildScrollArea();
-            panel.gameObject.SetActive(false);
+            ConfigurePanelTransition();
         }
 
         private void BuildScrollArea()

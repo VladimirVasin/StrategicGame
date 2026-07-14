@@ -10,6 +10,14 @@ namespace ProjectUnknown.Strategy
         Fireflies
     }
 
+    internal enum StrategyFoundingShot
+    {
+        Departure,
+        LongRoad,
+        QuietValley,
+        Council
+    }
+
     internal readonly struct StrategyFoundingStoryPanel
     {
         public StrategyFoundingStoryPanel(
@@ -17,13 +25,15 @@ namespace ProjectUnknown.Strategy
             string chapter,
             string title,
             string body,
-            StrategyFoundingAtmosphere atmosphere)
+            StrategyFoundingAtmosphere atmosphere,
+            StrategyFoundingShot shot)
         {
             ResourcePath = resourcePath;
             Chapter = chapter;
             Title = title;
             Body = body;
             Atmosphere = atmosphere;
+            Shot = shot;
         }
 
         public string ResourcePath { get; }
@@ -31,6 +41,7 @@ namespace ProjectUnknown.Strategy
         public string Title { get; }
         public string Body { get; }
         public StrategyFoundingAtmosphere Atmosphere { get; }
+        public StrategyFoundingShot Shot { get; }
     }
 
     internal readonly struct StrategyFoundingAnswerOption
@@ -76,25 +87,29 @@ namespace ProjectUnknown.Strategy
                 "THE LAST NIGHT",
                 "We left before dawn.",
                 "War had reached every road behind us. We took only what the cart could carry and promised the children we would find a place beyond its reach.",
-                StrategyFoundingAtmosphere.Embers),
+                StrategyFoundingAtmosphere.Embers,
+                StrategyFoundingShot.Departure),
             new(
                 "Visual/Founding/02_LongRoad",
                 "THE LONG ROAD",
                 "The road asked everything of us.",
                 "Weeks passed beneath rain and cold stone. We crossed the high paths together, following no banner and serving no lord.",
-                StrategyFoundingAtmosphere.Rain),
+                StrategyFoundingAtmosphere.Rain,
+                StrategyFoundingShot.LongRoad),
             new(
                 "Visual/Founding/03_QuietValley",
                 "A QUIET VALLEY",
                 "At last, the horizon was silent.",
                 "No smoke. No marching columns. Only water, forest and open land. For the first time, the road ahead belonged to us.",
-                StrategyFoundingAtmosphere.Mist),
+                StrategyFoundingAtmosphere.Mist,
+                StrategyFoundingShot.QuietValley),
             new(
                 "Visual/Founding/04_Council",
                 "THE FIRST DECISION",
                 "Safety was only the beginning.",
                 "Before unloading the cart, the families gathered around the map. Where we stop tonight will shape every winter that follows.",
-                StrategyFoundingAtmosphere.Fireflies)
+                StrategyFoundingAtmosphere.Fireflies,
+                StrategyFoundingShot.Council)
         };
 
         public static readonly StrategyFoundingQuestion[] Questions =

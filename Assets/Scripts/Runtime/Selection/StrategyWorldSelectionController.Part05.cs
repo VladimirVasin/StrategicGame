@@ -164,6 +164,10 @@ namespace ProjectUnknown.Strategy
             button.colors = colors;
             int slotIndex = index;
             button.onClick.AddListener(() => ToggleWorkerSlot(slotIndex));
+            StrategyUiButtonFeedback.Attach(
+                button,
+                StrategyUiButtonFeedbackProfile.Compact,
+                StrategyHudSfxKind.Click);
             workerButtons[index] = button;
 
             Text actionText = CreateText("ActionText", action, 10, TextAnchor.MiddleCenter, Color.white);
@@ -248,6 +252,7 @@ namespace ProjectUnknown.Strategy
             actionText.resizeTextMinSize = 8;
             actionText.resizeTextMaxSize = 11;
             SetOffsets(actionText.rectTransform, 4f, 0f, 4f, 0f);
+            StrategyUiButtonFeedback.Attach(button, clickSfx: StrategyHudSfxKind.Click);
             return button;
         }
 

@@ -75,6 +75,10 @@ namespace ProjectUnknown.Strategy
             colors.disabledColor = new Color(0.10f, 0.13f, 0.12f, 0.88f);
             productionUpgradeButton.colors = colors;
             productionUpgradeButton.onClick.AddListener(TryInstallSelectedProductionUpgrade);
+            StrategyUiButtonFeedback.Attach(
+                productionUpgradeButton,
+                StrategyUiButtonFeedbackProfile.Compact,
+                StrategyHudSfxKind.Click);
 
             productionUpgradeActionText = CreateText("ActionText", action, 11, TextAnchor.MiddleCenter, Color.white);
             productionUpgradeActionText.fontStyle = FontStyle.Bold;

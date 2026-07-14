@@ -147,6 +147,10 @@ namespace ProjectUnknown.Strategy
             button.colors = colors;
             int slot = index;
             button.onClick.AddListener(() => TryExecuteSelectedTradeOffer(slot));
+            StrategyUiButtonFeedback.Attach(
+                button,
+                StrategyUiButtonFeedbackProfile.Compact,
+                StrategyHudSfxKind.Click);
             tradeOfferButtons[index] = button;
 
             tradeOfferButtonTexts[index] = CreateText("Text", action, 10, TextAnchor.MiddleCenter, Color.white);

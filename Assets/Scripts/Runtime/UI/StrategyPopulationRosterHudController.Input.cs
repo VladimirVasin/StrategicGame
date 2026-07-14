@@ -35,6 +35,7 @@ namespace ProjectUnknown.Strategy
         {
             inputContext?.Dispose();
             inputContext = null;
+            ResetPanelTransition();
         }
     }
 }

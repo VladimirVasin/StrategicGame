@@ -168,6 +168,7 @@ namespace ProjectUnknown.Strategy
             button.targetGraphic = background;
             button.onClick.AddListener(ToggleOpen);
             ConfigureButtonColors(button, background.color);
+            StrategyUiButtonFeedback.Attach(button);
         }
 
         private void CreatePanel(Transform parent)
@@ -218,6 +219,7 @@ namespace ProjectUnknown.Strategy
             closeButton.targetGraphic = closeImage;
             closeButton.onClick.AddListener(Close);
             ConfigureButtonColors(closeButton, closeImage.color);
+            StrategyUiButtonFeedback.Attach(closeButton, StrategyUiButtonFeedbackProfile.Compact);
             Text closeText = CreateText("CloseText", closeRoot, "X", 16, TextAnchor.MiddleCenter, Color.white);
             closeText.fontStyle = FontStyle.Bold;
             SetOffsets(closeText.rectTransform, 0f, 0f, 0f, 1f);
@@ -379,6 +381,7 @@ namespace ProjectUnknown.Strategy
             Button button = root.gameObject.AddComponent<Button>();
             button.targetGraphic = image;
             ConfigureButtonColors(button, image.color);
+            StrategyUiButtonFeedback.Attach(button, StrategyUiButtonFeedbackProfile.Compact);
 
             Text text = CreateText("Label", root, label, 22, TextAnchor.MiddleCenter, Color.white);
             text.fontStyle = FontStyle.Bold;

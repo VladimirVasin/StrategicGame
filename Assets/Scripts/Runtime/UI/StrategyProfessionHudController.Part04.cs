@@ -48,6 +48,7 @@ namespace ProjectUnknown.Strategy
             autoToggleButton.targetGraphic = toggleImage;
             autoToggleButton.onClick.AddListener(ToggleAutoAssign);
             ConfigureButtonColors(autoToggleButton, toggleImage.color);
+            StrategyUiButtonFeedback.Attach(autoToggleButton, StrategyUiButtonFeedbackProfile.Compact);
             autoToggleText = CreateText("Label", toggleRoot, "Auto Assign", 12, TextAnchor.MiddleCenter, Color.white);
             autoToggleText.fontStyle = FontStyle.Bold;
             SetOffsets(autoToggleText.rectTransform, 4f, 0f, 4f, 1f);
@@ -108,6 +109,7 @@ namespace ProjectUnknown.Strategy
             Button button = root.gameObject.AddComponent<Button>();
             button.targetGraphic = image;
             ConfigureButtonColors(button, image.color);
+            StrategyUiButtonFeedback.Attach(button, StrategyUiButtonFeedbackProfile.Compact);
             Text text = CreateText("Label", root, label, 12, TextAnchor.MiddleCenter, Color.white);
             text.fontStyle = FontStyle.Bold;
             SetOffsets(text.rectTransform, 0f, 0f, 0f, 1f);

@@ -12,20 +12,23 @@ namespace ProjectUnknown.Strategy
         private Text bodyText;
         private Text confirmText;
         private Text cancelText;
+        private StrategyUiPanelTransition panelTransition;
         private Action confirmCallback;
         private bool initialized;
         private bool locked;
         private StrategyInputRouter inputRouter;
         private StrategyInputContextHandle inputContext;
 
-        public bool IsOpen => rootGroup != null && rootGroup.blocksRaycasts;
+        public bool IsOpen => panelTransition != null
+            ? panelTransition.TargetVisible
+            : rootGroup != null && rootGroup.blocksRaycasts;
 
         public void SetInputRouter(StrategyInputRouter router)
         {
             inputContext?.Dispose();
             inputContext = null;
             inputRouter = router;
-            RefreshInputContext(IsOpen);
+            RefreshInputContext(ShouldHoldInputContext);
         }
 
         public void Configure()
@@ -60,9 +63,7 @@ namespace ProjectUnknown.Strategy
             bodyText.text = body;
             confirmText.text = confirmLabel;
             cancelText.text = cancelLabel;
-            rootGroup.alpha = 1f;
-            rootGroup.interactable = true;
-            rootGroup.blocksRaycasts = true;
+            panelTransition.SetVisible(true);
             RefreshInputContext(true);
             StrategyHudSfxAudio.Play(StrategyHudSfxKind.Notify);
             StrategyDebugLogger.Info("UI", "ConfirmationOpened", StrategyDebugLogger.F("title", title));
@@ -75,20 +76,22 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            rootGroup.alpha = 0f;
-            rootGroup.interactable = false;
-            rootGroup.blocksRaycasts = false;
-            RefreshInputContext(false);
+            panelTransition.SetVisible(false);
+            RefreshInputContext(ShouldHoldInputContext);
         }
 
         private void Update()
         {
-            RefreshInputContext(IsOpen);
-            if (IsOpen && inputRouter != null && inputRouter.TryConsumeCancel(this))
+            bool isOpen = IsOpen;
+            RefreshInputContext(ShouldHoldInputContext);
+            if (inputRouter != null && inputRouter.TryConsumeCancel(this) && isOpen)
             {
                 Cancel();
             }
         }
+
+        private bool ShouldHoldInputContext => IsOpen
+            || (panelTransition != null && panelTransition.IsInputShieldActive);
 
         private void RefreshInputContext(bool open)
         {
@@ -112,6 +115,7 @@ namespace ProjectUnknown.Strategy
         {
             inputContext?.Dispose();
             inputContext = null;
+            panelTransition?.SetVisible(false, true);
         }
 
         private void Confirm()
@@ -206,6 +210,10 @@ namespace ProjectUnknown.Strategy
 
             CreateButton(panel, "ConfirmButton", new Vector2(-112f, 28f), new Color(0.42f, 0.20f, 0.16f, 0.98f), true, out confirmText);
             CreateButton(panel, "CancelButton", new Vector2(112f, 28f), new Color(0.13f, 0.18f, 0.18f, 0.98f), false, out cancelText);
+
+            panelTransition = root.gameObject.AddComponent<StrategyUiPanelTransition>();
+            panelTransition.Configure(rootGroup, panel, new Vector2(0f, -16f), 0.965f, 0.18f, 0.13f);
+            panelTransition.SetVisible(false, true);
         }
 
         private void CreateButton(
@@ -236,6 +244,7 @@ namespace ProjectUnknown.Strategy
             colors.selectedColor = colors.highlightedColor;
             colors.disabledColor = new Color(color.r, color.g, color.b, 0.45f);
             button.colors = colors;
+            StrategyUiButtonFeedback.Attach(button, StrategyUiButtonFeedbackProfile.Standard, null);
 
             label = CreateText("Label", root, confirm ? "Confirm" : "Cancel", 16, TextAnchor.MiddleCenter, Color.white);
             label.fontStyle = FontStyle.Bold;

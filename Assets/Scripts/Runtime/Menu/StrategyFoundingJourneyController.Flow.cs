@@ -69,7 +69,6 @@ namespace ProjectUnknown.Strategy
 
             RefreshInputContext();
             RefreshPreparationStatus();
-            UpdateBackgroundMotion();
             if (page == JourneyPage.Launching
                 && preloader != null
                 && !string.IsNullOrEmpty(preloader.LaunchFailureReason))
@@ -154,6 +153,12 @@ namespace ProjectUnknown.Strategy
                 ? "Continue"
                 : "Choose our refuge";
             backButton.interactable = true;
+            presentationController.RevealStory();
+            if (immediate)
+            {
+                nextButton.GetComponent<StrategyUiButtonFeedback>()?.SuppressNextFocusCue();
+            }
+
             SelectUi(nextButton);
         }
 
@@ -448,12 +453,10 @@ namespace ProjectUnknown.Strategy
             reducedMotion = value;
             PlayerPrefs.SetInt(ReducedMotionKey, value ? 1 : 0);
             PlayerPrefs.Save();
+            StrategyHudSfxAudio.Play(StrategyHudSfxKind.Select);
             atmosphereController?.SetReducedMotion(value);
-            if (value)
-            {
-                backgroundMotionRoot.anchoredPosition = Vector2.zero;
-                backgroundMotionRoot.localScale = Vector3.one;
-            }
+            presentationController?.SetReducedMotion(value);
+            RefreshJourneyButtonMotion(value);
         }
 
         private void RefreshInputContext()

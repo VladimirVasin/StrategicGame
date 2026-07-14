@@ -27,7 +27,9 @@ namespace ProjectUnknown.Strategy
         private Color accentColor;
         private Vector2 basePosition;
         private float hoverT;
+        private float focusT;
         private bool pointerInside;
+        private bool pointerSelected;
         private bool selected;
         private bool pressed;
         private bool configured;
@@ -61,17 +63,26 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            bool activeHover = button.interactable && (pointerInside || selected);
-            hoverT = Mathf.MoveTowards(hoverT, activeHover ? 1f : 0f, Time.unscaledDeltaTime * AnimationSpeed);
+            bool interactable = button.IsInteractable();
+            if (!interactable)
+            {
+                ResetInteractionState();
+            }
+
+            hoverT = Mathf.MoveTowards(
+                hoverT,
+                interactable && pointerInside ? 1f : 0f,
+                Time.unscaledDeltaTime * AnimationSpeed);
+            focusT = Mathf.MoveTowards(
+                focusT,
+                interactable && selected && !pointerInside ? 1f : 0f,
+                Time.unscaledDeltaTime * AnimationSpeed);
             ApplyVisuals();
         }
 
         private void OnDisable()
         {
-            pointerInside = false;
-            selected = false;
-            pressed = false;
-            hoverT = 0f;
+            ResetInteractionState();
             ApplyVisuals();
         }
 
@@ -83,18 +94,40 @@ namespace ProjectUnknown.Strategy
             }
 
             pointerInside = true;
-            StrategyHudSfxAudio.Play(StrategyHudSfxKind.Step, 0.55f);
+            if (EventSystem.current != null
+                && EventSystem.current.currentSelectedGameObject == gameObject)
+            {
+                pointerSelected = true;
+                selected = false;
+            }
+
+            StrategyHudSfxAudio.Play(StrategyHudSfxKind.Hover, 0.55f);
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
             pointerInside = false;
             pressed = false;
+            bool clearPointerSelection = pointerSelected
+                && EventSystem.current != null
+                && EventSystem.current.currentSelectedGameObject == gameObject;
+            pointerSelected = false;
+            if (clearPointerSelection)
+            {
+                EventSystem.current.SetSelectedGameObject(null);
+            }
         }
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            pressed = configured && button.interactable;
+            pressed = configured
+                && button.IsInteractable()
+                && eventData.button == PointerEventData.InputButton.Left;
+            if (pressed)
+            {
+                pointerSelected = true;
+                selected = false;
+            }
         }
 
         public void OnPointerUp(PointerEventData eventData)
@@ -104,11 +137,23 @@ namespace ProjectUnknown.Strategy
 
         public void OnSelect(BaseEventData eventData)
         {
-            selected = true;
+            if (!configured || !button.IsInteractable())
+            {
+                return;
+            }
+
+            bool pointerOrigin = eventData is PointerEventData;
+            pointerSelected = pointerOrigin;
+            selected = !pointerOrigin;
+            if (selected)
+            {
+                StrategyHudSfxAudio.Play(StrategyHudSfxKind.Hover, 0.55f);
+            }
         }
 
         public void OnDeselect(BaseEventData eventData)
         {
+            pointerSelected = false;
             selected = false;
             pressed = false;
         }
@@ -121,7 +166,8 @@ namespace ProjectUnknown.Strategy
             }
 
             float smooth = hoverT * hoverT * (3f - 2f * hoverT);
-            if (!button.interactable)
+            float focus = focusT * focusT * (3f - 2f * focusT);
+            if (!button.IsInteractable())
             {
                 background.color = DisabledColor;
                 label.color = new Color(0.62f, 0.66f, 0.63f, 0.62f);
@@ -131,12 +177,30 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            float focusAccent = Mathf.Max(smooth, focus * 0.48f);
+            float labelWarmth = Mathf.Max(smooth, focus * 0.38f);
             background.color = pressed ? PressedColor : Color.Lerp(normalColor, hoverColor, smooth);
-            label.color = Color.Lerp(Color.white, new Color(1f, 0.91f, 0.68f, 1f), smooth);
-            accent.color = new Color(accentColor.r, accentColor.g, accentColor.b, smooth);
-            accent.rectTransform.localScale = new Vector3(1f, Mathf.Lerp(0.2f, 1f, smooth), 1f);
+            label.color = Color.Lerp(Color.white, new Color(1f, 0.91f, 0.68f, 1f), labelWarmth);
+            accent.color = new Color(accentColor.r, accentColor.g, accentColor.b, focusAccent);
+            accent.rectTransform.localScale = new Vector3(1f, Mathf.Lerp(0.2f, 1f, focusAccent), 1f);
             root.anchoredPosition = basePosition + new Vector2(Mathf.Lerp(0f, pressed ? 6f : 10f, smooth), 0f);
             root.localScale = Vector3.one * Mathf.Lerp(1f, pressed ? 1.012f : 1.025f, smooth);
+        }
+
+        private void ResetInteractionState()
+        {
+            if (EventSystem.current != null
+                && EventSystem.current.currentSelectedGameObject == gameObject)
+            {
+                EventSystem.current.SetSelectedGameObject(null);
+            }
+
+            pointerInside = false;
+            pointerSelected = false;
+            selected = false;
+            pressed = false;
+            hoverT = 0f;
+            focusT = 0f;
         }
     }
 }

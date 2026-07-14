@@ -1,5 +1,17 @@
 # Work Log
 
+### 2026-07-14 - Cinematic Founding Journey and shared HUD feedback
+
+- Reworked the four-panel `FoundingJourney` presentation with cover-cropped authored shot motion, crossfades, narrative gradients, vignette/letterbox chrome, an opening curtain, and staged story-control reveals.
+- Localized the departure glow, smoke, ash, and embers to a normalized frame on the moving artwork, crossfaded atmosphere changes with each shot, retained scene-specific rain/mist/fireflies, and made in-flight presentation changes respect persistent reduced motion.
+- Added scene-owned asynchronously loaded wind/rain/fire ambience with per-panel unscaled crossfades and existing Weather/Fire mixer-bus routing.
+- Added shared unscaled pointer/focus/press feedback plus a separately throttled quiet hover cue to all code-built player-facing buttons; existing semantic click sounds remain authoritative.
+- Added interruptible fade/slide/scale transitions to the residents roster, Family Trees, confirmation dialog, and refugee dialog, including close-time raycast shielding and reduced-motion fallback.
+- Hardened mouse-origin selection cleanup, keyboard/controller focus feedback, rapid transition reversal, and roster-to-Family-Tree audio handoff; Debug-only buttons remain intentionally outside the shared feedback layer.
+- Fixed persistent button hover by separating pointer motion from navigation focus, normalizing native selected colors under shared visual ownership, transferring selected buttons to pointer ownership on enter, and clearing stale selection when buttons exit, hide, or become non-interactable.
+- Added EditMode regression coverage for programmatic focus followed by pointer enter/exit and for hidden selected buttons across the shared HUD and main-menu feedback implementations.
+- Verification: technical quality gates passed; `Assembly-CSharp`, `Assembly-CSharp-Editor`, `ProjectUnknown.Runtime`, `ProjectUnknown.Editor`, and `ProjectUnknown.EditModeTests` built sequentially with 0 warnings and 0 errors. Unity EditMode/MainMenuLaunch were not rerun because the main Unity Editor already had this project open.
+
 ### 2026-07-13 - Founding Journey and preference-driven settlement start
 
 - Added build-index-1 `FoundingJourney` between MainMenu and gameplay for New Settlement; Continue still transfers its prepared save candidate directly into gameplay.

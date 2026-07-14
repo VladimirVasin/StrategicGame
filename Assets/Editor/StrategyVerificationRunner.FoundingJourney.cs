@@ -29,6 +29,15 @@ namespace ProjectUnknown.Strategy.EditorTests
                     Object.FindAnyObjectByType<StrategyFoundingJourneyController>();
                 Require(preloader != null, "Map preloader did not survive into the founding journey");
                 Require(journey != null && journey.IsConfigured, "Founding journey bootstrap failed");
+                Require(
+                    Object.FindAnyObjectByType<StrategyFoundingJourneyPresentation>() != null,
+                    "Founding journey cinematic presentation was not created");
+                Require(
+                    Object.FindAnyObjectByType<StrategyFoundingJourneyAudio>() != null,
+                    "Founding journey ambience controller was not created");
+                Require(
+                    Object.FindObjectsByType<StrategyUiButtonFeedback>(FindObjectsInactive.Include).Length >= 9,
+                    "Founding journey button feedback was not fully attached");
                 Require(StrategyGameContext.Current == null, "Gameplay bootstrapped during the founding journey");
                 VerifyMainMenuLaunchWatchdog(preloader);
                 if (preloader.Phase == StrategyPreloadPhase.AwaitingFoundingDecision

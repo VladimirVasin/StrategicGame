@@ -40,6 +40,7 @@ namespace ProjectUnknown.Strategy
             colors.selectedColor = colors.highlightedColor;
             button.colors = colors;
             button.onClick.AddListener(() => SetSortColumn(column));
+            StrategyUiButtonFeedback.Attach(button, StrategyUiButtonFeedbackProfile.Compact, null);
 
             sortHeaders[column] = text;
             UpdateSortHeaderLabels();

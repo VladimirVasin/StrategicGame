@@ -13,7 +13,8 @@ namespace ProjectUnknown.Strategy
         Confirm,
         Cancel,
         Step,
-        Notify
+        Notify,
+        Hover
     }
 
     [DisallowMultipleComponent]
@@ -53,6 +54,7 @@ namespace ProjectUnknown.Strategy
         private float nextCancelTime;
         private float nextStepTime;
         private float nextNotifyTime;
+        private float nextHoverTime;
 
         public static void Play(StrategyHudSfxKind kind, float volumeScale = 1f)
         {
@@ -112,6 +114,7 @@ namespace ProjectUnknown.Strategy
             }
 
             float now = Time.unscaledTime;
+            bool isHover = kind == StrategyHudSfxKind.Hover;
             if (now < nextAnyTime || now < GetNextAllowedTime(kind))
             {
                 return;
@@ -124,7 +127,10 @@ namespace ProjectUnknown.Strategy
             }
 
             SetNextAllowedTime(kind, now + GetCooldown(kind));
-            nextAnyTime = now + 0.012f;
+            if (!isHover)
+            {
+                nextAnyTime = now + 0.012f;
+            }
 
             int clipIndex = Mathf.Abs(((int)kind + 1) * 23 + clipCursor * 7) % clips.Length;
             clipCursor++;
@@ -179,6 +185,7 @@ namespace ProjectUnknown.Strategy
                 StrategyHudSfxKind.Cancel => cancelClips,
                 StrategyHudSfxKind.Step => stepClips,
                 StrategyHudSfxKind.Notify => notifyClips,
+                StrategyHudSfxKind.Hover => stepClips,
                 _ => clickClips
             };
         }
@@ -191,6 +198,7 @@ namespace ProjectUnknown.Strategy
                 StrategyHudSfxKind.Notify => 0.18f,
                 StrategyHudSfxKind.Open => 0.05f,
                 StrategyHudSfxKind.Close => 0.05f,
+                StrategyHudSfxKind.Hover => 0.075f,
                 _ => 0.025f
             };
         }
@@ -200,6 +208,7 @@ namespace ProjectUnknown.Strategy
             return kind switch
             {
                 StrategyHudSfxKind.Step => 0.12f,
+                StrategyHudSfxKind.Hover => 0.065f,
                 StrategyHudSfxKind.Click => 0.14f,
                 StrategyHudSfxKind.Close => 0.15f,
                 StrategyHudSfxKind.Cancel => 0.15f,
@@ -212,11 +221,21 @@ namespace ProjectUnknown.Strategy
 
         private static float GetPitchMin(StrategyHudSfxKind kind)
         {
+            if (kind == StrategyHudSfxKind.Hover)
+            {
+                return 1.01f;
+            }
+
             return kind == StrategyHudSfxKind.Deny ? 0.94f : 0.97f;
         }
 
         private static float GetPitchMax(StrategyHudSfxKind kind)
         {
+            if (kind == StrategyHudSfxKind.Hover)
+            {
+                return 1.08f;
+            }
+
             return kind == StrategyHudSfxKind.Confirm ? 1.04f : 1.06f;
         }
 
@@ -233,6 +252,7 @@ namespace ProjectUnknown.Strategy
                 StrategyHudSfxKind.Cancel => nextCancelTime,
                 StrategyHudSfxKind.Step => nextStepTime,
                 StrategyHudSfxKind.Notify => nextNotifyTime,
+                StrategyHudSfxKind.Hover => nextHoverTime,
                 _ => nextClickTime
             };
         }
@@ -267,6 +287,9 @@ namespace ProjectUnknown.Strategy
                     break;
                 case StrategyHudSfxKind.Notify:
                     nextNotifyTime = value;
+                    break;
+                case StrategyHudSfxKind.Hover:
+                    nextHoverTime = value;
                     break;
             }
         }

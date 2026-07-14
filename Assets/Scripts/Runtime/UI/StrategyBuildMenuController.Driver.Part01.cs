@@ -45,6 +45,7 @@ namespace ProjectUnknown.Strategy
             button.targetGraphic = buildButtonImage;
             button.onClick.AddListener(ToggleOpen);
             ConfigureButtonColors(button);
+            StrategyUiButtonFeedback.Attach(button, StrategyUiButtonFeedbackProfile.SoundOnly);
         }
 
         private void CreateMenuLayer(Transform parent)
@@ -163,6 +164,7 @@ namespace ProjectUnknown.Strategy
             };
 
             button.onClick.AddListener(() => SelectCategory(category, true));
+            StrategyUiButtonFeedback.Attach(button, StrategyUiButtonFeedbackProfile.SoundOnly);
             AddHoverRelay(root.gameObject, hovered => category.IsHovered = hovered);
 
             List<BuildItemUi> items = new();
@@ -236,6 +238,7 @@ namespace ProjectUnknown.Strategy
             };
 
             button.onClick.AddListener(() => SelectSubcategory(category, subcategory, true));
+            StrategyUiButtonFeedback.Attach(button, StrategyUiButtonFeedbackProfile.SoundOnly);
             AddHoverRelay(root.gameObject, hovered => subcategory.IsHovered = hovered);
             return subcategory;
         }
@@ -310,6 +313,7 @@ namespace ProjectUnknown.Strategy
             };
 
             button.onClick.AddListener(() => ToggleTool(data));
+            StrategyUiButtonFeedback.Attach(button, StrategyUiButtonFeedbackProfile.SoundOnly);
             AddHoverRelay(root.gameObject, hovered => item.IsHovered = hovered);
             return item;
         }

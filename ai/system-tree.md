@@ -1,6 +1,6 @@
 # System Tree
 
-Last updated: 2026-07-13
+Last updated: 2026-07-14
 
 This is a conceptual map of the current project. Keep concrete file ownership in `ai/systems-map.md`.
 
@@ -31,7 +31,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Generated terrain hides the cell grid, classifies kind/water before reusing that mask for relief, reads main-thread-prewarmed authored swatches in its parallel painter, and caches one paint/catalog context per tile outside the inner pixel loop
   - Non-Bridge placed buildings add a catalog-overridable trampled-ground layer beneath their Y-sorted body and shadow
   - Spring/autumn camera-area details and centralized vegetation tinting make seasonal changes readable without per-prop Update components
-  - Shared HUD theme supplies readable Inter typography plus sliced pixel panel/button frames through bounded scene-start scans
+  - Shared HUD presentation supplies readable Inter typography, sliced pixel panel/button frames, unscaled pointer/focus/press feedback, throttled hover cues, and interruptible reduced-motion-aware panel transitions
 
 - Scene foundation
   - Build-index-0 `MainMenu` intro scene
@@ -48,7 +48,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Main menu keeps music disabled and starts only the HUD SFX mix
   - Continue reads and validates the current save before launch; New Settlement keeps a separate candidate seed
   - Continue opens gameplay directly; New Settlement opens `FoundingJourney` while the same hidden candidate continues preparing
-  - Four generated static pixel-art panels tell the departure/road/valley/council story with crossfade, restrained pan, ambient particles, and a reduced-motion setting
+  - Four generated static pixel-art panels tell the departure/road/valley/council story with authored cover-cropped shots, cinematic crossfades/chrome, staged reveals, artwork-bound atmosphere, asynchronous wind/rain/fire ambience, and a reduced-motion setting
   - Four stable-ID founding choices cover water, landscape, livelihood, and construction/resource priority; balanced defaults remain available
   - A deterministic defensive-snapshot selector scores only safe playable cells, reserves the Caravan Cart `3x3` blocker, and reports explicit fallback diagnostics
   - Master, music, effects, and fullscreen settings persist through `PlayerPrefs`
@@ -647,13 +647,15 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - UI foundation
   - Unity UI package installed
   - UI Toolkit module available through Unity modules
+  - Shared code-built button feedback provides pointer, keyboard/controller focus, press motion/tint, and quiet globally/local-throttled hover audio without replacing semantic click sounds
+  - Shared panel transitions provide interruptible unscaled fade/slide/scale, immediate control disable, close-time raycast shielding, and short fade-only reduced-motion behavior
   - Full-screen runtime intro menu with Continue, New Settlement, Settings, Quit, disabled/no-save Continue state, and loading progress
   - Custom runtime F9 debug panel with player fog-of-war, instant construction, refugee arrival summon, and forced Clear/Cloudy/Rain/Fog/Storm/Snow/Blizzard weather-state controls
   - Custom runtime Build menu HUD
     - Early starter goals can lock Build menu categories/items to Houses first, then Forager Camp, then Lumberjack/Stonecutter camps, before unlocking the full catalog
   - Custom runtime top status HUD showing total population, adults, children, day number, 24-hour time, outdoor temperature, season day, time-of-day phase, winter food/fuel readiness, and day progress; clicking the population panel opens a larger residents roster HUD
   - Custom runtime residents roster HUD showing settlement stats plus filterable resident rows for name, age, home state, role, current status, and food status
-- Custom fullscreen Family Trees HUD opened from the residents roster; it pauses simulation, provides permanent horizontal/vertical scrollbars, lays connected same-surname family cards out as affinity-ordered left-to-right columns, and shows compact generation rows connected by local parent-pair branches plus cross-family relationship lines, deceased markers, gender symbols, and hover relationship labels
+  - Custom fullscreen Family Trees HUD opened from the residents roster; it pauses simulation, provides permanent horizontal/vertical scrollbars, uses an animated modal transition, lays connected same-surname family cards out as affinity-ordered left-to-right columns, and shows compact generation rows connected by local parent-pair branches plus cross-family relationship lines, deceased markers, gender symbols, and hover relationship labels
   - Custom compact runtime event log showing births, deaths, adoptions, dawn, nightfall, season starts, and late-Autumn winter warnings
   - Goals HUD supports optional live progress bars; first-winter Food and Firewood goals show current reserve days out of the seven-day target
   - Custom runtime goals HUD showing the active starter build checklist on the left side
@@ -697,7 +699,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Rendering settings affect all scenes using the URP pipeline.
 - Runtime bootstrap depends on scene role, one scene-local game context, explicit preload ownership transfer, and the presence of a usable `Main Camera` or permission to create one.
 - Intro menu launch depends on save validation, one persistent preload coordinator, deterministic map seed handling, the Founding Journey decision gate for New Settlement, and the gameplay scene-loaded bootstrap hook; prepared terrain keeps Unity object creation/upload on the main thread.
-- Founding Journey answers feed a pure selector over a captured map snapshot; its selected camp/cart cells feed population startup, nature/forage exclusions, exact starter-cart placement, save v3, and the initial camera focus.
+- Founding Journey presentation couples each authored shot to its atmosphere and scene-owned Weather/Fire ambience; its answers feed a pure selector over a captured map snapshot, and selected camp/cart cells feed population startup, nature/forage exclusions, exact starter-cart placement, save v3, and the initial camera focus.
 - Audio bootstrap depends on map generation, camera setup/orthographic zoom, strategy wind/weather values, `Resources/Audio` assets, the in-game music/work/HUD-SFX folders, resident walk animation frames, resident work impact/release frames, and runtime HUD interaction events.
 - Strategy camera bounds depend on generated map dimensions.
 - Input action IDs/names/bindings feed the central router, every runtime consumer, modal contexts, and the shared UI input module; update their contract tests with intentional changes.
