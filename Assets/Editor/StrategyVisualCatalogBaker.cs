@@ -10,6 +10,7 @@ namespace ProjectUnknown.Strategy.EditorTools
     {
         private const string CatalogPath = "Assets/Resources/Visual/StrategyVisualCatalog.asset";
         private const string BakedRoot = "Assets/Resources/Visual/Baked";
+        private const string AuthoredRoot = "Assets/Resources/Visual/Authored";
         private const string ResultFileName = "VisualCatalogBake.txt";
 
         [MenuItem("ProjectUnknown/Visuals/Rebuild Baseline Catalog")]
@@ -90,8 +91,10 @@ namespace ProjectUnknown.Strategy.EditorTools
                         break;
                     }
 
-                    string path = $"{BakedRoot}/Buildings/{tool}/V{variant + 1:00}.png";
-                    variants.Add(BakeSpriteAsset(source, path));
+                    string relativePath = $"Buildings/{tool}/V{variant + 1:00}.png";
+                    string path = $"{BakedRoot}/{relativePath}";
+                    Sprite baked = BakeSpriteAsset(source, path);
+                    variants.Add(ResolveAuthoredSprite(relativePath, baked));
                 }
 
                 if (variants.Count > 0)

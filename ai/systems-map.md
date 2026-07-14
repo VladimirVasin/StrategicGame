@@ -115,6 +115,7 @@ Primary files/assets:
 
 - `Assets/Resources/Visual/StrategyVisualCatalog.asset`
 - `Assets/Resources/Visual/Baked/`
+- `Assets/Resources/Visual/Authored/`
 - `Assets/Art/ART_DIRECTION.md`
 - `Assets/Editor/StrategyVisualCatalogBaker.cs`
 - `Assets/Editor/StrategyVisualCatalogBaker.IO.cs`
@@ -139,6 +140,7 @@ Primary files/assets:
 Impact hints:
 
 - Catalog entries are optional; missing sets, variants, or frames must continue into the existing procedural fallback.
+- The baker deletes and recreates only `Visual/Baked`; matching building paths under `Visual/Authored/Buildings` replace their generated counterparts in the rebuilt catalog after dimension/scale/pivot validation.
 - Imported authored sprites should use point filtering, a consistent pixels-per-unit contract, bottom-center world pivots where applicable, and the existing Y-based sorting path.
 - Atlas textures must stay `Sprite/Single`; automatic Multiple slicing breaks runtime rectangular frame extraction.
 - Worker terrain code must consume only the prewarmed managed swatch cache, never Unity textures or sprites directly.

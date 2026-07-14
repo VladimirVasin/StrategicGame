@@ -28,9 +28,16 @@
 
 - `Assets/Resources/Visual/StrategyVisualCatalog.asset` is the runtime catalog.
 - `Assets/Resources/Visual/Baked` contains baseline PNG assets produced by the Editor baker.
+- `Assets/Resources/Visual/Authored` contains durable hand-improved replacements and mirrors the relative `Baked` paths it overrides.
 - Runtime factories remain fallback and source-of-truth for rebaking until a sprite is manually replaced.
 - Manually improved PNG assets must keep their `.meta`, dimensions, PPU, pivot, and catalog slot stable.
-- Rebuilding the baseline replaces only `Visual/Baked`; hand-authored replacements should live in a sibling `Visual/Authored` folder and be assigned to the catalog after baking.
+- Rebuilding the baseline replaces only `Visual/Baked`; building sprites with a matching `Visual/Authored/Buildings/...` path are validated and assigned to the catalog automatically.
+
+## Authored House Family
+
+- The five `80x80` House variants translate the menu architecture into gameplay scale through steeper roof masses, denser half-timber framing, stone plinths, and cool-shadow/warm-material contrast.
+- Houses remain neutral daylight assets at `24 PPU` with a bottom-center `(0.5, 0.1)` pivot; runtime systems continue to own night tint, window light, weather, snow, and cast shadows.
+- Fine cinematic texture must collapse into large readable pixel clusters at common gameplay zoom instead of adding painterly noise.
 
 ## Verification Views
 

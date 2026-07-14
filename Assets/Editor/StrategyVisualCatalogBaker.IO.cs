@@ -37,6 +37,45 @@ namespace ProjectUnknown.Strategy.EditorTools
             return imported;
         }
 
+        private static Sprite ResolveAuthoredSprite(string relativePath, Sprite fallback)
+        {
+            if (fallback == null)
+            {
+                throw new InvalidOperationException("Cannot resolve authored art without a fallback sprite: " + relativePath);
+            }
+
+            string assetPath = $"{AuthoredRoot}/{relativePath}";
+            if (!File.Exists(ToAbsolutePath(assetPath)))
+            {
+                return fallback;
+            }
+
+            AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceSynchronousImport);
+            ConfigureSpriteImporter(
+                assetPath,
+                fallback.pixelsPerUnit,
+                NormalizePivot(fallback),
+                readable: false);
+            Sprite authored = AssetDatabase.LoadAssetAtPath<Sprite>(assetPath);
+            if (authored == null)
+            {
+                throw new InvalidOperationException("Authored sprite import failed: " + assetPath);
+            }
+
+            int expectedWidth = Mathf.RoundToInt(fallback.rect.width);
+            int expectedHeight = Mathf.RoundToInt(fallback.rect.height);
+            int actualWidth = Mathf.RoundToInt(authored.rect.width);
+            int actualHeight = Mathf.RoundToInt(authored.rect.height);
+            if (actualWidth != expectedWidth || actualHeight != expectedHeight)
+            {
+                throw new InvalidOperationException(
+                    $"Authored sprite dimensions must remain {expectedWidth}x{expectedHeight}: "
+                    + $"{assetPath} is {actualWidth}x{actualHeight}");
+            }
+
+            return authored;
+        }
+
         private static StrategyVisualCatalog.VisualSequenceSet BakeSequenceAsset(
             string id,
             Sprite[] frames,

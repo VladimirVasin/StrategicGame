@@ -55,6 +55,37 @@ namespace ProjectUnknown.Strategy.EditorTests
                     && menuArt.texture.filterMode == FilterMode.Point
                     && menuArt.texture.width >= 1280,
                 "Generated point-filtered main-menu key art is missing");
+            VerifyAuthoredHouseFamily();
+        }
+
+        private static void VerifyAuthoredHouseFamily()
+        {
+            for (int variant = 0; variant < StrategyBuildingSpriteFactory.HouseVariantCount; variant++)
+            {
+                string resourcePath = $"Visual/Authored/Buildings/House/V{variant + 1:00}";
+                Sprite house = Resources.Load<Sprite>(resourcePath);
+                Require(house != null, "Authored House sprite is missing: " + resourcePath);
+                Require(
+                    Mathf.RoundToInt(house.rect.width) == 80
+                        && Mathf.RoundToInt(house.rect.height) == 80,
+                    "Authored House sprite dimensions changed: " + resourcePath);
+                Require(
+                    Mathf.Approximately(house.pixelsPerUnit, 24f)
+                        && Vector2.Distance(house.pivot, new Vector2(40f, 8f)) < 0.01f,
+                    "Authored House sprite scale or pivot changed: " + resourcePath);
+                Require(
+                    house.texture != null && house.texture.filterMode == FilterMode.Point,
+                    "Authored House sprite must use Point filtering: " + resourcePath);
+
+                string assetPath = AssetDatabase.GetAssetPath(house.texture);
+                TextureImporter importer = AssetImporter.GetAtPath(assetPath) as TextureImporter;
+                Require(importer != null, "Authored House texture importer is missing: " + assetPath);
+                Require(!importer.mipmapEnabled, "Authored House mipmaps must stay disabled: " + assetPath);
+                Require(!importer.isReadable, "Authored House texture must stay read-disabled: " + assetPath);
+                Require(
+                    importer.textureCompression == TextureImporterCompression.Uncompressed,
+                    "Authored House texture must stay uncompressed: " + assetPath);
+            }
         }
 
         internal static void VerifyTerrainPainterCharacterization()

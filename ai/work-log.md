@@ -1,5 +1,13 @@
 # Work Log
 
+### 2026-07-14 - Authored House visual direction pass
+
+- Replaced all five completed House body sprites with richer `80x80` pixel-art variants derived from the menu architecture while preserving `24 PPU`, the bottom-center pivot, neutral daylight values, variant identity, and existing runtime lighting/weather ownership.
+- Added a durable `Visual/Authored/Buildings/...` override seam to the visual catalog baker: matching authored building sprites survive baseline deletion, inherit the generated importer contract, and must match the procedural fallback dimensions exactly.
+- Mirrored the accepted House pixels into the current `Visual/Baked` paths so the already-open project can display them before the next full catalog rebuild, while keeping the durable sources under `Visual/Authored`.
+- Extended visual catalog verification with exact House family dimensions, PPU, pivot, Point filtering, mipmap, readability, and compression checks.
+- Technical gates and both runtime/editor `dotnet build` passes succeed; full Unity catalog rebuild and Noon/Night/Winter gameplay inspection remain pending until the same-project Editor is closed.
+
 ### 2026-07-14 - Cinematic Founding Journey and shared HUD feedback
 
 - Reworked the four-panel `FoundingJourney` presentation with cover-cropped authored shot motion, crossfades, narrative gradients, vignette/letterbox chrome, an opening curtain, and staged story-control reveals.
