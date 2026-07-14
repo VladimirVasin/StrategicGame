@@ -51,9 +51,43 @@ namespace ProjectUnknown.Strategy.EditorTools
             }
 
             AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceSynchronousImport);
+            Texture2D authoredTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(assetPath);
+            if (authoredTexture == null)
+            {
+                throw new InvalidOperationException("Authored texture import failed: " + assetPath);
+            }
+
+            int expectedWidth = Mathf.RoundToInt(fallback.rect.width);
+            int expectedHeight = Mathf.RoundToInt(fallback.rect.height);
+            float pixelsPerUnit = fallback.pixelsPerUnit;
+            if (TryGetHighResolutionSpriteContract(
+                    relativePath,
+                    out int fallbackWidth,
+                    out int fallbackHeight,
+                    out int authoredWidth,
+                    out int authoredHeight,
+                    out float authoredPixelsPerUnit))
+            {
+                ValidateFallbackSpriteContract(
+                    relativePath,
+                    fallback,
+                    fallbackWidth,
+                    fallbackHeight);
+                expectedWidth = authoredWidth;
+                expectedHeight = authoredHeight;
+                pixelsPerUnit = authoredPixelsPerUnit;
+            }
+
+            if (authoredTexture.width != expectedWidth || authoredTexture.height != expectedHeight)
+            {
+                throw new InvalidOperationException(
+                    $"Authored sprite dimensions must remain {expectedWidth}x{expectedHeight}: "
+                    + $"{assetPath} is {authoredTexture.width}x{authoredTexture.height}");
+            }
+
             ConfigureSpriteImporter(
                 assetPath,
-                fallback.pixelsPerUnit,
+                pixelsPerUnit,
                 NormalizePivot(fallback),
                 readable: false);
             Sprite authored = AssetDatabase.LoadAssetAtPath<Sprite>(assetPath);
@@ -62,8 +96,6 @@ namespace ProjectUnknown.Strategy.EditorTools
                 throw new InvalidOperationException("Authored sprite import failed: " + assetPath);
             }
 
-            int expectedWidth = Mathf.RoundToInt(fallback.rect.width);
-            int expectedHeight = Mathf.RoundToInt(fallback.rect.height);
             int actualWidth = Mathf.RoundToInt(authored.rect.width);
             int actualHeight = Mathf.RoundToInt(authored.rect.height);
             if (actualWidth != expectedWidth || actualHeight != expectedHeight)
@@ -83,6 +115,8 @@ namespace ProjectUnknown.Strategy.EditorTools
             string authoredRelativePath = null)
         {
             CalculateFrameLayout(frames, out int width, out int height, out Vector2 pivotPixels);
+            Vector2 pivot = new(pivotPixels.x / width, pivotPixels.y / height);
+            float pixelsPerUnit = frames[0].pixelsPerUnit;
             Color32[] atlasPixels = new Color32[width * frames.Length * height];
             for (int i = 0; i < frames.Length; i++)
             {
@@ -102,26 +136,38 @@ namespace ProjectUnknown.Strategy.EditorTools
                 atlas = ResolveAuthoredSequenceAtlas(
                     authoredRelativePath,
                     atlas,
-                    width * frames.Length,
-                    height);
+                    width,
+                    height,
+                    frames.Length,
+                    frames[0].pixelsPerUnit,
+                    out int resolvedFrameWidth,
+                    out int resolvedFrameHeight,
+                    out float resolvedPixelsPerUnit);
+                width = resolvedFrameWidth;
+                height = resolvedFrameHeight;
+                pixelsPerUnit = resolvedPixelsPerUnit;
             }
 
-            Vector2 pivot = new(pivotPixels.x / width, pivotPixels.y / height);
             return new StrategyVisualCatalog.VisualSequenceSet(
                 id,
                 atlas,
                 width,
                 height,
                 frames.Length,
-                frames[0].pixelsPerUnit,
+                pixelsPerUnit,
                 pivot);
         }
 
         private static Texture2D ResolveAuthoredSequenceAtlas(
             string relativePath,
             Texture2D fallback,
-            int expectedWidth,
-            int expectedHeight)
+            int fallbackFrameWidth,
+            int fallbackFrameHeight,
+            int frameCount,
+            float fallbackPixelsPerUnit,
+            out int resolvedFrameWidth,
+            out int resolvedFrameHeight,
+            out float resolvedPixelsPerUnit)
         {
             if (fallback == null)
             {
@@ -132,15 +178,52 @@ namespace ProjectUnknown.Strategy.EditorTools
             string assetPath = $"{AuthoredRoot}/{relativePath}";
             if (!File.Exists(ToAbsolutePath(assetPath)))
             {
+                resolvedFrameWidth = fallbackFrameWidth;
+                resolvedFrameHeight = fallbackFrameHeight;
+                resolvedPixelsPerUnit = fallbackPixelsPerUnit;
                 return fallback;
             }
 
             AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceSynchronousImport);
-            ConfigureAtlasImporter(assetPath);
             Texture2D authored = AssetDatabase.LoadAssetAtPath<Texture2D>(assetPath);
             if (authored == null)
             {
                 throw new InvalidOperationException("Authored sequence atlas import failed: " + assetPath);
+            }
+
+            resolvedFrameWidth = fallbackFrameWidth;
+            resolvedFrameHeight = fallbackFrameHeight;
+            resolvedPixelsPerUnit = fallbackPixelsPerUnit;
+            int expectedWidth = fallbackFrameWidth * frameCount;
+            int expectedHeight = fallbackFrameHeight;
+            float? importerPixelsPerUnit = null;
+            if (TryGetHighResolutionSequenceContract(
+                    relativePath,
+                    out int expectedFallbackFrameWidth,
+                    out int expectedFallbackFrameHeight,
+                    out int authoredFrameWidth,
+                    out int authoredFrameHeight,
+                    out float authoredPixelsPerUnit))
+            {
+                if (frameCount != 7)
+                {
+                    throw new InvalidOperationException(
+                        $"High-resolution authored sequence {relativePath} requires exactly 7 frames");
+                }
+
+                ValidateFallbackSequenceContract(
+                    relativePath,
+                    fallbackFrameWidth,
+                    fallbackFrameHeight,
+                    fallbackPixelsPerUnit,
+                    expectedFallbackFrameWidth,
+                    expectedFallbackFrameHeight);
+                resolvedFrameWidth = authoredFrameWidth;
+                resolvedFrameHeight = authoredFrameHeight;
+                resolvedPixelsPerUnit = authoredPixelsPerUnit;
+                expectedWidth = authoredFrameWidth * frameCount;
+                expectedHeight = authoredFrameHeight;
+                importerPixelsPerUnit = authoredPixelsPerUnit;
             }
 
             if (authored.width != expectedWidth || authored.height != expectedHeight)
@@ -150,7 +233,111 @@ namespace ProjectUnknown.Strategy.EditorTools
                     + $"{assetPath} is {authored.width}x{authored.height}");
             }
 
+            ConfigureAtlasImporter(assetPath, importerPixelsPerUnit);
+            authored = AssetDatabase.LoadAssetAtPath<Texture2D>(assetPath);
+            if (authored == null)
+            {
+                throw new InvalidOperationException("Authored sequence atlas reimport failed: " + assetPath);
+            }
+
             return authored;
+        }
+
+        private static bool TryGetHighResolutionSpriteContract(
+            string relativePath,
+            out int fallbackWidth,
+            out int fallbackHeight,
+            out int authoredWidth,
+            out int authoredHeight,
+            out float pixelsPerUnit)
+        {
+            fallbackWidth = 0;
+            fallbackHeight = 0;
+            authoredWidth = 0;
+            authoredHeight = 0;
+            pixelsPerUnit = 0f;
+            if (relativePath.StartsWith("Buildings/House/V", StringComparison.Ordinal)
+                && relativePath.EndsWith(".png", StringComparison.Ordinal))
+            {
+                fallbackWidth = 80;
+                fallbackHeight = 80;
+                authoredWidth = 160;
+                authoredHeight = 160;
+                pixelsPerUnit = 48f;
+                return true;
+            }
+
+            if (string.Equals(relativePath, "Buildings/ForagerCamp/V01.png", StringComparison.Ordinal))
+            {
+                fallbackWidth = 88;
+                fallbackHeight = 58;
+                authoredWidth = 176;
+                authoredHeight = 116;
+                pixelsPerUnit = 48f;
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool TryGetHighResolutionSequenceContract(
+            string relativePath,
+            out int fallbackFrameWidth,
+            out int fallbackFrameHeight,
+            out int authoredFrameWidth,
+            out int authoredFrameHeight,
+            out float pixelsPerUnit)
+        {
+            bool isHouse = relativePath.StartsWith("Construction/House/V", StringComparison.Ordinal)
+                && relativePath.EndsWith(".png", StringComparison.Ordinal);
+            bool isForagerCamp = string.Equals(
+                relativePath,
+                "Construction/ForagerCamp/V01.png",
+                StringComparison.Ordinal);
+            fallbackFrameWidth = 92;
+            fallbackFrameHeight = 82;
+            authoredFrameWidth = 184;
+            authoredFrameHeight = 164;
+            pixelsPerUnit = 48f;
+            return isHouse || isForagerCamp;
+        }
+
+        private static void ValidateFallbackSpriteContract(
+            string relativePath,
+            Sprite fallback,
+            int expectedWidth,
+            int expectedHeight)
+        {
+            int actualWidth = Mathf.RoundToInt(fallback.rect.width);
+            int actualHeight = Mathf.RoundToInt(fallback.rect.height);
+            if (actualWidth != expectedWidth
+                || actualHeight != expectedHeight
+                || !Mathf.Approximately(fallback.pixelsPerUnit, 24f))
+            {
+                throw new InvalidOperationException(
+                    $"High-resolution authored sprite {relativePath} requires a "
+                    + $"{expectedWidth}x{expectedHeight} @ 24 PPU fallback, but received "
+                    + $"{actualWidth}x{actualHeight} @ {fallback.pixelsPerUnit} PPU");
+            }
+        }
+
+        private static void ValidateFallbackSequenceContract(
+            string relativePath,
+            int fallbackFrameWidth,
+            int fallbackFrameHeight,
+            float fallbackPixelsPerUnit,
+            int expectedFrameWidth,
+            int expectedFrameHeight)
+        {
+            if (fallbackFrameWidth != expectedFrameWidth
+                || fallbackFrameHeight != expectedFrameHeight
+                || !Mathf.Approximately(fallbackPixelsPerUnit, 24f))
+            {
+                throw new InvalidOperationException(
+                    $"High-resolution authored sequence {relativePath} requires "
+                    + $"{expectedFrameWidth}x{expectedFrameHeight} @ 24 PPU fallback frames, but received "
+                    + $"{fallbackFrameWidth}x{fallbackFrameHeight} @ {fallbackPixelsPerUnit} PPU");
+            }
         }
 
         private static void CalculateFrameLayout(
@@ -265,11 +452,16 @@ namespace ProjectUnknown.Strategy.EditorTools
             importer.SaveAndReimport();
         }
 
-        private static void ConfigureAtlasImporter(string assetPath)
+        private static void ConfigureAtlasImporter(string assetPath, float? pixelsPerUnit = null)
         {
             TextureImporter importer = (TextureImporter)AssetImporter.GetAtPath(assetPath);
             importer.textureType = TextureImporterType.Sprite;
             importer.spriteImportMode = SpriteImportMode.Single;
+            if (pixelsPerUnit.HasValue)
+            {
+                importer.spritePixelsPerUnit = pixelsPerUnit.Value;
+            }
+
             ConfigureCommonImporter(importer);
             importer.SaveAndReimport();
         }

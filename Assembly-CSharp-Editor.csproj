@@ -78,6 +78,7 @@
     <Compile Include="Assets\Editor\StrategyVerificationRunner.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.FoundingJourney.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.Visual.cs" />
+    <Compile Include="Assets\Editor\StrategyVerificationRunner.HouseVisual.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.ForagerCampVisual.cs" />
     <Compile Include="Assets\Editor\StrategyVisualCatalogBaker.IO.cs" />
   </ItemGroup>

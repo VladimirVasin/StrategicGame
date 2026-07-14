@@ -22,12 +22,30 @@ namespace ProjectUnknown.Strategy.EditorTests
         [Test]
         public void ConstructionAndRuntimeOverlayAnchorsMatchAuthoredGeometry()
         {
+            Assert.That(StrategyForagerCampVisualProfile.SpriteWidth, Is.EqualTo(176));
+            Assert.That(StrategyForagerCampVisualProfile.SpriteHeight, Is.EqualTo(116));
+            Assert.That(StrategyForagerCampVisualProfile.ConstructionFrameWidth, Is.EqualTo(184));
+            Assert.That(StrategyForagerCampVisualProfile.ConstructionFrameHeight, Is.EqualTo(164));
+            Assert.That(StrategyForagerCampVisualProfile.ConstructionFrameCount, Is.EqualTo(7));
+            Assert.That(StrategyForagerCampVisualProfile.PixelsPerUnit, Is.EqualTo(48f));
+            Assert.That(
+                StrategyForagerCampVisualProfile.SpriteWidth / StrategyForagerCampVisualProfile.PixelsPerUnit,
+                Is.EqualTo(88f / 24f).Within(0.001f));
+            Assert.That(
+                StrategyForagerCampVisualProfile.SpriteHeight / StrategyForagerCampVisualProfile.PixelsPerUnit,
+                Is.EqualTo(58f / 24f).Within(0.001f));
+
             Vector2 pivotPixels = Vector2.Scale(
                 StrategyForagerCampVisualProfile.ConstructionPivotNormalized,
                 new Vector2(
                     StrategyForagerCampVisualProfile.ConstructionFrameWidth,
                     StrategyForagerCampVisualProfile.ConstructionFrameHeight));
-            Assert.That(Vector2.Distance(pivotPixels, new Vector2(46f, 11.6f)), Is.LessThan(0.001f));
+            Assert.That(Vector2.Distance(pivotPixels, new Vector2(92f, 23.2f)), Is.LessThan(0.001f));
+            Assert.That(
+                Vector2.Distance(
+                    pivotPixels / StrategyForagerCampVisualProfile.PixelsPerUnit,
+                    new Vector2(46f, 11.6f) / 24f),
+                Is.LessThan(0.001f));
 
             Bounds footprint = new(Vector3.zero, new Vector3(2f, 2f, 0f));
             Assert.That(

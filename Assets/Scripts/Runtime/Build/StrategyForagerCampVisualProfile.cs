@@ -4,12 +4,12 @@ namespace ProjectUnknown.Strategy
 {
     internal static class StrategyForagerCampVisualProfile
     {
-        public const int SpriteWidth = 88;
-        public const int SpriteHeight = 58;
-        public const int ConstructionFrameWidth = 92;
-        public const int ConstructionFrameHeight = 82;
+        public const int SpriteWidth = 176;
+        public const int SpriteHeight = 116;
+        public const int ConstructionFrameWidth = 184;
+        public const int ConstructionFrameHeight = 164;
         public const int ConstructionFrameCount = 7;
-        public const float PixelsPerUnit = 24f;
+        public const float PixelsPerUnit = 48f;
         public const float SpritePivotY = 0.20f;
 
         public static Vector2 ConstructionPivotNormalized => new(

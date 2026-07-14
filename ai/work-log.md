@@ -1,5 +1,13 @@
 # Work Log
 
+### 2026-07-14 - Native 2x House and Forager Camp runtime art
+
+- Promoted the accepted high-detail House V01-V05 and Forager Camp V01 masters into true 2x runtime sprites: Houses are now `160x160`, Forager Camp is `176x116`, and all six authored construction atlases use seven `184x164` frames.
+- Doubled the targeted authored import contract from `24 PPU` to `48 PPU`, preserving every building's previous world size, normalized pivot, placement footprint, sorting, and catalog identity while leaving procedural fallbacks and unrelated authored families unchanged.
+- Added reproducible high-resolution normalization and construction-atlas upgrade tools plus transparent source masters outside Unity's `Assets` tree. Construction stages 0-5 use isolated edge-aware Scale2x, while stage 6 embeds the matching detailed final under the canonical doubled scaffold.
+- Recalibrated House chimney smoke and lower-window masks to the actual high-detail geometry, retained Forager Camp lantern/stock world anchors, and extended catalog, importer, embedded-final, profile, and effect verification for the new contracts.
+- Verification: direct gameplay-scale comparison selected Point over Bilinear filtering; all 12 runtime PNGs and catalog sequence records match their target dimensions/PPU, and a clean rebuild from the committed tool sources reproduced all 12 SHA-256 hashes exactly; technical quality gates passed; `Assembly-CSharp`, `Assembly-CSharp-Editor`, `ProjectUnknown.Runtime`, `ProjectUnknown.Editor`, and `ProjectUnknown.EditModeTests` built sequentially with 0 warnings/errors. Unity remained open, so the isolated Unity catalog/EditMode verification was not rerun.
+
 ### 2026-07-14 - Reverted over-quantized House and Forager Camp cleanup
 
 - Restored the exact pre-cleanup House V01-V05 and Forager Camp V01 PNGs plus all six authored construction atlases after the limited-palette pass made roof, stone, canvas, and timber texture read as larger flat pixel blocks under Point filtering.

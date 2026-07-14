@@ -66,6 +66,7 @@
     <Compile Include="Assets\Editor\StrategyVerificationRunner.Map.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.Visual.cs" />
+    <Compile Include="Assets\Editor\StrategyVerificationRunner.HouseVisual.cs" />
     <Compile Include="Assets\Editor\StrategyVisualCatalogBaker.IO.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.Quality.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.ForagerCampVisual.cs" />

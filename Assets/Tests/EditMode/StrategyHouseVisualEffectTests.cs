@@ -8,23 +8,23 @@ namespace ProjectUnknown.Strategy.EditorTests
     {
         private static readonly Vector2[] ChimneyMouthPixels =
         {
-            new(51.5f, 76f),
-            new(52.5f, 76f),
-            new(49.5f, 76f),
-            new(50f, 75f),
-            new(53.5f, 75f)
+            new(95f, 151f),
+            new(99f, 151f),
+            new(92f, 151f),
+            new(92f, 151f),
+            new(100f, 149f)
         };
 
         private static readonly RectInt[,] LowerWindowRects =
         {
-            { new(34, 21, 3, 6), new(50, 20, 4, 7) },
-            { new(35, 21, 3, 6), new(52, 20, 4, 7) },
-            { new(32, 21, 4, 6), new(49, 20, 4, 7) },
-            { new(33, 20, 3, 6), new(50, 19, 4, 7) },
-            { new(35, 20, 3, 6), new(52, 19, 4, 7) }
+            { new(62, 41, 8, 13), new(93, 39, 9, 15) },
+            { new(66, 41, 6, 14), new(97, 40, 8, 15) },
+            { new(60, 41, 7, 14), new(92, 40, 8, 14) },
+            { new(62, 40, 6, 14), new(92, 39, 8, 14) },
+            { new(67, 40, 6, 14), new(98, 39, 9, 14) }
         };
 
-        private static readonly int[] RightWindowMullionOffsets = { 2, 1, 2, 1, 2 };
+        private static readonly int[] RightWindowMullionOffsets = { 4, 3, 3, 3, 4 };
 
         [Test]
         public void SmokeOverlayUsesAuthoredChimneyAnchorsAndUnclippedSprite()
@@ -43,13 +43,12 @@ namespace ProjectUnknown.Strategy.EditorTests
                     Transform smoke = house.transform.Find("House Chimney Smoke");
                     Assert.That(smoke, Is.Not.Null, $"House V{variant + 1:00} smoke child is missing");
                     Vector2 anchoredPixels = new(
-                        smoke.localPosition.x * 24f + 40f,
-                        smoke.localPosition.y * 24f + 8f);
+                        smoke.localPosition.x * 48f + 80f,
+                        smoke.localPosition.y * 48f + 16f);
                     Assert.That(
                         Vector2.Distance(anchoredPixels, ChimneyMouthPixels[variant]),
                         Is.LessThan(0.001f),
                         $"House V{variant + 1:00} chimney anchor changed");
-
                     SpriteRenderer smokeRenderer = smoke.GetComponent<SpriteRenderer>();
                     Assert.That(smokeRenderer, Is.Not.Null);
                     Assert.That(smokeRenderer.sortingOrder, Is.EqualTo(121));
@@ -92,9 +91,9 @@ namespace ProjectUnknown.Strategy.EditorTests
                 Texture2D authoredHouse = LoadAuthoredHouse(variant);
                 try
                 {
-                    Assert.That(mask.rect.size, Is.EqualTo(new Vector2(80f, 80f)));
-                    Assert.That(mask.pixelsPerUnit, Is.EqualTo(24f));
-                    Assert.That(mask.pivot, Is.EqualTo(new Vector2(40f, 8f)));
+                    Assert.That(mask.rect.size, Is.EqualTo(new Vector2(160f, 160f)));
+                    Assert.That(mask.pixelsPerUnit, Is.EqualTo(48f));
+                    Assert.That(mask.pivot, Is.EqualTo(new Vector2(80f, 16f)));
 
                     AssertWindowMaskGeometry(mask.texture, authoredHouse, variant);
                     Assert.That(
@@ -103,6 +102,12 @@ namespace ProjectUnknown.Strategy.EditorTests
                             LowerWindowRects[variant, 1].yMin).a,
                         Is.EqualTo(0.30f).Within(0.01f),
                         $"House V{variant + 1:00} right-window mullion moved");
+                    Assert.That(
+                        mask.texture.GetPixel(
+                            LowerWindowRects[variant, 1].x + RightWindowMullionOffsets[variant] + 1,
+                            LowerWindowRects[variant, 1].yMin).a,
+                        Is.EqualTo(0.30f).Within(0.01f),
+                        $"House V{variant + 1:00} right-window mullion was not doubled");
                 }
                 finally
                 {

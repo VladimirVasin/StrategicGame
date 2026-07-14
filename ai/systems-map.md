@@ -138,11 +138,14 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Menu/StrategyMapPreloadCoordinator.Content.cs`
 - `Tools/Art/Build-HouseConstructionAtlas.ps1`
 - `Tools/Art/Build-ForagerCampConstructionAtlas.ps1`
+- `Tools/Art/Build-HighResolutionAuthoredBuildings.ps1`
+- `Tools/Art/Upgrade-ConstructionAtlas2x.ps1`
+- `Tools/Art/Source/HighResolution/`
 
 Impact hints:
 
 - Catalog entries are optional; missing sets, variants, or frames must continue into the existing procedural fallback.
-- The baker deletes and recreates only `Visual/Baked`; matching building paths under `Visual/Authored/Buildings` and construction atlases under `Visual/Authored/Construction` replace generated catalog entries after exact sprite or sequence-layout validation.
+- The baker deletes and recreates only `Visual/Baked`; matching building paths under `Visual/Authored/Buildings` and construction atlases under `Visual/Authored/Construction` replace generated catalog entries after explicit sprite or sequence-layout validation. Houses and Forager Camp may use their targeted 2x/48-PPU authored contracts while retaining the procedural fallback's world dimensions; unrelated overrides must still match their fallback dimensions exactly.
 - Imported authored sprites should use point filtering, a consistent pixels-per-unit contract, bottom-center world pivots where applicable, and the existing Y-based sorting path.
 - Atlas textures must stay `Sprite/Single`; automatic Multiple slicing breaks runtime rectangular frame extraction.
 - Worker terrain code must consume only the prewarmed managed swatch cache, never Unity textures or sprites directly.
@@ -1558,8 +1561,8 @@ Impact hints:
 - Completed buildings, active construction sites, progress, delivered resources, and blockers participate in versioned persistence.
 - Placed objects use tool-specific sprites when available; unknown future tools still fall back to colored sprites/TextMesh labels.
 - Build placement consults fog exploration state, so early expansion starts around the camp and other revealed areas unless player fog is disabled from the F9 debug panel.
-- House chimney smoke is a visual-only child sprite, while House window masks are full-sprite overlays aligned to the authored `(40,8)` pixel pivot; neither should be used for footprint/collider calculations. When House geometry changes, update the per-variant chimney/window profiles and their EditMode contract together.
-- Forager Camp construction uses its authored body pivot at `(46,11.6)` pixels inside each `92x82` frame; its lantern and live stock layers use `StrategyForagerCampVisualProfile` anchors, so update the sprite, profile, atlas, and EditMode contract together when camp geometry changes.
+- House chimney smoke is a visual-only child sprite, while House window masks are full-sprite overlays aligned to the authored `(80,16)` pixel pivot at `48 PPU`; neither should be used for footprint/collider calculations. When House geometry changes, update the per-variant chimney/window profiles and their EditMode contract together.
+- Forager Camp construction uses its authored body pivot at `(92,23.2)` pixels inside each `184x164 @ 48 PPU` frame; its lantern and live stock layers use `StrategyForagerCampVisualProfile` anchors, so update the sprite, profile, atlas, and EditMode contract together when camp geometry changes.
 - Bridge placement requires two valid explored, unoccupied, walkable river-bank endpoint cells with a straight contiguous River water span between them; Lake water is rejected.
 - With the current catalog, `House`, `Lumberjack Camp`, `Stonecutter Camp`, `Sawmill`, `Kiln`, `Forge`, `Hunter Camp`, `Fisher Hut`, `Forager Camp`, `Mine`, `Coal Pit`, `Clay Pit`, `Storage Yard`, and `Granary` can be selected and placed only where their technical foundation is fully walkable/buildable/explored, their future final 2.5D blocker can be reserved on buildable/explored/unoccupied cells, and builders have a nearby walkable work cell; Mine, Coal Pit, and Clay Pit are the only tools allowed to use matching Iron/Coal/Clay build-blocked resource cells.
 - Final blocker reservation no longer requires every future visual blocker cell to be walkable at construction-site placement time.

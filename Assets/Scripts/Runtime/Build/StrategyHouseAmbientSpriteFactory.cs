@@ -5,12 +5,14 @@ namespace ProjectUnknown.Strategy
 {
     internal static class StrategyHouseAmbientSpriteFactory
     {
-        private const float PixelsPerUnit = 24f;
-        private const int HouseSpriteSize = 80;
+        private const float HousePixelsPerUnit = 48f;
+        private const float SmokePixelsPerUnit = 24f;
+        private const int HouseSpriteSize = 160;
+        private const int HouseMullionThickness = 2;
         private const int SmokeTextureWidth = 32;
         private const int SmokeTextureHeight = 24;
-        private const float HousePivotX = 40f;
-        private const float HousePivotY = 8f;
+        private const float HousePivotX = 80f;
+        private const float HousePivotY = 16f;
         public const int FrameCount = 8;
 
         private static readonly Dictionary<int, Sprite> CachedSmokeSprites = new();
@@ -44,15 +46,15 @@ namespace ProjectUnknown.Strategy
         {
             Vector2 mouth = Normalize(variant, StrategyBuildingSpriteFactory.HouseVariantCount) switch
             {
-                1 => new Vector2(52.5f, 76f),
-                2 => new Vector2(49.5f, 76f),
-                3 => new Vector2(50f, 75f),
-                4 => new Vector2(53.5f, 75f),
-                _ => new Vector2(51.5f, 76f)
+                1 => new Vector2(99f, 151f),
+                2 => new Vector2(92f, 151f),
+                3 => new Vector2(92f, 151f),
+                4 => new Vector2(100f, 149f),
+                _ => new Vector2(95f, 151f)
             };
             return new Vector3(
-                (mouth.x - HousePivotX) / PixelsPerUnit,
-                (mouth.y - HousePivotY) / PixelsPerUnit,
+                (mouth.x - HousePivotX) / HousePixelsPerUnit,
+                (mouth.y - HousePivotY) / HousePixelsPerUnit,
                 0f);
         }
 
@@ -68,7 +70,7 @@ namespace ProjectUnknown.Strategy
                 texture,
                 new Rect(0f, 0f, SmokeTextureWidth, SmokeTextureHeight),
                 new Vector2(16.5f / SmokeTextureWidth, 0f),
-                PixelsPerUnit);
+                SmokePixelsPerUnit);
         }
 
         private static Sprite CreateWindowMaskSprite(int variant)
@@ -83,7 +85,7 @@ namespace ProjectUnknown.Strategy
                 texture,
                 new Rect(0f, 0f, HouseSpriteSize, HouseSpriteSize),
                 new Vector2(0.5f, 0.10f),
-                PixelsPerUnit);
+                HousePixelsPerUnit);
         }
 
         private static Texture2D CreateClearTexture(int width, int height, string textureName)
@@ -119,19 +121,19 @@ namespace ProjectUnknown.Strategy
             switch (variant)
             {
                 case 1:
-                    DrawWindowPair(texture, new RectInt(35, 21, 3, 6), new RectInt(52, 20, 4, 7), 1);
+                    DrawWindowPair(texture, new RectInt(66, 41, 6, 14), new RectInt(97, 40, 8, 15), 3);
                     break;
                 case 2:
-                    DrawWindowPair(texture, new RectInt(32, 21, 4, 6), new RectInt(49, 20, 4, 7));
+                    DrawWindowPair(texture, new RectInt(60, 41, 7, 14), new RectInt(92, 40, 8, 14), 3);
                     break;
                 case 3:
-                    DrawWindowPair(texture, new RectInt(33, 20, 3, 6), new RectInt(50, 19, 4, 7), 1);
+                    DrawWindowPair(texture, new RectInt(62, 40, 6, 14), new RectInt(92, 39, 8, 14), 3);
                     break;
                 case 4:
-                    DrawWindowPair(texture, new RectInt(35, 20, 3, 6), new RectInt(52, 19, 4, 7));
+                    DrawWindowPair(texture, new RectInt(67, 40, 6, 14), new RectInt(98, 39, 9, 14));
                     break;
                 default:
-                    DrawWindowPair(texture, new RectInt(34, 21, 3, 6), new RectInt(50, 20, 4, 7));
+                    DrawWindowPair(texture, new RectInt(62, 41, 8, 13), new RectInt(93, 39, 9, 15));
                     break;
             }
         }
@@ -151,12 +153,18 @@ namespace ProjectUnknown.Strategy
 
         private static void DrawWindow(Texture2D texture, RectInt rect, int mullionOffset)
         {
-            FillRect(texture, rect.x, rect.y, rect.width, rect.height, Color.white);
+            FillRect(
+                texture,
+                rect.x,
+                rect.y,
+                rect.width,
+                rect.height,
+                Color.white);
             FillRect(
                 texture,
                 rect.x + mullionOffset,
                 rect.y,
-                1,
+                HouseMullionThickness,
                 rect.height,
                 new Color(1f, 1f, 1f, 0.30f));
             FillRect(
@@ -164,7 +172,7 @@ namespace ProjectUnknown.Strategy
                 rect.x,
                 rect.y + rect.height / 2,
                 rect.width,
-                1,
+                HouseMullionThickness,
                 new Color(1f, 1f, 1f, 0.36f));
         }
 
