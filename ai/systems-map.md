@@ -137,6 +137,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyResidentSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Menu/StrategyMapPreloadCoordinator.Content.cs`
 - `Tools/Art/Build-HouseConstructionAtlas.ps1`
+- `Tools/Art/Build-ForagerCampConstructionAtlas.ps1`
 
 Impact hints:
 
@@ -1466,7 +1467,7 @@ Responsibilities:
 - Choose random storage yard visual variants for placed storage yards while keeping menu/preview art stable.
 - Choose random hunter camp visual variants for placed camps while keeping menu/preview art stable.
 - Choose random fisher hut visual variants for placed huts while keeping menu/preview art stable.
-- Choose random forager camp visual variants for placed camps while keeping menu/preview art stable.
+- Use the single authored Forager Camp visual variant for placement/menu preview and normalize legacy saved variants to that accepted sprite.
 - Choose random coal pit visual variants for placed pits while keeping menu/preview art stable.
 - Choose random granary visual variants for placed granaries while keeping menu/preview art stable.
 - Choose random trading post visual variants for placed trading posts while keeping menu/preview art stable.
@@ -1516,6 +1517,8 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Build/StrategyConstructionSite.Part03.cs`
 - `Assets/Scripts/Runtime/Build/StrategyConstructionSite.Part04.cs`
 - `Assets/Scripts/Runtime/Build/StrategyConstructionSpriteFactory.cs`
+- `Assets/Scripts/Runtime/Build/StrategyConstructionSpriteFactory.ForagerCamp.cs`
+- `Assets/Scripts/Runtime/Build/StrategyForagerCampVisualProfile.cs`
 - `Assets/Scripts/Runtime/Build/StrategyLooseConstructionResourcePile.cs`
 - `Assets/Scripts/Runtime/Build/StrategyLooseConstructionResourcePile.Part02.cs`
 - `Assets/Scripts/Runtime/Build/IStrategyConstructionResourceSource.cs`
@@ -1556,6 +1559,7 @@ Impact hints:
 - Placed objects use tool-specific sprites when available; unknown future tools still fall back to colored sprites/TextMesh labels.
 - Build placement consults fog exploration state, so early expansion starts around the camp and other revealed areas unless player fog is disabled from the F9 debug panel.
 - House chimney smoke is a visual-only child sprite, while House window masks are full-sprite overlays aligned to the authored `(40,8)` pixel pivot; neither should be used for footprint/collider calculations. When House geometry changes, update the per-variant chimney/window profiles and their EditMode contract together.
+- Forager Camp construction uses its authored body pivot at `(46,11.6)` pixels inside each `92x82` frame; its lantern and live stock layers use `StrategyForagerCampVisualProfile` anchors, so update the sprite, profile, atlas, and EditMode contract together when camp geometry changes.
 - Bridge placement requires two valid explored, unoccupied, walkable river-bank endpoint cells with a straight contiguous River water span between them; Lake water is rejected.
 - With the current catalog, `House`, `Lumberjack Camp`, `Stonecutter Camp`, `Sawmill`, `Kiln`, `Forge`, `Hunter Camp`, `Fisher Hut`, `Forager Camp`, `Mine`, `Coal Pit`, `Clay Pit`, `Storage Yard`, and `Granary` can be selected and placed only where their technical foundation is fully walkable/buildable/explored, their future final 2.5D blocker can be reserved on buildable/explored/unoccupied cells, and builders have a nearby walkable work cell; Mine, Coal Pit, and Clay Pit are the only tools allowed to use matching Iron/Coal/Clay build-blocked resource cells.
 - Final blocker reservation no longer requires every future visual blocker cell to be walkable at construction-site placement time.
@@ -1917,6 +1921,10 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Build/StrategyForagerCamp.cs`
 - `Assets/Scripts/Runtime/Build/StrategyForagerCamp.Part01.cs`
 - `Assets/Scripts/Runtime/Build/StrategyForagerCamp.Part02.cs`
+- `Assets/Scripts/Runtime/Build/StrategyForagerCampVisualProfile.cs`
+- `Assets/Resources/Visual/Authored/Buildings/ForagerCamp/V01.png`
+- `Assets/Resources/Visual/Authored/Construction/ForagerCamp/V01.png`
+- `Tools/Art/Build-ForagerCampConstructionAtlas.ps1`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.cs`
 - `Assets/Scripts/Runtime/Build/StrategyBuildPlacementController.cs`
 - `Assets/Scripts/Runtime/Build/StrategyBuildingSpriteFactory.cs`
@@ -1969,6 +1977,7 @@ Impact hints:
 - Forager Camp is the active source for forage ingredients; do not re-enable House-owned household foraging unless the design intentionally returns food production to homes.
 - Camp stock is local and capped like other production sites; Granaries remain the uncapped food storage and Householder pickup source.
 - Auto workforce treats Foragers as part of the Food category alongside Hunters and Fishers.
+- The accepted camp has one final visual variant. Legacy construction/save variants normalize to V0, while the authored geometry profile owns the construction pivot and runtime lantern/stock anchors.
 
 ### Chicken Coop Production
 

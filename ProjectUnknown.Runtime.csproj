@@ -660,6 +660,8 @@
     <Compile Include="Assets\Scripts\Runtime\Menu\StrategyFoundingJourneyController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyConstructionSite.Part02.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyCinematicLightKind.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyConstructionSpriteFactory.ForagerCamp.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyForagerCampVisualProfile.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Scripts\Runtime\ProjectUnknown.Runtime.asmdef" />

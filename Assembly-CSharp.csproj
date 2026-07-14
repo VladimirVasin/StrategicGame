@@ -362,6 +362,8 @@
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part20.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyMine.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyConstructionSpriteFactory.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyConstructionSpriteFactory.ForagerCamp.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyForagerCampVisualProfile.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part59.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentSpriteFactory.Part02.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\CityMapController.Relief.cs" />

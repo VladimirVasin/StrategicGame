@@ -47,6 +47,20 @@
 - Stage 6 uses the accepted final House pixels with only removable scaffolding around them, so completion changes construction dressing instead of replacing the building silhouette.
 - Runtime systems own delivered resource piles, workers, hammer effects, cast shadows, weather, snow, and night lighting; construction atlases must not duplicate those layers.
 
+## Authored Forager Camp
+
+- The single `88x58` Forager Camp sprite reads as an open timber-and-canvas woodland work shelter with baskets, a preparation table, gathered herbs, and a distinct lantern hook.
+- The camp uses `24 PPU` and a bottom-center `(0.5, 0.2)` pivot so its compact ground line stays aligned with its `2x2` technical footprint and the surrounding 2.5D blocker.
+- Runtime systems own the hanging lantern body, flame, glow, darkness cutout, live forage-stock marker, cast shadow, weather, and snow; keep those dynamic layers out of the completed base sprite.
+- Keep this family at one final visual variant unless an explicit future art pass expands the runtime and save contracts together.
+
+## Authored Forager Camp Construction
+
+- The Forager Camp owns one `644x82` atlas containing seven horizontal `92x82` stages at `24 PPU`.
+- Its construction pivot is `(0.5, 11.6 / 82)` so the completed `88x58` sprite preserves the same `(44, 11.6)` source pivot after being embedded with two pixels of horizontal padding.
+- Stages progress from survey marks through stone footing, platform, timber posts, upper frame, canvas shell, and the completed camp with removable scaffolding.
+- Stage 6 preserves every visible completed-camp pixel exactly; rebuild the atlas with `Tools/Art/Build-ForagerCampConstructionAtlas.ps1` after changing the accepted final sprite or construction storyboard.
+
 ## Verification Views
 
 - Use the deterministic 1600x900 Noon, Night, and Winter gameplay captures.

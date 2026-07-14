@@ -17,6 +17,7 @@
     <Compile Include="Assets\Tests\EditMode\StrategyInputActionsContractTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyInputRouterTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyHouseVisualEffectTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyForagerCampVisualProfileTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyUiButtonFeedbackTests.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.Input.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.Errors.cs" />
@@ -77,6 +78,7 @@
     <Compile Include="Assets\Editor\StrategyVerificationRunner.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.FoundingJourney.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.Visual.cs" />
+    <Compile Include="Assets\Editor\StrategyVerificationRunner.ForagerCampVisual.cs" />
     <Compile Include="Assets\Editor\StrategyVisualCatalogBaker.IO.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -62,6 +62,7 @@
     <Compile Include="Assets\Tests\EditMode\StrategyInputActionsContractTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyResidentCharacterizationTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyGameContextTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyForagerCampVisualProfileTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Tests\EditMode\ProjectUnknown.EditModeTests.asmdef" />

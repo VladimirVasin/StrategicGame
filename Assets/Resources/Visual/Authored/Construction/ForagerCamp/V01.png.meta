@@ -1,25 +1,28 @@
 fileFormatVersion: 2
-guid: 8d79ab435520db14a81c28faac5250b5
+guid: c9121acbb11162c469d0e27184ccb9ea
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1354726578318097544
-    second: V03_0
+      213: -903380848088846665
+    second: V01_0
   - first:
-      213: 5574737928864437096
-    second: V03_1
+      213: 8756999596722399341
+    second: V01_1
   - first:
-      213: -6463134765616668552
-    second: V03_2
+      213: 6923660753507505210
+    second: V01_2
   - first:
-      213: -8699670708072417586
-    second: V03_3
+      213: 8873252749865363771
+    second: V01_3
   - first:
-      213: 8988916311961554491
-    second: V03_4
+      213: 3103203217717085015
+    second: V01_4
   - first:
-      213: 6808593305813193118
-    second: V03_5
+      213: 2353180932969691653
+    second: V01_5
+  - first:
+      213: -6916330345412752131
+    second: V01_6
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -115,13 +118,35 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: V03_0
+      name: V01_0
       rect:
         serializedVersion: 2
-        x: 6
-        y: 1
-        width: 87
-        height: 23
+        x: 16
+        y: 0
+        width: 59
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7bee5cca7eb8673f0800000000000000
+      internalID: -903380848088846665
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: V01_1
+      rect:
+        serializedVersion: 2
+        x: 105
+        y: 0
+        width: 66
+        height: 35
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -130,20 +155,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 873c19bca5b033de0800000000000000
-      internalID: -1354726578318097544
+      spriteID: d68a0e49cbc178970800000000000000
+      internalID: 8756999596722399341
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: V03_1
+      name: V01_2
       rect:
         serializedVersion: 2
-        x: 91
-        y: 1
-        width: 94
-        height: 25
+        x: 197
+        y: 0
+        width: 66
+        height: 37
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -152,20 +177,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 8639cdd2c927d5d40800000000000000
-      internalID: 5574737928864437096
+      spriteID: a34d02ea5c8c51060800000000000000
+      internalID: 6923660753507505210
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: V03_2
+      name: V01_3
       rect:
         serializedVersion: 2
-        x: 183
-        y: 1
-        width: 94
-        height: 64
+        x: 289
+        y: 0
+        width: 66
+        height: 57
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -174,20 +199,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 870e0ff7c255e46a0800000000000000
-      internalID: -6463134765616668552
+      spriteID: b39abfd0d50242b70800000000000000
+      internalID: 8873252749865363771
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: V03_3
+      name: V01_4
       rect:
         serializedVersion: 2
-        x: 275
-        y: 1
-        width: 94
-        height: 64
+        x: 383
+        y: 0
+        width: 61
+        height: 59
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -196,20 +221,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: ec6f876759f844780800000000000000
-      internalID: -8699670708072417586
+      spriteID: 75340e192eac01b20800000000000000
+      internalID: 3103203217717085015
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: V03_4
+      name: V01_5
       rect:
         serializedVersion: 2
-        x: 367
-        y: 1
-        width: 94
-        height: 64
+        x: 470
+        y: 0
+        width: 71
+        height: 59
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -218,20 +243,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: b3ece2aa2cb0fbc70800000000000000
-      internalID: 8988916311961554491
+      spriteID: 50a71e1479d28a020800000000000000
+      internalID: 2353180932969691653
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: V03_5
+      name: V01_6
       rect:
         serializedVersion: 2
-        x: 459
-        y: 1
-        width: 185
-        height: 66
+        x: 552
+        y: 0
+        width: 91
+        height: 58
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -240,8 +265,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: e911915c98bfc7e50800000000000000
-      internalID: 6808593305813193118
+      spriteID: dfc0b64f1324400a0800000000000000
+      internalID: -6916330345412752131
       vertices: []
       indices: 
       edges: []
@@ -260,12 +285,13 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      V03_0: -1354726578318097544
-      V03_1: 5574737928864437096
-      V03_2: -6463134765616668552
-      V03_3: -8699670708072417586
-      V03_4: 8988916311961554491
-      V03_5: 6808593305813193118
+      V01_0: -903380848088846665
+      V01_1: 8756999596722399341
+      V01_2: 6923660753507505210
+      V01_3: 8873252749865363771
+      V01_4: 3103203217717085015
+      V01_5: 2353180932969691653
+      V01_6: -6916330345412752131
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

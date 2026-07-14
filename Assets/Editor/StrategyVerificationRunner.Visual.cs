@@ -57,6 +57,7 @@ namespace ProjectUnknown.Strategy.EditorTests
                 "Generated point-filtered main-menu key art is missing");
             VerifyAuthoredHouseFamily();
             VerifyAuthoredHouseConstructionFamily(catalog);
+            VerifyAuthoredForagerCamp(catalog);
         }
 
         private static void VerifyAuthoredHouseFamily()

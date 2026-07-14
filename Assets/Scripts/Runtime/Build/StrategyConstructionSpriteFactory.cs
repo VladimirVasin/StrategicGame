@@ -20,21 +20,14 @@ namespace ProjectUnknown.Strategy
                 return GetBridgeConstructionSprite(new Vector2Int(3, 1), normalizedStage);
             }
 
-            int cacheKey = ((int)tool * 512) + (Mathf.Max(0, variant) * 32) + normalizedStage;
-            string sequenceId = $"Construction/{tool}/V{Mathf.Max(0, variant)}";
+            int normalizedVariant = StrategyForagerCampVisualProfile.NormalizeVariant(tool, variant);
+            int cacheKey = ((int)tool * 512) + (normalizedVariant * 32) + normalizedStage;
+            string sequenceId = $"Construction/{tool}/V{normalizedVariant}";
             if (StrategyVisualCatalogProvider.TryGetSequenceSprite(sequenceId, normalizedStage, out Sprite authored))
             {
                 if (!CachedSprites.TryGetValue(cacheKey, out Sprite aligned) || aligned == null)
                 {
-                    aligned = Sprite.Create(
-                        authored.texture,
-                        authored.rect,
-                        new Vector2(0.5f, 0.10f),
-                        authored.pixelsPerUnit,
-                        0,
-                        SpriteMeshType.FullRect,
-                        authored.border);
-                    aligned.name = authored.name + " Ground Aligned";
+                    aligned = CreateGroundAlignedSprite(tool, authored);
                     CachedSprites[cacheKey] = aligned;
                 }
 
@@ -43,7 +36,9 @@ namespace ProjectUnknown.Strategy
 
             if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
             {
-                sprite = CreateConstructionSprite(tool, variant, normalizedStage);
+                sprite = CreateGroundAlignedSprite(
+                    tool,
+                    CreateConstructionSprite(tool, normalizedVariant, normalizedStage));
                 CachedSprites[cacheKey] = sprite;
             }
 

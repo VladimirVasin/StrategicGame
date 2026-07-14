@@ -17,7 +17,7 @@ namespace ProjectUnknown.Strategy
         public const int ForgeVariantCount = 3;
         public const int HunterCampVariantCount = 3;
         public const int FisherHutVariantCount = 3;
-        public const int ForagerCampVariantCount = 3;
+        public const int ForagerCampVariantCount = 1;
         public const int ChickenCoopVariantCount = StrategyBuildingUpgradeSpriteFactory.AnimationFrameCount;
         public const int TradingPostVariantCount = 3;
         public const int StarterCaravanCartVariantCount = 1;

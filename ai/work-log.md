@@ -1,5 +1,20 @@
 # Work Log
 
+### 2026-07-14 - Reverted over-quantized House and Forager Camp cleanup
+
+- Restored the exact pre-cleanup House V01-V05 and Forager Camp V01 PNGs plus all six authored construction atlases after the limited-palette pass made roof, stone, canvas, and timber texture read as larger flat pixel blocks under Point filtering.
+- Removed the 24/32-color cleanup tool, palette-count regression contract, and art-direction limits introduced by that pass; existing geometry, importer, embedded-final, effect-anchor, and construction-layout checks remain authoritative.
+- Root cause: the report compared 1254x1254 and 1544x1018 image-generation references with shipped 80x80 and 88x58 sprites, while the cleanup then discarded most native tonal detail. Future comparisons must use the actual gameplay screen scale before replacing assets.
+- Verification: all 12 restored PNGs match their exact pre-cleanup Git blobs; every completed sprite has 0 visible-pixel mismatches in construction stage 6; technical quality gates and all five C# projects passed with 0 warnings/errors. Unity remained open, so the isolated catalog test was not rerun.
+
+### 2026-07-14 - Authored Forager Camp visual and construction pass
+
+- Replaced the three procedural Forager Camp variants with one durable authored `88x58` timber-and-canvas camp at `24 PPU`, preserving a compact bottom-center ground pivot and procedural fallback.
+- Added one authored `644x82` construction atlas with seven `92x82` stages from survey marks through footing, frame, canvas shell, and the exact accepted final camp under removable scaffolding; added a deterministic storyboard-normalization tool.
+- Normalized legacy saved/active Forager Camp visual variants to V0, introduced its tool-specific construction pivot, and realigned the runtime lantern plus Berries/Roots/Mushrooms stock marker to the authored geometry.
+- Rebuilt the visual catalog, removed obsolete baked V02/V03 camp and construction assets, and added strict importer/layout/final-pixel verification plus focused profile/anchor tests.
+- Verification: technical gates passed; visual catalog bake passed with 18 building sets and 132 sequences; all five C# projects built with 0 warnings/errors; focused profile tests passed 2/2; the isolated VisualCatalog test passed 1/1; direct PlayMode smoke passed.
+
 ### 2026-07-14 - House chimney smoke and window-light realignment
 
 - Replaced the legacy combined `80x80` House ambient overlay with eight shared compact smoke frames attached to the measured mouth of each authored V01-V05 chimney; their half-pixel pivot and base-touching motion keep every puff connected and unclipped.

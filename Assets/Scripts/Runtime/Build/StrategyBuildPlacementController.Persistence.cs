@@ -85,6 +85,7 @@ namespace ProjectUnknown.Strategy
             }
 
             StrategyBuildTool tool = (StrategyBuildTool)data.tool;
+            int visualVariant = StrategyForagerCampVisualProfile.NormalizeVariant(tool, data.visualVariant);
             Vector2Int origin = new(data.originX, data.originY);
             Vector2Int footprint = new(Mathf.Max(1, data.footprintX), Mathf.Max(1, data.footprintY));
             StrategyConstructionResourceCost cost = new(data.costLogs, data.costStone, data.costPlanks);
@@ -97,7 +98,7 @@ namespace ProjectUnknown.Strategy
             SpriteRenderer renderer = siteObject.AddComponent<SpriteRenderer>();
             renderer.sprite = tool == StrategyBuildTool.Bridge
                 ? StrategyConstructionSpriteFactory.GetBridgeConstructionSprite(footprint, 0)
-                : StrategyConstructionSpriteFactory.GetConstructionSprite(tool, data.visualVariant, 0);
+                : StrategyConstructionSpriteFactory.GetConstructionSprite(tool, visualVariant, 0);
             renderer.color = Color.white;
             siteObject.transform.position = tool == StrategyBuildTool.Bridge
                 ? new Vector3(bounds.center.x, bounds.center.y, -0.14f)
@@ -105,7 +106,7 @@ namespace ProjectUnknown.Strategy
             StrategyWorldSorting.Apply(renderer, siteObject.transform.position);
 
             StrategyConstructionSite site = siteObject.AddComponent<StrategyConstructionSite>();
-            site.Configure(this, map, info, origin, bounds, blockOrigin, blockFootprint, data.visualVariant, renderer);
+            site.Configure(this, map, info, origin, bounds, blockOrigin, blockFootprint, visualVariant, renderer);
             List<Vector2Int> bridgeCells = CopyCells(data.bridgeCells);
             if (data.hasBridgeSpan && bridgeCells.Count > 0)
             {

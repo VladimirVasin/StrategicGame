@@ -165,8 +165,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            Bounds bounds = building.FootprintBounds;
-            Vector3 world = new Vector3(bounds.max.x - 0.34f, bounds.min.y + 0.36f, -0.13f);
+            Vector3 world = StrategyForagerCampVisualProfile.GetStockAnchorWorld(building.FootprintBounds);
             stockRenderer.transform.localPosition = transform.InverseTransformPoint(world);
             stockRenderer.transform.localScale = Vector3.one;
             StrategyWorldSorting.Apply(stockRenderer, world, 1);

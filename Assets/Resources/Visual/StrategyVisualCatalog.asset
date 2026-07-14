@@ -1331,26 +1331,12 @@ MonoBehaviour:
     pixelsPerUnit: 24
     pivot: {x: 0.5, y: 0.099999994}
   - id: Construction/ForagerCamp/V0
-    atlas: {fileID: 2800000, guid: 7b8f9c189050f6347a3eda82ea7a9ecd, type: 3}
+    atlas: {fileID: 2800000, guid: c9121acbb11162c469d0e27184ccb9ea, type: 3}
     frameWidth: 92
     frameHeight: 82
     frameCount: 7
     pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
-  - id: Construction/ForagerCamp/V1
-    atlas: {fileID: 2800000, guid: 6e5eb73cb09f1ae45b0e633febec8967, type: 3}
-    frameWidth: 92
-    frameHeight: 82
-    frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
-  - id: Construction/ForagerCamp/V2
-    atlas: {fileID: 2800000, guid: 8d79ab435520db14a81c28faac5250b5, type: 3}
-    frameWidth: 92
-    frameHeight: 82
-    frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
+    pivot: {x: 0.5, y: 0.14146341}
   - id: Construction/ChickenCoop/V0
     atlas: {fileID: 2800000, guid: e276e3b8383374740b2f8d9c12eba444, type: 3}
     frameWidth: 92
@@ -2118,9 +2104,7 @@ MonoBehaviour:
     - {fileID: 21300000, guid: 3d69112ef39163c48a46245d8897cefa, type: 3}
   - tool: 12
     variants:
-    - {fileID: 21300000, guid: f6421a9027649124c9932ee5bb3a2fdd, type: 3}
-    - {fileID: 21300000, guid: 4bea4a0571d33f24f981d8929a8f6669, type: 3}
-    - {fileID: 21300000, guid: 7e8d4c1d61e222a4f95afe6fde14c70b, type: 3}
+    - {fileID: 21300000, guid: f00483cc917d48f42a717933f7bbc0f7, type: 3}
   - tool: 13
     variants:
     - {fileID: 21300000, guid: ecd9169e10870ac49af4b0840407c548, type: 3}

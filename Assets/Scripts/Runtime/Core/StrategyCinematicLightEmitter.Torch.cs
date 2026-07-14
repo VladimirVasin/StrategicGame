@@ -249,6 +249,11 @@ namespace ProjectUnknown.Strategy
 
         private StrategyBuildingLightSpriteKind GetTorchSpriteKind()
         {
+            if (building != null && building.Tool == StrategyBuildTool.ForagerCamp)
+            {
+                return StrategyBuildingLightSpriteKind.Lantern;
+            }
+
             return kind switch
             {
                 StrategyCinematicLightKind.Mine => StrategyBuildingLightSpriteKind.Lantern,
@@ -289,6 +294,7 @@ namespace ProjectUnknown.Strategy
                 StrategyBuildTool.Forge => LerpBounds(bounds, 1.16f, 0.34f),
                 StrategyBuildTool.HunterCamp => LerpBounds(bounds, -0.16f, 0.31f),
                 StrategyBuildTool.FisherHut => LerpBounds(bounds, 1.15f, 0.30f),
+                StrategyBuildTool.ForagerCamp => StrategyForagerCampVisualProfile.GetTorchAnchorWorld(bounds),
                 StrategyBuildTool.StorageYard => LerpBounds(bounds, -0.15f, 0.33f),
                 StrategyBuildTool.Granary => LerpBounds(bounds, 1.15f, 0.32f),
                 StrategyBuildTool.Bridge => GetBridgeTorchAnchorWorld(bounds),
