@@ -355,6 +355,11 @@ namespace ProjectUnknown.Strategy
                 return "fisher";
             }
 
+            if (resident.ScoutWorkplace != null)
+            {
+                return "scout";
+            }
+
             if (resident.IsSettlementHauler || resident.StorageWorkplace != null)
             {
                 return "storekeeper";

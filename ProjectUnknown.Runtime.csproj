@@ -273,12 +273,14 @@
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyStoneResourceController.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyFamilyTreeHudController.Transition.cs" />
     <Compile Include="Assets\Scripts\Runtime\Menu\StrategyMapPreloadCoordinator.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyScoutTargetSelector.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Cold.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyHunterCamp.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyKinshipUtility.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyPopulationController.SettlementRoles.cs" />
     <Compile Include="Assets\Scripts\Runtime\Menu\StrategyGameSettings.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.PersonalTorch.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Scouting.cs" />
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyTradeCaravanController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyFuneralController.Part02.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyConstructionSpriteFactory.Part02.cs" />
@@ -413,6 +415,7 @@
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyRefugeeArrivalController.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\Audio\StrategyWorldAudioDirector.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWolfAgent.Part05.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingSpriteFactory.ScoutLodge.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyFogOfWarController.Persistence.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyGameContext.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyChickenSpriteFactory.cs" />
@@ -596,10 +599,12 @@
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyStorageYard.Reachability.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyCampfireAnimator.Daylight.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyPlacedBuilding.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyScoutLodge.cs" />
     <Compile Include="Assets\Scripts\Runtime\Selection\StrategyWorldSelectionController.Part09.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyTradingPost.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyNaturePropController.Part04.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyGraveMarker.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyConstructionSpriteFactory.ScoutLodge.cs" />
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyTradeCaravanAgent.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyAutoWorkforceSettings.cs" />
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyDishCookingSummary.cs" />

@@ -79,6 +79,11 @@ namespace ProjectUnknown.Strategy
                 return "Forager";
             }
 
+            if (resident.ScoutWorkplace != null)
+            {
+                return "Scout";
+            }
+
             if (resident.IsSettlementHauler || resident.StorageWorkplace != null || resident.GranaryWorkplace != null)
             {
                 return "Hauler";
@@ -292,6 +297,8 @@ namespace ProjectUnknown.Strategy
                 StrategyResidentAgent.ResidentActivity.MovingToBurial => "going to burial",
                 StrategyResidentAgent.ResidentActivity.BuryingGrave => "burying the dead",
                 StrategyResidentAgent.ResidentActivity.WaitingAtFuneral => "attending funeral",
+                StrategyResidentAgent.ResidentActivity.MovingToScoutFrontier => "exploring unknown land",
+                StrategyResidentAgent.ResidentActivity.SurveyingFrontier => "surveying terrain",
                 _ => "idle"
             };
 
@@ -323,6 +330,11 @@ namespace ProjectUnknown.Strategy
             if (resident.ForagerWorkplace != null && resident.Activity == StrategyResidentAgent.ResidentActivity.Idle)
             {
                 return AppendNutritionStatus(resident, "waiting for forage");
+            }
+
+            if (resident.ScoutWorkplace != null && resident.Activity == StrategyResidentAgent.ResidentActivity.Idle)
+            {
+                return AppendNutritionStatus(resident, "waiting for unexplored frontier");
             }
 
             if (resident.MineWorkplace != null && resident.Activity == StrategyResidentAgent.ResidentActivity.Idle)

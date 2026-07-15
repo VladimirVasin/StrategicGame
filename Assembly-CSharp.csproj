@@ -310,6 +310,9 @@
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingVisualAlignment.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingVisualAnchorProfile.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingSpriteFactory.ChickenCoop.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingSpriteFactory.ScoutLodge.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyScoutLodge.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyScoutTargetSelector.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyChickenCoopVisualProfile.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingVariantProfile.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBridgeVisualProfile.cs" />
@@ -369,6 +372,7 @@
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyMine.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyConstructionSpriteFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyConstructionSpriteFactory.ForagerCamp.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyConstructionSpriteFactory.ScoutLodge.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyForagerCampVisualProfile.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part59.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentSpriteFactory.Part02.cs" />
@@ -634,6 +638,7 @@
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyTradeCaravanAgent.cs" />
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyDishCookingSummary.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.TaskExecution.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Scouting.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyHouseholdForagingState.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyTerrainTexturePainter.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWildlifeController.Part04.cs" />

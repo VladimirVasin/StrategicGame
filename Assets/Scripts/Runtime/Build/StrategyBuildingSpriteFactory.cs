@@ -18,6 +18,7 @@ namespace ProjectUnknown.Strategy
         public const int HunterCampVariantCount = 3;
         public const int FisherHutVariantCount = 3;
         public const int ForagerCampVariantCount = 1;
+        public const int ScoutLodgeVariantCount = 1;
         public const int ChickenCoopVariantCount = 1;
         public const int TradingPostVariantCount = 3;
         public const int StarterCaravanCartVariantCount = 1;
@@ -57,6 +58,7 @@ namespace ProjectUnknown.Strategy
                 StrategyBuildTool.HunterCamp => HunterCampVariantCount,
                 StrategyBuildTool.FisherHut => FisherHutVariantCount,
                 StrategyBuildTool.ForagerCamp => ForagerCampVariantCount,
+                StrategyBuildTool.ScoutLodge => ScoutLodgeVariantCount,
                 StrategyBuildTool.ChickenCoop => ChickenCoopVariantCount,
                 StrategyBuildTool.TradingPost => TradingPostVariantCount,
                 StrategyBuildTool.StarterCaravanCart => StarterCaravanCartVariantCount,
@@ -87,6 +89,7 @@ namespace ProjectUnknown.Strategy
                 && tool != StrategyBuildTool.HunterCamp
                 && tool != StrategyBuildTool.FisherHut
                 && tool != StrategyBuildTool.ForagerCamp
+                && tool != StrategyBuildTool.ScoutLodge
                 && tool != StrategyBuildTool.ChickenCoop
                 && tool != StrategyBuildTool.TradingPost
                 && tool != StrategyBuildTool.StarterCaravanCart
@@ -127,6 +130,7 @@ namespace ProjectUnknown.Strategy
                     StrategyBuildTool.HunterCamp => CreateHunterCampSprite(normalizedVariant),
                     StrategyBuildTool.FisherHut => CreateFisherHutSprite(normalizedVariant),
                     StrategyBuildTool.ForagerCamp => CreateForagerCampSprite(normalizedVariant),
+                    StrategyBuildTool.ScoutLodge => CreateScoutLodgeSprite(normalizedVariant),
                     StrategyBuildTool.ChickenCoop => CreateChickenCoopSprite(normalizedVariant),
                     StrategyBuildTool.TradingPost => CreateTradingPostSprite(normalizedVariant),
                     StrategyBuildTool.StarterCaravanCart => StrategyTradeCaravanSpriteFactory.GetSprite(),

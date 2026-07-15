@@ -236,6 +236,11 @@ namespace ProjectUnknown.Strategy
                 StrategyGranary granary = placed.AddComponent<StrategyGranary>();
                 granary.Configure(building, map, population);
             }
+            else if (toolInfo.Tool == StrategyBuildTool.ScoutLodge)
+            {
+                StrategyScoutLodge lodge = placed.AddComponent<StrategyScoutLodge>();
+                lodge.Configure(building, map, population, fog);
+            }
 
             StrategyDebugLogger.Info(
                 "Build",

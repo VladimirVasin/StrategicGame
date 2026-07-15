@@ -91,6 +91,7 @@ namespace ProjectUnknown.Strategy
                     HtmlColor("#4E6E70"),
                     new[]
                     {
+                        new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.ScoutLodge, "SL", "Scout Lodge", Cost(4, 2), HtmlColor("#527B78")),
                         new StrategyBuildMenuControllerDriver.BuildItemData(StrategyBuildTool.Bridge, "BR", "Bridge", Cost(6, 2), HtmlColor("#8B7150"))
                     })
             };

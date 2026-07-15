@@ -1,5 +1,15 @@
 # Work Log
 
+### 2026-07-15 - Scout Lodge and map-exploration profession MVP
+
+- Added `Scout Lodge` to Infrastructure as an exact `2x4` building costing 4 Logs and 2 Stone, with one elongated procedural final variant and a dedicated seven-stage construction sequence.
+- Added the manually assigned `Scout` profession, Profession HUD controls/icon, resident and selected-building status text, linked-worker selection visuals, and one worker slot per Lodge.
+- Added deterministic explored/walkable frontier selection with exact-cell reservations across Lodges, stable tie-breaking, local unknown-coverage preference, temporary rejection of unreachable targets, and protection against out-of-bounds map edges becoming false frontier.
+- Added the Scout resident loop: physical travel, 5-6 second survey, normal resident Fog of War reveal, work-hour/night integration, and reservation cleanup for deferred/unreachable paths, unassignment, householder transition, funeral interruption, death, and demolition.
+- Kept placed buildings and explored fog on existing persistence paths; worker assignments and active Scout routes remain transient and rebuild after load. Auto Workforce intentionally does not manage Scouts in this MVP.
+- Added focused EditMode coverage for target selection, exclusions, map edges, tie-breaking, the `2x4` footprint, single-variant normalization, enum compatibility, and Exploration task classification.
+- Verification: all five project builds and the technical quality gates pass with zero compiler warnings/errors; all 6 Scout EditMode tests pass. The full Unity EditMode run is 161/167, with the remaining 6 failures confined to existing building-snow, house-smoke, input-router, and shared UI-feedback tests outside this feature.
+
 ### 2026-07-14 - Complete authored building visual conversion
 
 - Completed high-resolution authored final-art coverage for all 17 current Build catalog tools plus the non-buildable Starter Caravan Cart: 47 static non-Bridge sprites preserve the established variant policy, while procedural factories remain safe fallbacks.

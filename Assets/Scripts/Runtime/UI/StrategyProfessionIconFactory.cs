@@ -140,6 +140,14 @@ namespace ProjectUnknown.Strategy
                     FillRect(texture, 20, 18, 2, 2, new Color32(164, 45, 86, 255));
                     FillRect(texture, 21, 21, 2, 2, new Color32(164, 45, 86, 255));
                     break;
+                case StrategyProfessionType.Scout:
+                    FillRect(texture, 7, 7, 18, 18, shadow);
+                    FillRect(texture, 8, 8, 16, 16, cloth);
+                    DrawLine(texture, 9, 16, 23, 16, darkMetal, 1);
+                    DrawLine(texture, 16, 9, 16, 23, darkMetal, 1);
+                    DrawLine(texture, 11, 21, 21, 11, water, 3);
+                    DrawLine(texture, 13, 19, 19, 13, metal, 1);
+                    break;
                 case StrategyProfessionType.StorageWorker:
                     FillRect(texture, 7, 11, 18, 14, shadow);
                     FillRect(texture, 6, 10, 18, 14, wood);

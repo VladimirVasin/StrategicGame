@@ -22,7 +22,8 @@ namespace ProjectUnknown.Strategy
         StarterCaravanCart,
         StorageYard,
         Granary,
-        Bridge
+        Bridge,
+        ScoutLodge
     }
 
     public readonly struct StrategyBuildToolInfo

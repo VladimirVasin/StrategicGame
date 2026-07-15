@@ -45,10 +45,13 @@ namespace ProjectUnknown.Strategy
 
             if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
             {
+                Sprite procedural = tool == StrategyBuildTool.ScoutLodge
+                    ? CreateScoutLodgeConstructionSprite(normalizedStage)
+                    : CreateConstructionSprite(tool, normalizedVariant, normalizedStage);
                 sprite = CreateGroundAlignedSprite(
                     tool,
                     normalizedVariant,
-                    CreateConstructionSprite(tool, normalizedVariant, normalizedStage));
+                    procedural);
                 CachedSprites[cacheKey] = sprite;
             }
 

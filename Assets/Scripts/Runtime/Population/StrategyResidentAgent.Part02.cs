@@ -73,6 +73,7 @@ namespace ProjectUnknown.Strategy
             StrategyStorageYard previousBuilder = builderWorkplace;
             StrategyGranary previousGranary = granaryWorkplace;
             bool hadExternalWork = HasExternalWorkplace || constructionSite != null;
+            scoutWorkplace?.UnassignWorker(this);
 
             previousLumber?.UnassignWorker(this);
             previousStone?.UnassignWorker(this);
@@ -92,7 +93,6 @@ namespace ProjectUnknown.Strategy
             ClearConstructionSite(null);
             CancelForageWork(true);
             CancelHouseholdFoodWork(true);
-
             if (home != null)
             {
                 idleOrigin = home.Origin;

@@ -150,6 +150,12 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            if (IsScoutActivity(deferredActivity))
+            {
+                CancelScoutWork();
+                return;
+            }
+
             if (deferredActivity == ResidentActivity.MovingToTree
                 || deferredActivity == ResidentActivity.ChoppingTree
                 || deferredActivity == ResidentActivity.BuckingTree
@@ -284,7 +290,8 @@ namespace ProjectUnknown.Strategy
                 || residentActivity == ResidentActivity.CastingFishingLine
                 || residentActivity == ResidentActivity.WaitingForFishBite
                 || residentActivity == ResidentActivity.ReelingFish
-                || residentActivity == ResidentActivity.PlantingTree;
+                || residentActivity == ResidentActivity.PlantingTree
+                || residentActivity == ResidentActivity.SurveyingFrontier;
         }
 
         private static bool IsNightBlockedReachedActivity(ResidentActivity residentActivity)
@@ -319,7 +326,8 @@ namespace ProjectUnknown.Strategy
                 || residentActivity == ResidentActivity.MovingToGranaryGamePickup
                 || residentActivity == ResidentActivity.MovingToGranaryFishPickup
                 || residentActivity == ResidentActivity.MovingToGranaryForagePickup
-                || residentActivity == ResidentActivity.MovingToPlantTree;
+                || residentActivity == ResidentActivity.MovingToPlantTree
+                || residentActivity == ResidentActivity.MovingToScoutFrontier;
         }
 
         private static bool IsNightBlockedStoragePickupActivity(ResidentActivity residentActivity)

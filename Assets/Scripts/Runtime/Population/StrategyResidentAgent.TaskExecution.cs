@@ -77,6 +77,7 @@ namespace ProjectUnknown.Strategy
             RegisterNormalTask(ResidentActivity.WatchingActivity, UpdateChildPlayActivity);
             RegisterNormalTask(ResidentActivity.PlayingWithChild, UpdateChildPlayActivity);
             RegisterNormalTask(ResidentActivity.PlayingTag, UpdateChildPlayActivity);
+            RegisterNormalTask(ResidentActivity.SurveyingFrontier, UpdateSurveyingFrontier);
 
             taskExecution.RegisterPlannedTask(StrategyResidentTaskKind.Household, TryStartHouseholdCookingTask);
             taskExecution.RegisterPlannedTask(StrategyResidentTaskKind.Logistics, TryStartHouseholdLogsDelivery);
@@ -96,6 +97,7 @@ namespace ProjectUnknown.Strategy
             taskExecution.RegisterPlannedTask(StrategyResidentTaskKind.Construction, TryStartConstructionTask);
             taskExecution.RegisterPlannedTask(StrategyResidentTaskKind.Hunting, TryStartHunterTask);
             taskExecution.RegisterPlannedTask(StrategyResidentTaskKind.Fishing, TryStartFisherTask);
+            taskExecution.RegisterPlannedTask(StrategyResidentTaskKind.Exploration, TryStartScoutTask);
             ConfigureTaskArrivalExecution();
         }
 

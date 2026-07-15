@@ -215,6 +215,7 @@ namespace ProjectUnknown.Strategy
             CancelKilnWork(true);
             CancelForgeWork(true);
             CancelForageWork(false);
+            CancelScoutWork();
             CancelHouseholdFoodWork(false);
             activeGarden = null;
             home?.UnregisterResident(this);
@@ -304,6 +305,7 @@ namespace ProjectUnknown.Strategy
             CancelHunterWork(true);
             CancelFisherWork(true);
             CancelForageWork(true);
+            CancelScoutWork();
             CancelHouseholdFoodWork(true);
             returnCarriedResourcesImmediately = false;
             activeGarden = null;

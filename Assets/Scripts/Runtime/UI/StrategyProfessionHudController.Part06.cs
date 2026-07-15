@@ -50,6 +50,9 @@ namespace ProjectUnknown.Strategy
                 case StrategyForagerCamp camp:
                     camp.TryGetWorker(index, out worker);
                     break;
+                case StrategyScoutLodge lodge:
+                    lodge.TryGetWorker(index, out worker);
+                    break;
                 case StrategyStorageYard yard:
                     yard.TryGetWorker(index, out worker);
                     break;
@@ -159,6 +162,7 @@ namespace ProjectUnknown.Strategy
                 StrategyHunterCamp camp => camp.Origin,
                 StrategyFisherHut hut => hut.Origin,
                 StrategyForagerCamp camp => camp.Origin,
+                StrategyScoutLodge lodge => lodge.Origin,
                 StrategyStorageYard yard => yard.Origin,
                 StrategyGranary granary => granary.Origin,
                 _ => Vector2Int.zero

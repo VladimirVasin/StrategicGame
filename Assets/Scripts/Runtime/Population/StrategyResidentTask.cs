@@ -17,7 +17,8 @@ namespace ProjectUnknown.Strategy
         Hunting,
         Fishing,
         NightLighting,
-        Funeral
+        Funeral,
+        Exploration
     }
 
     public interface IStrategyResidentTask
@@ -32,7 +33,7 @@ namespace ProjectUnknown.Strategy
 
     internal sealed class StrategyResidentTaskState : IStrategyResidentTask
     {
-        internal const int ProfiledActivityCount = 153;
+        internal const int ProfiledActivityCount = 155;
 
         private bool hasAuthoritativeKind;
 
@@ -44,7 +45,8 @@ namespace ProjectUnknown.Strategy
             || Kind == StrategyResidentTaskKind.Logistics
             || Kind == StrategyResidentTaskKind.Construction
             || Kind == StrategyResidentTaskKind.Hunting
-            || Kind == StrategyResidentTaskKind.Fishing;
+            || Kind == StrategyResidentTaskKind.Fishing
+            || Kind == StrategyResidentTaskKind.Exploration;
         public bool IsLogistics => Kind == StrategyResidentTaskKind.Logistics;
         public int TransitionId { get; private set; }
         public float StartedAt { get; private set; }
@@ -136,6 +138,11 @@ namespace ProjectUnknown.Strategy
             if (activity is ResidentActivity.MovingToNightLight or ResidentActivity.LightingNightLight)
             {
                 return StrategyResidentTaskKind.NightLighting;
+            }
+
+            if (activity is ResidentActivity.MovingToScoutFrontier or ResidentActivity.SurveyingFrontier)
+            {
+                return StrategyResidentTaskKind.Exploration;
             }
 
             if (activity is >= ResidentActivity.MovingToChildPlay and <= ResidentActivity.PlayingTag)

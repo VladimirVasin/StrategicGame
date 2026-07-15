@@ -27,7 +27,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Runtime cinematic visual layer adds 2D global/local light with chunk/active-registry emitter scans, LOD-capped point lights, emissive pixel masks, animated building torch/lantern source sprites with manual lit state for building/roadside lights, active hand-carried resident torch lights, cached camera-area night-mask light cutouts, wet puddle glints, lightning flashes, and subtle foreground depth props
   - Runtime procedural 2D shadow caster supplies soft ground/cast shadows below world sprites
   - Runtime short-lived world effect layer supplies reusable dust, sawdust, chip, spark, splash, and resource pop/fade effects
-  - Resources-backed visual catalog and Editor baker provide editable PNGs for buildings, resident pose atlases, nature, terrain, construction, roads, production work, and stock layers while retaining procedural fallback; `Visual/Authored` now covers all 17 Build catalog tools plus the Starter Caravan Cart, including every normal final/construction variant, the shared six-frame Chicken Coop animation, and modular horizontal/vertical Bridge sequences
+  - Resources-backed visual catalog and Editor baker provide editable PNGs for buildings, resident pose atlases, nature, terrain, construction, roads, production work, and stock layers while retaining procedural fallback; `Visual/Authored` covers the existing 17 Build catalog tools plus the Starter Caravan Cart, while the newer Scout Lodge currently uses its dedicated procedural final/construction fallback
   - Generated terrain hides the cell grid, classifies kind/water before reusing that mask for relief, reads main-thread-prewarmed authored swatches in its parallel painter, and caches one paint/catalog context per tile outside the inner pixel loop
   - Non-Bridge placed buildings add a catalog-overridable trampled-ground layer beneath their Y-sorted body and shadow
   - Spring/autumn camera-area details and centralized vegetation tinting make seasonal changes readable without per-prop Update components
@@ -308,6 +308,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Runtime-generated texture overlay above world sprites and below screen-space UI
       - Tracks persistent explored cells separately from current visible cells
       - Starter camp, residents, and placed buildings act as visibility sources
+      - Assigned Scouts physically travel to explored walkable frontier cells, so their normal resident reveal source expands persistent explored state without a second fog mutation path
       - Dusk/Night/Dawn reduce camp, resident, and building reveal radii without clearing persistent explored memory
       - Dense Fog weather further reduces camp, resident, and building reveal radii
       - Unexplored cells are fully black, visible cells are clear, and explored-but-not-visible cells are dimmed during day, much darker at night, or replaced by layered weather fog during Fog weather
@@ -338,7 +339,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Exposes selected tool info, footprint, color, and cost
     - Reads construction stock availability through `StrategyStorageYard.GetTotalConstructionResources()`, including loose piles, Storage Yard stock, production-local construction stock, and the low-priority starter Caravan Cart
     - Shows x1/x2/x3 simulation speed buttons under the top-left resource panel, reusing `StrategyTimeScaleController`
-    - Current catalog contains `Housing` / `House`, `Extraction` grouped into `Camps`, `Deposits`, and `Food`, `Production` / `Sawmill`, `Kiln`, and `Forge`, `Storage` / `Storage Yard` and `Granary`, `Trade` / `Trading Post`, and `Infrastructure` / `Bridge`
+    - Current catalog contains `Housing` / `House`, `Extraction` grouped into `Camps`, `Deposits`, and `Food`, `Production` / `Sawmill`, `Kiln`, and `Forge`, `Storage` / `Storage Yard` and `Granary`, `Trade` / `Trading Post`, and `Infrastructure` / `Scout Lodge` and `Bridge`
     - Single-item categories directly activate their only build tool on click
   - Build placement
     - Runtime-created placement controller
@@ -373,6 +374,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Creates storage yard components when the storage tool is placed
     - Creates granary components when the granary tool is placed
     - Creates trading post components when the trade tool is placed
+    - Creates a one-worker Scout Lodge component on an exact `2x4` footprint when the exploration tool is placed
     - Fisher huts require nearby water with adjacent walkable shore access before placement is accepted
     - Bridge uses a two-click placement flow: first river bank cell, then highlighted opposite-bank candidate across contiguous River water
     - Completed bridges make their selected River water span walkable through the map bridge-walkability overlay without changing water identity
@@ -384,8 +386,8 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Selected completed buildings can be demolished with `Delete` after confirmation
     - Demolished buildings release occupied cells and walkability blockers; demolished Bridges also remove river-span walkability
   - Runtime building art
-    - Resolves high-resolution authored final sprites for every current Build catalog tool plus the Starter Caravan Cart before using the retained procedural factories as fallback
-    - Keeps five authored House variants; one Forager Camp, Chicken Coop, and Starter Caravan Cart variant; and three variants for every other normal non-Bridge building family
+    - Resolves high-resolution authored final sprites for the existing 17-tool catalog plus the Starter Caravan Cart before using retained procedural factories as fallback; Scout Lodge currently uses a dedicated elongated procedural sprite
+    - Keeps five authored House variants; one Forager Camp, Chicken Coop, and Starter Caravan Cart variant; three variants for every other legacy normal non-Bridge family; and one procedural Scout Lodge variant
     - Resolves matching authored seven-stage construction sequences for every normal buildable variant, with the accepted completed sprite embedded in the final stage
     - Reuses one six-frame authored Chicken Coop sequence at separate standalone and legacy House-upgrade scales
     - Dynamically composes authored `48 PPU` horizontal/vertical Bridge Start, Middle, and End modules for completed and seven-stage construction spans of `3-12` cells
@@ -581,6 +583,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Residents assigned to a hunter camp reserve the nearest available adult rabbit on the map, move to roughly 2-3 tile bow range, shoot arrow projectiles with a 20% miss chance, butcher carcasses on hit, carry `Game`, and deposit it into hunter camp stock
     - Residents assigned to a fisher hut reserve the nearest reachable in-range fish, move to shore, cast/reel while range remains valid, carry `Fish`, and deposit it into fisher hut stock
     - Residents assigned to a Forager Camp reserve generated Berries/Roots/Mushrooms nodes, gather forage with reach/crouch animation frames, and deposit it into camp stock
+    - Residents assigned to a Scout Lodge reserve distinct explored/walkable frontier cells, travel there, survey for 5-6 seconds, and repeat while their ordinary Fog of War reveal radius uncovers the map
     - Residents assigned as Haulers path to lumberjack camp stock, carry Logs to storage, and deposit them
     - Residents assigned as Haulers also path to stonecutter camp stock, carry Stone to storage, and deposit it
     - Residents assigned as Haulers also path to Mine stock, carry Iron to storage, and deposit it
@@ -657,7 +660,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Top-menu `Professions` button
     - Dynamic profession rows for built worksites
     - Generated profession icons
-    - `-` / `+` assignment controls for lumberjacks, stonecutters, sawyers, potters, blacksmiths, miners, coal miners, clay diggers, hunters, fishers, Haulers, and builders
+    - `-` / `+` assignment controls for lumberjacks, stonecutters, sawyers, potters, blacksmiths, miners, coal miners, clay diggers, hunters, fishers, Scouts, Haulers, and builders
     - Haulers and Builders use unlimited settlement-level assignment capacity independent of any one building; Haulers use Storage Yards only as dynamic dropoff targets when storage work exists, while other production roles still use worksite slot caps
     - `Auto Assign` toggle plus compact priority steppers for Construction, Food, Logistics, Wood, Stone, Planks, Iron, Coal, Clay, Pottery, and Tools
   - Custom modal refugee decision HUD pauses the simulation and asks whether to accept or reject arriving families
@@ -697,9 +700,9 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Input action IDs/names/bindings feed the central router, every runtime consumer, modal contexts, and the shared UI input module; update their contract tests with intentional changes.
 - Build menu active tool state drives the placement controller when catalog tools exist.
 - Placement uses generated map cells and buildability data.
-- Authored building geometry feeds shared final/construction pivots plus runtime stock, work, effect, and light anchors; Forager Camp and Chicken Coop retain their declared single-variant normalization, and legacy saved variants normalize through the shared profile.
+- Authored building geometry feeds shared final/construction pivots plus runtime stock, work, effect, and light anchors; Forager Camp, Chicken Coop, and the procedural Scout Lodge retain declared single-variant normalization, and legacy saved variants normalize through the shared profile.
 - Bridge rendering depends on the selected span/orientation, the 12 modular final/construction catalog sequences, and runtime module composition; bridge placement and River walkability remain independent gameplay owners.
-- Fog of war uses population, residents, placed-building records, the shared day/night phase, and weather Fog intensity as visibility inputs; placement and world selection consult fog exploration state, refugee arrivals use daylight-range visible boundaries for in-map entry staging, while the F9 debug panel can bypass player fog for testing.
+- Fog of war uses population, residents, placed-building records, the shared day/night phase, and weather Fog intensity as visibility inputs; Scout Lodge target selection reads persistent explored state while moving Scouts reveal through the existing resident source, placement and world selection consult exploration state, refugee arrivals use daylight-range visible boundaries for in-map entry staging, and the F9 debug panel can bypass player fog for testing.
 - Terrain rendering uses generated map cell kinds, visual relief height, seeded tile variants, neighbor transition overlays, a runtime water/shore animation overlay, and weather visual overlays.
 - Weather depends on generated map bounds, the strategy camera, day/night/fog sorting bands, the strategy wind source, water animation, placed-building sprites, fish/fishing gameplay state, and ambience audio.
 - Resident work/rest scheduling depends on the shared day/night phase so production, construction, logistics, hunting, fishing, and household-food tasks only start during settlement work time, while night-light tasks depend on day/night, cinematic light sources, roads/buildings, housed adult lamp-worker scheduling, dynamic outdoor-adult light coverage, and hand-carried torch animations/lights; housed idle residents sleep inside homes, homeless idle residents sleep around the startup campfire, and standalone Chicken Coop chickens visually shelter inside during `Night`.

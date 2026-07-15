@@ -17,6 +17,7 @@ namespace ProjectUnknown.Strategy
             TickCooldown(ref huntingWorkCooldown, deltaTime);
             TickCooldown(ref fishingWorkCooldown, deltaTime);
             TickCooldown(ref foragerWorkCooldown, deltaTime);
+            TickCooldown(ref scoutWorkCooldown, deltaTime);
             TickCooldown(ref householdFoodWorkCooldown, deltaTime);
             TickCooldown(ref householdLogWorkCooldown, deltaTime);
             TickCooldown(ref householdPotteryWorkCooldown, deltaTime);

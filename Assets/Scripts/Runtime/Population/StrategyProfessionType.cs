@@ -14,6 +14,7 @@ namespace ProjectUnknown.Strategy
         Fisher,
         Forager,
         StorageWorker,
-        Builder
+        Builder,
+        Scout
     }
 }

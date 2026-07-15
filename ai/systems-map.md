@@ -773,6 +773,7 @@ Responsibilities:
 - Keep a daylight-range visibility mask for spawn systems that should not react to temporary nighttime sight loss.
 - Refresh visibility and texture painting on an unscaled real-time cadence so time acceleration does not multiply fog repaint work.
 - Provide exploration checks to placement and world selection.
+- Provide read-only explored-cell checks to Scout frontier selection; moving Scouts remain ordinary resident reveal sources.
 - Expose a player-fog enabled setter for debug controls without clearing explored state.
 
 Primary files/assets:
@@ -785,6 +786,8 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Build/StrategyBuildPlacementController.cs`
 - `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.cs`
 - `Assets/Scripts/Runtime/UI/StrategyDebugPanelController.cs`
+- `Assets/Scripts/Runtime/Build/StrategyScoutTargetSelector.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Scouting.cs`
 - `Assembly-CSharp.csproj`
 
 Impact hints:
@@ -796,7 +799,33 @@ Impact hints:
 - Weather Fog replaces normal explored gray-zone rendering with light/medium/dense fog bands around current visible cells.
 - Wildlife spawn/reproduction/migration hidden checks should use daylight-range visibility so temporary night blindness does not count as a safe spawn opening.
 - The F9 debug panel can hide the fog overlay and make map cells count as explored for player placement/selection until toggled back on; Fog of War also skips refresh ticks while player fog is disabled. The F9 panel also owns tester-facing instant construction toggles through shared debug options and can request a normal refugee arrival event through `StrategyRefugeeArrivalController.DebugStartArrival()`.
-- Future scouting, enemies, stealth, minimap, or save/load should extend this subsystem instead of duplicating visibility arrays.
+- Scout movement now extends explored state through existing resident reveal sources; future enemies, stealth, minimap, or additional exploration rules should extend this subsystem instead of duplicating visibility arrays.
+
+### Scout Lodge Exploration MVP
+
+Responsibilities:
+
+- Place one manually staffed exploration worksite on an exact `2x4` footprint.
+- Reserve distinct frontier targets across multiple Scout Lodges.
+- Select only in-bounds explored, walkable cells with an in-bounds cardinal unexplored neighbor.
+- Prefer the nearest frontier deterministically, using nearby unknown coverage and stable coordinates as tie-breakers.
+- Route one assigned Scout to the target, survey for 5-6 seconds, and repeat during settlement work hours.
+- Temporarily reject unreachable targets, release deferred paths immediately, and clear reservations on nightfall, unassignment, death, funeral interruption, demolition, or resident-role change.
+- Expand map exploration only through the Scout resident's existing Fog of War reveal source.
+
+Primary files/assets:
+
+- `Assets/Scripts/Runtime/Build/StrategyScoutLodge.cs`
+- `Assets/Scripts/Runtime/Build/StrategyScoutTargetSelector.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Scouting.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentTask.cs`
+- `Assets/Tests/EditMode/StrategyScoutTargetSelectorTests.cs`
+
+Impact hints:
+
+- Scout assignments and active target reservations are transient like other worksite assignments; the placed Lodge and already explored fog cells persist through the existing building/fog snapshots.
+- Scout is intentionally manual-only in this MVP and is not managed by Auto Workforce priorities.
+- A `No reachable frontier` state may mean remaining unknown land is isolated by water or blockers, not that every map cell is explored.
 
 ### Nature Props
 
@@ -1207,7 +1236,7 @@ Responsibilities:
 - F9 instant construction debug mode makes build tools affordable and shows item cost badges as `Free`.
 - Temporary goal-driven tool locks that disable locked categories/items, block mouse and hotkey selection, and show `Locked` item badges.
 - Top-left construction resource panel with x1/x2/x3 speed buttons directly beneath it.
-- Current catalog entries: `Housing` / `House`, `Extraction` / `Camps` (`Lumberjack Camp`, `Stonecutter Camp`), `Deposits` (`Mine`, `Coal Pit`, `Clay Pit`), and `Food` (`Hunter Camp`, `Fisher Hut`, `Forager Camp`, `Chicken Coop`), `Production` / `Sawmill`, `Kiln`, and `Forge`, `Storage` / `Storage Yard` and `Granary`, `Trade` / `Trading Post`, and `Infrastructure` / `Bridge`.
+- Current catalog entries: `Housing` / `House`, `Extraction` / `Camps` (`Lumberjack Camp`, `Stonecutter Camp`), `Deposits` (`Mine`, `Coal Pit`, `Clay Pit`), and `Food` (`Hunter Camp`, `Fisher Hut`, `Forager Camp`, `Chicken Coop`), `Production` / `Sawmill`, `Kiln`, and `Forge`, `Storage` / `Storage Yard` and `Granary`, `Trade` / `Trading Post`, and `Infrastructure` / `Scout Lodge` and `Bridge`.
 - Hotkeys for open/close, category/subcategory/item selection, and layered cancel.
 - EventSystem/Input System UI setup when the scene has no UI event module.
 - Add tools/buildings gradually only by explicit user request.
@@ -1240,6 +1269,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Build/StrategyForagerCamp.cs`
 - `Assets/Scripts/Runtime/Build/StrategyForagerCamp.Part01.cs`
 - `Assets/Scripts/Runtime/Build/StrategyForagerCamp.Part02.cs`
+- `Assets/Scripts/Runtime/Build/StrategyScoutLodge.cs`
 - `Assets/Scripts/Runtime/Build/StrategyMine.cs`
 - `Assets/Scripts/Runtime/Build/StrategyCoalPit.cs`
 - `Assets/Scripts/Runtime/Build/StrategyClayPit.cs`
@@ -1261,7 +1291,7 @@ Impact hints:
 - The public `StrategyBuildMenuController` component is a thin wrapper; `StrategyBuildMenuControllerDriver` owns selected active build tool data and reads `StrategyStorageYard.GetTotalConstructionResources()` for affordability, including Storage Yard stock, production-local construction stock, loose piles, and the starter cart unless F9 instant construction debug mode is enabled.
 - Placement reads `StrategyBuildMenuController.ActiveTool` / active tool info.
 - Starter goals call `StrategyBuildMenuController.SetAllowedTools()` and `ClearAllowedTools()`; keep lock checks shared by mouse clicks, hotkeys, active tool info, subcategory visibility, and affordability/selection visuals.
-- Current catalog has user-requested buildings only: `House`, `Lumberjack Camp`, `Stonecutter Camp`, `Sawmill`, `Kiln`, `Forge`, `Hunter Camp`, `Fisher Hut`, `Forager Camp`, `Mine`, `Coal Pit`, `Clay Pit`, `Storage Yard`, `Granary`, `Trading Post`, and `Bridge`; do not add more without a user request.
+- Current catalog has user-requested buildings only: `House`, `Lumberjack Camp`, `Stonecutter Camp`, `Sawmill`, `Kiln`, `Forge`, `Hunter Camp`, `Fisher Hut`, `Forager Camp`, `Mine`, `Coal Pit`, `Clay Pit`, `Storage Yard`, `Granary`, `Trading Post`, `Scout Lodge`, and `Bridge`; do not add more without a user request.
 - Current `Housing` category directly activates `House` because it has one item.
 - Current `Extraction` category opens a subcategory dock before item cards: `Camps` for `Lumberjack Camp`/`Stonecutter Camp`, `Deposits` for Mine/Coal/Clay extraction, and `Food` for Hunter/Fisher/Forager/Chicken Coop food buildings.
 - Current `Production` category opens a tray with processing buildings: `Sawmill`, `Kiln`, and `Forge`.
@@ -1380,7 +1410,7 @@ Responsibilities:
 - Show a large profession panel with dynamic rows only for professions unlocked by currently built worksites.
 - Show generated pixel-art profession icons, role labels, short role descriptions, assigned/capacity counts, and `-`/`+` controls.
 - Show the `Auto Assign` toggle and compact priority steppers for Construction, Food, Logistics, Wood, Stone, Planks, Iron, Coal, Clay, Pottery, and Tools.
-- Aggregate assignment capacity/counts across all current lumberjack camps, stonecutter camps, sawmills, kilns, hunter camps, fisher huts, forager camps, mines, coal pits, clay pits, and storage yards.
+- Aggregate assignment capacity/counts across all current lumberjack camps, stonecutter camps, sawmills, kilns, hunter camps, fisher huts, forager camps, Scout Lodges, mines, coal pits, clay pits, and storage yards.
 - Treat Haulers and Builders as unlimited-capacity settlement-level population roles independent from any specific Storage Yard; other worksite roles keep their own slot caps.
 - Assign the next free adult resident to the first available worksite slot for the requested profession.
 - Remove one currently assigned resident from the requested profession through the owning worksite API.
@@ -1409,6 +1439,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Build/StrategyForagerCamp.cs`
 - `Assets/Scripts/Runtime/Build/StrategyForagerCamp.Part01.cs`
 - `Assets/Scripts/Runtime/Build/StrategyForagerCamp.Part02.cs`
+- `Assets/Scripts/Runtime/Build/StrategyScoutLodge.cs`
 - `Assets/Scripts/Runtime/Build/StrategyMine.cs`
 - `Assets/Scripts/Runtime/Build/StrategyCoalPit.cs`
 - `Assets/Scripts/Runtime/Build/StrategyClayPit.cs`
@@ -1519,6 +1550,7 @@ Responsibilities:
 - Hunter camp places a `StrategyHunterCamp` worksite component, blocks its technical 2x2 footprint plus one visual row above, and hosts a local visual `Game` stockpile.
 - Fisher hut places a `StrategyFisherHut` worksite component, blocks its technical 2x2 footprint plus one visual row above, requires nearby water/shore access, and hosts a local visual `Fish` stockpile.
 - Forager Camp places a `StrategyForagerCamp` worksite component, blocks its technical 2x2 footprint plus one visual row above, and hosts local visual Berries/Roots/Mushrooms stock.
+- Scout Lodge places a one-worker `StrategyScoutLodge` component, blocks its exact technical `2x4` footprint, and uses one elongated procedural final sprite plus a dedicated seven-stage procedural construction sequence.
 - Mine places a `StrategyMine` worksite component, blocks its technical 2x2 footprint plus one visual row above, requires an available underground Iron deposit under its footprint, and hosts a local visual Iron stockpile.
 - Coal Pit places a `StrategyCoalPit` worksite component, blocks its technical 2x2 footprint plus one visual row above, requires an available underground Coal deposit under its footprint, and hosts a local visual Coal stockpile.
 - Clay Pit places a `StrategyClayPit` worksite component, blocks its technical 2x2 footprint plus one visual row above, requires an available near-water Clay field under its footprint, and hosts a local visual Clay stockpile.
@@ -1554,6 +1586,9 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Build/IStrategyConstructionResourceSource.cs`
 - `Assets/Scripts/Runtime/Build/StrategyPlacedBuilding.cs`
 - `Assets/Scripts/Runtime/Build/StrategyBuildingSpriteFactory.cs`
+- `Assets/Scripts/Runtime/Build/StrategyBuildingSpriteFactory.ScoutLodge.cs`
+- `Assets/Scripts/Runtime/Build/StrategyConstructionSpriteFactory.ScoutLodge.cs`
+- `Assets/Scripts/Runtime/Build/StrategyScoutLodge.cs`
 - `Assets/Scripts/Runtime/Build/StrategyLumberjackCamp.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStonecutterCamp.cs`
 - `Assets/Scripts/Runtime/Build/StrategySawmill.cs`
@@ -2168,6 +2203,8 @@ Responsibilities:
 - Route assigned fishers to the nearest available fish with validated land/shore cells, line casting with cast-range revalidation, hooked-fish reeling, `Fish` carrying, and hut stock deposit.
 - Assign residents to Forager Camps as workplace targets.
 - Route assigned Foragers to generated Berries/Roots/Mushrooms nodes, forage gather timing, carried forage visuals, and camp stock deposit.
+- Assign one resident to each Scout Lodge as a workplace target.
+- Route assigned Scouts to reserved explored/walkable fog-frontier cells, survey there, and release/retry targets safely across path deferral, night, death, funeral interruption, demolition, and unassignment.
 - Assign residents to settlement-level Hauler roles.
 - Route assigned Haulers to lumberjack camp stock, stored-Logs pickup, storage-yard delivery, and deposit.
 - Resolve Hauler building pickup/delivery access from a reachable perimeter cell, stop and briefly retry when navigation is budget-deferred, and skip briefly cached genuinely inaccessible source buildings before reserving their stock.
@@ -2236,6 +2273,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.NightTorchLight.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.PersonalTorch.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.WorkSfx.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Scouting.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part36.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.TrailRoutes.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part37.cs`

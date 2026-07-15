@@ -283,7 +283,8 @@ namespace ProjectUnknown.Strategy
             || builderWorkplace != null
             || settlementHaulerRole
             || settlementBuilderRole
-            || granaryWorkplace != null;
+            || granaryWorkplace != null
+            || scoutWorkplace != null;
         public bool HasWorkplace => HasExternalWorkplace || IsHouseholder;
         public bool HasConstructionAssignment => constructionSite != null;
         public bool IsAdult => lifeStage == StrategyResidentLifeStage.Adult;

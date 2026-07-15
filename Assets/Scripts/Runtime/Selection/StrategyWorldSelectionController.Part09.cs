@@ -308,6 +308,10 @@ namespace ProjectUnknown.Strategy
             {
                 type = StrategyProfessionType.Forager;
             }
+            else if (resident.ScoutWorkplace != null)
+            {
+                type = StrategyProfessionType.Scout;
+            }
             else if (resident.IsSettlementHauler || resident.StorageWorkplace != null || resident.GranaryWorkplace != null)
             {
                 type = StrategyProfessionType.StorageWorker;

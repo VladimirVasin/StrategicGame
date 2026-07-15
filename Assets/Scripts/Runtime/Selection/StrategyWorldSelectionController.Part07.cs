@@ -189,6 +189,7 @@ namespace ProjectUnknown.Strategy
             {
                 AddResidents(foragerCamp.Workers, results);
             }
+            AddResidents(building.GetComponent<StrategyScoutLodge>()?.Workers, results);
 
             StrategyStorageYard storageYard = building.GetComponent<StrategyStorageYard>();
             if (storageYard != null)

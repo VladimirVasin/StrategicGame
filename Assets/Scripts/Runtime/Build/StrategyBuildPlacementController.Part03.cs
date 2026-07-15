@@ -321,6 +321,7 @@ namespace ProjectUnknown.Strategy
                 StrategyBuildTool.StorageYard => "ST",
                 StrategyBuildTool.Granary => "GR",
                 StrategyBuildTool.Bridge => "BR",
+                StrategyBuildTool.ScoutLodge => "SL",
                 _ => "?"
             };
         }

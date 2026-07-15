@@ -30,7 +30,7 @@ namespace ProjectUnknown.Strategy
             StrategyUiInputModuleBootstrap.Ensure();
         }
 
-        private static Vector2Int GetFootprint(StrategyBuildTool tool)
+        internal static Vector2Int GetFootprint(StrategyBuildTool tool)
         {
             return tool switch
             {
@@ -51,6 +51,7 @@ namespace ProjectUnknown.Strategy
                 StrategyBuildTool.StorageYard => new Vector2Int(3, 2),
                 StrategyBuildTool.Granary => new Vector2Int(3, 2),
                 StrategyBuildTool.Bridge => Vector2Int.one,
+                StrategyBuildTool.ScoutLodge => new Vector2Int(2, 4),
                 _ => Vector2Int.one
             };
         }

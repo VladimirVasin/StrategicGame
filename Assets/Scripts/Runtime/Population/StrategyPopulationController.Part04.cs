@@ -71,6 +71,7 @@ namespace ProjectUnknown.Strategy
             UnassignFromSawmill(resident);
             UnassignFromHunterCamp(resident);
             UnassignFromFisherHut(resident);
+            UnassignFromScoutLodge(resident);
             UnassignFromStorageWorkerRole(resident);
             UnassignFromStorageBuilderRole(resident);
             resident.ClearSettlementHaulerRole();
@@ -224,6 +225,27 @@ namespace ProjectUnknown.Strategy
             }
 
             resident.ClearFisherWorkplace(hut);
+        }
+
+        private static void UnassignFromScoutLodge(StrategyResidentAgent resident)
+        {
+            StrategyScoutLodge lodge = resident.ScoutWorkplace;
+            if (lodge == null)
+            {
+                return;
+            }
+
+            IReadOnlyList<StrategyResidentAgent> workers = lodge.Workers;
+            for (int i = workers.Count - 1; i >= 0; i--)
+            {
+                if (workers[i] == resident)
+                {
+                    lodge.UnassignWorkerAt(i);
+                    return;
+                }
+            }
+
+            resident.ClearScoutWorkplace(lodge);
         }
 
         private static void UnassignFromStorageWorkerRole(StrategyResidentAgent resident)

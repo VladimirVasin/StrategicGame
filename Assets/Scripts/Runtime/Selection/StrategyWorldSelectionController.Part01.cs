@@ -216,6 +216,7 @@ namespace ProjectUnknown.Strategy
                 StrategyHunterCamp hunterCamp = building.GetComponent<StrategyHunterCamp>();
                 StrategyFisherHut fisherHut = building.GetComponent<StrategyFisherHut>();
                 StrategyForagerCamp foragerCamp = building.GetComponent<StrategyForagerCamp>();
+                StrategyScoutLodge scoutLodge = building.GetComponent<StrategyScoutLodge>();
                 StrategyChickenCoop chickenCoop = building.GetComponent<StrategyChickenCoop>();
                 StrategyTradingPost tradingPost = building.GetComponent<StrategyTradingPost>();
                 StrategyStarterCaravanCart starterCart = building.GetComponent<StrategyStarterCaravanCart>();
@@ -232,6 +233,7 @@ namespace ProjectUnknown.Strategy
                 bool isHunterCamp = hunterCamp != null;
                 bool isFisherHut = fisherHut != null;
                 bool isForagerCamp = foragerCamp != null;
+                bool isScoutLodge = scoutLodge != null;
                 bool isChickenCoop = chickenCoop != null;
                 bool isTradingPost = tradingPost != null;
                 bool isStarterCart = starterCart != null;
@@ -244,7 +246,7 @@ namespace ProjectUnknown.Strategy
                 }
 
                 SetWorkersSectionVisible(false);
-                if (isLumberjackCamp || isStonecutterCamp || isSawmill || isMine || isCoalPit || isClayPit || isKiln || isForge || isHunterCamp || isFisherHut || isForagerCamp || isChickenCoop || isStarterCart || isGranary)
+                if (isLumberjackCamp || isStonecutterCamp || isSawmill || isMine || isCoalPit || isClayPit || isKiln || isForge || isHunterCamp || isFisherHut || isForagerCamp || isScoutLodge || isChickenCoop || isStarterCart || isGranary)
                 {
                     LayoutContextSection(128f, 214f);
                 }
@@ -313,6 +315,12 @@ namespace ProjectUnknown.Strategy
                 {
                     hudContextTitleText.text = "Forage and Stock";
                     hudContextBodyText.text = foragerCamp.GetHudStatusText();
+                    SetContextSectionVisible(true);
+                }
+                else if (isScoutLodge)
+                {
+                    hudContextTitleText.text = "Exploration";
+                    hudContextBodyText.text = scoutLodge.GetHudStatusText();
                     SetContextSectionVisible(true);
                 }
                 else if (isChickenCoop)

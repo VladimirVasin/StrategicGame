@@ -8,6 +8,7 @@ namespace ProjectUnknown.Strategy
         {
             return tool == StrategyBuildTool.ForagerCamp
                 || tool == StrategyBuildTool.ChickenCoop
+                || tool == StrategyBuildTool.ScoutLodge
                     ? 0
                     : Mathf.Max(0, variant);
         }

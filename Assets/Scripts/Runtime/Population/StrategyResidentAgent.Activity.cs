@@ -156,7 +156,9 @@ namespace ProjectUnknown.Strategy
             CarryingCorpseToCemetery,
             MovingToBurial,
             BuryingGrave,
-            WaitingAtFuneral
+            WaitingAtFuneral,
+            MovingToScoutFrontier,
+            SurveyingFrontier
         }
     }
 }
