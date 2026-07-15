@@ -4,7 +4,7 @@ namespace ProjectUnknown.Strategy
 {
     public static partial class StrategyGameBootstrap
     {
-        private static void ConfigurePersistence(
+        private static StrategySaveSystem ConfigurePersistence(
             StrategyGameContext context,
             CityMapController map,
             StrategyBuildPlacementController placement,
@@ -21,6 +21,7 @@ namespace ProjectUnknown.Strategy
 
             saveSystem.Configure(map, placement, population);
             StrategyDebugLogger.Info("Bootstrap", "PersistenceReady", StrategyDebugLogger.F("savePath", StrategySaveSystem.SavePath));
+            return saveSystem;
         }
     }
 }

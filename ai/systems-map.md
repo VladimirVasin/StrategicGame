@@ -311,6 +311,7 @@ Responsibilities:
 - Create/configure the night-light task controller after population exists.
 - Create the runtime time-scale controller for F1/F2/F3 speed controls.
 - Keep desktop Player updates running while the application is unfocused without treating focus as a simulation pause source.
+- Create/configure the in-game Escape pause menu after persistence so it receives the established input, time-scale, save, and confirmation owners.
 - Create/configure the top status HUD with population counts, the larger resident roster HUD, the family tree modal scene, and the compact event log with birth/death/adoption messages.
 - Create/configure the runtime goals controller and starter goal sequence that gates early Build menu tools.
 - Create/configure refugee arrivals and the modal refugee decision HUD.
@@ -1262,6 +1263,37 @@ Impact hints:
 - Future pause, speed HUD, or settings should extend this controller instead of adding separate `Time.timeScale` writes.
 - Modal systems should use pause locks instead of writing `Time.timeScale = 0` directly.
 - Application focus loss must not push or pop a pause lock; background simulation and explicit/modal pause are independent states.
+
+### In-Game Pause Menu
+
+Responsibilities:
+
+- Open the gameplay menu from Global Cancel only when no higher-priority modal context owns the action.
+- Dim the live map and present a Labyrinth-inspired dark left-side panel with gold accents using the existing runtime UI theme and feedback.
+- Block every gameplay input channel and pause simulation through scoped owners while preserving the requested x1/x2/x3 speed.
+- Provide Resume, manual Save Game status, persistent master/music/effects/fullscreen settings, and confirmed Main Menu/Quit actions.
+- Return from Settings before closing on Escape and release input/time ownership on close, disable, or scene transition.
+
+Primary files/assets:
+
+- `Assets/Scripts/Runtime/Menu/StrategyPauseMenuController.cs`
+- `Assets/Scripts/Runtime/Menu/StrategyPauseMenuController.View.cs`
+- `Assets/Scripts/Runtime/Menu/StrategyGameSettings.cs`
+- `Assets/Scripts/Runtime/Input/StrategyInputRouter.cs`
+- `Assets/Scripts/Runtime/Core/StrategyTimeScaleController.cs`
+- `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.cs`
+- `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.cs`
+- `Assets/Scripts/Runtime/UI/StrategyConfirmationDialogController.cs`
+- `Assets/Tests/EditMode/StrategyPauseMenuControllerTests.cs`
+- `Assets/Editor/StrategyVerificationRunner.cs`
+
+Impact hints:
+
+- Keep pause ownership in `StrategyTimeScaleController`; never write `Time.timeScale` directly from the menu.
+- Keep Escape arbitration on the input router's context and consumed-frame contract so closing another HUD cannot reopen this menu in the same frame.
+- The pause canvas sorts below the shared confirmation canvas so Main Menu/Quit prompts remain the active top modal.
+- Settings share `StrategyGameSettings` with the intro menu; changes are persistent and must stay synchronized across both surfaces.
+- Returning to Main Menu deliberately warns about unsaved progress; Save Game remains an explicit separate action.
 
 ### Shared Runtime UI Feedback
 

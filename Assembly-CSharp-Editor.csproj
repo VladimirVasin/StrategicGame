@@ -20,6 +20,7 @@
     <Compile Include="Assets\Tests\EditMode\StrategyGameContextTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyInputActionsContractTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyInputRouterTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyPauseMenuControllerTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyHouseVisualEffectTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyForagerCampVisualProfileTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyBuildingVisualAnchorProfileTests.cs" />

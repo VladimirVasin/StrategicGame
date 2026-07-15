@@ -341,7 +341,17 @@ namespace ProjectUnknown.Strategy
             StrategyDebugLogger.Info("Bootstrap", "RefugeesReady");
 
             ConfigurePerformanceDiagnostics(context, map, population, wildlife, weather, timeScale);
-            ConfigurePersistence(context, map, placement, population, inputRouter, foundingStart);
+            StrategySaveSystem saveSystem = ConfigurePersistence(
+                context,
+                map,
+                placement,
+                population,
+                inputRouter,
+                foundingStart);
+            StrategyPauseMenuController pauseMenu =
+                context.GetOrCreate<StrategyPauseMenuController>("Strategy Pause Menu");
+            pauseMenu.Configure(inputRouter, timeScale, saveSystem, confirmationDialog);
+            StrategyDebugLogger.Info("Bootstrap", "PauseMenuReady");
             StrategyDebugLogger.Info("Bootstrap", "Complete");
         }
 

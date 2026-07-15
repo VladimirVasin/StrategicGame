@@ -120,6 +120,8 @@
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyBuildMenuController.Driver.Hud.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingSnowSpriteFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Menu\StrategyMainMenuController.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Menu\StrategyPauseMenuController.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Menu\StrategyPauseMenuController.View.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part02.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyGameBootstrap.Audio.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyPopulationRosterHudController.cs" />

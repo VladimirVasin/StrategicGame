@@ -1,5 +1,14 @@
 # Work Log
 
+### 2026-07-15 - In-game Escape pause menu
+
+- Added a code-built gameplay pause menu that opens with `Escape` only when no other modal input context owns Cancel; the router's consumed-frame guard prevents the same key press from closing another HUD and immediately opening the pause menu.
+- Pausing now owns an `All`/`Close` input context and a named `PauseMenu` time-scale lock, blocking map interaction while preserving the player's requested x1/x2/x3 speed for Resume.
+- Added Resume, manual Save Game feedback, persistent master/music/effects/fullscreen settings, and guarded Main Menu/Quit actions whose shared confirmations take keyboard/controller focus and restore it after cancel.
+- Matched the Labyrinth reference direction with a dimmed live map, dark left-side panel, and gold accents while keeping ProjectUnknown's existing typography, button feedback, HUD audio, and reduced-motion-aware panel transition.
+- Gameplay bootstrap creates the menu after persistence and supplies its input, time, save, and confirmation owners. Added focused EditMode lifecycle/navigation coverage and extended PlayMode smoke to require a configured menu that starts closed.
+- Tutorial goals, unlock order, and completion conditions are unchanged; the new menu is a global gameplay HUD entry point.
+
 ### 2026-07-15 - Production workers remain on duty without inputs
 
 - Fixed assigned Sawmill, Kiln, and Forge workers falling through failed input/capacity checks into generic home-centered `Idle` wandering.

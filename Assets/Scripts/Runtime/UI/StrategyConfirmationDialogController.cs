@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace ProjectUnknown.Strategy
@@ -12,10 +13,13 @@ namespace ProjectUnknown.Strategy
         private Text bodyText;
         private Text confirmText;
         private Text cancelText;
+        private Button confirmButton;
         private StrategyUiPanelTransition panelTransition;
         private Action confirmCallback;
+        private GameObject selectionBeforeOpen;
         private bool initialized;
         private bool locked;
+        private bool hasStoredSelection;
         private StrategyInputRouter inputRouter;
         private StrategyInputContextHandle inputContext;
 
@@ -59,13 +63,21 @@ namespace ProjectUnknown.Strategy
             Configure();
             locked = false;
             confirmCallback = onConfirm;
+            if (!hasStoredSelection)
+            {
+                selectionBeforeOpen = EventSystem.current != null
+                    ? EventSystem.current.currentSelectedGameObject
+                    : null;
+                hasStoredSelection = true;
+            }
             titleText.text = title;
             bodyText.text = body;
             confirmText.text = confirmLabel;
             cancelText.text = cancelLabel;
             panelTransition.SetVisible(true);
             RefreshInputContext(true);
-            StrategyHudSfxAudio.Play(StrategyHudSfxKind.Notify);
+            SelectButton(confirmButton);
+            PlaySfx(StrategyHudSfxKind.Notify);
             StrategyDebugLogger.Info("UI", "ConfirmationOpened", StrategyDebugLogger.F("title", title));
         }
 
@@ -84,6 +96,11 @@ namespace ProjectUnknown.Strategy
         {
             bool isOpen = IsOpen;
             RefreshInputContext(ShouldHoldInputContext);
+            if (!ShouldHoldInputContext)
+            {
+                RestorePreviousSelection();
+            }
+
             if (inputRouter != null && inputRouter.TryConsumeCancel(this) && isOpen)
             {
                 Cancel();
@@ -116,6 +133,7 @@ namespace ProjectUnknown.Strategy
             inputContext?.Dispose();
             inputContext = null;
             panelTransition?.SetVisible(false, true);
+            RestorePreviousSelection();
         }
 
         private void Confirm()
@@ -129,7 +147,7 @@ namespace ProjectUnknown.Strategy
             Action callback = confirmCallback;
             confirmCallback = null;
             Hide();
-            StrategyHudSfxAudio.Play(StrategyHudSfxKind.Confirm);
+            PlaySfx(StrategyHudSfxKind.Confirm);
             StrategyDebugLogger.Info("UI", "ConfirmationAccepted");
             callback?.Invoke();
         }
@@ -144,7 +162,7 @@ namespace ProjectUnknown.Strategy
             locked = true;
             confirmCallback = null;
             Hide();
-            StrategyHudSfxAudio.Play(StrategyHudSfxKind.Cancel);
+            PlaySfx(StrategyHudSfxKind.Cancel);
             StrategyDebugLogger.Info("UI", "ConfirmationCancelled");
         }
 
@@ -208,15 +226,27 @@ namespace ProjectUnknown.Strategy
             bodyText.resizeTextMaxSize = 16;
             SetTopStretch(bodyText.rectTransform, 28f, 96f, 28f, 78f);
 
-            CreateButton(panel, "ConfirmButton", new Vector2(-112f, 28f), new Color(0.42f, 0.20f, 0.16f, 0.98f), true, out confirmText);
-            CreateButton(panel, "CancelButton", new Vector2(112f, 28f), new Color(0.13f, 0.18f, 0.18f, 0.98f), false, out cancelText);
+            confirmButton = CreateButton(
+                panel,
+                "ConfirmButton",
+                new Vector2(-112f, 28f),
+                new Color(0.42f, 0.20f, 0.16f, 0.98f),
+                true,
+                out confirmText);
+            CreateButton(
+                panel,
+                "CancelButton",
+                new Vector2(112f, 28f),
+                new Color(0.13f, 0.18f, 0.18f, 0.98f),
+                false,
+                out cancelText);
 
             panelTransition = root.gameObject.AddComponent<StrategyUiPanelTransition>();
             panelTransition.Configure(rootGroup, panel, new Vector2(0f, -16f), 0.965f, 0.18f, 0.13f);
             panelTransition.SetVisible(false, true);
         }
 
-        private void CreateButton(
+        private Button CreateButton(
             RectTransform parent,
             string name,
             Vector2 anchoredPosition,
@@ -249,6 +279,51 @@ namespace ProjectUnknown.Strategy
             label = CreateText("Label", root, confirm ? "Confirm" : "Cancel", 16, TextAnchor.MiddleCenter, Color.white);
             label.fontStyle = FontStyle.Bold;
             Stretch(label.rectTransform, 0f, 0f, 0f, 1f);
+            return button;
+        }
+
+        private static void SelectButton(Button button)
+        {
+            if (button == null || EventSystem.current == null)
+            {
+                return;
+            }
+
+            button.GetComponent<StrategyUiButtonFeedback>()?.SuppressNextFocusCue();
+            EventSystem.current.SetSelectedGameObject(button.gameObject);
+        }
+
+        private void RestorePreviousSelection()
+        {
+            if (!hasStoredSelection)
+            {
+                return;
+            }
+
+            hasStoredSelection = false;
+            if (EventSystem.current == null)
+            {
+                selectionBeforeOpen = null;
+                return;
+            }
+
+            GameObject target = selectionBeforeOpen;
+            selectionBeforeOpen = null;
+            if (target != null)
+            {
+                target.GetComponent<StrategyUiButtonFeedback>()?.SuppressNextFocusCue();
+            }
+
+            EventSystem.current.SetSelectedGameObject(
+                target != null && target.activeInHierarchy ? target : null);
+        }
+
+        private static void PlaySfx(StrategyHudSfxKind kind)
+        {
+            if (Application.isPlaying)
+            {
+                StrategyHudSfxAudio.Play(kind);
+            }
         }
 
         private static GameObject CreateUiObject(string name, Transform parent)

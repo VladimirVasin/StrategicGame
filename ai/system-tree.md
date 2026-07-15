@@ -96,6 +96,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Creates the runtime goals controller and starter goal sequence that gates early Build menu tools
     - Creates the auto workforce controller before the Profession HUD so worker automation and priority controls share one runtime state
     - Creates the settlement Coin treasury and trade caravan controller after placement/storage systems are ready
+    - Creates the in-game Escape pause menu after persistence so Save Game, settings, and confirmed scene/quit actions share the established runtime owners
   - Strategy debug logging
     - Writes structured session logs to `debug.log`
     - Uses the project root path in the Unity Editor and persistent data in player builds
@@ -128,6 +129,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Updates both `Time.timeScale` and `Time.fixedDeltaTime`
     - Supports pause locks for modal gameplay decisions while preserving the requested x1/x2/x3 speed
     - Treats application focus as independent from simulation pause state
+    - Gives the in-game pause menu its own named lock so Resume restores the requested speed instead of resetting it
   - Strategy audio
     - Runtime-created central audio mix controller owns named Music/Ambience/Weather/Water/Settlement/Work/Footsteps/Wildlife/Fire/ImportantEvents/HUD buses, smooth day/night/weather/winter/pause/zoom profiles, and camera-aware acoustic attenuation
     - Globally mutes every audio source on focus loss/application pause and restores the exact prior listener volume only after both conditions clear
@@ -651,8 +653,9 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Input foundation
   - Unity Input System package
   - Default `InputSystem_Actions.inputactions`
-  - Strategy camera, Build menu, debug panel, and time-scale hotkeys read keyboard and mouse directly through Input System APIs
-  - Build menu creates an Input System UI event module when needed
+  - One typed `StrategyInputRouter` serves camera, gameplay, Build, debug, UI, time-scale, and global Cancel actions
+  - Scoped contexts block channels and own Cancel; a consumed-frame guard prevents one Escape press from activating two stacked/late-updating HUDs
+  - One shared Input System UI event module serves the scene
 
 - UI foundation
   - Unity UI package installed
@@ -660,6 +663,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Shared code-built button feedback provides pointer, keyboard/controller focus, press motion/tint, and quiet globally/local-throttled hover audio without replacing semantic click sounds
   - Shared panel transitions provide interruptible unscaled fade/slide/scale, immediate control disable, close-time raycast shielding, and short fade-only reduced-motion behavior
   - Full-screen runtime intro menu with Continue, New Settlement, Settings, Quit, disabled/no-save Continue state, and loading progress
+  - Custom in-game Escape pause menu over a dimmed live map with a dark left panel, Resume/Save/Settings commands, and confirmed Main Menu/Quit actions
   - Custom runtime F9 debug panel with player fog-of-war, instant construction, refugee arrival summon, and forced Clear/Cloudy/Rain/Fog/Storm/Snow/Blizzard weather-state controls
   - Custom runtime Build menu HUD
     - Early starter goals can lock Build menu categories/items to Houses first, then Forager Camp, then Lumberjack/Stonecutter camps, before unlocking the full catalog
@@ -714,6 +718,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Founding Journey presentation couples each authored shot to its atmosphere and scene-owned Weather/Fire ambience; its answers feed a pure selector over a captured map snapshot, and selected camp/cart cells feed population startup, nature/forage exclusions, exact starter-cart placement, save v3, and the initial camera focus.
 - Audio bootstrap depends on map generation, camera setup/orthographic zoom, strategy wind/weather values, `Resources/Audio` assets, the in-game music/work/HUD-SFX folders, resident walk animation frames, resident work impact/release frames, and runtime HUD interaction events.
 - Application focus couples Player background execution with the audio mix only: it never mutates simulation time, so active modal pause locks remain authoritative while unfocused running settlements continue to advance.
+- The in-game pause menu couples Global Cancel arbitration, an all-channel modal context, a named time-scale pause lock, persistence, shared game settings, shared confirmations, and Main Menu scene flow; it releases input/time ownership on Resume, disable, and scene transition.
 - Strategy camera bounds depend on generated map dimensions.
 - Input action IDs/names/bindings feed the central router, every runtime consumer, modal contexts, and the shared UI input module; update their contract tests with intentional changes.
 - Build menu active tool state drives the placement controller when catalog tools exist.
@@ -764,4 +769,4 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Gameplay progression beyond the First Winter preparation/endurance slice
 - Victory and defeat outcomes; deliberately deferred at the current stage
 - Player/controller system
-- Full custom UI shell beyond the Build HUD
+- Unified authored/prefab UI shell; current player-facing screens remain code-built

@@ -166,6 +166,10 @@ namespace ProjectUnknown.Strategy.EditorTests
                 Require(population != null && population.TotalResidentCount > 0, "Population bootstrap failed");
                 Require(UnityEngine.Object.FindAnyObjectByType<StrategyBuildPlacementController>() != null, "Placement bootstrap failed");
                 Require(UnityEngine.Object.FindAnyObjectByType<StrategySaveSystem>() != null, "Persistence bootstrap failed");
+                StrategyPauseMenuController pauseMenu =
+                    UnityEngine.Object.FindAnyObjectByType<StrategyPauseMenuController>();
+                Require(pauseMenu != null && pauseMenu.IsConfigured, "Pause menu bootstrap failed");
+                Require(!pauseMenu.IsOpen, "Pause menu must start closed");
                 Require(UnityEngine.Object.FindAnyObjectByType<StrategyWorldAudioDirector>() != null, "World audio director bootstrap failed");
                 Require(StrategyAudioVoicePool.ActiveVoiceCount <= StrategyAudioVoicePool.Capacity, "World audio voice budget exceeded");
                 Require(StrategyTrailController.Active != null, "Trail bootstrap failed");

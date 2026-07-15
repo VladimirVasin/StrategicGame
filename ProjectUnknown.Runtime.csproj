@@ -293,6 +293,7 @@
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyConstructionSpriteFactory.Part02.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategySawmill.Part03.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyStorageYard.Part10.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Menu\StrategyPauseMenuController.View.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentSpriteFactory.Part06.cs" />
     <Compile Include="Assets\Scripts\Runtime\Menu\StrategyMainMenuBackdrop.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentTask.cs" />
@@ -425,6 +426,7 @@
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWolfAgent.Part05.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingSpriteFactory.ScoutLodge.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyFogOfWarController.Persistence.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Menu\StrategyPauseMenuController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyGameContext.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyChickenSpriteFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyHouseWarmthState.Cold.cs" />

@@ -53,8 +53,11 @@ namespace ProjectUnknown.Strategy
         public bool IsCancelSwallowed => contexts.CancelMode == StrategyCancelMode.Swallow;
         public bool IsSecondaryPointerOwned => contexts.SecondaryPointerOwner != null;
 
-        public bool GlobalCancelPressed => IsChannelEnabled(StrategyInputChannel.Global)
-            && contexts.CancelMode == StrategyCancelMode.None
+        public bool GlobalCancelPressed => CanSurfaceGlobalCancel(
+                cancelConsumedFrame,
+                Time.frameCount,
+                IsChannelEnabled(StrategyInputChannel.Global),
+                contexts.CancelMode)
             && WasPressedRaw(globalCancel);
         public bool GlobalSavePressed => WasPressed(globalSave, StrategyInputChannel.Global);
         public bool GlobalLoadPressed => WasPressed(globalLoad, StrategyInputChannel.Global);
@@ -157,6 +160,17 @@ namespace ProjectUnknown.Strategy
             bool ownsSecondaryPointer = false)
         {
             return contexts.Push(owner, blockedChannels, cancelMode, ownsSecondaryPointer);
+        }
+
+        internal static bool CanSurfaceGlobalCancel(
+            int consumedFrame,
+            int currentFrame,
+            bool globalChannelEnabled,
+            StrategyCancelMode topCancelMode)
+        {
+            return consumedFrame != currentFrame
+                && globalChannelEnabled
+                && topCancelMode == StrategyCancelMode.None;
         }
 
         public int ReleaseContexts(object owner)

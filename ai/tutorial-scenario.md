@@ -48,4 +48,5 @@ When a real tutorial or onboarding flow is implemented:
 - Cold exposure can slow residents and eventually increase mortality risk, so food, fuel, and housing remain active concerns throughout Winter.
 - After the first Winter ends, the winter goal is cleared and the same settlement continues as an unrestricted sandbox.
 - There is deliberately no victory screen, defeat screen, forced pause, or terminal game state at this stage.
-- F5 saves the current settlement snapshot and F8 restarts the scene into the saved state.
+- When no higher-priority modal or HUD owns Cancel, `Escape` opens the in-game pause menu and pauses simulation without changing the requested x1/x2/x3 speed. `Escape` returns from Settings before closing the menu; Resume continues the existing onboarding or sandbox state.
+- The pause menu exposes Save Game, master/music/effects/fullscreen settings, and confirmed Main Menu/Quit actions without changing tutorial goals or unlocks. F5 still saves the current settlement snapshot and F8 restarts the scene into the saved state.

@@ -202,6 +202,34 @@ namespace ProjectUnknown.Strategy.EditorTests
         }
 
         [Test]
+        public void ConsumedCancelCannotBecomeGlobalInTheSameFrame()
+        {
+            const int consumedFrame = 42;
+
+            Assert.That(
+                StrategyInputRouter.CanSurfaceGlobalCancel(
+                    consumedFrame,
+                    consumedFrame,
+                    true,
+                    StrategyCancelMode.None),
+                Is.False);
+            Assert.That(
+                StrategyInputRouter.CanSurfaceGlobalCancel(
+                    consumedFrame,
+                    consumedFrame + 1,
+                    true,
+                    StrategyCancelMode.None),
+                Is.True);
+            Assert.That(
+                StrategyInputRouter.CanSurfaceGlobalCancel(
+                    consumedFrame,
+                    consumedFrame + 1,
+                    true,
+                    StrategyCancelMode.Close),
+                Is.False);
+        }
+
+        [Test]
         public void LifecycleCleanupClearsSceneContexts()
         {
             object owner = new();
