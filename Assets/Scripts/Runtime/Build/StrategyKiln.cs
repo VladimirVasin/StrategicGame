@@ -43,8 +43,12 @@ namespace ProjectUnknown.Strategy
         public int CoalStored => coalStored;
         public int PotteryStored => potteryStored;
         public int AvailablePottery => Mathf.Max(0, potteryStored - reservedPottery);
-        public int StorageUsed => clayStored + coalStored + potteryStored;
-        public int ReservedStorageUsed => StorageUsed + pendingPottery + reservedInputClay + reservedInputCoal;
+        public int InputStorageUsed => clayStored + coalStored;
+        public int ReservedInputStorageUsed => InputStorageUsed + reservedInputClay + reservedInputCoal;
+        public int OutputStorageUsed => potteryStored;
+        public int ReservedOutputStorageUsed => OutputStorageUsed + pendingPottery;
+        public int StorageUsed => InputStorageUsed + OutputStorageUsed;
+        public int ReservedStorageUsed => ReservedInputStorageUsed + ReservedOutputStorageUsed;
         public int PendingPotteryForDemolition => Mathf.Max(0, pendingPottery);
         public bool HasInputMaterials => clayStored >= ClayPerWorkCycle && coalStored >= CoalPerWorkCycle;
         public Vector2Int Origin => building != null ? building.Origin : Vector2Int.zero;
@@ -56,7 +60,7 @@ namespace ProjectUnknown.Strategy
             StrategyPopulationController populationController)
         {
             building = placedBuilding;
-            resourceStore.Bind(this, StrategyResourceStoreScope.Production, StrategyProductionStorage.LocalCapacity);
+            resourceStore.Bind(this, StrategyResourceStoreScope.Production, StrategyProductionStorage.ProcessingTotalCapacity);
             map = mapController;
             population = populationController;
             EnsureStockRenderers();

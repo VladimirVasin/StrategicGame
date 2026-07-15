@@ -71,6 +71,11 @@ namespace ProjectUnknown.Strategy
             }
         }
 
+        public bool HasNodeAt(Vector2Int cell)
+        {
+            return usedCells.Contains(cell);
+        }
+
         public bool TryReserveForHouse(
             StrategyPlacedBuilding house,
             StrategyResidentAgent resident,
@@ -174,6 +179,8 @@ namespace ProjectUnknown.Strategy
                     || IsInsideAdditionalExclusion(cell)
                     || IsTooCloseToStarter(cell, 3)
                     || !map.IsCellWalkable(cell)
+                    || !map.IsCellBuildable(cell)
+                    || StrategyTrailController.Active?.HasRouteRoadAt(cell) == true
                     || !map.TryGetCell(x, y, out CityMapCell mapCell)
                     || !TryChooseResource(mapCell.Kind, x, y, out StrategyResourceType resource))
                 {
@@ -185,7 +192,7 @@ namespace ProjectUnknown.Strategy
                     continue;
                 }
 
-                CreateNode(cell, resource, 1100 + nodes.Count);
+                TryCreateNode(cell, resource, 1100 + nodes.Count);
             }
 
             StrategyDebugLogger.Info(
@@ -229,6 +236,8 @@ namespace ProjectUnknown.Strategy
                         if (usedCells.Contains(cell)
                             || IsInsideAdditionalExclusion(cell)
                             || !map.IsCellWalkable(cell)
+                            || !map.IsCellBuildable(cell)
+                            || StrategyTrailController.Active?.HasRouteRoadAt(cell) == true
                             || !map.TryGetCell(cell.x, cell.y, out CityMapCell mapCell)
                             || !IsResourceAllowedOnTerrain(resource, mapCell.Kind))
                         {
@@ -248,8 +257,10 @@ namespace ProjectUnknown.Strategy
 
                 for (int i = 0; i < candidates.Count && created < targetCount && nodes.Count < MaxForageNodes; i++)
                 {
-                    CreateNode(candidates[i], resource, salt + created);
-                    created++;
+                    if (TryCreateNode(candidates[i], resource, salt + created))
+                    {
+                        created++;
+                    }
                 }
 
                 if (created >= targetCount)
@@ -267,15 +278,18 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("starterCell", starterCell));
         }
 
-        private void CreateNode(Vector2Int cell, StrategyResourceType resource, int salt)
+        private bool TryCreateNode(Vector2Int cell, StrategyResourceType resource, int salt)
         {
             if (map == null
                 || forageRoot == null
                 || usedCells.Contains(cell)
                 || IsInsideAdditionalExclusion(cell)
+                || !map.IsCellWalkable(cell)
+                || !map.IsCellBuildable(cell)
+                || StrategyTrailController.Active?.HasRouteRoadAt(cell) == true
                 || nodes.Count >= MaxForageNodes)
             {
-                return;
+                return false;
             }
 
             Vector3 center = map.GetCellCenterWorld(cell.x, cell.y);
@@ -290,6 +304,7 @@ namespace ProjectUnknown.Strategy
             StrategyForageNode node = nodeObject.AddComponent<StrategyForageNode>();
             node.Configure(this, resource, cell, GetYield(resource), variant, renderer);
             usedCells.Add(cell);
+            return true;
         }
 
         private bool TryChooseResource(CityMapCellKind kind, int x, int y, out StrategyResourceType resource)

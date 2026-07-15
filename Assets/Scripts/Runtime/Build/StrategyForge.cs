@@ -50,8 +50,12 @@ namespace ProjectUnknown.Strategy
         public int LogsStored => logsStored;
         public int ToolsStored => toolsStored;
         public int AvailableTools => Mathf.Max(0, toolsStored - reservedTools);
-        public int StorageUsed => ironStored + coalStored + logsStored + toolsStored;
-        public int ReservedStorageUsed => StorageUsed + pendingTools + reservedInputIron + reservedInputCoal + reservedInputLogs;
+        public int InputStorageUsed => ironStored + coalStored + logsStored;
+        public int ReservedInputStorageUsed => InputStorageUsed + reservedInputIron + reservedInputCoal + reservedInputLogs;
+        public int OutputStorageUsed => toolsStored;
+        public int ReservedOutputStorageUsed => OutputStorageUsed + pendingTools;
+        public int StorageUsed => InputStorageUsed + OutputStorageUsed;
+        public int ReservedStorageUsed => ReservedInputStorageUsed + ReservedOutputStorageUsed;
         public int PendingToolsForDemolition => Mathf.Max(0, pendingTools);
         public bool HasInputMaterials => ironStored >= IronPerWorkCycle
             && coalStored >= CoalPerWorkCycle
@@ -65,7 +69,7 @@ namespace ProjectUnknown.Strategy
             StrategyPopulationController populationController)
         {
             building = placedBuilding;
-            resourceStore.Bind(this, StrategyResourceStoreScope.Production, StrategyProductionStorage.LocalCapacity);
+            resourceStore.Bind(this, StrategyResourceStoreScope.Production, StrategyProductionStorage.ProcessingTotalCapacity);
             map = mapController;
             population = populationController;
             EnsureStockRenderers();

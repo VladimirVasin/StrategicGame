@@ -1,5 +1,32 @@
 # Work Log
 
+### 2026-07-15 - Portable build debug logs
+
+- Standalone builds now prefer `<game directory>/Logs/debug.log`, resolving the game directory from the parent of Unity's player data folder so tester builds keep diagnostics beside the executable wherever they are unpacked.
+- If the portable location cannot be created or written, logging automatically switches to the existing `Application.persistentDataPath/debug.log` location without interrupting gameplay.
+- Log recovery can also switch to the persistent fallback after a later write or rotation failure; locked canonical files retain the existing process-unique `debug-live-*` fallback behavior.
+- Portable archives now use `<game directory>/Logs/StrategyDebug` without creating a duplicate `Logs/Logs` path, while the Editor keeps project-root `debug.log` and its existing archive layout.
+- Verification: runtime and Editor C# builds pass with zero warnings/errors; focused Unity EditMode logging tests pass 10/10.
+
+### 2026-07-15 - Roads avoid static objects and underground resources
+
+- Centralized route-road eligibility around current walkability, buildability, and forage-node occupancy, so road formation/repair, functional lookup, pruning, save capture, and restore reject trees, bushes, Stone, underground Iron/Coal/Clay fields, POIs, graves, the starter campfire, and forage nodes.
+- Added raw route-road occupancy guards to single- and multi-cell nature generation, forestry planting, cemetery placement, and every forage creation path; forage creation now reports success so failed runtime respawns are retried instead of logged as spawned.
+- Continue now reserves validated, dimension-matching saved road cells before deterministic nature/forage generation, so previously removed objects or depleted resources do not respawn first and erase a persistent road; the final restore clears these non-functional bootstrap reservations and revalidates the road keys normally.
+- Reserved the visible starter campfire cell as non-buildable even while daytime walkability is released, while ordinary residents remain able to traverse walkable underground resource cells without receiving a road bonus there.
+- Added focused regression coverage for persistence filtering, raw membership before pruning, a cardinal detour around a walkable-but-non-buildable cell, and two-way road/forage exclusion.
+- Tutorial flow, goals, unlock order, and HUD entry points are unchanged.
+- Verification: technical quality gates and all five C# project builds pass with zero warnings/errors; focused Unity EditMode tests pass 6/6, and Unity PlayMode smoke passes.
+
+### 2026-07-15 - Independent processing input and output storage
+
+- Split Sawmill, Kiln, and Forge capacity accounting into independent 6-unit input and 6-unit output pools, while retaining one 12-unit resource ledger per building for save/load, settlement queries, and demolition compatibility.
+- Sawmills can now hold 6 Logs alongside 6 Planks; Kilns can hold 4 Clay plus 2 Coal alongside 6 Pottery; Forges can hold 2 Iron, 2 Coal, and 2 Logs alongside 6 Tools.
+- Incoming deliveries reserve only input capacity, pending work reserves only output capacity, and a full output buffer blocks new production cycles without preventing valid input delivery.
+- Updated the selected-building micro HUD to show separate `Input Storage` and `Output Storage` lines, including incoming and pending reservations on their matching side.
+- Added focused regression coverage for all three processing buildings, pending-output behavior, current-version save round-trip, and demolition manifest capture. Tutorial flow, goals, unlock order, and HUD entry points are unchanged.
+- Verification: technical quality gates and all five C# project builds pass with zero warnings/errors; focused Unity EditMode tests pass 5/5, and Unity PlayMode smoke passes.
+
 ### 2026-07-15 - Rare global wolf-howl cadence
 
 - Increased the shared `wolf_howl` audio cooldown from 1.1 to 90 unscaled seconds, limiting audible howls across every pack and game speed instead of letting each wolf create a near-continuous chain.

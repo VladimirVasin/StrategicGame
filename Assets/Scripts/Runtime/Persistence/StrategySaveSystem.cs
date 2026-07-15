@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -143,6 +144,24 @@ namespace ProjectUnknown.Strategy
         {
             seed = pendingLoad != null ? Mathf.Max(1, pendingLoad.mapSeed) : 0;
             return seed > 0;
+        }
+
+        internal static bool TryGetPendingTrailCells(
+            int mapWidth,
+            int mapHeight,
+            out List<int> trailCells)
+        {
+            trailCells = null;
+            if (pendingLoad == null
+                || pendingLoad.mapWidth != mapWidth
+                || pendingLoad.mapHeight != mapHeight
+                || !ValidateSaveData(pendingLoad, out _))
+            {
+                return false;
+            }
+
+            trailCells = new List<int>(pendingLoad.trailCells);
+            return true;
         }
 
         public void SetFoundingStartData(StrategyFoundingStartSaveData data)

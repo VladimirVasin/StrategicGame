@@ -147,7 +147,11 @@ namespace ProjectUnknown.Strategy
 
             respawnCandidates.Sort((left, right) => left.Score.CompareTo(right.Score));
             ForageRespawnCandidate best = respawnCandidates[0];
-            CreateNode(best.Cell, best.Resource, best.Salt);
+            if (!TryCreateNode(best.Cell, best.Resource, best.Salt))
+            {
+                return false;
+            }
+
             StrategyDebugLogger.Info(
                 "Forage",
                 forcedCamp != null ? "NodeSpawnedNearForagerCamp" : "NodeRespawnedNearForagerCamp",
@@ -341,6 +345,8 @@ namespace ProjectUnknown.Strategy
                 || IsTooCloseToStarter(cell, 3)
                 || !HasLocalForageRoom(cell)
                 || !map.IsCellWalkable(cell)
+                || !map.IsCellBuildable(cell)
+                || StrategyTrailController.Active?.HasRouteRoadAt(cell) == true
                 || !map.TryGetCell(cell.x, cell.y, out CityMapCell mapCell))
             {
                 return false;

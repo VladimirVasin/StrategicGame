@@ -630,7 +630,8 @@ Responsibilities:
 - Commit stable road cells after three completed traversals of the same non-Bridge building pair.
 - Keep resident footfalls from creating functional or visible roads, and keep automatic route-network convergence disabled.
 - Keep route-road recording connected by rejecting route tails left behind after square-prone cells are skipped and using a bounded local repair search when a no-square obstacle detour exists.
-- Prune road cells only when map walkability or cell validity invalidates them; roads do not decay from disuse.
+- Prune road cells when map walkability, buildability, static forage occupancy, or cell validity invalidates them; roads do not decay from disuse.
+- Route new roads around static nature blockers and walkable-but-non-buildable underground resource/POI cells, while keeping those cells available to ordinary resident navigation.
 - Spawn sparse non-blocking roadside torch props from eligible straight route-road cells, refreshing the derived prop layer when roads or adjacent buildability change.
 - Maintain a runtime 16x16 world chunk registry for spatial indexing of placed buildings, active construction sites, and residents plus camera-near, settlement-active, and dirty-chunk flags.
 - Expose formed roads as a 15% resident movement-speed bonus and a reduced resident pathfinding cost.
@@ -700,6 +701,9 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Map/StrategyForageSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Map/StrategyForestryController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyForestryTree.cs`
+- `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.cs`
+- `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.cs`
+- `Assets/Tests/EditMode/StrategyRoadOccupancyTests.cs`
 - `Assembly-CSharp.csproj`
 
 Impact hints:
@@ -710,12 +714,12 @@ Impact hints:
 - Water source identity is stored on `CityMapCell.WaterKind`; future systems should query that instead of guessing river/lake from geometry.
 - River current direction is stored on `CityMapController.RiverFlowDirection`; river-specific ambience/gameplay should follow that instead of creating independent direction timers.
 - Terrain kind generation now uses a seed-derived profile plus multi-octave noise; texture painting consumes the active seed.
-- Nature prop placement consumes the active seed and generated cell kinds through a shared shuffled full-map pass, so capped prop budgets do not fill only the first scanned area on large maps; starter Coal/Iron guarantees and Iron/Coal minimum fallback are protected from that decorative cap.
+- Nature prop placement consumes the active seed and generated cell kinds through a shared shuffled full-map pass, rejects raw route-road cells across every single-cell and multi-cell footprint, and keeps capped prop budgets from filling only the first scanned area on large maps; starter Coal/Iron guarantees and Iron/Coal minimum fallback are protected from that decorative cap.
 - Stone deposit placement consumes the active seed, generated cell kinds, and macro cluster score.
 - Iron field placement consumes the active seed, generated walkable land cells, and macro cluster score; Iron deposits are underground fields that do not block walkability but block normal buildability.
 - Coal field placement consumes the active seed, generated walkable land cells, and macro cluster score; Coal deposits are underground fields that do not block walkability but block normal buildability.
 - Clay field placement consumes the active seed, generated walkable near-water land/shore cells, and macro cluster score; Clay deposits do not block walkability but block normal buildability.
-- Forage placement consumes the active seed, generated cell kinds, current walkability, the shared shuffled full-map pass, macro cluster score, and the current season gameplay profile; forage nodes are non-blocking, support reservation, disappear after gathering, and use a timed respawn queue that places replacements near mature standing trees inside active Forager Camp work radii. The controller leaves capacity headroom after initial generation, periodically supports under-supplied Forager Camps, applies local density/per-camp soft caps to avoid over-clustering, and uses season multipliers so Winter slows new forage without clearing existing nodes.
+- Forage placement consumes the active seed, generated cell kinds, current walkability/buildability, raw route-road occupancy, the shared shuffled full-map pass, macro cluster score, and the current season gameplay profile; forage nodes are non-blocking but count as road obstacles, support reservation, disappear after gathering, and use a timed respawn queue that places replacements near mature standing trees inside active Forager Camp work radii. The controller leaves capacity headroom after initial generation, periodically supports under-supplied Forager Camps, applies local density/per-camp soft caps to avoid over-clustering, and uses season multipliers so Winter slows new forage without clearing existing nodes.
 - Generated standalone tree props register as mature forestry trees and block their cells.
 - Forest groups and bushes remain non-interactive but block their cells.
 - Generated Stone deposits register as Boulder, Rock Cluster, or Cliff resource deposits and block their cells.
@@ -727,7 +731,7 @@ Impact hints:
 - Rendering is currently a generated point-filtered texture on a `SpriteRenderer`, not a Tilemap.
 - Water and shore animation is a separate transparent `SpriteRenderer` overlay above the static map and below world props; it reads active weather intensity for rain ripple hits and repaints only cached water/shore cells after setup.
 - Trail visuals use one `SpriteRenderer` per visible route-road cell under a `Trail Visuals` root, sorted above terrain/water overlays and below world props, with cardinal N/E/S/W right-angle masks and narrow line/brush sprites; visual road formation comes from direct-first completed building-to-building traversals rather than per-step footfall squares, raw A* detours, or background network convergence. Route recording starts from the endpoint not already connected, stops at the first cardinal contact with an existing route road, rejects full 2x2 route-road blocks, must not record disconnected tail cells after a skipped square candidate, and can run a bounded local cardinal repair search for a connected no-square detour. Roadside torch props are generated under a separate `Roadside Props` root and should remain visual-only, non-blocking derivatives of route-road cells.
-- Road cells are runtime-only and should be refreshed when map walkability or cell validity changes so blocked cells do not keep visible or functional roads.
+- Road cells are runtime-only and should be refreshed when map walkability/buildability or static occupancy changes so blocked cells do not keep visible or functional roads. Save capture omits already-invalid raw road keys; Continue exposes a validated, dimension-bound defensive copy as bootstrap-only raw reservations before deterministic nature/forage generation, and final restoration revalidates legacy keys without a save migration.
 - Resident pathfinding should continue to use the shared road-aware pathfinder, reading functional road cells as a cost preference rather than required connectivity.
 - `StrategyWorldChunkRegistry` is the shared chunk foundation for future Minecraft-style incremental work; first migrate expensive scans behind its safe query APIs, then switch fog/weather/props/lights/resources to dirty or active chunks only.
 - Fog-of-war, cloud-shadow, and heavy-rain-mist texture repaint/upload paths are already chunk-aware for active camera/settlement/dirty chunks; gameplay fog visibility arrays still refresh globally for correctness.
@@ -763,7 +767,7 @@ Impact hints:
 - Current tree cells block walkability; fallen trunks stay blocked until their Logs are collected; residents path to nearby walkable cells when working.
 - Tree chopping and fallen-trunk bucking are hit-driven by resident axe animation frames; final tree hits start falling and final trunk hits create split Logs.
 - Small trees yield 3 Logs, while large generated trees and planted mature trees yield 6 Logs; lumberjacks carry the full yield in one trip.
-- Planting candidates require a nearby walkable work cell, and lumberjacks only start planting when their camp can accept at least the smallest future Logs yield.
+- Planting candidates require a nearby walkable work cell, reject roads and non-buildable resource/POI cells, and only start when their camp can accept at least the smallest future Logs yield.
 - Felled trees remain in the registry until Logs are collected, so planting does not overlap the fresh log.
 - Future wood resources, regrowth balance, and forest ownership should extend this subsystem instead of adding tree logic directly to residents or HUD.
 
@@ -1823,6 +1827,7 @@ Responsibilities:
 - Request input Logs through the shared production logistics contract.
 - Route Haulers to pick up Logs from Storage Yard stock, deliver them into the Sawmill, and route Sawyers to saw delivered Logs into `Planks`.
 - Keep Sawyers visible inside the building and drive the detailed saw/log/plank work overlay plus sawdust effects while work is active.
+- Keep independent 6-unit input and output pools and show both capacities in the selected-building micro HUD.
 - Expose Sawmill-local Planks to Haulers for hauling.
 
 Primary files/assets:
@@ -1842,12 +1847,14 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/UI/StrategyBuildMenuController.Catalog.cs`
 - `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.cs`
 - `Assets/Scripts/Runtime/Economy/StrategyResourceType.cs`
+- `Assets/Tests/EditMode/StrategyProcessingStorageTests.cs`
 - `Assembly-CSharp.csproj`
 
 Impact hints:
 
 - Sawmill input Log reservations are separate from construction Log reservations so construction sites and production-input Haulers do not double-claim Storage Yard Logs.
-- Sawmill counts Logs, Planks, and pending Planks against the shared production local stock cap of 6, with input Logs capped at 4 so output Planks can reserve space.
+- Sawmill input Logs and output Planks have independent 6-unit capacities; incoming Logs count only against input room, while pending Planks count only against output room.
+- Save/load and demolition still use the building's single resource ledger, whose total capacity is 12 for processing buildings, so both logical pools survive existing persistence and resource-drop paths.
 - `Planks` flow from Sawmills to Storage Yards and are consumed by selected late construction costs; they are not part of a global economy yet.
 - Sawmill workers are normal exclusive workplace residents and should remain distinct from Storage Yard haulers; Sawyers do not move resources between buildings.
 
@@ -1860,6 +1867,7 @@ Responsibilities:
 - Request input Clay and Coal through the shared production logistics contract.
 - Route Haulers to pick up Clay/Coal from Storage Yard stock, deliver them into the Kiln, and route Potters to fire delivered inputs into `Pottery`.
 - Keep Potters visible at the building and drive the firing work overlay plus spark/dust effects while work is active.
+- Keep an independent 6-unit Clay/Coal input pool and 6-unit Pottery output pool and show both capacities in the selected-building micro HUD.
 - Expose Kiln-local Pottery to Haulers for hauling.
 
 Primary files/assets:
@@ -1879,12 +1887,14 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/UI/StrategyBuildMenuController.Catalog.cs`
 - `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.cs`
 - `Assets/Scripts/Runtime/Economy/StrategyResourceType.cs`
+- `Assets/Tests/EditMode/StrategyProcessingStorageTests.cs`
 - `Assembly-CSharp.csproj`
 
 Impact hints:
 
 - Kiln input reservations are separate from construction and Sawmill reservations so Clay/Coal input delivery cannot double-claim Storage Yard stock.
-- Kiln counts Clay, Coal, Pottery, pending Pottery, and reservations against the shared production local stock cap of 6.
+- Kiln input Clay/Coal share one 6-unit capacity, with per-resource maxima of 4 Clay and 2 Coal; Pottery has an independent 6-unit output capacity, and pending Pottery reserves only output room.
+- Save/load and demolition keep using one 12-unit processing ledger so both logical pools remain compatible with existing persistence and resource-drop paths.
 - `Pottery` currently flows from Kilns to Storage Yards and is consumed by household `Dish` cooking; it is not consumed by construction, trade, or upkeep yet.
 - Potters are normal exclusive workplace residents and should remain distinct from settlement Haulers; Potters do not move resources between buildings.
 
@@ -1897,6 +1907,7 @@ Responsibilities:
 - Request input Iron, Coal, and Logs through the shared production logistics contract.
 - Route Haulers to pick up Iron/Coal/Logs from Storage Yard stock, deliver them into the Forge, and route Blacksmiths to forge delivered inputs into `Tools`.
 - Keep Blacksmiths visible at the building and drive the forging work overlay plus spark effects while work is active.
+- Keep an independent 6-unit Iron/Coal/Logs input pool and 6-unit Tools output pool and show both capacities in the selected-building micro HUD.
 - Expose Forge-local Tools to Haulers for hauling.
 - Feed Storage Yard `Tools` stock used by production-building upgrades.
 
@@ -1922,12 +1933,14 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.cs`
 - `Assets/Scripts/Runtime/Economy/StrategyResourceType.cs`
 - `Assets/Scripts/Runtime/Economy/StrategyResourceIconFactory.Part03.cs`
+- `Assets/Tests/EditMode/StrategyProcessingStorageTests.cs`
 - `Assembly-CSharp.csproj`
 
 Impact hints:
 
 - Forge input reservations are separate from construction, Sawmill, and Kiln reservations so Iron/Coal/Logs input delivery cannot double-claim Storage Yard stock.
-- Forge counts Iron, Coal, Logs, Tools, pending Tools, and reservations against the shared production local stock cap of 6.
+- Forge input Iron/Coal/Logs share one 6-unit capacity, with a per-resource maximum of 2 each; Tools have an independent 6-unit output capacity, and pending Tools reserve only output room.
+- Save/load and demolition keep using one 12-unit processing ledger so both logical pools remain compatible with existing persistence and resource-drop paths.
 - `Tools` currently flow from Forges to Storage Yards, are consumed by Tools-based production-building upgrades, and can be sold through Trading Post caravan offers; they are not consumed by construction or upkeep yet.
 - Blacksmiths are normal exclusive workplace residents and should remain distinct from settlement Haulers; Blacksmiths do not move resources between buildings.
 

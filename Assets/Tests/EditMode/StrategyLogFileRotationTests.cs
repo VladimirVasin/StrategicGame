@@ -39,6 +39,86 @@ namespace ProjectUnknown.Strategy.EditorTests
         }
 
         [Test]
+        public void BuildCanonicalPathUsesLogsDirectoryBesidePlayerData()
+        {
+            string installDirectory = Path.Combine(
+                Path.GetTempPath(),
+                "ProjectUnknown-LogPathTests",
+                "ProjectUnknown");
+            string playerDataPath = Path.Combine(installDirectory, "ProjectUnknown_Data");
+            string persistentPath = Path.Combine(installDirectory, "persistent");
+
+            string canonical = StrategyLogFileRotation.ResolveBuildCanonicalPath(
+                playerDataPath,
+                persistentPath);
+
+            Assert.That(
+                canonical,
+                Is.EqualTo(Path.Combine(installDirectory, "Logs", "debug.log")));
+        }
+
+        [Test]
+        public void ArchiveDirectoryDoesNotNestASecondLogsDirectory()
+        {
+            string canonical = Path.Combine("install", "Logs", "debug.log");
+
+            string archiveDirectory = StrategyLogFileRotation.ResolveArchiveDirectory(canonical);
+
+            Assert.That(
+                archiveDirectory,
+                Is.EqualTo(Path.Combine("install", "Logs", "StrategyDebug")));
+        }
+
+        [Test]
+        public void ArchiveDirectoryPreservesLegacyLayoutOutsideLogsDirectory()
+        {
+            string canonical = Path.Combine("profile", "debug.log");
+
+            string archiveDirectory = StrategyLogFileRotation.ResolveArchiveDirectory(canonical);
+
+            Assert.That(
+                archiveDirectory,
+                Is.EqualTo(Path.Combine("profile", "Logs", "StrategyDebug")));
+        }
+
+        [Test]
+        public void UnwritablePortablePathFallsBackToPersistentPath()
+        {
+            string directory = CreateTemporaryDirectory();
+            StreamWriter writer = null;
+            try
+            {
+                string blockedRoot = Path.Combine(directory, "blocked-root");
+                File.WriteAllText(blockedRoot, "This file prevents child directory creation.", Utf8NoBom);
+                string preferred = Path.Combine(blockedRoot, "Logs", "debug.log");
+                string persistentRoot = Path.Combine(directory, "persistent");
+                string fallback = StrategyLogFileRotation.ResolvePersistentCanonicalPath(persistentRoot);
+                DateTime utc = new DateTime(2026, 7, 15, 10, 20, 30, DateTimeKind.Utc);
+
+                bool opened = StrategyLogFileRotation.TryOpenSessionWithFallback(
+                    preferred,
+                    fallback,
+                    utc,
+                    42,
+                    Utf8NoBom,
+                    out writer,
+                    out string activePath,
+                    out string selectedCanonicalPath);
+
+                Assert.That(opened, Is.True);
+                Assert.That(fallback, Is.EqualTo(Path.Combine(persistentRoot, "debug.log")));
+                Assert.That(selectedCanonicalPath, Is.EqualTo(fallback));
+                Assert.That(activePath, Is.EqualTo(fallback));
+                Assert.That(File.Exists(fallback), Is.True);
+            }
+            finally
+            {
+                writer?.Dispose();
+                DeleteTemporaryDirectory(directory);
+            }
+        }
+
+        [Test]
         public void RetentionUsesOrdinalNameAsStableTimestampTieBreakAndIgnoresLiveFiles()
         {
             string directory = CreateTemporaryDirectory();

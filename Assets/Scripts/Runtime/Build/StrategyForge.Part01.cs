@@ -9,7 +9,7 @@ namespace ProjectUnknown.Strategy
             return ironStored >= IronPerWorkCycle
                 && coalStored >= CoalPerWorkCycle
                 && logsStored >= LogsPerWorkCycle
-                && ReservedStorageUsed - IronPerWorkCycle - CoalPerWorkCycle - LogsPerWorkCycle + ToolsPerWorkCycle <= StrategyProductionStorage.LocalCapacity;
+                && ReservedOutputStorageUsed + ToolsPerWorkCycle <= StrategyProductionStorage.ProcessingOutputCapacity;
         }
 
         public bool TryConsumeInputsForWork(out int toolsExpected)
@@ -37,7 +37,7 @@ namespace ProjectUnknown.Strategy
             }
 
             pendingTools = Mathf.Max(0, pendingTools - amount);
-            int capacity = Mathf.Max(0, StrategyProductionStorage.LocalCapacity - StorageUsed - pendingTools);
+            int capacity = Mathf.Max(0, StrategyProductionStorage.ProcessingOutputCapacity - ReservedOutputStorageUsed);
             int accepted = Mathf.Min(amount, capacity);
             if (accepted <= 0)
             {
@@ -82,11 +82,13 @@ namespace ProjectUnknown.Strategy
         public string GetHudStatusText()
         {
             return "Blacksmiths: " + workers.Count + "/" + MaxWorkers
-                + "\nStorage: " + StorageUsed + "/" + StrategyProductionStorage.LocalCapacity
-                + (pendingTools > 0 ? " (" + pendingTools + " pending)" : string.Empty)
+                + "\nInput Storage: " + InputStorageUsed + "/" + StrategyProductionStorage.ProcessingInputCapacity
+                + (reservedInputIron + reservedInputCoal + reservedInputLogs > 0 ? " (" + (reservedInputIron + reservedInputCoal + reservedInputLogs) + " incoming)" : string.Empty)
                 + "\nIron: " + ironStored
                 + "\nCoal: " + coalStored
                 + "\nLogs: " + logsStored
+                + "\nOutput Storage: " + OutputStorageUsed + "/" + StrategyProductionStorage.ProcessingOutputCapacity
+                + (pendingTools > 0 ? " (" + pendingTools + " pending)" : string.Empty)
                 + "\nTools: " + toolsStored
                 + (reservedTools > 0 ? " (" + reservedTools + " reserved)" : string.Empty);
         }

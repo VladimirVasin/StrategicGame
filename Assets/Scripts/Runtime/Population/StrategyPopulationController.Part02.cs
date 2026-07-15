@@ -343,6 +343,7 @@ namespace ProjectUnknown.Strategy
 
         private void CreateCampfire()
         {
+            map.SetCellsBuildable(campCell, Vector2Int.one, false);
             GameObject campObject = new GameObject("Starter Campfire");
             campObject.transform.SetParent(residentRoot, false);
             campObject.transform.position = new Vector3(campWorld.x, campWorld.y, -0.12f);

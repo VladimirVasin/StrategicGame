@@ -10,6 +10,7 @@ namespace ProjectUnknown.Strategy
         private readonly Dictionary<string, int> routeTraversalCounts = new();
         private readonly Dictionary<string, List<Vector2Int>> canonicalRouteCells = new();
         private readonly HashSet<int> activeRouteCells = new();
+        private readonly HashSet<int> pendingRouteReservations = new();
         private readonly List<int> routeDecayClearCells = new();
         private float[,] routeWear;
         private float[,] routeLastTraversalTimes;
@@ -19,6 +20,17 @@ namespace ProjectUnknown.Strategy
         private int routeLevelDownsSinceStats;
         private int routeInvalidationsSinceStats;
         private int routeClearsSinceStats;
+
+        public bool HasRouteRoadAt(Vector2Int cell)
+        {
+            return map != null
+                && cell.x >= 0
+                && cell.x < map.Width
+                && cell.y >= 0
+                && cell.y < map.Height
+                && (activeRouteCells.Contains(cell.y * map.Width + cell.x)
+                    || pendingRouteReservations.Contains(cell.y * map.Width + cell.x));
+        }
 
         public void RecordBuildingRouteTraversal(
             StrategyPlacedBuilding fromBuilding,

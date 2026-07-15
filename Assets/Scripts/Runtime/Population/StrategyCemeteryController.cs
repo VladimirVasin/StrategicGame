@@ -303,6 +303,8 @@ namespace ProjectUnknown.Strategy
             }
 
             return map.IsCellWalkable(cell)
+                && map.IsCellBuildable(cell)
+                && StrategyTrailController.Active?.HasRouteRoadAt(cell) != true
                 && StrategyPointOfInterestController.Active?.HasPointAt(cell) != true;
         }
 

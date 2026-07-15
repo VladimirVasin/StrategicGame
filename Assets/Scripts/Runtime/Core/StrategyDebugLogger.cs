@@ -18,6 +18,7 @@ namespace ProjectUnknown.Strategy
         private bool configured;
         private bool fileWriteDisabled;
         private string canonicalLogPath;
+        private string persistentFallbackLogPath;
         private string logPath;
         private StreamWriter writer;
         private int processId;
@@ -36,19 +37,24 @@ namespace ProjectUnknown.Strategy
             }
 
             Active = this;
-            canonicalLogPath = ResolveLogPath();
-            logPath = canonicalLogPath;
+            string preferredLogPath = ResolveLogPath();
+            persistentFallbackLogPath = StrategyLogFileRotation.ResolvePersistentCanonicalPath(
+                Application.persistentDataPath);
+            canonicalLogPath = preferredLogPath;
+            logPath = preferredLogPath;
             processId = ResolveProcessId();
             configured = true;
             fileWriteDisabled = false;
 
-            if (!StrategyLogFileRotation.TryOpenSession(
-                    canonicalLogPath,
+            if (!StrategyLogFileRotation.TryOpenSessionWithFallback(
+                    preferredLogPath,
+                    persistentFallbackLogPath,
                     DateTime.UtcNow,
                     processId,
                     Utf8NoBom,
                     out writer,
-                    out logPath))
+                    out logPath,
+                    out canonicalLogPath))
             {
                 fileWriteDisabled = true;
                 DisposeWriter();
@@ -194,9 +200,8 @@ namespace ProjectUnknown.Strategy
                     out writer,
                     out logPath))
             {
-                fileWriteDisabled = true;
-                activeByteCount = 0L;
-                return false;
+                RecoverWithFallback();
+                return writer != null;
             }
 
             activeByteCount = ResolveWriterLength();
@@ -205,13 +210,15 @@ namespace ProjectUnknown.Strategy
 
         private void RecoverWithFallback()
         {
-            if (!StrategyLogFileRotation.TryOpenFallback(
+            if (!StrategyLogFileRotation.TryOpenSessionWithFallback(
                     canonicalLogPath,
+                    persistentFallbackLogPath,
                     DateTime.UtcNow,
                     processId,
                     Utf8NoBom,
                     out writer,
-                    out logPath))
+                    out logPath,
+                    out canonicalLogPath))
             {
                 fileWriteDisabled = true;
                 activeByteCount = 0L;
@@ -326,7 +333,9 @@ namespace ProjectUnknown.Strategy
             string projectRoot = Directory.GetParent(Application.dataPath)?.FullName ?? Application.persistentDataPath;
             return Path.Combine(projectRoot, "debug.log");
 #else
-            return Path.Combine(Application.persistentDataPath, "debug.log");
+            return StrategyLogFileRotation.ResolveBuildCanonicalPath(
+                Application.dataPath,
+                Application.persistentDataPath);
 #endif
         }
 

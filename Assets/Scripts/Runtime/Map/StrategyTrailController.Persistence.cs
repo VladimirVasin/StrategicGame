@@ -5,17 +5,54 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyTrailController
     {
+        public void ReservePendingPersistentTrailCells(IReadOnlyList<int> source)
+        {
+            pendingRouteReservations.Clear();
+            if (map == null || source == null)
+            {
+                return;
+            }
+
+            int cellCount = map.Width * map.Height;
+            for (int i = 0; i < source.Count; i++)
+            {
+                int key = source[i];
+                if (key >= 0 && key < cellCount)
+                {
+                    pendingRouteReservations.Add(key);
+                }
+            }
+
+            if (pendingRouteReservations.Count > 0)
+            {
+                StrategyDebugLogger.Info(
+                    "Map",
+                    "PendingTrailCellsReserved",
+                    StrategyDebugLogger.F("cells", pendingRouteReservations.Count));
+            }
+        }
+
         public void CapturePersistentTrailCells(List<int> target)
         {
             target.Clear();
+            if (map == null)
+            {
+                return;
+            }
+
             foreach (int key in activeRouteCells)
             {
-                target.Add(key);
+                Vector2Int cell = new(key % map.Width, key / map.Width);
+                if (GetWearRejectReason(cell) == null)
+                {
+                    target.Add(key);
+                }
             }
         }
 
         public void RestorePersistentTrailCells(IReadOnlyList<int> source)
         {
+            pendingRouteReservations.Clear();
             EnsureRouteStorage();
             if (map == null || routeWear == null)
             {

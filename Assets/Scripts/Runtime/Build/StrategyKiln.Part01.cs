@@ -8,7 +8,7 @@ namespace ProjectUnknown.Strategy
         {
             return clayStored >= ClayPerWorkCycle
                 && coalStored >= CoalPerWorkCycle
-                && ReservedStorageUsed - ClayPerWorkCycle - CoalPerWorkCycle + PotteryPerWorkCycle <= StrategyProductionStorage.LocalCapacity;
+                && ReservedOutputStorageUsed + PotteryPerWorkCycle <= StrategyProductionStorage.ProcessingOutputCapacity;
         }
 
         public bool TryConsumeInputsForWork(out int potteryExpected)
@@ -35,7 +35,7 @@ namespace ProjectUnknown.Strategy
             }
 
             pendingPottery = Mathf.Max(0, pendingPottery - amount);
-            int capacity = Mathf.Max(0, StrategyProductionStorage.LocalCapacity - clayStored - coalStored - potteryStored - pendingPottery);
+            int capacity = Mathf.Max(0, StrategyProductionStorage.ProcessingOutputCapacity - ReservedOutputStorageUsed);
             int accepted = Mathf.Min(amount, capacity);
             if (accepted <= 0)
             {
@@ -80,10 +80,12 @@ namespace ProjectUnknown.Strategy
         public string GetHudStatusText()
         {
             return "Potters: " + workers.Count + "/" + MaxWorkers
-                + "\nStorage: " + StorageUsed + "/" + StrategyProductionStorage.LocalCapacity
-                + (pendingPottery > 0 ? " (" + pendingPottery + " pending)" : string.Empty)
+                + "\nInput Storage: " + InputStorageUsed + "/" + StrategyProductionStorage.ProcessingInputCapacity
+                + (reservedInputClay + reservedInputCoal > 0 ? " (" + (reservedInputClay + reservedInputCoal) + " incoming)" : string.Empty)
                 + "\nClay: " + clayStored
                 + "\nCoal: " + coalStored
+                + "\nOutput Storage: " + OutputStorageUsed + "/" + StrategyProductionStorage.ProcessingOutputCapacity
+                + (pendingPottery > 0 ? " (" + pendingPottery + " pending)" : string.Empty)
                 + "\nPottery: " + potteryStored
                 + (reservedPottery > 0 ? " (" + reservedPottery + " reserved)" : string.Empty);
         }

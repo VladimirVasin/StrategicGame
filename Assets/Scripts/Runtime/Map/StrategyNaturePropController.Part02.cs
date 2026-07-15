@@ -147,7 +147,8 @@ namespace ProjectUnknown.Strategy
                         || !map.TryGetCell(cellX, cellY, out CityMapCell cell)
                         || !IsIronAllowedKind(cell.Kind)
                         || !map.IsCellBuildable(cellX, cellY)
-                        || !map.IsCellWalkable(cellX, cellY))
+                        || !map.IsCellWalkable(cellX, cellY)
+                        || HasRouteRoadAt(cellX, cellY))
                     {
                         return false;
                     }

@@ -17,6 +17,7 @@ namespace ProjectUnknown.Strategy
         private int rejectedBridgeSinceStats;
         private int rejectedWalkabilitySinceStats;
         private int rejectedBuildabilitySinceStats;
+        private int rejectedStaticObjectSinceStats;
         private int trailLevelUpsSinceStats;
         private int trailLevelDownsSinceStats;
         private int trailInvalidationsSinceStats;
@@ -54,6 +55,16 @@ namespace ProjectUnknown.Strategy
                 return "not_walkable";
             }
 
+            if (!map.IsCellBuildable(cell))
+            {
+                return "not_buildable";
+            }
+
+            if (StrategyForageResourceController.Active?.HasNodeAt(cell) == true)
+            {
+                return "forage_node";
+            }
+
             return null;
         }
 
@@ -88,6 +99,9 @@ namespace ProjectUnknown.Strategy
                     break;
                 case "not_buildable":
                     rejectedBuildabilitySinceStats++;
+                    break;
+                case "forage_node":
+                    rejectedStaticObjectSinceStats++;
                     break;
             }
 
@@ -195,6 +209,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("rejectedBridge", rejectedBridgeSinceStats),
                 StrategyDebugLogger.F("rejectedWalkability", rejectedWalkabilitySinceStats),
                 StrategyDebugLogger.F("rejectedBuildability", rejectedBuildabilitySinceStats),
+                StrategyDebugLogger.F("rejectedStaticObject", rejectedStaticObjectSinceStats),
                 StrategyDebugLogger.F("levelUps", trailLevelUpsSinceStats),
                 StrategyDebugLogger.F("levelDowns", trailLevelDownsSinceStats),
                 StrategyDebugLogger.F("routeTraversals", routeTraversalsSinceStats),
@@ -277,6 +292,7 @@ namespace ProjectUnknown.Strategy
             rejectedBridgeSinceStats = 0;
             rejectedWalkabilitySinceStats = 0;
             rejectedBuildabilitySinceStats = 0;
+            rejectedStaticObjectSinceStats = 0;
             trailLevelUpsSinceStats = 0;
             trailLevelDownsSinceStats = 0;
             trailInvalidationsSinceStats = 0;

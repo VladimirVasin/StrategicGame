@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace ProjectUnknown.Strategy
@@ -54,6 +55,13 @@ namespace ProjectUnknown.Strategy
 
             StrategyTrailController trails = context.GetOrCreate<StrategyTrailController>("Strategy Trails");
             trails.Configure(map);
+            trails.ReservePendingPersistentTrailCells(
+                StrategySaveSystem.TryGetPendingTrailCells(
+                    map.Width,
+                    map.Height,
+                    out List<int> pendingTrailCells)
+                    ? pendingTrailCells
+                    : null);
             StrategyDebugLogger.Info("Bootstrap", "TrailsReady");
             ConfigureNavigation(context, map);
             StrategyWindController wind = context.GetOrCreate<StrategyWindController>("Strategy Wind");

@@ -14,6 +14,8 @@ namespace ProjectUnknown.Strategy
 
         internal const string ArchivePrefix = "debug-archive-";
         internal const string LivePrefix = "debug-live-";
+        private const string LogDirectoryName = "Logs";
+        private const string CanonicalLogFileName = "debug.log";
         private const int MaximumNameAttempts = 1000;
 
         public static bool ShouldRotate(long activeLength)
@@ -40,7 +42,80 @@ namespace ProjectUnknown.Strategy
         internal static string ResolveArchiveDirectory(string canonicalPath)
         {
             string root = Path.GetDirectoryName(canonicalPath) ?? ".";
-            return Path.Combine(root, "Logs", "StrategyDebug");
+            if (string.Equals(
+                    Path.GetFileName(root.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)),
+                    LogDirectoryName,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return Path.Combine(root, "StrategyDebug");
+            }
+
+            return Path.Combine(root, LogDirectoryName, "StrategyDebug");
+        }
+
+        internal static string ResolveBuildCanonicalPath(
+            string applicationDataPath,
+            string persistentDataPath)
+        {
+            try
+            {
+                string gameDirectory = Directory.GetParent(applicationDataPath)?.FullName;
+                if (!string.IsNullOrWhiteSpace(gameDirectory))
+                {
+                    return Path.Combine(gameDirectory, LogDirectoryName, CanonicalLogFileName);
+                }
+            }
+            catch
+            {
+                // Invalid or unavailable player paths fall back to Unity's writable data directory.
+            }
+
+            return ResolvePersistentCanonicalPath(persistentDataPath);
+        }
+
+        internal static string ResolvePersistentCanonicalPath(string persistentDataPath)
+        {
+            string root = string.IsNullOrWhiteSpace(persistentDataPath) ? "." : persistentDataPath;
+            return Path.Combine(root, CanonicalLogFileName);
+        }
+
+        internal static bool TryOpenSessionWithFallback(
+            string preferredCanonicalPath,
+            string fallbackCanonicalPath,
+            DateTime utcNow,
+            int processId,
+            Encoding encoding,
+            out StreamWriter writer,
+            out string activePath,
+            out string selectedCanonicalPath)
+        {
+            selectedCanonicalPath = preferredCanonicalPath;
+            if (TryOpenSession(
+                    preferredCanonicalPath,
+                    utcNow,
+                    processId,
+                    encoding,
+                    out writer,
+                    out activePath))
+            {
+                return true;
+            }
+
+            if (PathsEqual(preferredCanonicalPath, fallbackCanonicalPath))
+            {
+                writer = null;
+                activePath = string.Empty;
+                return false;
+            }
+
+            selectedCanonicalPath = fallbackCanonicalPath;
+            return TryOpenSession(
+                fallbackCanonicalPath,
+                utcNow,
+                processId,
+                encoding,
+                out writer,
+                out activePath);
         }
 
         internal static bool TryOpenSession(
@@ -283,6 +358,24 @@ namespace ProjectUnknown.Strategy
                 stream?.Dispose();
                 writer = null;
                 return false;
+            }
+        }
+
+        private static bool PathsEqual(string left, string right)
+        {
+            try
+            {
+                StringComparison comparison = Path.DirectorySeparatorChar == '\\'
+                    ? StringComparison.OrdinalIgnoreCase
+                    : StringComparison.Ordinal;
+                return string.Equals(
+                    Path.GetFullPath(left).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar),
+                    Path.GetFullPath(right).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar),
+                    comparison);
+            }
+            catch
+            {
+                return string.Equals(left, right, StringComparison.Ordinal);
             }
         }
 

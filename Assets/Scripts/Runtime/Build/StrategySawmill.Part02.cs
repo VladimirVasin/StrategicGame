@@ -61,7 +61,7 @@ namespace ProjectUnknown.Strategy
             int requested = Mathf.Min(amount, reservedInputLogs);
             int actualCapacity = Mathf.Min(
                 Mathf.Max(0, MaxInputLogs - logsStored),
-                Mathf.Max(0, StrategyProductionStorage.LocalCapacity - logsStored - planksStored - pendingPlanks));
+                Mathf.Max(0, StrategyProductionStorage.ProcessingInputCapacity - InputStorageUsed));
             accepted = Mathf.Min(requested, actualCapacity);
             reservedInputLogs = Mathf.Max(0, reservedInputLogs - requested);
             if (reservedInputLogs <= 0)
@@ -128,7 +128,7 @@ namespace ProjectUnknown.Strategy
         private int GetAvailableInputLogCapacity()
         {
             int logSpace = Mathf.Max(0, MaxInputLogs - logsStored - reservedInputLogs);
-            int storageSpace = Mathf.Max(0, StrategyProductionStorage.LocalCapacity - ReservedStorageUsed);
+            int storageSpace = Mathf.Max(0, StrategyProductionStorage.ProcessingInputCapacity - ReservedInputStorageUsed);
             return Mathf.Min(logSpace, storageSpace);
         }
     }

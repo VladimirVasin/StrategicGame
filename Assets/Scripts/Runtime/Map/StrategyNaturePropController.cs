@@ -165,7 +165,9 @@ namespace ProjectUnknown.Strategy
 
         private void PlaceNatureForCell(CityMapCell cell)
         {
-            if (!map.IsCellWalkable(cell.X, cell.Y) || !map.IsCellBuildable(cell.X, cell.Y))
+            if (!map.IsCellWalkable(cell.X, cell.Y)
+                || !map.IsCellBuildable(cell.X, cell.Y)
+                || HasRouteRoadAt(cell.X, cell.Y))
             {
                 return;
             }
@@ -224,7 +226,7 @@ namespace ProjectUnknown.Strategy
             float maxScale,
             int sortingOrder)
         {
-            if (spawnedProps >= MaxNatureProps)
+            if (spawnedProps >= MaxNatureProps || HasRouteRoadAt(cell.X, cell.Y))
             {
                 return;
             }
@@ -256,6 +258,11 @@ namespace ProjectUnknown.Strategy
             BlockNatureWalkability(kind, cell);
             AddStaticInspectable(prop, renderer, kind, cell);
             spawnedProps++;
+        }
+
+        private static bool HasRouteRoadAt(int x, int y)
+        {
+            return StrategyTrailController.Active?.HasRouteRoadAt(new Vector2Int(x, y)) == true;
         }
 
         private bool TryPlaceStoneForCell(CityMapCell cell)

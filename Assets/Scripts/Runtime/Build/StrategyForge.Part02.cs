@@ -213,7 +213,9 @@ namespace ProjectUnknown.Strategy
             }
 
             int requested = Mathf.Min(amount, reservedAmount);
-            int capacity = Mathf.Min(Mathf.Max(0, maxStored - stored), Mathf.Max(0, StrategyProductionStorage.LocalCapacity - StorageUsed - pendingTools));
+            int capacity = Mathf.Min(
+                Mathf.Max(0, maxStored - stored),
+                Mathf.Max(0, StrategyProductionStorage.ProcessingInputCapacity - InputStorageUsed));
             accepted = Mathf.Min(requested, capacity);
             reservedAmount = Mathf.Max(0, reservedAmount - requested);
             if (reservedAmount <= 0)
@@ -286,17 +288,23 @@ namespace ProjectUnknown.Strategy
 
         private int GetAvailableInputIronCapacity()
         {
-            return Mathf.Min(Mathf.Max(0, MaxInputIron - ironStored - reservedInputIron), Mathf.Max(0, StrategyProductionStorage.LocalCapacity - ReservedStorageUsed));
+            return Mathf.Min(
+                Mathf.Max(0, MaxInputIron - ironStored - reservedInputIron),
+                Mathf.Max(0, StrategyProductionStorage.ProcessingInputCapacity - ReservedInputStorageUsed));
         }
 
         private int GetAvailableInputCoalCapacity()
         {
-            return Mathf.Min(Mathf.Max(0, MaxInputCoal - coalStored - reservedInputCoal), Mathf.Max(0, StrategyProductionStorage.LocalCapacity - ReservedStorageUsed));
+            return Mathf.Min(
+                Mathf.Max(0, MaxInputCoal - coalStored - reservedInputCoal),
+                Mathf.Max(0, StrategyProductionStorage.ProcessingInputCapacity - ReservedInputStorageUsed));
         }
 
         private int GetAvailableInputLogsCapacity()
         {
-            return Mathf.Min(Mathf.Max(0, MaxInputLogs - logsStored - reservedInputLogs), Mathf.Max(0, StrategyProductionStorage.LocalCapacity - ReservedStorageUsed));
+            return Mathf.Min(
+                Mathf.Max(0, MaxInputLogs - logsStored - reservedInputLogs),
+                Mathf.Max(0, StrategyProductionStorage.ProcessingInputCapacity - ReservedInputStorageUsed));
         }
     }
 }

@@ -179,7 +179,9 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Runtime road layer records repeated resident movement between two different non-Bridge buildings as stable roads after three completed traversals, trying a direct walkable route line before falling back to smoothed route cells
     - Runtime world chunk registry divides the generated map into 16x16 cell chunks, indexes buildings/construction sites/residents, and exposes camera-near, active-settlement, and dirty-chunk flags for incremental fog/weather visual repaint systems
     - Resident footfalls no longer create functional or visible roads, and automatic route-network convergence is disabled
-    - Road cells stay until invalidated by map walkability or cell validity changes instead of decaying from disuse
+    - Road cells stay until invalidated by map walkability, buildability, static forage occupancy, or cell validity changes instead of decaying from disuse
+    - New roads use cardinal repair to route around trees, bushes, Stone, underground resource fields, POIs, forage nodes, graves, and the reserved starter-campfire cell
+    - Continue reserves validated saved road cells before deterministic nature/forage generation, preventing removed objects or depleted resources from respawning over persistent roads
     - Route road cells render connected procedural sprites using cardinal N/E/S/W right-angle masks, wear levels, and deterministic variants; new branches stop at their first cardinal contact with the existing network, while bounded repair searches penalize square completion and retain an original-route connectivity fallback
     - Route roads own a derived roadside-prop layer that places sparse non-blocking torches/lanterns on eligible straight road segments and refreshes them when roads or adjacent buildability change
     - Formed roads give residents a 15% movement-speed bonus and reduce resident pathfinding cost without becoming required routes
@@ -207,6 +209,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Nature props attach a 2D sway adapter driven by the strategy `WindZone`
       - Nature props add lightweight procedural leaf frame overlays
       - Forest groups, bushes, generated trees, and Stone deposits attach tuned procedural ground/cast shadows
+      - Every single-cell prop and every multi-cell resource footprint rejects raw route-road cells before spawning
     - Stone resources MVP
       - Tracks generated Stone deposits in a runtime registry
       - Supports Boulder, Rock Cluster, and Cliff deposit kinds
@@ -236,6 +239,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Tree cells are not walkable while the tree exists
       - Chopped trees remain blocked as fallen trunks until Logs are collected
       - Plants saplings that grow through sapling, young tree, and mature tree visual stages
+      - Rejects road cells, underground-resource buildability blockers, and POIs before planting
       - Supplies nearby mature-tree and planting-cell targets to lumberjack camps
       - Mature trees receive chop hits, show cut marks, spawn chip/leaf effects, fall over, remain as buckable trunks, split into Logs, and are removed when Logs are collected
       - Small trees yield 3 Logs, while large/generated mature and planted mature trees yield 6 Logs
@@ -244,6 +248,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Uses macro cluster weighting so forage appears in natural patches instead of filling only the first scanned map area
       - Guarantees a small starter ring of forage resources around the settlement outside the campfire clear radius
       - Forage nodes can be reserved by one resident, disappear after a successful gather, and queue a faster timed replacement spawn near mature standing trees inside active Forager Camp work radii
+      - Initial, starter, support, and respawn paths reject roads and non-buildable resource/POI cells; roads also treat existing forage nodes as occupied
       - Under-supplied Forager Camps periodically get controlled support spawn attempts, while local cell-density and per-camp soft caps prevent excessive clustering
       - Season profiles alter initial forage density, respawn timing, support-spawn pressure, and Berries/Roots/Mushrooms mix; Winter sharply reduces new forage without deleting existing nodes
       - Procedural forage sprites include ready node visuals plus carried basket sprites
@@ -485,22 +490,21 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Storage Yard local Logs, Stone, Iron, Coal, Clay, Planks, Pottery, and Tools stock update their visible stockpiles
   - Sawmill production MVP
     - Sawmill is a placed production building with 1 assigned Sawyer
-    - Sawmill local storage is capped at 6 total resources across Logs, Planks, and pending Planks
-    - Sawmill input Logs are capped at 4 so Planks conversion can always reserve output space
+    - Sawmill keeps an independent 6-unit Logs input pool and 6-unit Planks output pool; incoming Logs reserve only input room and pending Planks reserve only output room
     - Haulers deliver Logs from Storage Yard stock into the Sawmill input buffer
     - Sawyers report to the Sawmill and remain on duty there throughout the workday while waiting for delivered input Logs or output capacity, then saw Logs into `Planks`
     - Sawmill work keeps Sawyers visible inside the building and uses a detailed animated saw/log/plank overlay with short sawdust effects
     - Sawmills store local Logs and Planks and expose Planks to Haulers for hauling
   - Kiln production MVP
     - Kiln is a placed production building with 1 assigned Potter
-    - Kiln local storage is capped at 6 total resources across Clay, Coal, Pottery, pending Pottery, and reservations
+    - Kiln keeps an independent 6-unit input pool shared by up to 4 Clay and 2 Coal plus a 6-unit Pottery output pool; reservations and pending Pottery count only against their matching side
     - Haulers deliver Clay and Coal from Storage Yard stock into the Kiln input buffers
     - Potters report to the Kiln and remain on duty there throughout the workday while waiting for delivered Clay/Coal or output capacity, then fire `2 Clay + 1 Coal` into `1 Pottery`
     - Kiln work keeps Potters visible at the building and uses an animated firing overlay with spark/dust effects
     - Kilns store local Clay, Coal, and Pottery and expose Pottery to Haulers for hauling
   - Forge production MVP
     - Forge is a placed production building with 1 assigned Blacksmith
-    - Forge local storage is capped at 6 total resources across Iron, Coal, Logs, Tools, pending Tools, and reservations
+    - Forge keeps an independent 6-unit input pool shared by up to 2 Iron, 2 Coal, and 2 Logs plus a 6-unit Tools output pool; reservations and pending Tools count only against their matching side
     - Haulers deliver Iron, Coal, and Logs from Storage Yard stock into the Forge input buffers
     - Blacksmiths report to the Forge and remain on duty there throughout the workday while waiting for delivered Iron/Coal/Logs or output capacity, then forge `1 Iron + 1 Coal + 1 Log` into `1 Tools`
     - Forge work keeps Blacksmiths visible at the building and uses an animated forging overlay with spark effects

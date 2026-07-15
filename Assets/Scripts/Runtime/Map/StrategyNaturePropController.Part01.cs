@@ -238,7 +238,9 @@ namespace ProjectUnknown.Strategy
                     if (IsInsideExclusion(cellX, cellY)
                         || !map.TryGetCell(cellX, cellY, out CityMapCell cell)
                         || !IsStoneAllowedKind(cell.Kind)
-                        || !map.IsCellWalkable(cellX, cellY))
+                        || !map.IsCellWalkable(cellX, cellY)
+                        || !map.IsCellBuildable(cellX, cellY)
+                        || HasRouteRoadAt(cellX, cellY))
                     {
                         return false;
                     }

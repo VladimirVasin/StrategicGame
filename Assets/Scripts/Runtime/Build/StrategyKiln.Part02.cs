@@ -165,7 +165,9 @@ namespace ProjectUnknown.Strategy
             }
 
             int requested = Mathf.Min(amount, reservedAmount);
-            int capacity = Mathf.Min(Mathf.Max(0, maxStored - stored), Mathf.Max(0, StrategyProductionStorage.LocalCapacity - StorageUsed - pendingPottery));
+            int capacity = Mathf.Min(
+                Mathf.Max(0, maxStored - stored),
+                Mathf.Max(0, StrategyProductionStorage.ProcessingInputCapacity - InputStorageUsed));
             accepted = Mathf.Min(requested, capacity);
             reservedAmount = Mathf.Max(0, reservedAmount - requested);
             if (reservedAmount <= 0)
@@ -238,12 +240,16 @@ namespace ProjectUnknown.Strategy
 
         private int GetAvailableInputClayCapacity()
         {
-            return Mathf.Min(Mathf.Max(0, MaxInputClay - clayStored - reservedInputClay), Mathf.Max(0, StrategyProductionStorage.LocalCapacity - ReservedStorageUsed));
+            return Mathf.Min(
+                Mathf.Max(0, MaxInputClay - clayStored - reservedInputClay),
+                Mathf.Max(0, StrategyProductionStorage.ProcessingInputCapacity - ReservedInputStorageUsed));
         }
 
         private int GetAvailableInputCoalCapacity()
         {
-            return Mathf.Min(Mathf.Max(0, MaxInputCoal - coalStored - reservedInputCoal), Mathf.Max(0, StrategyProductionStorage.LocalCapacity - ReservedStorageUsed));
+            return Mathf.Min(
+                Mathf.Max(0, MaxInputCoal - coalStored - reservedInputCoal),
+                Mathf.Max(0, StrategyProductionStorage.ProcessingInputCapacity - ReservedInputStorageUsed));
         }
     }
 }

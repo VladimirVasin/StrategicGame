@@ -7,7 +7,7 @@ namespace ProjectUnknown.Strategy
     public sealed partial class StrategySawmill : MonoBehaviour, IStrategyConstructionResourceSource, IStrategyResourceStoreOwner
     {
         public const int MaxWorkers = 1;
-        private const int MaxInputLogs = 4;
+        private const int MaxInputLogs = StrategyProductionStorage.ProcessingInputCapacity;
         private const int LogsPerWorkCycle = 1;
         private const int PlanksPerLog = 2;
 
@@ -36,8 +36,12 @@ namespace ProjectUnknown.Strategy
         public int LogsStored => logsStored;
         public int PlanksStored => planksStored;
         public int AvailablePlanks => Mathf.Max(0, AvailableConstructionPlanks - reservedPlanks);
-        public int StorageUsed => logsStored + planksStored;
-        public int ReservedStorageUsed => logsStored + planksStored + pendingPlanks + reservedInputLogs;
+        public int InputStorageUsed => logsStored;
+        public int ReservedInputStorageUsed => InputStorageUsed + reservedInputLogs;
+        public int OutputStorageUsed => planksStored;
+        public int ReservedOutputStorageUsed => OutputStorageUsed + pendingPlanks;
+        public int StorageUsed => InputStorageUsed + OutputStorageUsed;
+        public int ReservedStorageUsed => ReservedInputStorageUsed + ReservedOutputStorageUsed;
         public int PendingPlanksForDemolition => Mathf.Max(0, pendingPlanks);
         public bool HasInputLogs => logsStored >= LogsPerWorkCycle;
         public Vector2Int Origin => building != null ? building.Origin : Vector2Int.zero;
@@ -49,7 +53,7 @@ namespace ProjectUnknown.Strategy
             StrategyPopulationController populationController)
         {
             building = placedBuilding;
-            resourceStore.Bind(this, StrategyResourceStoreScope.Production, StrategyProductionStorage.LocalCapacity);
+            resourceStore.Bind(this, StrategyResourceStoreScope.Production, StrategyProductionStorage.ProcessingTotalCapacity);
             map = mapController;
             population = populationController;
             EnsureStockRenderers();
@@ -258,7 +262,7 @@ namespace ProjectUnknown.Strategy
 
             logsStored = StrategyProductionStorage.AddCapped(
                 logsStored,
-                ReservedStorageUsed,
+                ReservedInputStorageUsed,
                 acceptedInputLogs,
                 out int accepted);
             if (accepted <= 0)
@@ -280,7 +284,7 @@ namespace ProjectUnknown.Strategy
             pendingPlanks = Mathf.Max(0, pendingPlanks - amount);
             planksStored = StrategyProductionStorage.AddCapped(
                 planksStored,
-                ReservedStorageUsed,
+                ReservedOutputStorageUsed,
                 amount,
                 out int accepted);
             if (accepted <= 0)
@@ -307,7 +311,7 @@ namespace ProjectUnknown.Strategy
         public bool CanStartWorkCycle()
         {
             return logsStored >= LogsPerWorkCycle
-                && ReservedStorageUsed - LogsPerWorkCycle + PlanksPerLog <= StrategyProductionStorage.LocalCapacity;
+                && ReservedOutputStorageUsed + PlanksPerLog <= StrategyProductionStorage.ProcessingOutputCapacity;
         }
 
         public void ReleasePendingPlanks(int amount)
@@ -387,9 +391,11 @@ namespace ProjectUnknown.Strategy
         public string GetHudStatusText()
         {
             return "Sawyers: " + workers.Count + "/" + MaxWorkers
-                + "\nStorage: " + StorageUsed + "/" + StrategyProductionStorage.LocalCapacity
-                + (pendingPlanks > 0 ? " (" + pendingPlanks + " pending)" : string.Empty)
+                + "\nInput Storage: " + InputStorageUsed + "/" + StrategyProductionStorage.ProcessingInputCapacity
+                + (reservedInputLogs > 0 ? " (" + reservedInputLogs + " incoming)" : string.Empty)
                 + "\nLogs: " + logsStored
+                + "\nOutput Storage: " + OutputStorageUsed + "/" + StrategyProductionStorage.ProcessingOutputCapacity
+                + (pendingPlanks > 0 ? " (" + pendingPlanks + " pending)" : string.Empty)
                 + "\nPlanks: " + planksStored
                 + (reservedPlanks > 0 ? " (" + reservedPlanks + " reserved)" : string.Empty);
         }
