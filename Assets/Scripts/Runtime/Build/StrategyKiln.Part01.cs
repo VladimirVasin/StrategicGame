@@ -59,6 +59,11 @@ namespace ProjectUnknown.Strategy
             pendingPottery = Mathf.Max(0, pendingPottery - Mathf.Max(0, amount));
         }
 
+        public void ClearPendingPotteryForDemolition()
+        {
+            pendingPottery = 0;
+        }
+
         public void BeginFiring(StrategyResidentAgent worker)
         {
             if (worker != null && !activePotters.Contains(worker))

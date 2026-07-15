@@ -169,7 +169,20 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            StrategyLooseCarriedResourcePile.Create(
+            StrategyLooseCarriedResourcePile pile = null;
+            if (resource == StrategyResourceType.Dish
+                && (carriedPreparedDishAmount > 0 || carriedPreparedDishLeftoverRations > 0f))
+            {
+                pile = StrategyLooseCarriedResourcePile.CreatePreparedDishes(
+                    map,
+                    cell,
+                    transform.position,
+                    carriedPreparedDishRecipeId,
+                    carriedPreparedDishAmount,
+                    carriedPreparedDishLeftoverRations);
+            }
+
+            pile ??= StrategyLooseCarriedResourcePile.Create(
                 map,
                 cell,
                 transform.position,
@@ -182,6 +195,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("origin", cell),
                 StrategyDebugLogger.F("resource", resource),
                 StrategyDebugLogger.F("amount", amount),
+                StrategyDebugLogger.F("exactPreparedDish", pile != null && pile.HasPreparedDishPayload),
                 StrategyDebugLogger.F("reservation", "cleared"));
         }
     }

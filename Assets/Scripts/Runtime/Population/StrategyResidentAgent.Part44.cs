@@ -322,9 +322,16 @@ namespace ProjectUnknown.Strategy
 
         private bool TryStartStorageClayPickup()
         {
-            if (storageWorkplace == null || !storageWorkplace.TryReserveClaySource(this, out StrategyClayPit source))
+            if (storageWorkplace == null)
             {
                 return false;
+            }
+
+            if (!storageWorkplace.TryReserveClaySource(this, out StrategyClayPit source))
+            {
+                return TryStartLooseStorageResourcePickup(
+                    StrategyResourceType.Clay,
+                    ResidentActivity.MovingToStorageClayPickup);
             }
 
             if (!TryBuildPathToBuildingAccess(source, out Vector2Int pickupCell))
@@ -352,7 +359,7 @@ namespace ProjectUnknown.Strategy
             hasTarget = false;
             path.Clear();
             pathIndex = 0;
-            if (activeClaySource == null || storageWorkplace == null)
+            if (!HasStoragePickupSource(activeClaySource, StrategyResourceType.Clay) || storageWorkplace == null)
             {
                 ResetStorageWorkToIdle();
                 return;
@@ -360,7 +367,7 @@ namespace ProjectUnknown.Strategy
 
             activity = ResidentActivity.PickingUpStorageClay;
             lumberWorkTimer = Random.Range(LogisticsPickupSecondsMin, LogisticsPickupSecondsMax);
-            FaceWorldPoint(activeClaySource.FootprintBounds.center);
+            FaceWorldPoint(GetStoragePickupSourceBounds(activeClaySource).center);
         }
 
         private void UpdatePickingUpStorageClay()
@@ -372,10 +379,10 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            if (activeClaySource == null
+            if (!HasStoragePickupSource(activeClaySource, StrategyResourceType.Clay)
                 || storageWorkplace == null
                 || !TryBuildPathToBuildingAccess(storageWorkplace, out Vector2Int dropoffCell)
-                || !activeClaySource.TryTakeReservedClay(this, out carriedClayAmount))
+                || !TryTakeStorageClaySource(out carriedClayAmount, out _))
             {
                 activeClaySource?.ReleaseStoredClayReservation(this);
                 ResetStorageWorkToIdle();

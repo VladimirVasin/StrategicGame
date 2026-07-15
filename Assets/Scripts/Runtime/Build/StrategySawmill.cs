@@ -38,6 +38,7 @@ namespace ProjectUnknown.Strategy
         public int AvailablePlanks => Mathf.Max(0, AvailableConstructionPlanks - reservedPlanks);
         public int StorageUsed => logsStored + planksStored;
         public int ReservedStorageUsed => logsStored + planksStored + pendingPlanks + reservedInputLogs;
+        public int PendingPlanksForDemolition => Mathf.Max(0, pendingPlanks);
         public bool HasInputLogs => logsStored >= LogsPerWorkCycle;
         public Vector2Int Origin => building != null ? building.Origin : Vector2Int.zero;
         public Bounds FootprintBounds => building != null ? building.FootprintBounds : new Bounds(transform.position, Vector3.one);
@@ -312,6 +313,11 @@ namespace ProjectUnknown.Strategy
         public void ReleasePendingPlanks(int amount)
         {
             pendingPlanks = Mathf.Max(0, pendingPlanks - Mathf.Max(0, amount));
+        }
+
+        public void ClearPendingPlanksForDemolition()
+        {
+            pendingPlanks = 0;
         }
 
         public bool TryReserveStoredPlanks(object owner, out int amount)

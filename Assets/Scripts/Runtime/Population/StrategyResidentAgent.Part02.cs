@@ -360,7 +360,7 @@ namespace ProjectUnknown.Strategy
 
             CancelChildPlay(true);
             CancelForageWork(false);
-            CancelHouseholdFoodWork(false);
+            CancelHouseholdFoodWork(removedHome != null, removedHome != null ? "home_demolished" : "home_cleared");
             home = null;
             activeGarden = null;
             gardenWorkTimer = 0f;

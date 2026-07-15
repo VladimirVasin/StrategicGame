@@ -6,7 +6,7 @@ namespace ProjectUnknown.Strategy
     [Serializable]
     public sealed class StrategySaveData
     {
-        public const int CurrentVersion = 4;
+        public const int CurrentVersion = 5;
 
         public int version = CurrentVersion;
         public long savedUtcTicks;
@@ -129,6 +129,10 @@ namespace ProjectUnknown.Strategy
         public int logs;
         public int stone;
         public int planks;
+        public bool preparedDishPile;
+        public string preparedDishRecipeId = string.Empty;
+        public int preparedDishAmount;
+        public float preparedDishLeftoverRations;
     }
 
     [Serializable]

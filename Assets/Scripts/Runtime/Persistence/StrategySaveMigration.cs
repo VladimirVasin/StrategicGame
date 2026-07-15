@@ -31,6 +31,9 @@ namespace ProjectUnknown.Strategy
                     case 3:
                         MigrateVersion3To4(data);
                         break;
+                    case 4:
+                        MigrateVersion4To5(data);
+                        break;
                     default:
                         reason = "missing_migration_from_version_" + data.version;
                         return false;
@@ -58,6 +61,12 @@ namespace ProjectUnknown.Strategy
         {
             data.pointsOfInterest ??= new List<StrategyPointOfInterestSaveData>();
             data.version = 4;
+        }
+
+        private static void MigrateVersion4To5(StrategySaveData data)
+        {
+            data.looseResources ??= new List<StrategyLooseResourceSaveData>();
+            data.version = 5;
         }
 
         private static void NormalizeCollections(StrategySaveData data)
@@ -101,6 +110,15 @@ namespace ProjectUnknown.Strategy
                 if (resident != null)
                 {
                     resident.childIds ??= new List<int>();
+                }
+            }
+
+            for (int i = 0; i < data.looseResources.Count; i++)
+            {
+                StrategyLooseResourceSaveData resource = data.looseResources[i];
+                if (resource != null)
+                {
+                    resource.preparedDishRecipeId ??= string.Empty;
                 }
             }
         }

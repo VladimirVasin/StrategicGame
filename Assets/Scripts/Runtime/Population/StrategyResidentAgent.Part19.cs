@@ -352,9 +352,16 @@ namespace ProjectUnknown.Strategy
 
         private bool TryStartStorageIronPickup()
         {
-            if (storageWorkplace == null || !storageWorkplace.TryReserveIronSource(this, out StrategyMine source))
+            if (storageWorkplace == null)
             {
                 return false;
+            }
+
+            if (!storageWorkplace.TryReserveIronSource(this, out StrategyMine source))
+            {
+                return TryStartLooseStorageResourcePickup(
+                    StrategyResourceType.Iron,
+                    ResidentActivity.MovingToStorageIronPickup);
             }
 
             if (!TryBuildPathToBuildingAccess(source, out Vector2Int pickupCell))
@@ -397,7 +404,7 @@ namespace ProjectUnknown.Strategy
             hasTarget = false;
             path.Clear();
             pathIndex = 0;
-            if (activeIronSource == null || storageWorkplace == null)
+            if (!HasStoragePickupSource(activeIronSource, StrategyResourceType.Iron) || storageWorkplace == null)
             {
                 ResetStorageWorkToIdle();
                 return;
@@ -405,7 +412,7 @@ namespace ProjectUnknown.Strategy
 
             activity = ResidentActivity.PickingUpStorageIron;
             lumberWorkTimer = Random.Range(LogisticsPickupSecondsMin, LogisticsPickupSecondsMax);
-            FaceWorldPoint(activeIronSource.FootprintBounds.center);
+            FaceWorldPoint(GetStoragePickupSourceBounds(activeIronSource).center);
         }
 
         private void UpdatePickingUpStorageIron()
@@ -417,10 +424,10 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            if (activeIronSource == null
+            if (!HasStoragePickupSource(activeIronSource, StrategyResourceType.Iron)
                 || storageWorkplace == null
                 || !TryBuildPathToBuildingAccess(storageWorkplace, out Vector2Int dropoffCell)
-                || !activeIronSource.TryTakeReservedIron(this, out carriedIronAmount))
+                || !TryTakeStorageIronSource(out carriedIronAmount, out Vector2Int sourceOrigin))
             {
                 activeIronSource?.ReleaseStoredIronReservation(this);
                 StrategyDebugLogger.Warn(
@@ -432,7 +439,6 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            Vector2Int sourceOrigin = activeIronSource.Origin;
             activeIronSource = null;
             activity = ResidentActivity.CarryingIronToStorage;
             hasTarget = true;

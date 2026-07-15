@@ -4,23 +4,29 @@ using UnityEngine;
 namespace ProjectUnknown.Strategy
 {
     [DisallowMultipleComponent]
-    public sealed class StrategyLooseCarriedResourcePile : MonoBehaviour, IStrategyWorldInspectable
+    public sealed partial class StrategyLooseCarriedResourcePile : MonoBehaviour,
+        IStrategyWorldInspectable,
+        IStrategyResourceStoreOwner,
+        IStrategyResourceReservationProvider
     {
         private static Transform root;
 
         private CityMapController map;
+        private readonly StrategyResourceStore resourceStore = new();
         private SpriteRenderer spriteRenderer;
         private Vector2Int origin;
         private Bounds footprintBounds;
         private StrategyResourceType resource;
         private object reservedBy;
-        private int amount;
+        private int reservedAmount;
+        private ref int amount => ref resourceStore.GetAmountRef(resource);
 
         public StrategyResourceType Resource => resource;
         public int Amount => amount;
         public Vector2Int Origin => origin;
         public Bounds FootprintBounds => footprintBounds;
         public bool IsReserved => reservedBy != null;
+        public StrategyResourceStore ResourceStore => resourceStore;
 
         public bool TryGetWorldInspectInfo(out StrategyWorldInspectInfo info)
         {
@@ -86,7 +92,7 @@ namespace ProjectUnknown.Strategy
                     continue;
                 }
 
-                if (!candidate.TryReserve(worker))
+                if (!candidate.TryReserve(worker, StrategyProductionStorage.HaulerCarryLimit))
                 {
                     continue;
                 }
@@ -138,7 +144,7 @@ namespace ProjectUnknown.Strategy
                     continue;
                 }
 
-                if (!candidate.TryReserve(resident))
+                if (!candidate.TryReserve(resident, StrategyProductionStorage.HaulerCarryLimit))
                 {
                     continue;
                 }
@@ -160,7 +166,12 @@ namespace ProjectUnknown.Strategy
 
         public bool TryReserve(object owner)
         {
-            if (owner == null || amount <= 0)
+            return TryReserve(owner, amount);
+        }
+
+        public bool TryReserve(object owner, int maxAmount)
+        {
+            if (owner == null || amount <= 0 || maxAmount <= 0)
             {
                 return false;
             }
@@ -171,8 +182,9 @@ namespace ProjectUnknown.Strategy
             }
 
             reservedBy = owner;
+            reservedAmount = Mathf.Min(amount, maxAmount);
             UpdateVisual();
-            return true;
+            return reservedAmount > 0;
         }
 
         public bool IsReservedBy(object owner)
@@ -185,32 +197,22 @@ namespace ProjectUnknown.Strategy
             if (owner != null && reservedBy == owner)
             {
                 reservedBy = null;
+                reservedAmount = 0;
                 UpdateVisual();
             }
         }
 
         public bool TryTakeReserved(object owner, out StrategyResourceType takenResource, out int takenAmount)
         {
-            takenResource = StrategyResourceType.None;
-            takenAmount = 0;
-            if (owner == null || reservedBy != owner || amount <= 0)
-            {
-                return false;
-            }
+            bool taken = TryTakeReserved(owner, out StrategyLooseResourcePickup pickup);
+            takenResource = pickup.Resource;
+            takenAmount = pickup.Amount;
+            return taken;
+        }
 
-            takenResource = resource;
-            takenAmount = amount;
-            amount = 0;
-            reservedBy = null;
-            StrategyDebugLogger.Info(
-                "Logistics",
-                "LooseCarriedResourceTaken",
-                StrategyDebugLogger.F("origin", origin),
-                StrategyDebugLogger.F("resource", takenResource),
-                StrategyDebugLogger.F("amount", takenAmount),
-                StrategyDebugLogger.F("owner", owner));
-            Destroy(gameObject);
-            return takenAmount > 0;
+        public int GetReservedResourceAmount(StrategyResourceType requestedResource)
+        {
+            return requestedResource == resource ? Mathf.Max(0, reservedAmount) : 0;
         }
 
         public bool TryFindPickupCell(out Vector2Int cell)
@@ -256,6 +258,7 @@ namespace ProjectUnknown.Strategy
             map = mapController;
             origin = pileOrigin;
             resource = pileResource;
+            resourceStore.Bind(this, StrategyResourceStoreScope.Loose);
             amount = Mathf.Max(1, pileAmount);
             footprintBounds = map != null && map.TryGetCell(origin.x, origin.y, out _)
                 ? map.GetCellRectWorld(origin, Vector2Int.one)

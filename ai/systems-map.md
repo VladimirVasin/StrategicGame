@@ -848,7 +848,7 @@ Responsibilities:
 - Expose only persistently discovered, uninvestigated landmarks to Scout reservation; reject conflicts across multiple Scouts and cool down unreachable targets.
 - Mark investigation completion atomically and retain the marker in an investigated check state.
 - Queue a one-action `OK` debug encounter, hold one simulation pause lock across queued notices, block all input, swallow cancel, and defer behind existing modal pause owners.
-- Capture and restore stable point IDs, cells, and investigated state through save version 4.
+- Capture and restore stable point IDs, cells, and investigated state through save version 5.
 
 Primary files/assets:
 
@@ -1612,12 +1612,14 @@ Responsibilities:
 - Completed construction emits a placed-building completion event used by starter goals and future onboarding/progression systems.
 - Completed construction releases temporary construction-site map blockers before applying final building blockers.
 - Confirmed construction cancellation releases temporary map state and drops delivered/carried Logs/Stone/Planks as loose construction resource piles.
-- Confirmed building demolition releases final occupied/walkability cells; Bridge demolition also removes river-span walkability and House demolition detaches residents.
+- Confirmed building demolition retires the building from new runtime targeting immediately, flushes teardown at end of frame (or before save capture), releases final map blockers, and detaches House residents; Bridge demolition also removes river-span walkability.
+- Capture every distinct physical building store plus pending Sawmill/Kiln/Forge output and exact House prepared-dish stacks/leftovers before clearing the building, then create haulable loose piles over its former footprint.
 - Seed placed-building records used by later visual upgrades.
 
 Primary files/assets:
 
 - `Assets/Scripts/Runtime/Build/StrategyBuildPlacementController.cs`
+- `Assets/Scripts/Runtime/Build/StrategyBuildPlacementController.Demolition.cs`
 - `Assets/Scripts/Runtime/Build/StrategyBuildPlacementController.Events.cs`
 - `Assets/Scripts/Runtime/Build/StrategyBuildPlacementController.Part02.cs`
 - `Assets/Scripts/Runtime/Build/StrategyBuildPlacementController.Part03.cs`
@@ -2586,9 +2588,10 @@ Impact hints:
 
 Responsibilities:
 
-- Own physical resource amounts and reservations across settlement storage, production, houses, the starter cart, and loose construction piles.
+- Own physical resource amounts and reservations across settlement storage, production, houses, the starter cart, loose construction piles, and loose carried-resource piles.
 - Aggregate resource availability for HUD, construction affordability, logistics, and seasonal readiness without counting carried stock.
 - Adapt existing source-specific reserve/commit/release behavior to the common query contract.
+- Preserve exact prepared-dish recipe/count/leftover payloads while loose and restore them when a Householder delivers the pile.
 
 Primary files:
 
@@ -2596,7 +2599,13 @@ Primary files:
 - `Assets/Scripts/Runtime/Economy/StrategyResourceQueryService.cs`
 - `Assets/Scripts/Runtime/Economy/StrategyResourceReservationProviders.cs`
 - `Assets/Scripts/Runtime/Economy/StrategyHouseResourceStore.cs`
+- `Assets/Scripts/Runtime/Economy/StrategyHouseResourceStore.Dishes.cs`
+- `Assets/Scripts/Runtime/Economy/StrategyLooseCarriedResourcePile.cs`
+- `Assets/Scripts/Runtime/Economy/StrategyLooseCarriedResourcePile.Logistics.cs`
+- `Assets/Scripts/Runtime/Economy/StrategyLooseCarriedResourcePile.PreparedDishes.cs`
 - `Assets/Scripts/Runtime/Build/StrategyProductionConstructionResources.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.LooseStoragePickup.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.LoosePreparedDish.cs`
 
 Impact hints:
 
@@ -2632,9 +2641,10 @@ Impact hints:
 Responsibilities:
 
 - Capture and restore versioned runtime settlement snapshots with stable IDs and no raw Unity object references.
+- Materialize resident-carried stock into the save snapshot as loose resources at each resident's current cell because active tasks and carried state are intentionally rebuilt rather than serialized.
 - Write saves atomically and coordinate restoration only after runtime bootstrap has created all required systems.
 - Preserve F5 save and F8 load/restart controls while exposing read/validate/pending-load entry points to the intro menu Continue flow.
-- Preserve the founding profile, stable answer pairs, exact camp cell, current starter-cart origin, and stable point-of-interest state across save version 4.
+- Preserve the founding profile, stable answer pairs, exact camp cell, current starter-cart origin, stable point-of-interest state, and exact loose prepared-dish payloads across save version 5.
 
 Primary files:
 
@@ -2643,6 +2653,7 @@ Primary files:
 - `Assets/Scripts/Runtime/Persistence/StrategySaveMigration.cs`
 - `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Files.cs`
 - `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Validation.cs`
+- `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Validation.LooseResources.cs`
 - `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Capture.cs`
 - `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Apply.cs`
 - `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Founding.cs`
@@ -2651,14 +2662,16 @@ Primary files:
 - `Assets/Scripts/Runtime/Build/StrategyBuildPlacementController.Persistence.cs`
 - `Assets/Scripts/Runtime/Build/StrategyConstructionSite.Persistence.cs`
 - `Assets/Scripts/Runtime/Population/StrategyPopulationController.Persistence.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.PersistenceResources.cs`
 - `Assets/Scripts/Runtime/Map/StrategyFogOfWarController.Persistence.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.Persistence.cs`
 - `Assets/Scripts/Runtime/Map/StrategyPointOfInterestController.Persistence.cs`
 - `Assets/Tests/EditMode/StrategySaveSystemTests.cs`
+- `Assets/Tests/EditMode/StrategySaveLooseResourceTests.cs`
 
 Impact hints:
 
-- Current persistence is version 4 with v1/v2/v3 migration. Increment the version and add an explicit migration whenever persisted DTO shape changes; validate migrated data before applying it.
+- Current persistence is version 5 with v1/v2/v3/v4 migration. Increment the version and add an explicit migration whenever persisted DTO shape changes; validate migrated data before applying it.
 - Keep primary/temp/backup replacement and backup recovery in the file seam so interrupted writes do not destroy the last valid save.
 - Reject save files above 32 MiB before reading and keep top-level plus resident-child/prepared-dish/point-of-interest collection limits in validation.
 - Stable IDs are serialization contracts; never replace them with scene-instance IDs or object references.

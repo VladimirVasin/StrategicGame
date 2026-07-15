@@ -52,6 +52,7 @@ namespace ProjectUnknown.Strategy
         public int AvailableTools => Mathf.Max(0, toolsStored - reservedTools);
         public int StorageUsed => ironStored + coalStored + logsStored + toolsStored;
         public int ReservedStorageUsed => StorageUsed + pendingTools + reservedInputIron + reservedInputCoal + reservedInputLogs;
+        public int PendingToolsForDemolition => Mathf.Max(0, pendingTools);
         public bool HasInputMaterials => ironStored >= IronPerWorkCycle
             && coalStored >= CoalPerWorkCycle
             && logsStored >= LogsPerWorkCycle;

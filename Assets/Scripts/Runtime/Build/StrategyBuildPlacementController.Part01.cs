@@ -151,41 +151,7 @@ namespace ProjectUnknown.Strategy
 
         public bool DemolishBuilding(StrategyPlacedBuilding building)
         {
-            if (building == null || map == null)
-            {
-                return false;
-            }
-
-            StrategyBuildTool tool = building.Tool;
-            Vector2Int origin = building.Origin;
-            if (tool == StrategyBuildTool.House)
-            {
-                population?.UnregisterHouse(building);
-                building.DetachResidentsForDemolition();
-            }
-
-            if (tool == StrategyBuildTool.Bridge && building.BridgeCells.Count > 0)
-            {
-                UnmarkOccupiedCells(building.BridgeCells);
-                map.SetBridgeCellsWalkable(building.BridgeCells, false);
-            }
-            else
-            {
-                GetWalkBlockFootprint(tool, building.Origin, building.Footprint, out Vector2Int blockOrigin, out Vector2Int blockFootprint);
-                UnmarkOccupied(blockOrigin, blockFootprint);
-                map.SetCellsWalkable(blockOrigin, blockFootprint, true);
-            }
-
-            placedBuildings.Remove(building);
-            Destroy(building.gameObject);
-            fog?.RequestRefresh();
-            StrategyDebugLogger.Info(
-                "Build",
-                "BuildingDemolished",
-                StrategyDebugLogger.F("tool", tool),
-                StrategyDebugLogger.F("origin", origin),
-                StrategyDebugLogger.F("placedCount", placedBuildings.Count));
-            return true;
+            return QueueBuildingDemolition(building);
         }
 
         private StrategyConstructionSite PlaceConstructionSite(StrategyBuildToolInfo toolInfo, Vector2Int origin)

@@ -317,7 +317,7 @@ namespace ProjectUnknown.Strategy
             {
                 StrategyResourceType.Game => carriedGameAmount,
                 StrategyResourceType.Fish => carriedFishAmount,
-                StrategyResourceType.Berries or StrategyResourceType.Roots or StrategyResourceType.Mushrooms or StrategyResourceType.Eggs => carriedForageAmount,
+                _ when StrategyFoodNutrition.IsFood(carriedHouseholdFoodResource) => carriedForageAmount,
                 _ => 0
             };
         }
@@ -332,13 +332,14 @@ namespace ProjectUnknown.Strategy
             {
                 carriedFishAmount = 0;
             }
-            else if (IsForageFood(carriedHouseholdFoodResource))
+            else if (StrategyFoodNutrition.IsFood(carriedHouseholdFoodResource))
             {
                 carriedForageAmount = 0;
                 carriedForageResource = StrategyResourceType.None;
             }
 
             carriedHouseholdFoodResource = StrategyResourceType.None;
+            ClearCarriedPreparedDishPayload();
         }
 
         private void SetCarriedHouseholdFoodVisible(bool visible)
@@ -354,7 +355,7 @@ namespace ProjectUnknown.Strategy
                 SetCarriedGameVisible(false);
                 SetCarriedForageVisible(false);
             }
-            else if (IsForageFood(carriedHouseholdFoodResource))
+            else if (StrategyFoodNutrition.IsFood(carriedHouseholdFoodResource))
             {
                 SetCarriedForageVisible(visible);
                 SetCarriedGameVisible(false);

@@ -9,9 +9,16 @@ namespace ProjectUnknown.Strategy
 
         private bool TryStartStorageToolsPickup()
         {
-            if (storageWorkplace == null || !storageWorkplace.TryReserveToolsSource(this, out IStrategyProductionLogisticsNode source))
+            if (storageWorkplace == null)
             {
                 return false;
+            }
+
+            if (!storageWorkplace.TryReserveToolsSource(this, out IStrategyProductionLogisticsNode source))
+            {
+                return TryStartLooseStorageResourcePickup(
+                    StrategyResourceType.Tools,
+                    ResidentActivity.MovingToStorageToolsPickup);
             }
 
             if (source is not Component sourceComponent
@@ -47,7 +54,8 @@ namespace ProjectUnknown.Strategy
             hasTarget = false;
             path.Clear();
             pathIndex = 0;
-            if (activeToolsSource == null || storageWorkplace == null)
+            if (!HasStoragePickupSource(activeToolsSource as Component, StrategyResourceType.Tools)
+                || storageWorkplace == null)
             {
                 ResetStorageWorkToIdle();
                 return;
@@ -55,7 +63,7 @@ namespace ProjectUnknown.Strategy
 
             activity = ResidentActivity.PickingUpStorageTools;
             lumberWorkTimer = Random.Range(LogisticsPickupSecondsMin, LogisticsPickupSecondsMax);
-            FaceWorldPoint(activeToolsSource.FootprintBounds.center);
+            FaceWorldPoint(GetStoragePickupSourceBounds(activeToolsSource as Component).center);
         }
 
         private void UpdatePickingUpStorageTools()
@@ -67,10 +75,10 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            if (activeToolsSource == null
+            if (!HasStoragePickupSource(activeToolsSource as Component, StrategyResourceType.Tools)
                 || storageWorkplace == null
                 || !TryBuildPathToBuildingAccess(storageWorkplace, out Vector2Int dropoffCell)
-                || !activeToolsSource.TryTakeReservedOutput(StrategyResourceType.Tools, this, out carriedToolsAmount))
+                || !TryTakeStorageToolsSource(out carriedToolsAmount, out _))
             {
                 activeToolsSource?.ReleaseOutputPickupReservation(StrategyResourceType.Tools, this);
                 ResetStorageWorkToIdle();

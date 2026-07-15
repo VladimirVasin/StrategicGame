@@ -225,10 +225,13 @@ namespace ProjectUnknown.Strategy.EditorTests
         internal static void VerifyResourceStore()
         {
             StrategyResourceStore store = new();
+            StrategyResourceStore secondStore = new();
             object owner = new();
             object reservationOwner = new();
             store.Bind(owner, StrategyResourceStoreScope.Settlement);
+            secondStore.Bind(new object(), StrategyResourceStoreScope.Production);
             Require(store.Add(StrategyResourceType.Logs, 12) == 12, "Resource add failed");
+            Require(secondStore.Add(StrategyResourceType.Logs, 3) == 3, "Second resource add failed");
             Require(store.TryReserve(
                 reservationOwner,
                 StrategyResourceType.Logs,
@@ -237,6 +240,16 @@ namespace ProjectUnknown.Strategy.EditorTests
                 out int reserved) && reserved == 5,
                 "Resource reservation failed");
             Require(store.GetAvailable(StrategyResourceType.Logs) == 7, "Reserved stock remained available");
+            StrategyBuildingResourceManifest demolitionManifest =
+                StrategyBuildingResourceManifest.Capture(new[] { store, secondStore, store });
+            Require(
+                demolitionManifest.GetAmount(StrategyResourceType.Logs) == 15,
+                "Demolition manifest did not preserve reserved or deduplicated stock");
+            demolitionManifest.ClearCapturedStores();
+            Require(store.GetStored(StrategyResourceType.Logs) == 0, "Demolition drain left stock behind");
+            Require(store.GetReserved(StrategyResourceType.Logs) == 0, "Demolition drain left reservations behind");
+            Require(secondStore.GetStored(StrategyResourceType.Logs) == 0, "Demolition drain skipped a store");
+            store.Add(StrategyResourceType.Logs, 12);
             int[] snapshot = store.CaptureAmounts();
             store.RestoreAmounts(snapshot);
             Require(store.GetStored(StrategyResourceType.Logs) == 12, "Resource restore failed");

@@ -182,7 +182,8 @@ namespace ProjectUnknown.Strategy
 
             string body = "Demolish "
                 + GetBuildingTitle(building.Tool)
-                + "?\nThe building will be removed from the settlement.";
+                + "?\nThe building will be removed from the settlement."
+                + "\nStored resources will be left on the ground for hauling.";
             if (building.Tool == StrategyBuildTool.House && building.ResidentCount > 0)
             {
                 body += "\nResidents living here will become homeless.";

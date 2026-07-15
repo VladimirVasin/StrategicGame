@@ -192,7 +192,7 @@ namespace ProjectUnknown.Strategy
                     out int amount,
                     out Vector2Int sourceOrigin)
                 || amount <= 0
-                || !StrategyFoodNutrition.IsIngredientFood(resource))
+                || !StrategyFoodNutrition.IsFood(resource))
             {
                 StrategyDebugLogger.Warn(
                     "Household",
@@ -264,7 +264,7 @@ namespace ProjectUnknown.Strategy
             int amount = GetCarriedHouseholdFoodAmount();
             if (home != null && home.Resources != null && amount > 0)
             {
-                home.Resources.AddResource(resource, amount);
+                StoreCarriedHouseholdFood(home.Resources, resource, amount);
                 StrategyDebugLogger.Info(
                     "Household",
                     "HouseholderFoodDeposited",

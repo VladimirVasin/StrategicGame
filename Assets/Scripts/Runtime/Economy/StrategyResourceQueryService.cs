@@ -62,6 +62,13 @@ namespace ProjectUnknown.Strategy
                     float rationValue = StrategyFoodNutrition.GetRationValue(type);
                     if (rationValue > 0f)
                     {
+                        if (type == StrategyResourceType.Dish
+                            && store.Owner is StrategyLooseCarriedResourcePile exactDishPile
+                            && exactDishPile.HasPreparedDishPayload)
+                        {
+                            continue;
+                        }
+
                         int amount = availableOnly ? store.GetAvailable(type) : store.GetStored(type);
                         total += amount * rationValue;
                     }
@@ -70,6 +77,11 @@ namespace ProjectUnknown.Strategy
                 if (store.Owner is StrategyHouseResourceStore house)
                 {
                     total += house.GetPreparedDishRations();
+                }
+                else if (store.Owner is StrategyLooseCarriedResourcePile loosePile
+                    && loosePile.HasPreparedDishPayload)
+                {
+                    total += loosePile.GetPreparedDishRations(availableOnly);
                 }
             }
 

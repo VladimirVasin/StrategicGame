@@ -1,5 +1,15 @@
 # Work Log
 
+### 2026-07-15 - Building demolition preserves stored resources
+
+- Replaced immediate completed-building deletion with an atomic deferred teardown: the building retires from new targets immediately, same-frame transfers can settle, and accepted demolition is flushed before save capture.
+- Demolition now captures every distinct physical resource store at full stored quantity, including reserved stock, plus pending Sawmill Planks, Kiln Pottery, and Forge Tools; Logs/Stone/Planks become loose construction piles and all other stock becomes loose carried-resource piles over the former footprint.
+- Extended loose-pile logistics so Storage Yard Haulers recover Iron/Coal/Clay/Pottery/Tools, existing construction-pile routes recover Logs/Stone/Planks, and Householders recover every food type into Houses.
+- Preserved exact prepared-dish recipe stacks and leftover rations through demolished-house drops, partial pickup, household delivery/cancellation, resident death, ration queries, and save/load instead of converting them into fallback dishes.
+- Advanced persistence to version 5 with v4 migration and validated exact loose-dish payloads; carried resident stock is represented as loose resources at the resident's saved cell so in-transit demolition loot survives load, and load cleanup zeroes/deactivates old loose stores before deferred destruction to prevent one-frame double counting.
+- Updated demolition confirmation copy, system ownership/architecture memory, and player-facing release notes. Tutorial flow, goals, unlock order, and HUD entry points are unchanged.
+- Verification: technical quality gates and all five C# project builds pass with zero warnings/errors; the focused Unity EditMode run passes 3/3 save/migration/resource-store tests, and Unity PlayMode smoke passes.
+
 ### 2026-07-15 - Schematic points of interest and Scout investigations
 
 - Added 10 deterministic schematic map landmarks on camp-connected walkable/buildable cells, with fixed camp/edge/landmark spacing, construction blocking, forage-node exclusion, and a procedural question-mark/checkmark visual.

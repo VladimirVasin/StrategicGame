@@ -14,6 +14,7 @@ namespace ProjectUnknown.Strategy
         private StrategyForagerCamp activeHouseholdFoodForagerCamp;
         private StrategyChickenCoop activeHouseholdFoodChickenCoop;
         private StrategyStarterCaravanCart activeHouseholdFoodCaravanCart;
+        private StrategyLooseCarriedResourcePile activeHouseholdFoodLoosePile;
 
         private bool TryReserveHouseholdFoodPickupSource(
             Vector3 requesterWorld,
@@ -25,6 +26,14 @@ namespace ProjectUnknown.Strategy
             amount = 0;
             pickupCell = default;
             ReleaseActiveHouseholdFoodReservation();
+
+            if (StrategyLooseCarriedResourcePile.TryReserveNearestHouseholdFood(
+                    requesterWorld, this, out StrategyLooseCarriedResourcePile loosePile,
+                    out resource, out amount, out pickupCell))
+            {
+                activeHouseholdFoodLoosePile = loosePile;
+                return true;
+            }
 
             if (StrategyGranary.TryReserveNearestHouseholdFood(
                     requesterWorld,
@@ -217,7 +226,8 @@ namespace ProjectUnknown.Strategy
                 || activeHouseholdFoodFisherHut != null
                 || activeHouseholdFoodForagerCamp != null
                 || activeHouseholdFoodChickenCoop != null
-                || activeHouseholdFoodCaravanCart != null;
+                || activeHouseholdFoodCaravanCart != null
+                || activeHouseholdFoodLoosePile != null;
         }
 
         private Bounds GetActiveHouseholdFoodSourceBounds()
@@ -247,9 +257,11 @@ namespace ProjectUnknown.Strategy
                 return activeHouseholdFoodCaravanCart.FootprintBounds;
             }
 
-            return activeHouseholdFoodForagerCamp != null
-                ? activeHouseholdFoodForagerCamp.FootprintBounds
-                : new Bounds(transform.position, Vector3.one);
+            return activeHouseholdFoodLoosePile != null
+                ? activeHouseholdFoodLoosePile.FootprintBounds
+                : activeHouseholdFoodForagerCamp != null
+                    ? activeHouseholdFoodForagerCamp.FootprintBounds
+                    : new Bounds(transform.position, Vector3.one);
         }
 
         private Vector2Int GetActiveHouseholdFoodSourceOrigin()
@@ -279,7 +291,9 @@ namespace ProjectUnknown.Strategy
                 return activeHouseholdFoodCaravanCart.Origin;
             }
 
-            return activeHouseholdFoodForagerCamp != null ? activeHouseholdFoodForagerCamp.Origin : Vector2Int.zero;
+            return activeHouseholdFoodLoosePile != null
+                ? activeHouseholdFoodLoosePile.Origin
+                : activeHouseholdFoodForagerCamp != null ? activeHouseholdFoodForagerCamp.Origin : Vector2Int.zero;
         }
 
         private string GetActiveHouseholdFoodSourceKind()
@@ -309,94 +323,9 @@ namespace ProjectUnknown.Strategy
                 return "CaravanCart";
             }
 
-            return activeHouseholdFoodForagerCamp != null ? "ForagerCamp" : "None";
-        }
-
-        private bool TryTakeActiveHouseholdFoodReservation(
-            out StrategyResourceType resource,
-            out int amount,
-            out Vector2Int sourceOrigin)
-        {
-            resource = StrategyResourceType.None;
-            amount = 0;
-            sourceOrigin = GetActiveHouseholdFoodSourceOrigin();
-
-            if (activeHouseholdFoodGranary != null)
-            {
-                bool taken = activeHouseholdFoodGranary.TryTakeReservedHouseholdFood(this, out resource, out amount);
-                if (!taken)
-                {
-                    activeHouseholdFoodGranary.ReleaseHouseholdFoodReservation(this);
-                }
-
-                activeHouseholdFoodGranary = null;
-                return taken;
-            }
-
-            if (activeHouseholdFoodHunterCamp != null)
-            {
-                resource = StrategyResourceType.Game;
-                bool taken = activeHouseholdFoodHunterCamp.TryTakeReservedGame(this, out amount);
-                if (!taken)
-                {
-                    activeHouseholdFoodHunterCamp.ReleaseStoredGameReservation(this);
-                }
-
-                activeHouseholdFoodHunterCamp = null;
-                return taken;
-            }
-
-            if (activeHouseholdFoodFisherHut != null)
-            {
-                resource = StrategyResourceType.Fish;
-                bool taken = activeHouseholdFoodFisherHut.TryTakeReservedFish(this, out amount);
-                if (!taken)
-                {
-                    activeHouseholdFoodFisherHut.ReleaseStoredFishReservation(this);
-                }
-
-                activeHouseholdFoodFisherHut = null;
-                return taken;
-            }
-
-            if (activeHouseholdFoodForagerCamp != null)
-            {
-                bool taken = activeHouseholdFoodForagerCamp.TryTakeReservedForage(this, out resource, out amount);
-                if (!taken)
-                {
-                    activeHouseholdFoodForagerCamp.ReleaseStoredForageReservation(this);
-                }
-
-                activeHouseholdFoodForagerCamp = null;
-                return taken;
-            }
-
-            if (activeHouseholdFoodChickenCoop != null)
-            {
-                resource = StrategyResourceType.Eggs;
-                bool taken = activeHouseholdFoodChickenCoop.TryTakeReservedEggs(this, out amount);
-                if (!taken)
-                {
-                    activeHouseholdFoodChickenCoop.ReleaseStoredEggsReservation(this);
-                }
-
-                activeHouseholdFoodChickenCoop = null;
-                return taken;
-            }
-
-            if (activeHouseholdFoodCaravanCart != null)
-            {
-                bool taken = activeHouseholdFoodCaravanCart.TryTakeReservedHouseholdFood(this, out resource, out amount);
-                if (!taken)
-                {
-                    activeHouseholdFoodCaravanCart.ReleaseHouseholdFoodReservation(this);
-                }
-
-                activeHouseholdFoodCaravanCart = null;
-                return taken;
-            }
-
-            return false;
+            return activeHouseholdFoodLoosePile != null
+                ? "LooseFood"
+                : activeHouseholdFoodForagerCamp != null ? "ForagerCamp" : "None";
         }
 
         private void ApplyCarriedHouseholdFood(StrategyResourceType resource, int amount)
@@ -460,6 +389,12 @@ namespace ProjectUnknown.Strategy
             {
                 activeHouseholdFoodCaravanCart.ReleaseHouseholdFoodReservation(this);
                 activeHouseholdFoodCaravanCart = null;
+            }
+
+            if (activeHouseholdFoodLoosePile != null)
+            {
+                activeHouseholdFoodLoosePile.ReleaseReservation(this);
+                activeHouseholdFoodLoosePile = null;
             }
         }
     }

@@ -9,9 +9,16 @@ namespace ProjectUnknown.Strategy
 
         private bool TryStartStoragePotteryPickup()
         {
-            if (storageWorkplace == null || !storageWorkplace.TryReservePotterySource(this, out IStrategyProductionLogisticsNode source))
+            if (storageWorkplace == null)
             {
                 return false;
+            }
+
+            if (!storageWorkplace.TryReservePotterySource(this, out IStrategyProductionLogisticsNode source))
+            {
+                return TryStartLooseStorageResourcePickup(
+                    StrategyResourceType.Pottery,
+                    ResidentActivity.MovingToStoragePotteryPickup);
             }
 
             if (source is not Component sourceComponent
@@ -47,7 +54,8 @@ namespace ProjectUnknown.Strategy
             hasTarget = false;
             path.Clear();
             pathIndex = 0;
-            if (activePotterySource == null || storageWorkplace == null)
+            if (!HasStoragePickupSource(activePotterySource as Component, StrategyResourceType.Pottery)
+                || storageWorkplace == null)
             {
                 ResetStorageWorkToIdle();
                 return;
@@ -55,7 +63,7 @@ namespace ProjectUnknown.Strategy
 
             activity = ResidentActivity.PickingUpStoragePottery;
             lumberWorkTimer = Random.Range(LogisticsPickupSecondsMin, LogisticsPickupSecondsMax);
-            FaceWorldPoint(activePotterySource.FootprintBounds.center);
+            FaceWorldPoint(GetStoragePickupSourceBounds(activePotterySource as Component).center);
         }
 
         private void UpdatePickingUpStoragePottery()
@@ -67,10 +75,10 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            if (activePotterySource == null
+            if (!HasStoragePickupSource(activePotterySource as Component, StrategyResourceType.Pottery)
                 || storageWorkplace == null
                 || !TryBuildPathToBuildingAccess(storageWorkplace, out Vector2Int dropoffCell)
-                || !activePotterySource.TryTakeReservedOutput(StrategyResourceType.Pottery, this, out carriedPotteryAmount))
+                || !TryTakeStoragePotterySource(out carriedPotteryAmount, out _))
             {
                 activePotterySource?.ReleaseOutputPickupReservation(StrategyResourceType.Pottery, this);
                 ResetStorageWorkToIdle();

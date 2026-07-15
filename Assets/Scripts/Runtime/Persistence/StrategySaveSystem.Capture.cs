@@ -7,6 +7,7 @@ namespace ProjectUnknown.Strategy
     {
         private StrategySaveData CaptureSaveData()
         {
+            placement?.FlushPendingBuildingDemolitions();
             RefreshFoundingStartGeometry();
             StrategySaveData data = new()
             {
@@ -152,6 +153,7 @@ namespace ProjectUnknown.Strategy
                 }
 
                 save.residents.Add(data);
+                resident.CaptureCarriedResourcesForSave(save.looseResources);
             }
         }
 
@@ -186,7 +188,11 @@ namespace ProjectUnknown.Strategy
                         originX = pile.Origin.x,
                         originY = pile.Origin.y,
                         resource = (int)pile.Resource,
-                        amount = pile.Amount
+                        amount = pile.Amount,
+                        preparedDishPile = pile.HasPreparedDishPayload,
+                        preparedDishRecipeId = pile.PreparedDishRecipeId,
+                        preparedDishAmount = pile.PreparedDishAmount,
+                        preparedDishLeftoverRations = pile.PreparedDishLeftoverRations
                     });
                 }
             }

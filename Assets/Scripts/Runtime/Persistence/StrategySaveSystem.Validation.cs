@@ -286,34 +286,6 @@ namespace ProjectUnknown.Strategy
             return true;
         }
 
-        private static bool ValidateLooseResources(StrategySaveData data, out string reason)
-        {
-            for (int i = 0; i < data.looseResources.Count; i++)
-            {
-                StrategyLooseResourceSaveData resource = data.looseResources[i];
-                if (resource == null
-                    || !IsCellInside(resource.originX, resource.originY, data.mapWidth, data.mapHeight))
-                {
-                    reason = "invalid_loose_resource_" + i;
-                    return false;
-                }
-
-                bool validAmounts = resource.constructionPile
-                    ? resource.logs >= 0 && resource.stone >= 0 && resource.planks >= 0
-                    : resource.amount > 0
-                        && Enum.IsDefined(typeof(StrategyResourceType), resource.resource)
-                        && resource.resource != (int)StrategyResourceType.None;
-                if (!validAmounts)
-                {
-                    reason = "invalid_loose_resource_amount_" + i;
-                    return false;
-                }
-            }
-
-            reason = string.Empty;
-            return true;
-        }
-
         private static bool ValidatePointsOfInterest(StrategySaveData data, out string reason)
         {
             HashSet<string> stableIds = new(StringComparer.Ordinal);

@@ -61,6 +61,11 @@ namespace ProjectUnknown.Strategy
             pendingTools = Mathf.Max(0, pendingTools - Mathf.Max(0, amount));
         }
 
+        public void ClearPendingToolsForDemolition()
+        {
+            pendingTools = 0;
+        }
+
         public void BeginForging(StrategyResidentAgent worker)
         {
             if (worker != null && !activeBlacksmiths.Contains(worker))

@@ -1,6 +1,6 @@
 # Release Notes
 
-Last updated: 2026-07-13
+Last updated: 2026-07-15
 
 ## Unreleased
 
@@ -8,6 +8,7 @@ Last updated: 2026-07-13
 - Four founding choices guide the settlement toward preferred water, landscape, first livelihood, and construction/resource conditions while preserving safe playable starts.
 - The chosen camp and Caravan Cart location now persist with the save; Continue remains direct and does not replay the founding story.
 - Back/Skip, balanced defaults, preparation progress, and a reduced-motion option are available throughout the journey.
+- Demolishing a completed building now leaves its stored resources and unfinished workshop output on the ground for recovery; demolished-house prepared meals retain their recipe and ration value.
 
 ## Maintenance Rule
 

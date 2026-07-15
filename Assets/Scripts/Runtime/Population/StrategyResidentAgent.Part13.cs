@@ -405,7 +405,7 @@ namespace ProjectUnknown.Strategy
                 && home != null
                 && home.Resources != null)
             {
-                home.Resources.AddResource(carriedHouseholdFoodResource, carriedAmount);
+                StoreCarriedHouseholdFood(home.Resources, carriedHouseholdFoodResource, carriedAmount);
                 StrategyDebugLogger.Info(
                     "Household",
                     "HouseholderFoodStoredOnCancel",

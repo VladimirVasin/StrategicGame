@@ -6,9 +6,16 @@ namespace ProjectUnknown.Strategy
     {
         private bool TryStartStorageCoalPickup()
         {
-            if (storageWorkplace == null || !storageWorkplace.TryReserveCoalSource(this, out StrategyCoalPit source))
+            if (storageWorkplace == null)
             {
                 return false;
+            }
+
+            if (!storageWorkplace.TryReserveCoalSource(this, out StrategyCoalPit source))
+            {
+                return TryStartLooseStorageResourcePickup(
+                    StrategyResourceType.Coal,
+                    ResidentActivity.MovingToStorageCoalPickup);
             }
 
             if (!TryBuildPathToBuildingAccess(source, out Vector2Int pickupCell))
@@ -43,7 +50,7 @@ namespace ProjectUnknown.Strategy
             hasTarget = false;
             path.Clear();
             pathIndex = 0;
-            if (activeCoalSource == null || storageWorkplace == null)
+            if (!HasStoragePickupSource(activeCoalSource, StrategyResourceType.Coal) || storageWorkplace == null)
             {
                 ResetStorageWorkToIdle();
                 return;
@@ -51,7 +58,7 @@ namespace ProjectUnknown.Strategy
 
             activity = ResidentActivity.PickingUpStorageCoal;
             lumberWorkTimer = Random.Range(LogisticsPickupSecondsMin, LogisticsPickupSecondsMax);
-            FaceWorldPoint(activeCoalSource.FootprintBounds.center);
+            FaceWorldPoint(GetStoragePickupSourceBounds(activeCoalSource).center);
         }
 
         private void UpdatePickingUpStorageCoal()
@@ -63,10 +70,10 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            if (activeCoalSource == null
+            if (!HasStoragePickupSource(activeCoalSource, StrategyResourceType.Coal)
                 || storageWorkplace == null
                 || !TryBuildPathToBuildingAccess(storageWorkplace, out Vector2Int dropoffCell)
-                || !activeCoalSource.TryTakeReservedCoal(this, out carriedCoalAmount))
+                || !TryTakeStorageCoalSource(out carriedCoalAmount, out _))
             {
                 activeCoalSource?.ReleaseStoredCoalReservation(this);
                 ResetStorageWorkToIdle();
@@ -284,6 +291,7 @@ namespace ProjectUnknown.Strategy
             activeLooseLogSource?.ReleaseStorageReservation(this);
             activeLooseStoneSource?.ReleaseStorageReservation(this);
             activeLoosePlanksSource?.ReleaseStorageReservation(this);
+            activeLooseStorageResourceSource?.ReleaseReservation(this);
         }
 
         private void ClearActiveStorageSources()
@@ -300,6 +308,7 @@ namespace ProjectUnknown.Strategy
             activeLooseLogSource = null;
             activeLooseStoneSource = null;
             activeLoosePlanksSource = null;
+            activeLooseStorageResourceSource = null;
         }
 
         private void SetCarriedCoalVisible(bool visible)

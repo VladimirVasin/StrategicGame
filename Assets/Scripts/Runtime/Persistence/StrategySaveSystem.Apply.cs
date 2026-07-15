@@ -92,6 +92,8 @@ namespace ProjectUnknown.Strategy
             {
                 if (constructionPiles[i] != null)
                 {
+                    constructionPiles[i].ResourceStore.RestoreAmounts(null);
+                    constructionPiles[i].gameObject.SetActive(false);
                     Destroy(constructionPiles[i].gameObject);
                 }
             }
@@ -101,6 +103,8 @@ namespace ProjectUnknown.Strategy
             {
                 if (resourcePiles[i] != null)
                 {
+                    resourcePiles[i].ResourceStore.RestoreAmounts(null);
+                    resourcePiles[i].gameObject.SetActive(false);
                     Destroy(resourcePiles[i].gameObject);
                 }
             }
@@ -127,6 +131,16 @@ namespace ProjectUnknown.Strategy
                         saved.logs,
                         saved.stone,
                         saved.planks);
+                }
+                else if (saved.preparedDishPile)
+                {
+                    StrategyLooseCarriedResourcePile.CreatePreparedDishes(
+                        map,
+                        origin,
+                        world,
+                        saved.preparedDishRecipeId,
+                        saved.preparedDishAmount,
+                        saved.preparedDishLeftoverRations);
                 }
                 else
                 {

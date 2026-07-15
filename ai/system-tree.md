@@ -390,7 +390,9 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Cancelled construction drops delivered/carried Logs, Stone, and Planks as loose construction resource piles at the former site
     - Loose construction resource piles count toward build affordability and can be picked up by builders or hauled back to Storage Yards
     - Selected completed buildings can be demolished with `Delete` after confirmation
+    - Confirmed demolition immediately retires the building from runtime targeting, then performs one end-of-frame teardown so same-frame transfers settle before inventory is captured
     - Demolished buildings release occupied cells and walkability blockers; demolished Bridges also remove river-span walkability
+    - Demolition preserves every physical store amount, including reserved stock, plus pending Sawmill/Kiln/Forge output and exact House prepared-dish stacks/leftovers; Logs/Stone/Planks become loose construction piles and all other resources become loose carried-resource piles over the former footprint
   - Runtime building art
     - Resolves high-resolution authored final sprites for the existing 17-tool catalog plus the Starter Caravan Cart before using retained procedural factories as fallback; Scout Lodge currently uses a dedicated elongated procedural sprite
     - Keeps five authored House variants; one Forager Camp, Chicken Coop, and Starter Caravan Cart variant; three variants for every other legacy normal non-Bridge family; and one procedural Scout Lodge variant
@@ -431,7 +433,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Householders and children with displayed age 6+ fetch raw food to their own house from Granaries, then the starter Caravan Cart while it has food, or from Hunter Camps/Fisher Huts/Forager Camps/Chicken Coops when no stored food is available; Householders fetch Pottery from active Storage Yards and cook raw ingredients plus 1 Pottery per prepared recipe dish during `Dusk`; Householders fetch winter `Logs` from Storage Yards, then the starter Caravan Cart, when house fuel reserves are low; no-yard Pottery retries do not block raw-food pickup; nightly household dinner consumes prepared dishes first and falls back to house-local ingredients
     - Dish recipes span Poor, Common, Hearty, Fine, and Feast quality tiers with different ingredient combinations, ingredient counts, and ration values
     - Shared resource identity/icon layer also includes `Dish`, Stone, `Game`, `Fish`, and `Tools` for production/storage-style HUDs and future economy work
-    - Loose carried-resource piles preserve dropped `Game`, `Fish`, `Eggs`, Berries, Roots, and Mushrooms after resident death
+    - Loose carried-resource piles preserve dropped food and non-construction resources after resident death or building demolition; prepared dishes retain their recipe identity, unit count, and exact leftover rations while awaiting household recovery
     - Resource amounts live on placed house objects, not in a global economy yet
     - Runtime-generated pixel-art resource icons for the selected-house HUD
   - Storage yard logistics MVP
@@ -445,6 +447,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Haulers reserve available Clay from Clay Pits
     - Haulers reserve available Pottery from Kilns
     - Haulers reserve available Tools from Forges
+    - Haulers recover loose Iron/Coal/Clay/Pottery/Tools into Storage Yards, while existing loose construction piles recover Logs/Stone/Planks; Householders recover loose crop/forage/animal food and exact prepared dishes into Houses
     - Construction can reserve physically present Logs/Stone/Planks from Storage Yards, loose construction piles, Lumberjack Camps, Stonecutter Camps, Sawmills, and the starter Caravan Cart; resources already carried by residents are excluded because they have left source stock
     - Storage Yards reserve non-food production inputs from local stock and route Haulers to deliver them into production buildings through the shared production logistics contract
     - Storage Yards reserve winter household `Logs` for Householder delivery and keep those reserved Logs unavailable to construction/logistics claims until picked up or released
@@ -602,7 +605,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Residents assigned as settlement Builders fetch reserved Logs/Stone/Planks, deliver them to construction sites, then reserve individual unlocked build-hit units and build with hammer animations up to the currently delivered-material progress cap
     - Auto workforce assignment scans eligible free adults every few seconds, uses one per-tick worksite snapshot refreshed from active placed buildings and active construction sites on active-count changes plus a longer fallback interval for demand/rebalance/fallback calculations, treats nonzero player values as desired profession targets plus a one-worker coverage floor, releases surplus workers from overstaffed auto-managed professions, can pull limited donors from roles above their floor for higher-scored shortages, gives active construction a hard one-Builder zero-coverage demand when Construction priority is enabled, protects Food workers from non-food donor steals during household food emergencies or active food demand except for that hard Builder coverage rescue, includes winter household Log reserve demand in Wood pressure, uses `0` as the explicit opt-out that permits a role/category to have no workers, caps successful assignments per tick to avoid frame spikes, throttles deep no-free-adult full scans, and assigns remaining free adults through existing worksite APIs across later ticks while shortages/backlog/readiness affect scoring
     - Residents removed from a role while carrying Logs, Stone, Iron, Coal, Clay, Planks, Pottery, `Game`, or `Fish` first return the carried resource to the appropriate Storage Yard or Granary; hard interruption fallbacks preserve materials instead of deleting carried stock
-    - Resident death drops all carried resources: construction Logs/Stone/Planks as loose construction piles, and generic Iron, Coal, Clay, Planks, Pottery, `Game`, `Fish`, `Eggs`, Berries, Roots, and Mushrooms as loose carried-resource piles
+    - Resident death drops all carried resources: construction Logs/Stone/Planks as loose construction piles and other stock as loose carried-resource piles; a carried exact prepared-dish payload retains its recipe/count/leftovers
     - Completed houses first try to pull a homeless adult male/female pair, including residents who already have workplaces or construction assignments, then fall back to adult-child migration and partner lookup
     - Runtime-generated resident sprites include 5 male variants, 5 female variants, child sprites, matching portrait sprites, and hand-carried torch walk/light frames for night lamp duty, with temporary carried torch light during night-light tasks
     - Resident movement uses cached 8-frame procedural walk cycles for adult and child variants
@@ -689,10 +692,10 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Gameplay can be rendered at deterministic Noon, Spring, Autumn, Night, and Winter states for visual comparison when a graphics device is available
 
 - Persistence
-  - Version-4 JSON save data with v1/v2/v3 migration, validation, atomic temporary-file replacement, and `.bak` recovery
+  - Version-5 JSON save data with v1/v2/v3/v4 migration, validation, atomic temporary-file replacement, and `.bak` recovery
   - F5 saves the current settlement; F8 loads it by restarting and restoring the runtime scene
   - Stable IDs reconnect placed buildings, residents, homes, parents, and children without serializing Unity object references
-  - Snapshot coverage includes map seed/time/weather, founding profile answers and exact camp/current-cart origin, first-winter milestones, buildings, construction sites, resource and dish stock, residents and cold state, loose resources, explored fog, route-road cells, and point-of-interest position/investigated state
+  - Snapshot coverage includes map seed/time/weather, founding profile answers and exact camp/current-cart origin, first-winter milestones, buildings, construction sites, resource and dish stock, residents and cold state, ground resources plus in-transit resident stock represented as loose resources at saved resident cells, exact prepared-dish payloads, explored fog, route-road cells, and point-of-interest position/investigated state
 
 - AI collaboration memory
   - Root entry point: `AI.md`
@@ -710,6 +713,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Input action IDs/names/bindings feed the central router, every runtime consumer, modal contexts, and the shared UI input module; update their contract tests with intentional changes.
 - Build menu active tool state drives the placement controller when catalog tools exist.
 - Placement uses generated map cells and buildability data.
+- Building demolition couples placement teardown, resident/work cancellation, physical resource stores, pending production output, household recipe stock, loose-pile logistics, and persistence; save capture flushes accepted pending demolition before snapshotting.
 - Authored building geometry feeds shared final/construction pivots plus runtime stock, work, effect, and light anchors; Forager Camp, Chicken Coop, and the procedural Scout Lodge retain declared single-variant normalization, and legacy saved variants normalize through the shared profile.
 - Bridge rendering depends on the selected span/orientation, the 12 modular final/construction catalog sequences, and runtime module composition; bridge placement and River walkability remain independent gameplay owners.
 - Fog of war uses population, residents, placed-building records, the shared day/night phase, and weather Fog intensity as visibility inputs; Scout Lodge target selection reads persistent explored state while moving Scouts reveal through the existing resident source, placement and world selection consult exploration state, refugee arrivals use daylight-range visible boundaries for in-map entry staging, and the F9 debug panel can bypass player fog for testing.

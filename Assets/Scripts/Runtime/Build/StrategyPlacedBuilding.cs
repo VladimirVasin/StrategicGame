@@ -42,6 +42,7 @@ namespace ProjectUnknown.Strategy
         public StrategyHouseWarmthState Warmth => warmth;
         public StrategyResidentAgent Householder => householder;
         public string StableId => stableId;
+        public bool IsDemolishing { get; private set; }
         public static IReadOnlyList<StrategyPlacedBuilding> ActiveBuildings => activeBuildings;
 
         public static int CopyActiveComponents<T>(List<T> components)
@@ -402,6 +403,23 @@ namespace ProjectUnknown.Strategy
 
             activeBuildings.Add(this);
             registeredActiveBuilding = true;
+        }
+
+        public bool BeginDemolition()
+        {
+            if (IsDemolishing)
+            {
+                return false;
+            }
+
+            IsDemolishing = true;
+            if (registeredActiveBuilding)
+            {
+                activeBuildings.Remove(this);
+                registeredActiveBuilding = false;
+            }
+
+            return true;
         }
 
         private void OnDestroy()

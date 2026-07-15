@@ -9,6 +9,7 @@ namespace ProjectUnknown.Strategy
 
         public void ClearWorldForLoad()
         {
+            pendingBuildingDemolitions.Clear();
             IReadOnlyList<StrategyConstructionSite> activeSites = StrategyConstructionSite.ActiveSites;
             List<StrategyConstructionSite> sites = new(activeSites);
             for (int i = 0; i < sites.Count; i++)
@@ -25,21 +26,8 @@ namespace ProjectUnknown.Strategy
                 StrategyPlacedBuilding building = placedBuildings[i];
                 if (building != null)
                 {
-                    ClearBuildingStores(building);
                     building.gameObject.SetActive(false);
-                    DemolishBuilding(building);
-                }
-            }
-        }
-
-        private static void ClearBuildingStores(StrategyPlacedBuilding building)
-        {
-            MonoBehaviour[] components = building.GetComponents<MonoBehaviour>();
-            for (int i = 0; i < components.Length; i++)
-            {
-                if (components[i] is IStrategyResourceStoreOwner owner)
-                {
-                    owner.ResourceStore?.RestoreAmounts(null);
+                    DemolishBuildingImmediately(building, false);
                 }
             }
         }

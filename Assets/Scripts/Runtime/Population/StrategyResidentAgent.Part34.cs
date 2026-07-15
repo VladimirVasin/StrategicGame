@@ -178,6 +178,7 @@ namespace ProjectUnknown.Strategy
             carriedFishAmount = 0;
             carriedForageAmount = 0;
             carriedForageResource = StrategyResourceType.None;
+            ClearCarriedPreparedDishPayload();
             activeConstructionResource = StrategyConstructionResourceKind.None;
             ClearCarriedConstructionReturnReservation();
             SetCarriedLogsVisible(false);

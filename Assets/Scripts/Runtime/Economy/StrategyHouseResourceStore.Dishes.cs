@@ -271,6 +271,30 @@ namespace ProjectUnknown.Strategy
             leftoverRations = Mathf.Max(0f, savedLeftoverRations);
         }
 
+        public void AddRecoveredPreparedDishes(
+            string recipeId,
+            int amount,
+            float recoveredLeftoverRations)
+        {
+            StrategyDishRecipe recipe = StrategyDishRecipeCatalog.FindById(recipeId);
+            if (recipe != null && amount > 0)
+            {
+                AddPreparedDish(recipe, amount);
+            }
+
+            if (float.IsNaN(recoveredLeftoverRations)
+                || float.IsInfinity(recoveredLeftoverRations)
+                || recoveredLeftoverRations <= 0f)
+            {
+                return;
+            }
+
+            float combinedRations = leftoverRations + recoveredLeftoverRations;
+            leftoverRations = float.IsInfinity(combinedRations)
+                ? float.MaxValue
+                : combinedRations;
+        }
+
         private void AddPreparedDish(StrategyDishRecipe recipe, int amount)
         {
             if (recipe == null || amount <= 0)
