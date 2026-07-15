@@ -53,10 +53,10 @@ namespace ProjectUnknown.Strategy
                 for (int x = 0; x < width; x++)
                 {
                     Vector2Int candidate = new Vector2Int(x, y);
-                    if (!isExplored(candidate)
+                    if (isExplored(candidate)
                         || !isWalkable(candidate)
                         || isUnavailable(candidate)
-                        || !HasInBoundsUnexploredNeighbor(
+                        || !HasInBoundsExploredNeighbor(
                             candidate,
                             width,
                             height,
@@ -95,7 +95,7 @@ namespace ProjectUnknown.Strategy
             return found;
         }
 
-        private static bool HasInBoundsUnexploredNeighbor(
+        private static bool HasInBoundsExploredNeighbor(
             Vector2Int candidate,
             int width,
             int height,
@@ -104,7 +104,7 @@ namespace ProjectUnknown.Strategy
             for (int i = 0; i < CardinalDirections.Length; i++)
             {
                 Vector2Int neighbor = candidate + CardinalDirections[i];
-                if (IsInBounds(neighbor, width, height) && !isExplored(neighbor))
+                if (IsInBounds(neighbor, width, height) && isExplored(neighbor))
                 {
                     return true;
                 }

@@ -19,6 +19,7 @@ namespace ProjectUnknown.Strategy
             {
                 if (!IsAdult
                     || home == null
+                    || IsOnScoutExpedition
                     || deathRequested
                     || IsPendingRefugee
                     || IsHomeboundYoungChild
@@ -41,6 +42,7 @@ namespace ProjectUnknown.Strategy
             {
                 return IsAdult
                     && home != null
+                    && !IsOnScoutExpedition
                     && !deathRequested
                     && !IsPendingRefugee
                     && !IsHomeboundYoungChild
@@ -159,7 +161,8 @@ namespace ProjectUnknown.Strategy
             return !HasAnyCarriedResource()
                 && (activity == ResidentActivity.Idle
                     || activity == ResidentActivity.TendingHousehold
-                    || activity == ResidentActivity.MovingHome);
+                    || activity == ResidentActivity.MovingHome
+                    || IsScoutActivity(activity));
         }
 
         private static bool IsEveningNightTorchTime()

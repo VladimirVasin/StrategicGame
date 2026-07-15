@@ -807,18 +807,25 @@ Responsibilities:
 
 - Place one manually staffed exploration worksite on an exact `2x4` footprint.
 - Reserve distinct frontier targets across multiple Scout Lodges.
-- Select only in-bounds explored, walkable cells with an in-bounds cardinal unexplored neighbor.
+- Select only in-bounds unexplored, walkable cells with an in-bounds cardinal explored neighbor.
 - Prefer the nearest frontier deterministically, using nearby unknown coverage and stable coordinates as tie-breakers.
-- Route one assigned Scout to the target, survey for 5-6 seconds, and repeat during settlement work hours.
+- Route one assigned Scout with critical navigation priority, survey for 2.5-3.5 seconds, and repeat continuously through day and night without generic idle wandering.
 - Expose the single Scout slot through both the settlement-wide Profession HUD and the selected Scout Lodge HUD.
-- Temporarily reject unreachable targets, release deferred paths immediately, and clear reservations on nightfall, unassignment, death, funeral interruption, demolition, or resident-role change.
+- Temporarily reject unreachable targets, release deferred paths immediately, and clear reservations on unassignment, death, funeral interruption, demolition, or resident-role change.
 - Expand map exploration only through the Scout resident's existing Fog of War reveal source.
+- Keep assigned Scouts out of home/camp sleep and settlement lamp-lighting duty, wake them when assigned at night, retain personal torch visuals, and treat their household ration as a field meal while they remain away.
 
 Primary files/assets:
 
 - `Assets/Scripts/Runtime/Build/StrategyScoutLodge.cs`
 - `Assets/Scripts/Runtime/Build/StrategyScoutTargetSelector.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Scouting.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part36.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part41.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part42.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part49.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.NightLights.cs`
+- `Assets/Scripts/Runtime/Population/StrategyHouseholdFoodState.NightMeal.cs`
 - `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.ScoutWorkers.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentTask.cs`
 - `Assets/Tests/EditMode/StrategyScoutTargetSelectorTests.cs`
@@ -2206,7 +2213,7 @@ Responsibilities:
 - Assign residents to Forager Camps as workplace targets.
 - Route assigned Foragers to generated Berries/Roots/Mushrooms nodes, forage gather timing, carried forage visuals, and camp stock deposit.
 - Assign one resident to each Scout Lodge as a workplace target.
-- Route assigned Scouts to reserved explored/walkable fog-frontier cells, survey there, and release/retry targets safely across path deferral, night, death, funeral interruption, demolition, and unassignment.
+- Route assigned Scouts to reserved walkable unknown-side fog-frontier cells, survey there continuously through day/night, and release/retry targets safely across path deferral, death, funeral interruption, demolition, and unassignment.
 - Assign residents to settlement-level Hauler roles.
 - Route assigned Haulers to lumberjack camp stock, stored-Logs pickup, storage-yard delivery, and deposit.
 - Resolve Hauler building pickup/delivery access from a reachable perimeter cell, stop and briefly retry when navigation is budget-deferred, and skip briefly cached genuinely inaccessible source buildings before reserving their stock.
@@ -2384,9 +2391,9 @@ Impact hints:
 - Resident scheduled-work task-start decisions have a per-frame budget in larger settlements; expensive household, logistics, construction, worksite, hunting, fishing, and child-play probes should remain behind this budget unless they are active-task continuation or carried-resource cleanup.
 - Resident movement records completed building-to-building route traversals and commits stable roads after three traversals of the same building pair, using a direct route-line attempt, smoothed route waypoint fallback, connected single-sided route-road connectors plus bounded local repair to the existing road network, and canonical per-building-pair reinforcement so raw A* detours do not create square road pockets or disconnected road tails; a branch that joins the existing network does not restore its discarded tail, ordinary footfalls no longer create functional or visible roads, and formed roads apply a 15% speed bonus.
 - Resident pathfinding can recover a blocked start cell by snapping to a nearby walkable cell and logging `PathStartRecovered`.
-- Resident scheduled work starts only during `StrategyDayNightCycleController.IsSettlementWorkTime`, which now covers Dawn through Dusk on every day. Keep carried-resource returns, deposits, and cleanup paths schedule-safe so nightfall cannot strand stock reservations.
-- Resident night sleep is separate from homebound young-child hiding: housed residents only enter the hidden home interior during `Night` when they are not carrying resources, in funeral duty, underground, or assigned to night lamp lighting, notify household food state for dinner readiness, then reappear at the home exit after night ends. Homeless residents instead reserve reachable campfire sleep spots, relight embers if needed, and sleep visibly around the startup campfire with a small `Zzz...` indicator.
-- Night lamp lighting is owned by `StrategyNightLightTaskController` plus `StrategyResidentAgent.NightLights.cs`; dynamic adult light-coverage decisions live in `StrategyResidentAgent.PersonalTorch.cs` and `StrategyCinematicLightEmitter.Coverage.cs`; carried torch light/glow/night-mask contribution is isolated in `StrategyResidentAgent.NightTorchLight.cs`. Late-Dusk personal hand-torch activation must not start stationary-lamp routes before `Night`, ordinary personal torches should avoid real `Light2D` point lights, and lamp sources should not automatically light when no eligible resident can reach them.
+- Resident scheduled work starts only during `StrategyDayNightCycleController.IsSettlementWorkTime`, which covers Dawn through Dusk on every day, except assigned Scouts whose dedicated exploration branch remains active overnight. Keep carried-resource returns, deposits, and cleanup paths schedule-safe so nightfall cannot strand stock reservations.
+- Resident night sleep is separate from homebound young-child hiding: housed residents only enter the hidden home interior during `Night` when they are not carrying resources, in funeral duty, underground, assigned to night lamp lighting, or assigned as Scouts, notify household food state for dinner readiness, then reappear at the home exit after night ends. Homeless residents use campfire sleep under the same Scout exception; an assigned Scout remains expected-away for dinner while still consuming a household field ration.
+- Night lamp lighting is owned by `StrategyNightLightTaskController` plus `StrategyResidentAgent.NightLights.cs`; dynamic adult light-coverage decisions live in `StrategyResidentAgent.PersonalTorch.cs` and `StrategyCinematicLightEmitter.Coverage.cs`; carried torch light/glow/night-mask contribution is isolated in `StrategyResidentAgent.NightTorchLight.cs`. Assigned Scouts are excluded from stationary-lamp duty but can display personal torches during exploration. Late-Dusk personal hand-torch activation must not start stationary-lamp routes before `Night`, ordinary personal torches should avoid real `Light2D` point lights, and lamp sources should not automatically light when no eligible resident can reach them.
 - Resident footstep audio is attached by `StrategyResidentAgent` and plays grass clips on selected walk frames; resident work SFX plays axe/pickaxe/hammer/fishing/bow clips on selected work frames; both route through `StrategyAudioMixController` for bus volume, camera-focus/zoom attenuation, low-pass, and subtle far-source reverb, so keep them low-volume/spatial when adding more residents or faster simulation speeds.
 - Lumberjack work keeps the same camp worksite component but chooses the nearest available tree/processable wood on the map; it tests nearby work cells for real path reachability before starting tree/log/plant movement, only starts planting when the camp can accept future Logs, and includes tree chopping, trunk bucking, Logs delivery, and sapling planting.
 - Resident woodcut sprites are generated for every male/female visual variant and should stay in sync with readability outline mirroring.

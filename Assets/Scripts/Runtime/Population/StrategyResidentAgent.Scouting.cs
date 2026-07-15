@@ -4,7 +4,10 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyResidentAgent
     {
-        private const float ScoutMinimumWorkWindowSeconds = 10f;
+        private const float ScoutSurveySecondsMin = 2.5f;
+        private const float ScoutSurveySecondsMax = 3.5f;
+        private const float ScoutRouteRetrySecondsMin = 0.35f;
+        private const float ScoutRouteRetrySecondsMax = 0.75f;
 
         private StrategyScoutLodge scoutWorkplace;
         private StrategyScoutLodge activeScoutLodge;
@@ -14,6 +17,7 @@ namespace ProjectUnknown.Strategy
         private bool hasScoutTarget;
 
         public StrategyScoutLodge ScoutWorkplace => scoutWorkplace;
+        public bool IsOnScoutExpedition => scoutWorkplace != null;
 
         public void AssignScoutWorkplace(StrategyScoutLodge lodge)
         {
@@ -28,7 +32,10 @@ namespace ProjectUnknown.Strategy
 
             CancelScoutWork();
             scoutWorkplace = lodge;
-            scoutWorkCooldown = Random.Range(0.45f, 1.5f);
+            LeaveNightRestForScoutDuty();
+            ResetScoutMovementToIdle();
+            waitTimer = 0f;
+            scoutWorkCooldown = Random.Range(0.10f, 0.30f);
             StrategyDebugLogger.Info(
                 "ScoutLodge",
                 "ResidentScoutWorkplaceAssigned",
@@ -63,7 +70,9 @@ namespace ProjectUnknown.Strategy
             StrategyScoutLodge lodge = scoutWorkplace;
             if (!lodge.TryReserveExplorationTarget(this, out Vector2Int target))
             {
-                scoutWorkCooldown = Random.Range(2.5f, 5f);
+                scoutWorkCooldown = Random.Range(
+                    ScoutRouteRetrySecondsMin,
+                    ScoutRouteRetrySecondsMax);
                 return false;
             }
 
@@ -94,7 +103,7 @@ namespace ProjectUnknown.Strategy
                 hasScoutTarget = false;
                 scoutTarget = default;
                 scoutWorkCooldown = deferred
-                    ? Random.Range(0.18f, 0.38f)
+                    ? Random.Range(0.12f, 0.24f)
                     : Random.Range(0.8f, 1.6f);
                 ResetScoutMovementToIdle();
                 if (!deferred)
@@ -136,7 +145,7 @@ namespace ProjectUnknown.Strategy
             hasTarget = false;
             path.Clear();
             pathIndex = 0;
-            scoutSurveyTimer = Random.Range(5f, 6f);
+            scoutSurveyTimer = Random.Range(ScoutSurveySecondsMin, ScoutSurveySecondsMax);
             waitTimer = 0f;
             transform.localRotation = Quaternion.identity;
             transform.localScale = Vector3.one;
@@ -173,7 +182,7 @@ namespace ProjectUnknown.Strategy
             scoutTarget = default;
             hasScoutTarget = false;
             scoutSurveyTimer = 0f;
-            scoutWorkCooldown = Random.Range(0.15f, 0.45f);
+            scoutWorkCooldown = Random.Range(0.05f, 0.15f);
             activity = GetRestingActivity();
             hasTarget = false;
             path.Clear();
@@ -181,7 +190,7 @@ namespace ProjectUnknown.Strategy
             transform.localRotation = Quaternion.identity;
             transform.localScale = Vector3.one;
             UseIdleSprite();
-            waitTimer = Random.Range(0.2f, 0.5f);
+            waitTimer = Random.Range(0.05f, 0.15f);
             StrategyDebugLogger.Info(
                 "ScoutLodge",
                 "FrontierSurveyCompleted",
@@ -196,7 +205,6 @@ namespace ProjectUnknown.Strategy
                 && lodge != null
                 && lodge == scoutWorkplace
                 && CanWork
-                && HasEnoughScoutWorkWindow()
                 && scoutWorkCooldown <= 0f
                 && workplace == null
                 && stoneWorkplace == null
@@ -223,19 +231,6 @@ namespace ProjectUnknown.Strategy
                 && !hasScoutTarget;
         }
 
-        private static bool HasEnoughScoutWorkWindow()
-        {
-            if (!StrategyDayNightCycleController.IsSettlementWorkTime)
-            {
-                return false;
-            }
-
-            float remainingWorkSeconds =
-                (StrategyDayNightCycleController.NightStartPhase - StrategyDayNightCycleController.CurrentDayPhase)
-                * StrategyDayNightCycleController.DayLengthSeconds;
-            return remainingWorkSeconds >= ScoutMinimumWorkWindowSeconds;
-        }
-
         private void CancelScoutWork()
         {
             if (activeScoutLodge != null)
@@ -251,6 +246,23 @@ namespace ProjectUnknown.Strategy
             {
                 ResetScoutMovementToIdle();
                 waitTimer = Random.Range(0.3f, 0.85f);
+            }
+        }
+
+        private void LeaveNightRestForScoutDuty()
+        {
+            if (sleepingInsideHome)
+            {
+                ReleaseNightSleep(false);
+            }
+            else if (returningHomeToSleep)
+            {
+                CancelNightSleepReturn();
+            }
+
+            if (sleepingAtHomelessCamp || returningToHomelessCamp || relightingCampfire)
+            {
+                ReleaseHomelessCampSleep(false);
             }
         }
 

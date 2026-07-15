@@ -567,9 +567,9 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Resident pathing can recover a blocked start cell by moving the resident to a nearby walkable cell and logging the recovery
     - Resident logistics tests building perimeter cells for an entrance reachable by that resident and briefly caches failed resident/building pairs until retry time or a walkability-version change
     - Deferred resident path requests remain queued budget waits: planned-task scans yield without dropping construction assignments, reservations, or recording false unreachable failures; wildlife movement uses background navigation priority
-    - Resident work normally starts during the shared Dawn-through-Dusk work window; nightfall defers new production, construction, logistics, hunting, fishing, household-food pickup, and household cooking while allowing carried resources and deposits/returns to finish
-    - During `Night`, housed idle residents path to their home, hide inside the house, and wake at the home exit after night ends
-    - At the start of `Night`, random eligible housed adults can be assigned building and roadside light sources; they leave home, walk to nearest queued lights, kindle them with animation, and return to night sleep
+    - Resident work normally starts during the shared Dawn-through-Dusk work window; nightfall defers new production, construction, logistics, hunting, fishing, household-food pickup, and household cooking while allowing carried resources and deposits/returns to finish, while assigned Scouts remain on continuous expeditions
+    - During `Night`, housed idle residents other than assigned Scouts path to their home, hide inside the house, and wake at the home exit after night ends
+    - At the start of `Night`, random eligible housed adults other than assigned Scouts can be assigned building and roadside light sources; they leave home, walk to nearest queued lights, kindle them with animation, and return to night sleep
     - During `Night`, homeless idle residents reserve reachable spots around the startup campfire; one resident can relight embers with a visible kindling animation before sleeping on the ground by the fire, and sleeping residents show a small `Zzz...` indicator
     - Householders fetch raw `Fish`/`Game`/`Eggs`/forage ingredients from Granaries or production-food fallback sources, fetch Pottery from Storage Yards, fetch winter household `Logs`, or cook prepared `Dish` from ingredients and Pottery during `TendingHousehold` home duty
     - Non-householder residents no longer forage directly for their own house; generated forage nodes are consumed by assigned Forager Camp workers instead
@@ -583,7 +583,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Residents assigned to a hunter camp reserve the nearest available adult rabbit on the map, move to roughly 2-3 tile bow range, shoot arrow projectiles with a 20% miss chance, butcher carcasses on hit, carry `Game`, and deposit it into hunter camp stock
     - Residents assigned to a fisher hut reserve the nearest reachable in-range fish, move to shore, cast/reel while range remains valid, carry `Fish`, and deposit it into fisher hut stock
     - Residents assigned to a Forager Camp reserve generated Berries/Roots/Mushrooms nodes, gather forage with reach/crouch animation frames, and deposit it into camp stock
-    - Residents assigned to a Scout Lodge reserve distinct explored/walkable frontier cells, travel there, survey for 5-6 seconds, and repeat while their ordinary Fog of War reveal radius uncovers the map
+    - Residents assigned to a Scout Lodge reserve distinct walkable unknown-side frontier cells, use critical navigation plus short bounded retries, survey for 2.5-3.5 seconds, and repeat day and night while their ordinary Fog of War reveal radius uncovers the map
     - Residents assigned as Haulers path to lumberjack camp stock, carry Logs to storage, and deposit them
     - Residents assigned as Haulers also path to stonecutter camp stock, carry Stone to storage, and deposit it
     - Residents assigned as Haulers also path to Mine stock, carry Iron to storage, and deposit it

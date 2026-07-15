@@ -93,6 +93,7 @@ namespace ProjectUnknown.Strategy
         private bool CanStartHomelessCampSleep()
         {
             return IsNightSleepTime()
+                && !IsOnScoutExpedition
                 && home == null
                 && !hiddenInsideHome
                 && !hiddenUnderground

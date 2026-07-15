@@ -58,6 +58,7 @@ namespace ProjectUnknown.Strategy
         private bool CanStartNightSleep()
         {
             return IsEveningHomeTime()
+                && !IsOnScoutExpedition
                 && home != null
                 && !HasPendingNightLightDuty()
                 && !hiddenInsideHome

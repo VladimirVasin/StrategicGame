@@ -128,6 +128,7 @@ namespace ProjectUnknown.Strategy
         {
             return resident.IsSleepingInsideHome
                 || resident.IsHomeboundYoungChild
+                || resident.IsOnScoutExpedition
                 || resident.Activity == StrategyResidentAgent.ResidentActivity.StayingInsideHome;
         }
 

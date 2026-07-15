@@ -21,6 +21,7 @@ namespace ProjectUnknown.Strategy
             get
             {
                 return StrategyDayNightCycleController.IsResidentEveningHomeTime
+                    && !IsOnScoutExpedition
                     && (activity == ResidentActivity.Idle || activity == ResidentActivity.TendingHousehold)
                     && (HasExternalWorkplace || constructionSite != null || IsHouseholder);
             }
@@ -28,6 +29,11 @@ namespace ProjectUnknown.Strategy
 
         private bool TryStartScheduledWorkTask()
         {
+            if (IsOnScoutExpedition)
+            {
+                return TryStartScheduledScoutTask();
+            }
+
             if (StrategyDayNightCycleController.IsResidentEveningHomeTime)
             {
                 waitTimer = Random.Range(0.55f, 1.25f);
@@ -58,6 +64,42 @@ namespace ProjectUnknown.Strategy
             }
 
             return started;
+        }
+
+        private bool TryStartScheduledScoutTask()
+        {
+            if (scoutWorkCooldown > 0f)
+            {
+                waitTimer = Mathf.Clamp(scoutWorkCooldown, 0.08f, 0.35f);
+                return true;
+            }
+
+            if (!TryConsumeScheduledDecisionBudget())
+            {
+                waitTimer = Random.Range(ScheduledDecisionDeferredWaitMin, ScheduledDecisionDeferredWaitMax);
+                return true;
+            }
+
+            pathBuildDeferredDuringDecision = false;
+            evaluatingPlannedTasks = true;
+            bool started = TryStartScoutTask();
+            evaluatingPlannedTasks = false;
+            if (pathBuildDeferredDuringDecision)
+            {
+                waitTimer = Random.Range(0.12f, 0.24f);
+                return true;
+            }
+
+            if (started)
+            {
+                taskState.BeginPlannedTask(StrategyResidentTaskKind.Exploration);
+            }
+            else
+            {
+                waitTimer = Random.Range(0.12f, 0.24f);
+            }
+
+            return true;
         }
 
         private bool TryConsumeScheduledDecisionBudget()
@@ -290,8 +332,7 @@ namespace ProjectUnknown.Strategy
                 || residentActivity == ResidentActivity.CastingFishingLine
                 || residentActivity == ResidentActivity.WaitingForFishBite
                 || residentActivity == ResidentActivity.ReelingFish
-                || residentActivity == ResidentActivity.PlantingTree
-                || residentActivity == ResidentActivity.SurveyingFrontier;
+                || residentActivity == ResidentActivity.PlantingTree;
         }
 
         private static bool IsNightBlockedReachedActivity(ResidentActivity residentActivity)
@@ -326,8 +367,7 @@ namespace ProjectUnknown.Strategy
                 || residentActivity == ResidentActivity.MovingToGranaryGamePickup
                 || residentActivity == ResidentActivity.MovingToGranaryFishPickup
                 || residentActivity == ResidentActivity.MovingToGranaryForagePickup
-                || residentActivity == ResidentActivity.MovingToPlantTree
-                || residentActivity == ResidentActivity.MovingToScoutFrontier;
+                || residentActivity == ResidentActivity.MovingToPlantTree;
         }
 
         private static bool IsNightBlockedStoragePickupActivity(ResidentActivity residentActivity)

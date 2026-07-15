@@ -1,5 +1,13 @@
 # Work Log
 
+### 2026-07-15 - Continuous Scout expeditions into unknown territory
+
+- Analyzed `debug.log`: the assigned Scout completed 9 surveys, but long post-survey gaps sent him into generic idle paths around home, and the 21:00 home schedule deterministically cancelled his next route before sending him to sleep.
+- Changed deterministic target selection from explored-side frontier cells to the nearest walkable unexplored cell with an explored cardinal neighbor, shortened surveys to 2.5-3.5 seconds, promoted Scout route requests to critical navigation priority, and kept transient retries out of generic idle wandering.
+- Made assigned Scouts continuous day/night expedition workers: active missions are not interrupted at night, new routes can start overnight, assignment wakes sleeping residents, and assigned Scouts skip home/camp sleep plus settlement lamp-lighting duty while retaining personal torch visuals.
+- Household dinner now treats an assigned Scout as expected away with an implicit field ration, so the family does not wait for a Scout who intentionally remains in the field.
+- Verification: all five project builds and the technical quality gates pass with zero compiler warnings/errors; the updated Scout EditMode assertions compile, while a separate batch Unity test run was skipped because the project is already open in the Editor.
+
 ### 2026-07-15 - Scout Lodge building-HUD assignment fix
 
 - Fixed the selected Scout Lodge HUD hiding the shared worker section and omitting Scout Lodge routing even when eligible free adults were available.
