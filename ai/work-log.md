@@ -1,5 +1,12 @@
 # Work Log
 
+### 2026-07-15 - House window-light perspective alignment
+
+- Replaced the axis-aligned full-rectangle lower-window emissive masks with variant-specific glass-only row masks for all five authored House sprites, so the glow follows each facade's actual perspective instead of tinting frames and wall pixels in the opposite apparent lean.
+- Preserved the existing glow color, intensity, flicker, night timing, chimney smoke, exterior light sources, and building geometry.
+- Tightened House visual-effect regression coverage from a partial-overlap threshold to exact authored-glass pixel matching across every House variant.
+- Verification: runtime and Editor C# builds pass with zero warnings/errors; the focused Unity EditMode window-mask test passes 1/1. The pre-existing, unrelated chimney-smoke anti-aliasing assertion remains outside this fix.
+
 ### 2026-07-15 - Portable build debug logs
 
 - Standalone builds now prefer `<game directory>/Logs/debug.log`, resolving the game directory from the parent of Unity's player data folder so tester builds keep diagnostics beside the executable wherever they are unpacked.

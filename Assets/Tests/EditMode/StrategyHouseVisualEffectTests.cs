@@ -24,8 +24,6 @@ namespace ProjectUnknown.Strategy.EditorTests
             { new(67, 40, 6, 14), new(98, 39, 9, 14) }
         };
 
-        private static readonly int[] RightWindowMullionOffsets = { 4, 3, 3, 3, 4 };
-
         [Test]
         public void SmokeOverlayUsesAuthoredChimneyAnchorsAndUnclippedSprite()
         {
@@ -83,7 +81,7 @@ namespace ProjectUnknown.Strategy.EditorTests
         }
 
         [Test]
-        public void WindowMasksAlignWithAuthoredLowerPanes()
+        public void WindowMasksFollowAuthoredLowerGlassPerspective()
         {
             for (int variant = 0; variant < ChimneyMouthPixels.Length; variant++)
             {
@@ -96,18 +94,6 @@ namespace ProjectUnknown.Strategy.EditorTests
                     Assert.That(mask.pivot, Is.EqualTo(new Vector2(80f, 16f)));
 
                     AssertWindowMaskGeometry(mask.texture, authoredHouse, variant);
-                    Assert.That(
-                        mask.texture.GetPixel(
-                            LowerWindowRects[variant, 1].x + RightWindowMullionOffsets[variant],
-                            LowerWindowRects[variant, 1].yMin).a,
-                        Is.EqualTo(0.30f).Within(0.01f),
-                        $"House V{variant + 1:00} right-window mullion moved");
-                    Assert.That(
-                        mask.texture.GetPixel(
-                            LowerWindowRects[variant, 1].x + RightWindowMullionOffsets[variant] + 1,
-                            LowerWindowRects[variant, 1].yMin).a,
-                        Is.EqualTo(0.30f).Within(0.01f),
-                        $"House V{variant + 1:00} right-window mullion was not doubled");
                 }
                 finally
                 {
@@ -133,38 +119,46 @@ namespace ProjectUnknown.Strategy.EditorTests
         private static void AssertWindowMaskGeometry(Texture2D mask, Texture2D authoredHouse, int variant)
         {
             int maskedPixels = 0;
-            int glassPixels = 0;
+            int expectedGlassPixels = 0;
             for (int y = 0; y < mask.height; y++)
             {
                 for (int x = 0; x < mask.width; x++)
                 {
-                    if (mask.GetPixel(x, y).a <= 0f)
-                    {
-                        continue;
-                    }
-
                     Vector2Int pixel = new(x, y);
                     bool insidePane = LowerWindowRects[variant, 0].Contains(pixel)
                         || LowerWindowRects[variant, 1].Contains(pixel);
-                    Assert.That(insidePane, Is.True, $"House V{variant + 1:00} has mask pixels outside its panes");
-
                     Color32 source = authoredHouse.GetPixel(x, y);
-                    maskedPixels++;
-                    if (source.g > source.r + 5
+                    bool isGlass = insidePane
+                        && source.a > 0
+                        && source.g > source.r + 5
                         && source.b > source.r + 5
                         && source.g > 35
-                        && source.b > 35)
+                        && source.b > 35;
+                    bool isMasked = mask.GetPixel(x, y).a > 0f;
+                    if (isGlass)
                     {
-                        glassPixels++;
+                        expectedGlassPixels++;
+                    }
+
+                    if (isMasked)
+                    {
+                        maskedPixels++;
+                    }
+
+                    if (isGlass != isMasked)
+                    {
+                        Assert.Fail(
+                            $"House V{variant + 1:00} window-light mismatch at ({x},{y}): "
+                            + $"glass={isGlass}, masked={isMasked}");
                     }
                 }
             }
 
             Assert.That(maskedPixels, Is.GreaterThan(0));
             Assert.That(
-                (float)glassPixels / maskedPixels,
-                Is.GreaterThanOrEqualTo(0.45f),
-                $"House V{variant + 1:00} window mask no longer follows the authored glass");
+                maskedPixels,
+                Is.EqualTo(expectedGlassPixels),
+                $"House V{variant + 1:00} window mask must follow every authored glass pixel exactly");
         }
 
         private static RectInt GetAlphaBounds(Texture2D texture)

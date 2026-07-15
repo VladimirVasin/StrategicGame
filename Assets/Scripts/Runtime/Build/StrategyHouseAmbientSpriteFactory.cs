@@ -8,12 +8,41 @@ namespace ProjectUnknown.Strategy
         private const float HousePixelsPerUnit = 48f;
         private const float SmokePixelsPerUnit = 24f;
         private const int HouseSpriteSize = 160;
-        private const int HouseMullionThickness = 2;
         private const int SmokeTextureWidth = 32;
         private const int SmokeTextureHeight = 24;
         private const float HousePivotX = 80f;
         private const float HousePivotY = 16f;
         public const int FrameCount = 8;
+
+        // Row bitsets run bottom-to-top inside each pane and include only authored glass pixels.
+        private static readonly WindowMaskProfile[] WindowMaskProfiles =
+        {
+            new(
+                new RectInt(62, 41, 8, 13),
+                new ushort[] { 0x060, 0x064, 0x06E, 0x06F, 0x067, 0x027, 0x047, 0x060, 0x066, 0x06F, 0x06F, 0x00F, 0x00F },
+                new RectInt(93, 39, 9, 15),
+                new ushort[] { 0x002, 0x00E, 0x0EF, 0x1EF, 0x1EF, 0x1EE, 0x1EC, 0x1C2, 0x08F, 0x0EF, 0x0EE, 0x0EE, 0x1EE, 0x1E0, 0x0C0 }),
+            new(
+                new RectInt(66, 41, 6, 14),
+                new ushort[] { 0x020, 0x030, 0x036, 0x037, 0x037, 0x037, 0x007, 0x037, 0x034, 0x037, 0x037, 0x037, 0x007, 0x003 },
+                new RectInt(97, 40, 8, 15),
+                new ushort[] { 0x007, 0x027, 0x077, 0x0F7, 0x0F7, 0x0F7, 0x0F4, 0x0E7, 0x007, 0x0F7, 0x0F7, 0x0F7, 0x0F6, 0x0E0, 0x0C0 }),
+            new(
+                new RectInt(60, 41, 7, 14),
+                new ushort[] { 0x020, 0x070, 0x036, 0x037, 0x037, 0x037, 0x007, 0x033, 0x036, 0x077, 0x077, 0x027, 0x007, 0x001 },
+                new RectInt(92, 40, 8, 14),
+                new ushort[] { 0x007, 0x027, 0x0E7, 0x0E7, 0x0E7, 0x0E7, 0x0E0, 0x0E7, 0x027, 0x0E7, 0x0E7, 0x0E7, 0x0E4, 0x0E0 }),
+            new(
+                new RectInt(62, 40, 6, 14),
+                new ushort[] { 0x030, 0x030, 0x037, 0x037, 0x037, 0x037, 0x027, 0x031, 0x036, 0x037, 0x037, 0x037, 0x007, 0x001 },
+                new RectInt(92, 39, 8, 14),
+                new ushort[] { 0x007, 0x027, 0x0E7, 0x0E7, 0x0E7, 0x0E6, 0x0E7, 0x0C7, 0x067, 0x0E7, 0x0E7, 0x0E7, 0x0E0, 0x0E0 }),
+            new(
+                new RectInt(67, 40, 6, 14),
+                new ushort[] { 0x030, 0x030, 0x037, 0x037, 0x037, 0x037, 0x027, 0x030, 0x033, 0x037, 0x037, 0x017, 0x003, 0x000 },
+                new RectInt(98, 39, 9, 14),
+                new ushort[] { 0x00F, 0x06F, 0x1EF, 0x1EF, 0x1EF, 0x1EC, 0x1C6, 0x00F, 0x0EF, 0x1EE, 0x1EE, 0x1EE, 0x1E0, 0x080 })
+        };
 
         private static readonly Dictionary<int, Sprite> CachedSmokeSprites = new();
         private static readonly Dictionary<int, Sprite> CachedWindowMasks = new();
@@ -125,71 +154,27 @@ namespace ProjectUnknown.Strategy
 
         private static void DrawWindowMask(Texture2D texture, int variant)
         {
-            switch (variant)
-            {
-                case 1:
-                    DrawWindowPair(texture, new RectInt(66, 41, 6, 14), new RectInt(97, 40, 8, 15), 3);
-                    break;
-                case 2:
-                    DrawWindowPair(texture, new RectInt(60, 41, 7, 14), new RectInt(92, 40, 8, 14), 3);
-                    break;
-                case 3:
-                    DrawWindowPair(texture, new RectInt(62, 40, 6, 14), new RectInt(92, 39, 8, 14), 3);
-                    break;
-                case 4:
-                    DrawWindowPair(texture, new RectInt(67, 40, 6, 14), new RectInt(98, 39, 9, 14));
-                    break;
-                default:
-                    DrawWindowPair(texture, new RectInt(62, 41, 8, 13), new RectInt(93, 39, 9, 15));
-                    break;
-            }
+            WindowMaskProfile profile = WindowMaskProfiles[
+                Normalize(variant, WindowMaskProfiles.Length)];
+            DrawWindowGlass(texture, profile.LeftRect, profile.LeftRows);
+            DrawWindowGlass(texture, profile.RightRect, profile.RightRows);
         }
 
-        private static void DrawWindowPair(
+        private static void DrawWindowGlass(
             Texture2D texture,
-            RectInt left,
-            RectInt right,
-            int rightMullionOffset = -1)
+            RectInt rect,
+            ushort[] rows)
         {
-            DrawWindow(texture, left, left.width / 2);
-            DrawWindow(
-                texture,
-                right,
-                rightMullionOffset >= 0 ? rightMullionOffset : right.width / 2);
-        }
-
-        private static void DrawWindow(Texture2D texture, RectInt rect, int mullionOffset)
-        {
-            FillRect(
-                texture,
-                rect.x,
-                rect.y,
-                rect.width,
-                rect.height,
-                Color.white);
-            FillRect(
-                texture,
-                rect.x + mullionOffset,
-                rect.y,
-                HouseMullionThickness,
-                rect.height,
-                new Color(1f, 1f, 1f, 0.30f));
-            FillRect(
-                texture,
-                rect.x,
-                rect.y + rect.height / 2,
-                rect.width,
-                HouseMullionThickness,
-                new Color(1f, 1f, 1f, 0.36f));
-        }
-
-        private static void FillRect(Texture2D texture, int x, int y, int width, int height, Color color)
-        {
-            for (int py = y; py < y + height; py++)
+            int rowCount = Mathf.Min(rect.height, rows.Length);
+            for (int y = 0; y < rowCount; y++)
             {
-                for (int px = x; px < x + width; px++)
+                ushort bits = rows[y];
+                for (int x = 0; x < rect.width; x++)
                 {
-                    SetPixelSafe(texture, px, py, color);
+                    if ((bits & (1 << x)) != 0)
+                    {
+                        SetPixelSafe(texture, rect.x + x, rect.y + y, Color.white);
+                    }
                 }
             }
         }
@@ -231,6 +216,26 @@ namespace ProjectUnknown.Strategy
         {
             int normalized = value % count;
             return normalized < 0 ? normalized + count : normalized;
+        }
+
+        private readonly struct WindowMaskProfile
+        {
+            public WindowMaskProfile(
+                RectInt leftRect,
+                ushort[] leftRows,
+                RectInt rightRect,
+                ushort[] rightRows)
+            {
+                LeftRect = leftRect;
+                LeftRows = leftRows;
+                RightRect = rightRect;
+                RightRows = rightRows;
+            }
+
+            public RectInt LeftRect { get; }
+            public ushort[] LeftRows { get; }
+            public RectInt RightRect { get; }
+            public ushort[] RightRows { get; }
         }
     }
 }
