@@ -348,6 +348,7 @@
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyWorldEffectAnimator.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyBirdAgent.cs" />
     <Compile Include="Assets\Scripts\Runtime\Selection\StrategyWorldSelectionController.Part14.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Selection\StrategyWorldSelectionController.ScoutWorkers.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part08.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyFamilyTreeHudController.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWildlifeController.Fishing.cs" />

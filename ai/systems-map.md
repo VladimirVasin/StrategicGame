@@ -810,6 +810,7 @@ Responsibilities:
 - Select only in-bounds explored, walkable cells with an in-bounds cardinal unexplored neighbor.
 - Prefer the nearest frontier deterministically, using nearby unknown coverage and stable coordinates as tie-breakers.
 - Route one assigned Scout to the target, survey for 5-6 seconds, and repeat during settlement work hours.
+- Expose the single Scout slot through both the settlement-wide Profession HUD and the selected Scout Lodge HUD.
 - Temporarily reject unreachable targets, release deferred paths immediately, and clear reservations on nightfall, unassignment, death, funeral interruption, demolition, or resident-role change.
 - Expand map exploration only through the Scout resident's existing Fog of War reveal source.
 
@@ -818,6 +819,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Build/StrategyScoutLodge.cs`
 - `Assets/Scripts/Runtime/Build/StrategyScoutTargetSelector.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Scouting.cs`
+- `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.ScoutWorkers.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentTask.cs`
 - `Assets/Tests/EditMode/StrategyScoutTargetSelectorTests.cs`
 
@@ -1450,7 +1452,7 @@ Primary files/assets:
 
 Impact hints:
 
-- This HUD owns player-facing worker assignment/removal; selected-building microHUDs should remain informational for worksite status/resource context.
+- This HUD is the settlement-wide worker assignment/removal surface; the selected Scout Lodge HUD intentionally duplicates its single-slot Assign/Remove control while other selected-worksite HUDs remain informational.
 - Assignment still uses each worksite's existing `TryAssignNextAvailable...` / `Unassign...At` API, so role state, reservations, and work loops remain owned by the worksite/resident systems.
 - Hauler and builder `+` buttons should stay enabled as long as a Storage Yard exists and at least one free adult resident can work.
 - Auto workforce controls are UI-facing only; actual assignment decisions belong to `StrategyAutoWorkforceController`.
@@ -2435,7 +2437,7 @@ Responsibilities:
 - Keep Garden Beds and Chicken Coop hidden from the selected-house HUD.
 - Expose Tools-based production upgrade actions in eligible selected-building HUDs.
 - Show selected-house resident portraits/names/age/life stage/statuses up to house capacity, including the Householder marker, prepared dish recipe summaries, Pottery, ingredient rations, and resource icons/counts.
-- Show selected worksite status/resource context without worker assignment controls.
+- Show selected worksite status/resource context without worker assignment controls, except for the Scout Lodge's single direct Assign/Remove slot.
 - Show selected Storage Yards with a dedicated icon-led logistics dashboard for Haulers, builders, available sources, resource stock, and readiness status.
 - Show selected starter Caravan Carts with compact temporary construction and food stock context.
 - Show selected Trading Posts with settlement Coins, caravan status/ETA, and active buy/sell offer buttons.
@@ -2449,6 +2451,7 @@ Responsibilities:
 Primary files/assets:
 
 - `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.cs`
+- `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.ScoutWorkers.cs`
 - `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.Part09.cs`
 - `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.Part10.cs`
 - `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.Part12.cs`

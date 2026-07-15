@@ -200,6 +200,7 @@
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part61.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyStarterCaravanCart.Food.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part28.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Selection\StrategyWorldSelectionController.ScoutWorkers.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingSpriteFactory.Part08.cs" />
     <Compile Include="Assets\Scripts\Runtime\Persistence\StrategySaveMigration.cs" />
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyConstructionResourceCost.cs" />

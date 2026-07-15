@@ -1,5 +1,12 @@
 # Work Log
 
+### 2026-07-15 - Scout Lodge building-HUD assignment fix
+
+- Fixed the selected Scout Lodge HUD hiding the shared worker section and omitting Scout Lodge routing even when eligible free adults were available.
+- Added one compact Scout slot with portrait/status plus Assign/Remove controls, routed through the existing `StrategyScoutLodge` assignment APIs, and moved Exploration context below the worker row.
+- Kept the settlement-wide Profession HUD assignment path and the Scout worksite eligibility rules unchanged.
+- Verification: all five project builds and the technical quality gates pass with zero compiler warnings/errors; the open Unity Editor log has no recent compiler-error markers, while a separate batch Unity test run was skipped because the project is already open in the Editor.
+
 ### 2026-07-15 - New settlements begin in Spring
 
 - Changed the explicit seven-day season cycle to `Spring -> Summer -> Autumn -> Winter`, so calendar Day 1 is Spring day 1 while Winter still begins on Day 22.

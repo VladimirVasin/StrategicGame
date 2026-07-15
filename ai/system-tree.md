@@ -626,6 +626,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - The house HUD does not expose Garden Beds or Chicken Coop house-upgrade actions
     - The house HUD shows a compact Dinner row with prepared rations vs family need, next prepared/cookable dish, the main blocker, a short local stock line, and filtered household resource icons/counts including single food units
     - The lumberjack, stonecutter, sawmill, mine, coal pit, clay pit, kiln, forge, hunter, fisher, and granary HUDs show status/resource context without assignment controls
+    - The Scout Lodge HUD exposes its single Scout slot with direct Assign/Remove controls and keeps Exploration status below the worker row
     - The Trading Post HUD shows settlement Coins, caravan ETA/status, and active buy/sell offer buttons while a caravan is trading
     - Eligible production/extraction building HUDs show a compact Tools-based production upgrade action row
     - The Storage Yard HUD shows icon-led Hauler/Builder/source chips, a resource stock grid, and logistics readiness status without assignment controls
@@ -661,6 +662,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Dynamic profession rows for built worksites
     - Generated profession icons
     - `-` / `+` assignment controls for lumberjacks, stonecutters, sawyers, potters, blacksmiths, miners, coal miners, clay diggers, hunters, fishers, Scouts, Haulers, and builders
+    - Remains the settlement-wide assignment surface while the selected Scout Lodge HUD also exposes its own single worker slot
     - Haulers and Builders use unlimited settlement-level assignment capacity independent of any one building; Haulers use Storage Yards only as dynamic dropoff targets when storage work exists, while other production roles still use worksite slot caps
     - `Auto Assign` toggle plus compact priority steppers for Construction, Food, Logistics, Wood, Stone, Planks, Iron, Coal, Clay, Pottery, and Tools
   - Custom modal refugee decision HUD pauses the simulation and asks whether to accept or reject arriving families
@@ -728,7 +730,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Resident movement records repeated completed building-to-building route traversals as stable roads after three real arrivals, shares road-aware 8-direction A* pathfinding with the road layer, tries direct road capture before falling back to smoothed travel waypoints, and reads formed roads for path-cost preference plus a 15% movement-speed bonus; ordinary footfalls and automatic route-network reinforcement no longer create roads, while roadside torch props are visual-only derivatives of existing road cells.
 - Time scale accelerates core simulation timers, while expensive visual/service systems use unscaled real-time cadences for fog, cinematic/weather/water/nature overlays, wildlife migration/caches/threat scans, population housekeeping, resident scheduled-work decision budgeting, and resident path-build budgeting.
 - World selection uses placed-building/resident/construction-site colliders, inspectable world-object sprite bounds, generated map cell data, fog state, the strategy camera, house resource state, and production-building upgrade state.
-- Profession HUD depends on population adults and current worksite components; it owns player-facing worker assignment/removal while existing worksite components still own capped role state and work loops, with settlement Haulers/Builders treated as uncapped population roles.
+- Profession HUD depends on population adults and current worksite components; it is the settlement-wide worker assignment surface while the selected Scout Lodge HUD also controls its single Scout slot, existing worksite components still own capped role state and work loops, and settlement Haulers/Builders remain uncapped population roles.
 - Refugee arrival demand depends on accepted adult counts plus finite worksite/construction slot counts, while intentionally ignoring uncapped settlement Hauler/Builder capacity.
 - Auto workforce depends on population availability, Profession HUD priority settings, construction sites, settlement Hauler/Builder role APIs, production worksite stock/capacity, Forge/Tools demand, household food emergency state, winter household Log reserve demand, and Granary raw food ingredient availability.
 - Strategy camera checks UI pointer state so bottom HUD interaction does not pan/zoom the map.

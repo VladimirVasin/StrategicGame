@@ -245,8 +245,13 @@ namespace ProjectUnknown.Strategy
                     RefreshResidents(building);
                 }
 
-                SetWorkersSectionVisible(false);
-                if (isLumberjackCamp || isStonecutterCamp || isSawmill || isMine || isCoalPit || isClayPit || isKiln || isForge || isHunterCamp || isFisherHut || isForagerCamp || isScoutLodge || isChickenCoop || isStarterCart || isGranary)
+                SetWorkersSectionVisible(isScoutLodge);
+                if (isScoutLodge)
+                {
+                    RefreshWorkers(scoutLodge);
+                    LayoutContextSection(238f, 214f);
+                }
+                else if (isLumberjackCamp || isStonecutterCamp || isSawmill || isMine || isCoalPit || isClayPit || isKiln || isForge || isHunterCamp || isFisherHut || isForagerCamp || isChickenCoop || isStarterCart || isGranary)
                 {
                     LayoutContextSection(128f, 214f);
                 }

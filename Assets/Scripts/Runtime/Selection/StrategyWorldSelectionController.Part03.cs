@@ -363,6 +363,15 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            StrategyScoutLodge scoutLodge = selectedTransform != null
+                ? selectedTransform.GetComponent<StrategyScoutLodge>()
+                : null;
+            if (scoutLodge != null)
+            {
+                ToggleScoutWorkerSlot(scoutLodge, index);
+                return;
+            }
+
             StrategyStorageYard yard = selectedTransform != null
                 ? selectedTransform.GetComponent<StrategyStorageYard>()
                 : null;
