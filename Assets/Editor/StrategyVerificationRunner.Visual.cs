@@ -263,7 +263,8 @@ namespace ProjectUnknown.Strategy.EditorTests
             {
                 case 0:
                     PrepareVisualCaptureView(map, population);
-                    StrategyDayNightCycleController.RestoreElapsedSeconds(105f);
+                    StrategyDayNightCycleController.RestoreElapsedSeconds(
+                        StrategyDayNightCycleController.DayLengthSeconds * 7f + 105f);
                     StrategyWeatherController.Active?.ForceWeather(StrategyWeatherKind.Clear);
                     RefreshVisualLighting();
                     visualCaptureWaitFrames = 60;
@@ -271,8 +272,7 @@ namespace ProjectUnknown.Strategy.EditorTests
                     break;
                 case 1:
                     CaptureGameplayRender("VisualNoon.png");
-                    StrategyDayNightCycleController.RestoreElapsedSeconds(
-                        StrategyDayNightCycleController.DayLengthSeconds * 7f + 105f);
+                    StrategyDayNightCycleController.RestoreElapsedSeconds(105f);
                     StrategyWeatherController.Active?.ForceWeather(StrategyWeatherKind.Clear);
                     RefreshVisualLighting();
                     visualCaptureWaitFrames = 40;

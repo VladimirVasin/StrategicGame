@@ -71,10 +71,18 @@ namespace ProjectUnknown.Strategy
         public const int SeasonsPerYear = 4;
         public const int DaysPerYear = DaysPerSeason * SeasonsPerYear;
 
+        private static readonly StrategySeason[] SeasonCycle =
+        {
+            StrategySeason.Spring,
+            StrategySeason.Summer,
+            StrategySeason.Autumn,
+            StrategySeason.Winter
+        };
+
         public static StrategySeason GetSeason(int dayIndex)
         {
             int seasonIndex = Mathf.FloorToInt(Mathf.Max(0, dayIndex) / (float)DaysPerSeason) % SeasonsPerYear;
-            return (StrategySeason)seasonIndex;
+            return SeasonCycle[seasonIndex];
         }
 
         public static int GetSeasonDay(int dayIndex)
@@ -102,7 +110,7 @@ namespace ProjectUnknown.Strategy
             }
 
             int currentDayInYear = safeDay % DaysPerYear;
-            int targetStart = ((int)targetSeason) * DaysPerSeason;
+            int targetStart = GetCycleIndex(targetSeason) * DaysPerSeason;
             int daysUntil = targetStart - currentDayInYear;
             return daysUntil > 0 ? daysUntil : daysUntil + DaysPerYear;
         }
@@ -170,6 +178,18 @@ namespace ProjectUnknown.Strategy
                 default:
                     return new StrategySeasonGameplayProfile(1.15f, 1.18f, 0.76f, 0.78f, 1.18f, 1.45f, 0.82f, 0.82f);
             }
+        }
+
+        private static int GetCycleIndex(StrategySeason season)
+        {
+            return season switch
+            {
+                StrategySeason.Spring => 0,
+                StrategySeason.Summer => 1,
+                StrategySeason.Autumn => 2,
+                StrategySeason.Winter => 3,
+                _ => 0
+            };
         }
     }
 }

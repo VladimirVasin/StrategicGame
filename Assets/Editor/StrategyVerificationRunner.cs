@@ -211,10 +211,14 @@ namespace ProjectUnknown.Strategy.EditorTests
 
         internal static void VerifyCalendar()
         {
-            Require(StrategySeasonCalendar.GetSeason(0) == StrategySeason.Summer, "Day 1 must be Summer");
-            Require(StrategySeasonCalendar.GetSeason(7) == StrategySeason.Spring, "Day 8 must be Spring");
+            Require(StrategySeasonCalendar.GetSeason(0) == StrategySeason.Spring, "Day 1 must be Spring");
+            Require(StrategySeasonCalendar.GetSeason(7) == StrategySeason.Summer, "Day 8 must be Summer");
             Require(StrategySeasonCalendar.GetSeason(14) == StrategySeason.Autumn, "Day 15 must be Autumn");
             Require(StrategySeasonCalendar.GetSeason(21) == StrategySeason.Winter, "Day 22 must be Winter");
+            Require(StrategySeasonCalendar.GetSeason(28) == StrategySeason.Spring, "Day 29 must return to Spring");
+            Require(StrategySeasonCalendar.GetSeasonDay(0) == 1, "Day 1 must be Spring day 1");
+            Require(StrategySeasonCalendar.GetDaysUntilSeason(0, StrategySeason.Summer) == 7, "Summer must be 7 days after game start");
+            Require(StrategySeasonCalendar.GetDaysUntilSeason(0, StrategySeason.Winter) == 21, "Winter must be 21 days after game start");
             Require(StrategySeasonCalendar.GetYear(28) == 2, "Day 29 must begin year 2");
         }
 

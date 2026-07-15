@@ -20,7 +20,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - 2D renderer configuration
   - Default volume profile
   - URP global settings
-  - Runtime day/night overlay tints the world above sprites and below preview/fog/UI, exposes day/clock/phase/season calendar snapshots, and drives dawn/nightfall/season-start player messages
+  - Runtime day/night overlay tints the world above sprites and below preview/fog/UI, exposes day/clock/phase/season calendar snapshots beginning on Spring day 1, and drives dawn/nightfall/season-start player messages
   - Runtime weather overlays add wet ground/cold ground wash, chunk-repainted cloud shadows, chunk-repainted mist, rain, and pooled camera-area snow in dedicated sorting bands around day/night and fog-of-war
   - Runtime seasonal surface overlays add coherent world-space snow cover over non-water terrain, ice cover over water cells, and cached snow-cap overlays on placed building sprites
   - Runtime URP post-process volume adds soft day/night/weather/season color grading, bloom, and vignette

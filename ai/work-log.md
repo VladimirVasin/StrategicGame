@@ -1,5 +1,13 @@
 # Work Log
 
+### 2026-07-15 - New settlements begin in Spring
+
+- Changed the explicit seven-day season cycle to `Spring -> Summer -> Autumn -> Winter`, so calendar Day 1 is Spring day 1 while Winter still begins on Day 22.
+- Preserved the existing `StrategySeason` numeric enum values and elapsed-time save format; Continue derives the corrected season from the saved elapsed day without a schema migration.
+- Extended deterministic calendar coverage for the first day, all first-year season boundaries, year rollover, and days until Summer/Winter.
+- Realigned deterministic gameplay captures so the generic Noon frame remains in Summer and `VisualSpring.png` now uses the first Spring day.
+- Verification: all five project builds and the technical quality gates pass with zero compiler warnings/errors. The focused Unity calendar test was not started because the project was already open in the main Unity Editor; its deterministic assertions compile in the EditMode test assembly.
+
 ### 2026-07-15 - Scout Lodge and map-exploration profession MVP
 
 - Added `Scout Lodge` to Infrastructure as an exact `2x4` building costing 4 Logs and 2 Stone, with one elongated procedural final variant and a dedicated seven-stage construction sequence.
