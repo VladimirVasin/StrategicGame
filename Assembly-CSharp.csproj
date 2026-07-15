@@ -413,6 +413,7 @@
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyTrailController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyNatureSpriteFactory.Part04.cs" />
     <Compile Include="Assets\Scripts\Runtime\Audio\StrategyAudioMixController.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Audio\StrategyAudioMixController.ApplicationFocus.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyHouseholdFoodState.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyDebugPanelController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildPlacementController.cs" />

@@ -110,6 +110,7 @@
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyHouseholdFoodState.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyUiInputModuleBootstrap.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyDebugPanelController.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Audio\StrategyAudioMixController.ApplicationFocus.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildPlacementController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyCinematicLightEmitter.Profile.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part29.cs" />

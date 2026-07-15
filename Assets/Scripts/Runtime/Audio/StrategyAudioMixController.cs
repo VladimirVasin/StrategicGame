@@ -43,7 +43,7 @@ namespace ProjectUnknown.Strategy
     }
 
     [DisallowMultipleComponent]
-    public sealed class StrategyAudioMixController : MonoBehaviour
+    public sealed partial class StrategyAudioMixController : MonoBehaviour
     {
         private const float NearZoomSize = 7f;
         private const float FarZoomSize = 42f;
@@ -88,6 +88,7 @@ namespace ProjectUnknown.Strategy
 
             instance = this;
             strategyCamera = camera != null ? camera : Camera.main;
+            InitializeApplicationAudioFocus();
             DontDestroyOnLoad(gameObject);
             LoadMixerRouting();
             RefreshMix(true);
@@ -194,6 +195,7 @@ namespace ProjectUnknown.Strategy
 
             instance = this;
             strategyCamera = strategyCamera != null ? strategyCamera : Camera.main;
+            InitializeApplicationAudioFocus();
             DontDestroyOnLoad(gameObject);
             LoadMixerRouting();
             RefreshMix(true);
@@ -208,6 +210,7 @@ namespace ProjectUnknown.Strategy
         {
             if (instance == this)
             {
+                RestoreApplicationAudioFocus("component_destroyed");
                 instance = null;
             }
         }

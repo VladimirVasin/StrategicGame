@@ -25,6 +25,8 @@ namespace ProjectUnknown.Strategy
 
         public void Configure()
         {
+            windowFocused = Application.isFocused;
+            hasAudioFocus = windowFocused && !applicationPaused;
             playlist = Resources.LoadAll<AudioClip>(MusicFolderPath);
             if (playlist.Length > 1)
             {
@@ -151,6 +153,15 @@ namespace ProjectUnknown.Strategy
         {
             if (!pausedForFocusLoss)
             {
+                if (configured
+                    && hasAudioFocus
+                    && musicSource != null
+                    && musicSource.clip == null
+                    && playlist.Length > 0)
+                {
+                    PlayNextTrack(GetDesiredMood());
+                }
+
                 return;
             }
 

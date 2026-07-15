@@ -310,6 +310,7 @@ Responsibilities:
 - Create/configure runtime cinematic visuals after post-processing setup.
 - Create/configure the night-light task controller after population exists.
 - Create the runtime time-scale controller for F1/F2/F3 speed controls.
+- Keep desktop Player updates running while the application is unfocused without treating focus as a simulation pause source.
 - Create/configure the top status HUD with population counts, the larger resident roster HUD, the family tree modal scene, and the compact event log with birth/death/adoption messages.
 - Create/configure the runtime goals controller and starter goal sequence that gates early Build menu tools.
 - Create/configure refugee arrivals and the modal refugee decision HUD.
@@ -329,6 +330,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Core/StrategyDebugOptions.cs`
 - `Assets/Scripts/Runtime/Core/StrategyRuntimeObjectCreationGuard.cs`
 - `Assets/Scripts/Runtime/Core/StrategyTimeScaleController.cs`
+- `Assets/Scripts/Runtime/Audio/StrategyAudioMixController.ApplicationFocus.cs`
 - `Assets/Scripts/Runtime/Core/StrategySeasonCalendar.cs`
 - `Assets/Scripts/Runtime/Core/StrategyDayNightCycleController.Calendar.cs`
 - `Assets/Scripts/Runtime/Core/StrategyDayNightCycleController.cs`
@@ -478,6 +480,7 @@ Responsibilities:
 - Position a spatial river ambience source at the nearest generated water cell to the active camera.
 - Prefer `calm`/`night`/`winter`/`storm` music filename tags, use generic tracks as fallback, avoid immediate repeats, and insert contextual silence/end fades.
 - Pause current in-game music on application focus loss and resume the same clip on focus return.
+- Mute the global listener while application focus is lost or the application is suspended, then restore the exact captured listener volume only after both states clear.
 - Shape resident walk frames into grass/forest/dirt/road/snow profiles and submit them to the shared voice pool.
 - Add spatial resident work SFX for axe, pickaxe, construction hammer, fishing, and bow actions on animation impact/release frames.
 - Add pooled spatial forestry SFX for `StrategyForestryTree` fall and split-Logs completion events.
@@ -489,6 +492,7 @@ Primary files/assets:
 
 - `Assets/Scripts/Runtime/Audio/StrategyAmbientAudioController.cs`
 - `Assets/Scripts/Runtime/Audio/StrategyAudioMixController.cs`
+- `Assets/Scripts/Runtime/Audio/StrategyAudioMixController.ApplicationFocus.cs`
 - `Assets/Scripts/Runtime/Audio/StrategyAudioVoicePool.cs`
 - `Assets/Scripts/Runtime/Audio/StrategyProceduralAudioLibrary.cs`
 - `Assets/Scripts/Runtime/Audio/StrategyWorldAudioDirector.cs`
@@ -522,6 +526,8 @@ Impact hints:
 - Ambience depends on generated map water cells, camera position, and strategy wind/weather values.
 - Music files can be named freely, but `Music_01.mp3`, `Music_02.mp3`, etc. are the recommended convention; all direct AudioClips in `Resources/Audio/Music` are part of the playlist.
 - Music focus handling must use `AudioSource.Pause`/`UnPause` so losing focus does not trigger playlist advancement.
+- Application focus must not write `Time.timeScale`; desktop background execution is a Player setting, while simulation pause remains owned by `StrategyTimeScaleController` locks.
+- Global focus mute uses `AudioListener.volume`, not `AudioListener.pause`, because HUD sources intentionally ignore listener pause; always restore the captured value rather than assuming full volume.
 - Keep long music clips on background `Streaming` and long ambience loops on background `Compressed In Memory`; Edit Mode verification enforces these profiles so scene bootstrap does not synchronously decode them.
 - Footsteps are tied to resident walk sprite frames 1 and 5; changing walk frame counts or animation pacing should retune footstep phases.
 - Work SFX are tied to resident impact/release frames (`WoodcutImpactFrame`, `ConstructionImpactFrame`, `FishingHookFrame`, `FishingReelFrame`, and `BowReleaseFrame`); changing those animation timelines should retune SFX triggers.
@@ -1255,6 +1261,7 @@ Impact hints:
 - Time scale affects gameplay timers using scaled `Time.deltaTime`; UI, visual overlays, service caches, diagnostics throttles, and expensive maintenance loops should use unscaled time/realtime when their cadence should remain stable at x2/x3.
 - Future pause, speed HUD, or settings should extend this controller instead of adding separate `Time.timeScale` writes.
 - Modal systems should use pause locks instead of writing `Time.timeScale = 0` directly.
+- Application focus loss must not push or pop a pause lock; background simulation and explicit/modal pause are independent states.
 
 ### Shared Runtime UI Feedback
 

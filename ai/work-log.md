@@ -1,5 +1,13 @@
 # Work Log
 
+### 2026-07-15 - Background simulation with focus-safe audio
+
+- Enabled desktop Player background updates in project settings and defensively from the persistent runtime audio mix, so an unfocused settlement continues advancing at its requested x1/x2/x3 speed.
+- Kept application focus independent from `StrategyTimeScaleController`; existing bootstrap, refugee, point-of-interest, and Family Trees pause locks remain authoritative while the application is unfocused.
+- Added one combined application-focus/application-pause audio gate that captures the current `AudioListener.volume`, globally mutes every source including HUD audio, and restores the exact captured value only after both conditions clear; the existing music pause/resume path still preserves the current track position.
+- Added deterministic coverage for focus loss/return, callback ordering, repeated loss callbacks, teardown restoration, and pre-muted audio, plus static and runtime verification that background execution remains enabled. Tutorial flow, goals, unlock order, and HUD entry points are unchanged.
+- Verification: technical quality gates and all five C# project builds pass with zero warnings/errors; focused Unity EditMode tests pass 5/5, and Unity PlayMode smoke passes.
+
 ### 2026-07-15 - Building demolition preserves stored resources
 
 - Replaced immediate completed-building deletion with an atomic deferred teardown: the building retires from new targets immediately, same-frame transfers can settle, and accepted demolition is flushed before save capture.

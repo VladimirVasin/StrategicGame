@@ -89,6 +89,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Creates and configures the 16x16 world chunk registry after starter placement so later systems can query camera-near, active-settlement, dirty, and spatially indexed world state
     - Creates and wires runtime wildlife after starter placement so deer, rabbits, fish, and birds spawn in valid terrain/water/habitat areas
     - Creates runtime time-scale controls for simulation speed hotkeys
+    - Keeps desktop Player updates running after application focus loss without creating or releasing simulation pause locks
     - Creates the refugee-arrival event controller and modal refugee decision HUD
     - Creates performance diagnostics after population, weather, wildlife, and time-scale setup so stable 15/30/50-resident benchmark windows include frame, memory, path/decision, world, and light counts
     - Creates the top status HUD with settlement population counts, a compact calendar/time/season widget, a clickable population roster HUD, family tree scene entry point, and a compact event log for births, deaths, adoptions, dawn, nightfall, and season starts
@@ -126,8 +127,10 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Build HUD exposes x1/x2/x3 speed buttons under the top-left construction resource panel
     - Updates both `Time.timeScale` and `Time.fixedDeltaTime`
     - Supports pause locks for modal gameplay decisions while preserving the requested x1/x2/x3 speed
+    - Treats application focus as independent from simulation pause state
   - Strategy audio
     - Runtime-created central audio mix controller owns named Music/Ambience/Weather/Water/Settlement/Work/Footsteps/Wildlife/Fire/ImportantEvents/HUD buses, smooth day/night/weather/winter/pause/zoom profiles, and camera-aware acoustic attenuation
+    - Globally mutes every audio source on focus loss/application pause and restores the exact prior listener volume only after both conditions clear
     - Editor-created Unity AudioMixer routes every runtime source through the matching named group
     - A fixed 18-voice world pool applies concurrency limits, priority stealing, low-pass, and reverb without per-resident AudioSources
     - Runtime world audio director blends daytime/nighttime settlement beds, campfire, winter wind, local work details, and important event one-shots from camera-area population/building context
@@ -709,6 +712,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Intro menu launch depends on save validation, one persistent preload coordinator, deterministic map seed handling, the Founding Journey decision gate for New Settlement, and the gameplay scene-loaded bootstrap hook; prepared terrain keeps Unity object creation/upload on the main thread.
 - Founding Journey presentation couples each authored shot to its atmosphere and scene-owned Weather/Fire ambience; its answers feed a pure selector over a captured map snapshot, and selected camp/cart cells feed population startup, nature/forage exclusions, exact starter-cart placement, save v3, and the initial camera focus.
 - Audio bootstrap depends on map generation, camera setup/orthographic zoom, strategy wind/weather values, `Resources/Audio` assets, the in-game music/work/HUD-SFX folders, resident walk animation frames, resident work impact/release frames, and runtime HUD interaction events.
+- Application focus couples Player background execution with the audio mix only: it never mutates simulation time, so active modal pause locks remain authoritative while unfocused running settlements continue to advance.
 - Strategy camera bounds depend on generated map dimensions.
 - Input action IDs/names/bindings feed the central router, every runtime consumer, modal contexts, and the shared UI input module; update their contract tests with intentional changes.
 - Build menu active tool state drives the placement controller when catalog tools exist.

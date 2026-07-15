@@ -115,6 +115,8 @@ namespace ProjectUnknown.Strategy.EditorTests
 
             try
             {
+                Require(Application.runInBackground,
+                    "Application background execution is disabled at runtime");
                 if (smokeKind == SmokeKind.MainMenuLaunch)
                 {
                     UpdateMainMenuLaunchSmoke();

@@ -190,6 +190,8 @@ namespace ProjectUnknown.Strategy.EditorTests
 
         internal static void VerifyAudioArchitecture()
         {
+            Require(PlayerSettings.runInBackground,
+                "Player must keep simulation updates running while unfocused");
             AudioMixer mixer = Resources.Load<AudioMixer>("Audio/StrategyAudioMixer");
             Require(mixer != null, "Strategy AudioMixer resource is missing");
             string[] busNames = System.Enum.GetNames(typeof(StrategyAudioBus));
