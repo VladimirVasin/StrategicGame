@@ -203,6 +203,10 @@ namespace ProjectUnknown.Strategy.EditorTests
 
             Require(StrategyAudioVoicePool.Capacity >= 12 && StrategyAudioVoicePool.Capacity <= 24,
                 "World audio voice pool must stay bounded");
+            Require(StrategyWorldAudioDirector.WolfHowlCooldownSeconds >= 90f,
+                "Wolf howl cadence must remain rare across the whole map");
+            Require(StrategyWorldAudioDirector.WolfHowlConcurrencyLimit == 1,
+                "Wolf howls must not overlap");
             Require((int)StrategyAudioBus.ImportantEvents > (int)StrategyAudioBus.Footsteps,
                 "Audio priority buses are missing");
             AudioClip fire = StrategyProceduralAudioLibrary.Get(StrategyProceduralSound.Fire);

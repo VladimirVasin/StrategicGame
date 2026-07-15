@@ -1,5 +1,11 @@
 # Work Log
 
+### 2026-07-15 - Rare global wolf-howl cadence
+
+- Increased the shared `wolf_howl` audio cooldown from 1.1 to 90 unscaled seconds, limiting audible howls across every pack and game speed instead of letting each wolf create a near-continuous chain.
+- Reduced wolf-howl concurrency from two voices to one so distant packs cannot overlap the 2.15-second procedural howl; visual wolf behavior remains unchanged.
+- Extended the audio architecture verification with the rare-cadence and no-overlap contracts.
+
 ### 2026-07-15 - In-game Escape pause menu
 
 - Added a code-built gameplay pause menu that opens with `Escape` only when no other modal input context owns Cancel; the router's consumed-frame guard prevents the same key press from closing another HUD and immediately opening the pause menu.

@@ -9,6 +9,8 @@ namespace ProjectUnknown.Strategy
         private const float MixRefreshInterval = 0.20f;
         private const float DependencyRefreshInterval = 2f;
         private const float FadeSpeed = 0.16f;
+        internal const float WolfHowlCooldownSeconds = 90f;
+        internal const int WolfHowlConcurrencyLimit = 1;
 
         private CityMapController map;
         private Camera strategyCamera;
@@ -359,8 +361,8 @@ namespace ProjectUnknown.Strategy
                 1.04f,
                 StrategyAudioPriority.Important,
                 "wolf_howl",
-                1.1f,
-                2,
+                WolfHowlCooldownSeconds,
+                WolfHowlConcurrencyLimit,
                 0.88f,
                 8f,
                 70f);
