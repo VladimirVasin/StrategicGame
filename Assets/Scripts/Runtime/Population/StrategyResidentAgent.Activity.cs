@@ -160,7 +160,10 @@ namespace ProjectUnknown.Strategy
             MovingToScoutFrontier,
             SurveyingFrontier,
             MovingToPointOfInterest,
-            InvestigatingPointOfInterest
+            InvestigatingPointOfInterest,
+            StandingByAtSawmill,
+            StandingByAtKiln,
+            StandingByAtForge
         }
     }
 }

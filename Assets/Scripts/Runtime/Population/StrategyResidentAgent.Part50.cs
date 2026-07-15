@@ -103,15 +103,7 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            if (forgeWorkplace.HasInputMaterials
-                && forgeWorkplace.CanStartWorkCycle()
-                && TryMoveToForgeWork())
-            {
-                return true;
-            }
-
-            forgeWorkCooldown = Random.Range(2.0f, 4.8f);
-            return false;
+            return TryMoveToForgeWork();
         }
 
         private bool TryMoveToForgeWork()
@@ -135,10 +127,26 @@ namespace ProjectUnknown.Strategy
             hasTarget = false;
             path.Clear();
             pathIndex = 0;
-            if (activeForge == null || !activeForge.TryConsumeInputsForWork(out forgeToolsPending))
+            if (activeForge == null
+                || forgeWorkplace == null
+                || activeForge != forgeWorkplace
+                || !CanWork)
             {
                 ResetForgeWorkToIdle(false);
                 return;
+            }
+
+            if (!TryBeginForgingCycle())
+            {
+                EnterForgeStandby();
+            }
+        }
+
+        private bool TryBeginForgingCycle()
+        {
+            if (activeForge == null || !activeForge.TryConsumeInputsForWork(out forgeToolsPending))
+            {
+                return false;
             }
 
             activity = ResidentActivity.ForgingTools;
@@ -149,6 +157,41 @@ namespace ProjectUnknown.Strategy
             transform.localScale = Vector3.one;
             FaceWorldPoint(activeForge.GetForgeFocusWorld());
             ResetForgeWorkEffectTimer(true);
+            return true;
+        }
+
+        private void EnterForgeStandby()
+        {
+            activity = ResidentActivity.StandingByAtForge;
+            hasTarget = false;
+            path.Clear();
+            pathIndex = 0;
+            transform.position = activeForge.GetInteriorWorkWorld(this);
+            transform.localRotation = Quaternion.identity;
+            transform.localScale = Vector3.one;
+            UseIdleSprite();
+            FaceWorldPoint(activeForge.GetForgeFocusWorld());
+        }
+
+        private void UpdateForgeStandby()
+        {
+            if (activeForge == null
+                || forgeWorkplace == null
+                || activeForge != forgeWorkplace
+                || !CanWork)
+            {
+                ResetForgeWorkToIdle(false);
+                return;
+            }
+
+            transform.position = activeForge.GetInteriorWorkWorld(this);
+            if (forgeWorkCooldown <= 0f && TryBeginForgingCycle())
+            {
+                return;
+            }
+
+            AnimateIdle();
+            FaceWorldPoint(activeForge.GetForgeFocusWorld());
         }
 
         private void UpdateForgingTools()
@@ -169,15 +212,25 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            activeForge.AddTools(forgeToolsPending);
-            activeForge.EndForging(this);
+            StrategyForge completedForge = activeForge;
+            completedForge.AddTools(forgeToolsPending);
+            completedForge.EndForging(this);
             forgeToolsPending = 0;
+            forgeWorkCooldown = Random.Range(1.0f, 2.6f);
+            if (forgeWorkplace == completedForge
+                && CanWork
+                && !StrategyDayNightCycleController.IsResidentEveningHomeTime)
+            {
+                activeForge = completedForge;
+                EnterForgeStandby();
+                return;
+            }
+
             activeForge = null;
             activity = ResidentActivity.Idle;
             transform.localRotation = Quaternion.identity;
             transform.localScale = Vector3.one;
             UseIdleSprite();
-            forgeWorkCooldown = Random.Range(1.0f, 2.6f);
             waitTimer = Random.Range(0.20f, 0.55f);
         }
 
@@ -215,6 +268,7 @@ namespace ProjectUnknown.Strategy
             }
 
             bool active = activity == ResidentActivity.MovingToForge
+                || activity == ResidentActivity.StandingByAtForge
                 || activity == ResidentActivity.ForgingTools;
             if (active)
             {

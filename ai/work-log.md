@@ -1,5 +1,14 @@
 # Work Log
 
+### 2026-07-15 - Production workers remain on duty without inputs
+
+- Fixed assigned Sawmill, Kiln, and Forge workers falling through failed input/capacity checks into generic home-centered `Idle` wandering.
+- Added site-specific production standby activities: assigned Sawyers, Potters, and Blacksmiths now report to their building for the workday, remain visibly stationed at its interior anchor without producing or playing work effects, and start the existing production cycle as soon as inputs and output capacity permit.
+- Completed production cycles now return directly to on-site standby after their normal cooldown instead of releasing the worker into `Idle`; already-started cycles may still finish after evening home time.
+- Integrated standby with resident task classification, HUD status text, evening departure, unassignment, demolition, funeral, and death cleanup. Auto-workforce active-release behavior remains unchanged, so ordinary rebalancing does not take an on-duty production worker mid-shift.
+- Added regression coverage proving each standby state remains Production work, exits through the evening interrupt path, and does not change the existing finish-current-cycle behavior. Tutorial flow, goals, unlock order, and HUD entry points are unchanged.
+- Verification: technical quality gates and all five C# project builds pass with zero warnings/errors; focused Unity EditMode tests pass 16/16, and Unity PlayMode smoke passes. The full EditMode run is 190/196, with the same six unrelated failures confined to existing snow, house-smoke, router-rebind, and shared UI-feedback tests.
+
 ### 2026-07-15 - Background simulation with focus-safe audio
 
 - Enabled desktop Player background updates in project settings and defensively from the persistent runtime audio mix, so an unfocused settlement continues advancing at its requested x1/x2/x3 speed.

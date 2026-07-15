@@ -25,8 +25,11 @@ namespace ProjectUnknown.Strategy
             RegisterNormalTask(ResidentActivity.DiggingClayInPit, UpdateDiggingClayInPit);
             RegisterNormalTask(ResidentActivity.PickingUpProductionInput, UpdatePickingUpProductionInput);
             RegisterNormalTask(ResidentActivity.DepositingProductionInput, UpdateDepositingProductionInput);
+            RegisterNormalTask(ResidentActivity.StandingByAtSawmill, UpdateSawmillStandby);
             RegisterNormalTask(ResidentActivity.SawingLogs, UpdateSawingLogs);
+            RegisterNormalTask(ResidentActivity.StandingByAtKiln, UpdateKilnStandby);
             RegisterNormalTask(ResidentActivity.FiringPottery, UpdateFiringPottery);
+            RegisterNormalTask(ResidentActivity.StandingByAtForge, UpdateForgeStandby);
             RegisterNormalTask(ResidentActivity.ForgingTools, UpdateForgingTools);
             RegisterNormalTask(ResidentActivity.PickingUpStorageLogs, UpdatePickingUpStorageLogs);
             RegisterNormalTask(ResidentActivity.DepositingStorageLogs, UpdateDepositingStorageLogs);

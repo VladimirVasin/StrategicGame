@@ -33,7 +33,7 @@ namespace ProjectUnknown.Strategy
 
     internal sealed class StrategyResidentTaskState : IStrategyResidentTask
     {
-        internal const int ProfiledActivityCount = 157;
+        internal const int ProfiledActivityCount = 160;
 
         private bool hasAuthoritativeKind;
 
@@ -168,7 +168,10 @@ namespace ProjectUnknown.Strategy
                 return StrategyResidentTaskKind.Extraction;
             }
 
-            if (activity is >= ResidentActivity.MovingToSawmill and <= ResidentActivity.ForgingTools)
+            if (activity is >= ResidentActivity.MovingToSawmill and <= ResidentActivity.ForgingTools
+                || activity is ResidentActivity.StandingByAtSawmill
+                    or ResidentActivity.StandingByAtKiln
+                    or ResidentActivity.StandingByAtForge)
             {
                 return StrategyResidentTaskKind.Production;
             }

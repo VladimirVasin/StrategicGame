@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using NUnit.Framework;
 
 namespace ProjectUnknown.Strategy.EditorTests
@@ -40,6 +41,36 @@ namespace ProjectUnknown.Strategy.EditorTests
             Assert.That(state.IsWork, Is.True);
             state.SetActivity(StrategyResidentAgent.ResidentActivity.Idle);
             Assert.That(state.Kind, Is.EqualTo(StrategyResidentTaskKind.Rest));
+        }
+
+        [TestCase(StrategyResidentAgent.ResidentActivity.StandingByAtSawmill)]
+        [TestCase(StrategyResidentAgent.ResidentActivity.StandingByAtKiln)]
+        [TestCase(StrategyResidentAgent.ResidentActivity.StandingByAtForge)]
+        public void ProductionStandbyRemainsWork(StrategyResidentAgent.ResidentActivity activity)
+        {
+            StrategyResidentTaskState state = new();
+            state.SetActivity(activity);
+
+            Assert.That(state.Kind, Is.EqualTo(StrategyResidentTaskKind.Production));
+            Assert.That(state.IsWork, Is.True);
+        }
+
+        [TestCase(StrategyResidentAgent.ResidentActivity.StandingByAtSawmill, true)]
+        [TestCase(StrategyResidentAgent.ResidentActivity.StandingByAtKiln, true)]
+        [TestCase(StrategyResidentAgent.ResidentActivity.StandingByAtForge, true)]
+        [TestCase(StrategyResidentAgent.ResidentActivity.SawingLogs, false)]
+        [TestCase(StrategyResidentAgent.ResidentActivity.FiringPottery, false)]
+        [TestCase(StrategyResidentAgent.ResidentActivity.ForgingTools, false)]
+        public void ProductionStandbyLeavesAtNightButActiveCyclesFinish(
+            StrategyResidentAgent.ResidentActivity activity,
+            bool expected)
+        {
+            MethodInfo method = typeof(StrategyResidentAgent).GetMethod(
+                "IsInterruptibleNightWorkActivity",
+                BindingFlags.NonPublic | BindingFlags.Static);
+
+            Assert.That(method, Is.Not.Null);
+            Assert.That(method.Invoke(null, new object[] { activity }), Is.EqualTo(expected));
         }
 
         [Test]

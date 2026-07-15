@@ -233,19 +233,22 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            if (deferredActivity == ResidentActivity.MovingToSawmill)
+            if (deferredActivity == ResidentActivity.MovingToSawmill
+                || deferredActivity == ResidentActivity.StandingByAtSawmill)
             {
                 CancelSawmillWork(true);
                 return;
             }
 
-            if (deferredActivity == ResidentActivity.MovingToKiln)
+            if (deferredActivity == ResidentActivity.MovingToKiln
+                || deferredActivity == ResidentActivity.StandingByAtKiln)
             {
                 CancelKilnWork(true);
                 return;
             }
 
-            if (deferredActivity == ResidentActivity.MovingToForge)
+            if (deferredActivity == ResidentActivity.MovingToForge
+                || deferredActivity == ResidentActivity.StandingByAtForge)
             {
                 CancelForgeWork(true);
                 return;
@@ -332,7 +335,10 @@ namespace ProjectUnknown.Strategy
                 || residentActivity == ResidentActivity.CastingFishingLine
                 || residentActivity == ResidentActivity.WaitingForFishBite
                 || residentActivity == ResidentActivity.ReelingFish
-                || residentActivity == ResidentActivity.PlantingTree;
+                || residentActivity == ResidentActivity.PlantingTree
+                || residentActivity == ResidentActivity.StandingByAtSawmill
+                || residentActivity == ResidentActivity.StandingByAtKiln
+                || residentActivity == ResidentActivity.StandingByAtForge;
         }
 
         private static bool IsNightBlockedReachedActivity(ResidentActivity residentActivity)

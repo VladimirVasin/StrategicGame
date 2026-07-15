@@ -10,6 +10,7 @@ Last updated: 2026-07-15
 - Back/Skip, balanced defaults, preparation progress, and a reduced-motion option are available throughout the journey.
 - Demolishing a completed building now leaves its stored resources and unfinished workshop output on the ground for recovery; demolished-house prepared meals retain their recipe and ration value.
 - Settlements now continue running after Alt-Tab; explicit/modal pauses remain paused, and all audio mutes out of focus then returns at the previous volume.
+- Assigned Sawyers, Potters, and Blacksmiths now remain on duty at their production building throughout the workday when inputs or output space are unavailable, then resume production as soon as the blockage clears.
 
 ## Maintenance Rule
 

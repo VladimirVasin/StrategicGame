@@ -486,21 +486,21 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Sawmill local storage is capped at 6 total resources across Logs, Planks, and pending Planks
     - Sawmill input Logs are capped at 4 so Planks conversion can always reserve output space
     - Haulers deliver Logs from Storage Yard stock into the Sawmill input buffer
-    - Sawyers wait for delivered input Logs, then saw them into `Planks`
+    - Sawyers report to the Sawmill and remain on duty there throughout the workday while waiting for delivered input Logs or output capacity, then saw Logs into `Planks`
     - Sawmill work keeps Sawyers visible inside the building and uses a detailed animated saw/log/plank overlay with short sawdust effects
     - Sawmills store local Logs and Planks and expose Planks to Haulers for hauling
   - Kiln production MVP
     - Kiln is a placed production building with 1 assigned Potter
     - Kiln local storage is capped at 6 total resources across Clay, Coal, Pottery, pending Pottery, and reservations
     - Haulers deliver Clay and Coal from Storage Yard stock into the Kiln input buffers
-    - Potters wait for delivered Clay/Coal, then fire `2 Clay + 1 Coal` into `1 Pottery`
+    - Potters report to the Kiln and remain on duty there throughout the workday while waiting for delivered Clay/Coal or output capacity, then fire `2 Clay + 1 Coal` into `1 Pottery`
     - Kiln work keeps Potters visible at the building and uses an animated firing overlay with spark/dust effects
     - Kilns store local Clay, Coal, and Pottery and expose Pottery to Haulers for hauling
   - Forge production MVP
     - Forge is a placed production building with 1 assigned Blacksmith
     - Forge local storage is capped at 6 total resources across Iron, Coal, Logs, Tools, pending Tools, and reservations
     - Haulers deliver Iron, Coal, and Logs from Storage Yard stock into the Forge input buffers
-    - Blacksmiths wait for delivered Iron/Coal/Logs, then forge `1 Iron + 1 Coal + 1 Log` into `1 Tools`
+    - Blacksmiths report to the Forge and remain on duty there throughout the workday while waiting for delivered Iron/Coal/Logs or output capacity, then forge `1 Iron + 1 Coal + 1 Log` into `1 Tools`
     - Forge work keeps Blacksmiths visible at the building and uses an animated forging overlay with spark effects
     - Forges store local Iron, Coal, Logs, and Tools and expose Tools to Haulers for hauling
   - Granary food logistics MVP
@@ -590,8 +590,9 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Residents assigned to a Mine path to the mine entrance, become hidden underground while working, trigger entrance dust/spark effects, mine reserved underground Iron, and add Iron to mine stock
     - Residents assigned to a Coal Pit path to the pit entrance, stay visible inside the pit while working, trigger coal dust/chip effects, mine reserved underground Coal, and add Coal to pit stock
     - Residents assigned to a Clay Pit path to the pit entrance, stay visible inside the pit while working, mine reserved near-water Clay, and add Clay to pit stock
-    - Residents assigned to a Sawmill wait for Hauler-delivered Logs, work visibly inside the Sawmill, saw Logs into `Planks`, and add Planks to Sawmill stock
-    - Residents assigned to a Kiln wait for Hauler-delivered Clay and Coal, work visibly at the Kiln, fire them into `Pottery`, and add Pottery to Kiln stock
+    - Residents assigned to a Sawmill stay visibly on duty inside it for the full workday, wait there for Hauler-delivered Logs or output room, saw Logs into `Planks`, and add Planks to Sawmill stock
+    - Residents assigned to a Kiln stay visibly on duty at it for the full workday, wait there for Hauler-delivered Clay/Coal or output room, fire them into `Pottery`, and add Pottery to Kiln stock
+    - Residents assigned to a Forge stay visibly on duty at it for the full workday, wait there for Hauler-delivered Iron/Coal/Logs or output room, forge them into `Tools`, and add Tools to Forge stock
     - Residents assigned to a hunter camp reserve the nearest available adult rabbit on the map, move to roughly 2-3 tile bow range, shoot arrow projectiles with a 20% miss chance, butcher carcasses on hit, carry `Game`, and deposit it into hunter camp stock
     - Residents assigned to a fisher hut reserve the nearest reachable in-range fish, move to shore, cast/reel while range remains valid, carry `Fish`, and deposit it into fisher hut stock
     - Residents assigned to a Forager Camp reserve generated Berries/Roots/Mushrooms nodes, gather forage with reach/crouch animation frames, and deposit it into camp stock

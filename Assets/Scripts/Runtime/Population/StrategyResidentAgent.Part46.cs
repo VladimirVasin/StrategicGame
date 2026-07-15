@@ -102,15 +102,7 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            if (kilnWorkplace.HasInputMaterials
-                && kilnWorkplace.CanStartWorkCycle()
-                && TryMoveToKilnWork())
-            {
-                return true;
-            }
-
-            kilnWorkCooldown = Random.Range(2.0f, 4.8f);
-            return false;
+            return TryMoveToKilnWork();
         }
 
         private bool TryMoveToKilnWork()
@@ -134,10 +126,26 @@ namespace ProjectUnknown.Strategy
             hasTarget = false;
             path.Clear();
             pathIndex = 0;
-            if (activeKiln == null || !activeKiln.TryConsumeInputsForWork(out kilnPotteryPending))
+            if (activeKiln == null
+                || kilnWorkplace == null
+                || activeKiln != kilnWorkplace
+                || !CanWork)
             {
                 ResetKilnWorkToIdle(false);
                 return;
+            }
+
+            if (!TryBeginFiringCycle())
+            {
+                EnterKilnStandby();
+            }
+        }
+
+        private bool TryBeginFiringCycle()
+        {
+            if (activeKiln == null || !activeKiln.TryConsumeInputsForWork(out kilnPotteryPending))
+            {
+                return false;
             }
 
             activity = ResidentActivity.FiringPottery;
@@ -148,6 +156,41 @@ namespace ProjectUnknown.Strategy
             transform.localScale = Vector3.one;
             FaceWorldPoint(activeKiln.GetKilnFocusWorld());
             ResetKilnWorkEffectTimer(true);
+            return true;
+        }
+
+        private void EnterKilnStandby()
+        {
+            activity = ResidentActivity.StandingByAtKiln;
+            hasTarget = false;
+            path.Clear();
+            pathIndex = 0;
+            transform.position = activeKiln.GetInteriorWorkWorld(this);
+            transform.localRotation = Quaternion.identity;
+            transform.localScale = Vector3.one;
+            UseIdleSprite();
+            FaceWorldPoint(activeKiln.GetKilnFocusWorld());
+        }
+
+        private void UpdateKilnStandby()
+        {
+            if (activeKiln == null
+                || kilnWorkplace == null
+                || activeKiln != kilnWorkplace
+                || !CanWork)
+            {
+                ResetKilnWorkToIdle(false);
+                return;
+            }
+
+            transform.position = activeKiln.GetInteriorWorkWorld(this);
+            if (kilnWorkCooldown <= 0f && TryBeginFiringCycle())
+            {
+                return;
+            }
+
+            AnimateIdle();
+            FaceWorldPoint(activeKiln.GetKilnFocusWorld());
         }
 
         private void UpdateFiringPottery()
@@ -168,15 +211,25 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            activeKiln.AddPottery(kilnPotteryPending);
-            activeKiln.EndFiring(this);
+            StrategyKiln completedKiln = activeKiln;
+            completedKiln.AddPottery(kilnPotteryPending);
+            completedKiln.EndFiring(this);
             kilnPotteryPending = 0;
+            kilnWorkCooldown = Random.Range(0.9f, 2.4f);
+            if (kilnWorkplace == completedKiln
+                && CanWork
+                && !StrategyDayNightCycleController.IsResidentEveningHomeTime)
+            {
+                activeKiln = completedKiln;
+                EnterKilnStandby();
+                return;
+            }
+
             activeKiln = null;
             activity = ResidentActivity.Idle;
             transform.localRotation = Quaternion.identity;
             transform.localScale = Vector3.one;
             UseIdleSprite();
-            kilnWorkCooldown = Random.Range(0.9f, 2.4f);
             waitTimer = Random.Range(0.20f, 0.55f);
         }
 
@@ -214,6 +267,7 @@ namespace ProjectUnknown.Strategy
             }
 
             bool active = activity == ResidentActivity.MovingToKiln
+                || activity == ResidentActivity.StandingByAtKiln
                 || activity == ResidentActivity.FiringPottery;
             if (active)
             {

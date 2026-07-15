@@ -101,15 +101,7 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            if (sawmillWorkplace.HasInputLogs
-                && sawmillWorkplace.CanStartWorkCycle()
-                && TryMoveToSawmillWork())
-            {
-                return true;
-            }
-
-            sawmillWorkCooldown = Random.Range(2.0f, 4.8f);
-            return false;
+            return TryMoveToSawmillWork();
         }
 
         private bool TryMoveToSawmillWork()
@@ -133,10 +125,26 @@ namespace ProjectUnknown.Strategy
             hasTarget = false;
             path.Clear();
             pathIndex = 0;
-            if (activeSawmill == null || !activeSawmill.TryConsumeLogForWork(out sawmillPlanksPending))
+            if (activeSawmill == null
+                || sawmillWorkplace == null
+                || activeSawmill != sawmillWorkplace
+                || !CanWork)
             {
                 ResetSawmillWorkToIdle(false);
                 return;
+            }
+
+            if (!TryBeginSawingCycle())
+            {
+                EnterSawmillStandby();
+            }
+        }
+
+        private bool TryBeginSawingCycle()
+        {
+            if (activeSawmill == null || !activeSawmill.TryConsumeLogForWork(out sawmillPlanksPending))
+            {
+                return false;
             }
 
             activity = ResidentActivity.SawingLogs;
@@ -145,6 +153,41 @@ namespace ProjectUnknown.Strategy
             transform.position = activeSawmill.GetInteriorWorkWorld(this);
             transform.localRotation = Quaternion.identity;
             transform.localScale = Vector3.one;
+            FaceWorldPoint(activeSawmill.GetSawFocusWorld());
+            return true;
+        }
+
+        private void EnterSawmillStandby()
+        {
+            activity = ResidentActivity.StandingByAtSawmill;
+            hasTarget = false;
+            path.Clear();
+            pathIndex = 0;
+            transform.position = activeSawmill.GetInteriorWorkWorld(this);
+            transform.localRotation = Quaternion.identity;
+            transform.localScale = Vector3.one;
+            UseIdleSprite();
+            FaceWorldPoint(activeSawmill.GetSawFocusWorld());
+        }
+
+        private void UpdateSawmillStandby()
+        {
+            if (activeSawmill == null
+                || sawmillWorkplace == null
+                || activeSawmill != sawmillWorkplace
+                || !CanWork)
+            {
+                ResetSawmillWorkToIdle(false);
+                return;
+            }
+
+            transform.position = activeSawmill.GetInteriorWorkWorld(this);
+            if (sawmillWorkCooldown <= 0f && TryBeginSawingCycle())
+            {
+                return;
+            }
+
+            AnimateIdle();
             FaceWorldPoint(activeSawmill.GetSawFocusWorld());
         }
 
@@ -165,15 +208,25 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            activeSawmill.AddPlanks(sawmillPlanksPending);
-            activeSawmill.EndSawing(this);
+            StrategySawmill completedSawmill = activeSawmill;
+            completedSawmill.AddPlanks(sawmillPlanksPending);
+            completedSawmill.EndSawing(this);
             sawmillPlanksPending = 0;
+            sawmillWorkCooldown = Random.Range(0.8f, 2.2f);
+            if (sawmillWorkplace == completedSawmill
+                && CanWork
+                && !StrategyDayNightCycleController.IsResidentEveningHomeTime)
+            {
+                activeSawmill = completedSawmill;
+                EnterSawmillStandby();
+                return;
+            }
+
             activeSawmill = null;
             activity = ResidentActivity.Idle;
             transform.localRotation = Quaternion.identity;
             transform.localScale = Vector3.one;
             UseIdleSprite();
-            sawmillWorkCooldown = Random.Range(0.8f, 2.2f);
             waitTimer = Random.Range(0.20f, 0.55f);
         }
 
@@ -213,6 +266,7 @@ namespace ProjectUnknown.Strategy
             }
 
             bool active = activity == ResidentActivity.MovingToSawmill
+                || activity == ResidentActivity.StandingByAtSawmill
                 || activity == ResidentActivity.SawingLogs;
             if (active)
             {
