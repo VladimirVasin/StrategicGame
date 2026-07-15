@@ -281,25 +281,9 @@ namespace ProjectUnknown.Strategy
             }
 
             Bounds bounds = building.FootprintBounds;
-            return building.Tool switch
-            {
-                StrategyBuildTool.House => LerpBounds(bounds, -0.16f, 0.30f),
-                StrategyBuildTool.LumberjackCamp => LerpBounds(bounds, 1.15f, 0.30f),
-                StrategyBuildTool.StonecutterCamp => LerpBounds(bounds, 1.14f, 0.28f),
-                StrategyBuildTool.Sawmill => LerpBounds(bounds, -0.16f, 0.34f),
-                StrategyBuildTool.Mine => LerpBounds(bounds, -0.14f, 0.30f),
-                StrategyBuildTool.CoalPit => LerpBounds(bounds, 1.14f, 0.32f),
-                StrategyBuildTool.ClayPit => LerpBounds(bounds, -0.15f, 0.31f),
-                StrategyBuildTool.Kiln => LerpBounds(bounds, 1.14f, 0.31f),
-                StrategyBuildTool.Forge => LerpBounds(bounds, 1.16f, 0.34f),
-                StrategyBuildTool.HunterCamp => LerpBounds(bounds, -0.16f, 0.31f),
-                StrategyBuildTool.FisherHut => LerpBounds(bounds, 1.15f, 0.30f),
-                StrategyBuildTool.ForagerCamp => StrategyForagerCampVisualProfile.GetTorchAnchorWorld(bounds),
-                StrategyBuildTool.StorageYard => LerpBounds(bounds, -0.15f, 0.33f),
-                StrategyBuildTool.Granary => LerpBounds(bounds, 1.15f, 0.32f),
-                StrategyBuildTool.Bridge => GetBridgeTorchAnchorWorld(bounds),
-                _ => LerpBounds(bounds, 1.14f, 0.30f)
-            };
+            return building.Tool == StrategyBuildTool.Bridge
+                ? GetBridgeTorchAnchorWorld(bounds)
+                : StrategyBuildingVisualAnchorProfile.GetTorchAnchorWorld(building.Tool, bounds);
         }
 
         private Vector3 GetBridgeTorchAnchorWorld(Bounds bounds)

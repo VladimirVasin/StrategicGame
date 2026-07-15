@@ -32,6 +32,9 @@ namespace ProjectUnknown.Strategy.EditorTools
             EditorUtility.SetDirty(catalog);
             AssetDatabase.SaveAssets();
             RecreateOutputRoot();
+            // Bake sources must not resolve through sprites cached from the catalog being replaced.
+            StrategyVisualBakeSource.ResetRuntimeVisualCaches();
+            PrepareBridgeModulesForBake();
 
             List<StrategyVisualCatalog.BuildingSpriteSet> buildings = BakeBuildings();
             List<StrategyVisualCatalog.NatureSpriteSet> nature = BakeNature();
@@ -40,6 +43,8 @@ namespace ProjectUnknown.Strategy.EditorTools
             List<StrategyVisualCatalog.ResidentAtlasSet> residents = BakeResidents(portraits);
             List<StrategyVisualCatalog.VisualSequenceSet> sequences = new();
             BakeConstruction(sequences, buildings);
+            BakeBuildingAnimations(sequences);
+            BakeBridgeModules(sequences);
             BakeTrails(sequences);
             BakeBuildingLayers(sequences);
 
@@ -53,6 +58,7 @@ namespace ProjectUnknown.Strategy.EditorTools
             EditorUtility.SetDirty(catalog);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
+            StrategyVisualBakeSource.ResetRuntimeVisualCaches();
 
             string message = $"PASS buildings={buildings.Count} residents={residents.Count} "
                 + $"portraits={portraits.Count} nature={nature.Count} terrain={terrain.Count} sequences={sequences.Count}";
@@ -93,8 +99,18 @@ namespace ProjectUnknown.Strategy.EditorTools
 
                     string relativePath = $"Buildings/{tool}/V{variant + 1:00}.png";
                     string path = $"{BakedRoot}/{relativePath}";
-                    Sprite baked = BakeSpriteAsset(source, path);
-                    variants.Add(ResolveAuthoredSprite(relativePath, baked));
+                    try
+                    {
+                        Sprite baked = BakeSpriteAsset(source, path);
+                        variants.Add(ResolveAuthoredSprite(relativePath, baked, tool));
+                    }
+                    finally
+                    {
+                        if (tool == StrategyBuildTool.Bridge)
+                        {
+                            DestroyBridgeBakeSource(source);
+                        }
+                    }
                 }
 
                 if (variants.Count > 0)
@@ -136,15 +152,37 @@ namespace ProjectUnknown.Strategy.EditorTools
                 for (int variant = 0; variant < building.Variants.Length; variant++)
                 {
                     Sprite[] frames = new Sprite[StrategyVisualBakeSource.ConstructionStageCount];
-                    for (int stage = 0; stage < frames.Length; stage++)
+                    try
                     {
-                        frames[stage] = StrategyVisualBakeSource.GetConstructionSprite(building.Tool, variant, stage);
-                    }
+                        for (int stage = 0; stage < frames.Length; stage++)
+                        {
+                            frames[stage] = StrategyVisualBakeSource.GetConstructionSprite(
+                                building.Tool,
+                                variant,
+                                stage);
+                        }
 
-                    string id = $"Construction/{building.Tool}/V{variant}";
-                    string relativePath = $"Construction/{building.Tool}/V{variant + 1:00}.png";
-                    string path = $"{BakedRoot}/{relativePath}";
-                    sequences.Add(BakeSequenceAsset(id, frames, path, relativePath));
+                        string id = $"Construction/{building.Tool}/V{variant}";
+                        string relativePath = $"Construction/{building.Tool}/V{variant + 1:00}.png";
+                        string path = $"{BakedRoot}/{relativePath}";
+                        sequences.Add(BakeSequenceAsset(
+                            id,
+                            frames,
+                            path,
+                            relativePath,
+                            building.Tool,
+                            building.Variants[variant]));
+                    }
+                    finally
+                    {
+                        if (building.Tool == StrategyBuildTool.Bridge)
+                        {
+                            for (int stage = 0; stage < frames.Length; stage++)
+                            {
+                                DestroyBridgeBakeSource(frames[stage]);
+                            }
+                        }
+                    }
                 }
             }
         }

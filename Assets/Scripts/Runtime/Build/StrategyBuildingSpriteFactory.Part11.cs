@@ -4,8 +4,6 @@ namespace ProjectUnknown.Strategy
 {
     internal static partial class StrategyBuildingSpriteFactory
     {
-        private const float StandaloneChickenCoopPixelsPerUnit = 21f;
-
         private static Sprite CreateForagerCampSprite(int variant)
         {
             Texture2D texture = CreateTexture(96, 80, $"Forager Camp 2.5D Sprite {variant + 1}");
@@ -57,10 +55,22 @@ namespace ProjectUnknown.Strategy
 
         private static Sprite CreateChickenCoopSprite(int variant)
         {
-            int frame = variant % StrategyBuildingUpgradeSpriteFactory.AnimationFrameCount;
-            Sprite source = StrategyBuildingUpgradeSpriteFactory.GetAnimatedSprite(StrategyBuildingUpgradeType.ChickenCoop, frame);
-            Vector2 pivot = new Vector2(source.pivot.x / source.rect.width, source.pivot.y / source.rect.height);
-            return Sprite.Create(source.texture, source.rect, pivot, StandaloneChickenCoopPixelsPerUnit);
+            int frame = NormalizeVariant(
+                variant,
+                StrategyChickenCoopVisualProfile.AnimationFrameCount);
+            Sprite source = StrategyBuildingUpgradeSpriteFactory.GetProceduralAnimatedSprite(
+                StrategyBuildingUpgradeType.ChickenCoop,
+                frame);
+            Sprite standalone = Sprite.Create(
+                source.texture,
+                source.rect,
+                new Vector2(0.5f, StrategyChickenCoopVisualProfile.StandalonePivotY),
+                StrategyChickenCoopVisualProfile.ProceduralStandalonePixelsPerUnit,
+                0,
+                SpriteMeshType.FullRect,
+                source.border);
+            standalone.name = source.name + " Standalone Procedural";
+            return standalone;
         }
 
         private static Sprite CreateTradingPostSprite(int variant)

@@ -18,7 +18,7 @@ namespace ProjectUnknown.Strategy
 
         public static int NormalizeVariant(StrategyBuildTool tool, int variant)
         {
-            return tool == StrategyBuildTool.ForagerCamp ? 0 : Mathf.Max(0, variant);
+            return StrategyBuildingVariantProfile.NormalizeVariant(tool, variant);
         }
 
         public static Vector3 GetTorchAnchorWorld(Bounds bounds)

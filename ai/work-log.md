@@ -1,5 +1,15 @@
 # Work Log
 
+### 2026-07-14 - Complete authored building visual conversion
+
+- Completed high-resolution authored final-art coverage for all 17 current Build catalog tools plus the non-buildable Starter Caravan Cart: 47 static non-Bridge sprites preserve the established variant policy, while procedural factories remain safe fallbacks.
+- Added matching seven-stage authored construction art for all 46 non-Bridge buildable variants. The final stage embeds the exact accepted completed sprite, and higher PPU plus explicit per-tool pivot alignment preserve prior world size and placement behavior.
+- Replaced the standalone Chicken Coop and inactive House-upgrade visual with one shared six-frame authored animation contract; both consumers retain their own scale and pivot.
+- Added a `48 PPU` modular Bridge kit with horizontal/vertical Start, Middle, and End pieces. Runtime composition supports spans of `3-12` cells for the completed bridge and every construction stage without changing bridge placement or walkability.
+- Centralized authored-building variant normalization, pivots, stock/work/effect/light anchors, and non-readable snow alpha extraction so existing overlays continue to align with the new geometry.
+- Added hash-locked source manifests, deterministic final/construction/animation/Bridge builders, prompt provenance, catalog baking, and strict verification for dimensions, hashes, alpha/chroma quality, nearest-neighbor artifacts, import settings, pivots, stage-final equivalence, Bridge seams/composition, catalog ownership, and runtime fallback behavior.
+- Verification: deterministic asset validators and the full Unity authored catalog/manifest/animation/Bridge/pivot verifier passed; graphical EditMode coverage passed `78/78`; static hash/dimension/seam/chroma, project-parity, unique-GUID, UTF-8, and C# size audits passed; all five C# projects built sequentially with 0 warnings/errors.
+
 ### 2026-07-14 - Native 2x House and Forager Camp runtime art
 
 - Promoted the accepted high-detail House V01-V05 and Forager Camp V01 masters into true 2x runtime sprites: Houses are now `160x160`, Forager Camp is `176x116`, and all six authored construction atlases use seven `184x164` frames.

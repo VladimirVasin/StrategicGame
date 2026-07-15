@@ -207,7 +207,10 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            Vector3 planksWorld = new Vector3(bounds.max.x - 0.56f, bounds.min.y + 0.39f, -0.148f);
+            Vector3 planksWorld = StrategyBuildingVisualAnchorProfile.GetStockAnchorWorld(
+                StrategyBuildTool.StorageYard,
+                StrategyResourceType.Planks,
+                bounds);
             planksStockRenderer.transform.localPosition = transform.InverseTransformPoint(planksWorld);
             planksStockRenderer.transform.localScale = Vector3.one;
             StrategyWorldSorting.Apply(planksStockRenderer, planksWorld, 1);

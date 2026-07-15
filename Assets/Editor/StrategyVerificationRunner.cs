@@ -53,6 +53,9 @@ namespace ProjectUnknown.Strategy.EditorTests
                 VerifyBuildScenes();
                 VerifyNavigationPriorities();
                 VerifyVisualCatalog();
+                VerifyAuthoredBuildingManifests();
+                VerifyAuthoredBuildingAnimations();
+                VerifyAuthoredBridgeVisuals();
                 VerifyExplicitMapSeed();
                 VerifyAudioImportProfiles();
                 VerifyAudioArchitecture();

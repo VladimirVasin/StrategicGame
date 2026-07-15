@@ -37,8 +37,18 @@ namespace ProjectUnknown.Strategy
             }
 
             Bounds bounds = FootprintBounds;
-            PositionStock(logStockRenderer, new Vector3(bounds.min.x + 0.46f, bounds.min.y + 0.36f, -0.14f));
-            PositionStock(plankStockRenderer, new Vector3(bounds.max.x - 0.42f, bounds.min.y + 0.34f, -0.13f));
+            PositionStock(
+                logStockRenderer,
+                StrategyBuildingVisualAnchorProfile.GetStockAnchorWorld(
+                    StrategyBuildTool.Sawmill,
+                    StrategyResourceType.Logs,
+                    bounds));
+            PositionStock(
+                plankStockRenderer,
+                StrategyBuildingVisualAnchorProfile.GetStockAnchorWorld(
+                    StrategyBuildTool.Sawmill,
+                    StrategyResourceType.Planks,
+                    bounds));
         }
 
         private void PositionStock(SpriteRenderer renderer, Vector3 world)
@@ -75,8 +85,10 @@ namespace ProjectUnknown.Strategy
                 TrySpawnSawdustEffect();
             }
 
-            Bounds bounds = FootprintBounds;
-            Vector3 world = new Vector3(bounds.center.x, bounds.min.y + bounds.size.y * 0.46f, -0.105f);
+            Vector3 focus = StrategyBuildingVisualAnchorProfile.GetWorkFocusWorld(
+                StrategyBuildTool.Sawmill,
+                FootprintBounds);
+            Vector3 world = new Vector3(focus.x, focus.y + FootprintBounds.size.y * 0.01f, -0.105f);
             workRenderer.sprite = StrategyBuildingSpriteFactory.GetSawmillWorkSprite(workFrame, activeSawyers.Count);
             workRenderer.gameObject.SetActive(workRenderer.sprite != null);
             workRenderer.transform.localPosition = transform.InverseTransformPoint(world);

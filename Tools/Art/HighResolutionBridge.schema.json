@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "HighResolutionBridge.schema.json",
+  "title": "Project Unknown authored bridge module manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "source",
+    "sourceSha256",
+    "sourceSize",
+    "pixelsPerUnit",
+    "pivotNormalized",
+    "constructionStageCount",
+    "modules"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "const": 1 },
+    "source": { "type": "string", "minLength": 1 },
+    "sourceSha256": { "$ref": "#/$defs/sha256" },
+    "sourceSize": { "$ref": "#/$defs/pair" },
+    "pixelsPerUnit": { "const": 48 },
+    "pivotNormalized": {
+      "type": "array",
+      "prefixItems": [{ "const": 0.5 }, { "const": 0.5 }],
+      "items": false
+    },
+    "constructionStageCount": { "const": 7 },
+    "modules": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "items": { "$ref": "#/$defs/module" }
+    }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^([A-Fa-f0-9]{64})?$" },
+    "pair": {
+      "type": "array",
+      "prefixItems": [
+        { "type": "integer", "minimum": 1 },
+        { "type": "integer", "minimum": 1 }
+      ],
+      "items": false
+    },
+    "rectangle": {
+      "type": "array",
+      "prefixItems": [
+        { "type": "integer", "minimum": 0 },
+        { "type": "integer", "minimum": 0 },
+        { "type": "integer", "minimum": 1 },
+        { "type": "integer", "minimum": 1 }
+      ],
+      "items": false
+    },
+    "construction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["stage", "output", "expectedSha256"],
+      "properties": {
+        "stage": { "type": "integer", "minimum": 1, "maximum": 7 },
+        "output": { "type": "string", "minLength": 1 },
+        "expectedSha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "module": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "orientation",
+        "module",
+        "sourceBounds",
+        "outputCanvas",
+        "targetBoundsTopLeft",
+        "seamEdge",
+        "output",
+        "expectedSha256",
+        "construction"
+      ],
+      "properties": {
+        "orientation": { "enum": ["Horizontal", "Vertical"] },
+        "module": { "enum": ["Start", "Middle", "End"] },
+        "sourceBounds": { "$ref": "#/$defs/rectangle" },
+        "outputCanvas": { "$ref": "#/$defs/pair" },
+        "targetBoundsTopLeft": { "$ref": "#/$defs/rectangle" },
+        "seamEdge": {
+          "enum": ["Left", "Right", "Top", "Bottom", "BothHorizontal", "BothVertical"]
+        },
+        "output": { "type": "string", "minLength": 1 },
+        "expectedSha256": { "$ref": "#/$defs/sha256" },
+        "construction": {
+          "type": "array",
+          "minItems": 7,
+          "maxItems": 7,
+          "items": { "$ref": "#/$defs/construction" }
+        }
+      }
+    }
+  }
+}

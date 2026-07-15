@@ -244,8 +244,11 @@ namespace ProjectUnknown.Strategy
 
         public Vector3 GetInteriorWorkWorld()
         {
-            Bounds bounds = FootprintBounds;
-            return new Vector3(bounds.center.x, bounds.min.y + bounds.size.y * 0.38f, -0.08f);
+            return StrategyBuildingVisualAnchorProfile.GetInteriorWorkWorld(
+                StrategyBuildTool.CoalPit,
+                FootprintBounds,
+                0,
+                1);
         }
 
         public bool TryReserveStoredCoal(object owner, out int amount)
@@ -455,7 +458,10 @@ namespace ProjectUnknown.Strategy
 
         private static Vector3 GetCoalStockWorld(Bounds bounds)
         {
-            return new Vector3(bounds.max.x - 0.26f, bounds.min.y + 0.30f, -0.13f);
+            return StrategyBuildingVisualAnchorProfile.GetStockAnchorWorld(
+                StrategyBuildTool.CoalPit,
+                StrategyResourceType.Coal,
+                bounds);
         }
 
         private void OnDestroy()

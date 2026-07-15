@@ -12,6 +12,16 @@ namespace ProjectUnknown.Strategy.EditorTests
         [Test] public void BuildScenes() => StrategyVerificationRunner.VerifyBuildScenes();
         [Test] public void NavigationPriorities() => StrategyVerificationRunner.VerifyNavigationPriorities();
         [Test] public void VisualCatalog() => StrategyVerificationRunner.VerifyVisualCatalog();
+        [Test] public void AuthoredBuildingManifests() =>
+            StrategyVerificationRunner.VerifyAuthoredBuildingManifests();
+        [Test] public void AuthoredBuildingAnimations() =>
+            StrategyVerificationRunner.VerifyAuthoredBuildingAnimations();
+        [Test] public void AuthoredBridgeVisuals() =>
+            StrategyVerificationRunner.VerifyAuthoredBridgeVisuals();
+        [Test] public void AuthoredVisualNearestNeighborGuard() =>
+            StrategyVerificationRunner.VerifyAuthoredVisualNearestNeighborGuard();
+        [Test] public void AuthoredBuildingPivotMigrationPolicy() =>
+            StrategyVerificationRunner.VerifyAuthoredBuildingPivotMigrationPolicy();
         [Test] public void TerrainPainterCharacterization() => StrategyVerificationRunner.VerifyTerrainPainterCharacterization();
         [Test] public void TerrainNoiseThroughput() => StrategyVerificationRunner.VerifyTerrainNoiseThroughput();
         [Test] public void ExplicitMapSeed() => StrategyVerificationRunner.VerifyExplicitMapSeed();

@@ -8,6 +8,12 @@ namespace ProjectUnknown.Strategy
         private const float PixelsPerUnit = 16f;
         private static readonly Dictionary<int, Sprite> CachedSprites = new();
 
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        internal static void ResetCache()
+        {
+            CachedSprites.Clear();
+        }
+
         public static Sprite Get(StrategyBuildTool tool, Vector2Int footprint, int variant)
         {
             Vector2Int size = new Vector2Int(Mathf.Max(1, footprint.x), Mathf.Max(1, footprint.y));

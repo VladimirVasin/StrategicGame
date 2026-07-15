@@ -1091,245 +1091,245 @@ MonoBehaviour:
     frameHeight: 164
     frameCount: 7
     pixelsPerUnit: 48
-    pivot: {x: 0.5, y: 0.099999994}
+    pivot: {x: 0.5, y: 0.09756098}
   - id: Construction/House/V1
     atlas: {fileID: 2800000, guid: fc26755a33443794ca436df232c731ea, type: 3}
     frameWidth: 184
     frameHeight: 164
     frameCount: 7
     pixelsPerUnit: 48
-    pivot: {x: 0.5, y: 0.099999994}
+    pivot: {x: 0.5, y: 0.09756098}
   - id: Construction/House/V2
     atlas: {fileID: 2800000, guid: 966f9116878b90a4990132436070c389, type: 3}
     frameWidth: 184
     frameHeight: 164
     frameCount: 7
     pixelsPerUnit: 48
-    pivot: {x: 0.5, y: 0.099999994}
+    pivot: {x: 0.5, y: 0.09756098}
   - id: Construction/House/V3
     atlas: {fileID: 2800000, guid: 31c3e451ca3c9284ba1daf08d1200fd1, type: 3}
     frameWidth: 184
     frameHeight: 164
     frameCount: 7
     pixelsPerUnit: 48
-    pivot: {x: 0.5, y: 0.099999994}
+    pivot: {x: 0.5, y: 0.09756098}
   - id: Construction/House/V4
     atlas: {fileID: 2800000, guid: 74ab6adaaaced9a40ba779d7f261f5b1, type: 3}
     frameWidth: 184
     frameHeight: 164
     frameCount: 7
     pixelsPerUnit: 48
-    pivot: {x: 0.5, y: 0.099999994}
+    pivot: {x: 0.5, y: 0.09756098}
   - id: Construction/LumberjackCamp/V0
-    atlas: {fileID: 2800000, guid: 5c1da12f10af6b74d8f107679c5cfed5, type: 3}
-    frameWidth: 92
-    frameHeight: 82
+    atlas: {fileID: 2800000, guid: 776bc09dd7c3e3e458f045e25df04746, type: 3}
+    frameWidth: 184
+    frameHeight: 164
     frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.09268293}
   - id: Construction/LumberjackCamp/V1
-    atlas: {fileID: 2800000, guid: 6ccf4d34dd5023e419ac8dc58a5ff30b, type: 3}
-    frameWidth: 92
-    frameHeight: 82
+    atlas: {fileID: 2800000, guid: a6c8d18c60c02f048a180c72fdf1aef4, type: 3}
+    frameWidth: 184
+    frameHeight: 164
     frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.09268293}
   - id: Construction/LumberjackCamp/V2
-    atlas: {fileID: 2800000, guid: 73c64ceb81937e74bae3dd35a43f57e2, type: 3}
-    frameWidth: 92
-    frameHeight: 82
+    atlas: {fileID: 2800000, guid: ca8f5eb2f26b4e44894ce40ead216af1, type: 3}
+    frameWidth: 184
+    frameHeight: 164
     frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.09268293}
   - id: Construction/StonecutterCamp/V0
-    atlas: {fileID: 2800000, guid: 323e0c1ea7c1ab14bb6b9cd8bd13b2df, type: 3}
-    frameWidth: 92
-    frameHeight: 82
+    atlas: {fileID: 2800000, guid: 4395883986be9d045b78a8e223c5c867, type: 3}
+    frameWidth: 184
+    frameHeight: 164
     frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.090243906}
   - id: Construction/StonecutterCamp/V1
-    atlas: {fileID: 2800000, guid: a52d6b7ff260811428ad0160482d57df, type: 3}
-    frameWidth: 92
-    frameHeight: 82
+    atlas: {fileID: 2800000, guid: 80c5e11bdd7f3df4f837e814f65a81e1, type: 3}
+    frameWidth: 184
+    frameHeight: 164
     frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.090243906}
   - id: Construction/StonecutterCamp/V2
-    atlas: {fileID: 2800000, guid: e136e8244a80f3a4eaa7ee43134314fa, type: 3}
-    frameWidth: 92
-    frameHeight: 82
+    atlas: {fileID: 2800000, guid: e9c674ad503d7d24f91e8b4187899a8e, type: 3}
+    frameWidth: 184
+    frameHeight: 164
     frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.090243906}
   - id: Construction/Sawmill/V0
-    atlas: {fileID: 2800000, guid: 0fb5546e06eb27a41bbad43d9a65448d, type: 3}
-    frameWidth: 92
-    frameHeight: 82
+    atlas: {fileID: 2800000, guid: 80d5606e700daac4bae5cf79539d193c, type: 3}
+    frameWidth: 200
+    frameHeight: 164
     frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.09512195}
   - id: Construction/Sawmill/V1
-    atlas: {fileID: 2800000, guid: 1c8ca37137f1537408774af03aeca2f8, type: 3}
-    frameWidth: 92
-    frameHeight: 82
+    atlas: {fileID: 2800000, guid: 7ae69015c5c97c24292751bc2bf801cf, type: 3}
+    frameWidth: 200
+    frameHeight: 164
     frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.09512195}
   - id: Construction/Sawmill/V2
-    atlas: {fileID: 2800000, guid: 2d1c3461a64a13645808926a7ae0ebb0, type: 3}
-    frameWidth: 92
-    frameHeight: 82
+    atlas: {fileID: 2800000, guid: 2d94c76bfb61dd648b24109956c0d028, type: 3}
+    frameWidth: 200
+    frameHeight: 164
     frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.09512195}
   - id: Construction/Mine/V0
-    atlas: {fileID: 2800000, guid: 80e9a0b199c4d794ea82f1c95ef75b05, type: 3}
-    frameWidth: 92
-    frameHeight: 82
+    atlas: {fileID: 2800000, guid: c940a086a77e74047ade24375b426f66, type: 3}
+    frameWidth: 184
+    frameHeight: 164
     frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.09268293}
   - id: Construction/Mine/V1
-    atlas: {fileID: 2800000, guid: be1e4add7ba3df745848479c5dfd86a9, type: 3}
-    frameWidth: 92
-    frameHeight: 82
+    atlas: {fileID: 2800000, guid: d2d010f399045934db9d635f7565a215, type: 3}
+    frameWidth: 184
+    frameHeight: 164
     frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.09268293}
   - id: Construction/Mine/V2
-    atlas: {fileID: 2800000, guid: b387c1800f4a88e47aff8282892e7b91, type: 3}
-    frameWidth: 92
-    frameHeight: 82
+    atlas: {fileID: 2800000, guid: e3a3f1e2fd7694d4792299436d405278, type: 3}
+    frameWidth: 184
+    frameHeight: 164
     frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.09268293}
   - id: Construction/CoalPit/V0
-    atlas: {fileID: 2800000, guid: 5f35785f3f4250b4e9f13b15cdf839f0, type: 3}
-    frameWidth: 92
-    frameHeight: 82
+    atlas: {fileID: 2800000, guid: e338ee3308cb034448b89f2154e8406e, type: 3}
+    frameWidth: 184
+    frameHeight: 164
     frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.090243906}
   - id: Construction/CoalPit/V1
-    atlas: {fileID: 2800000, guid: 33dfa8f005468864081399c9a68eb9b2, type: 3}
-    frameWidth: 92
-    frameHeight: 82
+    atlas: {fileID: 2800000, guid: 62203d36ae238aa4ea0a817353c0322c, type: 3}
+    frameWidth: 184
+    frameHeight: 164
     frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.090243906}
   - id: Construction/CoalPit/V2
-    atlas: {fileID: 2800000, guid: 77b022661c32e194aa4a521c880ad898, type: 3}
-    frameWidth: 92
-    frameHeight: 82
+    atlas: {fileID: 2800000, guid: 04ddf5b59a6ee1e43be04284741b1859, type: 3}
+    frameWidth: 184
+    frameHeight: 164
     frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.090243906}
   - id: Construction/ClayPit/V0
-    atlas: {fileID: 2800000, guid: 5dcf79a47c4e4f249bd77dab12d82544, type: 3}
-    frameWidth: 92
-    frameHeight: 82
+    atlas: {fileID: 2800000, guid: 501338b4c0c32a847ae07e414e09c1b7, type: 3}
+    frameWidth: 184
+    frameHeight: 164
     frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.085365854}
   - id: Construction/ClayPit/V1
-    atlas: {fileID: 2800000, guid: 94567e9a26f62aa4999f9e8c4d6aad28, type: 3}
-    frameWidth: 92
-    frameHeight: 82
+    atlas: {fileID: 2800000, guid: bec2aa82b5a02284e8507b25d7224dbc, type: 3}
+    frameWidth: 184
+    frameHeight: 164
     frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.085365854}
   - id: Construction/ClayPit/V2
-    atlas: {fileID: 2800000, guid: 66fc700794e1fce409cf215963f7f085, type: 3}
-    frameWidth: 92
-    frameHeight: 82
+    atlas: {fileID: 2800000, guid: 641e30a592187c14bb7e1fa113aa660a, type: 3}
+    frameWidth: 184
+    frameHeight: 164
     frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.085365854}
   - id: Construction/Kiln/V0
-    atlas: {fileID: 2800000, guid: 8a4cd7c462179ff42b3446f411b3f48b, type: 3}
-    frameWidth: 92
-    frameHeight: 82
+    atlas: {fileID: 2800000, guid: 4fab52c7bb322c14ea5551893aa032ad, type: 3}
+    frameWidth: 184
+    frameHeight: 164
     frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.090243906}
   - id: Construction/Kiln/V1
-    atlas: {fileID: 2800000, guid: 61300631234b9a447b7070bcf03b6065, type: 3}
-    frameWidth: 92
-    frameHeight: 82
+    atlas: {fileID: 2800000, guid: f31bb97dfb19e7c4ab90cfc5b6cc6233, type: 3}
+    frameWidth: 184
+    frameHeight: 164
     frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.090243906}
   - id: Construction/Kiln/V2
-    atlas: {fileID: 2800000, guid: e2cca2d4cd049e14eb61804a954f129a, type: 3}
-    frameWidth: 92
-    frameHeight: 82
+    atlas: {fileID: 2800000, guid: 82ac32ed68688af4c97b2c90d6024cf6, type: 3}
+    frameWidth: 184
+    frameHeight: 164
     frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.090243906}
   - id: Construction/Forge/V0
-    atlas: {fileID: 2800000, guid: cc706c5cdb0621e419dedfc892ee6fd4, type: 3}
-    frameWidth: 92
-    frameHeight: 82
+    atlas: {fileID: 2800000, guid: 0e4a1ddaf22f2d04b8be155ea9f11ae7, type: 3}
+    frameWidth: 184
+    frameHeight: 164
     frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.090243906}
   - id: Construction/Forge/V1
-    atlas: {fileID: 2800000, guid: fee255293bbe9b94d964e2470ae6898b, type: 3}
-    frameWidth: 92
-    frameHeight: 82
+    atlas: {fileID: 2800000, guid: 07c88ae2be18643459a600b0dcf1ac1d, type: 3}
+    frameWidth: 184
+    frameHeight: 164
     frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.090243906}
   - id: Construction/Forge/V2
-    atlas: {fileID: 2800000, guid: b0be89668ca05784b914a17a8a905a2f, type: 3}
-    frameWidth: 92
-    frameHeight: 82
+    atlas: {fileID: 2800000, guid: 106a2408fdecbef418d8a2d2ff20ef1d, type: 3}
+    frameWidth: 184
+    frameHeight: 164
     frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.090243906}
   - id: Construction/HunterCamp/V0
-    atlas: {fileID: 2800000, guid: f5e68a67aa52fee40823ee07e1a201f3, type: 3}
-    frameWidth: 92
-    frameHeight: 82
+    atlas: {fileID: 2800000, guid: ef2c3d625dd209d429176afd66ad3ee9, type: 3}
+    frameWidth: 184
+    frameHeight: 164
     frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.090243906}
   - id: Construction/HunterCamp/V1
-    atlas: {fileID: 2800000, guid: a2d9411511c9e4f47b33c16f142fc433, type: 3}
-    frameWidth: 92
-    frameHeight: 82
+    atlas: {fileID: 2800000, guid: c5737b8c24421d8419bb0d3a180e87da, type: 3}
+    frameWidth: 184
+    frameHeight: 164
     frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.090243906}
   - id: Construction/HunterCamp/V2
-    atlas: {fileID: 2800000, guid: 9354a8be70dffef46a05f1a3d91a4115, type: 3}
-    frameWidth: 92
-    frameHeight: 82
+    atlas: {fileID: 2800000, guid: abc4104ffe0fe7a489b50f0f0d1c948e, type: 3}
+    frameWidth: 184
+    frameHeight: 164
     frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.090243906}
   - id: Construction/FisherHut/V0
-    atlas: {fileID: 2800000, guid: 5c70a5d2302fd844895056dfeca59f70, type: 3}
-    frameWidth: 92
-    frameHeight: 82
+    atlas: {fileID: 2800000, guid: f076e42af790c1142911385bd831e030, type: 3}
+    frameWidth: 184
+    frameHeight: 164
     frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.09268293}
   - id: Construction/FisherHut/V1
-    atlas: {fileID: 2800000, guid: 46103048535a5e84ba61595817ccc448, type: 3}
-    frameWidth: 92
-    frameHeight: 82
+    atlas: {fileID: 2800000, guid: 87a640512bf174341a6ca92fdf8e3bac, type: 3}
+    frameWidth: 184
+    frameHeight: 164
     frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.09268293}
   - id: Construction/FisherHut/V2
-    atlas: {fileID: 2800000, guid: fea4c0709c4c9a441b35b17da76734be, type: 3}
-    frameWidth: 92
-    frameHeight: 82
+    atlas: {fileID: 2800000, guid: 841612d886868b14790ec2b22254aa44, type: 3}
+    frameWidth: 184
+    frameHeight: 164
     frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.09268293}
   - id: Construction/ForagerCamp/V0
     atlas: {fileID: 2800000, guid: c9121acbb11162c469d0e27184ccb9ea, type: 3}
     frameWidth: 184
@@ -1338,68 +1338,33 @@ MonoBehaviour:
     pixelsPerUnit: 48
     pivot: {x: 0.5, y: 0.14146341}
   - id: Construction/ChickenCoop/V0
-    atlas: {fileID: 2800000, guid: e276e3b8383374740b2f8d9c12eba444, type: 3}
-    frameWidth: 92
-    frameHeight: 82
+    atlas: {fileID: 2800000, guid: f0d51c1365b703c409c08770bfcff914, type: 3}
+    frameWidth: 184
+    frameHeight: 164
     frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
-  - id: Construction/ChickenCoop/V1
-    atlas: {fileID: 2800000, guid: 7eda306f45667ae4d8f109815b13e08e, type: 3}
-    frameWidth: 92
-    frameHeight: 82
-    frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
-  - id: Construction/ChickenCoop/V2
-    atlas: {fileID: 2800000, guid: 78440a1c75063224391da448e25d364d, type: 3}
-    frameWidth: 92
-    frameHeight: 82
-    frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
-  - id: Construction/ChickenCoop/V3
-    atlas: {fileID: 2800000, guid: 315e2cca9e47c384eac723030f8eb4cf, type: 3}
-    frameWidth: 92
-    frameHeight: 82
-    frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
-  - id: Construction/ChickenCoop/V4
-    atlas: {fileID: 2800000, guid: 319ee5719b6568541a289ad8433369a2, type: 3}
-    frameWidth: 92
-    frameHeight: 82
-    frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
-  - id: Construction/ChickenCoop/V5
-    atlas: {fileID: 2800000, guid: fe1e0b679e643a841a8e270c424c5c7b, type: 3}
-    frameWidth: 92
-    frameHeight: 82
-    frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.0641115}
   - id: Construction/TradingPost/V0
-    atlas: {fileID: 2800000, guid: 8359c32261005ee49a02141080c0851e, type: 3}
-    frameWidth: 92
-    frameHeight: 82
+    atlas: {fileID: 2800000, guid: 7df8fad513346a640a19ae7598b86611, type: 3}
+    frameWidth: 192
+    frameHeight: 164
     frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.14634147}
   - id: Construction/TradingPost/V1
-    atlas: {fileID: 2800000, guid: 66b70cd1f769258458451e2111e8cf70, type: 3}
-    frameWidth: 92
-    frameHeight: 82
+    atlas: {fileID: 2800000, guid: 2676cb367a1311b49a3fd119dde15c86, type: 3}
+    frameWidth: 192
+    frameHeight: 164
     frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.14634147}
   - id: Construction/TradingPost/V2
-    atlas: {fileID: 2800000, guid: 7245c0b7ffa064c4dbc8cdf4e5d3e37f, type: 3}
-    frameWidth: 92
-    frameHeight: 82
+    atlas: {fileID: 2800000, guid: 3d5397904c2a7c24b9f6adc537807d56, type: 3}
+    frameWidth: 192
+    frameHeight: 164
     frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.14634147}
   - id: Construction/StarterCaravanCart/V0
     atlas: {fileID: 2800000, guid: edd9b288605fe494786c7ed03ac04f1d, type: 3}
     frameWidth: 92
@@ -1408,53 +1373,144 @@ MonoBehaviour:
     pixelsPerUnit: 24
     pivot: {x: 0.5, y: 0.099999994}
   - id: Construction/StorageYard/V0
-    atlas: {fileID: 2800000, guid: 8cfa1e38f652feb4dba7af96a9768822, type: 3}
-    frameWidth: 92
-    frameHeight: 82
+    atlas: {fileID: 2800000, guid: 2c4c086d04f3a4b47ab3fc2c0d28b21c, type: 3}
+    frameWidth: 192
+    frameHeight: 164
     frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.090243906}
   - id: Construction/StorageYard/V1
-    atlas: {fileID: 2800000, guid: 4b28f289fb289ee4fab8a730aeba503e, type: 3}
-    frameWidth: 92
-    frameHeight: 82
+    atlas: {fileID: 2800000, guid: bfdf9d567258d0e45be98f99dfdad5ba, type: 3}
+    frameWidth: 192
+    frameHeight: 164
     frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.090243906}
   - id: Construction/StorageYard/V2
-    atlas: {fileID: 2800000, guid: ead9ea8ba09a23e498d5accfc85dc36b, type: 3}
-    frameWidth: 92
-    frameHeight: 82
+    atlas: {fileID: 2800000, guid: e191f31751ccb114f9b379aac86fc8cf, type: 3}
+    frameWidth: 192
+    frameHeight: 164
     frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.090243906}
   - id: Construction/Granary/V0
-    atlas: {fileID: 2800000, guid: 6f7b8f89cc3bd784e8c933f5708f8d6e, type: 3}
-    frameWidth: 92
-    frameHeight: 82
+    atlas: {fileID: 2800000, guid: 36c560481323c784881675d25aedc6f3, type: 3}
+    frameWidth: 192
+    frameHeight: 168
     frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.1}
   - id: Construction/Granary/V1
-    atlas: {fileID: 2800000, guid: e30aaadfe00821149bd8c89a779dba4e, type: 3}
-    frameWidth: 92
-    frameHeight: 82
+    atlas: {fileID: 2800000, guid: 2719e326d43795342a30a27b216cf125, type: 3}
+    frameWidth: 192
+    frameHeight: 168
     frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.1}
   - id: Construction/Granary/V2
-    atlas: {fileID: 2800000, guid: 424034ce25e044a4ba02dac24b758ed6, type: 3}
-    frameWidth: 92
-    frameHeight: 82
+    atlas: {fileID: 2800000, guid: 9c9a889900b92824bbd47411f93bc239, type: 3}
+    frameWidth: 192
+    frameHeight: 168
     frameCount: 7
-    pixelsPerUnit: 24
-    pivot: {x: 0.5, y: 0.099999994}
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.1}
   - id: Construction/Bridge/V0
     atlas: {fileID: 2800000, guid: c14bf83894535114fa9347aab19c449a, type: 3}
     frameWidth: 92
     frameHeight: 56
     frameCount: 7
     pixelsPerUnit: 24
+    pivot: {x: 0.5, y: 0.5}
+  - id: BuildingAnimation/ChickenCoop/V0
+    atlas: {fileID: 2800000, guid: 6435a09fb8d3d1f4689b57a2e169be79, type: 3}
+    frameWidth: 92
+    frameHeight: 92
+    frameCount: 6
+    pixelsPerUnit: 42
+    pivot: {x: 0.5, y: 0.1}
+  - id: Bridge/Final/Horizontal/Start
+    atlas: {fileID: 2800000, guid: e0e3def083a68f749b94f8345407f1ca, type: 3}
+    frameWidth: 68
+    frameHeight: 112
+    frameCount: 1
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.5}
+  - id: Bridge/Construction/Horizontal/Start
+    atlas: {fileID: 2800000, guid: 76dee54a8148e5d44919a73eb0b8f8b4, type: 3}
+    frameWidth: 68
+    frameHeight: 112
+    frameCount: 7
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.5}
+  - id: Bridge/Final/Horizontal/Middle
+    atlas: {fileID: 2800000, guid: 101dbbe36662ab64d8693e9f5501e193, type: 3}
+    frameWidth: 48
+    frameHeight: 112
+    frameCount: 1
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.5}
+  - id: Bridge/Construction/Horizontal/Middle
+    atlas: {fileID: 2800000, guid: 869c70a1c879bb9478a06acca2dac8ce, type: 3}
+    frameWidth: 48
+    frameHeight: 112
+    frameCount: 7
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.5}
+  - id: Bridge/Final/Horizontal/End
+    atlas: {fileID: 2800000, guid: 4312e9a2983e5994e8037f349a0e42bc, type: 3}
+    frameWidth: 68
+    frameHeight: 112
+    frameCount: 1
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.5}
+  - id: Bridge/Construction/Horizontal/End
+    atlas: {fileID: 2800000, guid: 6b4df2e48dcfba34b9987baf832ab703, type: 3}
+    frameWidth: 68
+    frameHeight: 112
+    frameCount: 7
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.5}
+  - id: Bridge/Final/Vertical/Start
+    atlas: {fileID: 2800000, guid: 1df61a56dd287fa4382f751ec65f7b37, type: 3}
+    frameWidth: 124
+    frameHeight: 68
+    frameCount: 1
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.5}
+  - id: Bridge/Construction/Vertical/Start
+    atlas: {fileID: 2800000, guid: 6bb28da5d3f58794abbfc902142aaf73, type: 3}
+    frameWidth: 124
+    frameHeight: 68
+    frameCount: 7
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.5}
+  - id: Bridge/Final/Vertical/Middle
+    atlas: {fileID: 2800000, guid: 5cbe80bf2ee12684d8b3bf54b450adea, type: 3}
+    frameWidth: 124
+    frameHeight: 48
+    frameCount: 1
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.5}
+  - id: Bridge/Construction/Vertical/Middle
+    atlas: {fileID: 2800000, guid: 2a51d7812cc91f84a95a4ead50e1d4e8, type: 3}
+    frameWidth: 124
+    frameHeight: 48
+    frameCount: 7
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.5}
+  - id: Bridge/Final/Vertical/End
+    atlas: {fileID: 2800000, guid: b7da621af47f8d043a9e91ca19475414, type: 3}
+    frameWidth: 124
+    frameHeight: 68
+    frameCount: 1
+    pixelsPerUnit: 48
+    pivot: {x: 0.5, y: 0.5}
+  - id: Bridge/Construction/Vertical/End
+    atlas: {fileID: 2800000, guid: 0f40e28d9e16f1e4a99ba0b85d7c6e1b, type: 3}
+    frameWidth: 124
+    frameHeight: 68
+    frameCount: 7
+    pixelsPerUnit: 48
     pivot: {x: 0.5, y: 0.5}
   - id: Trail/M0/L1
     atlas: {fileID: 2800000, guid: cdf04d9f69e6c0a48bb7e7870e1a311a, type: 3}
@@ -2054,83 +2110,78 @@ MonoBehaviour:
     - {fileID: 21300000, guid: 5beeae52410349cca93accf4f59610e8, type: 3}
   - tool: 2
     variants:
-    - {fileID: 21300000, guid: a8437e36b9698204c9dbf64dcba3f97e, type: 3}
-    - {fileID: 21300000, guid: 683697618023aa445a030b100e834939, type: 3}
-    - {fileID: 21300000, guid: 293f5b8490ad57644a32051dcbb56426, type: 3}
+    - {fileID: 21300000, guid: 023c6b8cd812b104aa181368cf7ca8c8, type: 3}
+    - {fileID: 21300000, guid: fc3adbc16493f2e459d1ff6d92eb8894, type: 3}
+    - {fileID: 21300000, guid: 2e1c45c98a37c13499eaddd1a4a1bb30, type: 3}
   - tool: 3
     variants:
-    - {fileID: 21300000, guid: 9ce9e16067555e1478671c88d13cf917, type: 3}
-    - {fileID: 21300000, guid: efc6a86d8160ab34d91ac2d372995a1e, type: 3}
-    - {fileID: 21300000, guid: af588fcf8468b524a9f5579461b5dbb6, type: 3}
+    - {fileID: 21300000, guid: 897e2f28406cd22449a893e78d1644e4, type: 3}
+    - {fileID: 21300000, guid: 8933466ed97e95b4da696f1dc1c34add, type: 3}
+    - {fileID: 21300000, guid: 54e44ed01c5eaea47890e99d0da9b028, type: 3}
   - tool: 4
     variants:
-    - {fileID: 21300000, guid: 38af0f0defb24da4291141f760f337b0, type: 3}
-    - {fileID: 21300000, guid: 43438b745e9073046beb91050e64d873, type: 3}
-    - {fileID: 21300000, guid: 57415aca7895c614f839e81655803da7, type: 3}
+    - {fileID: 21300000, guid: c3991431ede100344a2ba76e714c6d2e, type: 3}
+    - {fileID: 21300000, guid: 40fb1579e24997b42b11ddf292d2b58f, type: 3}
+    - {fileID: 21300000, guid: e8aa60c657c1ba946bd542110bf627c1, type: 3}
   - tool: 5
     variants:
-    - {fileID: 21300000, guid: 7b802bef8b002ad459f7977b673ff6c0, type: 3}
-    - {fileID: 21300000, guid: 0af5349f0d7fc2c44b8fa15c2fd84e9f, type: 3}
-    - {fileID: 21300000, guid: 77e39b829585a0f42b74a03c7e8f5410, type: 3}
+    - {fileID: 21300000, guid: 1dd0ab19219ab5542a223945e184ad84, type: 3}
+    - {fileID: 21300000, guid: 7b3e47a9069c8fc44890b8752e980bd8, type: 3}
+    - {fileID: 21300000, guid: 68be5bf37a5f9cf44906bde084d0b861, type: 3}
   - tool: 6
     variants:
-    - {fileID: 21300000, guid: 45b67bfa44bcc2243baeee9920e85c9b, type: 3}
-    - {fileID: 21300000, guid: 694d10ee58fed014782c1d2d768a1444, type: 3}
-    - {fileID: 21300000, guid: 194f82a162cf1794cabc0b3dc4758c23, type: 3}
+    - {fileID: 21300000, guid: ed17177a6d56a9a4794599ca8d2c7094, type: 3}
+    - {fileID: 21300000, guid: b9badd1a3f6342a479ae075e180a1aad, type: 3}
+    - {fileID: 21300000, guid: 820931d345b8a6140af56514ee2101b3, type: 3}
   - tool: 7
     variants:
-    - {fileID: 21300000, guid: 3740286c345129240b0991ab2bf82e98, type: 3}
-    - {fileID: 21300000, guid: 4b7b34a684391fa41b5364319e6db64a, type: 3}
-    - {fileID: 21300000, guid: 2df2356999c10c64f8b7ed9a264ba299, type: 3}
+    - {fileID: 21300000, guid: 0a9b7ebad0b10a348ab227a087587076, type: 3}
+    - {fileID: 21300000, guid: 74f471f950982a24398e1b1d88ccbd42, type: 3}
+    - {fileID: 21300000, guid: ce011e7d3f50f3549a9a1c7b413054f6, type: 3}
   - tool: 8
     variants:
-    - {fileID: 21300000, guid: 66679433f3280eb4a9471d6b1bd77337, type: 3}
-    - {fileID: 21300000, guid: 51eff3fe2ae52c44c89a025b91517a6e, type: 3}
-    - {fileID: 21300000, guid: 03b407fd9dc05bd44873439a42f141af, type: 3}
+    - {fileID: 21300000, guid: f4accc07bf4c67945b0a666dfe65e6de, type: 3}
+    - {fileID: 21300000, guid: c273698a7f01de04f95d5bd773bc5b11, type: 3}
+    - {fileID: 21300000, guid: ed010aa5f28254c4b870e628d00ed57e, type: 3}
   - tool: 9
     variants:
-    - {fileID: 21300000, guid: 13945db736e04f74ea1045a96aed4d61, type: 3}
-    - {fileID: 21300000, guid: 29cce94e74539ed45a1ff2e9f491494d, type: 3}
-    - {fileID: 21300000, guid: f4c52ecd9047d90479d810e43327a420, type: 3}
+    - {fileID: 21300000, guid: adf532f3ad268fb4d82025a15dc3a450, type: 3}
+    - {fileID: 21300000, guid: eeb3bd6481b02dc45a07923ec7b989d7, type: 3}
+    - {fileID: 21300000, guid: 3fa384f876a781d4893786adf9b57905, type: 3}
   - tool: 10
     variants:
-    - {fileID: 21300000, guid: 7c23c9096c22ea44297983f24bf0f205, type: 3}
-    - {fileID: 21300000, guid: c01ec8e6968e5a74b8cce24671abb02e, type: 3}
-    - {fileID: 21300000, guid: c486d759899c13e40a5bcdc0abc4c253, type: 3}
+    - {fileID: 21300000, guid: bb7c0ad1fd3b23a43a73b8f97304d498, type: 3}
+    - {fileID: 21300000, guid: f8ade68cf02203144ba5400d66015811, type: 3}
+    - {fileID: 21300000, guid: d7a4bb9a3fa080f4888090b056c1217a, type: 3}
   - tool: 11
     variants:
-    - {fileID: 21300000, guid: d14e7a60e99c01445ae2d164e30893e7, type: 3}
-    - {fileID: 21300000, guid: c7b963f8fac34a24abfcc65837af5371, type: 3}
-    - {fileID: 21300000, guid: 3d69112ef39163c48a46245d8897cefa, type: 3}
+    - {fileID: 21300000, guid: f412580fac8f32e4d9ad8065e5856f75, type: 3}
+    - {fileID: 21300000, guid: bce370cc2cfbb234bb90292d207e7857, type: 3}
+    - {fileID: 21300000, guid: 6c9be54f9e4109b4692131312e3c95f1, type: 3}
   - tool: 12
     variants:
     - {fileID: 21300000, guid: f00483cc917d48f42a717933f7bbc0f7, type: 3}
   - tool: 13
     variants:
-    - {fileID: 21300000, guid: ecd9169e10870ac49af4b0840407c548, type: 3}
-    - {fileID: 21300000, guid: 3bd09bc2132a6ec48a7a7a0615d21534, type: 3}
-    - {fileID: 21300000, guid: 60f84e12b6b344b44834a6b5a89b5470, type: 3}
-    - {fileID: 21300000, guid: 728dbd9781886ee4d89fef69298c8bc9, type: 3}
-    - {fileID: 21300000, guid: cd3d53e3b9c109b41a315c72c8aea544, type: 3}
-    - {fileID: 21300000, guid: ebf2b5ae3c4b8df4cb90dd8fe2042646, type: 3}
+    - {fileID: 21300000, guid: 59e2370e457d1ca48ac7cbf4789d3ead, type: 3}
   - tool: 14
     variants:
-    - {fileID: 21300000, guid: ccac3aac9b3d2b346a65c97c1b12deb0, type: 3}
-    - {fileID: 21300000, guid: 5c4dcd599ad59724baa20163572a864c, type: 3}
-    - {fileID: 21300000, guid: c81d391875480ec48b5249b0a27f7895, type: 3}
+    - {fileID: 21300000, guid: b8687c282a97e9b458a7216aee99a96a, type: 3}
+    - {fileID: 21300000, guid: c9fffbeb9f2ac1b49ab793e28c418518, type: 3}
+    - {fileID: 21300000, guid: 707b6444c3ce209498d83487ad8ffd7c, type: 3}
   - tool: 15
     variants:
-    - {fileID: 21300000, guid: e7ea3d7db2044bc49867dbdb6359ba75, type: 3}
+    - {fileID: 21300000, guid: 4ea4abf54adca224d806a3efdaed1f9a, type: 3}
   - tool: 16
     variants:
-    - {fileID: 21300000, guid: 142df98e914448647bda166a83a203a5, type: 3}
-    - {fileID: 21300000, guid: 42f0cae3af84c3748b7248bd11bc213d, type: 3}
-    - {fileID: 21300000, guid: 8e0476a16a5734c489c971c02ef18887, type: 3}
+    - {fileID: 21300000, guid: baba14170ac570a45bc6505c7759fe8e, type: 3}
+    - {fileID: 21300000, guid: 5dcde33101d57654f87bd590d9709ebc, type: 3}
+    - {fileID: 21300000, guid: f95a726c7443d304d944163ad89d67e0, type: 3}
   - tool: 17
     variants:
-    - {fileID: 21300000, guid: 7f6b2623a9c59c444a34af573bf8ad66, type: 3}
-    - {fileID: 21300000, guid: 460e76cd010b4c14aa54de9b2f09e82f, type: 3}
-    - {fileID: 21300000, guid: 22d1a094eecd75746b60d187f40e9e14, type: 3}
+    - {fileID: 21300000, guid: 7864a63ebc7618546a41a0f57249ca33, type: 3}
+    - {fileID: 21300000, guid: 3843546bfe5f96d438295121b966b63b, type: 3}
+    - {fileID: 21300000, guid: 7c5e43f68d35fc14e95c0386a43fad08, type: 3}
   - tool: 18
     variants:
     - {fileID: 21300000, guid: 319bd8e5e9047fc4bb47e2a4c92fdccd, type: 3}

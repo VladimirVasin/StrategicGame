@@ -115,7 +115,10 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            Vector3 toolsWorld = new Vector3(bounds.center.x + 0.64f, bounds.min.y + 0.60f, -0.147f);
+            Vector3 toolsWorld = StrategyBuildingVisualAnchorProfile.GetStockAnchorWorld(
+                StrategyBuildTool.StorageYard,
+                StrategyResourceType.Tools,
+                bounds);
             toolsStockRenderer.transform.localPosition = transform.InverseTransformPoint(toolsWorld);
             toolsStockRenderer.transform.localScale = Vector3.one;
             StrategyWorldSorting.Apply(toolsStockRenderer, toolsWorld, 1);

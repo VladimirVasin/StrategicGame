@@ -212,21 +212,19 @@ namespace ProjectUnknown.Strategy
 
         public Vector3 GetInteriorWorkWorld(StrategyResidentAgent worker)
         {
-            Bounds bounds = FootprintBounds;
             int index = Mathf.Max(0, activeSawyers.IndexOf(worker));
-            float side = 0f;
-            if (activeSawyers.Count > 1)
-            {
-                side = index == 1 ? 0.34f : -0.34f;
-            }
-
-            return new Vector3(bounds.center.x + side, bounds.min.y + bounds.size.y * 0.44f, -0.08f);
+            return StrategyBuildingVisualAnchorProfile.GetInteriorWorkWorld(
+                StrategyBuildTool.Sawmill,
+                FootprintBounds,
+                index,
+                activeSawyers.Count);
         }
 
         public Vector3 GetSawFocusWorld()
         {
-            Bounds bounds = FootprintBounds;
-            return new Vector3(bounds.center.x, bounds.min.y + bounds.size.y * 0.45f, -0.08f);
+            return StrategyBuildingVisualAnchorProfile.GetWorkFocusWorld(
+                StrategyBuildTool.Sawmill,
+                FootprintBounds);
         }
 
         public bool TryConsumeLogForWork(out int planksExpected)

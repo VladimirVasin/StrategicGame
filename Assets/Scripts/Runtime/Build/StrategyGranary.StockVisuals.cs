@@ -67,7 +67,10 @@ namespace ProjectUnknown.Strategy
             Bounds bounds = building.FootprintBounds;
             if (gameStockRenderer != null)
             {
-                Vector3 gameWorld = new Vector3(bounds.min.x + 0.42f, bounds.min.y + 0.35f, -0.13f);
+                Vector3 gameWorld = StrategyBuildingVisualAnchorProfile.GetStockAnchorWorld(
+                    StrategyBuildTool.Granary,
+                    StrategyResourceType.Game,
+                    bounds);
                 gameStockRenderer.transform.localPosition = transform.InverseTransformPoint(gameWorld);
                 gameStockRenderer.transform.localScale = Vector3.one;
                 StrategyWorldSorting.Apply(gameStockRenderer, gameWorld, 1);
@@ -75,7 +78,10 @@ namespace ProjectUnknown.Strategy
 
             if (fishStockRenderer != null)
             {
-                Vector3 fishWorld = new Vector3(bounds.max.x - 0.42f, bounds.min.y + 0.37f, -0.13f);
+                Vector3 fishWorld = StrategyBuildingVisualAnchorProfile.GetStockAnchorWorld(
+                    StrategyBuildTool.Granary,
+                    StrategyResourceType.Fish,
+                    bounds);
                 fishStockRenderer.transform.localPosition = transform.InverseTransformPoint(fishWorld);
                 fishStockRenderer.transform.localScale = Vector3.one;
                 StrategyWorldSorting.Apply(fishStockRenderer, fishWorld, 1);
@@ -83,7 +89,10 @@ namespace ProjectUnknown.Strategy
 
             if (eggStockRenderer != null)
             {
-                Vector3 eggWorld = new Vector3(bounds.center.x, bounds.min.y + 0.32f, -0.13f);
+                Vector3 eggWorld = StrategyBuildingVisualAnchorProfile.GetStockAnchorWorld(
+                    StrategyBuildTool.Granary,
+                    StrategyResourceType.Eggs,
+                    bounds);
                 eggStockRenderer.transform.localPosition = transform.InverseTransformPoint(eggWorld);
                 eggStockRenderer.transform.localScale = Vector3.one;
                 StrategyWorldSorting.Apply(eggStockRenderer, eggWorld, 1);

@@ -351,7 +351,10 @@ namespace ProjectUnknown.Strategy
             }
 
             Bounds bounds = building.FootprintBounds;
-            Vector3 world = new Vector3(bounds.max.x - 0.30f, bounds.min.y + 0.34f, -0.13f);
+            Vector3 world = StrategyBuildingVisualAnchorProfile.GetStockAnchorWorld(
+                StrategyBuildTool.StonecutterCamp,
+                StrategyResourceType.Stone,
+                bounds);
             stockRenderer.transform.localPosition = transform.InverseTransformPoint(world);
             stockRenderer.transform.localScale = Vector3.one;
             StrategyWorldSorting.Apply(stockRenderer, world, 1);

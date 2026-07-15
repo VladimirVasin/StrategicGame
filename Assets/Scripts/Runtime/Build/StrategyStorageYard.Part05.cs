@@ -152,7 +152,10 @@ namespace ProjectUnknown.Strategy
             Bounds bounds = building.FootprintBounds;
             if (logsStockRenderer != null)
             {
-                Vector3 logsWorld = new Vector3(bounds.center.x + 0.28f, bounds.min.y + 0.45f, -0.16f);
+                Vector3 logsWorld = StrategyBuildingVisualAnchorProfile.GetStockAnchorWorld(
+                    StrategyBuildTool.StorageYard,
+                    StrategyResourceType.Logs,
+                    bounds);
                 logsStockRenderer.transform.localPosition = transform.InverseTransformPoint(logsWorld);
                 logsStockRenderer.transform.localScale = Vector3.one;
                 StrategyWorldSorting.Apply(logsStockRenderer, logsWorld, 1);
@@ -160,7 +163,10 @@ namespace ProjectUnknown.Strategy
 
             if (stoneStockRenderer != null)
             {
-                Vector3 stoneWorld = new Vector3(bounds.center.x - 0.86f, bounds.min.y + 0.37f, -0.155f);
+                Vector3 stoneWorld = StrategyBuildingVisualAnchorProfile.GetStockAnchorWorld(
+                    StrategyBuildTool.StorageYard,
+                    StrategyResourceType.Stone,
+                    bounds);
                 stoneStockRenderer.transform.localPosition = transform.InverseTransformPoint(stoneWorld);
                 stoneStockRenderer.transform.localScale = Vector3.one;
                 StrategyWorldSorting.Apply(stoneStockRenderer, stoneWorld, 1);

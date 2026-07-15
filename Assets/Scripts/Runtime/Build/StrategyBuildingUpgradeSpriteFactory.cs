@@ -9,12 +9,30 @@ namespace ProjectUnknown.Strategy
 
         private static readonly Dictionary<int, Sprite> CachedSprites = new();
 
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        internal static void ResetCaches()
+        {
+            CachedSprites.Clear();
+            StrategyChickenCoopVisualProfile.ResetCache();
+        }
+
         public static Sprite GetSprite(StrategyBuildingUpgradeType type)
         {
             return GetAnimatedSprite(type, 0);
         }
 
         public static Sprite GetAnimatedSprite(StrategyBuildingUpgradeType type, int frame)
+        {
+            if (type == StrategyBuildingUpgradeType.ChickenCoop
+                && StrategyChickenCoopVisualProfile.TryGetAuthoredUpgradeSprite(frame, out Sprite authored))
+            {
+                return authored;
+            }
+
+            return GetProceduralAnimatedSprite(type, frame);
+        }
+
+        internal static Sprite GetProceduralAnimatedSprite(StrategyBuildingUpgradeType type, int frame)
         {
             int cacheKey = GetCacheKey(type, frame);
             if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)

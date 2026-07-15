@@ -18,6 +18,13 @@ namespace ProjectUnknown.Strategy
         private static readonly Dictionary<int, Sprite> CachedSmokeSprites = new();
         private static readonly Dictionary<int, Sprite> CachedWindowMasks = new();
 
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        internal static void ResetCaches()
+        {
+            CachedSmokeSprites.Clear();
+            CachedWindowMasks.Clear();
+        }
+
         public static Sprite GetSprite(int variant, int frame)
         {
             int normalizedFrame = Normalize(frame, FrameCount);

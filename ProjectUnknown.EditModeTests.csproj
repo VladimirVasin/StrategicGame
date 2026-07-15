@@ -52,17 +52,21 @@
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\6000.5.3f1\Editor\Data\BCLExtensions\TargetingPacks\netstandard2.1\analyzers\dotnet\roslyn4.0\cs\System.Text.Json.SourceGeneration.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Tests\EditMode\StrategyBridgeVisualProfileTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyForagerCampVisualProfileTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyLogFileRotationTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyStartSiteSelectorTests.cs" />
-    <Compile Include="Assets\Tests\EditMode\StrategyHouseVisualEffectTests.cs" />
-    <Compile Include="Assets\Tests\EditMode\StrategyVerificationTests.cs" />
-    <Compile Include="Assets\Tests\EditMode\StrategyInputRouterTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyUiButtonFeedbackTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyResidentCharacterizationTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyVerificationTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyGameContextTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyChickenCoopVisualProfileTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyHouseVisualEffectTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyBuildingSnowSpriteFactoryTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyInputRouterTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategySaveSystemTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyInputActionsContractTests.cs" />
-    <Compile Include="Assets\Tests\EditMode\StrategyResidentCharacterizationTests.cs" />
-    <Compile Include="Assets\Tests\EditMode\StrategyGameContextTests.cs" />
-    <Compile Include="Assets\Tests\EditMode\StrategyForagerCampVisualProfileTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyBuildingVisualAnchorProfileTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Tests\EditMode\ProjectUnknown.EditModeTests.asmdef" />

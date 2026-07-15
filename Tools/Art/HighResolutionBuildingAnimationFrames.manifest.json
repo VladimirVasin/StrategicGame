@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 1,
+  "families": [
+    {
+      "tool": "ChickenCoopProduction",
+      "source": "Tools/Art/Source/HighResolution/ChickenCoop-Animation.png",
+      "sourceSize": [2172, 724],
+      "sourceSha256": "57B3CDDF37C5358425B80BEA84DCE53995216B31D9C08E9D1E9914D84B4DCA1C",
+      "variants": [
+        {
+          "id": "F01",
+          "sourceBounds": [29, 193, 311, 321],
+          "outputCanvas": [92, 92],
+          "targetBoundsTopLeft": [6, 6, 80, 86],
+          "ppu": 42,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/BuildingAnimations/ChickenCoop/V01.png",
+          "legacyFrame": 0,
+          "output": "Tools/Art/Generated/HighResolution/BuildingAnimations/ChickenCoop/F01.png",
+          "expectedSha256": "C3AD894FFC54632B1D22E24DCA3EC8A741DF538F2912B497B430ECD55B11AEC0"
+        },
+        {
+          "id": "F02",
+          "sourceBounds": [388, 193, 312, 321],
+          "outputCanvas": [92, 92],
+          "targetBoundsTopLeft": [6, 6, 80, 86],
+          "ppu": 42,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/BuildingAnimations/ChickenCoop/V01.png",
+          "legacyFrame": 1,
+          "output": "Tools/Art/Generated/HighResolution/BuildingAnimations/ChickenCoop/F02.png",
+          "expectedSha256": "0A5DA8FD2826471DCF994E9D3ED7950ED48065EC7502A8A2557CBDEC74691E08"
+        },
+        {
+          "id": "F03",
+          "sourceBounds": [748, 193, 311, 321],
+          "outputCanvas": [92, 92],
+          "targetBoundsTopLeft": [6, 6, 80, 86],
+          "ppu": 42,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/BuildingAnimations/ChickenCoop/V01.png",
+          "legacyFrame": 2,
+          "output": "Tools/Art/Generated/HighResolution/BuildingAnimations/ChickenCoop/F03.png",
+          "expectedSha256": "C716446C6F9180101DD4D06C7DAE8263B919CF6C32B56B108236E2D7E91E8BB6"
+        },
+        {
+          "id": "F04",
+          "sourceBounds": [1108, 193, 311, 321],
+          "outputCanvas": [92, 92],
+          "targetBoundsTopLeft": [6, 6, 80, 86],
+          "ppu": 42,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/BuildingAnimations/ChickenCoop/V01.png",
+          "legacyFrame": 3,
+          "output": "Tools/Art/Generated/HighResolution/BuildingAnimations/ChickenCoop/F04.png",
+          "expectedSha256": "C467408FBAEBE3A662FE87212E69ED012D2E1716124CBF3764AEC40C17E7EB3A"
+        },
+        {
+          "id": "F05",
+          "sourceBounds": [1467, 193, 312, 323],
+          "outputCanvas": [92, 92],
+          "targetBoundsTopLeft": [6, 6, 80, 86],
+          "ppu": 42,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/BuildingAnimations/ChickenCoop/V01.png",
+          "legacyFrame": 4,
+          "output": "Tools/Art/Generated/HighResolution/BuildingAnimations/ChickenCoop/F05.png",
+          "expectedSha256": "DFACF64189EA3E1B4DDD8268000966970D307B1EF05AFA10E9E9040ECD1DD737"
+        },
+        {
+          "id": "F06",
+          "sourceBounds": [1827, 193, 312, 326],
+          "outputCanvas": [92, 92],
+          "targetBoundsTopLeft": [6, 6, 80, 86],
+          "ppu": 42,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/BuildingAnimations/ChickenCoop/V01.png",
+          "legacyFrame": 5,
+          "output": "Tools/Art/Generated/HighResolution/BuildingAnimations/ChickenCoop/F06.png",
+          "expectedSha256": "318A4DA3E3BA47E4A3408F7E60801557B1FBB6B0687D34D1B7038B5F13140A0C"
+        }
+      ]
+    }
+  ]
+}

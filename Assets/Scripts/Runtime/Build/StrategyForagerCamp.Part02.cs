@@ -165,7 +165,10 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            Vector3 world = StrategyForagerCampVisualProfile.GetStockAnchorWorld(building.FootprintBounds);
+            Vector3 world = StrategyBuildingVisualAnchorProfile.GetStockAnchorWorld(
+                StrategyBuildTool.ForagerCamp,
+                ChooseStockSpriteResource(),
+                building.FootprintBounds);
             stockRenderer.transform.localPosition = transform.InverseTransformPoint(world);
             stockRenderer.transform.localScale = Vector3.one;
             StrategyWorldSorting.Apply(stockRenderer, world, 1);
@@ -178,7 +181,11 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            Vector3 world = FootprintBounds.center + new Vector3(0.15f, -0.18f, -0.02f);
+            Vector3 world = StrategyBuildingVisualAnchorProfile.GetStockAnchorWorld(
+                    StrategyBuildTool.ForagerCamp,
+                    resource,
+                    FootprintBounds)
+                + new Vector3(0f, 0.08f, -0.02f);
             StrategyWorldEffectAnimator.SpawnResourcePlaced(
                 resource,
                 world,

@@ -48,7 +48,7 @@ namespace ProjectUnknown.Strategy.EditorTests
 
         private static void VerifyAuthoredHouseConstructionFamily(StrategyVisualCatalog catalog)
         {
-            Vector2 expectedPivot = new(92f, 16.4f);
+            Vector2 expectedPivot = new(92f, 16f);
             for (int variant = 0; variant < StrategyBuildingSpriteFactory.HouseVariantCount; variant++)
             {
                 string resourcePath = $"Visual/Authored/Construction/House/V{variant + 1:00}";

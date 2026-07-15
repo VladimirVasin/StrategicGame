@@ -7,6 +7,8 @@ namespace ProjectUnknown.Strategy.EditorTools
 {
     public static partial class StrategyVisualCatalogBaker
     {
+        private const int AuthoredBuildingResolutionScale = 2;
+
         private static void RecreateOutputRoot()
         {
             if (AssetDatabase.IsValidFolder(BakedRoot))
@@ -37,7 +39,10 @@ namespace ProjectUnknown.Strategy.EditorTools
             return imported;
         }
 
-        private static Sprite ResolveAuthoredSprite(string relativePath, Sprite fallback)
+        private static Sprite ResolveAuthoredSprite(
+            string relativePath,
+            Sprite fallback,
+            StrategyBuildTool tool)
         {
             if (fallback == null)
             {
@@ -60,22 +65,14 @@ namespace ProjectUnknown.Strategy.EditorTools
             int expectedWidth = Mathf.RoundToInt(fallback.rect.width);
             int expectedHeight = Mathf.RoundToInt(fallback.rect.height);
             float pixelsPerUnit = fallback.pixelsPerUnit;
-            if (TryGetHighResolutionSpriteContract(
-                    relativePath,
-                    out int fallbackWidth,
-                    out int fallbackHeight,
-                    out int authoredWidth,
-                    out int authoredHeight,
-                    out float authoredPixelsPerUnit))
+            Vector2 pivot = NormalizePivot(fallback);
+            if (IsHighResolutionAuthoredPath(relativePath, "Buildings/"))
             {
-                ValidateFallbackSpriteContract(
-                    relativePath,
-                    fallback,
-                    fallbackWidth,
-                    fallbackHeight);
-                expectedWidth = authoredWidth;
-                expectedHeight = authoredHeight;
-                pixelsPerUnit = authoredPixelsPerUnit;
+                ValidateFallbackSpriteContract(relativePath, fallback);
+                expectedWidth *= AuthoredBuildingResolutionScale;
+                expectedHeight *= AuthoredBuildingResolutionScale;
+                pixelsPerUnit *= AuthoredBuildingResolutionScale;
+                pivot = new Vector2(0.5f, GetRuntimeBuildingPivotY(tool));
             }
 
             if (authoredTexture.width != expectedWidth || authoredTexture.height != expectedHeight)
@@ -88,7 +85,7 @@ namespace ProjectUnknown.Strategy.EditorTools
             ConfigureSpriteImporter(
                 assetPath,
                 pixelsPerUnit,
-                NormalizePivot(fallback),
+                pivot,
                 readable: false);
             Sprite authored = AssetDatabase.LoadAssetAtPath<Sprite>(assetPath);
             if (authored == null)
@@ -112,7 +109,9 @@ namespace ProjectUnknown.Strategy.EditorTools
             string id,
             Sprite[] frames,
             string assetPath,
-            string authoredRelativePath = null)
+            string authoredRelativePath = null,
+            StrategyBuildTool? buildingTool = null,
+            Sprite finalSprite = null)
         {
             CalculateFrameLayout(frames, out int width, out int height, out Vector2 pivotPixels);
             Vector2 pivot = new(pivotPixels.x / width, pivotPixels.y / height);
@@ -140,12 +139,17 @@ namespace ProjectUnknown.Strategy.EditorTools
                     height,
                     frames.Length,
                     frames[0].pixelsPerUnit,
+                    pivot,
+                    buildingTool,
+                    finalSprite,
                     out int resolvedFrameWidth,
                     out int resolvedFrameHeight,
-                    out float resolvedPixelsPerUnit);
+                    out float resolvedPixelsPerUnit,
+                    out Vector2 resolvedPivot);
                 width = resolvedFrameWidth;
                 height = resolvedFrameHeight;
                 pixelsPerUnit = resolvedPixelsPerUnit;
+                pivot = resolvedPivot;
             }
 
             return new StrategyVisualCatalog.VisualSequenceSet(
@@ -165,9 +169,13 @@ namespace ProjectUnknown.Strategy.EditorTools
             int fallbackFrameHeight,
             int frameCount,
             float fallbackPixelsPerUnit,
+            Vector2 fallbackPivot,
+            StrategyBuildTool? buildingTool,
+            Sprite finalSprite,
             out int resolvedFrameWidth,
             out int resolvedFrameHeight,
-            out float resolvedPixelsPerUnit)
+            out float resolvedPixelsPerUnit,
+            out Vector2 resolvedPivot)
         {
             if (fallback == null)
             {
@@ -181,6 +189,7 @@ namespace ProjectUnknown.Strategy.EditorTools
                 resolvedFrameWidth = fallbackFrameWidth;
                 resolvedFrameHeight = fallbackFrameHeight;
                 resolvedPixelsPerUnit = fallbackPixelsPerUnit;
+                resolvedPivot = fallbackPivot;
                 return fallback;
             }
 
@@ -194,36 +203,57 @@ namespace ProjectUnknown.Strategy.EditorTools
             resolvedFrameWidth = fallbackFrameWidth;
             resolvedFrameHeight = fallbackFrameHeight;
             resolvedPixelsPerUnit = fallbackPixelsPerUnit;
+            resolvedPivot = fallbackPivot;
             int expectedWidth = fallbackFrameWidth * frameCount;
             int expectedHeight = fallbackFrameHeight;
             float? importerPixelsPerUnit = null;
-            if (TryGetHighResolutionSequenceContract(
-                    relativePath,
-                    out int expectedFallbackFrameWidth,
-                    out int expectedFallbackFrameHeight,
-                    out int authoredFrameWidth,
-                    out int authoredFrameHeight,
-                    out float authoredPixelsPerUnit))
+            bool isConstruction = IsHighResolutionAuthoredPath(relativePath, "Construction/");
+            bool isBuildingAnimation = IsHighResolutionAuthoredPath(
+                relativePath,
+                "BuildingAnimations/");
+            if (isConstruction || isBuildingAnimation)
             {
-                if (frameCount != 7)
+                int expectedFrameCount = isConstruction
+                    ? StrategyVisualBakeSource.ConstructionStageCount
+                    : StrategyVisualBakeSource.ChickenCoopAnimationFrameCount;
+                if (frameCount != expectedFrameCount)
                 {
                     throw new InvalidOperationException(
-                        $"High-resolution authored sequence {relativePath} requires exactly 7 frames");
+                        $"High-resolution authored sequence {relativePath} requires exactly "
+                        + $"{expectedFrameCount} frames");
                 }
 
                 ValidateFallbackSequenceContract(
                     relativePath,
                     fallbackFrameWidth,
                     fallbackFrameHeight,
-                    fallbackPixelsPerUnit,
-                    expectedFallbackFrameWidth,
-                    expectedFallbackFrameHeight);
-                resolvedFrameWidth = authoredFrameWidth;
-                resolvedFrameHeight = authoredFrameHeight;
-                resolvedPixelsPerUnit = authoredPixelsPerUnit;
-                expectedWidth = authoredFrameWidth * frameCount;
-                expectedHeight = authoredFrameHeight;
-                importerPixelsPerUnit = authoredPixelsPerUnit;
+                    fallbackPixelsPerUnit);
+                resolvedFrameWidth *= AuthoredBuildingResolutionScale;
+                resolvedFrameHeight *= AuthoredBuildingResolutionScale;
+                resolvedPixelsPerUnit *= AuthoredBuildingResolutionScale;
+                if (isConstruction && buildingTool.HasValue && finalSprite != null)
+                {
+                    if (finalSprite.pixelsPerUnit <= 0f)
+                    {
+                        throw new InvalidOperationException(
+                            $"Authored construction {relativePath} requires a valid final sprite PPU");
+                    }
+
+                    float finalToConstructionScale = resolvedPixelsPerUnit / finalSprite.pixelsPerUnit;
+                    int finalWidth = Mathf.CeilToInt(finalSprite.rect.width * finalToConstructionScale);
+                    int finalHeight = Mathf.CeilToInt(finalSprite.rect.height * finalToConstructionScale);
+                    resolvedFrameWidth = Mathf.Max(resolvedFrameWidth, finalWidth);
+                    resolvedFrameHeight = Mathf.Max(resolvedFrameHeight, finalHeight);
+                    float pivotY = GetRuntimeBuildingPivotY(buildingTool.Value);
+                    resolvedPivot = new Vector2(
+                        0.5f,
+                        finalSprite.rect.height * finalToConstructionScale * pivotY
+                            / resolvedFrameHeight);
+                }
+
+                expectedWidth = resolvedFrameWidth * frameCount;
+                expectedHeight = resolvedFrameHeight;
+                importerPixelsPerUnit = resolvedPixelsPerUnit;
             }
 
             if (authored.width != expectedWidth || authored.height != expectedHeight)
@@ -243,80 +273,27 @@ namespace ProjectUnknown.Strategy.EditorTools
             return authored;
         }
 
-        private static bool TryGetHighResolutionSpriteContract(
-            string relativePath,
-            out int fallbackWidth,
-            out int fallbackHeight,
-            out int authoredWidth,
-            out int authoredHeight,
-            out float pixelsPerUnit)
+        private static float GetRuntimeBuildingPivotY(StrategyBuildTool tool)
         {
-            fallbackWidth = 0;
-            fallbackHeight = 0;
-            authoredWidth = 0;
-            authoredHeight = 0;
-            pixelsPerUnit = 0f;
-            if (relativePath.StartsWith("Buildings/House/V", StringComparison.Ordinal)
-                && relativePath.EndsWith(".png", StringComparison.Ordinal))
-            {
-                fallbackWidth = 80;
-                fallbackHeight = 80;
-                authoredWidth = 160;
-                authoredHeight = 160;
-                pixelsPerUnit = 48f;
-                return true;
-            }
-
-            if (string.Equals(relativePath, "Buildings/ForagerCamp/V01.png", StringComparison.Ordinal))
-            {
-                fallbackWidth = 88;
-                fallbackHeight = 58;
-                authoredWidth = 176;
-                authoredHeight = 116;
-                pixelsPerUnit = 48f;
-                return true;
-            }
-
-            return false;
+            return StrategyBuildingVisualAlignment.GetSpritePivotY(tool);
         }
 
-        private static bool TryGetHighResolutionSequenceContract(
-            string relativePath,
-            out int fallbackFrameWidth,
-            out int fallbackFrameHeight,
-            out int authoredFrameWidth,
-            out int authoredFrameHeight,
-            out float pixelsPerUnit)
+        private static bool IsHighResolutionAuthoredPath(string relativePath, string prefix)
         {
-            bool isHouse = relativePath.StartsWith("Construction/House/V", StringComparison.Ordinal)
+            return relativePath.StartsWith(prefix, StringComparison.Ordinal)
                 && relativePath.EndsWith(".png", StringComparison.Ordinal);
-            bool isForagerCamp = string.Equals(
-                relativePath,
-                "Construction/ForagerCamp/V01.png",
-                StringComparison.Ordinal);
-            fallbackFrameWidth = 92;
-            fallbackFrameHeight = 82;
-            authoredFrameWidth = 184;
-            authoredFrameHeight = 164;
-            pixelsPerUnit = 48f;
-            return isHouse || isForagerCamp;
         }
 
         private static void ValidateFallbackSpriteContract(
             string relativePath,
-            Sprite fallback,
-            int expectedWidth,
-            int expectedHeight)
+            Sprite fallback)
         {
             int actualWidth = Mathf.RoundToInt(fallback.rect.width);
             int actualHeight = Mathf.RoundToInt(fallback.rect.height);
-            if (actualWidth != expectedWidth
-                || actualHeight != expectedHeight
-                || !Mathf.Approximately(fallback.pixelsPerUnit, 24f))
+            if (actualWidth <= 0 || actualHeight <= 0 || fallback.pixelsPerUnit <= 0f)
             {
                 throw new InvalidOperationException(
-                    $"High-resolution authored sprite {relativePath} requires a "
-                    + $"{expectedWidth}x{expectedHeight} @ 24 PPU fallback, but received "
+                    $"High-resolution authored sprite {relativePath} requires a valid fallback, but received "
                     + $"{actualWidth}x{actualHeight} @ {fallback.pixelsPerUnit} PPU");
             }
         }
@@ -325,17 +302,14 @@ namespace ProjectUnknown.Strategy.EditorTools
             string relativePath,
             int fallbackFrameWidth,
             int fallbackFrameHeight,
-            float fallbackPixelsPerUnit,
-            int expectedFrameWidth,
-            int expectedFrameHeight)
+            float fallbackPixelsPerUnit)
         {
-            if (fallbackFrameWidth != expectedFrameWidth
-                || fallbackFrameHeight != expectedFrameHeight
-                || !Mathf.Approximately(fallbackPixelsPerUnit, 24f))
+            if (fallbackFrameWidth <= 0
+                || fallbackFrameHeight <= 0
+                || fallbackPixelsPerUnit <= 0f)
             {
                 throw new InvalidOperationException(
-                    $"High-resolution authored sequence {relativePath} requires "
-                    + $"{expectedFrameWidth}x{expectedFrameHeight} @ 24 PPU fallback frames, but received "
+                    $"High-resolution authored sequence {relativePath} requires valid fallback frames, but received "
                     + $"{fallbackFrameWidth}x{fallbackFrameHeight} @ {fallbackPixelsPerUnit} PPU");
             }
         }
@@ -470,6 +444,7 @@ namespace ProjectUnknown.Strategy.EditorTools
         {
             importer.alphaIsTransparency = true;
             importer.filterMode = FilterMode.Point;
+            importer.wrapMode = TextureWrapMode.Clamp;
             importer.mipmapEnabled = false;
             importer.textureCompression = TextureImporterCompression.Uncompressed;
             importer.npotScale = TextureImporterNPOTScale.None;

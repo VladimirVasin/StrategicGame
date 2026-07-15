@@ -52,6 +52,7 @@ namespace ProjectUnknown.Strategy
             }
 
             StrategyBuildTool tool = (StrategyBuildTool)data.tool;
+            int visualVariant = StrategyBuildingVariantProfile.NormalizeVariant(tool, data.visualVariant);
             Vector2Int footprint = new(Mathf.Max(1, data.footprintX), Mathf.Max(1, data.footprintY));
             StrategyBuildToolInfo info = CreatePersistenceToolInfo(tool, footprint, default);
             List<Vector2Int> bridgeCells = CopyCells(data.bridgeCells);
@@ -62,7 +63,7 @@ namespace ProjectUnknown.Strategy
                 building = PlaceTool(
                     info,
                     new Vector2Int(data.originX, data.originY),
-                    data.visualVariant,
+                    visualVariant,
                     false,
                     bridgeCells,
                     new Vector2Int(data.bridgeStartX, data.bridgeStartY),
@@ -85,7 +86,7 @@ namespace ProjectUnknown.Strategy
             }
 
             StrategyBuildTool tool = (StrategyBuildTool)data.tool;
-            int visualVariant = StrategyForagerCampVisualProfile.NormalizeVariant(tool, data.visualVariant);
+            int visualVariant = StrategyBuildingVariantProfile.NormalizeVariant(tool, data.visualVariant);
             Vector2Int origin = new(data.originX, data.originY);
             Vector2Int footprint = new(Mathf.Max(1, data.footprintX), Mathf.Max(1, data.footprintY));
             StrategyConstructionResourceCost cost = new(data.costLogs, data.costStone, data.costPlanks);

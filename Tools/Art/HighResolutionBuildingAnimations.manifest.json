@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "sequences": [
+    {
+      "id": "ChickenCoopProduction",
+      "tool": "ChickenCoop",
+      "frameSize": [92, 92],
+      "frameCount": 6,
+      "ppu": 42,
+      "pivotNormalized": [0.5, 0.1],
+      "frames": [
+        {
+          "source": "Tools/Art/Generated/HighResolution/BuildingAnimations/ChickenCoop/F01.png",
+          "sha256": "C3AD894FFC54632B1D22E24DCA3EC8A741DF538F2912B497B430ECD55B11AEC0"
+        },
+        {
+          "source": "Tools/Art/Generated/HighResolution/BuildingAnimations/ChickenCoop/F02.png",
+          "sha256": "0A5DA8FD2826471DCF994E9D3ED7950ED48065EC7502A8A2557CBDEC74691E08"
+        },
+        {
+          "source": "Tools/Art/Generated/HighResolution/BuildingAnimations/ChickenCoop/F03.png",
+          "sha256": "C716446C6F9180101DD4D06C7DAE8263B919CF6C32B56B108236E2D7E91E8BB6"
+        },
+        {
+          "source": "Tools/Art/Generated/HighResolution/BuildingAnimations/ChickenCoop/F04.png",
+          "sha256": "C467408FBAEBE3A662FE87212E69ED012D2E1716124CBF3764AEC40C17E7EB3A"
+        },
+        {
+          "source": "Tools/Art/Generated/HighResolution/BuildingAnimations/ChickenCoop/F05.png",
+          "sha256": "DFACF64189EA3E1B4DDD8268000966970D307B1EF05AFA10E9E9040ECD1DD737"
+        },
+        {
+          "source": "Tools/Art/Generated/HighResolution/BuildingAnimations/ChickenCoop/F06.png",
+          "sha256": "318A4DA3E3BA47E4A3408F7E60801557B1FBB6B0687D34D1B7038B5F13140A0C"
+        }
+      ],
+      "output": "Assets/Resources/Visual/Authored/BuildingAnimations/ChickenCoop/V01.png",
+      "expectedSha256": "33E1414C0F4B2A4D50DF36D0616CAC32D88CAAAD097CE756B700BDC9CE151CE7"
+    }
+  ]
+}

@@ -27,7 +27,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Runtime cinematic visual layer adds 2D global/local light with chunk/active-registry emitter scans, LOD-capped point lights, emissive pixel masks, animated building torch/lantern source sprites with manual lit state for building/roadside lights, active hand-carried resident torch lights, cached camera-area night-mask light cutouts, wet puddle glints, lightning flashes, and subtle foreground depth props
   - Runtime procedural 2D shadow caster supplies soft ground/cast shadows below world sprites
   - Runtime short-lived world effect layer supplies reusable dust, sawdust, chip, spark, splash, and resource pop/fade effects
-  - Resources-backed visual catalog and Editor baker provide editable PNGs for buildings, resident pose atlases, nature, terrain, construction, roads, production work, and stock layers while retaining procedural fallback; durable building and construction-sequence replacements mirror their `Baked` path under `Visual/Authored` and override the rebuilt catalog automatically, including the five-variant House family and single-variant Forager Camp with their seven-stage construction atlases
+  - Resources-backed visual catalog and Editor baker provide editable PNGs for buildings, resident pose atlases, nature, terrain, construction, roads, production work, and stock layers while retaining procedural fallback; `Visual/Authored` now covers all 17 Build catalog tools plus the Starter Caravan Cart, including every normal final/construction variant, the shared six-frame Chicken Coop animation, and modular horizontal/vertical Bridge sequences
   - Generated terrain hides the cell grid, classifies kind/water before reusing that mask for relief, reads main-thread-prewarmed authored swatches in its parallel painter, and caches one paint/catalog context per tile outside the inner pixel loop
   - Non-Bridge placed buildings add a catalog-overridable trampled-ground layer beneath their Y-sorted body and shadow
   - Spring/autumn camera-area details and centralized vegetation tinting make seasonal changes readable without per-prop Update components
@@ -384,20 +384,12 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Selected completed buildings can be demolished with `Delete` after confirmation
     - Demolished buildings release occupied cells and walkability blockers; demolished Bridges also remove river-span walkability
   - Runtime building art
-    - Generates 5 larger 2.5D pixel-art medieval house sprite variants in code
-    - Generates 3 procedural 2.5D lumberjack camp sprite variants in code
-    - Generates 3 procedural 2.5D stonecutter camp sprite variants in code
-    - Generates 3 procedural 2.5D mine sprite variants in code
-    - Generates 3 procedural 2.5D coal pit sprite variants in code
-    - Generates 3 procedural 2.5D clay pit sprite variants in code
-    - Generates 3 procedural 2.5D hunter camp sprite variants in code
-    - Generates 3 procedural 2.5D fisher hut sprite variants in code
-    - Generates 3 procedural 2.5D forager camp sprite variants in code
-    - Reuses generated Chicken Coop sprite frames at enlarged standalone scale for the standalone Chicken Coop building
-    - Generates 3 procedural 2.5D trading post sprite variants in code
-    - Generates 3 procedural 2.5D storage yard sprite variants in code
-    - Generates 3 procedural 2.5D granary sprite variants in code
-    - Generates dynamic span-sized 2.5D bridge sprites in code
+    - Resolves high-resolution authored final sprites for every current Build catalog tool plus the Starter Caravan Cart before using the retained procedural factories as fallback
+    - Keeps five authored House variants; one Forager Camp, Chicken Coop, and Starter Caravan Cart variant; and three variants for every other normal non-Bridge building family
+    - Resolves matching authored seven-stage construction sequences for every normal buildable variant, with the accepted completed sprite embedded in the final stage
+    - Reuses one six-frame authored Chicken Coop sequence at separate standalone and legacy House-upgrade scales
+    - Dynamically composes authored `48 PPU` horizontal/vertical Bridge Start, Middle, and End modules for completed and seven-stage construction spans of `3-12` cells
+    - Centralizes variant normalization, sprite/construction pivots, and stock/work/effect/light anchors so overlays retain their intended relationship to authored geometry
     - Generates separate lumberjack camp Logs stockpile sprites that visually grow as Logs are deposited
     - Generates separate stonecutter camp Stone stockpile sprites that visually grow as Stone is deposited
     - Generates separate mine Iron stockpile sprites that visually grow as Iron is mined
@@ -705,7 +697,8 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Input action IDs/names/bindings feed the central router, every runtime consumer, modal contexts, and the shared UI input module; update their contract tests with intentional changes.
 - Build menu active tool state drives the placement controller when catalog tools exist.
 - Placement uses generated map cells and buildability data.
-- The authored Forager Camp geometry feeds its tool-specific construction pivot plus runtime lantern and forage-stock anchors; legacy saved visual variants normalize to the single accepted camp.
+- Authored building geometry feeds shared final/construction pivots plus runtime stock, work, effect, and light anchors; Forager Camp and Chicken Coop retain their declared single-variant normalization, and legacy saved variants normalize through the shared profile.
+- Bridge rendering depends on the selected span/orientation, the 12 modular final/construction catalog sequences, and runtime module composition; bridge placement and River walkability remain independent gameplay owners.
 - Fog of war uses population, residents, placed-building records, the shared day/night phase, and weather Fog intensity as visibility inputs; placement and world selection consult fog exploration state, refugee arrivals use daylight-range visible boundaries for in-map entry staging, while the F9 debug panel can bypass player fog for testing.
 - Terrain rendering uses generated map cell kinds, visual relief height, seeded tile variants, neighbor transition overlays, a runtime water/shore animation overlay, and weather visual overlays.
 - Weather depends on generated map bounds, the strategy camera, day/night/fog sorting bands, the strategy wind source, water animation, placed-building sprites, fish/fishing gameplay state, and ambience audio.

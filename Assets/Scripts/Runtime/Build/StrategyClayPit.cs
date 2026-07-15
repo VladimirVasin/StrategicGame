@@ -428,7 +428,10 @@ namespace ProjectUnknown.Strategy
 
         private static Vector3 GetClayStockWorld(Bounds bounds)
         {
-            return new Vector3(bounds.max.x - 0.28f, bounds.min.y + 0.31f, -0.13f);
+            return StrategyBuildingVisualAnchorProfile.GetStockAnchorWorld(
+                StrategyBuildTool.ClayPit,
+                StrategyResourceType.Clay,
+                bounds);
         }
 
         private void OnDestroy()

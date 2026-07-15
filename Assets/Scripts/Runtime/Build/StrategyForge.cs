@@ -226,14 +226,18 @@ namespace ProjectUnknown.Strategy
 
         public Vector3 GetInteriorWorkWorld(StrategyResidentAgent worker)
         {
-            Bounds bounds = FootprintBounds;
-            return new Vector3(bounds.center.x - 0.18f, bounds.min.y + bounds.size.y * 0.46f, -0.08f);
+            return StrategyBuildingVisualAnchorProfile.GetInteriorWorkWorld(
+                StrategyBuildTool.Forge,
+                FootprintBounds,
+                0,
+                1);
         }
 
         public Vector3 GetForgeFocusWorld()
         {
-            Bounds bounds = FootprintBounds;
-            return new Vector3(bounds.center.x + 0.10f, bounds.min.y + bounds.size.y * 0.43f, -0.08f);
+            return StrategyBuildingVisualAnchorProfile.GetWorkFocusWorld(
+                StrategyBuildTool.Forge,
+                FootprintBounds);
         }
     }
 }

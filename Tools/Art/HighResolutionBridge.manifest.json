@@ -1,0 +1,126 @@
+{
+  "$schema": "HighResolutionBridge.schema.json",
+  "schemaVersion": 1,
+  "source": "Tools/Art/Source/HighResolution/Bridge-Modular.png",
+  "sourceSha256": "7AC6166F5EC10E6A7B4ED27F8A30FEEC1242285EA7DB4C5A25D007859750357B",
+  "sourceSize": [1774, 887],
+  "pixelsPerUnit": 48,
+  "pivotNormalized": [0.5, 0.5],
+  "constructionStageCount": 7,
+  "modules": [
+    {
+      "orientation": "Horizontal",
+      "module": "Start",
+      "sourceBounds": [134, 341, 293, 282],
+      "outputCanvas": [68, 112],
+      "targetBoundsTopLeft": [15, 30, 53, 51],
+      "seamEdge": "Right",
+      "output": "Assets/Resources/Visual/Authored/Buildings/Bridge/Horizontal/Start.png",
+      "expectedSha256": "F6DE9F377964EEAF491EADF27CD0F520C697B22B087D4DFAA23F1D7C167A9922",
+      "construction": [
+        { "stage": 1, "output": "Assets/Resources/Visual/Authored/Construction/Bridge/Horizontal/S01/Start.png", "expectedSha256": "A0DE856755C9DE6A620253F04FBE8F35ADE04FC670ED3EA0A3F383CFD70447B9" },
+        { "stage": 2, "output": "Assets/Resources/Visual/Authored/Construction/Bridge/Horizontal/S02/Start.png", "expectedSha256": "3F6B8CFC9671627D0AD9A0400BD588FAAE8580EDEA160939B69C7ED7F9E6838E" },
+        { "stage": 3, "output": "Assets/Resources/Visual/Authored/Construction/Bridge/Horizontal/S03/Start.png", "expectedSha256": "B1B0743440C955F54AE85C98AFFD4EA48F08CA96AF67A09F8F391CE71B4EEC8A" },
+        { "stage": 4, "output": "Assets/Resources/Visual/Authored/Construction/Bridge/Horizontal/S04/Start.png", "expectedSha256": "13745D14833A9EDFE91776F049A8583ABC1339B3F95C2A79F673CBFE601178E8" },
+        { "stage": 5, "output": "Assets/Resources/Visual/Authored/Construction/Bridge/Horizontal/S05/Start.png", "expectedSha256": "0D67EFAE997E24EA05F4083F8D80F5AA44D7B60D06D29A40D1F82CCB5572BD85" },
+        { "stage": 6, "output": "Assets/Resources/Visual/Authored/Construction/Bridge/Horizontal/S06/Start.png", "expectedSha256": "33189324E943BBFB7F6F5BB383E761C9E48582C486CBED96740FB32FFF3304E6" },
+        { "stage": 7, "output": "Assets/Resources/Visual/Authored/Construction/Bridge/Horizontal/S07/Start.png", "expectedSha256": "F6DE9F377964EEAF491EADF27CD0F520C697B22B087D4DFAA23F1D7C167A9922" }
+      ]
+    },
+    {
+      "orientation": "Horizontal",
+      "module": "Middle",
+      "sourceBounds": [427, 341, 265, 282],
+      "outputCanvas": [48, 112],
+      "targetBoundsTopLeft": [0, 30, 48, 51],
+      "seamEdge": "BothHorizontal",
+      "output": "Assets/Resources/Visual/Authored/Buildings/Bridge/Horizontal/Middle.png",
+      "expectedSha256": "370870DFE6CCE3E3438EA5D2237CFF90357674757E2A3161A1FF820BFCA70C9D",
+      "construction": [
+        { "stage": 1, "output": "Assets/Resources/Visual/Authored/Construction/Bridge/Horizontal/S01/Middle.png", "expectedSha256": "821AE5F924D7046F5F678A429165C6913008B91CB3D131D22A278D51833F306D" },
+        { "stage": 2, "output": "Assets/Resources/Visual/Authored/Construction/Bridge/Horizontal/S02/Middle.png", "expectedSha256": "D2D014B988865D9E7C6D20267EEC38D9C5AC25D9B3F2C0D56C8B7F98D40172E2" },
+        { "stage": 3, "output": "Assets/Resources/Visual/Authored/Construction/Bridge/Horizontal/S03/Middle.png", "expectedSha256": "22B304D81484FBB72D9EFCC95DCE76F00912D79A4D4D37A6737223D4405B7A7B" },
+        { "stage": 4, "output": "Assets/Resources/Visual/Authored/Construction/Bridge/Horizontal/S04/Middle.png", "expectedSha256": "BE3FC7BBA41AA9BB9BEAF2A20372CFA617EC7F817D25C9884D9828A7B76160A2" },
+        { "stage": 5, "output": "Assets/Resources/Visual/Authored/Construction/Bridge/Horizontal/S05/Middle.png", "expectedSha256": "98597B49F15732A996BBBD92299CBE4E8EBD708E6DFE2C4B551F3BDC7AF7A390" },
+        { "stage": 6, "output": "Assets/Resources/Visual/Authored/Construction/Bridge/Horizontal/S06/Middle.png", "expectedSha256": "9A4064EA89EFCD34FF6FC761DEE7F455DFB7839D344D1EC46C5E6613B38614BD" },
+        { "stage": 7, "output": "Assets/Resources/Visual/Authored/Construction/Bridge/Horizontal/S07/Middle.png", "expectedSha256": "370870DFE6CCE3E3438EA5D2237CFF90357674757E2A3161A1FF820BFCA70C9D" }
+      ]
+    },
+    {
+      "orientation": "Horizontal",
+      "module": "End",
+      "sourceBounds": [692, 341, 290, 282],
+      "outputCanvas": [68, 112],
+      "targetBoundsTopLeft": [0, 30, 53, 51],
+      "seamEdge": "Left",
+      "output": "Assets/Resources/Visual/Authored/Buildings/Bridge/Horizontal/End.png",
+      "expectedSha256": "1D38DCDE64662D3A4484FA41BCF0D680F1E6859DCC462EBFB92C5BA9AB606CAB",
+      "construction": [
+        { "stage": 1, "output": "Assets/Resources/Visual/Authored/Construction/Bridge/Horizontal/S01/End.png", "expectedSha256": "BB1ED19BA2137553C2E8AFF8665DCEEA66D70DF9BC3CFDF2D6C0ABD7C169F214" },
+        { "stage": 2, "output": "Assets/Resources/Visual/Authored/Construction/Bridge/Horizontal/S02/End.png", "expectedSha256": "6AE088817D5CD251A76F854C9476A3776F54D13B6AE71816E73091040F477D5F" },
+        { "stage": 3, "output": "Assets/Resources/Visual/Authored/Construction/Bridge/Horizontal/S03/End.png", "expectedSha256": "D7D98DD15B4E2A99A10BD8B4113CE0024C32E988EF9331BE5100F810586371F1" },
+        { "stage": 4, "output": "Assets/Resources/Visual/Authored/Construction/Bridge/Horizontal/S04/End.png", "expectedSha256": "879CCA714528D681F4EE45AA197FF4E2BC1B0035306B4195BA05823FFA7D8760" },
+        { "stage": 5, "output": "Assets/Resources/Visual/Authored/Construction/Bridge/Horizontal/S05/End.png", "expectedSha256": "849A40C4FC39DCC6B08090A74C4AC778E3C72B61360A261E01145916B138213C" },
+        { "stage": 6, "output": "Assets/Resources/Visual/Authored/Construction/Bridge/Horizontal/S06/End.png", "expectedSha256": "19303EEB29FA310290361E95152485721E23597060143AC520DBC3F202A52814" },
+        { "stage": 7, "output": "Assets/Resources/Visual/Authored/Construction/Bridge/Horizontal/S07/End.png", "expectedSha256": "1D38DCDE64662D3A4484FA41BCF0D680F1E6859DCC462EBFB92C5BA9AB606CAB" }
+      ]
+    },
+    {
+      "orientation": "Vertical",
+      "module": "Start",
+      "sourceBounds": [1304, 520, 250, 256],
+      "outputCanvas": [124, 68],
+      "targetBoundsTopLeft": [32, 0, 60, 61],
+      "seamEdge": "Top",
+      "output": "Assets/Resources/Visual/Authored/Buildings/Bridge/Vertical/Start.png",
+      "expectedSha256": "BB4A666CDA3C469709D6D8DEBC7BFC13D885849552972F984D69E86AE04181A3",
+      "construction": [
+        { "stage": 1, "output": "Assets/Resources/Visual/Authored/Construction/Bridge/Vertical/S01/Start.png", "expectedSha256": "3475161D012A74F474D83870A828C0A8812B99A0082878BA39D1A64CC74C966D" },
+        { "stage": 2, "output": "Assets/Resources/Visual/Authored/Construction/Bridge/Vertical/S02/Start.png", "expectedSha256": "5DD95427A2E1C520713D57944B5C56067C17F4418A9FD25C9687F10ACE5DF526" },
+        { "stage": 3, "output": "Assets/Resources/Visual/Authored/Construction/Bridge/Vertical/S03/Start.png", "expectedSha256": "7A528E9C3B25E568419083616747026DE314CEACA450FA0481B1CE852112FA81" },
+        { "stage": 4, "output": "Assets/Resources/Visual/Authored/Construction/Bridge/Vertical/S04/Start.png", "expectedSha256": "55C82ED307FCFB23732E1E3DED1586C6C3A2643EA494D9715D186A6E5E7DA422" },
+        { "stage": 5, "output": "Assets/Resources/Visual/Authored/Construction/Bridge/Vertical/S05/Start.png", "expectedSha256": "3B85FD3E881BD647A62A1126BC57245078AE2871817E52DE7806DA827AD1E338" },
+        { "stage": 6, "output": "Assets/Resources/Visual/Authored/Construction/Bridge/Vertical/S06/Start.png", "expectedSha256": "EC9D7EC1C7366B8B985499C47E7BCD6DB94CDD83A37C79116606DB6D60C0FCF6" },
+        { "stage": 7, "output": "Assets/Resources/Visual/Authored/Construction/Bridge/Vertical/S07/Start.png", "expectedSha256": "BB4A666CDA3C469709D6D8DEBC7BFC13D885849552972F984D69E86AE04181A3" }
+      ]
+    },
+    {
+      "orientation": "Vertical",
+      "module": "Middle",
+      "sourceBounds": [1304, 320, 250, 200],
+      "outputCanvas": [124, 48],
+      "targetBoundsTopLeft": [32, 0, 60, 48],
+      "seamEdge": "BothVertical",
+      "output": "Assets/Resources/Visual/Authored/Buildings/Bridge/Vertical/Middle.png",
+      "expectedSha256": "CCDB4C64D154AB7833412A8813F8157A47DF223AA77F092360024CE4D21E0D1F",
+      "construction": [
+        { "stage": 1, "output": "Assets/Resources/Visual/Authored/Construction/Bridge/Vertical/S01/Middle.png", "expectedSha256": "3C4F8B89E02A0BDC5D6918ADD5F6777D5B7B24D8D16BF97C3CF8DE333AC1047E" },
+        { "stage": 2, "output": "Assets/Resources/Visual/Authored/Construction/Bridge/Vertical/S02/Middle.png", "expectedSha256": "92C7024595A5355531691FC01771F7EF987EA8A74ED0D46474260042A1DE269B" },
+        { "stage": 3, "output": "Assets/Resources/Visual/Authored/Construction/Bridge/Vertical/S03/Middle.png", "expectedSha256": "A7DC7CC4D52BA9758D4EDF4494525DBD56015B2856FD9346226F8DB002E5A2C2" },
+        { "stage": 4, "output": "Assets/Resources/Visual/Authored/Construction/Bridge/Vertical/S04/Middle.png", "expectedSha256": "4A4AB358AEEC38653D57E2E467912C49657B94BE42E82B21554CA168EF026C94" },
+        { "stage": 5, "output": "Assets/Resources/Visual/Authored/Construction/Bridge/Vertical/S05/Middle.png", "expectedSha256": "63DCB5B6C1D40A12AA9C882EF225622CD0667E59884845F7E319177D17C50C5F" },
+        { "stage": 6, "output": "Assets/Resources/Visual/Authored/Construction/Bridge/Vertical/S06/Middle.png", "expectedSha256": "20F826907E9C510E286D401C1FB67082C056E78430DDC78E9BAC16B51AE37833" },
+        { "stage": 7, "output": "Assets/Resources/Visual/Authored/Construction/Bridge/Vertical/S07/Middle.png", "expectedSha256": "CCDB4C64D154AB7833412A8813F8157A47DF223AA77F092360024CE4D21E0D1F" }
+      ]
+    },
+    {
+      "orientation": "Vertical",
+      "module": "End",
+      "sourceBounds": [1304, 104, 250, 216],
+      "outputCanvas": [124, 68],
+      "targetBoundsTopLeft": [32, 16, 60, 52],
+      "seamEdge": "Bottom",
+      "output": "Assets/Resources/Visual/Authored/Buildings/Bridge/Vertical/End.png",
+      "expectedSha256": "8F1A4CAFF155A7F8655B749A211E0D749B9EC4104EB5327F8652ABF09AA726DA",
+      "construction": [
+        { "stage": 1, "output": "Assets/Resources/Visual/Authored/Construction/Bridge/Vertical/S01/End.png", "expectedSha256": "929E025A0E855FD46C2702AA709F5694475EEA9644BA7C63FACD3A3AC434D5C0" },
+        { "stage": 2, "output": "Assets/Resources/Visual/Authored/Construction/Bridge/Vertical/S02/End.png", "expectedSha256": "4C1ADE1955293517E54B88A147FA335B3FA3CB5AE2657C6C223D309FBF0CC464" },
+        { "stage": 3, "output": "Assets/Resources/Visual/Authored/Construction/Bridge/Vertical/S03/End.png", "expectedSha256": "E288F429CD78F3DA5C0A36F89B103D8EE1F30E80BA71846B569548C75E726C95" },
+        { "stage": 4, "output": "Assets/Resources/Visual/Authored/Construction/Bridge/Vertical/S04/End.png", "expectedSha256": "5F35988E4493B946A8AFF9786497F87BB27437936C06DD47B15A74F4E29EF268" },
+        { "stage": 5, "output": "Assets/Resources/Visual/Authored/Construction/Bridge/Vertical/S05/End.png", "expectedSha256": "C2F2C72AB59CA7B833CF3781D539F4DC9ACD7C5CEDD30AD91168A291B7D03620" },
+        { "stage": 6, "output": "Assets/Resources/Visual/Authored/Construction/Bridge/Vertical/S06/End.png", "expectedSha256": "116DCA6DAD2A9609F3C1A9485FE52826D4FA760440243AA29EC716364591354C" },
+        { "stage": 7, "output": "Assets/Resources/Visual/Authored/Construction/Bridge/Vertical/S07/End.png", "expectedSha256": "8F1A4CAFF155A7F8655B749A211E0D749B9EC4104EB5327F8652ABF09AA726DA" }
+      ]
+    }
+  ]
+}

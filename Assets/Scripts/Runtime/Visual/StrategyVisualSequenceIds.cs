@@ -31,5 +31,8 @@ namespace ProjectUnknown.Strategy
         public const string SawmillWork = "Work/Sawmill";
         public const string KilnWork = "Work/Kiln";
         public const string ForgeWork = "Work/Forge";
+        public const string ChickenCoopProduction = "BuildingAnimation/ChickenCoop/V0";
+        public const string BridgeFinal = "Bridge/Final";
+        public const string BridgeConstruction = "Bridge/Construction";
     }
 }

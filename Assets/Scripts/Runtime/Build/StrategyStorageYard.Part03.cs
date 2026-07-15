@@ -322,7 +322,10 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            Vector3 ironWorld = new Vector3(bounds.center.x + 0.82f, bounds.min.y + 0.34f, -0.15f);
+            Vector3 ironWorld = StrategyBuildingVisualAnchorProfile.GetStockAnchorWorld(
+                StrategyBuildTool.StorageYard,
+                StrategyResourceType.Iron,
+                bounds);
             ironStockRenderer.transform.localPosition = transform.InverseTransformPoint(ironWorld);
             ironStockRenderer.transform.localScale = Vector3.one;
             StrategyWorldSorting.Apply(ironStockRenderer, ironWorld, 1);
@@ -335,7 +338,10 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            Vector3 coalWorld = new Vector3(bounds.center.x + 0.18f, bounds.min.y + 0.28f, -0.145f);
+            Vector3 coalWorld = StrategyBuildingVisualAnchorProfile.GetStockAnchorWorld(
+                StrategyBuildTool.StorageYard,
+                StrategyResourceType.Coal,
+                bounds);
             coalStockRenderer.transform.localPosition = transform.InverseTransformPoint(coalWorld);
             coalStockRenderer.transform.localScale = Vector3.one;
             StrategyWorldSorting.Apply(coalStockRenderer, coalWorld, 1);
@@ -348,7 +354,10 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            Vector3 clayWorld = new Vector3(bounds.max.x - 0.16f, bounds.min.y + 0.30f, -0.145f);
+            Vector3 clayWorld = StrategyBuildingVisualAnchorProfile.GetStockAnchorWorld(
+                StrategyBuildTool.StorageYard,
+                StrategyResourceType.Clay,
+                bounds);
             clayStockRenderer.transform.localPosition = transform.InverseTransformPoint(clayWorld);
             clayStockRenderer.transform.localScale = Vector3.one;
             StrategyWorldSorting.Apply(clayStockRenderer, clayWorld, 1);

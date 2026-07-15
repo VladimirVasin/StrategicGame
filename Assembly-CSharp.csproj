@@ -307,6 +307,12 @@
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyForagerCamp.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyLumberjackCamp.Construction.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingSpriteFactory.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingVisualAlignment.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingVisualAnchorProfile.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingSpriteFactory.ChickenCoop.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyChickenCoopVisualProfile.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingVariantProfile.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyBridgeVisualProfile.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWolfAgent.Part06.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWolfAgent.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part06.cs" />
@@ -442,6 +448,7 @@
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyCinematicVisualController.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part57.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyConstructionSpriteFactory.Part01.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyConstructionSpriteFactory.Part02.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyRabbitAgent.Part05.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyTrailController.Roadside.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyDebugLogger.cs" />

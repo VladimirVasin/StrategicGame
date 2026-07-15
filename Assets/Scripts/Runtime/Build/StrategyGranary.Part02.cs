@@ -22,9 +22,10 @@ namespace ProjectUnknown.Strategy
 
         private static Vector3 GetFoodStockWorld(StrategyResourceType resource, Bounds bounds)
         {
-            return resource == StrategyResourceType.Game
-                ? new Vector3(bounds.min.x + 0.42f, bounds.min.y + 0.35f, -0.13f)
-                : new Vector3(bounds.max.x - 0.42f, bounds.min.y + 0.37f, -0.13f);
+            return StrategyBuildingVisualAnchorProfile.GetStockAnchorWorld(
+                StrategyBuildTool.Granary,
+                resource,
+                bounds);
         }
     }
 }

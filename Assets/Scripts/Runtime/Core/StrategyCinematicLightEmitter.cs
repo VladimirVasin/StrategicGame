@@ -364,19 +364,9 @@ namespace ProjectUnknown.Strategy
         {
             if (building != null)
             {
-                Bounds bounds = building.FootprintBounds;
-                return building.Tool switch
-                {
-                    StrategyBuildTool.House => new Vector3(bounds.center.x, bounds.min.y + bounds.size.y * 0.55f, -0.22f),
-                    StrategyBuildTool.Mine => new Vector3(bounds.center.x - 0.16f, bounds.min.y + bounds.size.y * 0.22f, -0.22f),
-                    StrategyBuildTool.CoalPit => new Vector3(bounds.center.x, bounds.min.y + bounds.size.y * 0.35f, -0.22f),
-                    StrategyBuildTool.Kiln => new Vector3(bounds.center.x, bounds.min.y + bounds.size.y * 0.34f, -0.22f),
-                    StrategyBuildTool.Forge => new Vector3(bounds.center.x + 0.10f, bounds.min.y + bounds.size.y * 0.38f, -0.22f),
-                    StrategyBuildTool.StorageYard => new Vector3(bounds.min.x + bounds.size.x * 0.26f, bounds.min.y + bounds.size.y * 0.42f, -0.22f),
-                    StrategyBuildTool.Granary => new Vector3(bounds.center.x, bounds.min.y + bounds.size.y * 0.46f, -0.22f),
-                    StrategyBuildTool.Bridge => new Vector3(bounds.center.x, bounds.center.y, -0.22f),
-                    _ => new Vector3(bounds.center.x, bounds.min.y + bounds.size.y * 0.42f, -0.22f)
-                };
+                return StrategyBuildingVisualAnchorProfile.GetCinematicAnchorWorld(
+                    building.Tool,
+                    building.FootprintBounds);
             }
 
             return transform.position + new Vector3(0f, 0.20f, -0.22f);

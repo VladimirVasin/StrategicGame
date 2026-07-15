@@ -1,0 +1,658 @@
+{
+  "schemaVersion": 1,
+  "families": [
+    {
+      "tool": "House",
+      "source": "Tools/Art/Source/HighResolution/House-Variants.png",
+      "sourceSize": [1254, 1254],
+      "sourceSha256": "366BD76EEA72F6B8574AF6ACEF523B7B336D4FB075001AC369F55A97682257CB",
+      "variants": [
+        {
+          "id": "V01",
+          "sourceBounds": [52, 197, 387, 368],
+          "outputCanvas": [160, 160],
+          "targetBoundsTopLeft": [12, 8, 140, 142],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/House/V01.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/House/V01.png",
+          "expectedSha256": "AF5DF9389D489545EBAB3EA8925CF23A86D637A2E84728BE3E0993CEA83AF6CD"
+        },
+        {
+          "id": "V02",
+          "sourceBounds": [466, 197, 370, 369],
+          "outputCanvas": [160, 160],
+          "targetBoundsTopLeft": [18, 8, 134, 142],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/House/V02.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/House/V02.png",
+          "expectedSha256": "EEDE32C623F615E3A957A6D3E407F60C86B50953E15AD82EA6D4ADA20087F271"
+        },
+        {
+          "id": "V03",
+          "sourceBounds": [860, 197, 372, 368],
+          "outputCanvas": [160, 160],
+          "targetBoundsTopLeft": [12, 8, 134, 142],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/House/V03.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/House/V03.png",
+          "expectedSha256": "8CB2C4F1FE244A9E9136CBC9F3CEEA4ED72056B9ED7F848FFEE003258449172E"
+        },
+        {
+          "id": "V04",
+          "sourceBounds": [52, 672, 381, 371],
+          "outputCanvas": [160, 160],
+          "targetBoundsTopLeft": [14, 8, 134, 144],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/House/V04.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/House/V04.png",
+          "expectedSha256": "B9A3E8C962A0AD404D73CC3FC539348600108C5FA799AD05532D9667277BD513"
+        },
+        {
+          "id": "V05",
+          "sourceBounds": [462, 675, 375, 368],
+          "outputCanvas": [160, 160],
+          "targetBoundsTopLeft": [18, 10, 134, 142],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/House/V05.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/House/V05.png",
+          "expectedSha256": "F5182FB8969ECB9A909DBE1937C4D882C5327E5164E33B65FC8F6718E5D9A020"
+        }
+      ]
+    },
+    {
+      "tool": "ForagerCamp",
+      "source": "Tools/Art/Source/HighResolution/ForagerCamp-V01.png",
+      "sourceSize": [1544, 1019],
+      "sourceSha256": "71D9D332789798856F4E2AA6F0BD24D6923936013FB90372768664D69912C012",
+      "variants": [
+        {
+          "id": "V01",
+          "sourceBounds": [206, 125, 1133, 785],
+          "outputCanvas": [176, 116],
+          "targetBoundsTopLeft": [6, 2, 162, 112],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.2],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/ForagerCamp/V01.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/ForagerCamp/V01.png",
+          "expectedSha256": "19C939288D7407EFC693D23B7FA67F802C7746902B425703B1BF42E2F11E4446"
+        }
+      ]
+    },
+    {
+      "tool": "LumberjackCamp",
+      "source": "Tools/Art/Source/HighResolution/LumberjackCamp-Variants.png",
+      "sourceSize": [1824, 862],
+      "sourceSha256": "1376BF42D51A0004D46C37C86A80FD77A22709AD0CCDC64BB7E7D8F7C7ED5FF8",
+      "variants": [
+        {
+          "id": "V01",
+          "sourceBounds": [51, 197, 521, 464],
+          "outputCanvas": [160, 152],
+          "targetBoundsTopLeft": [6, 10, 148, 132],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/LumberjackCamp/V01.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/LumberjackCamp/V01.png",
+          "expectedSha256": "1C8DE9BA4B8EAF3622DBACFE66DC15CED93B39AACFB9C89A592EEAFBF72A5F8E"
+        },
+        {
+          "id": "V02",
+          "sourceBounds": [650, 191, 517, 470],
+          "outputCanvas": [160, 152],
+          "targetBoundsTopLeft": [6, 10, 148, 132],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/LumberjackCamp/V02.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/LumberjackCamp/V02.png",
+          "expectedSha256": "1981BEC9E036ED974D9F993DC8528676A50F3CB7991CF20B277DE5558B1F34B1"
+        },
+        {
+          "id": "V03",
+          "sourceBounds": [1239, 194, 516, 469],
+          "outputCanvas": [160, 152],
+          "targetBoundsTopLeft": [6, 10, 148, 132],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/LumberjackCamp/V03.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/LumberjackCamp/V03.png",
+          "expectedSha256": "249C19214A653518B8E6A1F9353E105B463F554DD7413547D9A5D45B1B897473"
+        }
+      ]
+    },
+    {
+      "tool": "StonecutterCamp",
+      "source": "Tools/Art/Source/HighResolution/StonecutterCamp-Variants.png",
+      "sourceSize": [1846, 852],
+      "sourceSha256": "60B38D60956FAA5098990A4879AC45070ECDA1010B5CF3EC8B2C67D8718D7535",
+      "variants": [
+        {
+          "id": "V01",
+          "sourceBounds": [44, 162, 562, 504],
+          "outputCanvas": [160, 148],
+          "targetBoundsTopLeft": [5, 8, 150, 134],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/StonecutterCamp/V01.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/StonecutterCamp/V01.png",
+          "expectedSha256": "391BD7AFBE9676D02C9F06BA823FC4EE8658AB4D54AF52A61B948626C9DD2A0A"
+        },
+        {
+          "id": "V02",
+          "sourceBounds": [646, 162, 584, 504],
+          "outputCanvas": [160, 148],
+          "targetBoundsTopLeft": [5, 8, 150, 134],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/StonecutterCamp/V02.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/StonecutterCamp/V02.png",
+          "expectedSha256": "3EAB747667E5ECFA98D55C31B83E9B34AD32D8926CCFD1FC35D694921D4AA61A"
+        },
+        {
+          "id": "V03",
+          "sourceBounds": [1230, 162, 559, 504],
+          "outputCanvas": [160, 148],
+          "targetBoundsTopLeft": [5, 8, 150, 134],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/StonecutterCamp/V03.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/StonecutterCamp/V03.png",
+          "expectedSha256": "7F1483DC1111993BA646E55705A385F9CA37B300747D7A7BD4D82B3AC20B2DD5"
+        }
+      ]
+    },
+    {
+      "tool": "Mine",
+      "source": "Tools/Art/Source/HighResolution/Mine-Variants.png",
+      "sourceSize": [2172, 724],
+      "sourceSha256": "92ECBDBE4E2DCED988E76D078EB20B3254FBCAFE4CF6FECD3258D4F3974005F7",
+      "variants": [
+        {
+          "id": "V01",
+          "sourceBounds": [87, 108, 592, 521],
+          "outputCanvas": [168, 152],
+          "targetBoundsTopLeft": [5, 5, 158, 139],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/Mine/V01.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/Mine/V01.png",
+          "expectedSha256": "7E773EC249EA6174F3C3D347D46C0B81FC1B46F8D9168925F2D6B7B269352F28"
+        },
+        {
+          "id": "V02",
+          "sourceBounds": [802, 109, 591, 521],
+          "outputCanvas": [168, 152],
+          "targetBoundsTopLeft": [5, 5, 158, 139],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/Mine/V02.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/Mine/V02.png",
+          "expectedSha256": "87F3578AD5600BA9C8FE7000EDAF438EDCF48651D6C68F1B76990865CC83F22D"
+        },
+        {
+          "id": "V03",
+          "sourceBounds": [1508, 114, 588, 520],
+          "outputCanvas": [168, 152],
+          "targetBoundsTopLeft": [5, 5, 158, 139],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/Mine/V03.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/Mine/V03.png",
+          "expectedSha256": "7500BB0395537102EC738C8D61D3D414DD290B3F4BE015D3BFDEABA3754E4015"
+        }
+      ]
+    },
+    {
+      "tool": "CoalPit",
+      "source": "Tools/Art/Source/HighResolution/CoalPit-Variants.png",
+      "sourceSize": [1774, 887],
+      "sourceSha256": "FC4F5783D8E5A9E0C9F2363932EC21843C6407B2EA34D9C94D0E4B6C18064C63",
+      "variants": [
+        {
+          "id": "V01",
+          "sourceBounds": [78, 212, 513, 473],
+          "outputCanvas": [168, 148],
+          "targetBoundsTopLeft": [8, 14, 154, 134],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/CoalPit/V01.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/CoalPit/V01.png",
+          "expectedSha256": "84AC2E535457260949539B2046A3500276D5A716D18B17C81957F2C7EFEA02CD"
+        },
+        {
+          "id": "V02",
+          "sourceBounds": [630, 212, 513, 473],
+          "outputCanvas": [168, 148],
+          "targetBoundsTopLeft": [8, 14, 154, 134],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/CoalPit/V02.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/CoalPit/V02.png",
+          "expectedSha256": "722B08E37200C8D91405D07727912AF55569D0A6DBC7867123737CD81153A658"
+        },
+        {
+          "id": "V03",
+          "sourceBounds": [1182, 212, 512, 473],
+          "outputCanvas": [168, 148],
+          "targetBoundsTopLeft": [8, 14, 154, 134],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/CoalPit/V03.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/CoalPit/V03.png",
+          "expectedSha256": "64D17E2CF810E258B9817882DF6305976FE45B030E4049DF31B18D21F06EC89A"
+        }
+      ]
+    },
+    {
+      "tool": "ClayPit",
+      "source": "Tools/Art/Source/HighResolution/ClayPit-Variants.png",
+      "sourceSize": [1774, 887],
+      "sourceSha256": "740BBC2AEA94DB40D4EE93FF388448D84F63F5CC8DCDBBF74F38AA8DC540B8E0",
+      "variants": [
+        {
+          "id": "V01",
+          "sourceBounds": [36, 275, 547, 364],
+          "outputCanvas": [184, 140],
+          "targetBoundsTopLeft": [6, 38, 176, 102],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/ClayPit/V01.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/ClayPit/V01.png",
+          "expectedSha256": "AACEA36155401A3AEACCA7F0FD4B3D5429B48F5236934D230E9BE028D030588D"
+        },
+        {
+          "id": "V02",
+          "sourceBounds": [627, 276, 547, 366],
+          "outputCanvas": [184, 140],
+          "targetBoundsTopLeft": [6, 38, 176, 102],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/ClayPit/V02.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/ClayPit/V02.png",
+          "expectedSha256": "A702EDDC6CEE3A28D8BE41820089AEFE61EDD32B8FF25DA2C26A130131E79604"
+        },
+        {
+          "id": "V03",
+          "sourceBounds": [1207, 275, 538, 364],
+          "outputCanvas": [184, 140],
+          "targetBoundsTopLeft": [6, 38, 176, 102],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/ClayPit/V03.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/ClayPit/V03.png",
+          "expectedSha256": "9451E4224EF25A6CEA9FAA707BFF7007D773049732130E98C210057732DD0FCF"
+        }
+      ]
+    },
+    {
+      "tool": "HunterCamp",
+      "source": "Tools/Art/Source/HighResolution/HunterCamp-Variants.png",
+      "sourceSize": [1774, 887],
+      "sourceSha256": "DB40CC2D38AC8B67E5B22CAD652122901DF6A423AA9208BCAD3842E1B1DF3D6A",
+      "variants": [
+        {
+          "id": "V01",
+          "sourceBounds": [79, 215, 512, 444],
+          "outputCanvas": [160, 148],
+          "targetBoundsTopLeft": [10, 28, 144, 120],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/HunterCamp/V01.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/HunterCamp/V01.png",
+          "expectedSha256": "169DB4372BF8F93AFF6D8021F80AFD1F16FBA04FC5122C884326A18E43D3E61A"
+        },
+        {
+          "id": "V02",
+          "sourceBounds": [664, 216, 516, 441],
+          "outputCanvas": [160, 148],
+          "targetBoundsTopLeft": [10, 28, 144, 120],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/HunterCamp/V02.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/HunterCamp/V02.png",
+          "expectedSha256": "76587FFE2AB9405B3108BBA7BE078CA91BBC796148240A54862F79AB391A5B11"
+        },
+        {
+          "id": "V03",
+          "sourceBounds": [1238, 221, 520, 437],
+          "outputCanvas": [160, 148],
+          "targetBoundsTopLeft": [10, 28, 144, 120],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/HunterCamp/V03.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/HunterCamp/V03.png",
+          "expectedSha256": "F778D05A97F0DEEEEF8019540A24D968C21FAD9CC327964F43DFFCE97B4A0336"
+        }
+      ]
+    },
+    {
+      "tool": "FisherHut",
+      "source": "Tools/Art/Source/HighResolution/FisherHut-Variants.png",
+      "sourceSize": [1774, 887],
+      "sourceSha256": "DED70D415A8450C6B579A6DFC739549E701123BB0AAD566F021C4B7A0D186402",
+      "variants": [
+        {
+          "id": "V01",
+          "sourceBounds": [46, 193, 519, 455],
+          "outputCanvas": [168, 152],
+          "targetBoundsTopLeft": [8, 30, 154, 122],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/FisherHut/V01.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/FisherHut/V01.png",
+          "expectedSha256": "004E5FF5E51B50D31BE3B217ADFD89B1655E480CB8E32E0F14BAF91C02D3FA50"
+        },
+        {
+          "id": "V02",
+          "sourceBounds": [604, 193, 520, 457],
+          "outputCanvas": [168, 152],
+          "targetBoundsTopLeft": [8, 30, 154, 122],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/FisherHut/V02.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/FisherHut/V02.png",
+          "expectedSha256": "10A83EA824607D47EF3E7861388C52F531150222506CCB4A7A001F975A9C022D"
+        },
+        {
+          "id": "V03",
+          "sourceBounds": [1195, 193, 523, 457],
+          "outputCanvas": [168, 152],
+          "targetBoundsTopLeft": [8, 30, 154, 122],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/FisherHut/V03.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/FisherHut/V03.png",
+          "expectedSha256": "B638857097C4E5504A9881E931286CE8AB6471EA38B0D6A1B58DB66E3801FF41"
+        }
+      ]
+    },
+    {
+      "tool": "ChickenCoop",
+      "source": "Tools/Art/Source/HighResolution/ChickenCoop-Animation.png",
+      "sourceSize": [2172, 724],
+      "sourceSha256": "57B3CDDF37C5358425B80BEA84DCE53995216B31D9C08E9D1E9914D84B4DCA1C",
+      "variants": [
+        {
+          "id": "V01",
+          "sourceBounds": [29, 193, 311, 321],
+          "outputCanvas": [92, 92],
+          "targetBoundsTopLeft": [6, 6, 80, 86],
+          "ppu": 42,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/ChickenCoop/V01.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/ChickenCoop/V01.png",
+          "expectedSha256": "C3AD894FFC54632B1D22E24DCA3EC8A741DF538F2912B497B430ECD55B11AEC0"
+        }
+      ]
+    },
+    {
+      "tool": "Sawmill",
+      "source": "Tools/Art/Source/HighResolution/Sawmill-Variants.png",
+      "sourceSize": [1774, 887],
+      "sourceSha256": "745A7C87A828376EA16C6394E119E1567D960211D9576FF4690CA7A37BE8E81E",
+      "variants": [
+        {
+          "id": "V01",
+          "sourceBounds": [42, 179, 532, 478],
+          "outputCanvas": [200, 156],
+          "targetBoundsTopLeft": [10, 10, 186, 146],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/Sawmill/V01.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/Sawmill/V01.png",
+          "expectedSha256": "7D965C5BFC278A5BBD036DD566E6A3A04193279B936B22C0BC983FAE8C641434"
+        },
+        {
+          "id": "V02",
+          "sourceBounds": [624, 179, 533, 478],
+          "outputCanvas": [200, 156],
+          "targetBoundsTopLeft": [10, 10, 186, 146],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/Sawmill/V02.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/Sawmill/V02.png",
+          "expectedSha256": "B8D91BC7D438BFBECD932B52BC24497F216A8A3047C700B4396F2C997732DE4B"
+        },
+        {
+          "id": "V03",
+          "sourceBounds": [1206, 179, 533, 478],
+          "outputCanvas": [200, 156],
+          "targetBoundsTopLeft": [10, 10, 186, 146],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/Sawmill/V03.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/Sawmill/V03.png",
+          "expectedSha256": "E9028C86A05BEC409A236C647A7666263E6C8701322394DA327F6A90A1B885CD"
+        }
+      ]
+    },
+    {
+      "tool": "Kiln",
+      "source": "Tools/Art/Source/HighResolution/Kiln-Variants.png",
+      "sourceSize": [1774, 887],
+      "sourceSha256": "BFB0DBCF1008EA6DF1AFE6CA31773878BF48E6C52322EA3051E69DFA8AAAC02F",
+      "variants": [
+        {
+          "id": "V01",
+          "sourceBounds": [82, 205, 509, 460],
+          "outputCanvas": [184, 148],
+          "targetBoundsTopLeft": [10, 8, 166, 140],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/Kiln/V01.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/Kiln/V01.png",
+          "expectedSha256": "042D5144C3B55E6F64527C3B6C054878C71870F66B69140CF1F50F4097FBB62F"
+        },
+        {
+          "id": "V02",
+          "sourceBounds": [645, 206, 501, 459],
+          "outputCanvas": [184, 148],
+          "targetBoundsTopLeft": [10, 8, 166, 140],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/Kiln/V02.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/Kiln/V02.png",
+          "expectedSha256": "A1CBC1702CACD97A32E958BCE036564B7A2C3425822D1660FE86988BE253EE30"
+        },
+        {
+          "id": "V03",
+          "sourceBounds": [1192, 207, 496, 458],
+          "outputCanvas": [184, 148],
+          "targetBoundsTopLeft": [10, 8, 166, 140],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/Kiln/V03.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/Kiln/V03.png",
+          "expectedSha256": "F4A56093F8174417755F86D50C87FB67D36B565CAB8BD26AC621FC61D38DD7E1"
+        }
+      ]
+    },
+    {
+      "tool": "Forge",
+      "source": "Tools/Art/Source/HighResolution/Forge-Variants.png",
+      "sourceSize": [1774, 887],
+      "sourceSha256": "F9AB28EEDE153DE5501163C2888CE807CA3F1CB634FF036C81BB2D1F339CE6B9",
+      "variants": [
+        {
+          "id": "V01",
+          "sourceBounds": [14, 147, 577, 580],
+          "outputCanvas": [184, 148],
+          "targetBoundsTopLeft": [6, 4, 172, 144],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/Forge/V01.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/Forge/V01.png",
+          "expectedSha256": "572F925B31CAFFBA5696DCAD985CFAC088FD6097DE7CC03717A89EA63129EA59"
+        },
+        {
+          "id": "V02",
+          "sourceBounds": [591, 147, 560, 580],
+          "outputCanvas": [184, 148],
+          "targetBoundsTopLeft": [6, 4, 172, 144],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/Forge/V02.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/Forge/V02.png",
+          "expectedSha256": "33862527FAD0C0B24D371F40D6F8818E4B8EF0DE0CD005F1CDD137EC3BD2DD58"
+        },
+        {
+          "id": "V03",
+          "sourceBounds": [1160, 147, 565, 580],
+          "outputCanvas": [184, 148],
+          "targetBoundsTopLeft": [6, 4, 172, 144],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/Forge/V03.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/Forge/V03.png",
+          "expectedSha256": "610EF7C3D6F17982FE74AB6B5028873D97980875D8298E86B09517EB126E7FA0"
+        }
+      ]
+    },
+    {
+      "tool": "StorageYard",
+      "source": "Tools/Art/Source/HighResolution/StorageYard-Variants.png",
+      "sourceSize": [1774, 887],
+      "sourceSha256": "6FF928E454D6155FBCDB86CB231B840783C1C2BAA3F1F267817886BCFD3BB815",
+      "variants": [
+        {
+          "id": "V01",
+          "sourceBounds": [24, 216, 561, 438],
+          "outputCanvas": [192, 148],
+          "targetBoundsTopLeft": [8, 32, 176, 116],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/StorageYard/V01.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/StorageYard/V01.png",
+          "expectedSha256": "5E7E2AD485222BF7125402E1FA12438D3DC3FF1B50253AFA4353C19E814C6802"
+        },
+        {
+          "id": "V02",
+          "sourceBounds": [617, 218, 553, 437],
+          "outputCanvas": [192, 148],
+          "targetBoundsTopLeft": [8, 32, 176, 116],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/StorageYard/V02.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/StorageYard/V02.png",
+          "expectedSha256": "0A5754FF44D76DABF1AE059265EDD7E9E8CC44CB9C00635B16F36481C14075C4"
+        },
+        {
+          "id": "V03",
+          "sourceBounds": [1202, 223, 549, 434],
+          "outputCanvas": [192, 148],
+          "targetBoundsTopLeft": [8, 32, 176, 116],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/StorageYard/V03.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/StorageYard/V03.png",
+          "expectedSha256": "F971841B8EFA629F605281AACA143EA71C089DF716CDA8D4FBC994814159F96C"
+        }
+      ]
+    },
+    {
+      "tool": "Granary",
+      "source": "Tools/Art/Source/HighResolution/Granary-Variants.png",
+      "sourceSize": [1774, 887],
+      "sourceSha256": "51A238E8592039F76D8E49DED17582FE1928D8D7B8CBFD79D774071B72529938",
+      "variants": [
+        {
+          "id": "V01",
+          "sourceBounds": [61, 179, 505, 480],
+          "outputCanvas": [192, 168],
+          "targetBoundsTopLeft": [12, 16, 170, 152],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/Granary/V01.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/Granary/V01.png",
+          "expectedSha256": "B67B2B0FC26441742A41F0EFC15F188ECB96479588FE895BBF17229748BDA66A"
+        },
+        {
+          "id": "V02",
+          "sourceBounds": [615, 181, 504, 478],
+          "outputCanvas": [192, 168],
+          "targetBoundsTopLeft": [12, 16, 170, 152],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/Granary/V02.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/Granary/V02.png",
+          "expectedSha256": "292D6163A588F197AFC93A62724EDBA5F48B6B77974A1603C9776F576A200741"
+        },
+        {
+          "id": "V03",
+          "sourceBounds": [1178, 181, 503, 478],
+          "outputCanvas": [192, 168],
+          "targetBoundsTopLeft": [12, 16, 170, 152],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/Granary/V03.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/Granary/V03.png",
+          "expectedSha256": "8071C77902C0C45A8854CBE6375A8480F2E30E86A03ECE118B67069EA13C9B6F"
+        }
+      ]
+    },
+    {
+      "tool": "TradingPost",
+      "source": "Tools/Art/Source/HighResolution/TradingPost-Variants.png",
+      "sourceSize": [1774, 887],
+      "sourceSha256": "08B09404DF50C7D740D4B71B514C144E9EF13FD03BA130181D88EDF0CDA249E3",
+      "variants": [
+        {
+          "id": "V01",
+          "sourceBounds": [61, 223, 513, 400],
+          "outputCanvas": [192, 120],
+          "targetBoundsTopLeft": [18, 10, 158, 110],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.2],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/TradingPost/V01.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/TradingPost/V01.png",
+          "expectedSha256": "F0AF540F69C0EC55450CFFE95CD941632AFBDF570F0A5560D5EA8E3A76A612BF"
+        },
+        {
+          "id": "V02",
+          "sourceBounds": [629, 223, 514, 400],
+          "outputCanvas": [192, 120],
+          "targetBoundsTopLeft": [18, 10, 158, 110],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.2],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/TradingPost/V02.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/TradingPost/V02.png",
+          "expectedSha256": "75A98EF0BB9B6C7235FD4D96A02A5A92AF54DCAD33D69BEC9E47135FC01A1929"
+        },
+        {
+          "id": "V03",
+          "sourceBounds": [1200, 223, 514, 400],
+          "outputCanvas": [192, 120],
+          "targetBoundsTopLeft": [18, 10, 158, 110],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.2],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/TradingPost/V03.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/TradingPost/V03.png",
+          "expectedSha256": "215A8BC2AE1EEE6B77377DF06C26D4D4F9CEC4D9749CA68E51D7FA75A0024885"
+        }
+      ]
+    },
+    {
+      "tool": "StarterCaravanCart",
+      "source": "Tools/Art/Source/HighResolution/StarterCaravanCart.png",
+      "sourceSize": [1774, 887],
+      "sourceSha256": "941985E07ED10FBAFA252928D1A7A5DBDFC2B25D76B59C049C2FE563EDA1FA96",
+      "variants": [
+        {
+          "id": "V01",
+          "sourceBounds": [394, 157, 980, 563],
+          "outputCanvas": [128, 72],
+          "targetBoundsTopLeft": [4, 2, 120, 69],
+          "ppu": 48,
+          "pivotNormalized": [0.5, 0.1],
+          "legacyReference": "Assets/Resources/Visual/Baked/Buildings/StarterCaravanCart/V01.png",
+          "output": "Assets/Resources/Visual/Authored/Buildings/StarterCaravanCart/V01.png",
+          "expectedSha256": "68761B3D05CC4651BD7E074B5BC30C04A267C807B93E219482BBF8AB31255961"
+        }
+      ]
+    }
+  ]
+}

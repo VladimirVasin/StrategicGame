@@ -4,21 +4,20 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyCoalPit
     {
-        private const int WorkerLayerOffset = 96;
-
         public Vector3 GetInteriorWorkWorld(StrategyResidentAgent worker)
         {
-            Bounds bounds = FootprintBounds;
             int slot = GetWorkerSlotIndex(worker);
-            bool split = workers.Count > 1;
-            float side = split ? (slot == 0 ? -0.27f : 0.27f) : 0f;
-            float depth = split && slot == 1 ? 0.43f : 0.38f;
-            return new Vector3(bounds.center.x + side, bounds.min.y + bounds.size.y * depth, -0.08f);
+            return StrategyBuildingVisualAnchorProfile.GetInteriorWorkWorld(
+                StrategyBuildTool.CoalPit,
+                FootprintBounds,
+                slot,
+                workers.Count);
         }
 
         public int GetInteriorWorkerSortingOffset(StrategyResidentAgent worker)
         {
-            return WorkerLayerOffset + GetWorkerSlotIndex(worker) * 2;
+            return StrategyBuildingVisualAnchorProfile.GetInteriorWorkerSortingOffset(
+                GetWorkerSlotIndex(worker));
         }
 
         public void PlayMiningWorkEffect(StrategyResidentAgent worker, int seed)
@@ -27,7 +26,9 @@ namespace ProjectUnknown.Strategy
             StrategyWorldEffectAnimator.Spawn(
                 StrategyWorldEffectKind.CoalChips,
                 world,
-                StrategyWorldSorting.ForPosition(world, WorkerLayerOffset + 4),
+                StrategyWorldSorting.ForPosition(
+                    world,
+                    StrategyBuildingVisualAnchorProfile.InteriorWorkerLayerOffset + 4),
                 seed,
                 0.82f);
             if (Mathf.Abs(seed) % 2 == 0)
@@ -35,7 +36,9 @@ namespace ProjectUnknown.Strategy
                 StrategyWorldEffectAnimator.Spawn(
                     StrategyWorldEffectKind.Dust,
                     world + new Vector3(-0.05f, 0.01f, -0.01f),
-                    StrategyWorldSorting.ForPosition(world, WorkerLayerOffset + 3),
+                    StrategyWorldSorting.ForPosition(
+                        world,
+                        StrategyBuildingVisualAnchorProfile.InteriorWorkerLayerOffset + 3),
                     seed + 17,
                     0.66f);
             }

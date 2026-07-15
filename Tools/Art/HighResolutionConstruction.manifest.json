@@ -1,0 +1,669 @@
+{
+  "schemaVersion": 1,
+  "families": [
+    {
+      "tool": "LumberjackCamp",
+      "frameCount": 7,
+      "sourceFrame": {
+        "size": [92, 82],
+        "ppu": 24,
+        "pivotPixelsBottomLeft": [46, 8.2]
+      },
+      "outputFrame": {
+        "size": [184, 164],
+        "ppu": 48,
+        "pivotPixelsBottomLeft": [92, 15.2]
+      },
+      "variants": [
+        {
+          "id": "V01",
+          "source": "Tools/Art/Source/HighResolution/Construction1x/LumberjackCamp/V01.png",
+          "sourceSha256": "9215ACAAC29D13CD678A2C17A08F274CCF5DB9697DD101A744843745421028D0",
+          "finalSprite": "Assets/Resources/Visual/Authored/Buildings/LumberjackCamp/V01.png",
+          "finalSha256": "1C8DE9BA4B8EAF3622DBACFE66DC15CED93B39AACFB9C89A592EEAFBF72A5F8E",
+          "finalPpu": 48,
+          "finalPivotNormalized": [0.5, 0.1],
+          "output": "Assets/Resources/Visual/Authored/Construction/LumberjackCamp/V01.png",
+          "expectedSha256": "D7A72B62B0850E4B31E98409B30C059E47013359110ADC532A78A4F9F0643013"
+        },
+        {
+          "id": "V02",
+          "source": "Tools/Art/Source/HighResolution/Construction1x/LumberjackCamp/V02.png",
+          "sourceSha256": "9215ACAAC29D13CD678A2C17A08F274CCF5DB9697DD101A744843745421028D0",
+          "finalSprite": "Assets/Resources/Visual/Authored/Buildings/LumberjackCamp/V02.png",
+          "finalSha256": "1981BEC9E036ED974D9F993DC8528676A50F3CB7991CF20B277DE5558B1F34B1",
+          "finalPpu": 48,
+          "finalPivotNormalized": [0.5, 0.1],
+          "output": "Assets/Resources/Visual/Authored/Construction/LumberjackCamp/V02.png",
+          "expectedSha256": "560CA6C50F6D7D9AAD2F83381BB7E3DBE0CDADF63DB7FFEA843DF4299EF32CC9"
+        },
+        {
+          "id": "V03",
+          "source": "Tools/Art/Source/HighResolution/Construction1x/LumberjackCamp/V03.png",
+          "sourceSha256": "9215ACAAC29D13CD678A2C17A08F274CCF5DB9697DD101A744843745421028D0",
+          "finalSprite": "Assets/Resources/Visual/Authored/Buildings/LumberjackCamp/V03.png",
+          "finalSha256": "249C19214A653518B8E6A1F9353E105B463F554DD7413547D9A5D45B1B897473",
+          "finalPpu": 48,
+          "finalPivotNormalized": [0.5, 0.1],
+          "output": "Assets/Resources/Visual/Authored/Construction/LumberjackCamp/V03.png",
+          "expectedSha256": "8C6F24C231650170F18B64630364A7BB4FF89C15E793A60939AB7AE4E2A88FD3"
+        }
+      ]
+    },
+    {
+      "tool": "StonecutterCamp",
+      "frameCount": 7,
+      "sourceFrame": {
+        "size": [92, 82],
+        "ppu": 24,
+        "pivotPixelsBottomLeft": [46, 8.2]
+      },
+      "outputFrame": {
+        "size": [184, 164],
+        "ppu": 48,
+        "pivotPixelsBottomLeft": [92, 14.8]
+      },
+      "variants": [
+        {
+          "id": "V01",
+          "source": "Tools/Art/Source/HighResolution/Construction1x/StonecutterCamp/V01.png",
+          "sourceSha256": "014B03F4D0438F025A2DEE4E822BF01B48394936EFB6AA0541D1EE83481B763B",
+          "finalSprite": "Assets/Resources/Visual/Authored/Buildings/StonecutterCamp/V01.png",
+          "finalSha256": "391BD7AFBE9676D02C9F06BA823FC4EE8658AB4D54AF52A61B948626C9DD2A0A",
+          "finalPpu": 48,
+          "finalPivotNormalized": [0.5, 0.1],
+          "output": "Assets/Resources/Visual/Authored/Construction/StonecutterCamp/V01.png",
+          "expectedSha256": "747659B55BF5A20CA50A054BE7BF6B9505523579DD37FB877523D54C983594A9"
+        },
+        {
+          "id": "V02",
+          "source": "Tools/Art/Source/HighResolution/Construction1x/StonecutterCamp/V02.png",
+          "sourceSha256": "014B03F4D0438F025A2DEE4E822BF01B48394936EFB6AA0541D1EE83481B763B",
+          "finalSprite": "Assets/Resources/Visual/Authored/Buildings/StonecutterCamp/V02.png",
+          "finalSha256": "3EAB747667E5ECFA98D55C31B83E9B34AD32D8926CCFD1FC35D694921D4AA61A",
+          "finalPpu": 48,
+          "finalPivotNormalized": [0.5, 0.1],
+          "output": "Assets/Resources/Visual/Authored/Construction/StonecutterCamp/V02.png",
+          "expectedSha256": "FC15294FDED9AC994311EE71C5205EFC6E3A597AE0410FA325D7F9B44B797F2B"
+        },
+        {
+          "id": "V03",
+          "source": "Tools/Art/Source/HighResolution/Construction1x/StonecutterCamp/V03.png",
+          "sourceSha256": "014B03F4D0438F025A2DEE4E822BF01B48394936EFB6AA0541D1EE83481B763B",
+          "finalSprite": "Assets/Resources/Visual/Authored/Buildings/StonecutterCamp/V03.png",
+          "finalSha256": "7F1483DC1111993BA646E55705A385F9CA37B300747D7A7BD4D82B3AC20B2DD5",
+          "finalPpu": 48,
+          "finalPivotNormalized": [0.5, 0.1],
+          "output": "Assets/Resources/Visual/Authored/Construction/StonecutterCamp/V03.png",
+          "expectedSha256": "A70885DF2FD41C5BF4F259CC926942C27EE66883EFB642585B10ACACB735E92A"
+        }
+      ]
+    },
+    {
+      "tool": "Mine",
+      "frameCount": 7,
+      "sourceFrame": {
+        "size": [92, 82],
+        "ppu": 24,
+        "pivotPixelsBottomLeft": [46, 8.2]
+      },
+      "outputFrame": {
+        "size": [184, 164],
+        "ppu": 48,
+        "pivotPixelsBottomLeft": [92, 15.2]
+      },
+      "variants": [
+        {
+          "id": "V01",
+          "source": "Tools/Art/Source/HighResolution/Construction1x/Mine/V01.png",
+          "sourceSha256": "9215ACAAC29D13CD678A2C17A08F274CCF5DB9697DD101A744843745421028D0",
+          "finalSprite": "Assets/Resources/Visual/Authored/Buildings/Mine/V01.png",
+          "finalSha256": "7E773EC249EA6174F3C3D347D46C0B81FC1B46F8D9168925F2D6B7B269352F28",
+          "finalPpu": 48,
+          "finalPivotNormalized": [0.5, 0.1],
+          "output": "Assets/Resources/Visual/Authored/Construction/Mine/V01.png",
+          "expectedSha256": "24B562B0E125EA8EDB542FA1E63E94AB64A0B18BD62D3587EC2F8C1A2CDF353A"
+        },
+        {
+          "id": "V02",
+          "source": "Tools/Art/Source/HighResolution/Construction1x/Mine/V02.png",
+          "sourceSha256": "9215ACAAC29D13CD678A2C17A08F274CCF5DB9697DD101A744843745421028D0",
+          "finalSprite": "Assets/Resources/Visual/Authored/Buildings/Mine/V02.png",
+          "finalSha256": "87F3578AD5600BA9C8FE7000EDAF438EDCF48651D6C68F1B76990865CC83F22D",
+          "finalPpu": 48,
+          "finalPivotNormalized": [0.5, 0.1],
+          "output": "Assets/Resources/Visual/Authored/Construction/Mine/V02.png",
+          "expectedSha256": "4FD2DE8DA6360EEFAB118042B4F23056525772423E18E0B292CF9CF612307385"
+        },
+        {
+          "id": "V03",
+          "source": "Tools/Art/Source/HighResolution/Construction1x/Mine/V03.png",
+          "sourceSha256": "9215ACAAC29D13CD678A2C17A08F274CCF5DB9697DD101A744843745421028D0",
+          "finalSprite": "Assets/Resources/Visual/Authored/Buildings/Mine/V03.png",
+          "finalSha256": "7500BB0395537102EC738C8D61D3D414DD290B3F4BE015D3BFDEABA3754E4015",
+          "finalPpu": 48,
+          "finalPivotNormalized": [0.5, 0.1],
+          "output": "Assets/Resources/Visual/Authored/Construction/Mine/V03.png",
+          "expectedSha256": "C70EC384A2D311751269BF765DA3905FEDBFDB88D90303A92B83FA5DF11A3E91"
+        }
+      ]
+    },
+    {
+      "tool": "CoalPit",
+      "frameCount": 7,
+      "sourceFrame": {
+        "size": [92, 82],
+        "ppu": 24,
+        "pivotPixelsBottomLeft": [46, 8.2]
+      },
+      "outputFrame": {
+        "size": [184, 164],
+        "ppu": 48,
+        "pivotPixelsBottomLeft": [92, 14.8]
+      },
+      "variants": [
+        {
+          "id": "V01",
+          "source": "Tools/Art/Source/HighResolution/Construction1x/CoalPit/V01.png",
+          "sourceSha256": "9215ACAAC29D13CD678A2C17A08F274CCF5DB9697DD101A744843745421028D0",
+          "finalSprite": "Assets/Resources/Visual/Authored/Buildings/CoalPit/V01.png",
+          "finalSha256": "84AC2E535457260949539B2046A3500276D5A716D18B17C81957F2C7EFEA02CD",
+          "finalPpu": 48,
+          "finalPivotNormalized": [0.5, 0.1],
+          "output": "Assets/Resources/Visual/Authored/Construction/CoalPit/V01.png",
+          "expectedSha256": "4272442F86D668BFBB819ED5F5E083A97CCE93DCA7664EDBB6C097D7802E45B0"
+        },
+        {
+          "id": "V02",
+          "source": "Tools/Art/Source/HighResolution/Construction1x/CoalPit/V02.png",
+          "sourceSha256": "9215ACAAC29D13CD678A2C17A08F274CCF5DB9697DD101A744843745421028D0",
+          "finalSprite": "Assets/Resources/Visual/Authored/Buildings/CoalPit/V02.png",
+          "finalSha256": "722B08E37200C8D91405D07727912AF55569D0A6DBC7867123737CD81153A658",
+          "finalPpu": 48,
+          "finalPivotNormalized": [0.5, 0.1],
+          "output": "Assets/Resources/Visual/Authored/Construction/CoalPit/V02.png",
+          "expectedSha256": "6C7D101482741B87130D627A3572F7764509CF23369AC0D3EC87D20A816DDB75"
+        },
+        {
+          "id": "V03",
+          "source": "Tools/Art/Source/HighResolution/Construction1x/CoalPit/V03.png",
+          "sourceSha256": "9215ACAAC29D13CD678A2C17A08F274CCF5DB9697DD101A744843745421028D0",
+          "finalSprite": "Assets/Resources/Visual/Authored/Buildings/CoalPit/V03.png",
+          "finalSha256": "64D17E2CF810E258B9817882DF6305976FE45B030E4049DF31B18D21F06EC89A",
+          "finalPpu": 48,
+          "finalPivotNormalized": [0.5, 0.1],
+          "output": "Assets/Resources/Visual/Authored/Construction/CoalPit/V03.png",
+          "expectedSha256": "BC4BDC465D5CEC2E38099E82672862152DC01CFBEC3743A6BFBA327715B444F5"
+        }
+      ]
+    },
+    {
+      "tool": "ClayPit",
+      "frameCount": 7,
+      "sourceFrame": {
+        "size": [92, 82],
+        "ppu": 24,
+        "pivotPixelsBottomLeft": [46, 8.2]
+      },
+      "outputFrame": {
+        "size": [184, 164],
+        "ppu": 48,
+        "pivotPixelsBottomLeft": [92, 14.0]
+      },
+      "variants": [
+        {
+          "id": "V01",
+          "source": "Tools/Art/Source/HighResolution/Construction1x/ClayPit/V01.png",
+          "sourceSha256": "9215ACAAC29D13CD678A2C17A08F274CCF5DB9697DD101A744843745421028D0",
+          "finalSprite": "Assets/Resources/Visual/Authored/Buildings/ClayPit/V01.png",
+          "finalSha256": "AACEA36155401A3AEACCA7F0FD4B3D5429B48F5236934D230E9BE028D030588D",
+          "finalPpu": 48,
+          "finalPivotNormalized": [0.5, 0.1],
+          "output": "Assets/Resources/Visual/Authored/Construction/ClayPit/V01.png",
+          "expectedSha256": "6C1FFAB25744F9B7F85584E247F2D5653832989BB7339E79B61D358BBFADAD25"
+        },
+        {
+          "id": "V02",
+          "source": "Tools/Art/Source/HighResolution/Construction1x/ClayPit/V02.png",
+          "sourceSha256": "9215ACAAC29D13CD678A2C17A08F274CCF5DB9697DD101A744843745421028D0",
+          "finalSprite": "Assets/Resources/Visual/Authored/Buildings/ClayPit/V02.png",
+          "finalSha256": "A702EDDC6CEE3A28D8BE41820089AEFE61EDD32B8FF25DA2C26A130131E79604",
+          "finalPpu": 48,
+          "finalPivotNormalized": [0.5, 0.1],
+          "output": "Assets/Resources/Visual/Authored/Construction/ClayPit/V02.png",
+          "expectedSha256": "54C39A75FB453AC59D19E02F99E72E2167D5B8CBC74119F592551EEADAE82AA9"
+        },
+        {
+          "id": "V03",
+          "source": "Tools/Art/Source/HighResolution/Construction1x/ClayPit/V03.png",
+          "sourceSha256": "9215ACAAC29D13CD678A2C17A08F274CCF5DB9697DD101A744843745421028D0",
+          "finalSprite": "Assets/Resources/Visual/Authored/Buildings/ClayPit/V03.png",
+          "finalSha256": "9451E4224EF25A6CEA9FAA707BFF7007D773049732130E98C210057732DD0FCF",
+          "finalPpu": 48,
+          "finalPivotNormalized": [0.5, 0.1],
+          "output": "Assets/Resources/Visual/Authored/Construction/ClayPit/V03.png",
+          "expectedSha256": "1F2EBC8D238B92D46D82E720F05A4C1833C16B17931AA778B93A0501ECF452FC"
+        }
+      ]
+    },
+    {
+      "tool": "HunterCamp",
+      "frameCount": 7,
+      "sourceFrame": {
+        "size": [92, 82],
+        "ppu": 24,
+        "pivotPixelsBottomLeft": [46, 8.2]
+      },
+      "outputFrame": {
+        "size": [184, 164],
+        "ppu": 48,
+        "pivotPixelsBottomLeft": [92, 14.8]
+      },
+      "variants": [
+        {
+          "id": "V01",
+          "source": "Tools/Art/Source/HighResolution/Construction1x/HunterCamp/V01.png",
+          "sourceSha256": "2936F13B7F0566790D87882A86576162291E123C6ECCD829E31AE50E2E0B2B60",
+          "finalSprite": "Assets/Resources/Visual/Authored/Buildings/HunterCamp/V01.png",
+          "finalSha256": "169DB4372BF8F93AFF6D8021F80AFD1F16FBA04FC5122C884326A18E43D3E61A",
+          "finalPpu": 48,
+          "finalPivotNormalized": [0.5, 0.1],
+          "output": "Assets/Resources/Visual/Authored/Construction/HunterCamp/V01.png",
+          "expectedSha256": "B121734685534BFC711E2FE8F32F950083DB90E3574658A8FB734F0BEF3D5911"
+        },
+        {
+          "id": "V02",
+          "source": "Tools/Art/Source/HighResolution/Construction1x/HunterCamp/V02.png",
+          "sourceSha256": "2936F13B7F0566790D87882A86576162291E123C6ECCD829E31AE50E2E0B2B60",
+          "finalSprite": "Assets/Resources/Visual/Authored/Buildings/HunterCamp/V02.png",
+          "finalSha256": "76587FFE2AB9405B3108BBA7BE078CA91BBC796148240A54862F79AB391A5B11",
+          "finalPpu": 48,
+          "finalPivotNormalized": [0.5, 0.1],
+          "output": "Assets/Resources/Visual/Authored/Construction/HunterCamp/V02.png",
+          "expectedSha256": "A3B2B0E02411C66ED59FC3E9761F03CF138E9E8411D82EA3D528F4CC0CF08557"
+        },
+        {
+          "id": "V03",
+          "source": "Tools/Art/Source/HighResolution/Construction1x/HunterCamp/V03.png",
+          "sourceSha256": "2936F13B7F0566790D87882A86576162291E123C6ECCD829E31AE50E2E0B2B60",
+          "finalSprite": "Assets/Resources/Visual/Authored/Buildings/HunterCamp/V03.png",
+          "finalSha256": "F778D05A97F0DEEEEF8019540A24D968C21FAD9CC327964F43DFFCE97B4A0336",
+          "finalPpu": 48,
+          "finalPivotNormalized": [0.5, 0.1],
+          "output": "Assets/Resources/Visual/Authored/Construction/HunterCamp/V03.png",
+          "expectedSha256": "5606F1DF3AA35E2EA1E5723C3E83EEE8FA5BD04BC8355739614BFBA19A64C3BD"
+        }
+      ]
+    },
+    {
+      "tool": "FisherHut",
+      "frameCount": 7,
+      "sourceFrame": {
+        "size": [92, 82],
+        "ppu": 24,
+        "pivotPixelsBottomLeft": [46, 8.2]
+      },
+      "outputFrame": {
+        "size": [184, 164],
+        "ppu": 48,
+        "pivotPixelsBottomLeft": [92, 15.2]
+      },
+      "variants": [
+        {
+          "id": "V01",
+          "source": "Tools/Art/Source/HighResolution/Construction1x/FisherHut/V01.png",
+          "sourceSha256": "23D19BA4CF2FBA2050622B3991CAB1C5B10956EFBC6DE6FC91D2B925D47DEA79",
+          "finalSprite": "Assets/Resources/Visual/Authored/Buildings/FisherHut/V01.png",
+          "finalSha256": "004E5FF5E51B50D31BE3B217ADFD89B1655E480CB8E32E0F14BAF91C02D3FA50",
+          "finalPpu": 48,
+          "finalPivotNormalized": [0.5, 0.1],
+          "output": "Assets/Resources/Visual/Authored/Construction/FisherHut/V01.png",
+          "expectedSha256": "31562556025735FDED5D0B738522FFACB1DB684EDE11D66FCFB4ED8F7A6D41C1"
+        },
+        {
+          "id": "V02",
+          "source": "Tools/Art/Source/HighResolution/Construction1x/FisherHut/V02.png",
+          "sourceSha256": "23D19BA4CF2FBA2050622B3991CAB1C5B10956EFBC6DE6FC91D2B925D47DEA79",
+          "finalSprite": "Assets/Resources/Visual/Authored/Buildings/FisherHut/V02.png",
+          "finalSha256": "10A83EA824607D47EF3E7861388C52F531150222506CCB4A7A001F975A9C022D",
+          "finalPpu": 48,
+          "finalPivotNormalized": [0.5, 0.1],
+          "output": "Assets/Resources/Visual/Authored/Construction/FisherHut/V02.png",
+          "expectedSha256": "486F09CBBB62F9E4C3C9779E79F2350A2721D697596AAED3E974BBFD18EA1AB3"
+        },
+        {
+          "id": "V03",
+          "source": "Tools/Art/Source/HighResolution/Construction1x/FisherHut/V03.png",
+          "sourceSha256": "23D19BA4CF2FBA2050622B3991CAB1C5B10956EFBC6DE6FC91D2B925D47DEA79",
+          "finalSprite": "Assets/Resources/Visual/Authored/Buildings/FisherHut/V03.png",
+          "finalSha256": "B638857097C4E5504A9881E931286CE8AB6471EA38B0D6A1B58DB66E3801FF41",
+          "finalPpu": 48,
+          "finalPivotNormalized": [0.5, 0.1],
+          "output": "Assets/Resources/Visual/Authored/Construction/FisherHut/V03.png",
+          "expectedSha256": "8C09230447DEF64882BDF31ED4795644FAA77C84DD8220922F6B367C3C4A4C43"
+        }
+      ]
+    },
+    {
+      "tool": "ChickenCoop",
+      "frameCount": 7,
+      "sourceFrame": {
+        "size": [92, 82],
+        "ppu": 24,
+        "pivotPixelsBottomLeft": [46, 8.2]
+      },
+      "outputFrame": {
+        "size": [184, 164],
+        "ppu": 48,
+        "pivotPixelsBottomLeft": [92, 10.514286]
+      },
+      "variants": [
+        {
+          "id": "V01",
+          "source": "Tools/Art/Source/HighResolution/Construction1x/ChickenCoop/V01.png",
+          "sourceSha256": "9215ACAAC29D13CD678A2C17A08F274CCF5DB9697DD101A744843745421028D0",
+          "finalSprite": "Assets/Resources/Visual/Authored/Buildings/ChickenCoop/V01.png",
+          "finalSha256": "C3AD894FFC54632B1D22E24DCA3EC8A741DF538F2912B497B430ECD55B11AEC0",
+          "finalPpu": 42,
+          "finalPivotNormalized": [0.5, 0.1],
+          "output": "Assets/Resources/Visual/Authored/Construction/ChickenCoop/V01.png",
+          "expectedSha256": "B0C569819F69342E8D158DE79725F47A22865D3355E11E533D218B0ED2B72C55"
+        }
+      ]
+    },
+    {
+      "tool": "Sawmill",
+      "frameCount": 7,
+      "sourceFrame": {
+        "size": [92, 82],
+        "ppu": 24,
+        "pivotPixelsBottomLeft": [46, 8.2]
+      },
+      "outputFrame": {
+        "size": [200, 164],
+        "ppu": 48,
+        "pivotPixelsBottomLeft": [100, 15.6]
+      },
+      "variants": [
+        {
+          "id": "V01",
+          "source": "Tools/Art/Source/HighResolution/Construction1x/Sawmill/V01.png",
+          "sourceSha256": "9215ACAAC29D13CD678A2C17A08F274CCF5DB9697DD101A744843745421028D0",
+          "finalSprite": "Assets/Resources/Visual/Authored/Buildings/Sawmill/V01.png",
+          "finalSha256": "7D965C5BFC278A5BBD036DD566E6A3A04193279B936B22C0BC983FAE8C641434",
+          "finalPpu": 48,
+          "finalPivotNormalized": [0.5, 0.1],
+          "output": "Assets/Resources/Visual/Authored/Construction/Sawmill/V01.png",
+          "expectedSha256": "D729A766B843DC363351ACFF1ED00961BCC355909D1898413592EC59C994AA20"
+        },
+        {
+          "id": "V02",
+          "source": "Tools/Art/Source/HighResolution/Construction1x/Sawmill/V02.png",
+          "sourceSha256": "9215ACAAC29D13CD678A2C17A08F274CCF5DB9697DD101A744843745421028D0",
+          "finalSprite": "Assets/Resources/Visual/Authored/Buildings/Sawmill/V02.png",
+          "finalSha256": "B8D91BC7D438BFBECD932B52BC24497F216A8A3047C700B4396F2C997732DE4B",
+          "finalPpu": 48,
+          "finalPivotNormalized": [0.5, 0.1],
+          "output": "Assets/Resources/Visual/Authored/Construction/Sawmill/V02.png",
+          "expectedSha256": "B0A8BD0EDCB5119DAF4CFAC1C33E86170766BE1F15F1B37C43B0A40A0C2C138D"
+        },
+        {
+          "id": "V03",
+          "source": "Tools/Art/Source/HighResolution/Construction1x/Sawmill/V03.png",
+          "sourceSha256": "9215ACAAC29D13CD678A2C17A08F274CCF5DB9697DD101A744843745421028D0",
+          "finalSprite": "Assets/Resources/Visual/Authored/Buildings/Sawmill/V03.png",
+          "finalSha256": "E9028C86A05BEC409A236C647A7666263E6C8701322394DA327F6A90A1B885CD",
+          "finalPpu": 48,
+          "finalPivotNormalized": [0.5, 0.1],
+          "output": "Assets/Resources/Visual/Authored/Construction/Sawmill/V03.png",
+          "expectedSha256": "96CEF400E1D1698FFE38C1A3EE78E5D3A07F8F6C95B60FE0A26753034F01FA2A"
+        }
+      ]
+    },
+    {
+      "tool": "Kiln",
+      "frameCount": 7,
+      "sourceFrame": {
+        "size": [92, 82],
+        "ppu": 24,
+        "pivotPixelsBottomLeft": [46, 8.2]
+      },
+      "outputFrame": {
+        "size": [184, 164],
+        "ppu": 48,
+        "pivotPixelsBottomLeft": [92, 14.8]
+      },
+      "variants": [
+        {
+          "id": "V01",
+          "source": "Tools/Art/Source/HighResolution/Construction1x/Kiln/V01.png",
+          "sourceSha256": "9215ACAAC29D13CD678A2C17A08F274CCF5DB9697DD101A744843745421028D0",
+          "finalSprite": "Assets/Resources/Visual/Authored/Buildings/Kiln/V01.png",
+          "finalSha256": "042D5144C3B55E6F64527C3B6C054878C71870F66B69140CF1F50F4097FBB62F",
+          "finalPpu": 48,
+          "finalPivotNormalized": [0.5, 0.1],
+          "output": "Assets/Resources/Visual/Authored/Construction/Kiln/V01.png",
+          "expectedSha256": "BC182D41DEA53894436136A9C5302273D88D0CB6F4D7A05AA2D61E7AC2F2DFEA"
+        },
+        {
+          "id": "V02",
+          "source": "Tools/Art/Source/HighResolution/Construction1x/Kiln/V02.png",
+          "sourceSha256": "9215ACAAC29D13CD678A2C17A08F274CCF5DB9697DD101A744843745421028D0",
+          "finalSprite": "Assets/Resources/Visual/Authored/Buildings/Kiln/V02.png",
+          "finalSha256": "A1CBC1702CACD97A32E958BCE036564B7A2C3425822D1660FE86988BE253EE30",
+          "finalPpu": 48,
+          "finalPivotNormalized": [0.5, 0.1],
+          "output": "Assets/Resources/Visual/Authored/Construction/Kiln/V02.png",
+          "expectedSha256": "67BFB901754DDAB7CE9201E4E7128585E321E24F1792BAC930C384398CE21C40"
+        },
+        {
+          "id": "V03",
+          "source": "Tools/Art/Source/HighResolution/Construction1x/Kiln/V03.png",
+          "sourceSha256": "9215ACAAC29D13CD678A2C17A08F274CCF5DB9697DD101A744843745421028D0",
+          "finalSprite": "Assets/Resources/Visual/Authored/Buildings/Kiln/V03.png",
+          "finalSha256": "F4A56093F8174417755F86D50C87FB67D36B565CAB8BD26AC621FC61D38DD7E1",
+          "finalPpu": 48,
+          "finalPivotNormalized": [0.5, 0.1],
+          "output": "Assets/Resources/Visual/Authored/Construction/Kiln/V03.png",
+          "expectedSha256": "35E6A028413DD8EA0301A63A6ADC19281CCA7ACA51E0E213360E74D81D189806"
+        }
+      ]
+    },
+    {
+      "tool": "Forge",
+      "frameCount": 7,
+      "sourceFrame": {
+        "size": [92, 82],
+        "ppu": 24,
+        "pivotPixelsBottomLeft": [46, 8.2]
+      },
+      "outputFrame": {
+        "size": [184, 164],
+        "ppu": 48,
+        "pivotPixelsBottomLeft": [92, 14.8]
+      },
+      "variants": [
+        {
+          "id": "V01",
+          "source": "Tools/Art/Source/HighResolution/Construction1x/Forge/V01.png",
+          "sourceSha256": "9215ACAAC29D13CD678A2C17A08F274CCF5DB9697DD101A744843745421028D0",
+          "finalSprite": "Assets/Resources/Visual/Authored/Buildings/Forge/V01.png",
+          "finalSha256": "572F925B31CAFFBA5696DCAD985CFAC088FD6097DE7CC03717A89EA63129EA59",
+          "finalPpu": 48,
+          "finalPivotNormalized": [0.5, 0.1],
+          "output": "Assets/Resources/Visual/Authored/Construction/Forge/V01.png",
+          "expectedSha256": "4DD45D73B53ABA3EC1D1485BE03CD71ABE621B61E8FA28809036A515C851170A"
+        },
+        {
+          "id": "V02",
+          "source": "Tools/Art/Source/HighResolution/Construction1x/Forge/V02.png",
+          "sourceSha256": "9215ACAAC29D13CD678A2C17A08F274CCF5DB9697DD101A744843745421028D0",
+          "finalSprite": "Assets/Resources/Visual/Authored/Buildings/Forge/V02.png",
+          "finalSha256": "33862527FAD0C0B24D371F40D6F8818E4B8EF0DE0CD005F1CDD137EC3BD2DD58",
+          "finalPpu": 48,
+          "finalPivotNormalized": [0.5, 0.1],
+          "output": "Assets/Resources/Visual/Authored/Construction/Forge/V02.png",
+          "expectedSha256": "EB470CEB5C038D231DC439DA7B30B5F506C5E98FED8B35923AB6F5E7F3342ACC"
+        },
+        {
+          "id": "V03",
+          "source": "Tools/Art/Source/HighResolution/Construction1x/Forge/V03.png",
+          "sourceSha256": "9215ACAAC29D13CD678A2C17A08F274CCF5DB9697DD101A744843745421028D0",
+          "finalSprite": "Assets/Resources/Visual/Authored/Buildings/Forge/V03.png",
+          "finalSha256": "610EF7C3D6F17982FE74AB6B5028873D97980875D8298E86B09517EB126E7FA0",
+          "finalPpu": 48,
+          "finalPivotNormalized": [0.5, 0.1],
+          "output": "Assets/Resources/Visual/Authored/Construction/Forge/V03.png",
+          "expectedSha256": "01FB558421507F95D584621779BAFCC024006395D2E0B419BA6EBA7261BAB7F8"
+        }
+      ]
+    },
+    {
+      "tool": "StorageYard",
+      "frameCount": 7,
+      "sourceFrame": {
+        "size": [92, 82],
+        "ppu": 24,
+        "pivotPixelsBottomLeft": [46, 8.2]
+      },
+      "outputFrame": {
+        "size": [192, 164],
+        "ppu": 48,
+        "pivotPixelsBottomLeft": [96, 14.8]
+      },
+      "variants": [
+        {
+          "id": "V01",
+          "source": "Tools/Art/Source/HighResolution/Construction1x/StorageYard/V01.png",
+          "sourceSha256": "207D6136ECBD378F445EB2A3D4B918789BB7B53310D536C0D3F0B2993B9AE179",
+          "finalSprite": "Assets/Resources/Visual/Authored/Buildings/StorageYard/V01.png",
+          "finalSha256": "5E7E2AD485222BF7125402E1FA12438D3DC3FF1B50253AFA4353C19E814C6802",
+          "finalPpu": 48,
+          "finalPivotNormalized": [0.5, 0.1],
+          "output": "Assets/Resources/Visual/Authored/Construction/StorageYard/V01.png",
+          "expectedSha256": "57F52CBC8CAB12EC0797EC649354CC52490360FE392CFAE6712F2B0366D67925"
+        },
+        {
+          "id": "V02",
+          "source": "Tools/Art/Source/HighResolution/Construction1x/StorageYard/V02.png",
+          "sourceSha256": "207D6136ECBD378F445EB2A3D4B918789BB7B53310D536C0D3F0B2993B9AE179",
+          "finalSprite": "Assets/Resources/Visual/Authored/Buildings/StorageYard/V02.png",
+          "finalSha256": "0A5754FF44D76DABF1AE059265EDD7E9E8CC44CB9C00635B16F36481C14075C4",
+          "finalPpu": 48,
+          "finalPivotNormalized": [0.5, 0.1],
+          "output": "Assets/Resources/Visual/Authored/Construction/StorageYard/V02.png",
+          "expectedSha256": "1696ABE0448ED29C4882390F3B92255613924C3ED2E4B593A3147A6F48810FA6"
+        },
+        {
+          "id": "V03",
+          "source": "Tools/Art/Source/HighResolution/Construction1x/StorageYard/V03.png",
+          "sourceSha256": "207D6136ECBD378F445EB2A3D4B918789BB7B53310D536C0D3F0B2993B9AE179",
+          "finalSprite": "Assets/Resources/Visual/Authored/Buildings/StorageYard/V03.png",
+          "finalSha256": "F971841B8EFA629F605281AACA143EA71C089DF716CDA8D4FBC994814159F96C",
+          "finalPpu": 48,
+          "finalPivotNormalized": [0.5, 0.1],
+          "output": "Assets/Resources/Visual/Authored/Construction/StorageYard/V03.png",
+          "expectedSha256": "01BA2BECFA7726B1671CC72C46100E58A5F37794FE0A07978F7B35277312335C"
+        }
+      ]
+    },
+    {
+      "tool": "Granary",
+      "frameCount": 7,
+      "sourceFrame": {
+        "size": [92, 82],
+        "ppu": 24,
+        "pivotPixelsBottomLeft": [46, 8.2]
+      },
+      "outputFrame": {
+        "size": [192, 168],
+        "ppu": 48,
+        "pivotPixelsBottomLeft": [96, 16.8]
+      },
+      "variants": [
+        {
+          "id": "V01",
+          "source": "Tools/Art/Source/HighResolution/Construction1x/Granary/V01.png",
+          "sourceSha256": "514A5F9C7C412ACECFB774A82289200480C435549B6A24806CD783B511C7B323",
+          "finalSprite": "Assets/Resources/Visual/Authored/Buildings/Granary/V01.png",
+          "finalSha256": "B67B2B0FC26441742A41F0EFC15F188ECB96479588FE895BBF17229748BDA66A",
+          "finalPpu": 48,
+          "finalPivotNormalized": [0.5, 0.1],
+          "output": "Assets/Resources/Visual/Authored/Construction/Granary/V01.png",
+          "expectedSha256": "15F57979077D83A5E9F4CC95716E578F3C8660B9B55C455B9F4EF19D30875AB8"
+        },
+        {
+          "id": "V02",
+          "source": "Tools/Art/Source/HighResolution/Construction1x/Granary/V02.png",
+          "sourceSha256": "514A5F9C7C412ACECFB774A82289200480C435549B6A24806CD783B511C7B323",
+          "finalSprite": "Assets/Resources/Visual/Authored/Buildings/Granary/V02.png",
+          "finalSha256": "292D6163A588F197AFC93A62724EDBA5F48B6B77974A1603C9776F576A200741",
+          "finalPpu": 48,
+          "finalPivotNormalized": [0.5, 0.1],
+          "output": "Assets/Resources/Visual/Authored/Construction/Granary/V02.png",
+          "expectedSha256": "24AD863B8324EA6747609EE4396430F40367A3558F56AB74337A56CC13425716"
+        },
+        {
+          "id": "V03",
+          "source": "Tools/Art/Source/HighResolution/Construction1x/Granary/V03.png",
+          "sourceSha256": "514A5F9C7C412ACECFB774A82289200480C435549B6A24806CD783B511C7B323",
+          "finalSprite": "Assets/Resources/Visual/Authored/Buildings/Granary/V03.png",
+          "finalSha256": "8071C77902C0C45A8854CBE6375A8480F2E30E86A03ECE118B67069EA13C9B6F",
+          "finalPpu": 48,
+          "finalPivotNormalized": [0.5, 0.1],
+          "output": "Assets/Resources/Visual/Authored/Construction/Granary/V03.png",
+          "expectedSha256": "CF81D579FC6132A012B22926F985836A29ADB992675E9113A993571265021A44"
+        }
+      ]
+    },
+    {
+      "tool": "TradingPost",
+      "frameCount": 7,
+      "sourceFrame": {
+        "size": [92, 82],
+        "ppu": 24,
+        "pivotPixelsBottomLeft": [46, 8.2]
+      },
+      "outputFrame": {
+        "size": [192, 164],
+        "ppu": 48,
+        "pivotPixelsBottomLeft": [96, 24.0]
+      },
+      "variants": [
+        {
+          "id": "V01",
+          "source": "Tools/Art/Source/HighResolution/Construction1x/TradingPost/V01.png",
+          "sourceSha256": "9215ACAAC29D13CD678A2C17A08F274CCF5DB9697DD101A744843745421028D0",
+          "finalSprite": "Assets/Resources/Visual/Authored/Buildings/TradingPost/V01.png",
+          "finalSha256": "F0AF540F69C0EC55450CFFE95CD941632AFBDF570F0A5560D5EA8E3A76A612BF",
+          "finalPpu": 48,
+          "finalPivotNormalized": [0.5, 0.2],
+          "output": "Assets/Resources/Visual/Authored/Construction/TradingPost/V01.png",
+          "expectedSha256": "6CE785FE4CE73A2A5001671048DCD268C30C3C120AC0A9FDA691E705CEB60AB0"
+        },
+        {
+          "id": "V02",
+          "source": "Tools/Art/Source/HighResolution/Construction1x/TradingPost/V02.png",
+          "sourceSha256": "9215ACAAC29D13CD678A2C17A08F274CCF5DB9697DD101A744843745421028D0",
+          "finalSprite": "Assets/Resources/Visual/Authored/Buildings/TradingPost/V02.png",
+          "finalSha256": "75A98EF0BB9B6C7235FD4D96A02A5A92AF54DCAD33D69BEC9E47135FC01A1929",
+          "finalPpu": 48,
+          "finalPivotNormalized": [0.5, 0.2],
+          "output": "Assets/Resources/Visual/Authored/Construction/TradingPost/V02.png",
+          "expectedSha256": "DE66E995404CC36F3B99D1A98320971E8ABD8D91554C1510CD11C8F84510C3C8"
+        },
+        {
+          "id": "V03",
+          "source": "Tools/Art/Source/HighResolution/Construction1x/TradingPost/V03.png",
+          "sourceSha256": "9215ACAAC29D13CD678A2C17A08F274CCF5DB9697DD101A744843745421028D0",
+          "finalSprite": "Assets/Resources/Visual/Authored/Buildings/TradingPost/V03.png",
+          "finalSha256": "215A8BC2AE1EEE6B77377DF06C26D4D4F9CEC4D9749CA68E51D7FA75A0024885",
+          "finalPpu": 48,
+          "finalPivotNormalized": [0.5, 0.2],
+          "output": "Assets/Resources/Visual/Authored/Construction/TradingPost/V03.png",
+          "expectedSha256": "F0BC03517CEE6799974A79DD8391FD33BC76A54ACF814D208BE5D21D5A26A6F0"
+        }
+      ]
+    }
+  ]
+}

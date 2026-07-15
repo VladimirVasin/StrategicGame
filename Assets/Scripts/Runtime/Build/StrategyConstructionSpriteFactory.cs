@@ -12,6 +12,15 @@ namespace ProjectUnknown.Strategy
         private static readonly Dictionary<int, Sprite> CachedLogsSprites = new();
         private static readonly Dictionary<int, Sprite> CachedStoneSprites = new();
 
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        internal static void ResetCaches()
+        {
+            CachedSprites.Clear();
+            CachedLogsSprites.Clear();
+            CachedStoneSprites.Clear();
+            StrategyBridgeVisualProfile.ResetCache();
+        }
+
         public static Sprite GetConstructionSprite(StrategyBuildTool tool, int variant, int stage)
         {
             int normalizedStage = Mathf.Clamp(stage, 0, StageCount - 1);
@@ -20,14 +29,14 @@ namespace ProjectUnknown.Strategy
                 return GetBridgeConstructionSprite(new Vector2Int(3, 1), normalizedStage);
             }
 
-            int normalizedVariant = StrategyForagerCampVisualProfile.NormalizeVariant(tool, variant);
+            int normalizedVariant = StrategyBuildingVariantProfile.NormalizeVariant(tool, variant);
             int cacheKey = ((int)tool * 512) + (normalizedVariant * 32) + normalizedStage;
             string sequenceId = $"Construction/{tool}/V{normalizedVariant}";
             if (StrategyVisualCatalogProvider.TryGetSequenceSprite(sequenceId, normalizedStage, out Sprite authored))
             {
                 if (!CachedSprites.TryGetValue(cacheKey, out Sprite aligned) || aligned == null)
                 {
-                    aligned = CreateGroundAlignedSprite(tool, authored);
+                    aligned = CreateGroundAlignedSprite(tool, normalizedVariant, authored);
                     CachedSprites[cacheKey] = aligned;
                 }
 
@@ -38,6 +47,7 @@ namespace ProjectUnknown.Strategy
             {
                 sprite = CreateGroundAlignedSprite(
                     tool,
+                    normalizedVariant,
                     CreateConstructionSprite(tool, normalizedVariant, normalizedStage));
                 CachedSprites[cacheKey] = sprite;
             }
@@ -54,7 +64,12 @@ namespace ProjectUnknown.Strategy
             int cacheKey = 65536 + normalizedFootprint.x * 512 + normalizedFootprint.y * 16 + normalizedStage;
             if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
             {
-                sprite = CreateBridgeConstructionSprite(normalizedFootprint, normalizedStage);
+                sprite = StrategyBridgeVisualProfile.TryCreateConstructionSprite(
+                    normalizedFootprint,
+                    normalizedStage,
+                    out Sprite authored)
+                    ? authored
+                    : CreateBridgeConstructionSprite(normalizedFootprint, normalizedStage);
                 CachedSprites[cacheKey] = sprite;
             }
 
@@ -426,69 +441,6 @@ namespace ProjectUnknown.Strategy
             FillRect(texture, x, y + height - 1, width, 1, color);
             FillRect(texture, x, y, 1, height, color);
             FillRect(texture, x + width - 1, y, 1, height, color);
-        }
-        private static void FillEllipse(Texture2D texture, int centerX, int centerY, int radiusX, int radiusY, Color color)
-        {
-            int radiusXSqr = radiusX * radiusX;
-            int radiusYSqr = radiusY * radiusY;
-            int radiusProduct = radiusXSqr * radiusYSqr;
-
-            for (int y = -radiusY; y <= radiusY; y++)
-            {
-                for (int x = -radiusX; x <= radiusX; x++)
-                {
-                    if (x * x * radiusYSqr + y * y * radiusXSqr <= radiusProduct)
-                    {
-                        SetPixelSafe(texture, centerX + x, centerY + y, color);
-                    }
-                }
-            }
-        }
-
-        private static void FillPolygon(Texture2D texture, Vector2Int[] points, Color color)
-        {
-            if (points == null || points.Length < 3)
-            {
-                return;
-            }
-
-            int minY = points[0].y;
-            int maxY = points[0].y;
-            for (int i = 1; i < points.Length; i++)
-            {
-                minY = Mathf.Min(minY, points[i].y);
-                maxY = Mathf.Max(maxY, points[i].y);
-            }
-
-            for (int y = minY; y <= maxY; y++)
-            {
-                List<int> nodes = new();
-                int j = points.Length - 1;
-                for (int i = 0; i < points.Length; i++)
-                {
-                    if ((points[i].y < y && points[j].y >= y) || (points[j].y < y && points[i].y >= y))
-                    {
-                        int x = points[i].x + (y - points[i].y) * (points[j].x - points[i].x) / Mathf.Max(1, points[j].y - points[i].y);
-                        nodes.Add(x);
-                    }
-
-                    j = i;
-                }
-
-                nodes.Sort();
-                for (int i = 0; i + 1 < nodes.Count; i += 2)
-                {
-                    FillRect(texture, nodes[i], y, nodes[i + 1] - nodes[i] + 1, 1, color);
-                }
-            }
-        }
-
-        private static void DrawPolygon(Texture2D texture, Vector2Int[] points, Color color)
-        {
-            for (int i = 0; i < points.Length; i++)
-            {
-                DrawLine(texture, points[i], points[(i + 1) % points.Length], color);
-            }
         }
     }
 }

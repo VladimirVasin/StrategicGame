@@ -5,6 +5,8 @@ namespace ProjectUnknown.Strategy
     public static class StrategyVisualBakeSource
     {
         public const int ConstructionStageCount = 7;
+        public const int ChickenCoopAnimationFrameCount =
+            StrategyBuildingUpgradeSpriteFactory.AnimationFrameCount;
 
         public static int GetBuildingVariantCount(StrategyBuildTool tool)
         {
@@ -13,6 +15,14 @@ namespace ProjectUnknown.Strategy
 
         public static Sprite GetBuildingSprite(StrategyBuildTool tool, int variant)
         {
+            if (tool == StrategyBuildTool.Bridge
+                && StrategyBridgeVisualProfile.TryCreateReadableCompletedSpriteForBake(
+                    new Vector2Int(3, 1),
+                    out Sprite bridge))
+            {
+                return bridge;
+            }
+
             return StrategyBuildingSpriteFactory.TryGetBuildSprite(tool, variant, out Sprite sprite)
                 ? sprite
                 : null;
@@ -30,7 +40,32 @@ namespace ProjectUnknown.Strategy
 
         public static Sprite GetConstructionSprite(StrategyBuildTool tool, int variant, int stage)
         {
+            if (tool == StrategyBuildTool.Bridge
+                && StrategyBridgeVisualProfile.TryCreateReadableConstructionSpriteForBake(
+                    new Vector2Int(3, 1),
+                    stage,
+                    out Sprite bridge))
+            {
+                return bridge;
+            }
+
             return StrategyConstructionSpriteFactory.GetConstructionSprite(tool, variant, stage);
+        }
+
+        public static Sprite GetChickenCoopProductionSprite(int frame)
+        {
+            return StrategyBuildingSpriteFactory.GetProceduralStandaloneChickenCoopSprite(frame);
+        }
+
+        public static void ResetRuntimeVisualCaches()
+        {
+            StrategyVisualCatalogProvider.ResetCache();
+            StrategyBuildingSpriteFactory.ResetCaches();
+            StrategyConstructionSpriteFactory.ResetCaches();
+            StrategyBuildingUpgradeSpriteFactory.ResetCaches();
+            StrategyBuildingSnowSpriteFactory.ResetCache();
+            StrategyBuildingGroundSpriteFactory.ResetCache();
+            StrategyHouseAmbientSpriteFactory.ResetCaches();
         }
 
         public static Sprite GetTrailSprite(int mask, int level, int variant)

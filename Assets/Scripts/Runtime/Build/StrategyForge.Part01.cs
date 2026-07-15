@@ -150,10 +150,30 @@ namespace ProjectUnknown.Strategy
             }
 
             Bounds bounds = FootprintBounds;
-            PositionStock(ironStockRenderer, new Vector3(bounds.min.x + 0.32f, bounds.min.y + 0.32f, -0.14f));
-            PositionStock(coalStockRenderer, new Vector3(bounds.max.x - 0.30f, bounds.min.y + 0.31f, -0.14f));
-            PositionStock(logStockRenderer, new Vector3(bounds.min.x + 0.24f, bounds.min.y + 0.52f, -0.13f));
-            PositionStock(toolsStockRenderer, new Vector3(bounds.max.x - 0.56f, bounds.min.y + 0.54f, -0.13f));
+            PositionStock(
+                ironStockRenderer,
+                StrategyBuildingVisualAnchorProfile.GetStockAnchorWorld(
+                    StrategyBuildTool.Forge,
+                    StrategyResourceType.Iron,
+                    bounds));
+            PositionStock(
+                coalStockRenderer,
+                StrategyBuildingVisualAnchorProfile.GetStockAnchorWorld(
+                    StrategyBuildTool.Forge,
+                    StrategyResourceType.Coal,
+                    bounds));
+            PositionStock(
+                logStockRenderer,
+                StrategyBuildingVisualAnchorProfile.GetStockAnchorWorld(
+                    StrategyBuildTool.Forge,
+                    StrategyResourceType.Logs,
+                    bounds));
+            PositionStock(
+                toolsStockRenderer,
+                StrategyBuildingVisualAnchorProfile.GetStockAnchorWorld(
+                    StrategyBuildTool.Forge,
+                    StrategyResourceType.Tools,
+                    bounds));
         }
 
         private void PositionStock(SpriteRenderer renderer, Vector3 world)
@@ -216,12 +236,12 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            Bounds bounds = FootprintBounds;
-            Vector3 world = resource == StrategyResourceType.Iron
-                ? new Vector3(bounds.min.x + 0.32f, bounds.min.y + 0.40f, -0.16f)
-                : resource == StrategyResourceType.Coal
-                    ? new Vector3(bounds.max.x - 0.30f, bounds.min.y + 0.39f, -0.16f)
-                    : new Vector3(bounds.min.x + 0.24f, bounds.min.y + 0.60f, -0.16f);
+            float zOffset = resource == StrategyResourceType.Logs ? -0.03f : -0.02f;
+            Vector3 world = StrategyBuildingVisualAnchorProfile.GetStockAnchorWorld(
+                    StrategyBuildTool.Forge,
+                    resource,
+                    FootprintBounds)
+                + new Vector3(0f, 0.08f, zOffset);
             StrategyWorldEffectAnimator.SpawnResourcePlaced(resource, world, StrategyWorldSorting.ForPosition(world, 4), amount, StorageUsed + amount * 23);
         }
 
@@ -232,8 +252,11 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            Bounds bounds = FootprintBounds;
-            Vector3 world = new Vector3(bounds.max.x - 0.56f, bounds.min.y + 0.64f, -0.16f);
+            Vector3 world = StrategyBuildingVisualAnchorProfile.GetStockAnchorWorld(
+                    StrategyBuildTool.Forge,
+                    StrategyResourceType.Tools,
+                    FootprintBounds)
+                + new Vector3(0f, 0.10f, -0.03f);
             StrategyWorldEffectAnimator.SpawnResourcePlaced(StrategyResourceType.Tools, world, StrategyWorldSorting.ForPosition(world, 4), amount, toolsStored + amount * 43);
         }
     }

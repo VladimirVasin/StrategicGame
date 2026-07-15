@@ -27,8 +27,11 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            Bounds bounds = FootprintBounds;
-            Vector3 world = new Vector3(bounds.min.x + 0.46f, bounds.min.y + 0.46f, -0.16f);
+            Vector3 world = StrategyBuildingVisualAnchorProfile.GetStockAnchorWorld(
+                    StrategyBuildTool.Sawmill,
+                    StrategyResourceType.Logs,
+                    FootprintBounds)
+                + new Vector3(0f, 0.10f, -0.02f);
             StrategyWorldEffectAnimator.SpawnResourcePlaced(
                 StrategyResourceType.Logs,
                 world,
@@ -44,8 +47,11 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            Bounds bounds = FootprintBounds;
-            Vector3 world = new Vector3(bounds.max.x - 0.42f, bounds.min.y + 0.44f, -0.16f);
+            Vector3 world = StrategyBuildingVisualAnchorProfile.GetStockAnchorWorld(
+                    StrategyBuildTool.Sawmill,
+                    StrategyResourceType.Planks,
+                    FootprintBounds)
+                + new Vector3(0f, 0.10f, -0.03f);
             StrategyWorldEffectAnimator.SpawnResourcePlaced(
                 StrategyResourceType.Planks,
                 world,

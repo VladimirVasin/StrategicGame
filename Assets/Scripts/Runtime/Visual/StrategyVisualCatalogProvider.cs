@@ -68,6 +68,11 @@ namespace ProjectUnknown.Strategy
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStatics()
         {
+            ResetCache();
+        }
+
+        internal static void ResetCache()
+        {
             catalog = null;
             loadAttempted = false;
         }

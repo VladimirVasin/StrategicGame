@@ -348,8 +348,7 @@ namespace ProjectUnknown.Strategy
 
         public Vector3 GetEntranceEffectWorld()
         {
-            Bounds bounds = FootprintBounds;
-            return new Vector3(bounds.center.x - 0.22f, bounds.min.y + 0.40f, -0.12f);
+            return StrategyBuildingVisualAnchorProfile.GetMineEntranceEffectWorld(FootprintBounds);
         }
 
         public string GetHudStatusText()
@@ -427,7 +426,10 @@ namespace ProjectUnknown.Strategy
 
         private static Vector3 GetIronStockWorld(Bounds bounds)
         {
-            return new Vector3(bounds.max.x - 0.26f, bounds.min.y + 0.32f, -0.13f);
+            return StrategyBuildingVisualAnchorProfile.GetStockAnchorWorld(
+                StrategyBuildTool.Mine,
+                StrategyResourceType.Iron,
+                bounds);
         }
 
         private void OnDestroy()

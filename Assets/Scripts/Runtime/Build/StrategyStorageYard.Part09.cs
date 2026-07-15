@@ -115,7 +115,10 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            Vector3 potteryWorld = new Vector3(bounds.max.x - 0.34f, bounds.min.y + 0.58f, -0.146f);
+            Vector3 potteryWorld = StrategyBuildingVisualAnchorProfile.GetStockAnchorWorld(
+                StrategyBuildTool.StorageYard,
+                StrategyResourceType.Pottery,
+                bounds);
             potteryStockRenderer.transform.localPosition = transform.InverseTransformPoint(potteryWorld);
             potteryStockRenderer.transform.localScale = Vector3.one;
             StrategyWorldSorting.Apply(potteryStockRenderer, potteryWorld, 1);

@@ -60,5 +60,22 @@ namespace ProjectUnknown.Strategy.EditorTools
                 sequences.Add(BakeSequenceAsset(id, frames, path));
             }
         }
+
+        private static void BakeBuildingAnimations(
+            List<StrategyVisualCatalog.VisualSequenceSet> sequences)
+        {
+            Sprite[] frames = new Sprite[StrategyVisualBakeSource.ChickenCoopAnimationFrameCount];
+            for (int frame = 0; frame < frames.Length; frame++)
+            {
+                frames[frame] = StrategyVisualBakeSource.GetChickenCoopProductionSprite(frame);
+            }
+
+            const string relativePath = "BuildingAnimations/ChickenCoop/V01.png";
+            sequences.Add(BakeSequenceAsset(
+                StrategyVisualSequenceIds.ChickenCoopProduction,
+                frames,
+                $"{BakedRoot}/{relativePath}",
+                relativePath));
+        }
     }
 }

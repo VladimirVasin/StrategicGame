@@ -18,7 +18,7 @@ namespace ProjectUnknown.Strategy
         public const int HunterCampVariantCount = 3;
         public const int FisherHutVariantCount = 3;
         public const int ForagerCampVariantCount = 1;
-        public const int ChickenCoopVariantCount = StrategyBuildingUpgradeSpriteFactory.AnimationFrameCount;
+        public const int ChickenCoopVariantCount = 1;
         public const int TradingPostVariantCount = 3;
         public const int StarterCaravanCartVariantCount = 1;
         public const int StorageYardVariantCount = 3;
@@ -26,6 +26,15 @@ namespace ProjectUnknown.Strategy
         public const int BridgeVariantCount = 1;
 
         private static readonly Dictionary<int, Sprite> CachedSprites = new();
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        internal static void ResetCaches()
+        {
+            CachedSprites.Clear();
+            CachedChickenCoopFrames.Clear();
+            StrategyChickenCoopVisualProfile.ResetCache();
+            StrategyBridgeVisualProfile.ResetCache();
+        }
 
         private static bool TryGetBakedLayer(string id, int frame, out Sprite sprite)
         {
@@ -91,7 +100,8 @@ namespace ProjectUnknown.Strategy
 
             int normalizedVariant = NormalizeVariant(variant, variantCount);
             int cacheKey = GetCacheKey(tool, normalizedVariant);
-            if (StrategyVisualCatalogProvider.TryGetBuildingSprite(tool, normalizedVariant, out Sprite authored))
+            if (tool != StrategyBuildTool.Bridge
+                && StrategyVisualCatalogProvider.TryGetBuildingSprite(tool, normalizedVariant, out Sprite authored))
             {
                 if (!CachedSprites.TryGetValue(cacheKey, out sprite) || sprite == null)
                 {
@@ -122,7 +132,7 @@ namespace ProjectUnknown.Strategy
                     StrategyBuildTool.StarterCaravanCart => StrategyTradeCaravanSpriteFactory.GetSprite(),
                     StrategyBuildTool.StorageYard => CreateStorageYardSprite(normalizedVariant),
                     StrategyBuildTool.Granary => CreateGranarySprite(normalizedVariant),
-                    StrategyBuildTool.Bridge => CreateBridgeSprite(new Vector2Int(3, 1)),
+                    StrategyBuildTool.Bridge => GetBridgeSprite(new Vector2Int(3, 1)),
                     _ => CreateHouseSprite(normalizedVariant)
                 };
                 CachedSprites[cacheKey] = sprite;
@@ -138,10 +148,7 @@ namespace ProjectUnknown.Strategy
                 return source;
             }
 
-            float pivotY = tool == StrategyBuildTool.ForagerCamp
-                || tool == StrategyBuildTool.TradingPost
-                    ? 0.20f
-                    : 0.10f;
+            float pivotY = StrategyBuildingVisualAlignment.GetSpritePivotY(tool);
             Sprite aligned = Sprite.Create(
                 source.texture,
                 source.rect,
@@ -162,17 +169,12 @@ namespace ProjectUnknown.Strategy
             int cacheKey = 57344 + normalizedFootprint.x * 128 + normalizedFootprint.y;
             if (!CachedSprites.TryGetValue(cacheKey, out Sprite sprite) || sprite == null)
             {
-                sprite = CreateBridgeSprite(normalizedFootprint);
+                sprite = StrategyBridgeVisualProfile.TryCreateCompletedSprite(normalizedFootprint, out Sprite authored)
+                    ? authored
+                    : CreateBridgeSprite(normalizedFootprint);
                 CachedSprites[cacheKey] = sprite;
             }
 
-            return sprite;
-        }
-
-        public static Sprite GetStandaloneChickenCoopSprite(int frame)
-        {
-            int normalizedFrame = NormalizeVariant(frame, StrategyBuildingUpgradeSpriteFactory.AnimationFrameCount);
-            TryGetBuildSprite(StrategyBuildTool.ChickenCoop, normalizedFrame, out Sprite sprite);
             return sprite;
         }
 

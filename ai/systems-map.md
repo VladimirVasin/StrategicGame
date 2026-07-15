@@ -106,6 +106,7 @@ Responsibilities:
 - Load one Resources-backed visual catalog before map generation and starter sprite prewarming.
 - Bake editable building, resident, nature, terrain, construction, road, production-work, and stock PNGs through one Editor pipeline.
 - Resolve authored building, resident-pose, nature, terrain, construction, road, work, and stock sprites before procedural factory fallback.
+- Provide complete authored final/construction coverage for the current Build catalog, a shared standalone/upgrade Chicken Coop animation, and span-aware modular Bridge composition.
 - Resolve authored building-ground sprites before generated trampled-ground fallback.
 - Prewarm readable terrain sprites into immutable managed pixel arrays on the main thread before parallel terrain painting.
 - Supply one readable Resources-backed runtime font and shared sliced panel/button frames through the centralized UI theme provider.
@@ -122,6 +123,14 @@ Primary files/assets:
 - `Assets/Editor/StrategyVisualCatalogBaker.Residents.cs`
 - `Assets/Editor/StrategyVisualCatalogBaker.Layers.cs`
 - `Assets/Editor/StrategyVisualCatalogBaker.Terrain.cs`
+- `Assets/Editor/StrategyVisualCatalogBaker.Bridge.cs`
+- `Assets/Editor/StrategyVerificationRunner.AuthoredVisuals.cs`
+- `Assets/Editor/StrategyVerificationRunner.AuthoredVisuals.Animations.cs`
+- `Assets/Editor/StrategyVerificationRunner.AuthoredVisuals.Bridge.cs`
+- `Assets/Editor/StrategyVerificationRunner.AuthoredVisuals.Bridge.Catalog.cs`
+- `Assets/Editor/StrategyVerificationRunner.AuthoredVisuals.Construction.cs`
+- `Assets/Editor/StrategyVerificationRunner.AuthoredVisuals.IO.cs`
+- `Assets/Editor/StrategyVerificationRunner.AuthoredVisuals.Models.cs`
 - `Assets/Scripts/Runtime/Visual/StrategyVisualCatalog.cs`
 - `Assets/Scripts/Runtime/Visual/StrategyVisualCatalog.Atlases.cs`
 - `Assets/Scripts/Runtime/Visual/StrategyVisualCatalog.Terrain.cs`
@@ -134,19 +143,37 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/UI/StrategyUiThemeProvider.cs`
 - `Assets/Resources/Fonts/Inter-Regular.ttf`
 - `Assets/Scripts/Runtime/Build/StrategyBuildingSpriteFactory.cs`
+- `Assets/Scripts/Runtime/Build/StrategyBuildingSpriteFactory.ChickenCoop.cs`
+- `Assets/Scripts/Runtime/Build/StrategyConstructionSpriteFactory.cs`
+- `Assets/Scripts/Runtime/Build/StrategyConstructionSpriteFactory.Part02.cs`
+- `Assets/Scripts/Runtime/Build/StrategyBuildingSnowSpriteFactory.cs`
+- `Assets/Scripts/Runtime/Build/StrategyBuildingVariantProfile.cs`
+- `Assets/Scripts/Runtime/Build/StrategyBuildingVisualAlignment.cs`
+- `Assets/Scripts/Runtime/Build/StrategyBuildingVisualAnchorProfile.cs`
+- `Assets/Scripts/Runtime/Build/StrategyChickenCoopVisualProfile.cs`
+- `Assets/Scripts/Runtime/Build/StrategyBridgeVisualProfile.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Menu/StrategyMapPreloadCoordinator.Content.cs`
+- `Tools/Art/HighResolutionBuildings.manifest.json`
+- `Tools/Art/HighResolutionConstruction.manifest.json`
+- `Tools/Art/HighResolutionBuildingAnimations.manifest.json`
+- `Tools/Art/HighResolutionBuildingAnimationFrames.manifest.json`
+- `Tools/Art/HighResolutionBridge.manifest.json`
+- `Tools/Art/Build-AuthoredBuildingAssets.ps1`
+- `Tools/Art/Build-AuthoredConstructionAtlases.ps1`
+- `Tools/Art/Build-AuthoredBuildingAnimationAtlases.ps1`
+- `Tools/Art/Build-AuthoredBridgeKit.ps1`
 - `Tools/Art/Build-HouseConstructionAtlas.ps1`
 - `Tools/Art/Build-ForagerCampConstructionAtlas.ps1`
-- `Tools/Art/Build-HighResolutionAuthoredBuildings.ps1`
 - `Tools/Art/Upgrade-ConstructionAtlas2x.ps1`
 - `Tools/Art/Source/HighResolution/`
 
 Impact hints:
 
 - Catalog entries are optional; missing sets, variants, or frames must continue into the existing procedural fallback.
-- The baker deletes and recreates only `Visual/Baked`; matching building paths under `Visual/Authored/Buildings` and construction atlases under `Visual/Authored/Construction` replace generated catalog entries after explicit sprite or sequence-layout validation. Houses and Forager Camp may use their targeted 2x/48-PPU authored contracts while retaining the procedural fallback's world dimensions; unrelated overrides must still match their fallback dimensions exactly.
-- Imported authored sprites should use point filtering, a consistent pixels-per-unit contract, bottom-center world pivots where applicable, and the existing Y-based sorting path.
+- The baker deletes and recreates only `Visual/Baked`; matching final, construction, and animation paths under `Visual/Authored` replace generated catalog entries after manifest and layout validation. All current non-Bridge building families use explicit high-density contracts (normally `48 PPU`, with the animated Chicken Coop at `42 PPU`) that preserve procedural world dimensions.
+- Bridge art is a centered `48 PPU` exception: the runtime composes horizontal/vertical Start, Middle, and End modules for `3-12`-cell spans and requires every final/construction module sequence to remain cataloged and seam-compatible.
+- Imported authored sprites use their manifest filter, PPU, and pivot contracts plus the existing Y-based sorting path. Geometry-dependent stock, worker, effect, light, snow, selection, and collider alignment must route through the shared visual alignment/anchor profiles.
 - Atlas textures must stay `Sprite/Single`; automatic Multiple slicing breaks runtime rectangular frame extraction.
 - Worker terrain code must consume only the prewarmed managed swatch cache, never Unity textures or sprites directly.
 - Seasonal overlays, carried-resource layers, shadows, snow caps, selection bounds, and click colliders must still align after replacing a base sprite.
