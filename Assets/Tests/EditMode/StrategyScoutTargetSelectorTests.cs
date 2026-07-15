@@ -140,6 +140,14 @@ namespace ProjectUnknown.Strategy.EditorTests
                 StrategyResidentTaskState.GetFallbackKind(
                     StrategyResidentAgent.ResidentActivity.SurveyingFrontier),
                 Is.EqualTo(StrategyResidentTaskKind.Exploration));
+            Assert.That(
+                StrategyResidentTaskState.GetFallbackKind(
+                    StrategyResidentAgent.ResidentActivity.MovingToPointOfInterest),
+                Is.EqualTo(StrategyResidentTaskKind.Exploration));
+            Assert.That(
+                StrategyResidentTaskState.GetFallbackKind(
+                    StrategyResidentAgent.ResidentActivity.InvestigatingPointOfInterest),
+                Is.EqualTo(StrategyResidentTaskKind.Exploration));
 
             StrategyResidentTaskState state = new StrategyResidentTaskState();
             state.SetActivity(StrategyResidentAgent.ResidentActivity.SurveyingFrontier);
@@ -159,6 +167,21 @@ namespace ProjectUnknown.Strategy.EditorTests
                     "IsNightBlockedReachedActivity",
                     StrategyResidentAgent.ResidentActivity.MovingToScoutFrontier),
                 Is.False);
+            Assert.That(
+                InvokeNightActivityRule(
+                    "IsInterruptibleNightWorkActivity",
+                    StrategyResidentAgent.ResidentActivity.InvestigatingPointOfInterest),
+                Is.False);
+            Assert.That(
+                InvokeNightActivityRule(
+                    "IsNightBlockedReachedActivity",
+                    StrategyResidentAgent.ResidentActivity.MovingToPointOfInterest),
+                Is.False);
+            Assert.That(
+                InvokeNightActivityRule(
+                    "IsScoutActivity",
+                    StrategyResidentAgent.ResidentActivity.InvestigatingPointOfInterest),
+                Is.True);
             Assert.That(
                 InvokeNightActivityRule(
                     "IsInterruptibleNightWorkActivity",

@@ -1,21 +1,19 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace ProjectUnknown.Strategy
 {
     [DisallowMultipleComponent]
-    public sealed class StrategyRefugeeDialogController : MonoBehaviour
+    public sealed class StrategyPointOfInterestDialogController : MonoBehaviour
     {
         private CanvasGroup rootGroup;
+        private Text titleText;
         private Text bodyText;
-        private Text familyText;
         private StrategyUiPanelTransition panelTransition;
-        private Action<bool> decisionCallback;
+        private Action acknowledgedCallback;
         private bool initialized;
-        private bool decisionLocked;
+        private bool acknowledgementLocked;
         private StrategyInputRouter inputRouter;
         private StrategyInputContextHandle inputContext;
 
@@ -26,6 +24,9 @@ namespace ProjectUnknown.Strategy
                 ? panelTransition.IsInputShieldActive
                 : rootGroup != null && rootGroup.blocksRaycasts)
             || inputContext != null && !inputContext.IsDisposed;
+        public bool CanOpenWithoutStacking => inputRouter == null
+            || !inputRouter.IsAvailable
+            || inputRouter.ActiveContextCount == 0;
 
         public void SetInputRouter(StrategyInputRouter router)
         {
@@ -48,38 +49,23 @@ namespace ProjectUnknown.Strategy
             Hide();
         }
 
-        private void Awake()
+        public void Show(string title, string body, Action onAcknowledged)
         {
             Configure();
-        }
-
-        private void Update()
-        {
-            RefreshInputContext(ShouldHoldInputContext);
-        }
-
-        public void Show(IReadOnlyList<StrategyResidentAgent> family, Action<bool> onDecision)
-        {
-            Configure();
-            decisionCallback = onDecision;
-            decisionLocked = false;
-            if (bodyText != null)
-            {
-                bodyText.text = "A refugee family has reached the campfire. They are asking for shelter in the settlement.";
-            }
-
-            if (familyText != null)
-            {
-                familyText.text = BuildFamilyText(family);
-            }
-
+            acknowledgementLocked = false;
+            acknowledgedCallback = onAcknowledged;
+            titleText.text = string.IsNullOrWhiteSpace(title) ? "Point of Interest" : title;
+            bodyText.text = body ?? string.Empty;
             panelTransition.SetVisible(true);
             RefreshInputContext(true);
-            StrategyHudSfxAudio.Play(StrategyHudSfxKind.Notify);
+            if (Application.isPlaying)
+            {
+                StrategyHudSfxAudio.Play(StrategyHudSfxKind.Notify);
+            }
             StrategyDebugLogger.Info(
-                "Refugees",
+                "PointsOfInterest",
                 "DialogOpened",
-                StrategyDebugLogger.F("members", family != null ? family.Count : 0));
+                StrategyDebugLogger.F("title", titleText.text));
         }
 
         public void Hide()
@@ -93,8 +79,34 @@ namespace ProjectUnknown.Strategy
             RefreshInputContext(ShouldHoldInputContext);
         }
 
+        public void Dismiss()
+        {
+            acknowledgementLocked = true;
+            acknowledgedCallback = null;
+            Hide();
+        }
+
         private bool ShouldHoldInputContext => IsOpen
             || (panelTransition != null && panelTransition.IsInputShieldActive);
+
+        private void Awake()
+        {
+            Configure();
+        }
+
+        private void Update()
+        {
+            RefreshInputContext(ShouldHoldInputContext);
+        }
+
+        private void OnDisable()
+        {
+            acknowledgedCallback = null;
+            acknowledgementLocked = true;
+            inputContext?.Dispose();
+            inputContext = null;
+            panelTransition?.SetVisible(false, true);
+        }
 
         private void RefreshInputContext(bool open)
         {
@@ -114,39 +126,37 @@ namespace ProjectUnknown.Strategy
             }
         }
 
-        private void OnDisable()
+        private void Acknowledge()
         {
-            inputContext?.Dispose();
-            inputContext = null;
-            panelTransition?.SetVisible(false, true);
-        }
-
-        private void Choose(bool accepted)
-        {
-            if (decisionLocked)
+            if (acknowledgementLocked)
             {
                 return;
             }
 
-            decisionLocked = true;
-            Action<bool> callback = decisionCallback;
-            decisionCallback = null;
+            acknowledgementLocked = true;
+            Action callback = acknowledgedCallback;
+            acknowledgedCallback = null;
             Hide();
-            StrategyHudSfxAudio.Play(accepted ? StrategyHudSfxKind.Confirm : StrategyHudSfxKind.Cancel);
-            StrategyDebugLogger.Info(
-                "Refugees",
-                accepted ? "DialogAccepted" : "DialogRejected");
-            callback?.Invoke(accepted);
+            if (Application.isPlaying)
+            {
+                StrategyHudSfxAudio.Play(StrategyHudSfxKind.Confirm);
+            }
+            StrategyDebugLogger.Info("PointsOfInterest", "DialogAcknowledged");
+            callback?.Invoke();
         }
 
         private void BuildUi()
         {
-            GameObject canvasObject = new GameObject("RefugeeDialogCanvas", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
+            GameObject canvasObject = new GameObject(
+                "PointOfInterestDialogCanvas",
+                typeof(Canvas),
+                typeof(CanvasScaler),
+                typeof(GraphicRaycaster));
             canvasObject.transform.SetParent(transform, false);
 
             Canvas canvas = canvasObject.GetComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            canvas.sortingOrder = 240;
+            canvas.sortingOrder = 270;
 
             CanvasScaler scaler = canvasObject.GetComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
@@ -165,12 +175,12 @@ namespace ProjectUnknown.Strategy
             panel.anchorMax = new Vector2(0.5f, 0.5f);
             panel.pivot = new Vector2(0.5f, 0.5f);
             panel.anchoredPosition = Vector2.zero;
-            panel.sizeDelta = new Vector2(560f, 390f);
+            panel.sizeDelta = new Vector2(520f, 286f);
 
             Image background = panel.gameObject.AddComponent<Image>();
-            background.color = new Color(0.06f, 0.09f, 0.09f, 0.98f);
+            background.color = new Color(0.055f, 0.08f, 0.08f, 0.98f);
             Outline outline = panel.gameObject.AddComponent<Outline>();
-            outline.effectColor = new Color(0f, 0f, 0f, 0.52f);
+            outline.effectColor = new Color(0f, 0f, 0f, 0.55f);
             outline.effectDistance = new Vector2(2f, -2f);
 
             RectTransform accent = CreateUiObject("Accent", panel).GetComponent<RectTransform>();
@@ -183,59 +193,66 @@ namespace ProjectUnknown.Strategy
             accentImage.color = new Color(0.86f, 0.63f, 0.28f, 1f);
             accentImage.raycastTarget = false;
 
-            Text title = CreateText("Title", panel, "Refugees", 27, TextAnchor.UpperLeft, Color.white);
-            title.fontStyle = FontStyle.Bold;
-            SetTopStretch(title.rectTransform, 28f, 24f, 28f, 34f);
+            titleText = CreateText(
+                "Title",
+                panel,
+                "Point of Interest",
+                26,
+                TextAnchor.UpperLeft,
+                Color.white);
+            titleText.fontStyle = FontStyle.Bold;
+            SetTopStretch(titleText.rectTransform, 28f, 25f, 28f, 34f);
 
-            Text subtitle = CreateText("Subtitle", panel, "settlement decision", 14, TextAnchor.UpperLeft, new Color(0.86f, 0.70f, 0.42f));
+            Text subtitle = CreateText(
+                "Subtitle",
+                panel,
+                "SCOUT REPORT",
+                13,
+                TextAnchor.UpperLeft,
+                new Color(0.86f, 0.70f, 0.42f));
             subtitle.fontStyle = FontStyle.Bold;
-            SetTopStretch(subtitle.rectTransform, 28f, 60f, 28f, 20f);
+            SetTopStretch(subtitle.rectTransform, 28f, 61f, 28f, 18f);
 
             RectTransform line = CreateUiObject("Line", panel).GetComponent<RectTransform>();
-            SetTopStretch(line, 28f, 92f, 28f, 2f);
+            SetTopStretch(line, 28f, 91f, 28f, 2f);
             Image lineImage = line.gameObject.AddComponent<Image>();
             lineImage.color = new Color(1f, 1f, 1f, 0.22f);
             lineImage.raycastTarget = false;
 
-            bodyText = CreateText("Body", panel, string.Empty, 15, TextAnchor.UpperLeft, new Color(0.83f, 0.90f, 0.86f));
+            bodyText = CreateText(
+                "Body",
+                panel,
+                string.Empty,
+                16,
+                TextAnchor.UpperLeft,
+                new Color(0.83f, 0.90f, 0.86f));
             bodyText.resizeTextForBestFit = true;
             bodyText.resizeTextMinSize = 12;
-            bodyText.resizeTextMaxSize = 15;
-            SetTopStretch(bodyText.rectTransform, 28f, 112f, 28f, 56f);
+            bodyText.resizeTextMaxSize = 16;
+            SetTopStretch(bodyText.rectTransform, 28f, 112f, 28f, 90f);
 
-            RectTransform familyBox = CreateUiObject("FamilyBox", panel).GetComponent<RectTransform>();
-            SetTopStretch(familyBox, 28f, 182f, 28f, 106f);
-            Image familyBackground = familyBox.gameObject.AddComponent<Image>();
-            familyBackground.color = new Color(1f, 1f, 1f, 0.12f);
-            familyText = CreateText("FamilyText", familyBox, string.Empty, 14, TextAnchor.UpperLeft, new Color(0.88f, 0.94f, 0.90f));
-            familyText.fontStyle = FontStyle.Bold;
-            familyText.resizeTextForBestFit = true;
-            familyText.resizeTextMinSize = 10;
-            familyText.resizeTextMaxSize = 14;
-            Stretch(familyText.rectTransform, 14f, 10f, 14f, 10f);
-
-            CreateDecisionButton(panel, "Accept", "Accept", new Vector2(-112f, 28f), new Color(0.22f, 0.39f, 0.30f, 0.98f), true);
-            CreateDecisionButton(panel, "Reject", "Refuse", new Vector2(112f, 28f), new Color(0.34f, 0.18f, 0.17f, 0.98f), false);
+            CreateOkButton(panel);
 
             panelTransition = root.gameObject.AddComponent<StrategyUiPanelTransition>();
-            panelTransition.Configure(rootGroup, panel, new Vector2(0f, -18f), 0.96f, 0.20f, 0.14f);
+            panelTransition.Configure(rootGroup, panel, new Vector2(0f, -16f), 0.965f, 0.18f, 0.13f);
             panelTransition.SetVisible(false, true);
         }
 
-        private void CreateDecisionButton(RectTransform parent, string name, string label, Vector2 anchoredPosition, Color color, bool accepted)
+        private void CreateOkButton(RectTransform parent)
         {
-            RectTransform root = CreateUiObject(name, parent).GetComponent<RectTransform>();
+            RectTransform root = CreateUiObject("OkButton", parent).GetComponent<RectTransform>();
             root.anchorMin = new Vector2(0.5f, 0f);
             root.anchorMax = new Vector2(0.5f, 0f);
             root.pivot = new Vector2(0.5f, 0f);
-            root.anchoredPosition = anchoredPosition;
+            root.anchoredPosition = new Vector2(0f, 26f);
             root.sizeDelta = new Vector2(188f, 46f);
 
+            Color color = new Color(0.22f, 0.39f, 0.30f, 0.98f);
             Image image = root.gameObject.AddComponent<Image>();
             image.color = color;
             Button button = root.gameObject.AddComponent<Button>();
             button.targetGraphic = image;
-            button.onClick.AddListener(() => Choose(accepted));
+            button.onClick.AddListener(Acknowledge);
 
             ColorBlock colors = button.colors;
             colors.normalColor = color;
@@ -246,73 +263,9 @@ namespace ProjectUnknown.Strategy
             button.colors = colors;
             StrategyUiButtonFeedback.Attach(button, StrategyUiButtonFeedbackProfile.Standard, null);
 
-            Text text = CreateText("Label", root, label, 16, TextAnchor.MiddleCenter, Color.white);
-            text.fontStyle = FontStyle.Bold;
-            Stretch(text.rectTransform, 0f, 0f, 0f, 1f);
-        }
-
-        private static string BuildFamilyText(IReadOnlyList<StrategyResidentAgent> family)
-        {
-            if (family == null || family.Count <= 0)
-            {
-                return "Family: no data";
-            }
-
-            StringBuilder builder = new StringBuilder(192);
-            for (int i = 0; i < family.Count; i++)
-            {
-                StrategyResidentAgent resident = family[i];
-                if (resident == null)
-                {
-                    continue;
-                }
-
-                if (builder.Length > 0)
-                {
-                    builder.Append('\n');
-                }
-
-                string role = GetFamilyRole(resident);
-                builder.Append(resident.FullName);
-                builder.Append("  -  ");
-                builder.Append(role);
-                builder.Append(", ");
-                builder.Append(resident.DisplayAgeYears);
-                builder.Append(" ");
-                builder.Append(GetAgeSuffix(resident.DisplayAgeYears));
-            }
-
-            return builder.ToString();
-        }
-
-        private static string GetFamilyRole(StrategyResidentAgent resident)
-        {
-            if (resident == null)
-            {
-                return "family member";
-            }
-
-            if (!resident.IsAdult)
-            {
-                return resident.Gender == StrategyResidentGender.Male ? "son" : "daughter";
-            }
-
-            return resident.Gender == StrategyResidentGender.Male ? "father" : "mother";
-        }
-
-        private static string GetAgeSuffix(int age)
-        {
-            int mod100 = age % 100;
-            if (mod100 >= 11 && mod100 <= 14)
-            {
-                return "years";
-            }
-
-            return age % 10 == 1
-                ? "year"
-                : age % 10 >= 2 && age % 10 <= 4
-                    ? "years"
-                    : "years";
+            Text label = CreateText("Label", root, "OK", 16, TextAnchor.MiddleCenter, Color.white);
+            label.fontStyle = FontStyle.Bold;
+            Stretch(label.rectTransform, 0f, 0f, 0f, 1f);
         }
 
         private static GameObject CreateUiObject(string name, Transform parent)
@@ -322,7 +275,13 @@ namespace ProjectUnknown.Strategy
             return obj;
         }
 
-        private static Text CreateText(string name, Transform parent, string value, int size, TextAnchor anchor, Color color)
+        private static Text CreateText(
+            string name,
+            Transform parent,
+            string value,
+            int size,
+            TextAnchor anchor,
+            Color color)
         {
             RectTransform root = CreateUiObject(name, parent).GetComponent<RectTransform>();
             Text text = root.gameObject.AddComponent<Text>();

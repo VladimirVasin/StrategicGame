@@ -309,12 +309,18 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Tracks persistent explored cells separately from current visible cells
       - Starter camp, residents, and placed buildings act as visibility sources
       - Assigned Scouts physically travel to explored walkable frontier cells, so their normal resident reveal source expands persistent explored state without a second fog mutation path
+      - Point-of-interest targeting reads persistent explored state directly, so the F9 player-fog bypass cannot reveal landmarks to Scouts
       - Dusk/Night/Dawn reduce camp, resident, and building reveal radii without clearing persistent explored memory
       - Dense Fog weather further reduces camp, resident, and building reveal radii
       - Unexplored cells are fully black, visible cells are clear, and explored-but-not-visible cells are dimmed during day, much darker at night, or replaced by layered weather fog during Fog weather
       - Weather fog bands keep cells within 2 cells of visibility lightly fogged, within 4 cells medium fogged, and farther explored cells densely fogged
       - Maintains a daylight-range visibility mask for systems that need "hidden from the player" checks without letting night darkness create extra spawn openings
       - Exposes a player fog off/on switch for the F9 debug panel without clearing explored state
+    - Points of interest
+      - Places 10 seed-deterministic schematic landmarks on separated camp-connected walkable/buildable land cells
+      - Leaves landmark cells walkable while blocking construction and future forage respawn overlap
+      - Reserves discovered uninvestigated landmarks across Scouts, applies bounded unreachable cooldowns, and marks completed landmarks with a check state
+      - Queues one-button debug encounters after completed Scout investigations
     - Basic buildability data reserved for future economy/zoning
     - Dynamic walkability layer for runtime blockers such as placed buildings
   - Strategy camera
@@ -584,6 +590,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Residents assigned to a fisher hut reserve the nearest reachable in-range fish, move to shore, cast/reel while range remains valid, carry `Fish`, and deposit it into fisher hut stock
     - Residents assigned to a Forager Camp reserve generated Berries/Roots/Mushrooms nodes, gather forage with reach/crouch animation frames, and deposit it into camp stock
     - Residents assigned to a Scout Lodge reserve distinct walkable unknown-side frontier cells, use critical navigation plus short bounded retries, survey for 2.5-3.5 seconds, and repeat day and night while their ordinary Fog of War reveal radius uncovers the map
+    - Scouts prioritize the nearest persistently discovered uninvestigated point of interest, reserve it globally, travel to it, interact for 1.5-2.5 seconds, and resume frontier exploration after completion
     - Residents assigned as Haulers path to lumberjack camp stock, carry Logs to storage, and deposit them
     - Residents assigned as Haulers also path to stonecutter camp stock, carry Stone to storage, and deposit it
     - Residents assigned as Haulers also path to Mine stock, carry Iron to storage, and deposit it
@@ -667,6 +674,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - `Auto Assign` toggle plus compact priority steppers for Construction, Food, Logistics, Wood, Stone, Planks, Iron, Coal, Clay, Pottery, and Tools
   - Custom modal refugee decision HUD pauses the simulation and asks whether to accept or reject arriving families
   - Custom reusable confirmation dialog for destructive actions such as cancelling construction or demolishing buildings
+  - Custom queued point-of-interest debug dialog pauses the simulation, blocks all input, swallows cancel, and exposes exactly one `OK` action
 
 - Testing foundation
   - Unity Test Framework package installed
@@ -681,10 +689,10 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Gameplay can be rendered at deterministic Noon, Spring, Autumn, Night, and Winter states for visual comparison when a graphics device is available
 
 - Persistence
-  - Version-3 JSON save data with v1/v2 migration, validation, atomic temporary-file replacement, and `.bak` recovery
+  - Version-4 JSON save data with v1/v2/v3 migration, validation, atomic temporary-file replacement, and `.bak` recovery
   - F5 saves the current settlement; F8 loads it by restarting and restoring the runtime scene
   - Stable IDs reconnect placed buildings, residents, homes, parents, and children without serializing Unity object references
-  - Snapshot coverage includes map seed/time/weather, founding profile answers and exact camp/current-cart origin, first-winter milestones, buildings, construction sites, resource and dish stock, residents and cold state, loose resources, explored fog, and route-road cells
+  - Snapshot coverage includes map seed/time/weather, founding profile answers and exact camp/current-cart origin, first-winter milestones, buildings, construction sites, resource and dish stock, residents and cold state, loose resources, explored fog, route-road cells, and point-of-interest position/investigated state
 
 - AI collaboration memory
   - Root entry point: `AI.md`
@@ -705,6 +713,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Authored building geometry feeds shared final/construction pivots plus runtime stock, work, effect, and light anchors; Forager Camp, Chicken Coop, and the procedural Scout Lodge retain declared single-variant normalization, and legacy saved variants normalize through the shared profile.
 - Bridge rendering depends on the selected span/orientation, the 12 modular final/construction catalog sequences, and runtime module composition; bridge placement and River walkability remain independent gameplay owners.
 - Fog of war uses population, residents, placed-building records, the shared day/night phase, and weather Fog intensity as visibility inputs; Scout Lodge target selection reads persistent explored state while moving Scouts reveal through the existing resident source, placement and world selection consult exploration state, refugee arrivals use daylight-range visible boundaries for in-map entry staging, and the F9 debug panel can bypass player fog for testing.
+- Points of interest depend on generated-map seed/connectivity/buildability, forage occupancy, persistent Fog of War discovery, Scout navigation/reservations, the modal input/pause stack, and versioned persistence; investigated state does not mutate fog or create a second exploration model.
 - Terrain rendering uses generated map cell kinds, visual relief height, seeded tile variants, neighbor transition overlays, a runtime water/shore animation overlay, and weather visual overlays.
 - Weather depends on generated map bounds, the strategy camera, day/night/fog sorting bands, the strategy wind source, water animation, placed-building sprites, fish/fishing gameplay state, and ambience audio.
 - Resident work/rest scheduling depends on the shared day/night phase so production, construction, logistics, hunting, fishing, and household-food tasks only start during settlement work time, while night-light tasks depend on day/night, cinematic light sources, roads/buildings, housed adult lamp-worker scheduling, dynamic outdoor-adult light coverage, and hand-carried torch animations/lights; housed idle residents sleep inside homes, homeless idle residents sleep around the startup campfire, and standalone Chicken Coop chickens visually shelter inside during `Night`.

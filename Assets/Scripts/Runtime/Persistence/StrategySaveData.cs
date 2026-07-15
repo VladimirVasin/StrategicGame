@@ -6,7 +6,7 @@ namespace ProjectUnknown.Strategy
     [Serializable]
     public sealed class StrategySaveData
     {
-        public const int CurrentVersion = 3;
+        public const int CurrentVersion = 4;
 
         public int version = CurrentVersion;
         public long savedUtcTicks;
@@ -23,6 +23,7 @@ namespace ProjectUnknown.Strategy
         public List<StrategyConstructionSiteSaveData> constructionSites = new();
         public List<StrategyResidentSaveData> residents = new();
         public List<StrategyLooseResourceSaveData> looseResources = new();
+        public List<StrategyPointOfInterestSaveData> pointsOfInterest = new();
         public List<int> exploredCells = new();
         public List<int> trailCells = new();
     }
@@ -128,6 +129,15 @@ namespace ProjectUnknown.Strategy
         public int logs;
         public int stone;
         public int planks;
+    }
+
+    [Serializable]
+    public sealed class StrategyPointOfInterestSaveData
+    {
+        public string stableId = string.Empty;
+        public int cellX;
+        public int cellY;
+        public bool investigated;
     }
 
     [Serializable]

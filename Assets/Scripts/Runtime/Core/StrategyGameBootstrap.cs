@@ -245,6 +245,28 @@ namespace ProjectUnknown.Strategy
                 }
             }
 
+            StrategyPointOfInterestDialogController pointOfInterestDialog =
+                context.GetOrCreate<StrategyPointOfInterestDialogController>("Strategy Point Of Interest Dialog");
+            pointOfInterestDialog.SetInputRouter(inputRouter);
+            pointOfInterestDialog.Configure();
+            StrategyPointOfInterestController pointsOfInterest =
+                context.GetOrCreate<StrategyPointOfInterestController>("Strategy Points Of Interest");
+            Vector2Int pointOfInterestCampCell = population.TryGetCampCell(out Vector2Int activeCampCell)
+                ? activeCampCell
+                : new Vector2Int(map.Width / 2, map.Height / 2);
+            pointsOfInterest.Configure(
+                map,
+                fog,
+                placement,
+                timeScale,
+                pointOfInterestDialog,
+                pointOfInterestCampCell,
+                !StrategySaveSystem.HasPendingLoad);
+            StrategyDebugLogger.Info(
+                "Bootstrap",
+                "PointsOfInterestReady",
+                StrategyDebugLogger.F("generatedImmediately", !StrategySaveSystem.HasPendingLoad));
+
             ConfigureWorldChunks(context, map, population, mainCamera);
             cinematicVisuals.RefreshSceneLightingNow();
             StrategyDebugLogger.Info("Bootstrap", "FogAndPlacementReady");

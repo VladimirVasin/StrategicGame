@@ -14,12 +14,10 @@ namespace ProjectUnknown.Strategy.EditorTests
             legacy.version = 1;
             legacy.buildings[0].preparedDishIds = null;
             legacy.buildings[0].preparedDishAmounts = null;
+            legacy.pointsOfInterest = null;
 
             bool loaded = StrategySaveSystem.TryDeserializeAndValidate(
-                JsonUtility.ToJson(legacy),
-                out StrategySaveData restored,
-                out string reason,
-                out bool migrated);
+                JsonUtility.ToJson(legacy), out StrategySaveData restored, out string reason, out bool migrated);
 
             Assert.That(loaded, Is.True, reason);
             Assert.That(migrated, Is.True);
@@ -29,6 +27,7 @@ namespace ProjectUnknown.Strategy.EditorTests
             Assert.That(restored.foundingStart, Is.Not.Null);
             Assert.That(restored.foundingStart.hasStarterCamp, Is.False);
             Assert.That(restored.foundingStart.answers, Is.Empty);
+            Assert.That(restored.pointsOfInterest, Is.Empty);
         }
 
         [Test]
@@ -37,12 +36,10 @@ namespace ProjectUnknown.Strategy.EditorTests
             StrategySaveData legacy = CreateValidSave();
             legacy.version = 2;
             legacy.foundingStart = CreateFoundingStart();
+            legacy.pointsOfInterest = null;
 
             bool loaded = StrategySaveSystem.TryDeserializeAndValidate(
-                JsonUtility.ToJson(legacy),
-                out StrategySaveData restored,
-                out string reason,
-                out bool migrated);
+                JsonUtility.ToJson(legacy), out StrategySaveData restored, out string reason, out bool migrated);
 
             Assert.That(loaded, Is.True, reason);
             Assert.That(migrated, Is.True);
@@ -52,6 +49,23 @@ namespace ProjectUnknown.Strategy.EditorTests
             Assert.That(restored.foundingStart.profileVersion, Is.Zero);
             Assert.That(restored.foundingStart.profileId, Is.Empty);
             Assert.That(restored.foundingStart.answers, Is.Empty);
+            Assert.That(restored.pointsOfInterest, Is.Empty);
+        }
+
+        [Test]
+        public void Version3MigratesWithEmptyPointsOfInterest()
+        {
+            StrategySaveData legacy = CreateValidSave();
+            legacy.version = 3;
+            legacy.pointsOfInterest = null;
+
+            bool loaded = StrategySaveSystem.TryDeserializeAndValidate(
+                JsonUtility.ToJson(legacy), out StrategySaveData restored, out string reason, out bool migrated);
+
+            Assert.That(loaded, Is.True, reason);
+            Assert.That(migrated, Is.True);
+            Assert.That(restored.version, Is.EqualTo(StrategySaveData.CurrentVersion));
+            Assert.That(restored.pointsOfInterest, Is.Empty);
         }
 
         [Test]
@@ -59,6 +73,7 @@ namespace ProjectUnknown.Strategy.EditorTests
         {
             StrategySaveData save = CreateValidSave();
             save.foundingStart = CreateFoundingStart();
+            save.pointsOfInterest.Add(CreatePointOfInterest("poi-roundtrip", 12, 13));
 
             bool loaded = StrategySaveSystem.TryDeserializeAndValidate(
                 JsonUtility.ToJson(save),
@@ -79,6 +94,9 @@ namespace ProjectUnknown.Strategy.EditorTests
             Assert.That(restored.foundingStart.answers, Has.Count.EqualTo(2));
             Assert.That(restored.foundingStart.answers[0].questionId, Is.EqualTo("water"));
             Assert.That(restored.foundingStart.answers[0].answerId, Is.EqualTo("near-river"));
+            Assert.That(restored.pointsOfInterest, Has.Count.EqualTo(1));
+            Assert.That(restored.pointsOfInterest[0].stableId, Is.EqualTo("poi-roundtrip"));
+            Assert.That(restored.pointsOfInterest[0].investigated, Is.True);
         }
 
         [Test]
@@ -196,6 +214,19 @@ namespace ProjectUnknown.Strategy.EditorTests
 
             Assert.That(StrategySaveSystem.ValidateSaveData(save, out string reason), Is.False);
             Assert.That(reason, Does.StartWith("invalid_or_duplicate_building_id_"));
+        }
+
+        [TestCase("poi-a", 11, 11, "invalid_or_duplicate_point_of_interest_id_")]
+        [TestCase("poi-b", 10, 10, "invalid_or_duplicate_point_of_interest_cell_")]
+        [TestCase("poi-b", 64, 11, "invalid_or_duplicate_point_of_interest_cell_")]
+        public void InvalidPointOfInterestIdentifiersAndCellsAreRejected(
+            string secondId, int secondX, int secondY, string reasonPrefix)
+        {
+            StrategySaveData save = CreateValidSave();
+            save.pointsOfInterest.Add(CreatePointOfInterest("poi-a", 10, 10));
+            Assert.That(StrategySaveSystem.ValidateSaveData(save, out string validReason), Is.True, validReason);
+            save.pointsOfInterest.Add(CreatePointOfInterest(secondId, secondX, secondY));
+            AssertInvalidReasonStartsWith(save, reasonPrefix);
         }
 
         [Test]
@@ -433,6 +464,11 @@ namespace ProjectUnknown.Strategy.EditorTests
                 answerId = "forest-edge"
             });
             return data;
+        }
+
+        private static StrategyPointOfInterestSaveData CreatePointOfInterest(string id, int x, int y)
+        {
+            return new StrategyPointOfInterestSaveData { stableId = id, cellX = x, cellY = y, investigated = true };
         }
 
         private static string CreateTemporaryDirectory()

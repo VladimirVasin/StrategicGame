@@ -337,6 +337,7 @@ namespace ProjectUnknown.Strategy
         {
             resource = StrategyResourceType.None;
             if (usedCells.Contains(cell)
+                || StrategyPointOfInterestController.Active?.HasPointAt(cell) == true
                 || IsTooCloseToStarter(cell, 3)
                 || !HasLocalForageRoom(cell)
                 || !map.IsCellWalkable(cell)

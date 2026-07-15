@@ -300,6 +300,7 @@ namespace ProjectUnknown.Strategy
                 && map.TryGetCell(cell.x, cell.y, out CityMapCell mapCell)
                 && IsPlantableKind(mapCell.Kind)
                 && map.IsCellWalkable(cell)
+                && StrategyPointOfInterestController.Active?.HasPointAt(cell) != true
                 && HasNearbyPlantingWorkCell(cell)
                 && !HasTreeAt(cell);
         }

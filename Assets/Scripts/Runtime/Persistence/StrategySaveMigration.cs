@@ -28,6 +28,9 @@ namespace ProjectUnknown.Strategy
                     case 2:
                         MigrateVersion2To3(data);
                         break;
+                    case 3:
+                        MigrateVersion3To4(data);
+                        break;
                     default:
                         reason = "missing_migration_from_version_" + data.version;
                         return false;
@@ -51,12 +54,19 @@ namespace ProjectUnknown.Strategy
             data.version = 3;
         }
 
+        private static void MigrateVersion3To4(StrategySaveData data)
+        {
+            data.pointsOfInterest ??= new List<StrategyPointOfInterestSaveData>();
+            data.version = 4;
+        }
+
         private static void NormalizeCollections(StrategySaveData data)
         {
             data.buildings ??= new List<StrategyBuildingSaveData>();
             data.constructionSites ??= new List<StrategyConstructionSiteSaveData>();
             data.residents ??= new List<StrategyResidentSaveData>();
             data.looseResources ??= new List<StrategyLooseResourceSaveData>();
+            data.pointsOfInterest ??= new List<StrategyPointOfInterestSaveData>();
             data.exploredCells ??= new List<int>();
             data.trailCells ??= new List<int>();
             data.foundingStart ??= new StrategyFoundingStartSaveData();

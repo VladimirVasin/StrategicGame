@@ -238,6 +238,12 @@
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentSpriteFactory.NightTorch.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyStorageYard.Part03.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyMapDistributionUtility.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Map\StrategyPointOfInterest.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Map\StrategyPointOfInterestController.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Map\StrategyPointOfInterestController.Notices.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Map\StrategyPointOfInterestController.Persistence.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Map\StrategyPointOfInterestPlacement.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Map\StrategyPointOfInterestSpriteFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildPlacementController.Persistence.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWildlifeController.Part10.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part37.cs" />
@@ -278,6 +284,7 @@
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyPostProcessController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyNightLightSource.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyConfirmationDialogController.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyPointOfInterestDialogController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part30.cs" />
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyTradeCaravanController.Pathing.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategySawmill.Part01.cs" />

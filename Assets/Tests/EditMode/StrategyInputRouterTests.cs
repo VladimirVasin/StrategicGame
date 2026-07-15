@@ -5,6 +5,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 namespace ProjectUnknown.Strategy.EditorTests
 {
@@ -263,6 +264,64 @@ namespace ProjectUnknown.Strategy.EditorTests
             {
                 Object.DestroyImmediate(dialogObject);
                 Object.DestroyImmediate(secondRouterObject);
+                if (existingEventSystem == null)
+                {
+                    EventSystem createdEventSystem = Object.FindAnyObjectByType<EventSystem>();
+                    if (createdEventSystem != null)
+                    {
+                        Object.DestroyImmediate(createdEventSystem.gameObject);
+                    }
+                }
+            }
+        }
+
+        [Test]
+        public void PointOfInterestDialogUsesOneAcknowledgementAndSwallowsCancel()
+        {
+            InputActionAsset asset = CreateCompleteAsset();
+            Assert.That(router.Configure(asset), Is.True, router.ConfigurationError);
+            EventSystem existingEventSystem = Object.FindAnyObjectByType<EventSystem>();
+            GameObject dialogObject = new GameObject("Test Point Of Interest Dialog");
+            try
+            {
+                StrategyPointOfInterestDialogController dialog =
+                    dialogObject.AddComponent<StrategyPointOfInterestDialogController>();
+                dialog.SetInputRouter(router);
+                dialog.Configure();
+                StrategyInputContextHandle externalContext = router.PushContext(
+                    this,
+                    StrategyInputChannel.All,
+                    StrategyCancelMode.Swallow);
+                Assert.That(dialog.CanOpenWithoutStacking, Is.False);
+                externalContext.Dispose();
+                Assert.That(dialog.CanOpenWithoutStacking, Is.True);
+                int acknowledgements = 0;
+                dialog.Show("Point of Interest", "Debug discovery", () => acknowledgements++);
+
+                Assert.That(dialog.IsOpen, Is.True);
+                Assert.That(dialog.CanOpenWithoutStacking, Is.False);
+                Assert.That(router.ActiveContextCount, Is.EqualTo(1));
+                Assert.That(router.BlockedChannels, Is.EqualTo(StrategyInputChannel.All));
+                Assert.That(router.TopCancelMode, Is.EqualTo(StrategyCancelMode.Swallow));
+                Button[] buttons = dialog.GetComponentsInChildren<Button>(true);
+                Assert.That(buttons, Has.Length.EqualTo(1));
+                Assert.That(buttons[0].name, Is.EqualTo("OkButton"));
+
+                buttons[0].onClick.Invoke();
+                buttons[0].onClick.Invoke();
+                Assert.That(acknowledgements, Is.EqualTo(1));
+                Assert.That(dialog.IsOpen, Is.False);
+                dialog.Show("Point of Interest", "Lifecycle cleanup", () => acknowledgements++);
+                dialog.Dismiss();
+                buttons[0].onClick.Invoke();
+                Assert.That(acknowledgements, Is.EqualTo(1));
+                Assert.That(dialog.IsOpen, Is.False);
+                dialogObject.SetActive(false);
+                Assert.That(router.ActiveContextCount, Is.Zero);
+            }
+            finally
+            {
+                Object.DestroyImmediate(dialogObject);
                 if (existingEventSystem == null)
                 {
                     EventSystem createdEventSystem = Object.FindAnyObjectByType<EventSystem>();

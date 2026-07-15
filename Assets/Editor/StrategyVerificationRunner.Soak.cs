@@ -27,7 +27,7 @@ namespace ProjectUnknown.Strategy.EditorTests
         private static int soakMaximumResidents;
         private static int soakMaximumBuildings;
         private static int soakMaximumNavigationPending;
-        private static int soakResolvedRefugeeDialogs;
+        private static int soakResolvedDialogs;
         private static long soakStartMemory;
         private static long soakMaximumMemory;
         private static float soakStartElapsed;
@@ -112,7 +112,7 @@ namespace ProjectUnknown.Strategy.EditorTests
                 soakMaximumResidents,
                 soakMaximumBuildings,
                 soakMaximumNavigationPending,
-                soakResolvedRefugeeDialogs,
+                soakResolvedDialogs,
                 errorCount,
                 memoryDelta,
                 peakMemoryGrowth,
@@ -186,11 +186,54 @@ namespace ProjectUnknown.Strategy.EditorTests
         {
             StrategyInputRouter router = UnityEngine.Object.FindAnyObjectByType<StrategyInputRouter>();
             Require(router != null, "Input router is missing during soak");
+            StrategyPointOfInterestDialogController pointDialog =
+                UnityEngine.Object.FindAnyObjectByType<StrategyPointOfInterestDialogController>();
+            if (pointDialog != null && pointDialog.IsOpen)
+            {
+                StrategyTimeScaleController pointTimeScale =
+                    UnityEngine.Object.FindAnyObjectByType<StrategyTimeScaleController>();
+                Require(router.ActiveContextCount == 1, "Point-of-interest dialog created an unexpected input-context stack");
+                Require(router.BlockedChannels == StrategyInputChannel.All, "Point-of-interest dialog did not block all input channels");
+                Require(router.TopCancelMode == StrategyCancelMode.Swallow, "Point-of-interest dialog did not swallow cancellation");
+                Require(pointTimeScale != null && pointTimeScale.IsPausedByLock, "Point-of-interest dialog did not hold a pause lock");
+
+                Button[] pointButtons = pointDialog.GetComponentsInChildren<Button>(true);
+                Button okButton = null;
+                int okButtonCount = 0;
+                for (int i = 0; i < pointButtons.Length; i++)
+                {
+                    if (pointButtons[i] != null && pointButtons[i].name == "OkButton")
+                    {
+                        okButton = pointButtons[i];
+                        okButtonCount++;
+                    }
+                }
+
+                Require(okButtonCount == 1, "Point-of-interest dialog must expose exactly one OK action");
+                okButton.onClick.Invoke();
+                soakResolvedDialogs++;
+                return;
+            }
+
+            if (pointDialog != null && pointDialog.IsInputShieldActive)
+            {
+                Require(router.ActiveContextCount == 1, "Point-of-interest dialog closing shield lost its input context");
+                return;
+            }
+
             StrategyRefugeeDialogController dialog =
                 UnityEngine.Object.FindAnyObjectByType<StrategyRefugeeDialogController>();
             if (dialog == null || !dialog.IsOpen)
             {
-                Require(router.ActiveContextCount == 0, "Input contexts leaked outside an active modal dialog");
+                if (dialog != null && dialog.IsInputShieldActive)
+                {
+                    Require(router.ActiveContextCount == 1, "Refugee dialog closing shield lost its input context");
+                }
+                else
+                {
+                    Require(router.ActiveContextCount == 0, "Input contexts leaked outside an active modal dialog");
+                }
+
                 return;
             }
 
@@ -212,9 +255,10 @@ namespace ProjectUnknown.Strategy.EditorTests
 
             Require(rejectButtonCount == 1, "Refugee dialog must expose exactly one reject action");
             rejectButton.onClick.Invoke();
-            soakResolvedRefugeeDialogs++;
+            soakResolvedDialogs++;
             Require(!dialog.IsOpen, "Refugee dialog remained open after its reject action");
-            Require(router.ActiveContextCount == 0, "Refugee dialog input context was not released");
+            Require(dialog.IsInputShieldActive, "Refugee dialog dropped its closing input shield early");
+            Require(router.ActiveContextCount == 1, "Refugee dialog closing shield lost its input context");
         }
 
         private static void CleanupSoak()
@@ -232,7 +276,7 @@ namespace ProjectUnknown.Strategy.EditorTests
             soakMaximumResidents = 0;
             soakMaximumBuildings = 0;
             soakMaximumNavigationPending = 0;
-            soakResolvedRefugeeDialogs = 0;
+            soakResolvedDialogs = 0;
             soakStartMemory = 0;
             soakMaximumMemory = 0;
             soakStartElapsed = 0f;

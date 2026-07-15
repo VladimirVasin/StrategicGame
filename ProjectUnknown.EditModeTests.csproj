@@ -53,9 +53,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Tests\EditMode\StrategyBridgeVisualProfileTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyPointOfInterestPlacementTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyForagerCampVisualProfileTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyLogFileRotationTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyStartSiteSelectorTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyPointOfInterestSaveValidationTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyUiButtonFeedbackTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyResidentCharacterizationTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyVerificationTests.cs" />

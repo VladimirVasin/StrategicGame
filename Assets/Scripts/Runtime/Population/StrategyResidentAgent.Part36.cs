@@ -131,7 +131,8 @@ namespace ProjectUnknown.Strategy
             }
 
             StrategyResidentPerformanceCounters.RecordPathRequest();
-            bool isScoutRoute = activity == ResidentActivity.MovingToScoutFrontier;
+            bool isScoutRoute = activity is ResidentActivity.MovingToScoutFrontier
+                or ResidentActivity.MovingToPointOfInterest;
             StrategyNavigationStatus status = movement.TryBuildPath(
                 startCell,
                 targetCell,

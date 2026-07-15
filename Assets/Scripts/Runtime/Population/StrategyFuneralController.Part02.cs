@@ -120,7 +120,7 @@ namespace ProjectUnknown.Strategy
             for (int i = 0; i < funeral.ExpectedBurialAttendees.Count; i++)
             {
                 StrategyResidentAgent attendee = funeral.ExpectedBurialAttendees[i];
-                if (attendee == null)
+                if (attendee == null || attendee.IsOnScoutExpedition)
                 {
                     continue;
                 }
@@ -135,7 +135,7 @@ namespace ProjectUnknown.Strategy
             for (int i = 0; i < funeral.ExpectedBurialAttendees.Count; i++)
             {
                 StrategyResidentAgent attendee = funeral.ExpectedBurialAttendees[i];
-                if (attendee != null && attendee.IsAdult)
+                if (attendee != null && attendee.IsAdult && !attendee.IsOnScoutExpedition)
                 {
                     return attendee;
                 }

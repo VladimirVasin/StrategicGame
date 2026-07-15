@@ -106,6 +106,11 @@ namespace ProjectUnknown.Strategy
                 return IsCellInsideMap(cell);
             }
 
+            return IsCellPersistentlyExplored(cell);
+        }
+
+        public bool IsCellPersistentlyExplored(Vector2Int cell)
+        {
             return HasCellState(cell) && explored[cell.x, cell.y];
         }
 

@@ -158,7 +158,9 @@ namespace ProjectUnknown.Strategy
             BuryingGrave,
             WaitingAtFuneral,
             MovingToScoutFrontier,
-            SurveyingFrontier
+            SurveyingFrontier,
+            MovingToPointOfInterest,
+            InvestigatingPointOfInterest
         }
     }
 }

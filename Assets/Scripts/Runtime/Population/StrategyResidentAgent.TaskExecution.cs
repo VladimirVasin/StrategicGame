@@ -78,6 +78,7 @@ namespace ProjectUnknown.Strategy
             RegisterNormalTask(ResidentActivity.PlayingWithChild, UpdateChildPlayActivity);
             RegisterNormalTask(ResidentActivity.PlayingTag, UpdateChildPlayActivity);
             RegisterNormalTask(ResidentActivity.SurveyingFrontier, UpdateSurveyingFrontier);
+            RegisterNormalTask(ResidentActivity.InvestigatingPointOfInterest, UpdateInvestigatingPointOfInterest);
 
             taskExecution.RegisterPlannedTask(StrategyResidentTaskKind.Household, TryStartHouseholdCookingTask);
             taskExecution.RegisterPlannedTask(StrategyResidentTaskKind.Logistics, TryStartHouseholdLogsDelivery);

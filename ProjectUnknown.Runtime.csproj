@@ -92,6 +92,7 @@
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyHunterCamp.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\Selection\StrategyWorldSelectionController.Part10.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyProductionStorage.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyPointOfInterestDialogController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyShadowSpriteFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyResidentHudText.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategySeasonCalendar.cs" />
@@ -281,6 +282,7 @@
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyPopulationController.SettlementRoles.cs" />
     <Compile Include="Assets\Scripts\Runtime\Menu\StrategyGameSettings.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.PersonalTorch.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Map\StrategyPointOfInterestController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Scouting.cs" />
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyTradeCaravanController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyFuneralController.Part02.cs" />
@@ -421,6 +423,7 @@
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyGameContext.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyChickenSpriteFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyHouseWarmthState.Cold.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Map\StrategyPointOfInterestSpriteFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyFisherHut.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentSpriteFactory.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyWindSway.cs" />
@@ -450,6 +453,7 @@
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyPopulationController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part41.cs" />
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyResourceIconFactory.Part03.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Map\StrategyPointOfInterest.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyFishingAccessUtility.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyWorldChunkRegistry.Queries.cs" />
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyPreparedDishStack.cs" />
@@ -479,6 +483,7 @@
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyTradeCaravanController.Pathing.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyAutoWorkforceController.FoodSources.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyPopulationController.Part05.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Map\StrategyPointOfInterestController.Notices.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyCemeteryController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Founding\StrategyStartSiteMapSnapshot.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyCampfireAmbientSpriteFactory.cs" />
@@ -548,6 +553,7 @@
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyNatureSpriteFactory.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyChickenCoop.NightShelter.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWolfAgent.Part04.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Map\StrategyPointOfInterestController.Persistence.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part10.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Activity.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyAutoWorkforceController.Part05.cs" />
@@ -556,6 +562,7 @@
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyProfessionHudController.Part04.cs" />
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyResourceIconFactory.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyForageNode.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Map\StrategyPointOfInterestPlacement.cs" />
     <Compile Include="Assets\Scripts\Runtime\Audio\StrategyForestrySfxAudio.cs" />
     <Compile Include="Assets\Scripts\Runtime\Audio\StrategyAmbientAudioController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyProductionBuildingUpgradeCatalog.cs" />

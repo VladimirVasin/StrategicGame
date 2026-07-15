@@ -17,10 +17,12 @@ namespace ProjectUnknown.Strategy
                     "PendingLoadRejected",
                     StrategyDebugLogger.F("reason", string.IsNullOrEmpty(reason) ? "map_dimensions_changed" : reason));
                 pendingLoad = null;
+                StrategyPointOfInterestController.Active?.RestorePersistentState(null);
                 return;
             }
 
             StrategyDayNightCycleController.RestoreElapsedSeconds(data.elapsedSeconds);
+            StrategyPointOfInterestController.Active?.ClearForLoad();
             population.ClearResidentsForLoad();
             placement.ClearWorldForLoad();
             ClearLooseResources();
@@ -62,6 +64,7 @@ namespace ProjectUnknown.Strategy
             }
 
             population.FinalizeResidentRestore();
+            StrategyPointOfInterestController.Active?.RestorePersistentState(data.pointsOfInterest);
             RestoreLooseResources(data.looseResources);
             StrategyTrailController.Active?.RestorePersistentTrailCells(data.trailCells);
             FindAnyObjectByType<StrategyFogOfWarController>()?.RestoreExploredCells(data.exploredCells);

@@ -35,6 +35,7 @@ namespace ProjectUnknown.Strategy
             CaptureLooseResources(data);
             FindAnyObjectByType<StrategyFogOfWarController>()?.CaptureExploredCells(data.exploredCells);
             StrategyTrailController.Active?.CapturePersistentTrailCells(data.trailCells);
+            StrategyPointOfInterestController.Active?.CapturePersistentState(data.pointsOfInterest);
             return data;
         }
 

@@ -1,5 +1,15 @@
 # Work Log
 
+### 2026-07-15 - Schematic points of interest and Scout investigations
+
+- Added 10 deterministic schematic map landmarks on camp-connected walkable/buildable cells, with fixed camp/edge/landmark spacing, construction blocking, forage-node exclusion, and a procedural question-mark/checkmark visual.
+- Assigned Scouts now prioritize the nearest uninvestigated landmark revealed by persistent Fog of War, reserve it across all Lodges, travel with critical navigation priority, investigate for 1.5-2.5 seconds, then resume continuous frontier exploration day and night.
+- Added reservation cleanup and temporary unreachable cooldowns for path failure, interruption, unassignment, death, demolition, and load restoration; the F9 player-fog bypass does not expose undiscovered landmarks to Scout targeting.
+- Protected landmark access from tree planting and cemetery placement, reset interrupted Lodge HUD state, and kept night-funeral Scouts from returning home after duty.
+- Added a queued one-action `OK` discovery dialog that holds a simulation pause lock, blocks all gameplay input, swallows cancel, waits for closing input shields instead of stacking modal contexts, and dismisses safely with its controller lifecycle.
+- Advanced persistence to version 4 with v3 migration, bounded/validated POI IDs and cells, capture/restore of landmark position plus investigated state, dynamic occupancy checks, building/site overlap rejection, and default generation after a rejected pending load.
+- Added deterministic placement, Scout activity, input-context/modal, save migration/round-trip/validation, overlap, and soak-dialog coverage. Technical gates and all five C# builds pass with zero warnings/errors; Unity PlayMode and QuickSoak pass, and the full EditMode run is 174/180 with every POI test passing and the remaining six failures confined to pre-existing snow, house-smoke, router-rebind, and shared UI-feedback tests.
+
 ### 2026-07-15 - Continuous Scout expeditions into unknown territory
 
 - Analyzed `debug.log`: the assigned Scout completed 9 surveys, but long post-survey gaps sent him into generic idle paths around home, and the 21:00 home schedule deterministically cancelled his next route before sending him to sleep.

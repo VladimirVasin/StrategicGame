@@ -232,6 +232,38 @@ namespace ProjectUnknown.Strategy
             fog?.RequestRefresh();
         }
 
+        public void NotifyPointOfInterestTravelStarted(StrategyResidentAgent resident)
+        {
+            if (resident != null && workers.Contains(resident))
+            {
+                missionStatus = "Travelling to point of interest";
+            }
+        }
+
+        public void NotifyPointOfInterestInvestigationStarted(StrategyResidentAgent resident)
+        {
+            if (resident != null && workers.Contains(resident))
+            {
+                missionStatus = "Investigating point of interest";
+            }
+        }
+
+        public void NotifyPointOfInterestCompleted(StrategyResidentAgent resident)
+        {
+            if (resident != null && workers.Contains(resident))
+            {
+                missionStatus = "Planning route";
+            }
+        }
+
+        public void NotifyPointOfInterestInterrupted(StrategyResidentAgent resident)
+        {
+            if (resident != null && workers.Contains(resident))
+            {
+                missionStatus = "Planning route";
+            }
+        }
+
         public void CompleteExplorationTarget(StrategyResidentAgent resident, Vector2Int target)
         {
             if (!IsTargetReservedBy(resident, target))

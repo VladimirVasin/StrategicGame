@@ -299,6 +299,8 @@ namespace ProjectUnknown.Strategy
                 StrategyResidentAgent.ResidentActivity.WaitingAtFuneral => "attending funeral",
                 StrategyResidentAgent.ResidentActivity.MovingToScoutFrontier => "exploring unknown land",
                 StrategyResidentAgent.ResidentActivity.SurveyingFrontier => "surveying terrain",
+                StrategyResidentAgent.ResidentActivity.MovingToPointOfInterest => "approaching a point of interest",
+                StrategyResidentAgent.ResidentActivity.InvestigatingPointOfInterest => "investigating a point of interest",
                 _ => "idle"
             };
 

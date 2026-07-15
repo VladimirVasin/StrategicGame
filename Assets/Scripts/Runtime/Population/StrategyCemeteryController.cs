@@ -302,7 +302,8 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            return map.IsCellWalkable(cell);
+            return map.IsCellWalkable(cell)
+                && StrategyPointOfInterestController.Active?.HasPointAt(cell) != true;
         }
 
         private bool HasReachableStandCells(

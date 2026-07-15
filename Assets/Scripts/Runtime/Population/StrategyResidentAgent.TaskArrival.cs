@@ -74,6 +74,7 @@ namespace ProjectUnknown.Strategy
             RegisterTaskArrival(ResidentActivity.MovingToPlantTree, StartPlantingTree);
             RegisterTaskArrival(ResidentActivity.MovingToNightLight, StartLightingNightLight);
             RegisterTaskArrival(ResidentActivity.MovingToScoutFrontier, StartSurveyingFrontier);
+            RegisterTaskArrival(ResidentActivity.MovingToPointOfInterest, StartInvestigatingPointOfInterest);
         }
     }
 }

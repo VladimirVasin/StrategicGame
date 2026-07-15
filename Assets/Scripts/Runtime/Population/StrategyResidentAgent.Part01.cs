@@ -388,6 +388,12 @@ namespace ProjectUnknown.Strategy
                 "ResidentFuneralDutyEnded",
                 StrategyDebugLogger.F("resident", FullName));
 
+            if (keepFuneralTorch && IsOnScoutExpedition)
+            {
+                SetFuneralNightTorchActive(false);
+                return;
+            }
+
             if (keepFuneralTorch && TryStartFuneralTorchReturnHome())
             {
                 return;

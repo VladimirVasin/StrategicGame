@@ -11,6 +11,7 @@ namespace ProjectUnknown.Strategy
         private const int MaxSaveConstructionSites = 65_536;
         private const int MaxSaveResidents = 100_000;
         private const int MaxSaveLooseResources = 262_144;
+        private const int MaxSavePointsOfInterest = 256;
         internal const int MaxSaveChildLinksPerResident = 256;
         internal const int MaxSavePreparedDishesPerBuilding = 256;
         internal const int MaxSavePreparedDishIdLength = 128;
@@ -62,6 +63,7 @@ namespace ProjectUnknown.Strategy
                 || data.constructionSites == null
                 || data.residents == null
                 || data.looseResources == null
+                || data.pointsOfInterest == null
                 || data.exploredCells == null
                 || data.trailCells == null)
             {
@@ -73,6 +75,7 @@ namespace ProjectUnknown.Strategy
                 || data.constructionSites.Count > Math.Min(cellCount, MaxSaveConstructionSites)
                 || data.residents.Count > MaxSaveResidents
                 || data.looseResources.Count > MaxSaveLooseResources
+                || data.pointsOfInterest.Count > MaxSavePointsOfInterest
                 || data.exploredCells.Count > cellCount
                 || data.trailCells.Count > cellCount)
             {
@@ -85,6 +88,7 @@ namespace ProjectUnknown.Strategy
                 || !ValidateConstructionSites(data, out reason)
                 || !ValidateResidents(data, buildingIds, out reason)
                 || !ValidateLooseResources(data, out reason)
+                || !ValidatePointsOfInterest(data, out reason)
                 || !ValidateCellIndices(data.exploredCells, cellCount, "explored", out reason)
                 || !ValidateCellIndices(data.trailCells, cellCount, "trail", out reason))
             {
@@ -308,6 +312,90 @@ namespace ProjectUnknown.Strategy
 
             reason = string.Empty;
             return true;
+        }
+
+        private static bool ValidatePointsOfInterest(StrategySaveData data, out string reason)
+        {
+            HashSet<string> stableIds = new(StringComparer.Ordinal);
+            HashSet<long> cells = new();
+            for (int i = 0; i < data.pointsOfInterest.Count; i++)
+            {
+                StrategyPointOfInterestSaveData point = data.pointsOfInterest[i];
+                if (point == null
+                    || string.IsNullOrWhiteSpace(point.stableId)
+                    || point.stableId.Length > 128
+                    || !stableIds.Add(point.stableId))
+                {
+                    reason = "invalid_or_duplicate_point_of_interest_id_" + i;
+                    return false;
+                }
+
+                long cellKey = (long)point.cellY * data.mapWidth + point.cellX;
+                if (!IsCellInside(point.cellX, point.cellY, data.mapWidth, data.mapHeight)
+                    || !cells.Add(cellKey))
+                {
+                    reason = "invalid_or_duplicate_point_of_interest_cell_" + i;
+                    return false;
+                }
+
+                if (OverlapsSavedWorld(point.cellX, point.cellY, data))
+                {
+                    reason = "point_of_interest_overlaps_world_" + i;
+                    return false;
+                }
+            }
+
+            reason = string.Empty;
+            return true;
+        }
+
+        private static bool OverlapsSavedWorld(int x, int y, StrategySaveData data)
+        {
+            for (int i = 0; i < data.buildings.Count; i++)
+            {
+                StrategyBuildingSaveData building = data.buildings[i];
+                if (IsInsideFootprint(
+                        x,
+                        y,
+                        building.originX,
+                        building.originY,
+                        building.footprintX,
+                        building.footprintY))
+                {
+                    return true;
+                }
+            }
+
+            for (int i = 0; i < data.constructionSites.Count; i++)
+            {
+                StrategyConstructionSiteSaveData site = data.constructionSites[i];
+                if (IsInsideFootprint(
+                        x,
+                        y,
+                        site.originX,
+                        site.originY,
+                        site.footprintX,
+                        site.footprintY))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool IsInsideFootprint(
+            int x,
+            int y,
+            int originX,
+            int originY,
+            int width,
+            int height)
+        {
+            return x >= originX
+                && x < originX + width
+                && y >= originY
+                && y < originY + height;
         }
 
         private static bool ValidateCellIndices(

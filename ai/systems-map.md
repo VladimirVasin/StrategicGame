@@ -774,6 +774,7 @@ Responsibilities:
 - Refresh visibility and texture painting on an unscaled real-time cadence so time acceleration does not multiply fog repaint work.
 - Provide exploration checks to placement and world selection.
 - Provide read-only explored-cell checks to Scout frontier selection; moving Scouts remain ordinary resident reveal sources.
+- Provide persistent-only explored checks to point-of-interest targeting independently of the F9 player-fog bypass.
 - Expose a player-fog enabled setter for debug controls without clearing explored state.
 
 Primary files/assets:
@@ -810,6 +811,7 @@ Responsibilities:
 - Select only in-bounds unexplored, walkable cells with an in-bounds cardinal explored neighbor.
 - Prefer the nearest frontier deterministically, using nearby unknown coverage and stable coordinates as tie-breakers.
 - Route one assigned Scout with critical navigation priority, survey for 2.5-3.5 seconds, and repeat continuously through day and night without generic idle wandering.
+- Prioritize the nearest persistently discovered uninvestigated point of interest, reserve it across Scouts, travel to it, and investigate for 1.5-2.5 seconds before resuming frontier work.
 - Expose the single Scout slot through both the settlement-wide Profession HUD and the selected Scout Lodge HUD.
 - Temporarily reject unreachable targets, release deferred paths immediately, and clear reservations on unassignment, death, funeral interruption, demolition, or resident-role change.
 - Expand map exploration only through the Scout resident's existing Fog of War reveal source.
@@ -820,6 +822,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Build/StrategyScoutLodge.cs`
 - `Assets/Scripts/Runtime/Build/StrategyScoutTargetSelector.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Scouting.cs`
+- `Assets/Scripts/Runtime/Map/StrategyPointOfInterestController.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part36.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part41.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part42.cs`
@@ -832,9 +835,47 @@ Primary files/assets:
 
 Impact hints:
 
-- Scout assignments and active target reservations are transient like other worksite assignments; the placed Lodge and already explored fog cells persist through the existing building/fog snapshots.
+- Scout assignments and active frontier/point reservations are transient like other worksite assignments; the placed Lodge, explored fog cells, point positions, and investigated point state persist through their owning snapshots.
 - Scout is intentionally manual-only in this MVP and is not managed by Auto Workforce priorities.
 - A `No reachable frontier` state may mean remaining unknown land is isolated by water or blockers, not that every map cell is explored.
+
+### Point Of Interest Exploration MVP
+
+Responsibilities:
+
+- Place 10 schematic seed-deterministic landmarks on separated camp-connected walkable/buildable cells outside the starter area and map edge.
+- Keep landmarks walkable while blocking building placement and forage-node overlap.
+- Expose only persistently discovered, uninvestigated landmarks to Scout reservation; reject conflicts across multiple Scouts and cool down unreachable targets.
+- Mark investigation completion atomically and retain the marker in an investigated check state.
+- Queue a one-action `OK` debug encounter, hold one simulation pause lock across queued notices, block all input, swallow cancel, and defer behind existing modal pause owners.
+- Capture and restore stable point IDs, cells, and investigated state through save version 4.
+
+Primary files/assets:
+
+- `Assets/Scripts/Runtime/Map/StrategyPointOfInterest.cs`
+- `Assets/Scripts/Runtime/Map/StrategyPointOfInterestPlacement.cs`
+- `Assets/Scripts/Runtime/Map/StrategyPointOfInterestSpriteFactory.cs`
+- `Assets/Scripts/Runtime/Map/StrategyPointOfInterestController.cs`
+- `Assets/Scripts/Runtime/Map/StrategyPointOfInterestController.Notices.cs`
+- `Assets/Scripts/Runtime/Map/StrategyPointOfInterestController.Persistence.cs`
+- `Assets/Scripts/Runtime/UI/StrategyPointOfInterestDialogController.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Scouting.cs`
+- `Assets/Scripts/Runtime/Persistence/StrategySaveData.cs`
+- `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Capture.cs`
+- `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Apply.cs`
+- `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.cs`
+- `Assets/Tests/EditMode/StrategyPointOfInterestPlacementTests.cs`
+- `Assets/Tests/EditMode/StrategyPointOfInterestSaveValidationTests.cs`
+- `Assets/Tests/EditMode/StrategyInputRouterTests.cs`
+- `Assets/Tests/EditMode/StrategySaveSystemTests.cs`
+
+Impact hints:
+
+- Normal fog overlay ownership hides undiscovered marker sprites; F9 may expose them visually for debugging, but persistent-only targeting still prevents Scout assignment to undiscovered points.
+- Reservations and unreachable cooldowns are transient; stable geometry and investigated state persist.
+- Investigated markers intentionally remain in the world and continue to block building placement in this schematic MVP.
+- Forestry planting, forage respawn, cemetery grave selection, save validation, and live restore occupancy checks all exclude landmark cells so other systems cannot make them permanently unreachable.
+- A rejected pending save explicitly falls back to deterministic default POI generation because bootstrap suppresses fresh generation while a load candidate exists.
 
 ### Nature Props
 
@@ -2593,7 +2634,7 @@ Responsibilities:
 - Capture and restore versioned runtime settlement snapshots with stable IDs and no raw Unity object references.
 - Write saves atomically and coordinate restoration only after runtime bootstrap has created all required systems.
 - Preserve F5 save and F8 load/restart controls while exposing read/validate/pending-load entry points to the intro menu Continue flow.
-- Preserve the founding profile, stable answer pairs, exact camp cell, and current starter-cart origin across save version 3.
+- Preserve the founding profile, stable answer pairs, exact camp cell, current starter-cart origin, and stable point-of-interest state across save version 4.
 
 Primary files:
 
@@ -2612,13 +2653,14 @@ Primary files:
 - `Assets/Scripts/Runtime/Population/StrategyPopulationController.Persistence.cs`
 - `Assets/Scripts/Runtime/Map/StrategyFogOfWarController.Persistence.cs`
 - `Assets/Scripts/Runtime/Map/StrategyTrailController.Persistence.cs`
+- `Assets/Scripts/Runtime/Map/StrategyPointOfInterestController.Persistence.cs`
 - `Assets/Tests/EditMode/StrategySaveSystemTests.cs`
 
 Impact hints:
 
-- Current persistence is version 3 with v1/v2 migration. Increment the version and add an explicit migration whenever persisted DTO shape changes; validate migrated data before applying it.
+- Current persistence is version 4 with v1/v2/v3 migration. Increment the version and add an explicit migration whenever persisted DTO shape changes; validate migrated data before applying it.
 - Keep primary/temp/backup replacement and backup recovery in the file seam so interrupted writes do not destroy the last valid save.
-- Reject save files above 32 MiB before reading and keep top-level plus resident-child/prepared-dish collection limits in validation.
+- Reject save files above 32 MiB before reading and keep top-level plus resident-child/prepared-dish/point-of-interest collection limits in validation.
 - Stable IDs are serialization contracts; never replace them with scene-instance IDs or object references.
 
 ### Verification

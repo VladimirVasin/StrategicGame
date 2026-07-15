@@ -33,7 +33,7 @@ namespace ProjectUnknown.Strategy
 
     internal sealed class StrategyResidentTaskState : IStrategyResidentTask
     {
-        internal const int ProfiledActivityCount = 155;
+        internal const int ProfiledActivityCount = 157;
 
         private bool hasAuthoritativeKind;
 
@@ -140,7 +140,10 @@ namespace ProjectUnknown.Strategy
                 return StrategyResidentTaskKind.NightLighting;
             }
 
-            if (activity is ResidentActivity.MovingToScoutFrontier or ResidentActivity.SurveyingFrontier)
+            if (activity is ResidentActivity.MovingToScoutFrontier
+                or ResidentActivity.SurveyingFrontier
+                or ResidentActivity.MovingToPointOfInterest
+                or ResidentActivity.InvestigatingPointOfInterest)
             {
                 return StrategyResidentTaskKind.Exploration;
             }
