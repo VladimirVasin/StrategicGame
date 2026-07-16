@@ -116,6 +116,12 @@ namespace ProjectUnknown.Strategy
 
         private void ChangeProfession(StrategyProfessionType type, bool assign)
         {
+            if (assign && type == StrategyProfessionType.Scout)
+            {
+                HandleScoutAssignmentRequest();
+                return;
+            }
+
             bool success = assign
                 ? TryAssign(type, out StrategyResidentAgent worker)
                 : TryRemove(type, out worker);
@@ -130,6 +136,35 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("action", assign ? "assign" : "remove"),
                 StrategyDebugLogger.F("success", success),
                 StrategyDebugLogger.F("worker", worker != null ? worker.FullName : string.Empty));
+            isDirty = true;
+            RefreshUi();
+        }
+
+        private void HandleScoutAssignmentRequest()
+        {
+            StrategyScoutLodge[] lodges = FindSorted<StrategyScoutLodge>();
+            for (int i = 0; i < lodges.Length; i++)
+            {
+                StrategyScoutLodge lodge = lodges[i];
+                if (lodge == null
+                    || lodge.WorkerCount >= StrategyScoutLodge.MaxWorkers
+                    || scoutLodgeOnboarding == null
+                    || !scoutLodgeOnboarding.RequestAssignment(lodge))
+                {
+                    continue;
+                }
+
+                Close();
+                StrategyDebugLogger.Info(
+                    "ProfessionHud",
+                    "ScoutPickerRequested",
+                    StrategyDebugLogger.F("lodge", lodge.name));
+                return;
+            }
+
+            actionStatusText.text = "An empty Scout Lodge is required before appointing a Scout.";
+            StrategyHudSfxAudio.Play(StrategyHudSfxKind.Deny);
+            StrategyDebugLogger.Info("ProfessionHud", "ScoutPickerUnavailable");
             isDirty = true;
             RefreshUi();
         }
@@ -250,14 +285,6 @@ namespace ProjectUnknown.Strategy
 
                     return false;
                 case StrategyProfessionType.Scout:
-                    foreach (StrategyScoutLodge lodge in FindSorted<StrategyScoutLodge>())
-                    {
-                        if (lodge != null && lodge.TryAssignNextAvailableWorker(out worker))
-                        {
-                            return true;
-                        }
-                    }
-
                     return false;
                 case StrategyProfessionType.StorageWorker:
                     return population != null && population.TryAssignSettlementHauler(out worker);

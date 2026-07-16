@@ -1,5 +1,15 @@
 # Work Log
 
+### 2026-07-16 - First Scout expedition onboarding
+
+- Added a first-live-Scout-Lodge completion flow that holds the requested simulation speed behind a named pause lock, suppresses map input, smoothly focuses/zooms the Lodge with unscaled camera timing, and opens a high-layer expedition assignment board.
+- Added storytelling and practical Scout guidance covering continuous day/night exploration, Fog of War discovery, landmark investigation, and distant Iron/Coal reporting.
+- Replaced automatic Scout selection with an exact adult-resident picker: eligible adults can be appointed explicitly, unavailable adults remain visible with their blocking reason, children are rejected by the Lodge API, and the introductory board permits deferral only when nobody is eligible.
+- Routed both the selected Scout Lodge Assign action and the Profession HUD Scout `+` action through the same picker; manual cancellation no longer emits first-expedition copy, while first-versus-later appointment messages remain accurate.
+- Preserved the starter goal as a construction-only requirement: Storage Yard/Granary goals begin on Lodge completion, restored Lodges do not replay the cinematic, and Scout workplace assignment remains transient with the existing workforce persistence model.
+- Added modal input/focus restoration, disable/target-loss cleanup, bootstrap smoke assertions, and focused EditMode coverage for exact selection, eligibility messaging, one-shot callbacks, input ownership, initial focus, and focus restoration.
+- Verification: technical quality gates pass; all five C# projects build with zero warnings/errors; focused Scout assignment EditMode tests pass 3/3; Unity PlayMode smoke passes. A full EditMode run also reproduced the six unrelated pre-existing snow/house visual, input-router, and UI-feedback failures already tracked by the project.
+
 ### 2026-07-16 - Non-repeating music shuffle-bag
 
 - Replaced immediate-repeat avoidance with a randomized shuffle-bag: every loaded gameplay music track now plays exactly once before any track becomes eligible again.

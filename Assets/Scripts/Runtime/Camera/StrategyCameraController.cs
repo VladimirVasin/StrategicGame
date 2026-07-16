@@ -32,6 +32,13 @@ namespace ProjectUnknown.Strategy
         private float heldFocusSize;
         private int focusHoldFramesRemaining;
         private float inputSuppressedUntilUnscaledTime;
+        private Vector3 animatedFocusStartCenter;
+        private Vector3 animatedFocusTargetCenter;
+        private float animatedFocusStartSize;
+        private float animatedFocusTargetSize;
+        private float animatedFocusStartedAtUnscaledTime;
+        private float animatedFocusDurationSeconds;
+        private bool animatedFocusActive;
 
         private void Awake()
         {
@@ -44,6 +51,12 @@ namespace ProjectUnknown.Strategy
         {
             if (strategyCamera == null)
             {
+                return;
+            }
+
+            if (UpdateAnimatedFocus())
+            {
+                ClampToBounds();
                 return;
             }
 
@@ -98,6 +111,7 @@ namespace ProjectUnknown.Strategy
         public void FocusOn(Vector3 worldCenter, float orthographicSize)
         {
             EnsureCameraReference();
+            animatedFocusActive = false;
             heldFocusCenter = worldCenter;
             heldFocusSize = orthographicSize;
             focusHoldFramesRemaining = FocusHoldFrameCount;
@@ -112,6 +126,62 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("target", worldCenter),
                 StrategyDebugLogger.F("size", strategyCamera != null ? strategyCamera.orthographicSize : -1f),
                 StrategyDebugLogger.F("position", transform.position));
+        }
+
+        public void FocusOnAnimated(Vector3 worldCenter, float orthographicSize, float durationSeconds)
+        {
+            EnsureCameraReference();
+            if (strategyCamera == null || durationSeconds <= 0f)
+            {
+                FocusOn(worldCenter, orthographicSize);
+                return;
+            }
+
+            animatedFocusStartCenter = transform.position;
+            animatedFocusTargetCenter = worldCenter;
+            animatedFocusStartSize = strategyCamera.orthographicSize;
+            animatedFocusTargetSize = Mathf.Clamp(orthographicSize, minZoom, maxZoom);
+            animatedFocusStartedAtUnscaledTime = Time.unscaledTime;
+            animatedFocusDurationSeconds = durationSeconds;
+            animatedFocusActive = true;
+            focusHoldFramesRemaining = 0;
+
+            StrategyDebugLogger.Info(
+                "Camera",
+                "AnimatedFocusStarted",
+                StrategyDebugLogger.F("target", worldCenter),
+                StrategyDebugLogger.F("size", animatedFocusTargetSize),
+                StrategyDebugLogger.F("duration", durationSeconds));
+        }
+
+        private bool UpdateAnimatedFocus()
+        {
+            if (!animatedFocusActive || strategyCamera == null)
+            {
+                return false;
+            }
+
+            float elapsed = Time.unscaledTime - animatedFocusStartedAtUnscaledTime;
+            float progress = Mathf.Clamp01(elapsed / animatedFocusDurationSeconds);
+            float easedProgress = progress * progress * (3f - (2f * progress));
+            Vector3 center = Vector3.LerpUnclamped(
+                animatedFocusStartCenter,
+                animatedFocusTargetCenter,
+                easedProgress);
+            float size = Mathf.LerpUnclamped(
+                animatedFocusStartSize,
+                animatedFocusTargetSize,
+                easedProgress);
+            ApplyFocus(center, size);
+
+            if (progress < 1f)
+            {
+                return true;
+            }
+
+            animatedFocusActive = false;
+            FocusOn(animatedFocusTargetCenter, animatedFocusTargetSize);
+            return true;
         }
 
         private void ApplyFocus(Vector3 worldCenter, float orthographicSize)

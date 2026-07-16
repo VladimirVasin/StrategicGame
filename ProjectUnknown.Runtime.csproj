@@ -376,6 +376,7 @@
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyGameBootstrap.Persistence.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyFuneralController.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyRefugeeArrivalController.Part03.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyScoutAssignmentRowView.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategySettlementFaunaController.Population.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.TaskArrival.cs" />
     <Compile Include="Assets\Scripts\Runtime\Weather\StrategyWeatherVisualController.cs" />
@@ -446,6 +447,7 @@
     <Compile Include="Assets\Scripts\Runtime\Menu\StrategyFoundingJourneyAtmosphere.cs" />
     <Compile Include="Assets\Scripts\Runtime\Menu\StrategyFoundingJourneyController.View.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWildlifeController.Part12.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyScoutAssignmentDialogController.View.cs" />
     <Compile Include="Assets\Scripts\Runtime\Visual\StrategyVisualCatalogProvider.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyCoalDeposit.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyStarterCaravanCart.Construction.cs" />
@@ -516,6 +518,7 @@
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyRefugeeArrivalController.Part02.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyRabbitAgent.Part03.cs" />
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyHouseResourceStore.Dishes.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyScoutAssignmentDialogController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyFuneralController.Part03.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyPopulationRosterRowView.cs" />
@@ -545,6 +548,7 @@
     <Compile Include="Assets\Scripts\Runtime\Map\CityMapController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyForagerCamp.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyShadowCaster2D.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyScoutAssignmentDialogController.Candidates.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyLumberjackCamp.Construction.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentColdState.cs" />
     <Compile Include="Assets\Scripts\Runtime\Audio\StrategyAudioVoicePool.cs" />
@@ -579,6 +583,7 @@
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyForageNode.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyPointOfInterestPlacement.cs" />
     <Compile Include="Assets\Scripts\Runtime\Audio\StrategyForestrySfxAudio.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyScoutLodgeOnboardingController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Audio\StrategyAmbientAudioController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyProductionBuildingUpgradeCatalog.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part35.cs" />

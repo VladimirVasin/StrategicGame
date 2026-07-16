@@ -31,6 +31,7 @@ namespace ProjectUnknown.Strategy
 
         private readonly ProfessionRow[] rows = new ProfessionRow[DisplayOrder.Length];
         private StrategyPopulationController population;
+        private StrategyScoutLodgeOnboardingController scoutLodgeOnboarding;
         private RectTransform panelRoot;
         private RectTransform viewportRoot;
         private RectTransform contentRoot;
@@ -43,6 +44,12 @@ namespace ProjectUnknown.Strategy
         private bool isOpen;
         private bool isDirty = true;
         private float panelT;
+
+        public void SetScoutLodgeOnboarding(
+            StrategyScoutLodgeOnboardingController onboardingController)
+        {
+            scoutLodgeOnboarding = onboardingController;
+        }
 
         public void Configure(
             StrategyPopulationController populationController,

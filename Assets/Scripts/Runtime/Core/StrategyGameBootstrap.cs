@@ -339,7 +339,16 @@ namespace ProjectUnknown.Strategy
             eventLogHud.Configure();
             StrategyDebugLogger.Info("Bootstrap", "EventLogHudReady");
 
-            ConfigureProgression(context, buildMenu, placement, population);
+            ConfigureProgression(
+                context,
+                buildMenu,
+                placement,
+                population,
+                cameraController,
+                selection,
+                professionHud,
+                timeScale,
+                inputRouter);
 
             StrategyRefugeeDialogController refugeeDialog = context.GetOrCreate<StrategyRefugeeDialogController>("Strategy Refugee Dialog");
             refugeeDialog.SetInputRouter(inputRouter);

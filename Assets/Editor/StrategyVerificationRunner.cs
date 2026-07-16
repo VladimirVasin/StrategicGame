@@ -170,6 +170,13 @@ namespace ProjectUnknown.Strategy.EditorTests
                     UnityEngine.Object.FindAnyObjectByType<StrategyPauseMenuController>();
                 Require(pauseMenu != null && pauseMenu.IsConfigured, "Pause menu bootstrap failed");
                 Require(!pauseMenu.IsOpen, "Pause menu must start closed");
+                Require(
+                    UnityEngine.Object.FindAnyObjectByType<StrategyScoutLodgeOnboardingController>() != null,
+                    "Scout Lodge onboarding bootstrap failed");
+                StrategyScoutAssignmentDialogController scoutAssignmentDialog =
+                    UnityEngine.Object.FindAnyObjectByType<StrategyScoutAssignmentDialogController>();
+                Require(scoutAssignmentDialog != null, "Scout assignment dialog bootstrap failed");
+                Require(!scoutAssignmentDialog.IsOpen, "Scout assignment dialog must start closed");
                 Require(UnityEngine.Object.FindAnyObjectByType<StrategyWorldAudioDirector>() != null, "World audio director bootstrap failed");
                 Require(StrategyAudioVoicePool.ActiveVoiceCount <= StrategyAudioVoicePool.Capacity, "World audio voice budget exceeded");
                 Require(StrategyTrailController.Active != null, "Trail bootstrap failed");

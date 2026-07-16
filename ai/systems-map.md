@@ -818,6 +818,9 @@ Impact hints:
 Responsibilities:
 
 - Place one manually staffed exploration worksite on an exact `2x4` footprint.
+- On the first live Scout Lodge completion, smoothly focus/zoom the camera, hold a named simulation pause and modal input context, then open a storytelling expedition board.
+- List every adult resident with a portrait, exact eligibility/block reason, and explicit selection; require an eligible appointment in the introduction while allowing safe deferral when no adult is free.
+- Reuse the same exact-resident picker from the selected Lodge and Profession HUD, with manual cancellation outside the first-completion introduction.
 - Reserve distinct frontier targets across multiple Scout Lodges.
 - Select only in-bounds unexplored, walkable cells with an in-bounds cardinal explored neighbor.
 - Prefer the nearest frontier deterministically, using nearby unknown coverage and stable coordinates as tie-breakers.
@@ -832,6 +835,11 @@ Primary files/assets:
 
 - `Assets/Scripts/Runtime/Build/StrategyScoutLodge.cs`
 - `Assets/Scripts/Runtime/Build/StrategyScoutTargetSelector.cs`
+- `Assets/Scripts/Runtime/UI/StrategyScoutLodgeOnboardingController.cs`
+- `Assets/Scripts/Runtime/UI/StrategyScoutAssignmentDialogController.cs`
+- `Assets/Scripts/Runtime/UI/StrategyScoutAssignmentDialogController.View.cs`
+- `Assets/Scripts/Runtime/UI/StrategyScoutAssignmentDialogController.Candidates.cs`
+- `Assets/Scripts/Runtime/UI/StrategyScoutAssignmentRowView.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Scouting.cs`
 - `Assets/Scripts/Runtime/Map/StrategyPointOfInterestController.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part36.cs`
@@ -843,11 +851,13 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.ScoutWorkers.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentTask.cs`
 - `Assets/Tests/EditMode/StrategyScoutTargetSelectorTests.cs`
+- `Assets/Tests/EditMode/StrategyScoutAssignmentFlowTests.cs`
 
 Impact hints:
 
 - Scout assignments and active frontier/point reservations are transient like other worksite assignments; the placed Lodge, explored fog cells, point positions, and investigated point state persist through their owning snapshots.
 - Scout is intentionally manual-only in this MVP and is not managed by Auto Workforce priorities.
+- Restored Lodges do not replay the introduction; an empty restored Lodge can be staffed from either normal picker entry point.
 - A `No reachable frontier` state may mean remaining unknown land is isolated by water or blockers, not that every map cell is explored.
 
 ### Point Of Interest Exploration MVP
@@ -1230,11 +1240,13 @@ Responsibilities:
 
 - Orthographic map navigation.
 - Initial medium-close campfire focus from runtime bootstrap.
+- Immediate focus and unscaled smooth focus/zoom transitions for authored onboarding moments.
 - `Space` key recentering on the startup campfire cell while preserving current zoom.
 - Mouse-wheel and keyboard zoom.
 - Maximum zoom-out is 54 orthographic units for the current 192x192 default map.
 - WASD/arrow/edge/drag panning.
 - Camera clamping to map bounds.
+- Suppress manual pan/zoom/recenter input while an authored smooth focus transition is active.
 
 Primary files/assets:
 
@@ -1514,7 +1526,7 @@ Responsibilities:
 - Show the `Auto Assign` toggle and compact priority steppers for Construction, Food, Logistics, Wood, Stone, Planks, Iron, Coal, Clay, Pottery, and Tools.
 - Aggregate assignment capacity/counts across all current lumberjack camps, stonecutter camps, sawmills, kilns, hunter camps, fisher huts, forager camps, Scout Lodges, mines, coal pits, clay pits, and storage yards.
 - Treat Haulers and Builders as unlimited-capacity settlement-level population roles independent from any specific Storage Yard; other worksite roles keep their own slot caps.
-- Assign the next free adult resident to the first available worksite slot for the requested profession.
+- Assign the next free adult resident to the first available worksite slot for ordinary professions; Scout `+` closes this panel and queues the shared exact-resident picker.
 - Remove one currently assigned resident from the requested profession through the owning worksite API.
 - Log player assignment/removal attempts and results.
 - Notify auto workforce when the player manually removes a worker so automation briefly avoids refilling that profession.
@@ -1525,6 +1537,8 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/UI/StrategyProfessionHudController.Part04.cs`
 - `Assets/Scripts/Runtime/UI/StrategyProfessionHudController.Part05.cs`
 - `Assets/Scripts/Runtime/UI/StrategyProfessionHudController.Part06.cs`
+- `Assets/Scripts/Runtime/UI/StrategyScoutLodgeOnboardingController.cs`
+- `Assets/Scripts/Runtime/UI/StrategyScoutAssignmentDialogController.cs`
 - `Assets/Scripts/Runtime/UI/StrategyProfessionIconFactory.cs`
 - `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceController.cs`
 - `Assets/Scripts/Runtime/Population/StrategyAutoWorkforceSettings.cs`
@@ -1553,7 +1567,7 @@ Primary files/assets:
 Impact hints:
 
 - This HUD is the settlement-wide worker assignment/removal surface; the selected Scout Lodge HUD intentionally duplicates its single-slot Assign/Remove control while other selected-worksite HUDs remain informational.
-- Assignment still uses each worksite's existing `TryAssignNextAvailable...` / `Unassign...At` API, so role state, reservations, and work loops remain owned by the worksite/resident systems.
+- Ordinary assignment uses each worksite's existing `TryAssignNextAvailable...` / `Unassign...At` API. Scout assignment passes the exact selected resident through `StrategyScoutLodge.AssignWorker`; role state, reservations, and work loops remain owned by the worksite/resident systems.
 - Hauler and builder `+` buttons should stay enabled as long as a Storage Yard exists and at least one free adult resident can work.
 - Auto workforce controls are UI-facing only; actual assignment decisions belong to `StrategyAutoWorkforceController`.
 - Dynamic rows are derived from currently existing worksite components, not from the build catalog.
@@ -2549,6 +2563,7 @@ Responsibilities:
 - Expose Tools-based production upgrade actions in eligible selected-building HUDs.
 - Show selected-house resident portraits/names/age/life stage/statuses up to house capacity, including the Householder marker, prepared dish recipe summaries, Pottery, ingredient rations, and resource icons/counts.
 - Show selected worksite status/resource context without worker assignment controls, except for the Scout Lodge's single direct Assign/Remove slot.
+- Route an empty Scout Lodge's Assign action into the shared exact-resident picker, then reselect/focus the Lodge after appointment or introductory deferral.
 - Show selected Storage Yards with a dedicated icon-led logistics dashboard for Haulers, builders, available sources, resource stock, and readiness status.
 - Show selected starter Caravan Carts with compact temporary construction and food stock context.
 - Show selected Trading Posts with settlement Coins, caravan status/ETA, and active buy/sell offer buttons.

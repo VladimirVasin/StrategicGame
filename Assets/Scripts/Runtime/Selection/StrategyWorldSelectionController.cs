@@ -21,6 +21,7 @@ namespace ProjectUnknown.Strategy
         private StrategyBuildingUpgradeController upgradeController;
         private StrategyBuildPlacementController placementController;
         private StrategyConfirmationDialogController confirmationDialog;
+        private StrategyScoutLodgeOnboardingController scoutLodgeOnboarding;
         private StrategyFogOfWarController fog;
         private CityMapController map;
         private StrategyWorldInspectHudController inspectHud;
@@ -87,6 +88,11 @@ namespace ProjectUnknown.Strategy
         private Transform selectedTransform;
         private string upgradeStatusMessage = string.Empty;
         private float hudT;
+
+        public void SetScoutLodgeOnboarding(StrategyScoutLodgeOnboardingController onboarding)
+        {
+            scoutLodgeOnboarding = onboarding;
+        }
 
         public void Configure(Camera camera, StrategyBuildMenuController menu, StrategyBuildingUpgradeController upgrades)
         {

@@ -65,7 +65,7 @@ namespace ProjectUnknown.Strategy
             for (int i = 0; i < residents.Count; i++)
             {
                 StrategyResidentAgent resident = residents[i];
-                if (CanAssign(resident))
+                if (CanAssignWorker(resident))
                 {
                     return true;
                 }
@@ -86,7 +86,7 @@ namespace ProjectUnknown.Strategy
             List<StrategyResidentAgent> candidates = new();
             for (int i = 0; i < residents.Count; i++)
             {
-                if (CanAssign(residents[i]))
+                if (CanAssignWorker(residents[i]))
                 {
                     candidates.Add(residents[i]);
                 }
@@ -109,7 +109,7 @@ namespace ProjectUnknown.Strategy
 
         public bool AssignWorker(StrategyResidentAgent resident)
         {
-            if (!CanAssign(resident))
+            if (!CanAssignWorker(resident))
             {
                 return false;
             }
@@ -313,7 +313,7 @@ namespace ProjectUnknown.Strategy
                 + "\nExploration expands the known map";
         }
 
-        private bool CanAssign(StrategyResidentAgent resident)
+        public bool CanAssignWorker(StrategyResidentAgent resident)
         {
             return resident != null
                 && workers.Count < MaxWorkers
@@ -321,6 +321,56 @@ namespace ProjectUnknown.Strategy
                 && resident.CanAcceptWorkAssignment
                 && !resident.HasWorkplace
                 && !resident.HasConstructionAssignment;
+        }
+
+        public string GetAssignmentBlockReason(StrategyResidentAgent resident)
+        {
+            if (resident == null)
+            {
+                return "Resident unavailable";
+            }
+
+            if (workers.Contains(resident))
+            {
+                return "Already assigned to this Lodge";
+            }
+
+            if (workers.Count >= MaxWorkers)
+            {
+                return "Scout slot already filled";
+            }
+
+            if (!resident.IsAdult)
+            {
+                return "Only adults can become Scouts";
+            }
+
+            if (resident.IsPendingRefugee)
+            {
+                return "Has not joined the settlement";
+            }
+
+            if (resident.HasConstructionAssignment)
+            {
+                return "Assigned to construction";
+            }
+
+            if (resident.IsHouseholder)
+            {
+                return "Responsible for a household";
+            }
+
+            if (resident.HasWorkplace)
+            {
+                return "Already serving as " + StrategyResidentHudText.GetRoleTitle(resident);
+            }
+
+            if (!resident.CanAcceptWorkAssignment)
+            {
+                return "Currently " + StrategyResidentHudText.GetStatusText(resident);
+            }
+
+            return string.Empty;
         }
 
         private bool IsTargetUnavailable(StrategyResidentAgent resident, Vector2Int target)

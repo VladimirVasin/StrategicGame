@@ -651,6 +651,11 @@
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingSpriteFactory.Part10.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyConstructionSite.Debug.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyStarterGoalSequenceController.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyScoutAssignmentDialogController.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyScoutAssignmentDialogController.View.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyScoutAssignmentDialogController.Candidates.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyScoutAssignmentRowView.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyScoutLodgeOnboardingController.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyStarterBuildProgression.cs" />
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyTradeOffer.cs" />
     <Compile Include="Assets\Scripts\Runtime\Selection\StrategyWorldSelectionController.Part03.cs" />

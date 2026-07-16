@@ -8,7 +8,12 @@ namespace ProjectUnknown.Strategy
             StrategyGameContext context,
             StrategyBuildMenuController buildMenu,
             StrategyBuildPlacementController placement,
-            StrategyPopulationController population)
+            StrategyPopulationController population,
+            StrategyCameraController cameraController,
+            StrategyWorldSelectionController selection,
+            StrategyProfessionHudController professionHud,
+            StrategyTimeScaleController timeScale,
+            StrategyInputRouter inputRouter)
         {
             StrategyGoalsHudController goalsHud = context.GetOrCreate<StrategyGoalsHudController>("Strategy Goals HUD");
             StrategyGoalsController goals = context.GetOrCreate<StrategyGoalsController>("Strategy Goals");
@@ -17,6 +22,23 @@ namespace ProjectUnknown.Strategy
             StrategyStarterGoalSequenceController starterGoals = context.GetOrCreate<StrategyStarterGoalSequenceController>("Strategy Starter Goals");
 
             starterGoals.Configure(goals, buildMenu, placement);
+
+            StrategyScoutAssignmentDialogController scoutAssignmentDialog =
+                context.GetOrCreate<StrategyScoutAssignmentDialogController>("Strategy Scout Assignment Dialog");
+            scoutAssignmentDialog.SetInputRouter(inputRouter);
+            scoutAssignmentDialog.Configure();
+            StrategyScoutLodgeOnboardingController scoutOnboarding =
+                context.GetOrCreate<StrategyScoutLodgeOnboardingController>("Strategy Scout Lodge Onboarding");
+            scoutOnboarding.Configure(
+                placement,
+                population,
+                cameraController,
+                selection,
+                scoutAssignmentDialog,
+                timeScale,
+                inputRouter);
+            selection.SetScoutLodgeOnboarding(scoutOnboarding);
+            professionHud.SetScoutLodgeOnboarding(scoutOnboarding);
 
             StrategyFirstWinterController firstWinter = context.GetOrCreate<StrategyFirstWinterController>("Strategy First Winter Progression");
 

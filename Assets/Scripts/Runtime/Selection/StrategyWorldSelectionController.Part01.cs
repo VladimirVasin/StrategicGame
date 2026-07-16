@@ -51,6 +51,17 @@ namespace ProjectUnknown.Strategy
             UpdateSelectionLinks(target);
         }
 
+        public void SelectBuilding(StrategyPlacedBuilding building)
+        {
+            if (building == null)
+            {
+                return;
+            }
+
+            inspectHud?.Hide();
+            Select(building.transform, building.SelectionBounds);
+        }
+
         private void UpdateSelectionMarker(Bounds bounds)
         {
             EnsureMarker();

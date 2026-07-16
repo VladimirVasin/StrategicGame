@@ -220,7 +220,7 @@ namespace ProjectUnknown.Strategy
             goals.SetGoals(new StrategyGoalDefinition(
                 StrategyGoalKind.BuildScoutLodge,
                 "Build Scout Lodge",
-                "Prepare a Scout to explore beyond the settlement."));
+                "Raise an expedition base for the settlement's first Scout."));
             StrategyDebugLogger.Info(
                 "StarterGoals",
                 "ScoutLodgePhaseReady",

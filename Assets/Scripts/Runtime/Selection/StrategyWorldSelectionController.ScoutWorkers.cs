@@ -99,8 +99,17 @@ namespace ProjectUnknown.Strategy
             }
             else
             {
-                assigned = lodge.TryAssignNextAvailableWorker(out worker);
-                action = "assign";
+                if (scoutLodgeOnboarding != null)
+                {
+                    worker = null;
+                    assigned = scoutLodgeOnboarding.RequestAssignment(lodge);
+                    action = "choose";
+                }
+                else
+                {
+                    assigned = lodge.TryAssignNextAvailableWorker(out worker);
+                    action = "assign";
+                }
             }
 
             StrategyDebugLogger.Info(
