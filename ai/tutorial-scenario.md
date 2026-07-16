@@ -39,7 +39,7 @@ When a real tutorial or onboarding flow is implemented:
 - After the Forager Camp is completed, the third goal stage starts.
 - The third stage shows `Build Lumberjack Camp` and `Build Stonecutter Camp`.
 - After both raw-resource camps are completed, the fourth stage shows `Build Scout Lodge`.
-- Completing the first live Scout Lodge smoothly focuses and zooms the camera onto it, pauses simulation without changing the requested speed, and opens the `First Expedition` assignment board.
+- Completing the first live Scout Lodge smoothly focuses and zooms the camera onto it, pauses simulation without changing the requested speed, and opens the `First Expedition` assignment board. When the board resolves, the camera smoothly returns to its pre-cinematic position and zoom and releases programmatic focus.
 - The board explains that Scouts travel continuously through day and night, reveal unknown territory, investigate landmarks, and report distant Iron/Coal sites. Its introduction holds three stable random adult candidates, prioritizing current Haulers and Builders; an explicit appointment safely transfers the exact selected resident from an ordinary profession, while truly unavailable candidates remain visible with their blocking reason.
 - If at least one adult is eligible, the introductory board requires a selection. If nobody can take the role, `Decide Later` closes the board safely, selects the Lodge, and leaves its ordinary Assign action available for later.
 - The selected Scout Lodge HUD and the settlement Profession HUD both reopen the same exact-resident picker with the full adult roster; Scout assignment is manual-only and is not managed by Auto Workforce.

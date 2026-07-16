@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Tests\EditMode\StrategyBridgeVisualProfileTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyScoutLodgeCameraFocusTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyScoutAssignmentFlowTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyPointOfInterestPlacementTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyForagerCampVisualProfileTests.cs" />

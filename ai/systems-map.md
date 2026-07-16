@@ -818,7 +818,7 @@ Impact hints:
 Responsibilities:
 
 - Place one manually staffed exploration worksite on an exact `2x4` footprint.
-- On the first live Scout Lodge completion, smoothly focus/zoom the camera, hold a named simulation pause and modal input context, then open a storytelling expedition board.
+- On the first live Scout Lodge completion, capture the current camera view, smoothly focus/zoom the Lodge, hold a named simulation pause and modal input context, then open a storytelling expedition board and restore/release the camera view when the flow resolves.
 - Hold three stable random adult candidates for the introduction, prioritizing Haulers/Builders, with portraits and exact eligibility/block reasons; later picker openings show the full adult roster.
 - Let explicit appointment transfer the exact selected resident from an ordinary worksite/Hauler/Builder role through owner-side unassignment while keeping automatic Scout assignment free-worker-only.
 - Reuse the same exact-resident picker from the selected Lodge and Profession HUD, with manual cancellation outside the first-completion introduction.

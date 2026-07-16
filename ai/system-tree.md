@@ -679,7 +679,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Goals HUD supports optional live progress bars; first-winter Food and Firewood goals show current reserve days out of the seven-day target
   - Custom runtime goals HUD showing the active starter build checklist on the left side
   - Custom first-Scout expedition assignment board
-    - Opens after the first live Scout Lodge completes, pauses simulation, focuses the Lodge, and explains exploration through a storytelling panel
+    - Opens after the first live Scout Lodge completes, pauses simulation, temporarily focuses the Lodge, restores the prior camera view when resolved, and explains exploration through a storytelling panel
     - Holds three stable random adult candidates for the introduction, prioritizing Haulers/Builders, while later manual openings show the full adult roster
     - Transfers the exact selected ordinary worker through the previous role owner, shows portraits/blocking reasons, requires a choice when someone is eligible, and permits safe deferral only when nobody is available
     - Restores keyboard/controller focus and releases its owned input/pause state on appointment, deferral, cancellation, disable, or target loss

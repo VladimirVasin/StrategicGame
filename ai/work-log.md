@@ -1,5 +1,11 @@
 # Work Log
 
+### 2026-07-17 - Scout Lodge camera focus release
+
+- Fixed the first-expedition camera focus persisting at the Scout Lodge after the assignment board resolved: onboarding now captures the pre-cinematic camera position and zoom, then smoothly restores that exact view after appointment, deferral, cancellation, or target loss.
+- The return animation explicitly releases programmatic focus without final hold frames or residual input suppression; ordinary manual Scout picker openings do not capture or move the camera.
+- Added focused EditMode coverage for restored position/zoom, released final focus, and the no-camera-change manual picker path.
+
 ### 2026-07-16 - Scout picker reassignment and candidate rows
 
 - Fixed the first-expedition picker rejecting every adult who already had an ordinary profession: explicit Scout appointment can now transfer the exact selected resident from an existing worksite or settlement Hauler/Builder role through the previous owner's unassign API.

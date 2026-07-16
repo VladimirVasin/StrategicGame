@@ -39,6 +39,7 @@ namespace ProjectUnknown.Strategy
         private float animatedFocusStartedAtUnscaledTime;
         private float animatedFocusDurationSeconds;
         private bool animatedFocusActive;
+        private bool animatedFocusHoldsTarget;
 
         private void Awake()
         {
@@ -108,6 +109,16 @@ namespace ProjectUnknown.Strategy
             population = populationController;
         }
 
+        public bool TryGetView(out Vector3 worldCenter, out float orthographicSize)
+        {
+            EnsureCameraReference();
+            worldCenter = transform.position;
+            orthographicSize = strategyCamera != null
+                ? strategyCamera.orthographicSize
+                : 0f;
+            return strategyCamera != null;
+        }
+
         public void FocusOn(Vector3 worldCenter, float orthographicSize)
         {
             EnsureCameraReference();
@@ -130,10 +141,35 @@ namespace ProjectUnknown.Strategy
 
         public void FocusOnAnimated(Vector3 worldCenter, float orthographicSize, float durationSeconds)
         {
+            BeginAnimatedFocus(worldCenter, orthographicSize, durationSeconds, true);
+        }
+
+        public void RestoreViewAnimated(
+            Vector3 worldCenter,
+            float orthographicSize,
+            float durationSeconds)
+        {
+            BeginAnimatedFocus(worldCenter, orthographicSize, durationSeconds, false);
+        }
+
+        private void BeginAnimatedFocus(
+            Vector3 worldCenter,
+            float orthographicSize,
+            float durationSeconds,
+            bool holdTarget)
+        {
             EnsureCameraReference();
             if (strategyCamera == null || durationSeconds <= 0f)
             {
-                FocusOn(worldCenter, orthographicSize);
+                if (holdTarget)
+                {
+                    FocusOn(worldCenter, orthographicSize);
+                }
+                else
+                {
+                    ReleaseFocusAt(worldCenter, orthographicSize);
+                }
+
                 return;
             }
 
@@ -144,6 +180,7 @@ namespace ProjectUnknown.Strategy
             animatedFocusStartedAtUnscaledTime = Time.unscaledTime;
             animatedFocusDurationSeconds = durationSeconds;
             animatedFocusActive = true;
+            animatedFocusHoldsTarget = holdTarget;
             focusHoldFramesRemaining = 0;
 
             StrategyDebugLogger.Info(
@@ -151,7 +188,8 @@ namespace ProjectUnknown.Strategy
                 "AnimatedFocusStarted",
                 StrategyDebugLogger.F("target", worldCenter),
                 StrategyDebugLogger.F("size", animatedFocusTargetSize),
-                StrategyDebugLogger.F("duration", durationSeconds));
+                StrategyDebugLogger.F("duration", durationSeconds),
+                StrategyDebugLogger.F("holdTarget", holdTarget));
         }
 
         private bool UpdateAnimatedFocus()
@@ -179,9 +217,30 @@ namespace ProjectUnknown.Strategy
                 return true;
             }
 
-            animatedFocusActive = false;
-            FocusOn(animatedFocusTargetCenter, animatedFocusTargetSize);
+            if (animatedFocusHoldsTarget)
+            {
+                FocusOn(animatedFocusTargetCenter, animatedFocusTargetSize);
+            }
+            else
+            {
+                ReleaseFocusAt(animatedFocusTargetCenter, animatedFocusTargetSize);
+            }
+
             return true;
+        }
+
+        private void ReleaseFocusAt(Vector3 worldCenter, float orthographicSize)
+        {
+            animatedFocusActive = false;
+            animatedFocusHoldsTarget = false;
+            focusHoldFramesRemaining = 0;
+            inputSuppressedUntilUnscaledTime = Time.unscaledTime;
+            ApplyFocus(worldCenter, orthographicSize);
+            StrategyDebugLogger.Info(
+                "Camera",
+                "ProgrammaticFocusReleased",
+                StrategyDebugLogger.F("target", worldCenter),
+                StrategyDebugLogger.F("size", strategyCamera != null ? strategyCamera.orthographicSize : -1f));
         }
 
         private void ApplyFocus(Vector3 worldCenter, float orthographicSize)

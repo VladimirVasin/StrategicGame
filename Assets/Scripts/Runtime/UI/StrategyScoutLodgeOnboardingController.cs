@@ -9,6 +9,7 @@ namespace ProjectUnknown.Strategy
         private const string PauseReason = "ScoutLodgeOnboarding";
         private const float FocusZoom = 7f;
         private const float FocusDuration = 0.55f;
+        private const float FocusReturnDuration = 0.18f;
         private const float DialogRevealDelay = 0.42f;
 
         private StrategyBuildPlacementController placement;
@@ -26,6 +27,9 @@ namespace ProjectUnknown.Strategy
         private bool introductionQueuedOrShown;
         private bool pauseHeld;
         private float dialogRevealAt;
+        private Vector3 returnCameraCenter;
+        private float returnCameraSize;
+        private bool hasReturnCameraView;
 
         public bool IsActive => stage != FlowStage.None;
 
@@ -127,6 +131,7 @@ namespace ProjectUnknown.Strategy
             StrategyScoutLodge lodge,
             bool showIntroduction)
         {
+            ClearReturnCameraView();
             pendingBuilding = building;
             pendingLodge = lodge;
             introduction = showIntroduction;
@@ -159,6 +164,7 @@ namespace ProjectUnknown.Strategy
             PushPauseLock();
             if (introduction && cameraController != null)
             {
+                CaptureReturnCameraView();
                 HoldFocusInput();
                 cameraController.FocusOnAnimated(
                     pendingBuilding.SelectionBounds.center,
@@ -370,12 +376,46 @@ namespace ProjectUnknown.Strategy
 
         private void CompleteFlow()
         {
+            StrategyCameraController returnCamera = hasReturnCameraView
+                ? cameraController
+                : null;
+            Vector3 returnCenter = returnCameraCenter;
+            float returnSize = returnCameraSize;
+            ClearReturnCameraView();
             ReleaseFocusInput();
             ReleasePauseLock();
             pendingBuilding = null;
             pendingLodge = null;
             introduction = false;
             stage = FlowStage.None;
+
+            if (returnCamera != null)
+            {
+                returnCamera.RestoreViewAnimated(
+                    returnCenter,
+                    returnSize,
+                    FocusReturnDuration);
+                StrategyDebugLogger.Info(
+                    "ScoutOnboarding",
+                    "CameraViewRestoring",
+                    StrategyDebugLogger.F("target", returnCenter),
+                    StrategyDebugLogger.F("size", returnSize));
+            }
+        }
+
+        private void CaptureReturnCameraView()
+        {
+            hasReturnCameraView = cameraController != null
+                && cameraController.TryGetView(
+                    out returnCameraCenter,
+                    out returnCameraSize);
+        }
+
+        private void ClearReturnCameraView()
+        {
+            hasReturnCameraView = false;
+            returnCameraCenter = default;
+            returnCameraSize = 0f;
         }
 
         private void CancelFlow(bool dismissDialog)

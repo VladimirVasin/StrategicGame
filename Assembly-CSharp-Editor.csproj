@@ -41,6 +41,7 @@
     <Compile Include="Assets\Editor\StrategyVerificationRunner.Watchdog.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyResidentCharacterizationTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyScoutTargetSelectorTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyScoutLodgeCameraFocusTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyScoutAssignmentFlowTests.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.Quality.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.Soak.cs" />
