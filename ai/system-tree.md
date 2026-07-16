@@ -138,7 +138,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Runtime world audio director blends daytime/nighttime settlement beds, campfire, winter wind, local work details, and important event one-shots from camera-area population/building context
     - Runtime-created ambience controller applies season/time/weather weighting to nature, river, rain, and wind layers
     - Loads non-generated nature loops and grass footsteps from `Assets/Resources/Audio`
-    - Loads context-tagged `calm`/`night`/`winter`/`storm` music from `Assets/Resources/Audio/Music`, with generic-track fallback, inter-track silence, end fades, and focus-safe pause/resume
+    - Loads context-tagged `calm`/`night`/`winter`/`storm` music from `Assets/Resources/Audio/Music`, with generic-track fallback, full-cycle shuffle-bag rotation, inter-track silence, end fades, and focus-safe pause/resume
     - Loads generated resident work one-shot clips from `Assets/Resources/Audio/WorkSfx`
     - Loads generated non-spatial HUD interaction one-shots from `Assets/Resources/Audio/HudSfx`
     - Plays forest birds, cicadas, night, rain, calm wind, and forest wind as global ambience layers
@@ -149,7 +149,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Adds pooled spatial forestry SFX for tree-fall and split-Logs completion events
     - Adds subtle HUD SFX for menu open/close, selection, denials, confirmations, roster/sort/filter controls, profession controls, speed buttons, and modal/refugee dialogs
     - Resident footstep and work SFX are shaped by camera focus and orthographic zoom, lowering volume, lowering high-frequency cutoff, and raising a subtle reverb tail when sources sit near/outside camera focus or when the camera is zoomed out
-    - Plays one random music track at a time and avoids repeating the previous track when 2+ tracks exist
+    - Plays every music track once in randomized order before refilling the rotation; with 2+ tracks, a new rotation cannot begin with the previous rotation's final track
     - Pauses current in-game music on focus loss and resumes the same clip on focus return
   - Strategy weather
     - Runtime-created weather controller
@@ -669,7 +669,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Custom in-game Escape pause menu over a dimmed live map with a dark left panel, Resume/Save/Settings commands, and confirmed Main Menu/Quit actions
   - Custom runtime F9 debug panel with player fog-of-war, instant construction, refugee arrival summon, and forced Clear/Cloudy/Rain/Fog/Storm/Snow/Blizzard weather-state controls
   - Custom runtime Build menu HUD
-    - Early starter goals can lock Build menu categories/items to Houses first, then Forager Camp, then Lumberjack/Stonecutter camps, before unlocking the full catalog
+    - Starter progression exposes a seven-tool base catalog from the beginning, guides Houses -> Forager Camp -> Lumberjack/Stonecutter camps -> Scout Lodge -> Storage Yard/Granary, and unlocks the full catalog after every base requirement is complete
   - Custom runtime top status HUD showing total population, adults, children, day number, 24-hour time, outdoor temperature, season day, time-of-day phase, winter food/fuel readiness, and day progress; clicking the population panel opens a larger residents roster HUD
   - Custom runtime residents roster HUD showing settlement stats plus filterable resident rows for name, age, home state, role, current status, and food status
   - Custom fullscreen Family Trees HUD opened from the residents roster; it pauses simulation, provides permanent horizontal/vertical scrollbars, uses an animated modal transition, lays connected same-surname family cards out as affinity-ordered left-to-right columns, and shows compact generation rows connected by local parent-pair branches plus cross-family relationship lines, deceased markers, gender symbols, and hover relationship labels

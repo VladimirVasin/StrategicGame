@@ -11,4 +11,6 @@ The runtime Resources folder path is:
 Audio/Music
 
 All AudioClips in this folder are loaded as a playlist.
-The game picks tracks randomly and avoids repeating the same track twice in a row when 2+ tracks exist.
+The game uses a randomized shuffle-bag rotation: every track plays once before any track repeats.
+When a new rotation begins with 2+ tracks, its first track cannot repeat the final track of the previous rotation.
+Mood-tagged tracks are preferred among the tracks still unused in the current rotation, without skipping the rest of the playlist.

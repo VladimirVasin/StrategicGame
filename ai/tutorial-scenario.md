@@ -1,6 +1,6 @@
 # Tutorial Scenario
 
-Last updated: 2026-07-15
+Last updated: 2026-07-16
 
 ## Current State
 
@@ -31,15 +31,16 @@ When a real tutorial or onboarding flow is implemented:
 - Normal startup places a temporary Caravan Cart near the campfire instead of a prebuilt Storage Yard; it starts with 20 Logs, 20 Stone, and randomized raw food covering 3 days for the initial families.
 - Dawn counts as settlement work time on every day, so auto-assigned builders and haulers can begin starter construction immediately.
 - Residents cannot die from any cause during calendar days 1-2; normal mortality begins at the start of day 3.
-- While this goal is active, the Build menu allows only `House`; all other building categories/items are locked.
+- Until the starter sequence completes, the Build menu allows the seven-building base catalog: `House`, `Lumberjack Camp`, `Stonecutter Camp`, `Forager Camp`, `Scout Lodge`, `Storage Yard`, and `Granary`; all other building items remain locked.
 - Completed construction, not placed construction sites, advances goal progress.
+- Base buildings may be completed ahead of their displayed goal; the sequence remembers them and skips goals whose requirement is already satisfied.
 - After the third completed House, the next goal stage starts.
 - The second stage shows `Build Forager Camp`.
-- While the second stage is active, the Build menu allows only `Extraction` / `Food` / `Forager Camp`; other buildings remain locked.
 - After the Forager Camp is completed, the third goal stage starts.
 - The third stage shows `Build Lumberjack Camp` and `Build Stonecutter Camp`.
-- While the third stage is active, the Build menu allows only `Extraction` / `Camps` / `Lumberjack Camp` and `Stonecutter Camp`; other buildings remain locked.
-- After both raw-resource camps are completed, the starter goal sequence completes and the full Build menu catalog unlocks.
+- After both raw-resource camps are completed, the fourth stage shows `Build Scout Lodge`.
+- After the Scout Lodge is completed, the fifth stage shows `Build Storage Yard` and `Build Granary`.
+- After both storage buildings are completed, the starter goal sequence completes and the full Build menu catalog unlocks.
 - The Goals HUD then asks the settlement to stock seven days of food and seven days of firewood before the first Winter.
 - Both preparation goals show live filled bars and current reserve days out of seven, using the same readiness calculation that completes the goals.
 - Winter readiness counts physical stock across eligible settlement stores and production buildings but excludes resources currently carried by residents.

@@ -19,6 +19,8 @@
     <Compile Include="Assets\Tests\EditMode\StrategyRoadOccupancyTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyPointOfInterestPlacementTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyPointOfInterestMineralTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyStarterBuildProgressionTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyMusicShuffleBagTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyPointOfInterestSaveValidationTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyPointOfInterestPendingReservationTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyGameContextTests.cs" />

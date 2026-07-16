@@ -1,5 +1,22 @@
 # Work Log
 
+### 2026-07-16 - Non-repeating music shuffle-bag
+
+- Replaced immediate-repeat avoidance with a randomized shuffle-bag: every loaded gameplay music track now plays exactly once before any track becomes eligible again.
+- Prevented the first track of a new rotation from matching the final track of the previous rotation when at least two tracks exist.
+- Kept `calm`/`night`/`winter`/`storm` mood matching as a priority among tracks still unused in the active rotation, so contextual selection cannot starve the rest of the playlist.
+- Preserved randomized inter-track silence, end fades, music-bus routing, and focus-loss pause/resume of the same clip.
+- Added deterministic EditMode coverage for complete rotations, rotation boundaries, mood priority, single-track playlists, and playlist-size changes; updated the music asset guidance to document the rotation contract.
+- Verification: technical quality gates pass; all five C# projects build with zero warnings/errors; focused shuffle-bag EditMode tests pass 5/5; Unity PlayMode smoke passes.
+
+### 2026-07-16 - Starter base Build catalog and guided unlock
+
+- Replaced the one-tool-at-a-time starter Build locks with one seven-tool base catalog available from the beginning: House, Lumberjack Camp, Stonecutter Camp, Forager Camp, Scout Lodge, Storage Yard, and Granary; every advanced extraction, food-specialist, production, trade, and bridge tool remains locked.
+- Extended the starter goal order to 3 Houses -> Forager Camp -> Lumberjack/Stonecutter camps -> Scout Lodge -> Storage Yard/Granary, then unlock the full catalog and begin the existing first-winter preparation phase.
+- Added a pure base-tool/phase policy so completed base buildings can be recognized out of order and save restoration can reconstruct the first missing goal from completed world buildings without a persistence-version change.
+- Updated the Tutorial scenario and Build/progression system memory to match the new available tools, goal text, completion requirements, and unlock order.
+- Verification: technical quality gates pass; all five C# projects build with zero warnings/errors; focused starter-progression EditMode tests pass 4/4; Unity PlayMode smoke passes.
+
 ### 2026-07-16 - Coal and Iron point-of-interest sites
 
 - Removed starter, minimum-fallback, and random full-map Coal/Iron generation from the nature pass; Stone, Clay, and vegetation remain map-generated, while Coal/Iron now exist only as point-of-interest-owned sites.

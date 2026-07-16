@@ -479,7 +479,7 @@ Responsibilities:
 - Play layered season-aware forest birds, cicadas, night, rain, calm wind, forest wind, river, settlement, campfire, and winter ambience.
 - Follow the active runtime weather state for rain and weather wind ambience.
 - Position a spatial river ambience source at the nearest generated water cell to the active camera.
-- Prefer `calm`/`night`/`winter`/`storm` music filename tags, use generic tracks as fallback, avoid immediate repeats, and insert contextual silence/end fades.
+- Prefer `calm`/`night`/`winter`/`storm` music filename tags among tracks still unused in the active shuffle-bag, play every track once before refilling, prevent a boundary repeat when 2+ tracks exist, and insert contextual silence/end fades.
 - Pause current in-game music on application focus loss and resume the same clip on focus return.
 - Mute the global listener while application focus is lost or the application is suspended, then restore the exact captured listener volume only after both states clear.
 - Shape resident walk frames into grass/forest/dirt/road/snow profiles and submit them to the shared voice pool.
@@ -498,6 +498,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Audio/StrategyProceduralAudioLibrary.cs`
 - `Assets/Scripts/Runtime/Audio/StrategyWorldAudioDirector.cs`
 - `Assets/Scripts/Runtime/Audio/StrategyMusicController.cs`
+- `Assets/Scripts/Runtime/Audio/StrategyMusicShuffleBag.cs`
 - `Assets/Scripts/Runtime/Audio/StrategyHudSfxAudio.cs`
 - `Assets/Scripts/Runtime/Menu/StrategyFoundingJourneyAudio.cs`
 - `Assets/Scripts/Runtime/Audio/StrategyResidentFootstepAudio.cs`
@@ -513,6 +514,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.TaskArrival.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentHouseholdCookingTask.cs`
 - `Assets/Tests/EditMode/StrategyResidentCharacterizationTests.cs`
+- `Assets/Tests/EditMode/StrategyMusicShuffleBagTests.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.WorkSfx.cs`
 - `Assets/Scripts/Runtime/Audio/StrategyResidentFootstepAudio.cs`
 - `Assets/Resources/Audio/Nature/`
@@ -526,6 +528,7 @@ Impact hints:
 
 - Ambience depends on generated map water cells, camera position, and strategy wind/weather values.
 - Music files can be named freely, but `Music_01.mp3`, `Music_02.mp3`, etc. are the recommended convention; all direct AudioClips in `Resources/Audio/Music` are part of the playlist.
+- Music selection is sampling without replacement: mood is only a preference within the current bag, and no played index returns until the bag is empty.
 - Music focus handling must use `AudioSource.Pause`/`UnPause` so losing focus does not trigger playlist advancement.
 - Application focus must not write `Time.timeScale`; desktop background execution is a Player setting, while simulation pause remains owned by `StrategyTimeScaleController` locks.
 - Global focus mute uses `AudioListener.volume`, not `AudioListener.pause`, because HUD sources intentionally ignore listener pause; always restore the captured value rather than assuming full volume.
@@ -1331,6 +1334,7 @@ Responsibilities:
 - Build item cards with Logs/Stone/Planks construction costs, affordability state, and active state.
 - F9 instant construction debug mode makes build tools affordable and shows item cost badges as `Free`.
 - Temporary goal-driven tool locks that disable locked categories/items, block mouse and hotkey selection, and show `Locked` item badges.
+- Starter progression keeps `House`, `Lumberjack Camp`, `Stonecutter Camp`, `Forager Camp`, `Scout Lodge`, `Storage Yard`, and `Granary` available from the beginning, then unlocks the full catalog after its ordered base requirements are complete.
 - Top-left construction resource panel with x1/x2/x3 speed buttons directly beneath it.
 - Current catalog entries: `Housing` / `House`, `Extraction` / `Camps` (`Lumberjack Camp`, `Stonecutter Camp`), `Deposits` (`Mine`, `Coal Pit`, `Clay Pit`), and `Food` (`Hunter Camp`, `Fisher Hut`, `Forager Camp`, `Chicken Coop`), `Production` / `Sawmill`, `Kiln`, and `Forge`, `Storage` / `Storage Yard` and `Granary`, `Trade` / `Trading Post`, and `Infrastructure` / `Scout Lodge` and `Bridge`.
 - Hotkeys for open/close, category/subcategory/item selection, and layered cancel.
@@ -1350,6 +1354,8 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/UI/StrategyBuildMenuController.Driver.Locking.cs`
 - `Assets/Scripts/Runtime/UI/StrategyBuildMenuController.Driver.Part03.cs`
 - `Assets/Scripts/Runtime/UI/StrategyBuildMenuController.Catalog.cs`
+- `Assets/Scripts/Runtime/UI/StrategyStarterBuildProgression.cs`
+- `Assets/Scripts/Runtime/UI/StrategyStarterGoalSequenceController.cs`
 - `Assets/Scripts/Runtime/Build/StrategyBuildingSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Build/StrategyLumberjackCamp.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStonecutterCamp.cs`
@@ -1386,7 +1392,7 @@ Impact hints:
 
 - The public `StrategyBuildMenuController` component is a thin wrapper; `StrategyBuildMenuControllerDriver` owns selected active build tool data and reads `StrategyStorageYard.GetTotalConstructionResources()` for affordability, including Storage Yard stock, production-local construction stock, loose piles, and the starter cart unless F9 instant construction debug mode is enabled.
 - Placement reads `StrategyBuildMenuController.ActiveTool` / active tool info.
-- Starter goals call `StrategyBuildMenuController.SetAllowedTools()` and `ClearAllowedTools()`; keep lock checks shared by mouse clicks, hotkeys, active tool info, subcategory visibility, and affordability/selection visuals.
+- Starter goals apply the pure `StrategyStarterBuildProgression` base-tool policy through `StrategyBuildMenuController.SetAllowedTools()` and call `ClearAllowedTools()` only after Houses, Forager Camp, both raw-resource camps, Scout Lodge, Storage Yard, and Granary are complete; keep lock checks shared by mouse clicks, hotkeys, active tool info, subcategory visibility, and affordability/selection visuals.
 - Current catalog has user-requested buildings only: `House`, `Lumberjack Camp`, `Stonecutter Camp`, `Sawmill`, `Kiln`, `Forge`, `Hunter Camp`, `Fisher Hut`, `Forager Camp`, `Mine`, `Coal Pit`, `Clay Pit`, `Storage Yard`, `Granary`, `Trading Post`, `Scout Lodge`, and `Bridge`; do not add more without a user request.
 - Current `Housing` category directly activates `House` because it has one item.
 - Current `Extraction` category opens a subcategory dock before item cards: `Camps` for `Lumberjack Camp`/`Stonecutter Camp`, `Deposits` for Mine/Coal/Clay extraction, and `Food` for Hunter/Fisher/Forager/Chicken Coop food buildings.

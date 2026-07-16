@@ -179,6 +179,7 @@
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyConstructionSite.Active.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyCinematicVisualSprites.cs" />
     <Compile Include="Assets\Scripts\Runtime\Audio\StrategyMusicController.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Audio\StrategyMusicShuffleBag.cs" />
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyTradeOfferCatalog.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part53.cs" />
     <Compile Include="Assets\Scripts\Runtime\Weather\StrategyWeatherVisualController.Snow.cs" />
@@ -650,6 +651,7 @@
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingSpriteFactory.Part10.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyConstructionSite.Debug.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyStarterGoalSequenceController.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyStarterBuildProgression.cs" />
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyTradeOffer.cs" />
     <Compile Include="Assets\Scripts\Runtime\Selection\StrategyWorldSelectionController.Part03.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyHouseWarmthState.cs" />

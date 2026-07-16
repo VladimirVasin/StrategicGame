@@ -114,6 +114,7 @@
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildPlacementController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyCinematicLightEmitter.Profile.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part29.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Audio\StrategyMusicShuffleBag.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingVariantProfile.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingSnowSpriteFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Selection\StrategyWorldSelectionController.Input.cs" />
@@ -681,6 +682,7 @@
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyCinematicLightEmitter.Torch.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part44.cs" />
     <Compile Include="Assets\Scripts\Runtime\Selection\StrategyWorldSelectionController.Part05.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyStarterBuildProgression.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyMouseAgent.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWildlifeController.Part02.cs" />
     <Compile Include="Assets\Scripts\Runtime\Weather\StrategyWeatherController.cs" />

@@ -13,6 +13,7 @@ namespace ProjectUnknown.Strategy
 
         private AudioSource musicSource;
         private AudioReverbFilter reverbFilter;
+        private readonly StrategyMusicShuffleBag shuffleBag = new();
         private AudioClip[] playlist = Array.Empty<AudioClip>();
         private int currentTrackIndex = -1;
         private bool configured;
@@ -32,6 +33,10 @@ namespace ProjectUnknown.Strategy
             {
                 Array.Sort(playlist, (left, right) => string.Compare(left.name, right.name, StringComparison.Ordinal));
             }
+
+            currentTrackIndex = -1;
+            waitingBetweenTracks = false;
+            shuffleBag.Reset(playlist.Length);
 
             EnsureMusicSource();
             configured = true;
@@ -200,44 +205,16 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("clip", clip.name),
                 StrategyDebugLogger.F("trackIndex", currentTrackIndex),
                 StrategyDebugLogger.F("trackCount", playlist.Length),
+                StrategyDebugLogger.F("rotationRemaining", shuffleBag.RemainingCount),
                 StrategyDebugLogger.F("mood", mood));
         }
 
         private int PickNextTrackIndex(StrategyMusicMood mood)
         {
-            if (playlist.Length <= 0)
-            {
-                return -1;
-            }
-
-            int candidateCount = 0;
-            for (int i = 0; i < playlist.Length; i++)
-            {
-                if (i != currentTrackIndex && MatchesMood(playlist[i], mood))
-                {
-                    candidateCount++;
-                }
-            }
-
-            if (candidateCount > 0)
-            {
-                int selected = UnityEngine.Random.Range(0, candidateCount);
-                for (int i = 0; i < playlist.Length; i++)
-                {
-                    if (i != currentTrackIndex && MatchesMood(playlist[i], mood) && selected-- == 0)
-                    {
-                        return i;
-                    }
-                }
-            }
-
-            if (playlist.Length == 1 || currentTrackIndex < 0)
-            {
-                return UnityEngine.Random.Range(0, playlist.Length);
-            }
-
-            int fallback = UnityEngine.Random.Range(0, playlist.Length - 1);
-            return fallback >= currentTrackIndex ? fallback + 1 : fallback;
+            return shuffleBag.PickNext(
+                playlist.Length,
+                currentTrackIndex,
+                index => MatchesMood(playlist[index], mood));
         }
 
         private static StrategyMusicMood GetDesiredMood()
