@@ -8,6 +8,7 @@ namespace ProjectUnknown.Strategy
         private void ApplyPendingLoad()
         {
             StrategySaveData data = pendingLoad;
+            ReleasePendingPointOfInterestCells(map);
             if (!ValidateSaveData(data, out string reason)
                 || data.mapWidth != map.Width
                 || data.mapHeight != map.Height)
@@ -26,6 +27,12 @@ namespace ProjectUnknown.Strategy
             population.ClearResidentsForLoad();
             placement.ClearWorldForLoad();
             ClearLooseResources();
+            bool regenerateLegacyPointsAfterWorld = data.pointsOfInterest == null
+                || data.pointsOfInterest.Count <= 0;
+            if (!regenerateLegacyPointsAfterWorld)
+            {
+                StrategyPointOfInterestController.Active?.RestorePersistentState(data.pointsOfInterest);
+            }
 
             Dictionary<string, StrategyPlacedBuilding> buildingsById = new();
             for (int i = 0; i < data.buildings.Count; i++)
@@ -58,13 +65,17 @@ namespace ProjectUnknown.Strategy
                 placement.RestoreConstructionSite(data.constructionSites[i]);
             }
 
+            if (regenerateLegacyPointsAfterWorld)
+            {
+                StrategyPointOfInterestController.Active?.RestorePersistentState(null);
+            }
+
             for (int i = 0; i < data.residents.Count; i++)
             {
                 population.RestoreResident(data.residents[i], buildingsById);
             }
 
             population.FinalizeResidentRestore();
-            StrategyPointOfInterestController.Active?.RestorePersistentState(data.pointsOfInterest);
             RestoreLooseResources(data.looseResources);
             StrategyTrailController.Active?.RestorePersistentTrailCells(data.trailCells);
             FindAnyObjectByType<StrategyFogOfWarController>()?.RestoreExploredCells(data.exploredCells);

@@ -22,6 +22,11 @@ namespace ProjectUnknown.Strategy
                     stableId = point.StableId,
                     cellX = point.Cell.x,
                     cellY = point.Cell.y,
+                    resourceKind = (int)point.ResourceKind,
+                    hasMineralSite = point.HasMineralSite,
+                    mineralOriginX = point.MineralOrigin.x,
+                    mineralOriginY = point.MineralOrigin.y,
+                    remainingMineralAmount = GetRemainingMineralAmount(point),
                     investigated = point.IsInvestigated
                 });
             }
@@ -50,11 +55,14 @@ namespace ProjectUnknown.Strategy
 
             HashSet<Vector2Int> usedCells = new();
             HashSet<string> usedIds = new(StringComparer.Ordinal);
+            HashSet<Vector2Int> forageCells = CaptureForageCells();
+            bool restoreFailed = false;
             for (int i = 0; i < savedPoints.Count; i++)
             {
                 StrategyPointOfInterestSaveData saved = savedPoints[i];
                 if (saved == null)
                 {
+                    restoreFailed = true;
                     continue;
                 }
 
@@ -66,6 +74,7 @@ namespace ProjectUnknown.Strategy
                     || !usedCells.Add(cell)
                     || !usedIds.Add(stableId))
                 {
+                    restoreFailed = true;
                     StrategyDebugLogger.Warn(
                         "PointOfInterest",
                         "RestoreEntrySkipped",
@@ -75,12 +84,69 @@ namespace ProjectUnknown.Strategy
                     continue;
                 }
 
-                CreatePoint(stableId, cell, saved.investigated);
+                if (saved.resourceKind < (int)StrategyPointOfInterestResourceKind.None
+                    || saved.resourceKind > (int)StrategyPointOfInterestResourceKind.Iron)
+                {
+                    restoreFailed = true;
+                    continue;
+                }
+
+                StrategyPointOfInterestResourceKind resourceKind =
+                    (StrategyPointOfInterestResourceKind)saved.resourceKind;
+                bool hasMineralSite = resourceKind != StrategyPointOfInterestResourceKind.None
+                    && saved.hasMineralSite;
+                Vector2Int mineralOrigin = new(saved.mineralOriginX, saved.mineralOriginY);
+                if (resourceKind != StrategyPointOfInterestResourceKind.None
+                    && (!hasMineralSite
+                        || saved.remainingMineralAmount > 0
+                        && (!CanRestoreMineralSite(
+                                cell,
+                                resourceKind,
+                                mineralOrigin,
+                                forageCells)
+                            || !TryCreateMineralSite(
+                                resourceKind,
+                                mineralOrigin,
+                                saved.remainingMineralAmount,
+                                i))))
+                {
+                    restoreFailed = true;
+                    StrategyDebugLogger.Warn(
+                        "PointOfInterest",
+                        "RestoreMineralSiteSkipped",
+                        StrategyDebugLogger.F("index", i),
+                        StrategyDebugLogger.F("id", stableId),
+                        StrategyDebugLogger.F("resourceKind", resourceKind),
+                        StrategyDebugLogger.F("origin", mineralOrigin),
+                        StrategyDebugLogger.F("amount", saved.remainingMineralAmount));
+                    continue;
+                }
+
+                if (!TryCreatePoint(
+                        stableId,
+                        cell,
+                        resourceKind,
+                        hasMineralSite,
+                        mineralOrigin,
+                        saved.investigated))
+                {
+                    restoreFailed = true;
+                    if (hasMineralSite && saved.remainingMineralAmount > 0)
+                    {
+                        nature?.TryRemovePointOfInterestMineral(resourceKind, mineralOrigin);
+                    }
+                }
             }
 
-            if (points.Count <= 0)
+            if (restoreFailed || points.Count != savedPoints.Count)
             {
+                StrategyDebugLogger.Warn(
+                    "PointOfInterest",
+                    "RestoreRolledBack",
+                    StrategyDebugLogger.F("saved", savedPoints.Count),
+                    StrategyDebugLogger.F("restored", points.Count));
                 GenerateDefaultPoints();
+                return;
             }
 
             StrategyDebugLogger.Info(
@@ -88,6 +154,8 @@ namespace ProjectUnknown.Strategy
                 "Restored",
                 StrategyDebugLogger.F("saved", savedPoints.Count),
                 StrategyDebugLogger.F("restored", points.Count),
+                StrategyDebugLogger.F("coal", CountResourceKind(StrategyPointOfInterestResourceKind.Coal)),
+                StrategyDebugLogger.F("iron", CountResourceKind(StrategyPointOfInterestResourceKind.Iron)),
                 StrategyDebugLogger.F("investigated", CountInvestigated()));
         }
 

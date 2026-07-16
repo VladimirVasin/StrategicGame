@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace ProjectUnknown.Strategy
 {
-    internal static class StrategyPointOfInterestPlacement
+    internal static partial class StrategyPointOfInterestPlacement
     {
         internal const int DefaultPointCount = 10;
         internal const int CampExclusionRadius = 16;

@@ -62,6 +62,7 @@ namespace ProjectUnknown.Strategy
                     out List<int> pendingTrailCells)
                     ? pendingTrailCells
                     : null);
+            StrategySaveSystem.ReservePendingPointOfInterestCells(map);
             StrategyDebugLogger.Info("Bootstrap", "TrailsReady");
             ConfigureNavigation(context, map);
             StrategyWindController wind = context.GetOrCreate<StrategyWindController>("Strategy Wind");
@@ -266,6 +267,7 @@ namespace ProjectUnknown.Strategy
                 map,
                 fog,
                 placement,
+                nature,
                 timeScale,
                 pointOfInterestDialog,
                 pointOfInterestCampCell,

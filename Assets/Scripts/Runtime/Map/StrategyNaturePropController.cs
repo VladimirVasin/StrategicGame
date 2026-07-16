@@ -9,14 +9,9 @@ namespace ProjectUnknown.Strategy
         private const int MaxNatureProps = 3600;
         private const int MaxStoneDeposits = 440;
         private const int MinimumStoneDeposits = 112;
-        private const int MaxIronDeposits = 180;
-        private const int MinimumIronDeposits = 48;
         private const int StarterStoneMinimumDeposits = 5;
         private const int StarterStoneMinDistance = 4;
         private const int StarterStoneMaxDistance = StrategyStonecutterCamp.WorkRadius;
-        private const int StarterMineralMinimumDeposits = 2;
-        private const int StarterMineralMinDistance = 10;
-        private const int StarterMineralMaxDistance = 24;
         private const int TreeSortingOrder = 3;
         private const int ForestSortingOrder = 3;
         private const int BushSortingOrder = 2;
@@ -178,16 +173,6 @@ namespace ProjectUnknown.Strategy
             }
 
             if (TryPlaceClayForCell(cell))
-            {
-                return;
-            }
-
-            if (TryPlaceIronForCell(cell))
-            {
-                return;
-            }
-
-            if (TryPlaceCoalForCell(cell))
             {
                 return;
             }

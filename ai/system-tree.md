@@ -1,6 +1,6 @@
 # System Tree
 
-Last updated: 2026-07-14
+Last updated: 2026-07-16
 
 This is a conceptual map of the current project. Keep concrete file ownership in `ai/systems-map.md`.
 
@@ -189,9 +189,9 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Generated after map terrain cells are built
       - Uses active map seed for deterministic prop placement within a map session
       - Fills capped prop budgets through a seeded shuffled whole-map pass instead of a linear y/x scan, preventing one edge of a large map from receiving most objects
-      - Uses macro cluster weighting for vegetation and generated Stone/Iron/Coal/Clay so resources form natural regions with empty space between them
+      - Uses macro cluster weighting for vegetation and generated Stone/Clay so resources form natural regions with empty space between them
       - Guarantees starter-area Stone deposits within stonecutter work distance around the startup campfire
-      - Guarantees starter-area Coal and Iron deposits in a nearby ring before the general prop pass, and keeps Iron/Coal minimum fallbacks independent from the decorative nature-prop cap
+      - Does not generate random or starter-area Coal/Iron; typed points of interest exclusively own those deposits
       - Forest cells receive dense tree/forest-group visuals
       - Grass, meadow, dirt, and shore cells can receive sparse standalone trees or bushes
       - Skips a 3-cell radius around the startup campfire
@@ -199,13 +199,11 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Forest groups and bushes remain non-interactive but also block their cells
       - Generated Stone deposits appear as standalone boulders, rock clusters, and larger cliffs
       - Stone deposits register with the Stone resource registry and block their occupied cells
-      - Generated Iron fields appear as multi-cell rust-stained ground and shallow vein markings
-      - Iron fields register with the Iron resource registry, keep their cells walkable but not normally buildable, avoid adjacent Coal fields, and can be reserved/mined by Mines built over them
-      - Generated Coal fields appear as multi-cell dark dust ground and coal seam markings
-      - Coal fields register with the Coal resource registry, keep their cells walkable but not normally buildable, avoid adjacent Iron fields, and can be reserved/mined by Coal Pits built over them
+      - POI-owned Iron Veins register with the Iron resource registry, use fixed 2x2 fields, stay walkable but not normally buildable, and can be reserved/mined by Mines built over them
+      - POI-owned Coal Seams register with the Coal resource registry, use fixed 2x2 fields, stay walkable but not normally buildable, and can be reserved/mined by Coal Pits built over them
       - Generated Clay fields appear as multi-cell wet clay patches and clay banks only near water
       - Clay fields register with the Clay resource registry, keep their cells walkable but not normally buildable, avoid adjacent Iron/Coal/Clay fields, and can be reserved/mined by Clay Pits built over them
-      - Starter-area Stone, Coal, and Iron deposits are placed outside the campfire clear radius before vegetation so nearby mining access is reliable
+      - Starter-area Stone is placed outside the campfire clear radius before vegetation; Coal/Iron sites stay beyond the POI camp exclusion radius
       - Nature props attach a 2D sway adapter driven by the strategy `WindZone`
       - Nature props add lightweight procedural leaf frame overlays
       - Forest groups, bushes, generated trees, and Stone deposits attach tuned procedural ground/cast shadows
@@ -217,13 +215,13 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Keeps deposit footprints not walkable while deposits exist
       - Stonecutter workers mine deposits with hit-driven pickaxe animation, shake, cracks, chip/dust effects, chunk extraction, and depletion cleanup
     - Iron resources MVP
-      - Tracks generated underground Iron fields in a runtime registry
+      - Tracks POI-owned underground Iron fields in a runtime registry
       - Supports Iron-stained Ground and Iron Vein deposit kinds
       - Stores per-deposit Iron amount, reservation state, and mine extraction hooks
       - Keeps Iron field cells walkable because the ore is underground, while blocking normal building placement
       - Feeds Mine-local stock through hidden underground Miner work; Iron is not yet used in construction costs
     - Coal resources MVP
-      - Tracks generated underground Coal fields in a runtime registry
+      - Tracks POI-owned underground Coal fields in a runtime registry
       - Supports Coal Dust Ground and Coal Seam deposit kinds
       - Stores per-deposit Coal amount, reservation state, and pit extraction hooks
       - Keeps Coal field cells walkable because the coal is underground, while blocking normal building placement
@@ -328,9 +326,10 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Exposes a player fog off/on switch for the F9 debug panel without clearing explored state
     - Points of interest
       - Places 10 seed-deterministic schematic landmarks on separated camp-connected walkable/buildable land cells
+      - Keeps the nearest introductory landmark mineral-free, then alternates nine Coal/Iron landmarks with a deterministic five/four split; each typed point owns one distinct 2x2 deposit 3-5 cells away and a usable 2x3 extraction block beyond the camp exclusion radius
       - Leaves landmark cells walkable while blocking construction and future forage respawn overlap
       - Reserves discovered uninvestigated landmarks across Scouts, applies bounded unreachable cooldowns, and marks completed landmarks with a check state
-      - Queues one-button debug encounters after completed Scout investigations
+      - Queues resource-specific one-button debug encounters after completed Scout investigations
     - Basic buildability data reserved for future economy/zoning
     - Dynamic walkability layer for runtime blockers such as placed buildings
   - Strategy camera
@@ -704,10 +703,10 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Gameplay can be rendered at deterministic Noon, Spring, Autumn, Night, and Winter states for visual comparison when a graphics device is available
 
 - Persistence
-  - Version-5 JSON save data with v1/v2/v3/v4 migration, validation, atomic temporary-file replacement, and `.bak` recovery
+  - Version-6 JSON save data with v1/v2/v3/v4/v5 migration, validation, atomic temporary-file replacement, and `.bak` recovery
   - F5 saves the current settlement; F8 loads it by restarting and restoring the runtime scene
   - Stable IDs reconnect placed buildings, residents, homes, parents, and children without serializing Unity object references
-  - Snapshot coverage includes map seed/time/weather, founding profile answers and exact camp/current-cart origin, first-winter milestones, buildings, construction sites, resource and dish stock, residents and cold state, ground resources plus in-transit resident stock represented as loose resources at saved resident cells, exact prepared-dish payloads, explored fog, route-road cells, and point-of-interest position/investigated state
+  - Snapshot coverage includes map seed/time/weather, founding profile answers and exact camp/current-cart origin, first-winter milestones, buildings, construction sites, resource and dish stock, residents and cold state, ground resources plus in-transit resident stock represented as loose resources at saved resident cells, exact prepared-dish payloads, explored fog, route-road cells, and point-of-interest position/resource kind/mineral origin/remaining amount/investigated state
 
 - AI collaboration memory
   - Root entry point: `AI.md`

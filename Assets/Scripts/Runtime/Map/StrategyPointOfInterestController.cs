@@ -18,6 +18,7 @@ namespace ProjectUnknown.Strategy
         private CityMapController map;
         private StrategyFogOfWarController fog;
         private StrategyBuildPlacementController placement;
+        private StrategyNaturePropController nature;
         private StrategyTimeScaleController timeScale;
         private StrategyPointOfInterestDialogController dialog;
         private Transform pointRoot;
@@ -46,11 +47,33 @@ namespace ProjectUnknown.Strategy
             Vector2Int startupCampCell,
             bool generateImmediately)
         {
+            Configure(
+                mapController,
+                fogController,
+                placementController,
+                null,
+                timeScaleController,
+                dialogController,
+                startupCampCell,
+                generateImmediately);
+        }
+
+        public void Configure(
+            CityMapController mapController,
+            StrategyFogOfWarController fogController,
+            StrategyBuildPlacementController placementController,
+            StrategyNaturePropController natureController,
+            StrategyTimeScaleController timeScaleController,
+            StrategyPointOfInterestDialogController dialogController,
+            Vector2Int startupCampCell,
+            bool generateImmediately)
+        {
             ClearPointObjects();
             CancelPendingNotices();
             map = mapController;
             fog = fogController;
             placement = placementController;
+            nature = natureController;
             timeScale = timeScaleController;
             dialog = dialogController;
             campCell = startupCampCell;
@@ -188,16 +211,14 @@ namespace ProjectUnknown.Strategy
 
             temporarilyUnreachable.Remove(point);
             pendingNotices.Enqueue(new PointNotice(
-                "Point of Interest",
-                resident.FullName
-                    + " investigated a landmark at "
-                    + FormatCell(point.Cell)
-                    + ".\n\nThis is an MVP point-of-interest encounter."));
+                GetInvestigationTitle(point.ResourceKind),
+                GetInvestigationBody(point, resident)));
             StrategyDebugLogger.Info(
                 "PointOfInterest",
                 "Investigated",
                 StrategyDebugLogger.F("id", point.StableId),
                 StrategyDebugLogger.F("cell", point.Cell),
+                StrategyDebugLogger.F("resourceKind", point.ResourceKind),
                 StrategyDebugLogger.F("resident", resident.FullName));
             TryShowNextNotice();
             return true;
@@ -225,18 +246,60 @@ namespace ProjectUnknown.Strategy
 
             ClearPointObjects();
             HashSet<Vector2Int> forageCells = CaptureForageCells();
-            List<Vector2Int> planned = StrategyPointOfInterestPlacement.SelectCells(
+            List<StrategyPointOfInterestPlan> planned = StrategyPointOfInterestPlacement.SelectMineralPlans(
                 map.Width,
                 map.Height,
                 map.ActiveSeed,
                 campCell,
                 StrategyPointOfInterestPlacement.DefaultPointCount,
                 map.IsCellWalkable,
-                cell => map.IsCellBuildable(cell) && !forageCells.Contains(cell));
+                cell => CanUsePlannedCell(cell, forageCells));
+            bool layoutComplete = HasExpectedMineralDistribution(planned);
+            if (!layoutComplete)
+            {
+                StrategyDebugLogger.Warn(
+                    "PointOfInterest",
+                    "OwnedMineralLayoutShort",
+                    StrategyDebugLogger.F("planned", planned.Count),
+                    StrategyDebugLogger.F("target", StrategyPointOfInterestPlacement.DefaultPointCount),
+                    StrategyDebugLogger.F("coal", CountPlannedKind(planned, StrategyPointOfInterestResourceKind.Coal)),
+                    StrategyDebugLogger.F("iron", CountPlannedKind(planned, StrategyPointOfInterestResourceKind.Iron)));
+            }
+
             for (int i = 0; i < planned.Count; i++)
             {
-                Vector2Int cell = planned[i];
-                CreatePoint(StrategyPointOfInterest.BuildStableId(cell), cell, false);
+                StrategyPointOfInterestPlan plan = planned[i];
+                int mineralAmount = plan.HasMineralSite ? GetInitialMineralAmount(plan, i) : 0;
+                if (plan.HasMineralSite
+                    && (nature == null
+                        || !nature.TryCreatePointOfInterestMineral(
+                            plan.ResourceKind,
+                            plan.MineralOrigin,
+                            mineralAmount,
+                            i)))
+                {
+                    StrategyDebugLogger.Warn(
+                        "PointOfInterest",
+                        "OwnedMineralCreateFailed",
+                        StrategyDebugLogger.F("index", i),
+                        StrategyDebugLogger.F("resourceKind", plan.ResourceKind),
+                        StrategyDebugLogger.F("origin", plan.MineralOrigin));
+                    continue;
+                }
+
+                if (!TryCreatePoint(
+                        StrategyPointOfInterest.BuildStableId(plan.Cell),
+                        plan.Cell,
+                        plan.ResourceKind,
+                        plan.HasMineralSite,
+                        plan.MineralOrigin,
+                        false)
+                    && plan.HasMineralSite)
+                {
+                    nature.TryRemovePointOfInterestMineral(
+                        plan.ResourceKind,
+                        plan.MineralOrigin);
+                }
             }
 
             StrategyDebugLogger.Info(
@@ -245,20 +308,64 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("seed", map.ActiveSeed),
                 StrategyDebugLogger.F("points", points.Count),
                 StrategyDebugLogger.F("target", StrategyPointOfInterestPlacement.DefaultPointCount),
+                StrategyDebugLogger.F("coal", CountResourceKind(StrategyPointOfInterestResourceKind.Coal)),
+                StrategyDebugLogger.F("iron", CountResourceKind(StrategyPointOfInterestResourceKind.Iron)),
+                StrategyDebugLogger.F("layoutComplete", layoutComplete),
                 StrategyDebugLogger.F("campCell", campCell));
         }
 
-        private void CreatePoint(string stableId, Vector2Int cell, bool investigated)
+        private bool TryCreatePoint(
+            string stableId,
+            Vector2Int cell,
+            StrategyPointOfInterestResourceKind resourceKind,
+            bool hasMineralSite,
+            Vector2Int mineralOrigin,
+            bool investigated)
         {
             EnsurePointRoot();
-            Vector3 world = map.GetCellCenterWorld(cell.x, cell.y);
-            GameObject pointObject = new GameObject("Point of Interest " + stableId);
-            pointObject.transform.SetParent(pointRoot, false);
-            pointObject.transform.position = new Vector3(world.x, world.y, -0.105f);
-            SpriteRenderer renderer = pointObject.AddComponent<SpriteRenderer>();
-            StrategyPointOfInterest point = pointObject.AddComponent<StrategyPointOfInterest>();
-            point.Configure(map, stableId, cell, investigated, renderer);
-            points.Add(point);
+            GameObject pointObject = null;
+            try
+            {
+                Vector3 world = map.GetCellCenterWorld(cell.x, cell.y);
+                pointObject = new GameObject("Point of Interest " + stableId);
+                pointObject.transform.SetParent(pointRoot, false);
+                pointObject.transform.position = new Vector3(world.x, world.y, -0.105f);
+                SpriteRenderer renderer = pointObject.AddComponent<SpriteRenderer>();
+                StrategyPointOfInterest point = pointObject.AddComponent<StrategyPointOfInterest>();
+                point.Configure(
+                    map,
+                    stableId,
+                    cell,
+                    resourceKind,
+                    hasMineralSite,
+                    mineralOrigin,
+                    investigated,
+                    renderer);
+                points.Add(point);
+                return true;
+            }
+            catch (Exception exception)
+            {
+                if (pointObject != null)
+                {
+                    if (Application.isPlaying)
+                    {
+                        Destroy(pointObject);
+                    }
+                    else
+                    {
+                        DestroyImmediate(pointObject);
+                    }
+                }
+
+                StrategyDebugLogger.Error(
+                    "PointOfInterest",
+                    "MarkerCreateFailed",
+                    StrategyDebugLogger.F("id", stableId),
+                    StrategyDebugLogger.F("cell", cell),
+                    StrategyDebugLogger.F("exception", exception.GetType().Name));
+                return false;
+            }
         }
 
         private HashSet<Vector2Int> CaptureForageCells()
@@ -291,6 +398,13 @@ namespace ProjectUnknown.Strategy
                 if (point == null)
                 {
                     continue;
+                }
+
+                if (point.HasMineralSite)
+                {
+                    nature?.TryRemovePointOfInterestMineral(
+                        point.ResourceKind,
+                        point.MineralOrigin);
                 }
 
                 point.ReleaseMapBuildability();

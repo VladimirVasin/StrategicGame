@@ -79,6 +79,7 @@ namespace ProjectUnknown.Strategy.EditorTests
                 population.TryGetCampCell(out Vector2Int campCell)
                     && campCell == foundingStart.CampCell,
                 "Gameplay camp did not use the selected founding start cell");
+            VerifyGeneratedWorldResources(map, population);
             VerifyFoundingCaravanOrigin(foundingStart);
             Require(StrategyMapPreloadCoordinator.Active == null, "Menu preloader survived gameplay bootstrap");
             VerifyRuntimeInput(context);

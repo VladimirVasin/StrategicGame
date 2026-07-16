@@ -34,6 +34,9 @@ namespace ProjectUnknown.Strategy
                     case 4:
                         MigrateVersion4To5(data);
                         break;
+                    case 5:
+                        MigrateVersion5To6(data);
+                        break;
                     default:
                         reason = "missing_migration_from_version_" + data.version;
                         return false;
@@ -67,6 +70,13 @@ namespace ProjectUnknown.Strategy
         {
             data.looseResources ??= new List<StrategyLooseResourceSaveData>();
             data.version = 5;
+        }
+
+        private static void MigrateVersion5To6(StrategySaveData data)
+        {
+            data.pointsOfInterest ??= new List<StrategyPointOfInterestSaveData>();
+            data.pointsOfInterest.Clear();
+            data.version = 6;
         }
 
         private static void NormalizeCollections(StrategySaveData data)

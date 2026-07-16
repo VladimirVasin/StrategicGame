@@ -204,8 +204,10 @@
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyProfessionIconFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingSpriteFactory.Part04.cs" />
     <Compile Include="Assets\Scripts\Runtime\Persistence\StrategySaveSystem.Apply.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Persistence\StrategySaveSystem.PointOfInterestReservations.cs" />
     <Compile Include="Assets\Scripts\Runtime\Persistence\StrategySaveSystem.Files.cs" />
     <Compile Include="Assets\Scripts\Runtime\Persistence\StrategySaveSystem.Validation.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Persistence\StrategySaveSystem.Validation.PointsOfInterest.cs" />
     <Compile Include="Assets\Scripts\Runtime\Persistence\StrategySaveSystem.Validation.LooseResources.cs" />
     <Compile Include="Assets\Scripts\Runtime\Persistence\StrategySaveMigration.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentSpriteFactory.Part03.cs" />
@@ -245,9 +247,12 @@
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyMapDistributionUtility.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyPointOfInterest.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyPointOfInterestController.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Map\StrategyPointOfInterestController.Minerals.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyPointOfInterestController.Notices.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyPointOfInterestController.Persistence.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyPointOfInterestPlacement.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Map\StrategyPointOfInterestPlacement.Fallback.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Map\StrategyPointOfInterestPlacement.Minerals.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyPointOfInterestSpriteFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildPlacementController.Persistence.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWildlifeController.Part10.cs" />

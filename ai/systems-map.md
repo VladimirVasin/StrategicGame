@@ -1,6 +1,6 @@
 # Systems Map
 
-Last updated: 2026-07-14
+Last updated: 2026-07-16
 
 Use this file as the first navigation pass before broad searches. Owner cards are starting points, not hard boundaries.
 
@@ -637,11 +637,10 @@ Responsibilities:
 - Expose formed roads as a 15% resident movement-speed bonus and a reduced resident pathfinding cost.
 - Feed generated cell kinds and active seed into the visual nature-props layer.
 - Feed generated land cells and active seed into Stone deposit generation.
-- Feed generated walkable land cells and active seed into underground Iron field generation.
-- Feed generated walkable land cells and active seed into underground Coal field generation.
+- Feed generated walkable/buildable land cells and active seed into POI-owned Iron/Coal site planning.
 - Feed generated walkable near-water land/shore cells and active seed into Clay field generation.
 - Feed generated walkable land cells and active seed into forage resource node generation.
-- Provide the campfire exclusion center used by nature generation to guarantee starter-area Stone, Coal, and Iron.
+- Provide the campfire exclusion center used by nature generation for starter Stone and by POI planning to keep every Coal/Iron site away from the settlement.
 - Expose map bounds and cell buildability for future zoning/economy systems.
 - Track dynamic walkability blockers for placed buildings and early agents.
 - Track completed bridge walkability over River water cells without changing water/shore identity.
@@ -714,17 +713,15 @@ Impact hints:
 - Water source identity is stored on `CityMapCell.WaterKind`; future systems should query that instead of guessing river/lake from geometry.
 - River current direction is stored on `CityMapController.RiverFlowDirection`; river-specific ambience/gameplay should follow that instead of creating independent direction timers.
 - Terrain kind generation now uses a seed-derived profile plus multi-octave noise; texture painting consumes the active seed.
-- Nature prop placement consumes the active seed and generated cell kinds through a shared shuffled full-map pass, rejects raw route-road cells across every single-cell and multi-cell footprint, and keeps capped prop budgets from filling only the first scanned area on large maps; starter Coal/Iron guarantees and Iron/Coal minimum fallback are protected from that decorative cap.
+- Nature prop placement consumes the active seed and generated cell kinds through a shared shuffled full-map pass, rejects raw route-road cells across every single-cell and multi-cell footprint, and keeps capped prop budgets from filling only the first scanned area on large maps; this pass no longer generates Coal or Iron.
 - Stone deposit placement consumes the active seed, generated cell kinds, and macro cluster score.
-- Iron field placement consumes the active seed, generated walkable land cells, and macro cluster score; Iron deposits are underground fields that do not block walkability but block normal buildability.
-- Coal field placement consumes the active seed, generated walkable land cells, and macro cluster score; Coal deposits are underground fields that do not block walkability but block normal buildability.
+- POI planning consumes the active seed plus reachable walkable/buildable cells, then creates exactly the typed landmarks' fixed `2x2` Iron/Coal deposits through the nature controller after ordinary nature and forage generation.
 - Clay field placement consumes the active seed, generated walkable near-water land/shore cells, and macro cluster score; Clay deposits do not block walkability but block normal buildability.
 - Forage placement consumes the active seed, generated cell kinds, current walkability/buildability, raw route-road occupancy, the shared shuffled full-map pass, macro cluster score, and the current season gameplay profile; forage nodes are non-blocking but count as road obstacles, support reservation, disappear after gathering, and use a timed respawn queue that places replacements near mature standing trees inside active Forager Camp work radii. The controller leaves capacity headroom after initial generation, periodically supports under-supplied Forager Camps, applies local density/per-camp soft caps to avoid over-clustering, and uses season multipliers so Winter slows new forage without clearing existing nodes.
 - Generated standalone tree props register as mature forestry trees and block their cells.
 - Forest groups and bushes remain non-interactive but block their cells.
 - Generated Stone deposits register as Boulder, Rock Cluster, or Cliff resource deposits and block their cells.
-- Generated Iron deposits register as multi-cell Iron-stained Ground or Iron Vein resource fields, stay walkable but not normally buildable, avoid adjacent Coal fields, and can be reserved/mined by `StrategyMine` worksites built over them.
-- Generated Coal deposits register as multi-cell Coal Dust Ground or Coal Seam resource fields, stay walkable but not normally buildable, avoid adjacent Iron fields, and can be reserved/mined by `StrategyCoalPit` worksites built over them.
+- POI-owned Iron Veins and Coal Seams register as fixed `2x2` fields, stay walkable but not normally buildable, and can be reserved/mined by matching `StrategyMine` or `StrategyCoalPit` worksites built over them.
 - Generated Clay deposits register as multi-cell Clay Patch or Clay Bank resource fields, stay walkable but not normally buildable, require nearby water across the full footprint, avoid adjacent Iron/Coal/Clay fields, and can be reserved/mined by `StrategyClayPit` worksites built over them.
 - Future placement/economy work should reuse `CityMapCell`/bounds rather than duplicating map dimensions.
 - Future movement/pathfinding should use `IsCellWalkable` rather than terrain kind alone.
@@ -855,18 +852,24 @@ Impact hints:
 Responsibilities:
 
 - Place 10 schematic seed-deterministic landmarks on separated camp-connected walkable/buildable cells outside the starter area and map edge.
+- Keep the nearest introductory landmark mineral-free; assign the remaining nine landmarks an alternating Coal/Iron sequence with a deterministic five/four split and create one owned `2x2` deposit 3-5 cells from each marker inside a usable `2x3` extraction block.
+- Keep all POI-owned deposits more than 24 cells from the founding camp, out of the neutral landmark's zone, reachable from the settlement, and mutually non-touching.
 - Keep landmarks walkable while blocking building placement and forage-node overlap.
 - Expose only persistently discovered, uninvestigated landmarks to Scout reservation; reject conflicts across multiple Scouts and cool down unreachable targets.
 - Mark investigation completion atomically and retain the marker in an investigated check state.
-- Queue a one-action `OK` debug encounter, hold one simulation pause lock across queued notices, block all input, swallow cancel, and defer behind existing modal pause owners.
-- Capture and restore stable point IDs, cells, and investigated state through save version 5.
+- Queue a resource-specific one-action `OK` debug encounter, hold one simulation pause lock across queued notices, block all input, swallow cancel, and defer behind existing modal pause owners.
+- Capture and restore stable point IDs, cells, Coal/Iron/neutral role, exact mineral origin, remaining amount, and investigated state through save version 6; reserve pending live-site cells before deterministic nature/forage generation and treat depletion as a typed site with no live deposit.
+- Clear legacy v5 point geometry during migration so the first v6 load restores buildings/construction first, then regenerates the owned-site layout around them instead of retaining ten neutral landmarks.
 
 Primary files/assets:
 
 - `Assets/Scripts/Runtime/Map/StrategyPointOfInterest.cs`
 - `Assets/Scripts/Runtime/Map/StrategyPointOfInterestPlacement.cs`
+- `Assets/Scripts/Runtime/Map/StrategyPointOfInterestPlacement.Fallback.cs`
+- `Assets/Scripts/Runtime/Map/StrategyPointOfInterestPlacement.Minerals.cs`
 - `Assets/Scripts/Runtime/Map/StrategyPointOfInterestSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Map/StrategyPointOfInterestController.cs`
+- `Assets/Scripts/Runtime/Map/StrategyPointOfInterestController.Minerals.cs`
 - `Assets/Scripts/Runtime/Map/StrategyPointOfInterestController.Notices.cs`
 - `Assets/Scripts/Runtime/Map/StrategyPointOfInterestController.Persistence.cs`
 - `Assets/Scripts/Runtime/UI/StrategyPointOfInterestDialogController.cs`
@@ -874,9 +877,13 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Persistence/StrategySaveData.cs`
 - `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Capture.cs`
 - `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Apply.cs`
+- `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.PointOfInterestReservations.cs`
+- `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Validation.PointsOfInterest.cs`
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.cs`
 - `Assets/Tests/EditMode/StrategyPointOfInterestPlacementTests.cs`
+- `Assets/Tests/EditMode/StrategyPointOfInterestMineralTests.cs`
 - `Assets/Tests/EditMode/StrategyPointOfInterestSaveValidationTests.cs`
+- `Assets/Tests/EditMode/StrategyPointOfInterestPendingReservationTests.cs`
 - `Assets/Tests/EditMode/StrategyInputRouterTests.cs`
 - `Assets/Tests/EditMode/StrategySaveSystemTests.cs`
 
@@ -892,23 +899,20 @@ Impact hints:
 
 Responsibilities:
 
-- Place visual trees, forest groups, bushes, and Stone deposits over generated terrain.
-- Place visual underground Iron/Coal fields and near-water Clay fields over generated terrain without blocking movement.
+- Place visual trees, forest groups, bushes, Stone deposits, and near-water Clay fields over generated terrain.
+- Expose a narrow API that creates/removes fixed `2x2` Coal/Iron fields only for POI-owned sites.
 - Generate and cache runtime 2.5D pixel-art nature sprites.
 - Use `CityMapController.ActiveSeed` plus cell coordinates for deterministic prop layout per generated map.
 - Guarantee a small starter Stone field within stonecutter work distance around the startup campfire.
-- Guarantee small starter Coal and Iron fields in a nearby ring before the shared decorative prop budget can fill.
-- Guarantee global Stone, Clay, Iron, and Coal minimum deposit counts before decorative placement while keeping every generated child inside the shared 3600-prop limit.
+- Guarantee global Stone and Clay minimum deposit counts before decorative placement while keeping ordinary generated children inside the shared 3600-prop limit; the nine POI-owned Coal/Iron deposits sit outside that decorative cap.
 - Make `Forest` cells read as dense forest while adding sparse standalone trees/bushes to other land terrain.
 - Attach wind-sway animation to trees, forest groups, and bushes using the runtime strategy wind source.
 - Add procedural leaf frame overlays to trees, forest groups, and bushes.
 - Skip generated nature props inside the startup campfire's 3-cell clear radius.
 - Skip generated Stone deposits inside the same startup campfire clear radius.
-- Skip generated Iron fields inside the same startup campfire clear radius.
-- Skip generated Coal fields inside the same startup campfire clear radius.
+- Never generate Coal/Iron from the ordinary nature pass or the startup guarantee path.
 - Skip generated Clay fields inside the same startup campfire clear radius.
 - Place starter Stone outside the clear radius before vegetation so nearby trees/bushes do not consume all accessible mining cells.
-- Place starter Coal before starter Iron so Iron adjacency rules cannot starve Coal near the settlement.
 
 Primary files/assets:
 
@@ -938,11 +942,10 @@ Impact hints:
 - Standalone tree props are registered for forestry chopping and block walkability/build placement.
 - Forest groups and bushes are still non-interactive but block walkability/build placement.
 - Stone deposits are mined by stonecutter workers, block walkability/build placement while present, and are registered as Stone resource nodes.
-- Iron fields are generated as flat multi-cell rust-stained/vein surface marks for underground ore, stay walkable but block normal building placement through the map buildability overlay, avoid adjacent Coal fields, and are mined by `StrategyMine` workers when under the Mine footprint.
-- Coal fields are generated as flat multi-cell dark dust/seam surface marks for underground coal, stay walkable but block normal building placement through the map buildability overlay, avoid adjacent Iron fields, and are mined by `StrategyCoalPit` workers when under the Coal Pit footprint.
+- POI-owned Iron Veins and Coal Seams are fixed `2x2` surface marks, stay walkable, block ordinary placement through the map buildability overlay, and are mined by matching `StrategyMine` or `StrategyCoalPit` workers.
 - Clay fields are generated as flat multi-cell wet clay patch/bank surface marks near water, stay walkable, block normal building placement through the map buildability overlay, avoid adjacent Iron/Coal/Clay fields, and are mined by `StrategyClayPit` workers when under the Clay Pit footprint.
 - Starter Stone placement verifies that each guaranteed deposit has adjacent walkable work cells for stonecutters.
-- Starter Coal/Iron placement uses 2x2 mineable fields in a 10-24 cell ring around the campfire and logs nearby count/distance diagnostics.
+- Coal/Iron creation is owned by the POI controller; the nature controller does not create independent starter or global mineral fields.
 - Bootstrap creates/configures the wind controller, creates population so the camp cell is known, then configures nature after `CityMapController.GenerateMap()`.
 - Unity `WindZone` does not animate 2D sprites directly; `StrategyWindSway` adapts its values to sprite rotation/offset/scale.
 - Leaf frame overlays complement wind sway and should stay visual-only unless future forestry gameplay needs extra real prop state.
@@ -1115,8 +1118,8 @@ Impact hints:
 
 Responsibilities:
 
-- Track generated underground Iron resource fields.
-- Register multi-cell Iron-stained Ground and Iron Vein fields placed by nature generation.
+- Track POI-owned underground Iron resource fields.
+- Register fixed `2x2` Iron Vein fields created for typed points of interest.
 - Store deposit footprint, kind, remaining Iron amount, and reservation state for Mine jobs.
 - Keep Iron field cells walkable because the actual ore is underground, while marking their footprints not normally buildable.
 - Expose world-inspect information for available, reserved, and depleted underground Iron.
@@ -1137,7 +1140,7 @@ Primary files/assets:
 
 Impact hints:
 
-- Iron is runtime-only and not saved yet.
+- Live Iron deposit objects are rebuilt on load; their owned origin and remaining amount persist through the point-of-interest snapshot.
 - Iron is produced by Mines built over Iron deposits and hauled to Storage Yards, but is not connected to food, construction costs, trade, or a global economy yet.
 - Iron fields must not block walkability, must block normal building placement, and must not touch adjacent Coal fields; current mining keeps miners at the Mine/underground work loop instead of turning field cells into obstacles.
 - Future Iron production upgrades should extend this registry instead of reusing `StrategyStoneDeposit`, because Stone deposits already imply above-ground blocking and active stonecutter mining behavior.
@@ -1146,8 +1149,8 @@ Impact hints:
 
 Responsibilities:
 
-- Track generated underground Coal resource fields.
-- Register multi-cell Coal Dust Ground and Coal Seam fields placed by nature generation.
+- Track POI-owned underground Coal resource fields.
+- Register fixed `2x2` Coal Seam fields created for typed points of interest.
 - Store deposit footprint, kind, remaining Coal amount, and reservation state for Coal Pit jobs.
 - Keep Coal field cells walkable because the actual coal is underground, while marking their footprints not normally buildable.
 - Expose world-inspect information for available, reserved, and depleted underground Coal.
@@ -1170,7 +1173,7 @@ Primary files/assets:
 
 Impact hints:
 
-- Coal is runtime-only and not saved yet.
+- Live Coal deposit objects are rebuilt on load; their owned origin and remaining amount persist through the point-of-interest snapshot.
 - Coal is produced by Coal Pits built over Coal deposits and hauled to Storage Yards, but is not connected to food, construction costs, trade, or a global economy yet.
 - Coal fields must not block walkability, must block normal building placement, and must not touch adjacent Iron fields; current mining keeps coal miners at the Coal Pit interior work loop instead of turning field cells into obstacles.
 - Future Coal production upgrades should extend this registry instead of reusing `StrategyIronDeposit`, because Coal Pit work has different visible-worker behavior from hidden Mine extraction.
@@ -2696,7 +2699,7 @@ Responsibilities:
 - Materialize resident-carried stock into the save snapshot as loose resources at each resident's current cell because active tasks and carried state are intentionally rebuilt rather than serialized.
 - Write saves atomically and coordinate restoration only after runtime bootstrap has created all required systems.
 - Preserve F5 save and F8 load/restart controls while exposing read/validate/pending-load entry points to the intro menu Continue flow.
-- Preserve the founding profile, stable answer pairs, exact camp cell, current starter-cart origin, stable point-of-interest state, and exact loose prepared-dish payloads across save version 5.
+- Preserve the founding profile, stable answer pairs, exact camp cell, current starter-cart origin, stable point-of-interest geometry/resource role/mineral origin/remaining amount/investigated state, and exact loose prepared-dish payloads across save version 6.
 
 Primary files:
 
@@ -2723,7 +2726,7 @@ Primary files:
 
 Impact hints:
 
-- Current persistence is version 5 with v1/v2/v3/v4 migration. Increment the version and add an explicit migration whenever persisted DTO shape changes; validate migrated data before applying it.
+- Current persistence is version 6 with v1/v2/v3/v4/v5 migration. Increment the version and add an explicit migration whenever persisted DTO shape changes; validate migrated data before applying it.
 - Keep primary/temp/backup replacement and backup recovery in the file seam so interrupted writes do not destroy the last valid save.
 - Reject save files above 32 MiB before reading and keep top-level plus resident-child/prepared-dish/point-of-interest collection limits in validation.
 - Stable IDs are serialization contracts; never replace them with scene-instance IDs or object references.

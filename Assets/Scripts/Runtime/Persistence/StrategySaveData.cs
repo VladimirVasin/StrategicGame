@@ -6,7 +6,7 @@ namespace ProjectUnknown.Strategy
     [Serializable]
     public sealed class StrategySaveData
     {
-        public const int CurrentVersion = 5;
+        public const int CurrentVersion = 6;
 
         public int version = CurrentVersion;
         public long savedUtcTicks;
@@ -141,6 +141,11 @@ namespace ProjectUnknown.Strategy
         public string stableId = string.Empty;
         public int cellX;
         public int cellY;
+        public int resourceKind;
+        public bool hasMineralSite;
+        public int mineralOriginX;
+        public int mineralOriginY;
+        public int remainingMineralAmount;
         public bool investigated;
     }
 

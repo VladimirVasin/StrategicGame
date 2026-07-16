@@ -2,6 +2,13 @@ using UnityEngine;
 
 namespace ProjectUnknown.Strategy
 {
+    public enum StrategyPointOfInterestResourceKind
+    {
+        None = 0,
+        Coal = 1,
+        Iron = 2
+    }
+
     [DisallowMultipleComponent]
     public sealed class StrategyPointOfInterest : MonoBehaviour
     {
@@ -12,6 +19,9 @@ namespace ProjectUnknown.Strategy
 
         public string StableId { get; private set; } = string.Empty;
         public Vector2Int Cell { get; private set; }
+        public StrategyPointOfInterestResourceKind ResourceKind { get; private set; }
+        public bool HasMineralSite { get; private set; }
+        public Vector2Int MineralOrigin { get; private set; }
         public bool IsInvestigated { get; private set; }
         public Bounds FootprintBounds => spriteRenderer != null
             ? spriteRenderer.bounds
@@ -23,6 +33,9 @@ namespace ProjectUnknown.Strategy
             CityMapController mapController,
             string stableId,
             Vector2Int cell,
+            StrategyPointOfInterestResourceKind resourceKind,
+            bool hasMineralSite,
+            Vector2Int mineralOrigin,
             bool investigated,
             SpriteRenderer renderer)
         {
@@ -32,6 +45,9 @@ namespace ProjectUnknown.Strategy
                 ? BuildStableId(cell)
                 : stableId;
             Cell = cell;
+            ResourceKind = resourceKind;
+            HasMineralSite = hasMineralSite;
+            MineralOrigin = hasMineralSite ? mineralOrigin : default;
             IsInvestigated = investigated;
             reservedBy = null;
             spriteRenderer = renderer != null ? renderer : GetComponent<SpriteRenderer>();
@@ -126,11 +142,21 @@ namespace ProjectUnknown.Strategy
 
             spriteRenderer.sprite = StrategyPointOfInterestSpriteFactory.GetSprite(IsInvestigated);
             spriteRenderer.color = IsInvestigated
-                ? new Color(0.82f, 0.92f, 0.84f, 0.92f)
+                ? GetInvestigatedColor()
                 : reservedBy != null
                     ? new Color(1f, 0.94f, 0.67f, 1f)
                     : Color.white;
             StrategyWorldSorting.Apply(spriteRenderer, transform.position, 1);
+        }
+
+        private Color GetInvestigatedColor()
+        {
+            return ResourceKind switch
+            {
+                StrategyPointOfInterestResourceKind.Coal => new Color(0.68f, 0.72f, 0.74f, 0.94f),
+                StrategyPointOfInterestResourceKind.Iron => new Color(0.92f, 0.66f, 0.48f, 0.94f),
+                _ => new Color(0.82f, 0.92f, 0.84f, 0.92f)
+            };
         }
 
         private void AttachShadow()

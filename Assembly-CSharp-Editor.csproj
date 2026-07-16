@@ -18,7 +18,9 @@
     <Compile Include="Assets\Tests\EditMode\StrategyProcessingStorageTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyRoadOccupancyTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyPointOfInterestPlacementTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyPointOfInterestMineralTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyPointOfInterestSaveValidationTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyPointOfInterestPendingReservationTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyGameContextTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyInputActionsContractTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyInputRouterTests.cs" />
@@ -33,6 +35,7 @@
     <Compile Include="Assets\Editor\StrategyVerificationRunner.Input.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.Errors.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.Map.cs" />
+    <Compile Include="Assets\Editor\StrategyVerificationRunner.Minerals.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.Watchdog.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyResidentCharacterizationTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyScoutTargetSelectorTests.cs" />

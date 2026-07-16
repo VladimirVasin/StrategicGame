@@ -5,8 +5,6 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyNaturePropController
     {
-        private const int MaxCoalDeposits = 170;
-        private const int MinimumCoalDeposits = 42;
         private const int CoalSortingOrder = StrategyWorldSorting.WaterOverlayOrder + 1;
 
         private StrategyCoalResourceController coal;
@@ -91,59 +89,6 @@ namespace ProjectUnknown.Strategy
             }
         }
 
-        private bool TryPlaceCoalForCell(CityMapCell cell)
-        {
-            if (coal == null
-                || spawnedProps >= MaxNatureProps
-                || spawnedCoalDeposits >= MaxCoalDeposits
-                || !IsCoalAllowedKind(cell.Kind))
-            {
-                return false;
-            }
-
-            float cluster = GetCoalClusterScore(cell);
-            float score = Mathf.Clamp01(GetCoalScore(cell) * 0.80f + cluster * 0.26f);
-            float roll = Hash01(map.ActiveSeed, cell.X, cell.Y, 3301);
-
-            if (score > 0.82f
-                && roll < StrategyMapDistributionUtility.ApplyClusterToChance(GetCoalChance(cell.Kind, 0.032f), cluster, 0.18f, 2.25f))
-            {
-                Vector2Int seamFootprint = Hash01(map.ActiveSeed, cell.X, cell.Y, 3307) > 0.54f
-                    ? new Vector2Int(3, 2)
-                    : new Vector2Int(2, 2);
-                return TryCreateCoalDeposit(
-                    cell,
-                    seamFootprint,
-                    StrategyNaturePropKind.CoalSeam,
-                    StrategyCoalDepositKind.CoalSeam,
-                    3311,
-                    0.86f,
-                    1.08f,
-                    34,
-                    62);
-            }
-
-            if (score > 0.62f
-                && roll < StrategyMapDistributionUtility.ApplyClusterToChance(GetCoalChance(cell.Kind, 0.068f), cluster, 0.24f, 1.95f))
-            {
-                Vector2Int dustFootprint = Hash01(map.ActiveSeed, cell.X, cell.Y, 3313) > 0.52f
-                    ? new Vector2Int(2, 2)
-                    : new Vector2Int(2, 1);
-                return TryCreateCoalDeposit(
-                    cell,
-                    dustFootprint,
-                    StrategyNaturePropKind.CoalDustGround,
-                    StrategyCoalDepositKind.CoalDustGround,
-                    3319,
-                    0.82f,
-                    1.14f,
-                    14,
-                    30);
-            }
-
-            return false;
-        }
-
         private bool TryCreateCoalDeposit(
             CityMapCell cell,
             Vector2Int footprint,
@@ -153,10 +98,12 @@ namespace ProjectUnknown.Strategy
             float minScale,
             float maxScale,
             int minCoal,
-            int maxCoal)
+            int maxCoal,
+            bool countsTowardsNatureBudget = true)
         {
             Vector2Int origin = new Vector2Int(cell.X, cell.Y);
-            if (spawnedProps >= MaxNatureProps || !CanPlaceCoalFootprint(origin, footprint))
+            if ((countsTowardsNatureBudget && spawnedProps >= MaxNatureProps)
+                || !CanPlaceCoalFootprint(origin, footprint))
             {
                 return false;
             }
@@ -184,7 +131,11 @@ namespace ProjectUnknown.Strategy
             int coalAmount = minCoal + (Hash(map.ActiveSeed, cell.X, cell.Y, salt + 31, maxCoal) % amountRange);
             coal.RegisterGeneratedDeposit(prop, origin, footprint, depositKind, coalAmount);
 
-            spawnedProps++;
+            if (countsTowardsNatureBudget)
+            {
+                spawnedProps++;
+            }
+
             spawnedCoalDeposits++;
             if (depositKind == StrategyCoalDepositKind.CoalSeam)
             {
@@ -220,117 +171,6 @@ namespace ProjectUnknown.Strategy
 
             return !HasCoalDepositNearFootprint(origin, footprint, 0)
                 && !HasIronDepositNearFootprint(origin, footprint, 1);
-        }
-
-        private void EnsureMinimumCoalDeposits()
-        {
-            if (coal == null || spawnedCoalDeposits >= MinimumCoalDeposits)
-            {
-                return;
-            }
-
-            int totalCells = map.Width * map.Height;
-            int attempts = Mathf.Max(256, totalCells);
-            for (int i = 0; i < attempts
-                && spawnedCoalDeposits < MinimumCoalDeposits
-                && spawnedProps < MaxNatureProps
-                && spawnedCoalDeposits < MaxCoalDeposits; i++)
-            {
-                int cellIndex = StrategyMapDistributionUtility.GetShuffledIndex(map.ActiveSeed, i, totalCells, 3401);
-                int x = cellIndex % map.Width;
-                int y = cellIndex / map.Width;
-                if (!map.TryGetCell(x, y, out CityMapCell cell)
-                    || !IsCoalAllowedKind(cell.Kind)
-                    || IsInsideExclusion(x, y)
-                    || !map.IsCellWalkable(x, y))
-                {
-                    continue;
-                }
-
-                float score = Mathf.Clamp01(GetCoalScore(cell) * 0.80f + GetCoalClusterScore(cell) * 0.26f);
-                if (score > 0.74f && Hash01(map.ActiveSeed, x, y, 3413) > 0.60f)
-                {
-                    Vector2Int footprint = Hash01(map.ActiveSeed, x, y, 3419) > 0.62f
-                        ? new Vector2Int(3, 2)
-                        : new Vector2Int(2, 2);
-                    if (TryCreateCoalDeposit(
-                        cell,
-                        footprint,
-                        StrategyNaturePropKind.CoalSeam,
-                        StrategyCoalDepositKind.CoalSeam,
-                        3427,
-                        0.86f,
-                        1.08f,
-                        30,
-                        56))
-                    {
-                        continue;
-                    }
-                }
-
-                Vector2Int dustFootprint = Hash01(map.ActiveSeed, x, y, 3431) > 0.52f
-                    ? new Vector2Int(2, 2)
-                    : new Vector2Int(2, 1);
-                TryCreateCoalDeposit(
-                    cell,
-                    dustFootprint,
-                    StrategyNaturePropKind.CoalDustGround,
-                    StrategyCoalDepositKind.CoalDustGround,
-                    3433,
-                    0.82f,
-                    1.12f,
-                    12,
-                    28);
-            }
-
-            if (spawnedCoalDeposits < MinimumCoalDeposits)
-            {
-                StrategyDebugLogger.Warn(
-                    "Coal",
-                    "MinimumDepositFallbackShort",
-                    StrategyDebugLogger.F("deposits", spawnedCoalDeposits),
-                    StrategyDebugLogger.F("minimum", MinimumCoalDeposits),
-                    StrategyDebugLogger.F("attempts", attempts));
-            }
-        }
-
-        private float GetCoalScore(CityMapCell cell)
-        {
-            float bed = Mathf.PerlinNoise(
-                map.ActiveSeed * 0.0239f + cell.X * 0.052f,
-                map.ActiveSeed * 0.0181f + cell.Y * 0.052f);
-            float seamNoise = Mathf.PerlinNoise(
-                map.ActiveSeed * 0.0467f + cell.X * 0.136f,
-                map.ActiveSeed * 0.0391f + cell.Y * 0.136f);
-            float seam = Mathf.Abs(seamNoise - 0.5f) * 2f;
-            return Mathf.Clamp01(bed * 0.54f + seam * 0.36f + GetCoalTerrainBias(cell.Kind));
-        }
-
-        private static float GetCoalChance(CityMapCellKind kind, float baseChance)
-        {
-            float multiplier = kind switch
-            {
-                CityMapCellKind.Dirt => 1.50f,
-                CityMapCellKind.Forest => 1.12f,
-                CityMapCellKind.Grass => 0.92f,
-                CityMapCellKind.Meadow => 0.68f,
-                CityMapCellKind.Shore => 0.24f,
-                _ => 0f
-            };
-            return baseChance * multiplier;
-        }
-
-        private static float GetCoalTerrainBias(CityMapCellKind kind)
-        {
-            return kind switch
-            {
-                CityMapCellKind.Dirt => 0.16f,
-                CityMapCellKind.Forest => 0.06f,
-                CityMapCellKind.Grass => 0.00f,
-                CityMapCellKind.Meadow => -0.04f,
-                CityMapCellKind.Shore => -0.16f,
-                _ => -1f
-            };
         }
 
         private static bool IsCoalAllowedKind(CityMapCellKind kind)

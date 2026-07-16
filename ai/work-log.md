@@ -1,5 +1,16 @@
 # Work Log
 
+### 2026-07-16 - Coal and Iron point-of-interest sites
+
+- Removed starter, minimum-fallback, and random full-map Coal/Iron generation from the nature pass; Stone, Clay, and vegetation remain map-generated, while Coal/Iron now exist only as point-of-interest-owned sites.
+- Added deterministic owned-site planning: the nearest introductory landmark is neutral, the remaining nine alternate Coal/Iron with a five/four split, and every typed point owns one fixed `2x2` deposit 3-5 cells away inside a reachable/buildable `2x3` extraction block more than 24 cells from camp.
+- Created deposits through an explicit POI-to-nature API after ordinary nature/forage generation, excluded them from the decorative 3600-prop cap, and added synchronous owned-deposit cleanup so regeneration/rollback in the same scene cannot leave orphan minerals.
+- Typed/investigated markers retain their schematic resource role while the first point remains mineral-free.
+- Scout investigation dialogs now lead with an explicit `Iron Deposits Found` / `Coal Deposits Found` result and name the matching extraction building; the introductory neutral point explicitly reports that no useful mineral deposits were found.
+- Upgraded persistence to version 6 with POI resource kind, owned origin, remaining mineral amount, depletion support, relationship/world-overlap validation, and pending marker/`2x3` site reservations before deterministic bootstrap spawning. Restore is atomic; v5 migration restores legacy buildings/construction first and then regenerates the new POI layout around them rather than preserving ten neutral points.
+- Added pure planner, save-validation, pending-reservation, and generated-world smoke coverage, including determinism, alternation, five/four distribution, camp/neutral exclusion, no global deposits, matching ownership, and depleted-site behavior. Tutorial flow, goals, unlock order, and HUD entry points are unchanged.
+- Verification: technical quality gates pass; all five C# projects build with zero warnings/errors; all 31 focused POI/save/reservation EditMode cases pass, including the latest 7/7 mineral/message run; direct PlayMode and full Main Menu -> Founding Journey -> Gameplay smoke checks pass. The last full EditMode run was 234 passed / 6 unrelated pre-existing failures in snow/house visual, input-router, and UI-button feedback tests.
+
 ### 2026-07-15 - House window-light perspective alignment
 
 - Replaced the axis-aligned full-rectangle lower-window emissive masks with variant-specific glass-only row masks for all five authored House sprites, so the glow follows each facade's actual perspective instead of tinting frames and wall pixels in the opposite apparent lean.

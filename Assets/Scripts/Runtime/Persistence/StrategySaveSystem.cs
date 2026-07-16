@@ -132,11 +132,13 @@ namespace ProjectUnknown.Strategy
 
         public static void PreparePendingLoad(StrategySaveData data)
         {
+            pendingPointOfInterestReservations.Clear();
             pendingLoad = data;
         }
 
         public static void ClearPendingLoad()
         {
+            pendingPointOfInterestReservations.Clear();
             pendingLoad = null;
         }
 

@@ -34,15 +34,10 @@ namespace ProjectUnknown.Strategy
 
             ResetNatureGeneration();
             EnsureStarterStoneDeposits();
-            EnsureStarterMineralDeposits();
             yield return null;
             EnsureMinimumStoneDeposits();
             yield return null;
             EnsureMinimumClayDeposits();
-            yield return null;
-            EnsureMinimumIronDeposits();
-            yield return null;
-            EnsureMinimumCoalDeposits();
             yield return null;
 
             int spawnedThisFrame = 0;
@@ -99,11 +94,8 @@ namespace ProjectUnknown.Strategy
         private void GenerateGuaranteedNature()
         {
             EnsureStarterStoneDeposits();
-            EnsureStarterMineralDeposits();
             EnsureMinimumStoneDeposits();
             EnsureMinimumClayDeposits();
-            EnsureMinimumIronDeposits();
-            EnsureMinimumCoalDeposits();
         }
 
         private void LogNatureGeneration()
@@ -134,19 +126,13 @@ namespace ProjectUnknown.Strategy
                 "Generated",
                 StrategyDebugLogger.F("deposits", spawnedIronDeposits),
                 StrategyDebugLogger.F("stainedGround", spawnedIronStainedGround),
-                StrategyDebugLogger.F("veins", spawnedIronVeins),
-                StrategyDebugLogger.F("starterNearby", hasExclusion ? CountIronDepositsNear(excludedCenter, StarterMineralMaxDistance) : 0),
-                StrategyDebugLogger.F("nearestCampDistance", hasExclusion ? GetNearestIronDepositDistance(excludedCenter) : -1),
-                StrategyDebugLogger.F("max", MaxIronDeposits));
+                StrategyDebugLogger.F("veins", spawnedIronVeins));
             StrategyDebugLogger.Info(
                 "Coal",
                 "Generated",
                 StrategyDebugLogger.F("deposits", spawnedCoalDeposits),
                 StrategyDebugLogger.F("dustGround", spawnedCoalDustGround),
-                StrategyDebugLogger.F("seams", spawnedCoalSeams),
-                StrategyDebugLogger.F("starterNearby", hasExclusion ? CountCoalDepositsNear(excludedCenter, StarterMineralMaxDistance) : 0),
-                StrategyDebugLogger.F("nearestCampDistance", hasExclusion ? GetNearestCoalDepositDistance(excludedCenter) : -1),
-                StrategyDebugLogger.F("max", MaxCoalDeposits));
+                StrategyDebugLogger.F("seams", spawnedCoalSeams));
             StrategyDebugLogger.Info(
                 "Clay",
                 "Generated",

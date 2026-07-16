@@ -58,13 +58,24 @@ namespace ProjectUnknown.Strategy
 
         private void OnDestroy()
         {
-            if (buildBlocked)
-            {
-                map?.SetCellsBuildable(Cell, Footprint, true);
-                buildBlocked = false;
-            }
-
+            ReleaseMapBuildability();
             controller?.UnregisterDeposit(this);
+        }
+
+        internal void RemoveFromWorld()
+        {
+            ReleaseMapBuildability();
+            controller?.UnregisterDeposit(this);
+            controller = null;
+            reservedBy = null;
+            if (Application.isPlaying)
+            {
+                Destroy(gameObject);
+            }
+            else
+            {
+                DestroyImmediate(gameObject);
+            }
         }
 
         public bool TryReserve(object owner)
@@ -109,6 +120,17 @@ namespace ProjectUnknown.Strategy
             }
 
             return minedAmount > 0;
+        }
+
+        private void ReleaseMapBuildability()
+        {
+            if (!buildBlocked)
+            {
+                return;
+            }
+
+            map?.SetCellsBuildable(Cell, Footprint, true);
+            buildBlocked = false;
         }
 
         private static string GetIronTitle(StrategyIronDepositKind kind)

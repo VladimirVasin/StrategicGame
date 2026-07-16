@@ -187,7 +187,7 @@ namespace ProjectUnknown.Strategy.EditorTests
                     return;
                 }
 
-                VerifyGeneratedResourceMinimums();
+                VerifyGeneratedWorldResources(map, population);
                 StrategyRefugeeArrivalController refugees = UnityEngine.Object.FindAnyObjectByType<StrategyRefugeeArrivalController>();
                 Require(refugees != null, "Refugee controller bootstrap failed");
                 if (!launchRequestedBySmoke)
@@ -347,25 +347,6 @@ namespace ProjectUnknown.Strategy.EditorTests
             Require(wildlife.Priority == StrategyNavigationPriority.Background, "Wildlife navigation must be background priority");
             Require(resident.Priority == StrategyNavigationPriority.Normal, "Resident navigation must be normal priority");
             Require(critical.Priority == StrategyNavigationPriority.Critical, "Critical navigation priority was not preserved");
-        }
-
-        private static void VerifyGeneratedResourceMinimums()
-        {
-            Require(StrategyStoneResourceController.Active != null
-                && StrategyStoneResourceController.Active.Deposits.Count >= 112,
-                "Generated Stone minimum was not met");
-            Require(StrategyIronResourceController.Active != null
-                && StrategyIronResourceController.Active.Deposits.Count >= 48,
-                "Generated Iron minimum was not met");
-            Require(StrategyCoalResourceController.Active != null
-                && StrategyCoalResourceController.Active.Deposits.Count >= 42,
-                "Generated Coal minimum was not met");
-            Require(StrategyClayResourceController.Active != null
-                && StrategyClayResourceController.Active.Deposits.Count >= 28,
-                "Generated Clay minimum was not met");
-            GameObject natureRoot = GameObject.Find("Nature Props");
-            Require(natureRoot != null && natureRoot.transform.childCount <= 3600,
-                "Nature prop limit was exceeded");
         }
 
         private static void StartPlayModeSmoke(SmokeKind kind, string scenePath)
