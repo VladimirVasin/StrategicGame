@@ -680,7 +680,8 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Custom runtime goals HUD showing the active starter build checklist on the left side
   - Custom first-Scout expedition assignment board
     - Opens after the first live Scout Lodge completes, pauses simulation, focuses the Lodge, and explains exploration through a storytelling panel
-    - Lists exact adult candidates with portraits and blocking reasons, requires a choice when someone is eligible, and permits safe deferral only when nobody is available
+    - Holds three stable random adult candidates for the introduction, prioritizing Haulers/Builders, while later manual openings show the full adult roster
+    - Transfers the exact selected ordinary worker through the previous role owner, shows portraits/blocking reasons, requires a choice when someone is eligible, and permits safe deferral only when nobody is available
     - Restores keyboard/controller focus and releases its owned input/pause state on appointment, deferral, cancellation, disable, or target loss
   - Custom runtime world inspect microHUD for clicked graves, resources, nature props, and wildlife; residents, buildings, and construction sites use the right-side selection HUD only
     - MicroHUD supports typed chip/row dashboards for wildlife, deposits, trees, forage, and loose resource piles, with old body text kept as fallback

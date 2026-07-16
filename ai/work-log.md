@@ -1,5 +1,14 @@
 # Work Log
 
+### 2026-07-16 - Scout picker reassignment and candidate rows
+
+- Fixed the first-expedition picker rejecting every adult who already had an ordinary profession: explicit Scout appointment can now transfer the exact selected resident from an existing worksite or settlement Hauler/Builder role through the previous owner's unassign API.
+- Kept automatic/random Scout assignment strict to genuinely free adults, and kept Householders, active construction assignments, pending refugees, children, funeral/household-duty workers, and night-light workers blocked.
+- Preserved active carried-resource return routes when a reassigned worker must finish depositing stock before beginning Scout exploration.
+- The introduction now holds one stable random roster of up to three adults, prioritizing Haulers and Builders and filling from other appointable adults when necessary; ordinary later picker openings still show the full adult roster.
+- Fixed candidate rows collapsing onto one position because shared button feedback captured every row's pre-layout position; each row now establishes its indexed position before feedback is attached.
+- Added focused regression coverage for exact Stonecutter-to-Scout transfer, old-worksite cleanup, strict automatic eligibility, a stable three-candidate introduction roster, and non-overlapping row positions.
+
 ### 2026-07-16 - First Scout expedition onboarding
 
 - Added a first-live-Scout-Lodge completion flow that holds the requested simulation speed behind a named pause lock, suppresses map input, smoothly focuses/zooms the Lodge with unscaled camera timing, and opens a high-layer expedition assignment board.

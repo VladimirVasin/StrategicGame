@@ -819,7 +819,8 @@ Responsibilities:
 
 - Place one manually staffed exploration worksite on an exact `2x4` footprint.
 - On the first live Scout Lodge completion, smoothly focus/zoom the camera, hold a named simulation pause and modal input context, then open a storytelling expedition board.
-- List every adult resident with a portrait, exact eligibility/block reason, and explicit selection; require an eligible appointment in the introduction while allowing safe deferral when no adult is free.
+- Hold three stable random adult candidates for the introduction, prioritizing Haulers/Builders, with portraits and exact eligibility/block reasons; later picker openings show the full adult roster.
+- Let explicit appointment transfer the exact selected resident from an ordinary worksite/Hauler/Builder role through owner-side unassignment while keeping automatic Scout assignment free-worker-only.
 - Reuse the same exact-resident picker from the selected Lodge and Profession HUD, with manual cancellation outside the first-completion introduction.
 - Reserve distinct frontier targets across multiple Scout Lodges.
 - Select only in-bounds unexplored, walkable cells with an in-bounds cardinal explored neighbor.
@@ -857,6 +858,7 @@ Impact hints:
 
 - Scout assignments and active frontier/point reservations are transient like other worksite assignments; the placed Lodge, explored fog cells, point positions, and investigated point state persist through their owning snapshots.
 - Scout is intentionally manual-only in this MVP and is not managed by Auto Workforce priorities.
+- Explicit profession-to-Scout transfer must remove the resident through the previous worksite owner so its roster and reservations stay consistent; carried-resource return can finish before Scout movement begins.
 - Restored Lodges do not replay the introduction; an empty restored Lodge can be staffed from either normal picker entry point.
 - A `No reachable frontier` state may mean remaining unknown land is isolated by water or blockers, not that every map cell is explored.
 

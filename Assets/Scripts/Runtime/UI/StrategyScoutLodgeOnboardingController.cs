@@ -226,7 +226,7 @@ namespace ProjectUnknown.Strategy
             bool isFirstScout = CountAssignedScouts() == 0;
             if (!HasUsableTarget()
                 || resident == null
-                || !pendingLodge.AssignWorker(resident))
+                || !pendingLodge.TryAppointWorker(resident))
             {
                 StrategyHudSfxAudio.Play(StrategyHudSfxKind.Deny);
                 return false;

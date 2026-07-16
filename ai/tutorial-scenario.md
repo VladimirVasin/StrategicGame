@@ -40,9 +40,9 @@ When a real tutorial or onboarding flow is implemented:
 - The third stage shows `Build Lumberjack Camp` and `Build Stonecutter Camp`.
 - After both raw-resource camps are completed, the fourth stage shows `Build Scout Lodge`.
 - Completing the first live Scout Lodge smoothly focuses and zooms the camera onto it, pauses simulation without changing the requested speed, and opens the `First Expedition` assignment board.
-- The board explains that Scouts travel continuously through day and night, reveal unknown territory, investigate landmarks, and report distant Iron/Coal sites. It lists the settlement's adults, keeps unavailable adults visible with the exact blocking reason, and appoints the specific resident selected by the player.
+- The board explains that Scouts travel continuously through day and night, reveal unknown territory, investigate landmarks, and report distant Iron/Coal sites. Its introduction holds three stable random adult candidates, prioritizing current Haulers and Builders; an explicit appointment safely transfers the exact selected resident from an ordinary profession, while truly unavailable candidates remain visible with their blocking reason.
 - If at least one adult is eligible, the introductory board requires a selection. If nobody can take the role, `Decide Later` closes the board safely, selects the Lodge, and leaves its ordinary Assign action available for later.
-- The selected Scout Lodge HUD and the settlement Profession HUD both reopen the same exact-resident picker; Scout assignment is manual-only and is not managed by Auto Workforce.
+- The selected Scout Lodge HUD and the settlement Profession HUD both reopen the same exact-resident picker with the full adult roster; Scout assignment is manual-only and is not managed by Auto Workforce.
 - Scout appointment is not a starter-goal completion requirement: the storage stage begins as soon as construction completes. A restored existing Lodge does not replay the first-expedition cinematic, and worksite assignments remain transient across save/load like the other current workplace roles.
 - After the Scout Lodge is completed, the fifth stage shows `Build Storage Yard` and `Build Granary`.
 - After both storage buildings are completed, the starter goal sequence completes and the full Build menu catalog unlocks.

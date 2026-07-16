@@ -108,6 +108,92 @@ namespace ProjectUnknown.Strategy.EditorTests
         }
 
         [Test]
+        public void DialogReassignsExactSelectedStonecutterAndCleansPreviousWorksite()
+        {
+            StrategyScoutLodge lodge = CreateLodge();
+            StrategyPopulationController population = CreatePopulation();
+            StrategyResidentAgent selected = CreateResident(
+                population, 10, "Yrsa Stormgard", StrategyResidentLifeStage.Adult, 23f);
+            StrategyResidentAgent other = CreateResident(
+                population, 11, "Einar Ashfield", StrategyResidentLifeStage.Adult, 25f);
+            StrategyStonecutterCamp stonecutter = CreateStonecutterCamp(population);
+            Assert.That(stonecutter.AssignWorker(selected), Is.True);
+            Assert.That(lodge.CanAssignWorker(selected), Is.False);
+            Assert.That(lodge.CanAppointWorker(selected), Is.True);
+
+            StrategyScoutAssignmentDialogController dialog = CreateDialog(CreateConfiguredRouter());
+            int assignments = 0;
+            dialog.Show(
+                lodge,
+                population,
+                true,
+                resident =>
+                {
+                    assignments++;
+                    return lodge.TryAppointWorker(resident);
+                },
+                null);
+
+            Button selectedRow = FindCandidateButton(dialog, selected.FullName);
+            Assert.That(selectedRow.interactable, Is.True);
+            selectedRow.onClick.Invoke();
+            FindButton(dialog, "ConfirmButton").onClick.Invoke();
+
+            Assert.That(assignments, Is.EqualTo(1));
+            Assert.That(stonecutter.WorkerCount, Is.Zero);
+            Assert.That(selected.StoneWorkplace, Is.Null);
+            Assert.That(lodge.WorkerCount, Is.EqualTo(1));
+            Assert.That(lodge.Workers[0], Is.SameAs(selected));
+            Assert.That(selected.ScoutWorkplace, Is.SameAs(lodge));
+            Assert.That(other.ScoutWorkplace, Is.Null);
+        }
+
+        [Test]
+        public void IntroductionKeepsThreeRandomHaulerBuilderCandidatesInSeparateRows()
+        {
+            StrategyScoutLodge lodge = CreateLodge();
+            StrategyPopulationController population = CreatePopulation();
+            StrategyResidentAgent first = CreateResident(
+                population, 20, "Asta River", StrategyResidentLifeStage.Adult, 21f);
+            StrategyResidentAgent second = CreateResident(
+                population, 21, "Bryn Hill", StrategyResidentLifeStage.Adult, 22f);
+            StrategyResidentAgent third = CreateResident(
+                population, 22, "Cora Vale", StrategyResidentLifeStage.Adult, 23f);
+            StrategyResidentAgent fourth = CreateResident(
+                population, 23, "Dagr Pine", StrategyResidentLifeStage.Adult, 24f);
+            Assert.That(first.AssignSettlementHaulerRole(), Is.True);
+            Assert.That(second.AssignSettlementHaulerRole(), Is.True);
+            Assert.That(third.AssignSettlementBuilderRole(), Is.True);
+            Assert.That(fourth.AssignSettlementBuilderRole(), Is.True);
+
+            StrategyScoutAssignmentDialogController dialog = CreateDialog(CreateConfiguredRouter());
+            dialog.Show(lodge, population, true, lodge.TryAppointWorker, null);
+            List<Button> rows = GetActiveCandidateRows(dialog);
+            List<string> namesBeforeRefresh = GetCandidateNames(rows);
+            Assert.That(rows, Has.Count.EqualTo(3));
+
+            MethodInfo feedbackUpdate = typeof(StrategyUiButtonFeedback).GetMethod(
+                "Update",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            HashSet<int> rowPositions = new();
+            for (int i = 0; i < rows.Count; i++)
+            {
+                feedbackUpdate.Invoke(rows[i].GetComponent<StrategyUiButtonFeedback>(), null);
+                rowPositions.Add(Mathf.RoundToInt(
+                    ((RectTransform)rows[i].transform).anchoredPosition.y));
+            }
+
+            Assert.That(rowPositions, Has.Count.EqualTo(3));
+            MethodInfo refresh = typeof(StrategyScoutAssignmentDialogController).GetMethod(
+                "RefreshCandidates",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            refresh.Invoke(dialog, null);
+            CollectionAssert.AreEqual(
+                namesBeforeRefresh,
+                GetCandidateNames(GetActiveCandidateRows(dialog)));
+        }
+
+        [Test]
         public void ChildCannotBeAssignedAndHasAnActionableReason()
         {
             StrategyScoutLodge lodge = CreateLodge();
@@ -187,6 +273,15 @@ namespace ProjectUnknown.Strategy.EditorTests
         private StrategyPopulationController CreatePopulation()
         {
             return CreateRoot("Test Population").AddComponent<StrategyPopulationController>();
+        }
+
+        private StrategyStonecutterCamp CreateStonecutterCamp(
+            StrategyPopulationController population)
+        {
+            StrategyStonecutterCamp camp =
+                CreateRoot("Test Stonecutter Camp").AddComponent<StrategyStonecutterCamp>();
+            camp.Configure(null, null, null, population);
+            return camp;
         }
 
         private StrategyResidentAgent CreateResident(
@@ -310,6 +405,33 @@ namespace ProjectUnknown.Strategy.EditorTests
 
             Assert.Fail("Missing candidate row for: " + residentName);
             return null;
+        }
+
+        private static List<Button> GetActiveCandidateRows(
+            StrategyScoutAssignmentDialogController dialog)
+        {
+            List<Button> rows = new();
+            foreach (Button button in dialog.GetComponentsInChildren<Button>(true))
+            {
+                if (button.name.StartsWith("Candidate_") && button.gameObject.activeSelf)
+                {
+                    rows.Add(button);
+                }
+            }
+
+            return rows;
+        }
+
+        private static List<string> GetCandidateNames(List<Button> rows)
+        {
+            List<string> names = new();
+            for (int i = 0; i < rows.Count; i++)
+            {
+                Text name = rows[i].transform.Find("Name")?.GetComponent<Text>();
+                names.Add(name != null ? name.text : string.Empty);
+            }
+
+            return names;
         }
 
         private static void CompleteClosingTransition(

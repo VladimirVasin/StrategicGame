@@ -279,6 +279,7 @@ namespace ProjectUnknown.Strategy
             root.anchorMax = new Vector2(1f, 1f);
             root.pivot = new Vector2(0.5f, 1f);
             root.sizeDelta = new Vector2(0f, StrategyScoutAssignmentRowView.RowHeight - 4f);
+            root.anchoredPosition = new Vector2(0f, -index * StrategyScoutAssignmentRowView.RowHeight);
 
             Image background = root.gameObject.AddComponent<Image>();
             Button button = root.gameObject.AddComponent<Button>();

@@ -34,10 +34,15 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            bool preserveResourceReturn = IsCompletingResourceReturn();
             CancelScoutWork();
             scoutWorkplace = lodge;
             LeaveNightRestForScoutDuty();
-            ResetScoutMovementToIdle();
+            if (!preserveResourceReturn)
+            {
+                ResetScoutMovementToIdle();
+            }
+
             waitTimer = 0f;
             scoutWorkCooldown = Random.Range(0.10f, 0.30f);
             StrategyDebugLogger.Info(
@@ -455,6 +460,15 @@ namespace ProjectUnknown.Strategy
             transform.localRotation = Quaternion.identity;
             transform.localScale = Vector3.one;
             UseIdleSprite();
+        }
+
+        private bool IsCompletingResourceReturn()
+        {
+            return IsReturningCarriedResourceActivity(activity)
+                || activity == ResidentActivity.ReturningCoalToStorage
+                || activity == ResidentActivity.ReturningPlanksToStorage
+                || activity == ResidentActivity.ReturningPotteryToStorage
+                || activity == ResidentActivity.ReturningToolsToStorage;
         }
 
         private static bool IsScoutActivity(ResidentActivity residentActivity)

@@ -323,6 +323,32 @@ namespace ProjectUnknown.Strategy
                 && !resident.HasConstructionAssignment;
         }
 
+        public bool CanAppointWorker(StrategyResidentAgent resident)
+        {
+            return resident != null
+                && workers.Count < MaxWorkers
+                && !workers.Contains(resident)
+                && resident.CanAcceptWorkAssignment
+                && !resident.IsHouseholder
+                && !resident.HasConstructionAssignment;
+        }
+
+        public bool TryAppointWorker(StrategyResidentAgent resident)
+        {
+            if (!CanAppointWorker(resident))
+            {
+                return false;
+            }
+
+            if (resident.HasExternalWorkplace
+                && !resident.TryReleaseExternalWorkAssignment())
+            {
+                return false;
+            }
+
+            return AssignWorker(resident);
+        }
+
         public string GetAssignmentBlockReason(StrategyResidentAgent resident)
         {
             if (resident == null)
@@ -360,9 +386,9 @@ namespace ProjectUnknown.Strategy
                 return "Responsible for a household";
             }
 
-            if (resident.HasWorkplace)
+            if (CanAppointWorker(resident))
             {
-                return "Already serving as " + StrategyResidentHudText.GetRoleTitle(resident);
+                return string.Empty;
             }
 
             if (!resident.CanAcceptWorkAssignment)

@@ -12,6 +12,7 @@ namespace ProjectUnknown.Strategy
         private const float CandidateRefreshInterval = 0.25f;
 
         private readonly List<ScoutCandidate> candidates = new();
+        private readonly List<StrategyResidentAgent> introductionCandidates = new();
         private readonly List<StrategyScoutAssignmentRowView> rowPool = new();
 
         private StrategyScoutLodge lodge;
@@ -94,6 +95,7 @@ namespace ProjectUnknown.Strategy
             callbackResolved = false;
             selectedResident = null;
             refreshTimer = CandidateRefreshInterval;
+            PrepareIntroductionCandidates();
             ApplyModeCopy();
             SetActionStatus(string.Empty, false);
             panelTransition.SetVisible(true);
@@ -268,6 +270,7 @@ namespace ProjectUnknown.Strategy
             tryAssign = null;
             selectedResident = null;
             candidates.Clear();
+            introductionCandidates.Clear();
         }
 
         private static void PlaySfx(StrategyHudSfxKind kind)

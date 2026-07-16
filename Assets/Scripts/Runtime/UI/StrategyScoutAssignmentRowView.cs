@@ -83,7 +83,11 @@ namespace ProjectUnknown.Strategy
                 ? new Color(0.70f, 0.78f, 0.74f, 1f)
                 : new Color(0.50f, 0.55f, 0.52f, 1f);
             status.text = eligible
-                ? selected ? "SELECTED" : "READY FOR THE TRAIL"
+                ? selected
+                    ? "SELECTED"
+                    : resident.HasExternalWorkplace
+                        ? "REASSIGN FROM " + StrategyResidentHudText.GetRoleTitle(resident).ToUpperInvariant()
+                        : "READY FOR THE TRAIL"
                 : string.IsNullOrWhiteSpace(blockReason) ? "Unavailable for scouting duty" : blockReason;
             status.color = eligible
                 ? new Color(0.92f, 0.70f, 0.34f, 1f)

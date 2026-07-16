@@ -76,6 +76,55 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("resident", FullName));
         }
 
+        public bool TryReleaseExternalWorkAssignment()
+        {
+            if (!CanAcceptWorkAssignment || IsHouseholder || HasConstructionAssignment)
+            {
+                return false;
+            }
+
+            StrategyLumberjackCamp previousLumber = workplace;
+            StrategyStonecutterCamp previousStone = stoneWorkplace;
+            StrategyHunterCamp previousHunter = hunterWorkplace;
+            StrategyFisherHut previousFisher = fisherWorkplace;
+            StrategyForagerCamp previousForager = foragerWorkplace;
+            StrategyMine previousMine = mineWorkplace;
+            StrategyCoalPit previousCoal = coalPitWorkplace;
+            StrategyClayPit previousClay = clayPitWorkplace;
+            StrategySawmill previousSawmill = sawmillWorkplace;
+            StrategyKiln previousKiln = kilnWorkplace;
+            StrategyForge previousForge = forgeWorkplace;
+            StrategyStorageYard previousStorage = storageWorkplace;
+            StrategyStorageYard previousBuilder = builderWorkplace;
+            StrategyGranary previousGranary = granaryWorkplace;
+            StrategyScoutLodge previousScout = scoutWorkplace;
+
+            previousLumber?.UnassignWorker(this);
+            previousStone?.UnassignWorker(this);
+            previousHunter?.UnassignWorker(this);
+            previousFisher?.UnassignWorker(this);
+            previousForager?.UnassignWorker(this);
+            previousMine?.UnassignWorker(this);
+            previousCoal?.UnassignWorker(this);
+            previousClay?.UnassignWorker(this);
+            previousSawmill?.UnassignWorker(this);
+            previousKiln?.UnassignWorker(this);
+            previousForge?.UnassignWorker(this);
+            previousStorage?.UnassignWorker(this);
+            previousBuilder?.UnassignBuilder(this);
+            previousGranary?.UnassignWorker(this);
+            previousScout?.UnassignWorker(this);
+            ClearSettlementHaulerRole();
+            ClearSettlementBuilderRole();
+
+            bool released = !HasExternalWorkplace;
+            StrategyDebugLogger.Info(
+                "Population",
+                released ? "ResidentWorkReleasedForReassignment" : "ResidentWorkReleaseFailed",
+                StrategyDebugLogger.F("resident", FullName));
+            return released;
+        }
+
         private bool TrySelectStorageHaulerYard()
         {
             if (storageWorkplace != null)

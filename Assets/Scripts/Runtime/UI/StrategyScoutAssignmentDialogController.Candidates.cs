@@ -7,6 +7,8 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyScoutAssignmentDialogController
     {
+        private const int IntroductionCandidateCount = 3;
+
         private void ApplyModeCopy()
         {
             titleText.text = introductionMode ? "THE FIRST EXPEDITION" : "APPOINT A SCOUT";
@@ -21,7 +23,9 @@ namespace ProjectUnknown.Strategy
             candidates.Clear();
             if (population != null)
             {
-                IReadOnlyList<StrategyResidentAgent> residents = population.Residents;
+                IReadOnlyList<StrategyResidentAgent> residents = introductionMode
+                    ? introductionCandidates
+                    : population.Residents;
                 for (int i = 0; i < residents.Count; i++)
                 {
                     StrategyResidentAgent resident = residents[i];
@@ -30,7 +34,7 @@ namespace ProjectUnknown.Strategy
                         continue;
                     }
 
-                    bool eligible = lodge != null && lodge.CanAssignWorker(resident);
+                    bool eligible = lodge != null && lodge.CanAppointWorker(resident);
                     string reason = eligible || lodge == null
                         ? string.Empty
                         : lodge.GetAssignmentBlockReason(resident);
@@ -81,7 +85,7 @@ namespace ProjectUnknown.Strategy
 
         private void SelectCandidate(StrategyResidentAgent resident)
         {
-            if (resident == null || lodge == null || !lodge.CanAssignWorker(resident))
+            if (resident == null || lodge == null || !lodge.CanAppointWorker(resident))
             {
                 SetActionStatus("That resident is no longer available for the trail.", true);
                 RefreshCandidates();
@@ -101,7 +105,7 @@ namespace ProjectUnknown.Strategy
         private void ConfirmSelection()
         {
             StrategyResidentAgent resident = selectedResident;
-            if (resident == null || lodge == null || !lodge.CanAssignWorker(resident))
+            if (resident == null || lodge == null || !lodge.CanAppointWorker(resident))
             {
                 SetActionStatus("The chosen resident is no longer available. Choose another scout.", true);
                 RefreshCandidates();
@@ -246,6 +250,68 @@ namespace ProjectUnknown.Strategy
             int leftId = left.Resident != null ? left.Resident.ResidentId : int.MaxValue;
             int rightId = right.Resident != null ? right.Resident.ResidentId : int.MaxValue;
             return leftId.CompareTo(rightId);
+        }
+
+        private void PrepareIntroductionCandidates()
+        {
+            introductionCandidates.Clear();
+            if (!introductionMode || population == null)
+            {
+                return;
+            }
+
+            List<StrategyResidentAgent> preferred = new();
+            List<StrategyResidentAgent> otherReady = new();
+            List<StrategyResidentAgent> blocked = new();
+            IReadOnlyList<StrategyResidentAgent> residents = population.Residents;
+            for (int i = 0; i < residents.Count; i++)
+            {
+                StrategyResidentAgent resident = residents[i];
+                if (resident == null || !resident.IsAdult)
+                {
+                    continue;
+                }
+
+                if (lodge != null && lodge.CanAppointWorker(resident))
+                {
+                    bool haulerOrBuilder = resident.IsSettlementHauler
+                        || resident.IsSettlementBuilder
+                        || resident.StorageWorkplace != null
+                        || resident.BuilderWorkplace != null
+                        || resident.GranaryWorkplace != null;
+                    (haulerOrBuilder ? preferred : otherReady).Add(resident);
+                }
+                else
+                {
+                    blocked.Add(resident);
+                }
+            }
+
+            ShuffleCandidates(preferred);
+            ShuffleCandidates(otherReady);
+            ShuffleCandidates(blocked);
+            AppendCandidates(preferred);
+            AppendCandidates(otherReady);
+            AppendCandidates(blocked);
+        }
+
+        private void AppendCandidates(List<StrategyResidentAgent> source)
+        {
+            for (int i = 0;
+                i < source.Count && introductionCandidates.Count < IntroductionCandidateCount;
+                i++)
+            {
+                introductionCandidates.Add(source[i]);
+            }
+        }
+
+        private static void ShuffleCandidates(List<StrategyResidentAgent> source)
+        {
+            for (int i = source.Count - 1; i > 0; i--)
+            {
+                int swapIndex = UnityEngine.Random.Range(0, i + 1);
+                (source[i], source[swapIndex]) = (source[swapIndex], source[i]);
+            }
         }
     }
 }
