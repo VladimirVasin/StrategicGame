@@ -57,10 +57,12 @@
     <Compile Include="Assets\Tests\EditMode\StrategyResidentCinematicVisualTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyPointOfInterestPlacementTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyForagerCampVisualProfileTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyCityInventoryTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyLogFileRotationTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyStartSiteSelectorTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyPauseMenuControllerTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyPointOfInterestSaveValidationTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyCityInventorySaveTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyUiButtonFeedbackTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyResidentCharacterizationTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyVerificationTests.cs" />
@@ -70,6 +72,7 @@
     <Compile Include="Assets\Tests\EditMode\StrategyPointOfInterestMineralTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyRoadOccupancyTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyAudioFocusGateTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyCityInventoryHudTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyFirstNightRatCinematicTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyFirstNightFaunaTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyChickenCoopVisualProfileTests.cs" />

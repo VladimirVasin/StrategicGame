@@ -9,10 +9,22 @@ namespace ProjectUnknown.Strategy
         {
             StrategySaveData data = pendingLoad;
             ReleasePendingPointOfInterestCells(map);
+            StrategyCityInventoryRestoreFailure inventoryFailure =
+                StrategyCityInventoryRestoreFailure.None;
             if (!ValidateSaveData(data, out string reason)
                 || data.mapWidth != map.Width
-                || data.mapHeight != map.Height)
+                || data.mapHeight != map.Height
+                || !TryRestoreCityInventory(
+                    cityInventory,
+                    data.cityItems,
+                    out inventoryFailure))
             {
+                if (string.IsNullOrEmpty(reason)
+                    && inventoryFailure != StrategyCityInventoryRestoreFailure.None)
+                {
+                    reason = "city_inventory_" + inventoryFailure.ToString().ToLowerInvariant();
+                }
+
                 StrategyDebugLogger.Warn(
                     "Save",
                     "PendingLoadRejected",
@@ -95,6 +107,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("buildings", data.buildings.Count),
                 StrategyDebugLogger.F("sites", data.constructionSites.Count),
                 StrategyDebugLogger.F("residents", data.residents.Count),
+                StrategyDebugLogger.F("cityItems", data.cityItems.Count),
                 StrategyDebugLogger.F("day", StrategyDayNightCycleController.CurrentDayIndex + 1));
         }
 

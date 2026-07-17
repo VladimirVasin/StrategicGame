@@ -37,6 +37,7 @@ namespace ProjectUnknown.Strategy
             CaptureConstructionSites(data);
             CaptureResidents(data);
             CaptureLooseResources(data);
+            CaptureCityInventory(data);
             FindAnyObjectByType<StrategyFogOfWarController>()?.CaptureExploredCells(data.exploredCells);
             StrategyTrailController.Active?.CapturePersistentTrailCells(data.trailCells);
             StrategyPointOfInterestController.Active?.CapturePersistentState(data.pointsOfInterest);

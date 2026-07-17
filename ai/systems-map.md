@@ -875,7 +875,7 @@ Responsibilities:
 - Expose only persistently discovered, uninvestigated landmarks to Scout reservation; reject conflicts across multiple Scouts and cool down unreachable targets.
 - Mark investigation completion atomically and retain the marker in an investigated check state.
 - Queue a resource-specific one-action `OK` debug encounter, hold one simulation pause lock across queued notices, block all input, swallow cancel, and defer behind existing modal pause owners.
-- Capture and restore stable point IDs, cells, Coal/Iron/neutral role, exact mineral origin, remaining amount, and investigated state through save version 7; reserve pending live-site cells before deterministic nature/forage generation and treat depletion as a typed site with no live deposit.
+- Capture and restore stable point IDs, cells, Coal/Iron/neutral role, exact mineral origin, remaining amount, and investigated state through save version 8; reserve pending live-site cells before deterministic nature/forage generation and treat depletion as a typed site with no live deposit.
 - Clear legacy v5 point geometry during migration so the first v6 load restores buildings/construction first, then regenerates the owned-site layout around them instead of retaining ten neutral landmarks.
 
 Primary files/assets:
@@ -1096,7 +1096,7 @@ Primary files/assets:
 
 Impact hints:
 
-- Individual wildlife/fauna agents and the transient cinematic rat remain runtime-only. Save version 7 persists only the first-night fauna stage; restore clears live cats/mice and reconstructs the required minimum population from that stage.
+- Individual wildlife/fauna agents and the transient cinematic rat remain runtime-only. Save version 8 retains the first-night fauna stage; restore clears live cats/mice and reconstructs the required minimum population from that stage.
 - `MiceVisible` means the full rat-prelude-plus-story presentation is unresolved, so restore/retry may replay the prelude. Story completion or Skip remains the only path that unlocks cats for a new settlement; cancellation must release only owned input/pause/camera state without advancing the stage.
 - Deer and birds do not reveal fog or block walkability; adult deer can yield `Game` only after the Hunter Camp upgrade, rabbits can yield `Game` through the base hunter-camp work loop, fish can yield `Fish` through the fisher-hut work loop, and wolves are predators rather than player-harvestable resources.
 - Initial rabbit spawn, deer herds, fish shoals, birds, and wolf packs depend on hidden near-settlement candidate cells instead of map-wide placement; if no hidden candidate exists for a species, that species should skip spawning rather than appearing far from buildings or inside visible fog.
@@ -2718,6 +2718,39 @@ Impact hints:
 - Modal UI must own/dispose a scoped context so blocked gameplay/camera/build input cannot leak after close or scene unload.
 - Add runtime controls to the router/action asset rather than reading `Keyboard.current`, `Mouse.current`, or `KeyControl` in consumers.
 
+### City Inventory
+
+Responsibilities:
+
+- Own one scene-local settlement chest for special items, separate from physical resources, storage, reservations, logistics, construction affordability, and winter readiness.
+- Define stable string item IDs, catalog order, stack limits, deterministic snapshots, atomic restore, and one `Changed` event per successful mutation.
+- Present an optional read-only top-bar launcher, distinct-stack badge, empty state, item grid, and detail view without Use/Equip actions or simulation pause.
+- Persist deterministic `cityItems` through save version 8 and reject unknown IDs, duplicate stacks, or invalid quantities against the active catalog before mutation.
+
+Primary files:
+
+- `Assets/Scripts/Runtime/Inventory/StrategyCityItemDefinition.cs`
+- `Assets/Scripts/Runtime/Inventory/StrategyCityItemCatalog.cs`
+- `Assets/Scripts/Runtime/Inventory/StrategyCityInventoryData.cs`
+- `Assets/Scripts/Runtime/Inventory/StrategyCityInventory.cs`
+- `Assets/Scripts/Runtime/UI/StrategyCityInventoryHudController.cs`
+- `Assets/Scripts/Runtime/UI/StrategyCityInventoryHudController.View.cs`
+- `Assets/Scripts/Runtime/UI/StrategyCityInventoryHudController.Items.cs`
+- `Assets/Scripts/Runtime/UI/StrategyCityInventoryHudController.Input.cs`
+- `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.CityInventory.cs`
+- `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Validation.CityItems.cs`
+- `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.cs`
+- `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.Persistence.cs`
+- `Assets/Tests/EditMode/StrategyCityInventoryTests.cs`
+- `Assets/Tests/EditMode/StrategyCityInventorySaveTests.cs`
+- `Assets/Tests/EditMode/StrategyCityInventoryHudTests.cs`
+
+Impact hints:
+
+- The production catalog is intentionally empty; adding rewards or content requires explicit catalog definitions and save compatibility, not resource-store entries.
+- Keep the HUD observational. Use/Equip actions, item effects, reward grants, and consumption rules require separate future owners.
+- Keep the HUD input context limited to Camera/Gameplay/Build with `CancelMode.Close`; it must never acquire a time-scale pause lock.
+
 ### Shared Resource Stores And Queries
 
 Responsibilities:
@@ -2778,7 +2811,7 @@ Responsibilities:
 - Materialize resident-carried stock into the save snapshot as loose resources at each resident's current cell because active tasks and carried state are intentionally rebuilt rather than serialized.
 - Write saves atomically and coordinate restoration only after runtime bootstrap has created all required systems.
 - Preserve F5 save and F8 load/restart controls while exposing read/validate/pending-load entry points to the intro menu Continue flow.
-- Preserve the founding profile, stable answer pairs, exact camp cell, current starter-cart origin, first-night fauna stage, stable point-of-interest geometry/resource role/mineral origin/remaining amount/investigated state, and exact loose prepared-dish payloads across save version 7.
+- Preserve the founding profile, stable answer pairs, exact camp cell, current starter-cart origin, first-night fauna stage, deterministic City Inventory stacks, stable point-of-interest geometry/resource role/mineral origin/remaining amount/investigated state, and exact loose prepared-dish payloads across save version 8.
 
 Primary files:
 
@@ -2787,9 +2820,11 @@ Primary files:
 - `Assets/Scripts/Runtime/Persistence/StrategySaveMigration.cs`
 - `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Files.cs`
 - `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Validation.cs`
+- `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Validation.CityItems.cs`
 - `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Validation.LooseResources.cs`
 - `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Capture.cs`
 - `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Apply.cs`
+- `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.CityInventory.cs`
 - `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Founding.cs`
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.Persistence.cs`
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.Founding.cs`
@@ -2803,12 +2838,13 @@ Primary files:
 - `Assets/Tests/EditMode/StrategySaveSystemTests.cs`
 - `Assets/Tests/EditMode/StrategySaveLooseResourceTests.cs`
 - `Assets/Tests/EditMode/StrategyFirstNightFaunaSaveTests.cs`
+- `Assets/Tests/EditMode/StrategyCityInventorySaveTests.cs`
 
 Impact hints:
 
-- Current persistence is version 7 with v1/v2/v3/v4/v5/v6 migration. Increment the version and add an explicit migration whenever persisted DTO shape changes; validate migrated data before applying it.
+- Current persistence is version 8 with explicit migrations through v7-to-v8; v7 saves receive an empty `cityItems` list. Increment the version and add an explicit migration whenever persisted DTO shape changes; validate migrated data before applying it.
 - Keep primary/temp/backup replacement and backup recovery in the file seam so interrupted writes do not destroy the last valid save.
-- Reject save files above 32 MiB before reading and keep top-level plus resident-child/prepared-dish/point-of-interest collection limits in validation.
+- Reject save files above 32 MiB before reading and keep top-level plus resident-child/prepared-dish/point-of-interest/City Inventory collection limits in validation.
 - Stable IDs are serialization contracts; never replace them with scene-instance IDs or object references.
 
 ### Verification

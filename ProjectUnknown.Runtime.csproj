@@ -76,6 +76,7 @@
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyChickenCoop.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyGranary.Resources.cs" />
     <Compile Include="Assets\Scripts\Runtime\Input\StrategyInputRouter.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyCityInventoryHudController.View.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyPopulationController.Persistence.cs" />
     <Compile Include="Assets\Scripts\Runtime\Menu\StrategyFoundingJourneyPresentation.cs" />
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyTradeCaravanSpriteFactory.cs" />
@@ -182,6 +183,7 @@
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyProfessionHudController.Part06.cs" />
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyLooseCarriedResourcePile.Logistics.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWildlifeController.Part06.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyCityInventoryHudController.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyPopulationRosterHudController.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\Menu\StrategySceneCatalog.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyStorageYard.Part09.cs" />
@@ -239,16 +241,17 @@
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyResourceReservationProviders.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyChickenAgent.NightShelter.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentFamilyRecord.cs" />
-    <Compile Include="Assets\Scripts\Runtime\Core\StrategyRuntimeObjectCreationGuard.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyBuildMenuController.Driver.Part02.cs" />
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyDishRecipeCatalog.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Core\StrategyRuntimeObjectCreationGuard.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.WorkSfx.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyFisherHut.Visuals.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyRabbitAgent.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyRoadsidePropPlanner.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategySettlementFaunaTypes.cs" />
-    <Compile Include="Assets\Scripts\Runtime\Visual\StrategyVisualCatalog.Atlases.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Persistence\StrategySaveSystem.Validation.CityItems.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyPerformanceDiagnostics.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Visual\StrategyVisualCatalog.Atlases.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyBuildTool.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyGoalDefinition.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyTerrainTexturePainter.Palette.cs" />
@@ -439,7 +442,9 @@
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentSpriteFactory.MouseStartle.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingSpriteFactory.ScoutLodge.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyFogOfWarController.Persistence.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyCityInventoryHudController.Input.cs" />
     <Compile Include="Assets\Scripts\Runtime\Menu\StrategyPauseMenuController.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Persistence\StrategySaveSystem.CityInventory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyGameContext.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyChickenSpriteFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyHouseWarmthState.Cold.cs" />
@@ -561,12 +566,14 @@
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyForagerCamp.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyShadowCaster2D.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyScoutAssignmentDialogController.Candidates.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Inventory\StrategyCityInventoryData.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyLumberjackCamp.Construction.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentColdState.cs" />
     <Compile Include="Assets\Scripts\Runtime\Audio\StrategyAudioVoicePool.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyLooseConstructionResourcePile.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyBuildMenuController.Driver.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyRefugeeArrivalController.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Inventory\StrategyCityItemDefinition.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyUiThemeProvider.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyNatureSpriteFactory.Part02.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyBirdSpriteFactory.cs" />
@@ -600,6 +607,7 @@
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyProductionBuildingUpgradeCatalog.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part35.cs" />
     <Compile Include="Assets\Scripts\Runtime\Audio\StrategyHudSfxAudio.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyCityInventoryHudController.Items.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyCinematicRatActor.cs" />
     <Compile Include="Assets\Scripts\Runtime\Visual\StrategyBuildingGroundSpriteFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyStonecutterCamp.Part01.cs" />
@@ -632,6 +640,7 @@
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentSpriteFactory.Part04.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part03.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.NightTorchLight.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Inventory\StrategyCityInventory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyTradeOffer.cs" />
     <Compile Include="Assets\Scripts\Runtime\Selection\StrategyWorldSelectionController.Part03.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyHouseWarmthState.cs" />
@@ -714,6 +723,7 @@
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part38.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part20.cs" />
     <Compile Include="Assets\Scripts\Runtime\Weather\StrategySeasonAmbientDetailController.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Inventory\StrategyCityItemCatalog.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyMine.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentInventory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyResourceIconFactory.cs" />

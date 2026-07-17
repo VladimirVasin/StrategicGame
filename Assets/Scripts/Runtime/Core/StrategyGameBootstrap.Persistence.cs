@@ -9,11 +9,13 @@ namespace ProjectUnknown.Strategy
             CityMapController map,
             StrategyBuildPlacementController placement,
             StrategyPopulationController population,
+            StrategyCityInventory cityInventory,
             StrategyInputRouter inputRouter,
             StrategyFoundingStartState foundingStart)
         {
             StrategySaveSystem saveSystem = context.GetOrCreate<StrategySaveSystem>("Strategy Save System");
             saveSystem.SetInputRouter(inputRouter);
+            saveSystem.SetCityInventory(cityInventory);
             if (foundingStart != null)
             {
                 saveSystem.SetFoundingStartData(foundingStart.CreateSaveData());

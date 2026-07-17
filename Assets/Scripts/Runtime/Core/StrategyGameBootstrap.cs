@@ -49,6 +49,14 @@ namespace ProjectUnknown.Strategy
             StrategyUiInputModuleBootstrap.Ensure();
             StrategyDebugLogger.Info("Bootstrap", "InputReady");
 
+            StrategyCityInventory cityInventory =
+                context.GetOrCreate<StrategyCityInventory>("Strategy City Inventory");
+            cityInventory.Configure(StrategyCityItemCatalog.Production);
+            StrategyDebugLogger.Info(
+                "Bootstrap",
+                "CityInventoryReady",
+                StrategyDebugLogger.F("items", cityInventory.DistinctItemCount));
+
             StrategyWaterAnimationController water = context.GetOrCreate<StrategyWaterAnimationController>("Strategy Water Animation");
             water.Configure(map);
             StrategyDebugLogger.Info("Bootstrap", "WaterReady");
@@ -336,6 +344,11 @@ namespace ProjectUnknown.Strategy
             topStatusHud.Configure(population, populationRosterHud, dayNight);
             StrategyDebugLogger.Info("Bootstrap", "TopStatusHudReady");
 
+            StrategyCityInventoryHudController cityInventoryHud =
+                context.GetOrCreate<StrategyCityInventoryHudController>("Strategy City Inventory HUD");
+            cityInventoryHud.Configure(cityInventory, inputRouter);
+            StrategyDebugLogger.Info("Bootstrap", "CityInventoryHudReady");
+
             StrategyEventLogHudController eventLogHud = context.GetOrCreate<StrategyEventLogHudController>("Strategy Event Log HUD");
             eventLogHud.Configure();
             StrategyDebugLogger.Info("Bootstrap", "EventLogHudReady");
@@ -368,6 +381,7 @@ namespace ProjectUnknown.Strategy
                 map,
                 placement,
                 population,
+                cityInventory,
                 inputRouter,
                 foundingStart);
             StrategyPauseMenuController pauseMenu =

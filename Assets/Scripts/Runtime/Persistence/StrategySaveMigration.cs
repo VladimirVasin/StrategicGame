@@ -40,6 +40,9 @@ namespace ProjectUnknown.Strategy
                     case 6:
                         MigrateVersion6To7(data);
                         break;
+                    case 7:
+                        MigrateVersion7To8(data);
+                        break;
                     default:
                         reason = "missing_migration_from_version_" + data.version;
                         return false;
@@ -94,6 +97,12 @@ namespace ProjectUnknown.Strategy
             data.version = 7;
         }
 
+        private static void MigrateVersion7To8(StrategySaveData data)
+        {
+            data.cityItems = new List<StrategyCityItemSaveData>();
+            data.version = 8;
+        }
+
         private static void NormalizeCollections(StrategySaveData data)
         {
             data.buildings ??= new List<StrategyBuildingSaveData>();
@@ -101,6 +110,7 @@ namespace ProjectUnknown.Strategy
             data.residents ??= new List<StrategyResidentSaveData>();
             data.looseResources ??= new List<StrategyLooseResourceSaveData>();
             data.pointsOfInterest ??= new List<StrategyPointOfInterestSaveData>();
+            data.cityItems ??= new List<StrategyCityItemSaveData>();
             data.exploredCells ??= new List<int>();
             data.trailCells ??= new List<int>();
             data.foundingStart ??= new StrategyFoundingStartSaveData();

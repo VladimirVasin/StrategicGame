@@ -1,5 +1,16 @@
 # Work Log
 
+### 2026-07-17 - City Inventory MVP
+
+- Added one scene-local city chest for settlement-wide special items, kept strictly separate from physical resources, storage, logistics, construction affordability, and winter readiness.
+- Added catalog-backed stable string item IDs, deterministic stacks, mutation events, bounded quantities, and an intentionally empty production catalog.
+- Added an optional read-only top-bar HUD with a distinct-stack badge, English empty state, item grid, detail view, shared button/panel feedback, event-driven refresh, and Camera/Gameplay/Build input blocking without pausing simulation.
+- Upgraded persistence to version 8 with deterministic `cityItems`, bounded catalog-aware validation, atomic restore, and an explicit v7-to-v8 migration that initializes an empty list. Continue now rejects unknown or over-stack production items before gameplay preload instead of abandoning a late partial load in the scene.
+- Wired the inventory, HUD, input router, and save system through gameplay bootstrap. The existing founding journey, starter goals, unlock order, and First Winter progression are unchanged.
+- Hardened HUD disable/re-enable cleanup so the child canvas cannot remain interactive or reacquire an input context while its controller is disabled.
+- The MVP has no Use/Equip actions, effect engine, reward grants, or production items yet; those remain future catalog/content work.
+- Verification: technical gates pass; all five C# projects build with zero warnings/errors; focused City Inventory EditMode tests pass 39/39, save regressions pass 24/24, and Unity PlayMode smoke passes.
+
 ### 2026-07-17 - Standard first-night mouse and participant highlights
 
 - Replaced the oversized dedicated cinematic rat artwork with the exact cached settlement mouse sprite and the same `0.72` world scale used by ordinary mouse agents.

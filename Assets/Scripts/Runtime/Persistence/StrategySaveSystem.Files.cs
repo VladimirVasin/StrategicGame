@@ -100,6 +100,21 @@ namespace ProjectUnknown.Strategy
             out string reason,
             out bool migrated)
         {
+            return TryDeserializeAndValidate(
+                json,
+                StrategyCityItemCatalog.Production,
+                out data,
+                out reason,
+                out migrated);
+        }
+
+        internal static bool TryDeserializeAndValidate(
+            string json,
+            StrategyCityItemCatalog cityItemCatalog,
+            out StrategySaveData data,
+            out string reason,
+            out bool migrated)
+        {
             data = null;
             migrated = false;
             try
@@ -120,7 +135,11 @@ namespace ProjectUnknown.Strategy
                 }
 
                 migrated = sourceVersion != data.version;
-                if (ValidateSaveData(data, out reason))
+                if (ValidateSaveData(data, out reason)
+                    && ValidateCityItemsAgainstCatalog(
+                        data.cityItems,
+                        cityItemCatalog,
+                        out reason))
                 {
                     return true;
                 }

@@ -16,6 +16,7 @@ namespace ProjectUnknown.Strategy
         private CityMapController map;
         private StrategyBuildPlacementController placement;
         private StrategyPopulationController population;
+        private StrategyCityInventory cityInventory;
         private StrategyInputRouter inputRouter;
         private StrategyFoundingStartSaveData foundingStart = new();
         private bool configured;
@@ -29,6 +30,12 @@ namespace ProjectUnknown.Strategy
             inputRouter = router;
         }
 
+        public void SetCityInventory(StrategyCityInventory inventory)
+        {
+            cityInventory = inventory;
+            RefreshConfiguration();
+        }
+
         public void Configure(
             CityMapController mapController,
             StrategyBuildPlacementController placementController,
@@ -37,7 +44,15 @@ namespace ProjectUnknown.Strategy
             map = mapController;
             placement = placementController;
             population = populationController;
-            configured = map != null && placement != null && population != null;
+            RefreshConfiguration();
+        }
+
+        private void RefreshConfiguration()
+        {
+            configured = map != null
+                && placement != null
+                && population != null
+                && cityInventory != null;
             if (configured && pendingLoad != null)
             {
                 foundingStart = CopyFoundingStartData(pendingLoad.foundingStart);
@@ -87,7 +102,8 @@ namespace ProjectUnknown.Strategy
                     StrategyDebugLogger.F("path", SavePath),
                     StrategyDebugLogger.F("buildings", data.buildings.Count),
                     StrategyDebugLogger.F("sites", data.constructionSites.Count),
-                    StrategyDebugLogger.F("residents", data.residents.Count));
+                    StrategyDebugLogger.F("residents", data.residents.Count),
+                    StrategyDebugLogger.F("cityItems", data.cityItems.Count));
                 return true;
             }
             catch (Exception exception)

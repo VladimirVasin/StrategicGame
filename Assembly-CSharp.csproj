@@ -9,6 +9,16 @@
   </PropertyGroup>
   <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
   <ItemGroup>
+    <Compile Include="Assets\Scripts\Runtime\Inventory\StrategyCityItemDefinition.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Inventory\StrategyCityItemCatalog.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Inventory\StrategyCityInventoryData.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Inventory\StrategyCityInventory.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Persistence\StrategySaveSystem.CityInventory.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Persistence\StrategySaveSystem.Validation.CityItems.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyCityInventoryHudController.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyCityInventoryHudController.View.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyCityInventoryHudController.Items.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyCityInventoryHudController.Input.cs" />
     <Compile Include="Assets\Scripts\Runtime\Cinematics\StrategyCinematicLetterboxView.cs" />
     <Compile Include="Assets\Scripts\Runtime\Cinematics\StrategyCinematicParticipantHighlight.cs" />
     <Compile Include="Assets\Scripts\Runtime\Cinematics\StrategyInGameCinematicMath.cs" />

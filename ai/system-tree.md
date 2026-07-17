@@ -94,6 +94,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Creates the refugee-arrival event controller and modal refugee decision HUD
     - Creates performance diagnostics after population, weather, wildlife, and time-scale setup so stable 15/30/50-resident benchmark windows include frame, memory, path/decision, world, and light counts
     - Creates the top status HUD with settlement population counts, a compact calendar/time/season widget, a clickable population roster HUD, family tree scene entry point, and a compact event log for births, deaths, adoptions, dawn, nightfall, and season starts
+    - Creates one scene-local City Inventory with the empty production special-item catalog, then wires its optional read-only top-bar HUD and versioned save owner
     - Creates the runtime goals controller and starter goal sequence that gates early Build menu tools
     - Creates the first-Scout onboarding coordinator and expedition assignment board after camera, placement, population, selection, time-scale, and input owners are ready
     - Creates one reusable in-game cinematic player and wires the first-night rat prelude after camera, population, map, input, time-scale, settlement fauna, and story owners are ready
@@ -675,6 +676,10 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Custom runtime Build menu HUD
     - Starter progression exposes a seven-tool base catalog from the beginning, guides Houses -> Forager Camp -> Lumberjack/Stonecutter camps -> Scout Lodge -> Storage Yard/Granary, and unlocks the full catalog after every base requirement is complete
   - Custom runtime top status HUD showing total population, adults, children, day number, 24-hour time, outdoor temperature, season day, time-of-day phase, winter food/fuel readiness, and day progress; clicking the population panel opens a larger residents roster HUD
+  - Custom read-only City Inventory HUD in the top bar
+    - Shows a distinct-stack badge, English empty state, item grid, and selected-item detail view for settlement-wide special items
+    - Refreshes from inventory change events, blocks Camera/Gameplay/Build input while open, closes through Cancel/X/backdrop, and never pauses simulation
+    - Exposes no Use/Equip controls; item effects, rewards, and production catalog content are not implemented yet
   - Custom runtime residents roster HUD showing settlement stats plus filterable resident rows for name, age, home state, role, current status, and food status
   - Custom fullscreen Family Trees HUD opened from the residents roster; it pauses simulation, provides permanent horizontal/vertical scrollbars, uses an animated modal transition, lays connected same-surname family cards out as affinity-ordered left-to-right columns, and shows compact generation rows connected by local parent-pair branches plus cross-family relationship lines, deceased markers, gender symbols, and hover relationship labels
   - Custom compact runtime event log showing births, deaths, adoptions, dawn, nightfall, season starts, and late-Autumn winter warnings
@@ -719,10 +724,11 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Gameplay can be rendered at deterministic Noon, Spring, Autumn, Night, and Winter states for visual comparison when a graphics device is available
 
 - Persistence
-  - Version-7 JSON save data with v1/v2/v3/v4/v5/v6 migration, validation, atomic temporary-file replacement, and `.bak` recovery
+  - Version-8 JSON save data with migrations through v7-to-v8, validation, atomic temporary-file replacement, and `.bak` recovery
+  - The v7-to-v8 migration initializes an empty `cityItems` list; current saves capture deterministic stable-ID special-item stacks and restore them atomically against the active catalog
   - F5 saves the current settlement; F8 loads it by restarting and restoring the runtime scene
   - Stable IDs reconnect placed buildings, residents, homes, parents, and children without serializing Unity object references
-  - Snapshot coverage includes map seed/time/weather, founding profile answers and exact camp/current-cart origin, first-winter milestones, first-night fauna stage, buildings, construction sites, resource and dish stock, residents and cold state, ground resources plus in-transit resident stock represented as loose resources at saved resident cells, exact prepared-dish payloads, explored fog, route-road cells, and point-of-interest position/resource kind/mineral origin/remaining amount/investigated state
+  - Snapshot coverage includes map seed/time/weather, founding profile answers and exact camp/current-cart origin, first-winter milestones, first-night fauna stage, City Inventory stacks, buildings, construction sites, resource and dish stock, residents and cold state, ground resources plus in-transit resident stock represented as loose resources at saved resident cells, exact prepared-dish payloads, explored fog, route-road cells, and point-of-interest position/resource kind/mineral origin/remaining amount/investigated state
 
 - AI collaboration memory
   - Root entry point: `AI.md`
@@ -735,7 +741,8 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Runtime bootstrap depends on scene role, one scene-local game context, explicit preload ownership transfer, and the presence of a usable `Main Camera` or permission to create one.
 - Intro menu launch depends on save validation, one persistent preload coordinator, deterministic map seed handling, the Founding Journey decision gate for New Settlement, and the gameplay scene-loaded bootstrap hook; prepared terrain keeps Unity object creation/upload on the main thread.
 - Founding Journey presentation couples each authored shot to its atmosphere and scene-owned Weather/Fire ambience; its answers feed a pure selector over a captured map snapshot, and selected camp/cart cells feed population startup, nature/forage exclusions, exact starter-cart placement, save v3, and the initial camera focus.
-- The first-night fauna presentation couples the shared Day 1 calendar, settlement-fauna target policy, reusable in-game cinematic player, strategy camera, deterministic resident/rat staging, Founding Journey presentation/atmosphere reuse, modal pause/input ownership, three Resources-backed narrative shots, and save v7 stage restoration; the story callback is the sole unlock path for the first world cat.
+- The first-night fauna presentation couples the shared Day 1 calendar, settlement-fauna target policy, reusable in-game cinematic player, strategy camera, deterministic resident/rat staging, Founding Journey presentation/atmosphere reuse, modal pause/input ownership, three Resources-backed narrative shots, and save v8 stage restoration; the story callback is the sole unlock path for the first world cat.
+- City Inventory couples bootstrap-owned scene lifetime, an empty production catalog, stable string-ID stacks, event-driven read-only HUD refresh, scoped non-pausing input blocking, and version-8 persistence while remaining separate from resource stores and logistics.
 - Audio bootstrap depends on map generation, camera setup/orthographic zoom, strategy wind/weather values, `Resources/Audio` assets, the in-game music/work/HUD-SFX folders, resident walk animation frames, resident work impact/release frames, and runtime HUD interaction events.
 - Application focus couples Player background execution with the audio mix only: it never mutates simulation time, so active modal pause locks remain authoritative while unfocused running settlements continue to advance.
 - The in-game pause menu couples Global Cancel arbitration, an all-channel modal context, a named time-scale pause lock, persistence, shared game settings, shared confirmations, and Main Menu scene flow; it releases input/time ownership on Resume, disable, and scene transition.

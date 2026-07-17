@@ -12,6 +12,9 @@ namespace ProjectUnknown.Strategy
         private const int MaxSaveResidents = 100_000;
         private const int MaxSaveLooseResources = 262_144;
         private const int MaxSavePointsOfInterest = 256;
+        internal const int MaxSaveCityItems = 4_096;
+        internal const int MaxSaveCityItemIdLength = StrategyCityItemDefinition.MaximumIdLength;
+        internal const int MaxSaveCityItemQuantity = StrategyCityItemDefinition.MaximumQuantity;
         internal const int MaxSaveChildLinksPerResident = 256;
         internal const int MaxSavePreparedDishesPerBuilding = 256;
         internal const int MaxSavePreparedDishIdLength = 128;
@@ -70,6 +73,7 @@ namespace ProjectUnknown.Strategy
                 || data.residents == null
                 || data.looseResources == null
                 || data.pointsOfInterest == null
+                || data.cityItems == null
                 || data.exploredCells == null
                 || data.trailCells == null)
             {
@@ -82,6 +86,7 @@ namespace ProjectUnknown.Strategy
                 || data.residents.Count > MaxSaveResidents
                 || data.looseResources.Count > MaxSaveLooseResources
                 || data.pointsOfInterest.Count > MaxSavePointsOfInterest
+                || data.cityItems.Count > MaxSaveCityItems
                 || data.exploredCells.Count > cellCount
                 || data.trailCells.Count > cellCount)
             {
@@ -95,6 +100,7 @@ namespace ProjectUnknown.Strategy
                 || !ValidateResidents(data, buildingIds, out reason)
                 || !ValidateLooseResources(data, out reason)
                 || !ValidatePointsOfInterest(data, out reason)
+                || !ValidateCityItems(data.cityItems, out reason)
                 || !ValidateCellIndices(data.exploredCells, cellCount, "explored", out reason)
                 || !ValidateCellIndices(data.trailCells, cellCount, "trail", out reason))
             {
