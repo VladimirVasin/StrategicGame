@@ -41,8 +41,19 @@ namespace ProjectUnknown.Strategy
             definitions = orderedDefinitions.AsReadOnly();
         }
 
-        public static StrategyResidentItemCatalog Production { get; } =
-            new(Array.Empty<StrategyResidentItemDefinition>());
+        public const string HoleySpoonId = "holey-spoon";
+
+        public static StrategyResidentItemCatalog Production { get; } = new(
+            new[]
+            {
+                new StrategyResidentItemDefinition(
+                    HoleySpoonId,
+                    "Дырявая ложка",
+                    1,
+                    "Есть ею суп не очень-то почётно: половина успевает вытечь обратно в миску.",
+                    "Visual/ResidentItems/HoleySpoon",
+                    0)
+            });
 
         public IReadOnlyList<StrategyResidentItemDefinition> Definitions => definitions;
         public int Count => definitions.Count;

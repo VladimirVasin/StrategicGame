@@ -14,6 +14,7 @@ namespace ProjectUnknown.Strategy
     public sealed class StrategyStoryPointOfInterestAnchor : MonoBehaviour
     {
         private CityMapController map;
+        private StrategyStoryPointOfInterestCatalog catalog;
         private SpriteRenderer spriteRenderer;
         private StrategyResidentAgent committedResident;
         private bool buildabilityBlocked;
@@ -29,6 +30,7 @@ namespace ProjectUnknown.Strategy
 
         internal void Configure(
             CityMapController mapController,
+            StrategyStoryPointOfInterestCatalog storyCatalog,
             string stableId,
             Vector2Int cell,
             StrategyStoryPointOfInterestState state,
@@ -39,6 +41,7 @@ namespace ProjectUnknown.Strategy
         {
             ReleaseMapBuildability();
             map = mapController;
+            catalog = storyCatalog;
             StableId = string.IsNullOrWhiteSpace(stableId) ? BuildStableId(cell) : stableId;
             Cell = cell;
             State = state;
@@ -109,6 +112,8 @@ namespace ProjectUnknown.Strategy
                 && (committedResident == null || committedResident == resident);
         }
 
+        internal SpriteRenderer VisualRenderer => spriteRenderer;
+
         internal void ReleaseCommitment(StrategyResidentAgent resident)
         {
             if (!IsCommittedTo(resident))
@@ -177,13 +182,40 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            spriteRenderer.sprite = StrategyPointOfInterestSpriteFactory.GetSprite(IsResolved);
-            spriteRenderer.color = IsResolved
-                ? new Color(0.82f, 0.92f, 0.84f, 0.92f)
-                : State == StrategyStoryPointOfInterestState.Committed
-                    ? new Color(1f, 0.82f, 0.48f, 1f)
-                    : new Color(0.82f, 0.68f, 1f, 1f);
+            Sprite authored = LoadAuthoredSprite();
+            spriteRenderer.sprite = authored != null
+                ? authored
+                : StrategyPointOfInterestSpriteFactory.GetSprite(IsResolved);
+            spriteRenderer.color = authored != null
+                ? IsResolved
+                    ? new Color(0.88f, 0.90f, 0.86f, 0.96f)
+                    : Color.white
+                : IsResolved
+                    ? new Color(0.82f, 0.92f, 0.84f, 0.92f)
+                    : State == StrategyStoryPointOfInterestState.Committed
+                        ? new Color(1f, 0.82f, 0.48f, 1f)
+                        : new Color(0.82f, 0.68f, 1f, 1f);
             StrategyWorldSorting.Apply(spriteRenderer, transform.position, 1);
+        }
+
+        private Sprite LoadAuthoredSprite()
+        {
+            if (catalog == null
+                || string.IsNullOrWhiteSpace(DefinitionId)
+                || !catalog.TryGet(DefinitionId, out StrategyStoryPointOfInterestDefinition definition))
+            {
+                return null;
+            }
+
+            string path = IsResolved
+                ? definition.ResolvedSpriteResourcePath
+                : definition.UnresolvedSpriteResourcePath;
+            if (string.IsNullOrWhiteSpace(path) && IsResolved)
+            {
+                path = definition.UnresolvedSpriteResourcePath;
+            }
+
+            return string.IsNullOrWhiteSpace(path) ? null : Resources.Load<Sprite>(path);
         }
 
         private void OnDestroy()

@@ -71,6 +71,28 @@ namespace ProjectUnknown.Strategy.EditorTests
         }
 
         [Test]
+        public void ProductionHoleySpoonRoundTripsWithItsScout()
+        {
+            StrategySaveData save = CreateValidSave();
+            save.residents[0].personalItems.Add(Item(
+                StrategyResidentItemCatalog.HoleySpoonId,
+                1));
+
+            bool loaded = StrategySaveSystem.TryDeserializeAndValidate(
+                JsonUtility.ToJson(save),
+                out StrategySaveData restored,
+                out string reason,
+                out bool migrated);
+
+            Assert.That(loaded, Is.True, reason);
+            Assert.That(migrated, Is.False);
+            Assert.That(restored.residents[0].personalItems, Has.Count.EqualTo(1));
+            Assert.That(
+                restored.residents[0].personalItems[0].itemId,
+                Is.EqualTo(StrategyResidentItemCatalog.HoleySpoonId));
+        }
+
+        [Test]
         public void StructuralValidationRejectsItemsOwnedByAChild()
         {
             StrategySaveData save = CreateValidSave();

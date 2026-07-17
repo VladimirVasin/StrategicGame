@@ -46,8 +46,21 @@ namespace ProjectUnknown.Strategy
             ordered = sorted.AsReadOnly();
         }
 
-        public static StrategyStoryPointOfInterestCatalog Production { get; } =
-            new(Array.Empty<StrategyStoryPointOfInterestDefinition>());
+        public const string TrashHeapId = "trash-heap";
+        public const string TrashHeapEncounterId = "trash-heap-search";
+
+        public static StrategyStoryPointOfInterestCatalog Production { get; } = new(
+            new[]
+            {
+                new StrategyStoryPointOfInterestDefinition(
+                    TrashHeapId,
+                    0,
+                    "Гора мусора",
+                    "Скаут набрёл на огромную гору мусора. Обыскать её?",
+                    TrashHeapEncounterId,
+                    "Visual/StoryPoints/TrashHeap",
+                    "Visual/StoryPoints/TrashHeapSearched")
+            });
 
         public IReadOnlyList<StrategyStoryPointOfInterestDefinition> Definitions => ordered;
         public int Count => ordered.Count;

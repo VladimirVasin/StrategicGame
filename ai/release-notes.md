@@ -13,8 +13,8 @@ Last updated: 2026-07-17
 - Assigned Sawyers, Potters, and Blacksmiths now remain on duty at their production building throughout the workday when inputs or output space are unavailable, then resume production as soon as the blockage clears.
 - `Escape` now opens an in-game pause menu with Resume, Save Game, audio/display settings, and confirmed Main Menu or Quit actions.
 - Scout expeditions now last 1-7 selected days, cost one prepaid ration per day, show live mission state and provisions in the HUD, and end with the Scout physically returning to the Lodge.
-- Points of interest are now split into nine fixed Coal/Iron resource discoveries and a separate ordered story-point framework. Story content can materialize just beyond Scout visibility only after a valid route is secured; the production story catalog currently contains no example encounters.
-- Every adult resident now has a separate six-slot Personal Items section; the initial catalog is empty and no item grants, transfers, or effects are enabled yet.
+- Points of interest are now split into nine fixed Coal/Iron resource discoveries and a separate ordered story sequence. The first story trash heap materializes just beyond Scout visibility only after a valid route is secured, then offers a Yes/No search choice and a five-second in-engine rummaging scene.
+- Every adult resident now has a separate six-slot Personal Items section. The Scout who searches the trash heap receives the unique Holey Spoon and a dedicated reward card; transfers, Use/Equip actions, and item effects are not enabled yet.
 
 ## Maintenance Rule
 

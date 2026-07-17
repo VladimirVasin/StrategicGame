@@ -28,8 +28,20 @@ namespace ProjectUnknown.Strategy.EditorTests
             Require(coal != null, "Coal resource controller is missing");
             Require(points != null, "Point-of-interest controller is missing");
             Require(storyPoints != null, "Story point-of-interest controller is missing");
-            Require(storyPoints.Catalog.Count == 0 && storyPoints.Anchors.Count == 0,
-                "Production story points must stay empty until authored content is added");
+            Require(storyPoints.Catalog.Count == 1
+                && storyPoints.Catalog.Definitions[0].Id
+                    == StrategyStoryPointOfInterestCatalog.TrashHeapId
+                && storyPoints.Catalog.Definitions[0].SequenceOrder == 0
+                && storyPoints.Catalog.Definitions[0].EncounterId
+                    == StrategyStoryPointOfInterestCatalog.TrashHeapEncounterId,
+                "Production story sequence does not start with the authored trash heap");
+            Require(storyPoints.Anchors.Count >= storyPoints.Catalog.Count,
+                "New world did not create enough latent story anchors");
+            for (int i = 0; i < storyPoints.Anchors.Count; i++)
+            {
+                Require(storyPoints.Anchors[i] != null && storyPoints.Anchors[i].IsLatent,
+                    "A new-world story anchor materialized before a Scout approached it");
+            }
             Require(population != null, "Population is missing for mineral verification");
             Require(population.TryGetCampCell(out Vector2Int campCell),
                 "Camp cell is missing for mineral verification");

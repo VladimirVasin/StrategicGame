@@ -16,6 +16,8 @@ namespace ProjectUnknown.Strategy
             StrategySettlementFaunaController settlementFauna,
             StrategyCityInventory cityInventory,
             StrategyCityInventoryHudController cityInventoryHud,
+            StrategyStoryPointOfInterestController storyPointsOfInterest,
+            StrategyPointOfInterestDialogController pointOfInterestDialog,
             StrategyTimeScaleController timeScale,
             StrategyInputRouter inputRouter)
         {
@@ -53,6 +55,19 @@ namespace ProjectUnknown.Strategy
             StrategyCityItemRewardRevealController cityItemRewardReveal =
                 context.GetOrCreate<StrategyCityItemRewardRevealController>("Strategy City Item Reward Reveal");
             cityItemRewardReveal.Configure(timeScale, inputRouter, cityInventoryHud);
+            StrategyResidentItemRewardRevealController residentItemRewardReveal =
+                context.GetOrCreate<StrategyResidentItemRewardRevealController>(
+                    "Strategy Resident Item Reward Reveal");
+            residentItemRewardReveal.Configure(timeScale, inputRouter);
+            StrategyTrashHeapStoryEncounterController trashHeapEncounter =
+                context.GetOrCreate<StrategyTrashHeapStoryEncounterController>(
+                    "Strategy Trash Heap Story Encounter");
+            trashHeapEncounter.Configure(
+                pointOfInterestDialog,
+                timeScale,
+                inGameCinematicPlayer,
+                residentItemRewardReveal);
+            storyPointsOfInterest.RegisterEncounter(trashHeapEncounter);
             StrategyFirstNightFaunaEventController firstNightFaunaEvent =
                 context.GetOrCreate<StrategyFirstNightFaunaEventController>("Strategy First Night Fauna Event");
             firstNightFaunaEvent.Configure(

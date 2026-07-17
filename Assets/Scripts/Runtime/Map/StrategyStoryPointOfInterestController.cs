@@ -12,6 +12,8 @@ namespace ProjectUnknown.Strategy
 
         private readonly List<StrategyStoryPointOfInterestAnchor> anchors = new();
         private readonly Queue<StoryNotice> pendingNotices = new();
+        private readonly Dictionary<string, IStrategyStoryPointOfInterestEncounter> encounters =
+            new(StringComparer.Ordinal);
 
         private CityMapController map;
         private StrategyFogOfWarController fog;
@@ -123,6 +125,16 @@ namespace ProjectUnknown.Strategy
                 && catalog.TryGet(anchor.DefinitionId, out definition);
         }
 
+        public void RegisterEncounter(IStrategyStoryPointOfInterestEncounter encounter)
+        {
+            if (encounter == null || string.IsNullOrWhiteSpace(encounter.EncounterId))
+            {
+                throw new ArgumentException("A story encounter with a stable ID is required.", nameof(encounter));
+            }
+
+            encounters[encounter.EncounterId] = encounter;
+        }
+
         private void GenerateDefaultAnchors()
         {
             ClearAnchorObjects();
@@ -210,6 +222,7 @@ namespace ProjectUnknown.Strategy
                     anchorObject.AddComponent<StrategyStoryPointOfInterestAnchor>();
                 anchor.Configure(
                     map,
+                    catalog,
                     stableId,
                     cell,
                     state,

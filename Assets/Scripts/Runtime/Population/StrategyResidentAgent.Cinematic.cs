@@ -10,6 +10,10 @@ namespace ProjectUnknown.Strategy
         public bool IsCinematicVisualOverrideActive => cinematicVisualOverride != null;
 
         public bool CanBeTemporarilyRevealedForCinematic =>
+            CanBeginCinematicVisualOverride
+            && !IsOnScoutExpedition;
+
+        private bool CanBeginCinematicVisualOverride =>
             IsAdult
             && isActiveAndEnabled
             && gameObject.activeInHierarchy
@@ -17,7 +21,6 @@ namespace ProjectUnknown.Strategy
             && !IsPendingRefugee
             && !IsRefugeeTraveling
             && !IsFuneralDutyActive
-            && !IsOnScoutExpedition
             && cinematicVisualOverride == null
             && spriteRenderer != null;
 
@@ -38,6 +41,34 @@ namespace ProjectUnknown.Strategy
             {
                 return false;
             }
+
+            return BeginCinematicVisualOverride(out visualOverride);
+        }
+
+        internal bool TryBeginCommittedStoryCinematicVisualOverride(
+            out StrategyResidentCinematicVisualOverride visualOverride)
+        {
+            visualOverride = null;
+            if (!CanBeginCinematicVisualOverride
+                || !IsOnScoutExpedition
+                || !HasCommittedStoryPointOfInterest
+                || hiddenInsideHome
+                || hiddenUnderground
+                || sleepingInsideHome
+                || IsSleepingAtCampfire
+                || !spriteRenderer.enabled
+                || !spriteRenderer.gameObject.activeInHierarchy)
+            {
+                return false;
+            }
+
+            return BeginCinematicVisualOverride(out visualOverride);
+        }
+
+        private bool BeginCinematicVisualOverride(
+            out StrategyResidentCinematicVisualOverride visualOverride)
+        {
+            visualOverride = null;
 
             Renderer[] renderers = GetComponentsInChildren<Renderer>(true);
             CinematicRendererSnapshot[] rendererSnapshots =

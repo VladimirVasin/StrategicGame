@@ -21,6 +21,7 @@ namespace ProjectUnknown.Strategy
         NightTorchLight,
         CampfireKindle,
         GroundSleep,
-        MouseStartle
+        MouseStartle,
+        TrashSearch
     }
 }

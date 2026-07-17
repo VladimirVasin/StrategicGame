@@ -6,6 +6,7 @@ namespace ProjectUnknown.Strategy
     public sealed partial class StrategyResidentAgent
     {
         private StrategyStoryPointOfInterestAnchor activeStoryPointOfInterest;
+        private bool storyPointEncounterPending;
 
         internal bool IsEligibleStoryPointActivationScout =>
             IsScoutExploring
@@ -156,7 +157,7 @@ namespace ProjectUnknown.Strategy
 
             pointOfInterestInteractionTimer -= Time.deltaTime;
             AnimateIdle();
-            if (pointOfInterestInteractionTimer > 0f)
+            if (pointOfInterestInteractionTimer > 0f || storyPointEncounterPending)
             {
                 return;
             }
@@ -165,9 +166,34 @@ namespace ProjectUnknown.Strategy
             StrategyStoryPointOfInterestAnchor completedPoint = activeStoryPointOfInterest;
             StrategyStoryPointOfInterestController controller =
                 StrategyStoryPointOfInterestController.Active;
-            if (controller == null || !controller.CompleteInvestigation(completedPoint, this))
+            storyPointEncounterPending = true;
+            if (controller == null
+                || !controller.BeginInvestigationEncounter(
+                    completedPoint,
+                    this,
+                    resolved => HandleStoryPointEncounterCompleted(
+                        completedLodge,
+                        completedPoint,
+                        resolved)))
             {
-                CancelScoutWork();
+                storyPointEncounterPending = false;
+                pointOfInterestInteractionTimer = 0.25f;
+                return;
+            }
+        }
+
+        private void HandleStoryPointEncounterCompleted(
+            StrategyScoutLodge completedLodge,
+            StrategyStoryPointOfInterestAnchor completedPoint,
+            bool resolved)
+        {
+            storyPointEncounterPending = false;
+            if (!resolved
+                || completedLodge == null
+                || completedPoint == null
+                || activeScoutLodge != completedLodge
+                || activeStoryPointOfInterest != completedPoint)
+            {
                 return;
             }
 
@@ -194,6 +220,8 @@ namespace ProjectUnknown.Strategy
             {
                 return;
             }
+
+            storyPointEncounterPending = false;
 
             activeScoutLodge?.NotifyStoryPointOfInterestInterrupted(this);
             StrategyStoryPointOfInterestController.Active?.ReleaseCommitment(

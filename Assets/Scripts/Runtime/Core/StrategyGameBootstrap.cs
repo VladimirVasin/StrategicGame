@@ -378,6 +378,8 @@ namespace ProjectUnknown.Strategy
                 settlementFauna,
                 cityInventory,
                 cityInventoryHud,
+                storyPointsOfInterest,
+                pointOfInterestDialog,
                 timeScale,
                 inputRouter);
 

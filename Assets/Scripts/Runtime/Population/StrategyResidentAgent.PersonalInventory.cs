@@ -35,6 +35,14 @@ namespace ProjectUnknown.Strategy
             return PersonalInventory.TryAddExact(itemId, quantity, out failure);
         }
 
+        public bool CanAddPersonalItem(
+            string itemId,
+            int quantity,
+            out StrategyResidentPersonalInventoryFailure failure)
+        {
+            return PersonalInventory.CanAddExact(itemId, quantity, out failure);
+        }
+
         public bool TryRemovePersonalItem(
             string itemId,
             int quantity,

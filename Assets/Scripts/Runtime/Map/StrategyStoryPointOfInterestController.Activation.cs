@@ -120,15 +120,37 @@ namespace ProjectUnknown.Strategy
             anchor.ReleaseCommitment(resident);
         }
 
-        internal bool CompleteInvestigation(
+        internal bool BeginInvestigationEncounter(
             StrategyStoryPointOfInterestAnchor anchor,
-            StrategyResidentAgent resident)
+            StrategyResidentAgent resident,
+            System.Action<bool> onCompleted)
         {
             if (anchor == null
                 || resident == null
                 || !anchors.Contains(anchor)
-                || !TryGetDefinition(anchor, out StrategyStoryPointOfInterestDefinition definition)
-                || !anchor.MarkResolved(resident))
+                || !TryGetDefinition(anchor, out StrategyStoryPointOfInterestDefinition definition))
+            {
+                return false;
+            }
+
+            if (!string.IsNullOrWhiteSpace(definition.EncounterId)
+                && encounters.TryGetValue(
+                    definition.EncounterId,
+                    out IStrategyStoryPointOfInterestEncounter encounter))
+            {
+                return encounter.TryBegin(
+                    definition,
+                    anchor,
+                    resident,
+                    outcome => ResolveEncounter(
+                        anchor,
+                        resident,
+                        definition,
+                        outcome,
+                        onCompleted));
+            }
+
+            if (!anchor.MarkResolved(resident))
             {
                 return false;
             }
@@ -145,7 +167,30 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("encounterId", definition.EncounterId),
                 StrategyDebugLogger.F("residentId", resident.ResidentId));
             TryShowNextNotice();
+            onCompleted?.Invoke(true);
             return true;
+        }
+
+        private void ResolveEncounter(
+            StrategyStoryPointOfInterestAnchor anchor,
+            StrategyResidentAgent resident,
+            StrategyStoryPointOfInterestDefinition definition,
+            StrategyStoryPointOfInterestOutcome outcome,
+            System.Action<bool> onCompleted)
+        {
+            bool resolved = anchor != null
+                && resident != null
+                && anchors.Contains(anchor)
+                && anchor.MarkResolved(resident);
+            StrategyDebugLogger.Info(
+                "StoryPointOfInterest",
+                resolved ? "Resolved" : "ResolutionRejected",
+                StrategyDebugLogger.F("anchorId", anchor != null ? anchor.StableId : string.Empty),
+                StrategyDebugLogger.F("definitionId", definition.Id),
+                StrategyDebugLogger.F("encounterId", definition.EncounterId),
+                StrategyDebugLogger.F("outcome", outcome),
+                StrategyDebugLogger.F("residentId", resident != null ? resident.ResidentId : 0));
+            onCompleted?.Invoke(resolved);
         }
 
         private bool TryFindDeterministicActivationWinner(

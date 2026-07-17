@@ -24,9 +24,20 @@ namespace ProjectUnknown.Strategy.EditorTests
         }
 
         [Test]
-        public void ProductionStoryCatalogStartsEmpty()
+        public void ProductionStoryCatalogStartsWithTrashHeapEncounter()
         {
-            Assert.That(StrategyStoryPointOfInterestCatalog.Production.Count, Is.Zero);
+            StrategyStoryPointOfInterestCatalog catalog =
+                StrategyStoryPointOfInterestCatalog.Production;
+
+            Assert.That(catalog.Count, Is.EqualTo(1));
+            StrategyStoryPointOfInterestDefinition definition = catalog.Definitions[0];
+            Assert.That(definition.Id, Is.EqualTo(StrategyStoryPointOfInterestCatalog.TrashHeapId));
+            Assert.That(definition.SequenceOrder, Is.Zero);
+            Assert.That(
+                definition.EncounterId,
+                Is.EqualTo(StrategyStoryPointOfInterestCatalog.TrashHeapEncounterId));
+            Assert.That(definition.UnresolvedSpriteResourcePath, Does.EndWith("TrashHeap"));
+            Assert.That(definition.ResolvedSpriteResourcePath, Does.EndWith("TrashHeapSearched"));
         }
 
         [Test]
@@ -91,8 +102,11 @@ namespace ProjectUnknown.Strategy.EditorTests
             GameObject anchorObject = CreateRoot("Story Anchor");
             StrategyStoryPointOfInterestAnchor anchor =
                 anchorObject.AddComponent<StrategyStoryPointOfInterestAnchor>();
+            StrategyStoryPointOfInterestDefinition definition =
+                new("story-first", 0, "First", "Body");
             anchor.Configure(
                 null,
+                new StrategyStoryPointOfInterestCatalog(new[] { definition }),
                 "story-anchor-test",
                 new Vector2Int(8, 8),
                 StrategyStoryPointOfInterestState.Latent,
@@ -101,8 +115,6 @@ namespace ProjectUnknown.Strategy.EditorTests
                 0,
                 null);
             StrategyResidentAgent resident = CreateRoot("Scout").AddComponent<StrategyResidentAgent>();
-            StrategyStoryPointOfInterestDefinition definition =
-                new("story-first", 0, "First", "Body");
 
             Assert.That(anchor.TryCommit(definition, 0, resident), Is.True);
             Assert.That(anchor.State, Is.EqualTo(StrategyStoryPointOfInterestState.Committed));

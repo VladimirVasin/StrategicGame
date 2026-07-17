@@ -11,7 +11,9 @@ namespace ProjectUnknown.Strategy
             int sequenceOrder,
             string title,
             string body,
-            string encounterId = "")
+            string encounterId = "",
+            string unresolvedSpriteResourcePath = "",
+            string resolvedSpriteResourcePath = "")
         {
             if (!IsValidId(id))
             {
@@ -35,6 +37,8 @@ namespace ProjectUnknown.Strategy
             Title = title;
             Body = body ?? string.Empty;
             EncounterId = encounterId ?? string.Empty;
+            UnresolvedSpriteResourcePath = unresolvedSpriteResourcePath ?? string.Empty;
+            ResolvedSpriteResourcePath = resolvedSpriteResourcePath ?? string.Empty;
         }
 
         public string Id { get; }
@@ -42,6 +46,8 @@ namespace ProjectUnknown.Strategy
         public string Title { get; }
         public string Body { get; }
         public string EncounterId { get; }
+        public string UnresolvedSpriteResourcePath { get; }
+        public string ResolvedSpriteResourcePath { get; }
 
         public static bool IsValidId(string id)
         {

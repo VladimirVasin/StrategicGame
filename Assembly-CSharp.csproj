@@ -52,6 +52,7 @@
     <Compile Include="Assets\Scripts\Runtime\Cinematics\StrategyInGameCinematicPlayer.Sequence.cs" />
     <Compile Include="Assets\Scripts\Runtime\Cinematics\StrategyInGameCinematicPlayer.UiInput.cs" />
     <Compile Include="Assets\Scripts\Runtime\Cinematics\StrategyInGameCinematicTypes.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Cinematics\StrategyTrashHeapSearchCinematic.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Cinematic.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentCinematicVisualOverride.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentSpriteFactory.MouseStartle.cs" />
@@ -311,11 +312,13 @@
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyStoryPointOfInterestDefinition.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyStoryPointOfInterestCatalog.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyStoryPointOfInterestActivationPolicy.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Map\IStrategyStoryPointOfInterestEncounter.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyStoryPointOfInterestAnchor.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyStoryPointOfInterestController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyStoryPointOfInterestController.Activation.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyStoryPointOfInterestController.Notices.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyStoryPointOfInterestController.Persistence.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Map\StrategyTrashHeapStoryEncounterController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyPointOfInterestPlacement.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyPointOfInterestPlacement.Fallback.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyPointOfInterestPlacement.Minerals.cs" />
@@ -361,6 +364,9 @@
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyNightLightSource.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyConfirmationDialogController.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyPointOfInterestDialogController.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyPointOfInterestDialogController.Choice.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyResidentItemRewardRevealController.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyResidentItemRewardRevealController.View.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part30.cs" />
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyTradeCaravanController.Pathing.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategySawmill.Part01.cs" />
@@ -736,6 +742,7 @@
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Scouting.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.PointOfInterestInvestigation.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.StoryPointOfInterest.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentSpriteFactory.TrashSearch.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyHouseholdForagingState.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyTerrainTexturePainter.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWildlifeController.Part04.cs" />

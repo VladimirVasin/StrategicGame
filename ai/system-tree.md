@@ -331,9 +331,10 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Points of interest
       - Resource points place nine seed-deterministic Coal/Iron landmarks on separated camp-connected walkable/buildable land cells with a deterministic five/four split; each owns one distinct 2x2 deposit 3-5 cells away and a usable 2x3 extraction block beyond the camp exclusion radius
       - Resource points remain walkable while blocking construction/forage overlap, reserve only after persistent discovery, retain investigated check state, and queue the existing one-button resource report
-      - Story points use a separate ordered catalog and latent deterministic anchors; the production catalog is empty until authored content is added
+      - Story points use a separate ordered catalog and latent deterministic anchors; the first production definition is a Resources-backed trash heap
       - The next story definition materializes only for the deterministic eligible Scout/anchor pair in a narrow band outside maximum daylight visibility and only after an exact route succeeds
-      - Story commitment survives expedition expiry/Recall until investigation completes, then queues its authored notice and releases the Scout to return
+      - Trash-heap arrival opens a Yes/No decision: No resolves the point, while Yes hands directly into a five-second Scout rummaging cinematic, exact personal-item grant, and reward card
+      - Story commitment survives expedition expiry/Recall through the complete decision/cinematic/reward chain, then releases the Scout to return
     - Basic buildability data reserved for future economy/zoning
     - Dynamic walkability layer for runtime blockers such as placed buildings
   - Strategy camera
@@ -690,7 +691,8 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Custom runtime residents roster HUD showing settlement stats plus filterable resident rows for name, age, home state, role, current status, and food status
   - Selected-resident Personal Items surface
     - Shows one separate read-only six-slot inventory for adults and hides it for children
-    - Uses an intentionally empty production catalog with no grants, transfers, Use/Equip actions, effects, or resource/logistics integration
+    - Shows the unique Holey Spoon granted to the exact Scout who searches the first story trash heap
+    - Has no transfers, inheritance, death drops, Use/Equip actions, effects, or resource/logistics integration
   - Custom fullscreen Family Trees HUD opened from the residents roster; it pauses simulation, provides permanent horizontal/vertical scrollbars, uses an animated modal transition, lays connected same-surname family cards out as affinity-ordered left-to-right columns, and shows compact generation rows connected by local parent-pair branches plus cross-family relationship lines, deceased markers, gender symbols, and hover relationship labels
   - Custom compact runtime event log showing births, deaths, adoptions, dawn, nightfall, season starts, and late-Autumn winter warnings
   - Goals HUD supports optional live progress bars; first-winter Food and Firewood goals show current reserve days out of the seven-day target
@@ -755,7 +757,8 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Founding Journey presentation couples each authored shot to its atmosphere and scene-owned Weather/Fire ambience; its answers feed a pure selector over a captured map snapshot, and selected camp/cart cells feed population startup, nature/forage exclusions, exact starter-cart placement, save v3, and the initial camera focus.
 - The first-night fauna presentation couples the shared Day 1 calendar, settlement-fauna target policy, reusable in-game cinematic player, strategy camera, deterministic resident/rat and cat/mouse staging, Founding Journey presentation/atmosphere reuse, modal pause/input ownership, three Resources-backed narrative shots, the `Cats` entitlement, cinematic reward reveal, and save-v12 restoration; the story callback grants the item before completing the stage and revealing the card, whose completed chest flight atomically starts the transient cat hunt.
 - City Inventory couples bootstrap-owned scene lifetime, stable string-ID stacks, the first `Cats` production entitlement, event-driven read-only HUD refresh, scoped non-pausing inspection input, a separate simulation-pausing reward presenter, settlement fauna, and version-11 persistence while remaining separate from resource stores and logistics.
-- Resident Personal Inventory couples stable adult identity, age/life-stage eligibility, a dedicated empty production catalog, selected-resident HUD display, and version-11 persistence while remaining separate from City Inventory, transient carried resources, physical stores, and logistics.
+- Resident Personal Inventory couples stable adult identity, age/life-stage eligibility, the first Holey Spoon story reward, selected-resident HUD display, and version-11 persistence while remaining separate from City Inventory, transient carried resources, physical stores, and logistics.
+- The trash-heap story couples ordered story activation, guaranteed Scout routing, definition-specific world art, modal input/time ownership, the reusable in-game cinematic player, a Scout-only visual override, exact personal-inventory mutation, the resident reward card, deferred Scout return, and save-v12 resolved/item state.
 - Audio bootstrap depends on map generation, camera setup/orthographic zoom, strategy wind/weather values, `Resources/Audio` assets, the in-game music/work/HUD-SFX folders, resident walk animation frames, resident work impact/release frames, and runtime HUD interaction events.
 - Application focus couples Player background execution with the audio mix only: it never mutates simulation time, so active modal pause locks remain authoritative while unfocused running settlements continue to advance.
 - The in-game pause menu couples Global Cancel arbitration, an all-channel modal context, a named time-scale pause lock, persistence, shared game settings, shared confirmations, and Main Menu scene flow; it releases input/time ownership on Resume, disable, and scene transition.

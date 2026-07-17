@@ -939,10 +939,11 @@ Impact hints:
 Responsibilities:
 
 - Own authored story definitions through stable lowercase IDs and explicit unique sequence orders, independently of resource-point data and behavior.
-- Generate deterministic latent anchors only when the active catalog contains definitions; keep the production catalog empty until actual story content is authored.
+- Generate deterministic latent anchors only when the active catalog contains definitions; production sequence `0` is the authored trash heap with distinct unresolved/resolved Resources-backed world sprites.
 - Select one deterministic eligible Scout/anchor pair by distance, anchor ID, and resident ID when the anchor is still unexplored and lies in a narrow band outside maximum daylight visibility.
 - Preflight reachability and build the exact path before atomically committing the next definition, anchor, and Scout; never materialize a story point that has no secured Scout route.
-- Preserve commitment through normal expedition expiry or Recall, resolve the authored notice after investigation, and then let the Lodge begin its physical return.
+- Dispatch definitions through stable encounter IDs. The trash heap keeps one Scout committed through a Yes/No choice, five-second sprite rummaging cinematic, exact Holey Spoon grant, and personal reward card; No resolves without a grant.
+- Preserve commitment through normal expedition expiry or Recall until the encounter callback resolves, and only then let the Lodge begin its physical return.
 - Persist anchor lifecycle, definition ID, sequence index, committed resident ID, catalog cursor, and deferred Scout return separately from resource points; reject unknown or reordered saved definitions before world mutation.
 
 Primary files/assets:
@@ -955,6 +956,13 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Map/StrategyStoryPointOfInterestController.Activation.cs`
 - `Assets/Scripts/Runtime/Map/StrategyStoryPointOfInterestController.Notices.cs`
 - `Assets/Scripts/Runtime/Map/StrategyStoryPointOfInterestController.Persistence.cs`
+- `Assets/Scripts/Runtime/Map/IStrategyStoryPointOfInterestEncounter.cs`
+- `Assets/Scripts/Runtime/Map/StrategyTrashHeapStoryEncounterController.cs`
+- `Assets/Scripts/Runtime/Cinematics/StrategyTrashHeapSearchCinematic.cs`
+- `Assets/Scripts/Runtime/UI/StrategyPointOfInterestDialogController.Choice.cs`
+- `Assets/Scripts/Runtime/UI/StrategyResidentItemRewardRevealController.cs`
+- `Assets/Scripts/Runtime/UI/StrategyResidentItemRewardRevealController.View.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentSpriteFactory.TrashSearch.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.StoryPointOfInterest.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.PointOfInterestInvestigation.cs`
 - `Assets/Scripts/Runtime/Build/StrategyScoutLodge.StoryPoints.cs`
@@ -963,6 +971,10 @@ Primary files/assets:
 - `Assets/Tests/EditMode/StrategyStoryPointOfInterestTests.cs`
 - `Assets/Tests/EditMode/StrategyStoryPointOfInterestSaveTests.cs`
 - `Assets/Tests/EditMode/StrategyScoutExpeditionStateTests.cs`
+- `Assets/Tests/EditMode/StrategyTrashHeapStoryEncounterTests.cs`
+- `Assets/Resources/Visual/StoryPoints/TrashHeap.png`
+- `Assets/Resources/Visual/StoryPoints/TrashHeapSearched.png`
+- `Assets/Resources/Visual/ResidentItems/HoleySpoon.png`
 
 Impact hints:
 
@@ -970,6 +982,7 @@ Impact hints:
 - Latent anchors block building placement but have no visible renderer; materialized, committed, and resolved anchors are independent of resource-point reservation and mineral state.
 - If route construction is deferred or fails, the anchor stays latent and the sequence cursor does not advance.
 - Death, demolition, or explicit role interruption may release a commitment back to a materialized recoverable point; ordinary expedition expiry/Recall does not abandon it.
+- An accepted story reward is mutated into the resident inventory before its card opens. Save input is blocked throughout the transient chain; resolved anchor state plus the resident-owned item are the durable outcome.
 
 ### Nature Props
 
@@ -2846,7 +2859,8 @@ Responsibilities:
 
 - Own one bounded special-item inventory per adult resident, separate from `StrategyResidentInventory`, `StrategyResourceType`, City Inventory, physical stores, reservations, carrying, and logistics.
 - Define stable string IDs, catalog order, per-definition stack limits, six distinct slots, atomic exact add/remove, deterministic snapshots, and adult eligibility that updates when children grow up.
-- Keep the production catalog intentionally empty and expose no grants, transfer, Use/Equip, effect, inheritance, or death-drop behavior yet.
+- Keep Holey Spoon as the first unique production entry and grant it only to the exact Scout who accepts the first trash-heap search.
+- Expose no transfer, Use/Equip, effect, inheritance, or death-drop behavior; personal items currently disappear with their resident on death.
 - Present an observational `Personal Items` section in the selected-adult HUD and hide it for children.
 - Persist item stacks inside each stable resident record and reject malformed, unknown, duplicate, over-stack, over-capacity, or child-owned entries before scene mutation.
 
@@ -2857,6 +2871,8 @@ Primary files:
 - `Assets/Scripts/Runtime/Inventory/StrategyResidentPersonalInventoryData.cs`
 - `Assets/Scripts/Runtime/Inventory/StrategyResidentPersonalInventory.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.PersonalInventory.cs`
+- `Assets/Scripts/Runtime/UI/StrategyResidentItemRewardRevealController.cs`
+- `Assets/Resources/Visual/ResidentItems/HoleySpoon.png`
 - `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.ResidentPersonalInventory.cs`
 - `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.ResidentItems.cs`
 - `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Validation.ResidentItems.cs`
@@ -2867,7 +2883,7 @@ Primary files:
 Impact hints:
 
 - Do not add personal special items to the existing `StrategyResidentInventory`; that type is transient physical cargo and is intentionally materialized as loose resources during save.
-- Add the first production item and acquisition source only with an explicit ownership lifecycle, including the intended behavior on resident death.
+- New grants must preflight exact capacity/stack acceptance before starting their irreversible presentation and must mutate ownership before opening a reward card.
 - Removing or changing a production item definition requires a save migration because catalog preflight rejects unknown IDs and over-stack quantities.
 
 ### Shared Resource Stores And Queries

@@ -166,6 +166,10 @@ namespace ProjectUnknown.Strategy.EditorTests
                 CreateRoot("Committed Story Point").AddComponent<StrategyStoryPointOfInterestAnchor>();
             anchor.Configure(
                 null,
+                new StrategyStoryPointOfInterestCatalog(new[]
+                {
+                    new StrategyStoryPointOfInterestDefinition("story-first", 0, "First", "Body")
+                }),
                 "story-anchor-test",
                 new Vector2Int(8, 8),
                 StrategyStoryPointOfInterestState.Latent,

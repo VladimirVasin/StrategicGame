@@ -72,6 +72,7 @@
     <Compile Include="Assets\Tests\EditMode\StrategyResidentPersonalInventorySaveTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyInGameCinematicInfrastructureTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyGameContextTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyTrashHeapStoryEncounterTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyFirstNightRatShotPlannerTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyPointOfInterestMineralTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyRoadOccupancyTests.cs" />

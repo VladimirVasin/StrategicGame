@@ -98,6 +98,34 @@ namespace ProjectUnknown.Strategy.EditorTests
         }
 
         [Test]
+        public void ProductionTrashHeapResolutionRoundTripsWithoutReplay()
+        {
+            StrategySaveData save = CreateValidSave();
+            save.storyPointsOfInterest.Add(CreateStoryPoint(
+                "story-anchor-trash",
+                20,
+                20,
+                StrategyStoryPointOfInterestState.Resolved,
+                StrategyStoryPointOfInterestCatalog.TrashHeapId,
+                0,
+                0));
+            save.nextStoryPointOfInterestSequenceIndex = 1;
+
+            bool loaded = StrategySaveSystem.TryDeserializeAndValidate(
+                JsonUtility.ToJson(save),
+                out StrategySaveData restored,
+                out string reason,
+                out bool migrated);
+
+            Assert.That(loaded, Is.True, reason);
+            Assert.That(migrated, Is.False);
+            Assert.That(restored.storyPointsOfInterest, Has.Count.EqualTo(1));
+            Assert.That(
+                restored.storyPointsOfInterest[0].state,
+                Is.EqualTo((int)StrategyStoryPointOfInterestState.Resolved));
+        }
+
+        [Test]
         public void CommittedStoryRequiresAnActiveScoutMission()
         {
             StrategySaveData save = CreateValidSave();

@@ -45,7 +45,7 @@ namespace ProjectUnknown.Strategy
             return TryAddExact(itemId, quantity, out _);
         }
 
-        public bool TryAddExact(
+        public bool CanAddExact(
             string itemId,
             int quantity,
             out StrategyResidentPersonalInventoryFailure failure)
@@ -81,6 +81,21 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
+            failure = StrategyResidentPersonalInventoryFailure.None;
+            return true;
+        }
+
+        public bool TryAddExact(
+            string itemId,
+            int quantity,
+            out StrategyResidentPersonalInventoryFailure failure)
+        {
+            if (!CanAddExact(itemId, quantity, out failure))
+            {
+                return false;
+            }
+
+            int currentQuantity = GetQuantity(itemId);
             quantities[itemId] = currentQuantity + quantity;
             NotifyChanged();
             failure = StrategyResidentPersonalInventoryFailure.None;

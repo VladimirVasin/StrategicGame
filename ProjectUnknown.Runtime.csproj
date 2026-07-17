@@ -54,6 +54,7 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyFishAgent.Part02.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyNaturePropController.Part05.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Cinematics\StrategyTrashHeapSearchCinematic.cs" />
     <Compile Include="Assets\Scripts\Runtime\Selection\StrategyWorldSelectionController.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyConstructionSpriteFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part59.cs" />
@@ -97,6 +98,7 @@
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyPointOfInterestDialogController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyShadowSpriteFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyResidentHudText.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyPointOfInterestDialogController.Choice.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategySeasonCalendar.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyRabbitAgent.HuntTarget.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyCorpse.cs" />
@@ -124,6 +126,7 @@
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingVariantProfile.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingSnowSpriteFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Selection\StrategyWorldSelectionController.Input.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentSpriteFactory.TrashSearch.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyLogFileRotation.cs" />
     <Compile Include="Assets\Scripts\Runtime\Menu\StrategyMainMenuController.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyProfessionHudController.Part05.cs" />
@@ -330,6 +333,7 @@
     <Compile Include="Assets\Scripts\Runtime\Weather\StrategyWeatherVisualController.Chunks.cs" />
     <Compile Include="Assets\Scripts\Runtime\Selection\StrategyWorldSelectionController.Part08.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentHouseholdCookingTask.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyResidentItemRewardRevealController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Weather\StrategyWeatherKind.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyCinematicVisualController.Part02.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyWorldChunkRegistry.Index.cs" />
@@ -473,6 +477,7 @@
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentSpriteFactory.MouseStartle.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingSpriteFactory.ScoutLodge.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyFogOfWarController.Persistence.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Map\StrategyTrashHeapStoryEncounterController.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyCityInventoryHudController.Input.cs" />
     <Compile Include="Assets\Scripts\Runtime\Menu\StrategyPauseMenuController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Persistence\StrategySaveSystem.CityInventory.cs" />
@@ -560,6 +565,7 @@
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyForageResourceController.Respawn.cs" />
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyDishRecipe.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyRabbitAgent.Part02.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyResidentItemRewardRevealController.View.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWildlifeController.MigrationTargets.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyPopulationController.Part04.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildPlacementController.Part02.cs" />
@@ -724,6 +730,7 @@
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyBuildMenuController.Catalog.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyAutoWorkforceController.Part06.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Cinematic.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Map\IStrategyStoryPointOfInterestEncounter.cs" />
     <Compile Include="Assets\Scripts\Runtime\Cinematics\StrategyInGameCinematicPlayer.Completion.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyPopulationController.Part08.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyForagerCampVisualProfile.cs" />

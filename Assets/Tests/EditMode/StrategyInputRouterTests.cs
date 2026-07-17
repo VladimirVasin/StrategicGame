@@ -332,16 +332,32 @@ namespace ProjectUnknown.Strategy.EditorTests
                 Assert.That(router.BlockedChannels, Is.EqualTo(StrategyInputChannel.All));
                 Assert.That(router.TopCancelMode, Is.EqualTo(StrategyCancelMode.Swallow));
                 Button[] buttons = dialog.GetComponentsInChildren<Button>(true);
-                Assert.That(buttons, Has.Length.EqualTo(1));
-                Assert.That(buttons[0].name, Is.EqualTo("OkButton"));
+                Button okButton = null;
+                int activeButtonCount = 0;
+                for (int index = 0; index < buttons.Length; index++)
+                {
+                    if (buttons[index].gameObject.activeSelf)
+                    {
+                        activeButtonCount++;
+                    }
 
-                buttons[0].onClick.Invoke();
-                buttons[0].onClick.Invoke();
+                    if (buttons[index].name == "OkButton")
+                    {
+                        okButton = buttons[index];
+                    }
+                }
+
+                Assert.That(buttons, Has.Length.EqualTo(3));
+                Assert.That(activeButtonCount, Is.EqualTo(1));
+                Assert.That(okButton, Is.Not.Null);
+
+                okButton.onClick.Invoke();
+                okButton.onClick.Invoke();
                 Assert.That(acknowledgements, Is.EqualTo(1));
                 Assert.That(dialog.IsOpen, Is.False);
                 dialog.Show("Point of Interest", "Lifecycle cleanup", () => acknowledgements++);
                 dialog.Dismiss();
-                buttons[0].onClick.Invoke();
+                okButton.onClick.Invoke();
                 Assert.That(acknowledgements, Is.EqualTo(1));
                 Assert.That(dialog.IsOpen, Is.False);
                 dialogObject.SetActive(false);

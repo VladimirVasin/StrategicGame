@@ -37,6 +37,7 @@
     <Compile Include="Assets\Tests\EditMode\StrategyRoadOccupancyTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyPointOfInterestPlacementTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyStoryPointOfInterestTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyTrashHeapStoryEncounterTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyStoryPointOfInterestSaveTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyPointOfInterestMineralTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyStarterBuildProgressionTests.cs" />

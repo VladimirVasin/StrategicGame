@@ -7,10 +7,26 @@ namespace ProjectUnknown.Strategy.EditorTests
     public sealed class StrategyResidentPersonalInventoryTests
     {
         [Test]
-        public void ProductionCatalogStartsEmpty()
+        public void ProductionCatalogContainsUniqueHoleySpoon()
         {
-            Assert.That(StrategyResidentItemCatalog.Production.Count, Is.Zero);
-            Assert.That(StrategyResidentItemCatalog.Production.Definitions, Is.Empty);
+            StrategyResidentItemCatalog catalog = StrategyResidentItemCatalog.Production;
+
+            Assert.That(catalog.Count, Is.EqualTo(1));
+            StrategyResidentItemDefinition spoon = catalog.Definitions[0];
+            Assert.That(spoon.Id, Is.EqualTo(StrategyResidentItemCatalog.HoleySpoonId));
+            Assert.That(spoon.MaxStack, Is.EqualTo(1));
+            Assert.That(spoon.Description, Does.Contain("суп"));
+            Assert.That(spoon.IconResourcePath, Does.EndWith("HoleySpoon"));
+        }
+
+        [Test]
+        public void AddPreflightDoesNotMutateInventory()
+        {
+            StrategyResidentPersonalInventory inventory = new(CreateCatalog("test-item"));
+
+            Assert.That(inventory.CanAddExact("test-item", 1, out _), Is.True);
+            Assert.That(inventory.DistinctItemCount, Is.Zero);
+            Assert.That(inventory.Version, Is.Zero);
         }
 
         [Test]

@@ -1,5 +1,14 @@
 # Work Log
 
+### 2026-07-17 - First authored Scout story: trash heap
+
+- Added the first production story definition at sequence `0`, with generated point-filtered unresolved/resolved trash-heap sprites while leaving all nine resource POIs on their existing marker and report flow.
+- Added a modal Yes/No arrival decision. Declining resolves the point immediately; accepting hands directly into a camera-focused five-second gameplay-space Scout rummaging cinematic with a dedicated 12-frame resident pose and exact visual cleanup.
+- Added Holey Spoon as the first unique adult personal item, granted atomically to the exact Scout before a simulation-pausing personal reward card displays the generated spoon art and requested Russian copy. It appears through the existing selected-resident Personal Items HUD; no transfer, Use/Equip, effect, inheritance, or death-drop flow was added.
+- Kept the story commitment and deferred expedition return active through the entire choice/cinematic/reward chain. Failed presentation entry stays unresolved and retryable; save v12 remains unchanged because the durable outcome is already represented by resolved story state plus the resident-owned item.
+- Added focused content, asset-import, modal-handoff, five-second sequence, reward ownership, personal-item save, and story-resolution save coverage.
+- Verification: technical quality gates pass and all five C# projects build sequentially with zero warnings/errors; the four focused encounter tests, existing dialog contract test, and PlayMode smoke test pass. The full EditMode suite is 415/431 with the same 16 unrelated baseline failures across snow, City Inventory layout, reward/audio presentation, fauna story cleanup, house smoke, input/UI feedback, characterization coverage, and audio import checks.
+
 ### 2026-07-17 - Ordered Scout story points and resource-point split
 
 - Split points of interest into nine unchanged deterministic Coal/Iron resource discoveries and an independent ordered story-point subsystem; removed the old production neutral landmark while retaining legacy neutral-save compatibility.

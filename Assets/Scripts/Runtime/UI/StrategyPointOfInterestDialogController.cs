@@ -5,13 +5,14 @@ using UnityEngine.UI;
 namespace ProjectUnknown.Strategy
 {
     [DisallowMultipleComponent]
-    public sealed class StrategyPointOfInterestDialogController : MonoBehaviour
+    public sealed partial class StrategyPointOfInterestDialogController : MonoBehaviour
     {
         private CanvasGroup rootGroup;
         private Text titleText;
         private Text bodyText;
         private StrategyUiPanelTransition panelTransition;
         private Action acknowledgedCallback;
+        private GameObject okButtonRoot;
         private bool initialized;
         private bool acknowledgementLocked;
         private StrategyInputRouter inputRouter;
@@ -54,6 +55,8 @@ namespace ProjectUnknown.Strategy
             Configure();
             acknowledgementLocked = false;
             acknowledgedCallback = onAcknowledged;
+            ClearChoiceCallbacks();
+            SetChoiceMode(false);
             titleText.text = string.IsNullOrWhiteSpace(title) ? "Point of Interest" : title;
             bodyText.text = body ?? string.Empty;
             panelTransition.SetVisible(true);
@@ -83,6 +86,7 @@ namespace ProjectUnknown.Strategy
         {
             acknowledgementLocked = true;
             acknowledgedCallback = null;
+            ClearChoiceCallbacks();
             Hide();
         }
 
@@ -102,6 +106,7 @@ namespace ProjectUnknown.Strategy
         private void OnDisable()
         {
             acknowledgedCallback = null;
+            ClearChoiceCallbacks();
             acknowledgementLocked = true;
             inputContext?.Dispose();
             inputContext = null;
@@ -231,14 +236,15 @@ namespace ProjectUnknown.Strategy
             bodyText.resizeTextMaxSize = 16;
             SetTopStretch(bodyText.rectTransform, 28f, 112f, 28f, 90f);
 
-            CreateOkButton(panel);
+            okButtonRoot = CreateOkButton(panel);
+            CreateChoiceButtons(panel);
 
             panelTransition = root.gameObject.AddComponent<StrategyUiPanelTransition>();
             panelTransition.Configure(rootGroup, panel, new Vector2(0f, -16f), 0.965f, 0.18f, 0.13f);
             panelTransition.SetVisible(false, true);
         }
 
-        private void CreateOkButton(RectTransform parent)
+        private GameObject CreateOkButton(RectTransform parent)
         {
             RectTransform root = CreateUiObject("OkButton", parent).GetComponent<RectTransform>();
             root.anchorMin = new Vector2(0.5f, 0f);
@@ -266,6 +272,7 @@ namespace ProjectUnknown.Strategy
             Text label = CreateText("Label", root, "OK", 16, TextAnchor.MiddleCenter, Color.white);
             label.fontStyle = FontStyle.Bold;
             Stretch(label.rectTransform, 0f, 0f, 0f, 1f);
+            return root.gameObject;
         }
 
         private static GameObject CreateUiObject(string name, Transform parent)

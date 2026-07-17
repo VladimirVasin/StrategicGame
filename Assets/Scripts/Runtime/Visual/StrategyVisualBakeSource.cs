@@ -161,6 +161,7 @@ namespace ProjectUnknown.Strategy
                 StrategyResidentVisualPose.CampfireKindle => StrategyResidentSpriteFactory.CampfireKindleFrameCount,
                 StrategyResidentVisualPose.GroundSleep => StrategyResidentSpriteFactory.GroundSleepFrameCount,
                 StrategyResidentVisualPose.MouseStartle when lifeStage == StrategyResidentLifeStage.Adult => StrategyResidentSpriteFactory.MouseStartleFrameCount,
+                StrategyResidentVisualPose.TrashSearch when lifeStage == StrategyResidentLifeStage.Adult => StrategyResidentSpriteFactory.TrashSearchFrameCount,
                 StrategyResidentVisualPose.Woodcut when lifeStage == StrategyResidentLifeStage.Adult => StrategyResidentSpriteFactory.WoodcutFrameCount,
                 StrategyResidentVisualPose.Stonecut when lifeStage == StrategyResidentLifeStage.Adult => StrategyResidentSpriteFactory.StonecutFrameCount,
                 StrategyResidentVisualPose.CoalMine when lifeStage == StrategyResidentLifeStage.Adult => StrategyResidentSpriteFactory.CoalMineFrameCount,
@@ -200,6 +201,7 @@ namespace ProjectUnknown.Strategy
                 StrategyResidentVisualPose.CampfireKindle => StrategyResidentSpriteFactory.GetCampfireKindleSprite(gender, variant, lifeStage, frame),
                 StrategyResidentVisualPose.GroundSleep => StrategyResidentSpriteFactory.GetGroundSleepSprite(gender, variant, lifeStage, frame),
                 StrategyResidentVisualPose.MouseStartle => StrategyResidentSpriteFactory.GetMouseStartleSprite(gender, variant, lifeStage, frame),
+                StrategyResidentVisualPose.TrashSearch => StrategyResidentSpriteFactory.GetTrashSearchSprite(gender, variant, lifeStage, frame),
                 _ => null
             };
         }
