@@ -6,6 +6,7 @@ namespace ProjectUnknown.Strategy
     {
         private static void ConfigureProgression(
             StrategyGameContext context,
+            CityMapController map,
             StrategyBuildMenuController buildMenu,
             StrategyBuildPlacementController placement,
             StrategyPopulationController population,
@@ -44,9 +45,17 @@ namespace ProjectUnknown.Strategy
             StrategyFirstNightFaunaStoryController firstNightFaunaStory =
                 context.GetOrCreate<StrategyFirstNightFaunaStoryController>("Strategy First Night Fauna Story");
             firstNightFaunaStory.Configure(timeScale, inputRouter);
+            StrategyInGameCinematicPlayer inGameCinematicPlayer =
+                context.GetOrCreate<StrategyInGameCinematicPlayer>("Strategy In-Game Cinematic Player");
+            inGameCinematicPlayer.Configure(cameraController, timeScale, inputRouter);
             StrategyFirstNightFaunaEventController firstNightFaunaEvent =
                 context.GetOrCreate<StrategyFirstNightFaunaEventController>("Strategy First Night Fauna Event");
-            firstNightFaunaEvent.Configure(settlementFauna, firstNightFaunaStory);
+            firstNightFaunaEvent.Configure(
+                settlementFauna,
+                firstNightFaunaStory,
+                inGameCinematicPlayer,
+                population,
+                map);
 
             StrategyFirstWinterController firstWinter = context.GetOrCreate<StrategyFirstWinterController>("Strategy First Winter Progression");
 

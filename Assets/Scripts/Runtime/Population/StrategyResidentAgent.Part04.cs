@@ -11,6 +11,11 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            if (cinematicVisualOverride != null)
+            {
+                return;
+            }
+
             if (UpdateAge())
             {
                 return;

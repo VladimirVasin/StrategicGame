@@ -1,5 +1,23 @@
 # Work Log
 
+### 2026-07-17 - Standard first-night mouse and participant highlights
+
+- Replaced the oversized dedicated cinematic rat artwork with the exact cached settlement mouse sprite and the same `0.72` world scale used by ordinary mouse agents.
+- Kept the dash readable through subtle squash/tilt motion driven by the existing unscaled run/escape clock; the animation never enlarges the standard mouse footprint and returns to a neutral pose when escape finishes.
+- Added reusable pulsing gold world-space rings for cinematic participants. The first-night prelude stages one under the resident and one under the mouse before camera focus, follows both actors during playback, and hides/removes both on every cleanup path.
+- Updated focused coverage for exact sprite identity, standard scale, transform-only motion, highlight staging, and immediate cleanup.
+- Verification: technical gates pass; all five C# projects build sequentially with zero warnings/errors. All seven focused cinematic/mouse/highlight EditMode cases pass; the full Unity run is 288/294 with only the six already tracked unrelated snow, chimney, input-router, and UI-feedback failures.
+
+### 2026-07-17 - First-night in-engine rat cinematic
+
+- Added a reusable in-game cinematic player with exact camera capture/restore, router plus Unity-UI shielding, modal time ownership, unscaled playback, reduced-motion timing, and smooth 2.39:1 letterbox bars that arrive together with the opening focus. A non-modal return keeps ownership until the exact camera view is restored; an immediate story handoff preserves the new modal's input and selection.
+- Added a separate first-night rat sequence that deterministically selects a nearby adult, temporarily stages a hidden or sleeping fallback resident when necessary, runs a transient mouse across a validated 4-6-cell corridor, animates it through transform motion alongside an eight-frame resident `MouseStartle` pose, then restores every touched transform and renderer exactly.
+- The rat and resident are visible before the camera move begins; their action starts only after the focus and letterbox settle. Cleanup hands directly into the existing three-frame mice-and-cats chronicle while the cinematic still owns the camera/input stack, preventing a controllable or uncovered frame between presentations.
+- Kept persistence at version 7: `MiceVisible` means the whole unresolved first-night presentation, so loading or cancelling before the chronicle completes safely replays the rat prelude. Only chronicle completion or Skip advances `StoryCompleted` and creates the first world cat.
+- Fixed a first-night race by filling the pending three-mouse minimum in one population refresh before the rat scene can open.
+- Added focused math, pointer/Submit shielding, ownership, ordering, reentry-safe camera restoration, interrupted-cinematic retry, shot-planning, transient-rat, resident-override, and full-sequence tests; extended the two-day soak with rat/mouse/cat and modal-ownership assertions.
+- Verification: technical gates pass; all five C# projects build sequentially with zero warnings/errors. Unity EditMode/PlayMode/soak execution is deferred because this project remains open in the main Unity Editor.
+
 ### 2026-07-17 - First-night mice and cats chronicle
 
 - Added a Day 1 fauna sequence: settlement mice remain absent until `Dusk`, then build toward a three-mouse minimum around the Caravan Cart/food buildings while cats stay hard-blocked.

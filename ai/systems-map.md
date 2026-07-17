@@ -310,6 +310,7 @@ Responsibilities:
 - Create/configure runtime cinematic visuals after post-processing setup.
 - Create/configure the night-light task controller after population exists.
 - Create the runtime time-scale controller for F1/F2/F3 speed controls.
+- Create/configure one reusable in-game cinematic player after camera, input, and time-scale owners exist, then inject it with population/map dependencies into the first-night fauna event.
 - Keep desktop Player updates running while the application is unfocused without treating focus as a simulation pause source.
 - Create/configure the in-game Escape pause menu after persistence so it receives the established input, time-scale, save, and confirmation owners.
 - Create/configure the top status HUD with population counts, the larger resident roster HUD, the family tree modal scene, and the compact event log with birth/death/adoption messages.
@@ -322,6 +323,7 @@ Responsibilities:
 Primary files/assets:
 
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.cs`
+- `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.Progression.cs`
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.SceneFlow.cs`
 - `Assets/Scripts/Runtime/Core/StrategyBootstrapRunner.cs`
 - `Assets/Scripts/Runtime/Core/StrategyGameContext.cs`
@@ -970,8 +972,10 @@ Impact hints:
 
 Responsibilities:
 
-- Stage settlement fauna through the first Day 1 `Dusk`/`Night`: block all fauna before Dusk, force at least three mice while the chronicle is pending, then create the first cat only after the three-frame story resolves before returning to completed-building/occupied-house/food-building growth.
-- Keep the first-night chronicle as a gameplay overlay that reuses Founding Journey presentation/atmosphere behavior without loading another scene or moving the gameplay camera.
+- Stage settlement fauna through the first Day 1 `Dusk`/`Night`: block all fauna before Dusk, fill the pending three-mouse minimum in one refresh, run a rat/resident in-engine prelude, then create the first cat only after the following three-frame story resolves before returning to completed-building/occupied-house/food-building growth.
+- Plan a deterministic, camera-readable 4-6-cell walkable rat corridor around a nearby adult; allow reversible visual staging when every adult is sleeping or hidden.
+- Reuse the exact standard settlement mouse sprite and world scale for the transient cinematic actor, with transform-only motion and separate pulsing world rings that mark both participants without changing simulation state.
+- Keep the first-night story as a gameplay overlay that reuses Founding Journey presentation/atmosphere behavior after the in-engine cinematic without loading another scene.
 
 - Spawn compact ambient deer herds only on currently hidden suitable land cells near completed buildings or active construction sites.
 - Spawn compact ambient rabbit groups only on currently hidden suitable land cells near completed buildings or active construction sites.
@@ -1028,6 +1032,13 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Wildlife/StrategySettlementFaunaController.Population.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategySettlementFaunaTypes.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyFirstNightFaunaEventController.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyFirstNightRatCinematic.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyFirstNightRatShotPlanner.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyCinematicRatActor.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyCinematicRatSpriteFactory.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Cinematic.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentCinematicVisualOverride.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentSpriteFactory.MouseStartle.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyCatAgent.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyMouseAgent.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategySettlementFaunaSpriteFactory.cs`
@@ -1036,6 +1047,10 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/UI/StrategyFirstNightFaunaStoryCatalog.cs`
 - `Assets/Resources/Visual/FirstNightFauna/`
 - `Assets/Tests/EditMode/StrategyFirstNightFaunaTests.cs`
+- `Assets/Tests/EditMode/StrategyFirstNightRatCinematicTests.cs`
+- `Assets/Tests/EditMode/StrategyFirstNightRatShotPlannerTests.cs`
+- `Assets/Tests/EditMode/StrategyCinematicRatTests.cs`
+- `Assets/Tests/EditMode/StrategyResidentCinematicVisualTests.cs`
 - `Assets/Scripts/Runtime/Build/StrategyFishingAccessUtility.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.Fishing.cs`
@@ -1081,8 +1096,8 @@ Primary files/assets:
 
 Impact hints:
 
-- Individual wildlife/fauna agents remain runtime-only. Save version 7 persists only the first-night fauna stage; restore clears live cats/mice and reconstructs the required minimum population from that stage.
-- First-night story completion or Skip is the only path that unlocks cats for a new settlement. The modal must wait for other input/pause owners and must release its all-channel context without completing if disabled or destroyed.
+- Individual wildlife/fauna agents and the transient cinematic rat remain runtime-only. Save version 7 persists only the first-night fauna stage; restore clears live cats/mice and reconstructs the required minimum population from that stage.
+- `MiceVisible` means the full rat-prelude-plus-story presentation is unresolved, so restore/retry may replay the prelude. Story completion or Skip remains the only path that unlocks cats for a new settlement; cancellation must release only owned input/pause/camera state without advancing the stage.
 - Deer and birds do not reveal fog or block walkability; adult deer can yield `Game` only after the Hunter Camp upgrade, rabbits can yield `Game` through the base hunter-camp work loop, fish can yield `Fish` through the fisher-hut work loop, and wolves are predators rather than player-harvestable resources.
 - Initial rabbit spawn, deer herds, fish shoals, birds, and wolf packs depend on hidden near-settlement candidate cells instead of map-wide placement; if no hidden candidate exists for a species, that species should skip spawning rather than appearing far from buildings or inside visible fog.
 - Wildlife hidden checks use fog daylight-range visibility, not reduced nighttime current visibility, so animals do not spawn closer to the settlement just because night lowered player sight radius.
@@ -1243,6 +1258,39 @@ Impact hints:
 - Clay fields must not block walkability, must block normal building placement, must remain near water, and must not touch adjacent Iron/Coal/Clay fields.
 - Clay is produced by Clay Pits built over Clay fields and hauled to Storage Yards, but is not connected to food, construction costs, trade, or a global economy yet.
 - Clay Pit work is visible like Coal Pit work, but uses near-water Clay placement rules instead of underground seam scoring.
+
+### In-Game Cinematics
+
+Responsibilities:
+
+- Run reusable gameplay-space cinematic sequences without loading another scene.
+- Capture and restore the exact strategy-camera position/zoom and release programmatic focus on every resolution path.
+- Own one all-channel/swallow input context and one named simulation pause lock while active.
+- Let a sequence stage its actors synchronously before camera movement, then animate focus and 2.39:1 black bars together with unscaled reduced-motion-aware timing.
+- Provide reusable unscaled world-space participant highlights that follow staged actors independently from their animation transforms.
+- Keep sequence cleanup idempotent and invoke resolved handoffs before restoring the camera/bars so a following modal can take ownership atomically.
+
+Primary files/assets:
+
+- `Assets/Scripts/Runtime/Cinematics/StrategyInGameCinematicTypes.cs`
+- `Assets/Scripts/Runtime/Cinematics/StrategyInGameCinematicMath.cs`
+- `Assets/Scripts/Runtime/Cinematics/StrategyInGameCinematicPlayer.cs`
+- `Assets/Scripts/Runtime/Cinematics/StrategyInGameCinematicPlayer.Completion.cs`
+- `Assets/Scripts/Runtime/Cinematics/StrategyInGameCinematicPlayer.Sequence.cs`
+- `Assets/Scripts/Runtime/Cinematics/StrategyInGameCinematicPlayer.UiInput.cs`
+- `Assets/Scripts/Runtime/Cinematics/StrategyCinematicLetterboxView.cs`
+- `Assets/Scripts/Runtime/Cinematics/StrategyCinematicParticipantHighlight.cs`
+- `Assets/Tests/EditMode/StrategyInGameCinematicInfrastructureTests.cs`
+- `Assets/Tests/EditMode/StrategyInGameCinematicReturnTests.cs`
+
+Impact hints:
+
+- `IStrategyInGameCinematicSequence.Begin` runs after input/time ownership is acquired but before focus or letterbox motion; use it only for visual pre-roll staging.
+- Sequence playback, waits, camera movement, and bars use unscaled time because the player owns a simulation pause.
+- The letterbox Canvas owns a transparent full-screen raycast shield because `InputSystemUIInputModule` is independent of strategy input channels; clear the prior EventSystem selection during playback and restore it only when no callback modal claimed UI ownership.
+- A non-modal animated camera return remains inside `IsPlaying` and reacquires only unclaimed input/pause ownership, preventing manual gameplay or another cinematic from capturing an intermediate view.
+- Cleanup must tolerate preparation failure, cancellation, disable, destroy, and normal completion without leaving actor overrides or transient renderers alive.
+- The completion callback intentionally runs while the cinematic still owns the focused camera and visible bars; callbacks may synchronously open a modal before restoration begins.
 
 ### Strategy Camera
 
@@ -2773,7 +2821,7 @@ Responsibilities:
 - Apply wall-clock progress/stall watchdogs and collect unexpected Unity runtime errors with only narrow batch-mode infrastructure exceptions.
 - Verify explicit map seeds and procedural plus production-16px catalog terrain golden output.
 - Run a 45-game-second `QuickSoak` covering 3 in-game hours for pull requests and `main`, writing `Logs/QuickSoakSmoke.txt`.
-- Run the deterministic 720-game-second full soak covering 2 in-game days only for the nightly 01:23 UTC schedule, manual `workflow_dispatch`, `release`/`release/**` branches, and `v*` tags; advance all three first-night chronicle frames, keep every modal input-context invariant, and retain final/peak memory budgets plus `Logs/SoakSmoke.txt` evidence.
+- Run the deterministic 720-game-second full soak covering 2 in-game days only for the nightly 01:23 UTC schedule, manual `workflow_dispatch`, `release`/`release/**` branches, and `v*` tags; let the first-night rat cinematic finish on unscaled time, assert its transient actor/mouse/cat and modal-ownership invariants, advance all three chronicle frames, and retain final/peak memory budgets plus `Logs/SoakSmoke.txt` evidence.
 - Render the menu at 1600x900 for visual layout inspection.
 - Render deterministic Noon, Spring, Autumn, Night, and Winter gameplay frames for visual comparison on a real graphics device.
 

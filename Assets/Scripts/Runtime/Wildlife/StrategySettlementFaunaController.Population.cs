@@ -37,7 +37,13 @@ namespace ProjectUnknown.Strategy
                 }
             }
 
-            if (mice.Count < targets.TargetMice && Time.time >= nextMouseSpawnTime)
+            int mouseSpawnBudget = StrategySettlementFaunaPolicy.GetMouseSpawnBudget(
+                firstNightStage,
+                mice.Count,
+                targets.TargetMice);
+            while (mouseSpawnBudget > 0
+                && mice.Count < targets.TargetMice
+                && Time.time >= nextMouseSpawnTime)
             {
                 bool foundMouseCell = TryFindSpawnCell(true, out Vector2Int mouseCell);
                 if (!foundMouseCell && firstNightStage != StrategyFirstNightFaunaStage.Dormant)
@@ -50,6 +56,13 @@ namespace ProjectUnknown.Strategy
                 {
                     SpawnMouse(mouseCell);
                 }
+
+                if (!foundMouseCell)
+                {
+                    break;
+                }
+
+                mouseSpawnBudget--;
             }
 
             bool firstStoryCat = cats.Count == 0;

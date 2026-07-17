@@ -32,6 +32,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Non-Bridge placed buildings add a catalog-overridable trampled-ground layer beneath their Y-sorted body and shadow
   - Spring/autumn camera-area details and centralized vegetation tinting make seasonal changes readable without per-prop Update components
   - Shared HUD presentation supplies readable Inter typography, sliced pixel panel/button frames, unscaled pointer/focus/press feedback, throttled hover cues, and interruptible reduced-motion-aware panel transitions
+  - Reusable gameplay-space cinematic player owns exact camera capture/restore through the full return, router and Unity-UI shielding, time locks, simultaneous smooth focus plus animated 2.39:1 letterbox bars, reduced-motion-aware unscaled sequencing, and atomic modal handoff
 
 - Scene foundation
   - Build-index-0 `MainMenu` intro scene
@@ -95,6 +96,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Creates the top status HUD with settlement population counts, a compact calendar/time/season widget, a clickable population roster HUD, family tree scene entry point, and a compact event log for births, deaths, adoptions, dawn, nightfall, and season starts
     - Creates the runtime goals controller and starter goal sequence that gates early Build menu tools
     - Creates the first-Scout onboarding coordinator and expedition assignment board after camera, placement, population, selection, time-scale, and input owners are ready
+    - Creates one reusable in-game cinematic player and wires the first-night rat prelude after camera, population, map, input, time-scale, settlement fauna, and story owners are ready
     - Creates the auto workforce controller before the Profession HUD so worker automation and priority controls share one runtime state
     - Creates the settlement Coin treasury and trade caravan controller after placement/storage systems are ready
     - Creates the in-game Escape pause menu after persistence so Save Game, settings, and confirmed scene/quit actions share the established runtime owners
@@ -259,7 +261,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Drives tree, forest-group, and bush sway through per-prop animation phases
       - Shared procedural shadows keep day/night opacity and length tuning while wind-driven props sway
     - Wildlife MVP
-      - Settlement fauna starts through a saved first-night stage: no mice/cats before Day 1 `Dusk`, at least three mice and no cats until the three-frame `Night` chronicle resolves, then at least one cat plus ordinary building-driven growth; agents still use runtime idle/walk/stalk/rest behavior and mouse recovery after catches
+      - Settlement fauna starts through a saved first-night stage: no mice/cats before Day 1 `Dusk`, exactly fills the pending three-mouse minimum in one refresh, runs an in-engine rat/resident scare before the three-frame `Night` chronicle, then creates at least one cat only after the story resolves and resumes ordinary building-driven growth
       - Runtime-created wildlife controller
       - Spawns 12-16 deer across up to 8 compact herds only on currently hidden suitable land cells within a broad ring around completed buildings or active construction sites
       - Spawns 16-22 rabbits across up to 10 compact groups only on currently hidden suitable land cells within the same near-settlement ring
@@ -685,8 +687,9 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Restores keyboard/controller focus and releases its owned input/pause state on appointment, deferral, cancellation, disable, or target loss
   - Custom first-night fauna chronicle
     - Preloads three `1672x941` Resources-backed story shots when Day 1 reaches `Dusk`
-    - Opens at the first `Night` boundary after other modal owners release the stack, pauses simulation, and blocks all input without moving the gameplay camera
-    - Reuses the Founding Journey cinematic presentation/atmosphere path for three frames about rustling stores, a mouse feast, and the cats that followed the caravan
+    - Opens at the first `Night` boundary after other modal owners release the stack, then first runs a separate reusable in-engine cinematic with a deterministic nearby adult and walkable rat corridor
+    - Reveals/stages both actors with pulsing gold ground rings before simultaneously easing the strategy camera onto them and sliding in black bars for a 2.39:1 aperture; after the opening settles, the exact standard settlement-scale mouse uses subtle transform motion beside the eight-frame resident-startle animation
+    - Restores the resident exactly and hands directly into the Founding Journey presentation/atmosphere path for three frames about rustling stores, a mouse feast, and the cats that followed the caravan
     - Completing or skipping the chronicle closes it before creating the first world cat; disable/destroy cleanup releases pause/input without falsely completing the event
   - Custom runtime world inspect microHUD for clicked graves, resources, nature props, and wildlife; residents, buildings, and construction sites use the right-side selection HUD only
     - MicroHUD supports typed chip/row dashboards for wildlife, deposits, trees, forage, and loose resource piles, with old body text kept as fallback
@@ -732,7 +735,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Runtime bootstrap depends on scene role, one scene-local game context, explicit preload ownership transfer, and the presence of a usable `Main Camera` or permission to create one.
 - Intro menu launch depends on save validation, one persistent preload coordinator, deterministic map seed handling, the Founding Journey decision gate for New Settlement, and the gameplay scene-loaded bootstrap hook; prepared terrain keeps Unity object creation/upload on the main thread.
 - Founding Journey presentation couples each authored shot to its atmosphere and scene-owned Weather/Fire ambience; its answers feed a pure selector over a captured map snapshot, and selected camp/cart cells feed population startup, nature/forage exclusions, exact starter-cart placement, save v3, and the initial camera focus.
-- The first-night fauna chronicle couples the shared Day 1 calendar, settlement-fauna target policy, Founding Journey presentation/atmosphere reuse, modal pause/input ownership, three Resources-backed narrative shots, and save v7 stage restoration; the final callback is the sole unlock path for the first world cat.
+- The first-night fauna presentation couples the shared Day 1 calendar, settlement-fauna target policy, reusable in-game cinematic player, strategy camera, deterministic resident/rat staging, Founding Journey presentation/atmosphere reuse, modal pause/input ownership, three Resources-backed narrative shots, and save v7 stage restoration; the story callback is the sole unlock path for the first world cat.
 - Audio bootstrap depends on map generation, camera setup/orthographic zoom, strategy wind/weather values, `Resources/Audio` assets, the in-game music/work/HUD-SFX folders, resident walk animation frames, resident work impact/release frames, and runtime HUD interaction events.
 - Application focus couples Player background execution with the audio mix only: it never mutates simulation time, so active modal pause locks remain authoritative while unfocused running settlements continue to advance.
 - The in-game pause menu couples Global Cancel arbitration, an all-channel modal context, a named time-scale pause lock, persistence, shared game settings, shared confirmations, and Main Menu scene flow; it releases input/time ownership on Resume, disable, and scene transition.

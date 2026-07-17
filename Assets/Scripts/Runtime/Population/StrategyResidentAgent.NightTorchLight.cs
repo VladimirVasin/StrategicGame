@@ -294,11 +294,13 @@ namespace ProjectUnknown.Strategy
 
         private void OnDisable()
         {
+            AbortCinematicVisualOverride();
             DisableNightTorchLight();
         }
 
         private void OnDestroy()
         {
+            AbortCinematicVisualOverride();
             DisableNightTorchLight();
         }
     }

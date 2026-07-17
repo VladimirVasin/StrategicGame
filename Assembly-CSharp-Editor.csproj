@@ -9,6 +9,12 @@
   </PropertyGroup>
   <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
   <ItemGroup>
+    <Compile Include="Assets\Tests\EditMode\StrategyCinematicRatTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyFirstNightRatCinematicTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyFirstNightRatShotPlannerTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyInGameCinematicInfrastructureTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyInGameCinematicReturnTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyResidentCinematicVisualTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyStartSiteSelectorTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyLogFileRotationTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyVerificationTests.cs" />

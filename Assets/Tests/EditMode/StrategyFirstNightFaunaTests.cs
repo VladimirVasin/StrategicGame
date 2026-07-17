@@ -41,6 +41,38 @@ namespace ProjectUnknown.Strategy.EditorTests
             Assert.That(completed.TargetCats, Is.EqualTo(1));
         }
 
+        [Test]
+        public void MiceVisibleStageFillsTheFirstNightMinimumInOnePopulationRefresh()
+        {
+            Assert.That(
+                StrategySettlementFaunaPolicy.GetMouseSpawnBudget(
+                    StrategyFirstNightFaunaStage.MiceVisible,
+                    0,
+                    StrategySettlementFaunaPolicy.FirstNightMouseMinimum),
+                Is.EqualTo(3));
+            Assert.That(
+                StrategySettlementFaunaPolicy.GetMouseSpawnBudget(
+                    StrategyFirstNightFaunaStage.StoryCompleted,
+                    0,
+                    StrategySettlementFaunaPolicy.FirstNightMouseMinimum),
+                Is.EqualTo(1));
+        }
+
+        [Test]
+        public void InterruptedRatCinematicRunningFlagIsReleasedForRetry()
+        {
+            Assert.That(
+                StrategyFirstNightFaunaEventController.ShouldRetainRatCinematicRunning(
+                    true,
+                    true),
+                Is.True);
+            Assert.That(
+                StrategyFirstNightFaunaEventController.ShouldRetainRatCinematicRunning(
+                    true,
+                    false),
+                Is.False);
+        }
+
         [TestCase(0, StrategyTimeOfDayPhase.Afternoon, false, false)]
         [TestCase(0, StrategyTimeOfDayPhase.Dusk, true, false)]
         [TestCase(0, StrategyTimeOfDayPhase.Night, true, true)]

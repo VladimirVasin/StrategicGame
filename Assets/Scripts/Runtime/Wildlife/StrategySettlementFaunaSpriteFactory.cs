@@ -8,6 +8,7 @@ namespace ProjectUnknown.Strategy
         private static readonly Dictionary<int, Sprite> Cats = new();
         private static readonly Dictionary<int, Sprite> Mice = new();
         public const int CatFrameCount = 4;
+        public const float MouseWorldScale = 0.72f;
 
         public static Sprite GetCatSprite(StrategyCatCoat coat)
         {

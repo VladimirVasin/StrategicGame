@@ -54,6 +54,7 @@
   <ItemGroup>
     <Compile Include="Assets\Tests\EditMode\StrategyBridgeVisualProfileTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyScoutAssignmentFlowTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyResidentCinematicVisualTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyPointOfInterestPlacementTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyForagerCampVisualProfileTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyLogFileRotationTests.cs" />
@@ -63,12 +64,16 @@
     <Compile Include="Assets\Tests\EditMode\StrategyUiButtonFeedbackTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyResidentCharacterizationTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyVerificationTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyInGameCinematicInfrastructureTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyGameContextTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyFirstNightRatShotPlannerTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyPointOfInterestMineralTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyRoadOccupancyTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyAudioFocusGateTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyFirstNightRatCinematicTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyFirstNightFaunaTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyChickenCoopVisualProfileTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyCinematicRatTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyHouseVisualEffectTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyBuildingSnowSpriteFactoryTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategySaveLooseResourceTests.cs" />
@@ -83,6 +88,7 @@
     <Compile Include="Assets\Tests\EditMode\StrategyMusicShuffleBagTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyInputActionsContractTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyBuildingVisualAnchorProfileTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyInGameCinematicReturnTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Tests\EditMode\ProjectUnknown.EditModeTests.asmdef" />

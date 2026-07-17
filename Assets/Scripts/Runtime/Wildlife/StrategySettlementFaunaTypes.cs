@@ -104,6 +104,16 @@ namespace ProjectUnknown.Strategy
         internal const int FirstNightMouseMinimum = 3;
         internal const int FirstNightCatMinimum = 1;
 
+        internal static int GetMouseSpawnBudget(
+            StrategyFirstNightFaunaStage stage,
+            int currentCount,
+            int targetCount)
+        {
+            return stage == StrategyFirstNightFaunaStage.MiceVisible
+                ? UnityEngine.Mathf.Max(0, targetCount - currentCount)
+                : 1;
+        }
+
         internal static StrategySettlementFaunaTargets ApplyFirstNightStage(
             StrategySettlementFaunaTargets organicTargets,
             StrategyFirstNightFaunaStage stage)

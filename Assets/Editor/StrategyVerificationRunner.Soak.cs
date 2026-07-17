@@ -186,12 +186,70 @@ namespace ProjectUnknown.Strategy.EditorTests
         {
             StrategyInputRouter router = UnityEngine.Object.FindAnyObjectByType<StrategyInputRouter>();
             Require(router != null, "Input router is missing during soak");
+            StrategyFirstNightFaunaEventController firstNightEvent =
+                StrategyFirstNightFaunaEventController.Active;
+            if (firstNightEvent != null && firstNightEvent.IsRatCinematicPlaying)
+            {
+                StrategyTimeScaleController cinematicTimeScale =
+                    UnityEngine.Object.FindAnyObjectByType<StrategyTimeScaleController>();
+                Require(
+                    UnityEngine.Object.FindObjectsByType<StrategyCatAgent>().Length == 0,
+                    "A settlement cat appeared during the first-night rat cinematic");
+                Require(
+                    UnityEngine.Object.FindObjectsByType<StrategyMouseAgent>().Length >= 3,
+                    "First-night mice were not established before the rat cinematic began");
+
+                StrategyCinematicRatActor[] cinematicRats =
+                    UnityEngine.Object.FindObjectsByType<StrategyCinematicRatActor>();
+                Require(
+                    cinematicRats.Length <= 1,
+                    "The first-night cinematic created more than one transient rat");
+                if (cinematicRats.Length == 1)
+                {
+                    StrategyCinematicRatActor cinematicRat = cinematicRats[0];
+                    Require(
+                        cinematicRat != null
+                        && cinematicRat.isActiveAndEnabled
+                        && cinematicRat.Renderer != null
+                        && cinematicRat.Renderer.enabled,
+                        "The first-night cinematic action lost its transient rat");
+                }
+
+                Require(
+                    router.ActiveContextCount == 1,
+                    "First-night rat cinematic created an unexpected input-context stack");
+                Require(
+                    router.BlockedChannels == StrategyInputChannel.All,
+                    "First-night rat cinematic did not block all input channels");
+                Require(
+                    router.TopCancelMode == StrategyCancelMode.Swallow,
+                    "First-night rat cinematic did not swallow cancellation");
+                Require(
+                    cinematicTimeScale != null && cinematicTimeScale.IsPausedByLock,
+                    "First-night rat cinematic did not hold a pause lock");
+                return;
+            }
+
             StrategyFirstNightFaunaStoryController firstNightStory =
                 UnityEngine.Object.FindAnyObjectByType<StrategyFirstNightFaunaStoryController>();
             if (firstNightStory != null && firstNightStory.IsOpen)
             {
                 StrategyTimeScaleController firstNightTimeScale =
                     UnityEngine.Object.FindAnyObjectByType<StrategyTimeScaleController>();
+                Require(
+                    firstNightEvent != null && !firstNightEvent.IsRatCinematicPlaying,
+                    "First-night story opened before the rat cinematic released playback");
+                StrategyCinematicRatActor[] handedOffRats =
+                    UnityEngine.Object.FindObjectsByType<StrategyCinematicRatActor>();
+                for (int i = 0; i < handedOffRats.Length; i++)
+                {
+                    Require(
+                        handedOffRats[i] == null
+                        || handedOffRats[i].Renderer == null
+                        || !handedOffRats[i].Renderer.enabled,
+                        "A visible transient rat leaked into the first-night story");
+                }
+
                 Require(
                     UnityEngine.Object.FindObjectsByType<StrategyCatAgent>().Length == 0,
                     "A settlement cat appeared before the first-night story resolved");
@@ -228,6 +286,9 @@ namespace ProjectUnknown.Strategy.EditorTests
                         "First-night story closed without completing the fauna event");
                     Require(router.ActiveContextCount == 0, "First-night story leaked its input context");
                     Require(!firstNightTimeScale.IsPausedByLock, "First-night story leaked its pause lock");
+                    Require(
+                        UnityEngine.Object.FindObjectsByType<StrategyCinematicRatActor>().Length == 0,
+                        "First-night sequence retained its transient rat after story completion");
                     Require(
                         UnityEngine.Object.FindObjectsByType<StrategyCatAgent>().Length >= 1,
                         "Completing the first-night story did not create the first settlement cat");

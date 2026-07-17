@@ -9,6 +9,21 @@
   </PropertyGroup>
   <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
   <ItemGroup>
+    <Compile Include="Assets\Scripts\Runtime\Cinematics\StrategyCinematicLetterboxView.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Cinematics\StrategyCinematicParticipantHighlight.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Cinematics\StrategyInGameCinematicMath.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Cinematics\StrategyInGameCinematicPlayer.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Cinematics\StrategyInGameCinematicPlayer.Completion.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Cinematics\StrategyInGameCinematicPlayer.Sequence.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Cinematics\StrategyInGameCinematicPlayer.UiInput.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Cinematics\StrategyInGameCinematicTypes.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Cinematic.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentCinematicVisualOverride.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentSpriteFactory.MouseStartle.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyCinematicRatActor.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyCinematicRatSpriteFactory.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyFirstNightRatCinematic.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyFirstNightRatShotPlanner.cs" />
     <Compile Include="Assets\Scripts\Runtime\Founding\StrategyFoundingPreferences.cs" />
     <Compile Include="Assets\Scripts\Runtime\Founding\StrategyStarterLayout.cs" />
     <Compile Include="Assets\Scripts\Runtime\Founding\StrategyStartSiteFeatureMap.cs" />

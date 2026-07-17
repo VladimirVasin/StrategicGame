@@ -26,6 +26,8 @@ namespace ProjectUnknown.Strategy
         public static StrategySettlementFaunaController Active { get; private set; }
         public StrategySettlementFaunaTargets Targets => targets;
         public StrategyFirstNightFaunaStage Stage => firstNightStage;
+        public int LiveMouseCount => mice.Count;
+        public int LiveCatCount => cats.Count;
 
         public void ResetForWorldRestore()
         {

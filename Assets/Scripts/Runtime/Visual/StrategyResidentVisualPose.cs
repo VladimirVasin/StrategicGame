@@ -20,6 +20,7 @@ namespace ProjectUnknown.Strategy
         NightTorchWalk,
         NightTorchLight,
         CampfireKindle,
-        GroundSleep
+        GroundSleep,
+        MouseStartle
     }
 }

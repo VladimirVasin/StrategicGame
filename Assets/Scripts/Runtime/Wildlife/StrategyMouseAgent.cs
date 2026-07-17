@@ -22,7 +22,7 @@ namespace ProjectUnknown.Strategy
         public void Configure(StrategySettlementFaunaController controller, CityMapController cityMap, int id, Vector2Int cell, SpriteRenderer spriteRenderer)
         {
             owner = controller; map = cityMap; FaunaId = id; homeCell = cell; targetCell = cell; renderer = spriteRenderer;
-            transform.position = World(cell); transform.localScale = Vector3.one * 0.72f;
+            transform.position = World(cell); transform.localScale = Vector3.one * StrategySettlementFaunaSpriteFactory.MouseWorldScale;
             decisionTimer = Random.Range(0.4f, 1.6f); hiddenTimer = Random.Range(4f, 10f);
             StrategyWorldSorting.Apply(renderer, transform.position, 0);
         }
@@ -79,7 +79,10 @@ namespace ProjectUnknown.Strategy
             transform.position = Vector3.MoveTowards(before, target, speed * Time.deltaTime);
             if (renderer != null && Mathf.Abs(transform.position.x - before.x) > 0.001f) renderer.flipX = transform.position.x < before.x;
             float bob = Mathf.Sin((Time.time + FaunaId) * 16f) * 0.025f;
-            transform.localScale = new Vector3(0.72f, 0.72f + bob, 1f);
+            transform.localScale = new Vector3(
+                StrategySettlementFaunaSpriteFactory.MouseWorldScale,
+                StrategySettlementFaunaSpriteFactory.MouseWorldScale + bob,
+                1f);
             StrategyWorldSorting.Apply(renderer, transform.position, 0);
         }
 

@@ -342,6 +342,7 @@ namespace ProjectUnknown.Strategy
 
             ConfigureProgression(
                 context,
+                map,
                 buildMenu,
                 placement,
                 population,

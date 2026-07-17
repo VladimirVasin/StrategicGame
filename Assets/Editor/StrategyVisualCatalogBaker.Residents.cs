@@ -137,7 +137,8 @@ namespace ProjectUnknown.Strategy.EditorTools
                 StrategyResidentVisualPose.NightTorchWalk,
                 StrategyResidentVisualPose.NightTorchLight,
                 StrategyResidentVisualPose.CampfireKindle,
-                StrategyResidentVisualPose.GroundSleep
+                StrategyResidentVisualPose.GroundSleep,
+                StrategyResidentVisualPose.MouseStartle
             };
 
             for (int poseIndex = 0; poseIndex < poses.Length; poseIndex++)
