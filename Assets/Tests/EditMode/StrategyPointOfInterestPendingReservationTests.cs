@@ -86,6 +86,40 @@ namespace ProjectUnknown.Strategy.EditorTests
             AssertExtractionBlock(mineralOrigin, true);
         }
 
+        [Test]
+        public void PendingReservationsIgnoreLegacyLatentStoryCells()
+        {
+            Vector2Int latentCell = new(12, 12);
+            Vector2Int resolvedCell = new(18, 18);
+            StrategySaveData save = CreateValidSave();
+            save.storyPointsOfInterest.Add(new StrategyStoryPointOfInterestSaveData
+            {
+                stableId = "legacy-latent-story",
+                cellX = latentCell.x,
+                cellY = latentCell.y,
+                state = (int)StrategyStoryPointOfInterestState.Latent,
+                definitionId = string.Empty,
+                sequenceIndex = -1
+            });
+            save.storyPointsOfInterest.Add(new StrategyStoryPointOfInterestSaveData
+            {
+                stableId = "durable-resolved-story",
+                cellX = resolvedCell.x,
+                cellY = resolvedCell.y,
+                state = (int)StrategyStoryPointOfInterestState.Resolved,
+                definitionId = "story-first",
+                sequenceIndex = 0
+            });
+            save.nextStoryPointOfInterestSequenceIndex = 1;
+            Assert.That(StrategySaveSystem.ValidateSaveData(save, out string reason), Is.True, reason);
+
+            StrategySaveSystem.PreparePendingLoad(save);
+            StrategySaveSystem.ReservePendingPointOfInterestCells(map);
+
+            Assert.That(map.IsCellBuildable(latentCell), Is.True);
+            Assert.That(map.IsCellBuildable(resolvedCell), Is.False);
+        }
+
         private static StrategySaveData CreateValidSave()
         {
             return new StrategySaveData

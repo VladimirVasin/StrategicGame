@@ -2,6 +2,13 @@ using System;
 
 namespace ProjectUnknown.Strategy
 {
+    public enum StrategyStoryPointOfInterestDistanceTier
+    {
+        Tier1Near = 1,
+        Tier2Middle = 2,
+        Tier3Far = 3
+    }
+
     public sealed class StrategyStoryPointOfInterestDefinition
     {
         public const int MaximumIdLength = 96;
@@ -9,6 +16,7 @@ namespace ProjectUnknown.Strategy
         public StrategyStoryPointOfInterestDefinition(
             string id,
             int sequenceOrder,
+            StrategyStoryPointOfInterestDistanceTier distanceTier,
             string title,
             string body,
             string encounterId = "",
@@ -27,6 +35,11 @@ namespace ProjectUnknown.Strategy
                 throw new ArgumentOutOfRangeException(nameof(sequenceOrder));
             }
 
+            if (!Enum.IsDefined(typeof(StrategyStoryPointOfInterestDistanceTier), distanceTier))
+            {
+                throw new ArgumentOutOfRangeException(nameof(distanceTier));
+            }
+
             if (string.IsNullOrWhiteSpace(title))
             {
                 throw new ArgumentException("A story point title is required.", nameof(title));
@@ -34,6 +47,7 @@ namespace ProjectUnknown.Strategy
 
             Id = id;
             SequenceOrder = sequenceOrder;
+            DistanceTier = distanceTier;
             Title = title;
             Body = body ?? string.Empty;
             EncounterId = encounterId ?? string.Empty;
@@ -43,6 +57,7 @@ namespace ProjectUnknown.Strategy
 
         public string Id { get; }
         public int SequenceOrder { get; }
+        public StrategyStoryPointOfInterestDistanceTier DistanceTier { get; }
         public string Title { get; }
         public string Body { get; }
         public string EncounterId { get; }

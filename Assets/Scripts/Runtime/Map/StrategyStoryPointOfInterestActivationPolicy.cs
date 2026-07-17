@@ -5,7 +5,7 @@ namespace ProjectUnknown.Strategy
     internal static class StrategyStoryPointOfInterestActivationPolicy
     {
         public const float VisibilitySafetyMargin = 0.75f;
-        public const float ActivationBandWidth = 2f;
+        public const float ActivationBandWidth = 3f;
 
         public static bool IsInsideActivationBand(
             long distanceSquared,

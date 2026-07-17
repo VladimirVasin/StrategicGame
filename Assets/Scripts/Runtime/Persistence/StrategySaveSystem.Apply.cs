@@ -52,19 +52,15 @@ namespace ProjectUnknown.Strategy
             ClearLooseResources();
             bool regenerateLegacyPointsAfterWorld = data.pointsOfInterest == null
                 || data.pointsOfInterest.Count <= 0;
-            bool regenerateStoryPointsAfterWorld = data.storyPointsOfInterest == null
-                || data.storyPointsOfInterest.Count <= 0;
             if (!regenerateLegacyPointsAfterWorld)
             {
                 StrategyPointOfInterestController.Active?.RestorePersistentState(data.pointsOfInterest);
             }
 
-            if (!regenerateStoryPointsAfterWorld)
-            {
-                StrategyStoryPointOfInterestController.Active?.RestorePersistentState(
-                    data.storyPointsOfInterest,
-                    data.nextStoryPointOfInterestSequenceIndex);
-            }
+            StrategyStoryPointOfInterestController.Active?.RestorePersistentState(
+                data.storyPointsOfInterest,
+                data.nextStoryPointOfInterestSequenceIndex,
+                false);
 
             Dictionary<string, StrategyPlacedBuilding> buildingsById = new();
             for (int i = 0; i < data.buildings.Count; i++)
@@ -102,11 +98,6 @@ namespace ProjectUnknown.Strategy
                 StrategyPointOfInterestController.Active?.RestorePersistentState(null);
             }
 
-            if (regenerateStoryPointsAfterWorld)
-            {
-                StrategyStoryPointOfInterestController.Active?.RestorePersistentState(null, 0);
-            }
-
             for (int i = 0; i < data.residents.Count; i++)
             {
                 population.RestoreResident(data.residents[i], buildingsById);
@@ -117,6 +108,7 @@ namespace ProjectUnknown.Strategy
             RestoreLooseResources(data.looseResources);
             StrategyTrailController.Active?.RestorePersistentTrailCells(data.trailCells);
             FindAnyObjectByType<StrategyFogOfWarController>()?.RestoreExploredCells(data.exploredCells);
+            StrategyStoryPointOfInterestController.Active?.RebuildLatentCandidates();
             StrategyWeatherController.Active?.ForceWeather((StrategyWeatherKind)data.weatherKind);
             FindAnyObjectByType<StrategyStarterGoalSequenceController>()?.RefreshFromWorld();
             FindAnyObjectByType<StrategyFirstWinterController>()?.RestorePersistentState(

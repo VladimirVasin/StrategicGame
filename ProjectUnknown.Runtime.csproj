@@ -298,6 +298,7 @@
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyCityItemRewardRevealController.Animation.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyFogOfWarController.Visibility.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part12.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Map\StrategyStoryPointOfInterestRouteField.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part21.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWildlifeController.Part13.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingVisualAnchorProfile.cs" />
@@ -758,6 +759,7 @@
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyCinematicLightEmitter.Torch.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part44.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyFirstNightRatShotPlanner.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Map\StrategyStoryPointOfInterestPlacement.cs" />
     <Compile Include="Assets\Scripts\Runtime\Selection\StrategyWorldSelectionController.Part05.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyStarterBuildProgression.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyMouseAgent.cs" />

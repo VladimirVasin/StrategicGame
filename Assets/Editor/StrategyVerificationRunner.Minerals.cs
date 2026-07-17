@@ -32,16 +32,17 @@ namespace ProjectUnknown.Strategy.EditorTests
                 && storyPoints.Catalog.Definitions[0].Id
                     == StrategyStoryPointOfInterestCatalog.TrashHeapId
                 && storyPoints.Catalog.Definitions[0].SequenceOrder == 0
+                && storyPoints.Catalog.Definitions[0].DistanceTier
+                    == StrategyStoryPointOfInterestDistanceTier.Tier1Near
                 && storyPoints.Catalog.Definitions[0].EncounterId
                     == StrategyStoryPointOfInterestCatalog.TrashHeapEncounterId,
                 "Production story sequence does not start with the authored trash heap");
-            Require(storyPoints.Anchors.Count >= storyPoints.Catalog.Count,
-                "New world did not create enough latent story anchors");
-            for (int i = 0; i < storyPoints.Anchors.Count; i++)
-            {
-                Require(storyPoints.Anchors[i] != null && storyPoints.Anchors[i].IsLatent,
-                    "A new-world story anchor materialized before a Scout approached it");
-            }
+            Require(storyPoints.Anchors.Count == 0,
+                "A new-world story anchor materialized before a Scout approached it");
+            Require(
+                storyPoints.LatentCandidateCount
+                    >= StrategyStoryPointOfInterestPlacement.Tier1MinimumCandidateCount,
+                "New world did not create enough non-blocking Tier I story candidates");
             Require(population != null, "Population is missing for mineral verification");
             Require(population.TryGetCampCell(out Vector2Int campCell),
                 "Camp cell is missing for mineral verification");

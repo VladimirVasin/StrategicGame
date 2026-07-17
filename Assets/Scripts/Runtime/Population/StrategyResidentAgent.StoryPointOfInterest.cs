@@ -34,8 +34,8 @@ namespace ProjectUnknown.Strategy
                 || controller == null
                 || !controller.TryGetActivationCandidate(
                     this,
-                    out StrategyStoryPointOfInterestAnchor anchor)
-                || !CanReachCellForReservation(anchor.Cell))
+                    out StrategyStoryPointOfInterestCandidatePlan candidate)
+                || !CanReachCellForReservation(candidate.Cell))
             {
                 return false;
             }
@@ -46,8 +46,8 @@ namespace ProjectUnknown.Strategy
             float previousWait = waitTimer;
             ResidentActivity previousActivity = activity;
             activity = ResidentActivity.MovingToPointOfInterest;
-            if (!TryBuildPathTo(anchor.Cell)
-                || !controller.TryCommitActivation(anchor, this))
+            if (!TryBuildPathTo(candidate.Cell)
+                || !controller.TryCommitActivation(candidate, this, out StrategyStoryPointOfInterestAnchor anchor))
             {
                 path.Clear();
                 path.AddRange(previousPath);
@@ -61,7 +61,7 @@ namespace ProjectUnknown.Strategy
             activeScoutLodge.ReleaseExplorationTarget(this);
             activeStoryPointOfInterest = anchor;
             activeScoutPointOfInterest = null;
-            scoutTarget = anchor.Cell;
+            scoutTarget = candidate.Cell;
             hasScoutTarget = true;
             hasTarget = true;
             waitTimer = Random.Range(0.05f, 0.2f);

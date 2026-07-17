@@ -48,7 +48,8 @@ namespace ProjectUnknown.Strategy
             for (int i = 0; i < pendingLoad.storyPointsOfInterest.Count; i++)
             {
                 StrategyStoryPointOfInterestSaveData point = pendingLoad.storyPointsOfInterest[i];
-                if (point != null)
+                if (point != null
+                    && point.state != (int)StrategyStoryPointOfInterestState.Latent)
                 {
                     uniqueCells.Add(new Vector2Int(point.cellX, point.cellY));
                 }

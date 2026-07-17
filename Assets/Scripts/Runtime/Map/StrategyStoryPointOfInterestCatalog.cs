@@ -55,6 +55,7 @@ namespace ProjectUnknown.Strategy
                 new StrategyStoryPointOfInterestDefinition(
                     TrashHeapId,
                     0,
+                    StrategyStoryPointOfInterestDistanceTier.Tier1Near,
                     "Гора мусора",
                     "Скаут набрёл на огромную гору мусора. Обыскать её?",
                     TrashHeapEncounterId,

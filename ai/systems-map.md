@@ -784,7 +784,7 @@ Responsibilities:
 - Further reduce visibility source radii during dense Fog weather.
 - Render dense weather Fog inside explored-but-not-visible cells while leaving current visible cells clear.
 - Keep a daylight-range visibility mask for spawn systems that should not react to temporary nighttime sight loss.
-- Expose the maximum resident daylight reveal radius and daylight-range cell checks to story-point activation so latent content cannot materialize inside Scout visibility.
+- Expose the maximum resident daylight reveal radius and daylight-range cell checks to story-point activation so hidden story candidates cannot materialize inside Scout visibility.
 - Refresh visibility and texture painting on an unscaled real-time cadence so time acceleration does not multiply fog repaint work.
 - Provide exploration checks to placement and world selection.
 - Provide read-only explored-cell checks to Scout frontier selection; moving Scouts remain ordinary resident reveal sources.
@@ -833,7 +833,7 @@ Responsibilities:
 - Prefer the nearest frontier deterministically, using nearby unknown coverage and stable coordinates as tie-breakers.
 - Route one actively Exploring Scout with critical navigation priority, survey for 2.5-3.5 seconds, and repeat through day and night without generic idle wandering until the finite timer expires.
 - Prioritize the nearest persistently discovered uninvestigated resource point, reserve it across Scouts, travel to it, and investigate for 1.5-2.5 seconds before resuming frontier work.
-- Let the story-point owner atomically redirect a frontier-bound Scout only after it has preflighted and built the exact route to a latent anchor outside daylight visibility.
+- Let the story-point owner atomically redirect a frontier-bound Scout only after it has preflighted and built the exact route to a tier-matched hidden candidate outside daylight visibility.
 - Expose Ready/Exploring/Returning counts through the Profession HUD, live mission/countdown/ration text through resident and Lodge HUDs, and Send/Recall through the selected Lodge slot.
 - Temporarily reject unreachable targets, release deferred paths immediately, and clear reservations on unassignment, death, funeral interruption, demolition, or resident-role change.
 - Expand map exploration only through the Scout resident's existing Fog of War reveal source.
@@ -938,19 +938,22 @@ Impact hints:
 
 Responsibilities:
 
-- Own authored story definitions through stable lowercase IDs and explicit unique sequence orders, independently of resource-point data and behavior.
-- Generate deterministic latent anchors only when the active catalog contains definitions; production sequence `0` is the authored trash heap with distinct unresolved/resolved Resources-backed world sprites.
-- Select one deterministic eligible Scout/anchor pair by distance, anchor ID, and resident ID when the anchor is still unexplored and lies in a narrow band outside maximum daylight visibility.
-- Preflight reachability and build the exact path before atomically committing the next definition, anchor, and Scout; never materialize a story point that has no secured Scout route.
+- Own authored story definitions through stable lowercase IDs, explicit unique sequence orders, and an explicit distance tier, independently of resource-point data and behavior.
+- Assign each definition to one of three camp-route-distance tiers: Tier I `18-30`, Tier II `45-70`, or Tier III `85-120` normalized route steps. Production sequence `0` is the Tier-I authored trash heap with distinct unresolved/resolved Resources-backed world sprites.
+- Generate deterministic non-blocking logical candidate pools only for tiers still required by the active catalog. Tier I covers 16 outward sectors plus eight backups; candidates exclude explored, occupied, resource, forage, mineral, and road cells.
+- Select one deterministic eligible Scout/candidate pair by distance, candidate ID, and resident ID while the cell remains unexplored in a narrow band outside maximum daylight visibility.
+- Preflight reachability and build the exact path before creating and atomically committing the next durable anchor, definition, and Scout; never materialize or reserve a story-point cell that has no secured Scout route.
 - Dispatch definitions through stable encounter IDs. The trash heap keeps one Scout committed through a Yes/No choice, five-second sprite rummaging cinematic, exact Holey Spoon grant, and personal reward card; No resolves without a grant.
 - Preserve commitment through normal expedition expiry or Recall until the encounter callback resolves, and only then let the Lodge begin its physical return.
-- Persist anchor lifecycle, definition ID, sequence index, committed resident ID, catalog cursor, and deferred Scout return separately from resource points; reject unknown or reordered saved definitions before world mutation.
+- Persist only durable anchor lifecycle, definition ID, sequence index, committed resident ID, catalog cursor, and deferred Scout return separately from resource points; rebuild logical candidates after restored world/Fog state and reject unknown or reordered saved definitions before world mutation.
 
 Primary files/assets:
 
 - `Assets/Scripts/Runtime/Map/StrategyStoryPointOfInterestDefinition.cs`
 - `Assets/Scripts/Runtime/Map/StrategyStoryPointOfInterestCatalog.cs`
 - `Assets/Scripts/Runtime/Map/StrategyStoryPointOfInterestActivationPolicy.cs`
+- `Assets/Scripts/Runtime/Map/StrategyStoryPointOfInterestPlacement.cs`
+- `Assets/Scripts/Runtime/Map/StrategyStoryPointOfInterestRouteField.cs`
 - `Assets/Scripts/Runtime/Map/StrategyStoryPointOfInterestAnchor.cs`
 - `Assets/Scripts/Runtime/Map/StrategyStoryPointOfInterestController.cs`
 - `Assets/Scripts/Runtime/Map/StrategyStoryPointOfInterestController.Activation.cs`
@@ -966,6 +969,8 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.StoryPointOfInterest.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.PointOfInterestInvestigation.cs`
 - `Assets/Scripts/Runtime/Build/StrategyScoutLodge.StoryPoints.cs`
+- `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Apply.cs`
+- `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.PointOfInterestReservations.cs`
 - `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Validation.StoryPoints.cs`
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.cs`
 - `Assets/Tests/EditMode/StrategyStoryPointOfInterestTests.cs`
@@ -979,8 +984,9 @@ Primary files/assets:
 Impact hints:
 
 - Catalog sequence order is a save contract. Reordering/removing an already used definition intentionally invalidates that save during preflight instead of silently playing the wrong story.
-- Latent anchors block building placement but have no visible renderer; materialized, committed, and resolved anchors are independent of resource-point reservation and mineral state.
-- If route construction is deferred or fails, the anchor stays latent and the sequence cursor does not advance.
+- Logical candidates do not create GameObjects or block building placement; materialized, committed, and resolved anchors are independent of resource-point reservation and mineral state.
+- If route construction is deferred or fails, no durable anchor is created and the sequence cursor does not advance.
+- Version-12 compatibility intentionally discards legacy latent-anchor records and ignores their cells during pending-load reservations; durable legacy story anchors remain authoritative.
 - Death, demolition, or explicit role interruption may release a commitment back to a materialized recoverable point; ordinary expedition expiry/Recall does not abandon it.
 - An accepted story reward is mutated into the resident inventory before its card opens. Save input is blocked throughout the transient chain; resolved anchor state plus the resident-owned item are the durable outcome.
 
@@ -2951,7 +2957,7 @@ Responsibilities:
 - Materialize resident-carried stock into the save snapshot as loose resources at each resident's current cell because active tasks and carried state are intentionally rebuilt rather than serialized.
 - Write saves atomically and coordinate restoration only after runtime bootstrap has created all required systems.
 - Preserve F5 save and F8 load/restart controls while exposing read/validate/pending-load entry points to the intro menu Continue flow.
-- Preserve the founding profile, stable answer pairs, exact camp cell, current starter-cart origin, first-night fauna stage, deterministic City Inventory stacks, per-resident Personal Items stacks, stable Scout Lodge assignment/mission/timing/provision/deferred-story-return state, resource-point geometry/mineral state, story-anchor sequence/commitment state, and exact loose prepared-dish payloads across save version 12.
+- Preserve the founding profile, stable answer pairs, exact camp cell, current starter-cart origin, first-night fauna stage, deterministic City Inventory stacks, per-resident Personal Items stacks, stable Scout Lodge assignment/mission/timing/provision/deferred-story-return state, resource-point geometry/mineral state, durable story-anchor sequence/commitment state, and exact loose prepared-dish payloads across save version 12; transient story candidates regenerate after world/Fog restore.
 
 Primary files:
 

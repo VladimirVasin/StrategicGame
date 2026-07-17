@@ -168,10 +168,16 @@ namespace ProjectUnknown.Strategy.EditorTests
                 null,
                 new StrategyStoryPointOfInterestCatalog(new[]
                 {
-                    new StrategyStoryPointOfInterestDefinition("story-first", 0, "First", "Body")
+                    new StrategyStoryPointOfInterestDefinition(
+                        "story-first",
+                        0,
+                        StrategyStoryPointOfInterestDistanceTier.Tier1Near,
+                        "First",
+                        "Body")
                 }),
                 "story-anchor-test",
                 new Vector2Int(8, 8),
+                StrategyStoryPointOfInterestDistanceTier.Tier1Near,
                 StrategyStoryPointOfInterestState.Latent,
                 string.Empty,
                 -1,
@@ -179,7 +185,12 @@ namespace ProjectUnknown.Strategy.EditorTests
                 null);
             Assert.That(
                 anchor.TryCommit(
-                    new StrategyStoryPointOfInterestDefinition("story-first", 0, "First", "Body"),
+                    new StrategyStoryPointOfInterestDefinition(
+                        "story-first",
+                        0,
+                        StrategyStoryPointOfInterestDistanceTier.Tier1Near,
+                        "First",
+                        "Body"),
                     0,
                     resident),
                 Is.True);

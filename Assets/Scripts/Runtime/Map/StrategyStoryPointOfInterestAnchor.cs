@@ -21,6 +21,7 @@ namespace ProjectUnknown.Strategy
 
         public string StableId { get; private set; } = string.Empty;
         public Vector2Int Cell { get; private set; }
+        public StrategyStoryPointOfInterestDistanceTier DistanceTier { get; private set; }
         public StrategyStoryPointOfInterestState State { get; private set; }
         public string DefinitionId { get; private set; } = string.Empty;
         public int SequenceIndex { get; private set; } = -1;
@@ -33,6 +34,7 @@ namespace ProjectUnknown.Strategy
             StrategyStoryPointOfInterestCatalog storyCatalog,
             string stableId,
             Vector2Int cell,
+            StrategyStoryPointOfInterestDistanceTier distanceTier,
             StrategyStoryPointOfInterestState state,
             string definitionId,
             int sequenceIndex,
@@ -44,13 +46,18 @@ namespace ProjectUnknown.Strategy
             catalog = storyCatalog;
             StableId = string.IsNullOrWhiteSpace(stableId) ? BuildStableId(cell) : stableId;
             Cell = cell;
+            DistanceTier = distanceTier;
             State = state;
             DefinitionId = definitionId ?? string.Empty;
             SequenceIndex = sequenceIndex;
             CommittedResidentId = committedResidentId;
             committedResident = null;
             spriteRenderer = renderer != null ? renderer : GetComponent<SpriteRenderer>();
-            BlockMapBuildability();
+            if (State != StrategyStoryPointOfInterestState.Latent)
+            {
+                BlockMapBuildability();
+            }
+
             RefreshVisual();
         }
 
@@ -61,7 +68,8 @@ namespace ProjectUnknown.Strategy
         {
             if (definition == null
                 || resident == null
-                || State != StrategyStoryPointOfInterestState.Latent)
+                || State != StrategyStoryPointOfInterestState.Latent
+                || definition.DistanceTier != DistanceTier)
             {
                 return false;
             }
@@ -71,6 +79,7 @@ namespace ProjectUnknown.Strategy
             State = StrategyStoryPointOfInterestState.Committed;
             committedResident = resident;
             CommittedResidentId = resident.ResidentId;
+            BlockMapBuildability();
             RefreshVisual();
             return true;
         }

@@ -331,8 +331,8 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Points of interest
       - Resource points place nine seed-deterministic Coal/Iron landmarks on separated camp-connected walkable/buildable land cells with a deterministic five/four split; each owns one distinct 2x2 deposit 3-5 cells away and a usable 2x3 extraction block beyond the camp exclusion radius
       - Resource points remain walkable while blocking construction/forage overlap, reserve only after persistent discovery, retain investigated check state, and queue the existing one-button resource report
-      - Story points use a separate ordered catalog and latent deterministic anchors; the first production definition is a Resources-backed trash heap
-      - The next story definition materializes only for the deterministic eligible Scout/anchor pair in a narrow band outside maximum daylight visibility and only after an exact route succeeds
+      - Story points use a separate ordered catalog with Tier-I/Tier-II/Tier-III camp-route-distance bands; the first production definition is a near-camp Tier-I Resources-backed trash heap
+      - Hidden story candidates are deterministic non-blocking data; the next definition materializes and commits a durable anchor only for the eligible Scout/candidate pair outside maximum daylight visibility after the exact route succeeds
       - Trash-heap arrival opens a Yes/No decision: No resolves the point, while Yes hands directly into a five-second Scout rummaging cinematic, exact personal-item grant, and reward card
       - Story commitment survives expedition expiry/Recall through the complete decision/cinematic/reward chain, then releases the Scout to return
     - Basic buildability data reserved for future economy/zoning
@@ -609,7 +609,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Residents assigned to a Forager Camp reserve generated Berries/Roots/Mushrooms nodes, gather forage with reach/crouch animation frames, and deposit it into camp stock
     - Scouts in `Exploring` reserve distinct walkable unknown-side frontier cells, use critical navigation plus short bounded retries, survey for 2.5-3.5 seconds, and repeat day and night while their ordinary Fog of War reveal radius uncovers the map
     - Scouts prioritize the nearest persistently discovered uninvestigated resource point, reserve it globally, travel to it, interact for 1.5-2.5 seconds, and resume frontier exploration after completion
-    - Ordered story points can materialize just outside daylight visibility only after route preflight succeeds; the materialized point and approaching Scout are committed together
+    - Ordered story points select hidden candidates from their authored camp-route-distance tier and materialize just outside daylight visibility only after route preflight succeeds; the durable point and approaching Scout are committed together
     - Expedition expiry or Recall releases ordinary exploration reservations and routes the resident physically back to the Lodge before returning to `Ready`, but an already committed story investigation finishes first
     - One prepaid field ration is applied per applicable Night boundary without a second household dinner; Ready and Returning Scouts use normal household nutrition
     - Residents assigned as Haulers path to lumberjack camp stock, carry Logs to storage, and deposit them
@@ -742,7 +742,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - The v8-to-v9 migration silently backfills `Cats`; v9-to-v10 initializes legacy Scout Lodge state; v10-to-v11 initializes every resident with an empty personal inventory; v11-to-v12 initializes independent empty story-point state
   - F5 saves the current settlement; F8 loads it by restarting and restoring the runtime scene
   - Stable IDs reconnect placed buildings, residents, homes, parents, and children without serializing Unity object references
-  - Snapshot coverage includes map seed/time/weather, founding profile answers and exact camp/current-cart origin, first-winter milestones, first-night fauna stage, City Inventory stacks, buildings, construction sites, resource and dish stock, residents with cold and personal-item state, stable Scout Lodge assignment/mission/timing/field-ration/credit/deferred-story-return state, ground resources plus in-transit resident stock represented as loose resources at saved resident cells, exact prepared-dish payloads, explored fog, route-road cells, resource-point mineral state, and story-anchor sequence/commitment state
+  - Snapshot coverage includes map seed/time/weather, founding profile answers and exact camp/current-cart origin, first-winter milestones, first-night fauna stage, City Inventory stacks, buildings, construction sites, resource and dish stock, residents with cold and personal-item state, stable Scout Lodge assignment/mission/timing/field-ration/credit/deferred-story-return state, ground resources plus in-transit resident stock represented as loose resources at saved resident cells, exact prepared-dish payloads, explored fog, route-road cells, resource-point mineral state, and durable story-anchor sequence/commitment state; transient story candidates regenerate after world/Fog restore
 
 - AI collaboration memory
   - Root entry point: `AI.md`

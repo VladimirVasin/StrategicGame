@@ -1,5 +1,14 @@
 # Work Log
 
+### 2026-07-17 - Tiered Scout story-point placement
+
+- Added three authored story-distance tiers measured by camp-connected route distance: Tier I at `18-30`, Tier II at `45-70`, and Tier III at `85-120` normalized route steps. The trash heap is explicitly Tier I so it is available near the camp early in the first expedition.
+- Replaced world-blocking latent anchors with deterministic logical candidate pools. Tier I keeps 24 candidates across 16 outward sectors plus backups; later tiers use smaller sector pools, and every candidate excludes explored, occupied, resource, forage, mineral, and road cells.
+- Kept materialization route-first: a Scout must build the exact path to the selected still-hidden candidate before the controller creates and commits the durable world anchor. Failed or deferred navigation leaves no visible point, blocker, or sequence advance.
+- Kept save version 12 unchanged. Saves capture only materialized/committed/resolved anchors, discard legacy latent-anchor records, ignore those legacy cells during pending-load reservations, and deterministically rebuild logical candidates after world occupancy, trails, residents, and Fog of War restore.
+- Added focused tier-range, route-field, deterministic ordering, outward-direction coverage, non-blocking candidate, legacy-save, pending-reservation, and runtime verification coverage.
+- Verification: technical quality gates pass and all five C# projects build sequentially with zero warnings/errors; all 15 focused story-placement tests and the PlayMode smoke test pass. The full EditMode suite is `425/441`, with the same 16 unrelated baseline failures across snow, City Inventory layout, reward/audio presentation, fauna story cleanup, house smoke, input/UI feedback, characterization coverage, and audio import checks.
+
 ### 2026-07-17 - First authored Scout story: trash heap
 
 - Added the first production story definition at sequence `0`, with generated point-filtered unresolved/resolved trash-heap sprites while leaving all nine resource POIs on their existing marker and report flow.

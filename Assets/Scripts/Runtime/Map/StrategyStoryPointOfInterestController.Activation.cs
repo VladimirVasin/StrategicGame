@@ -6,18 +6,18 @@ namespace ProjectUnknown.Strategy
     {
         internal bool TryGetActivationCandidate(
             StrategyResidentAgent resident,
-            out StrategyStoryPointOfInterestAnchor anchor)
+            out StrategyStoryPointOfInterestCandidatePlan candidate)
         {
-            anchor = null;
+            candidate = default;
             if (!configured
                 || resident == null
                 || nextSequenceIndex < 0
                 || catalog == null
                 || nextSequenceIndex >= catalog.Count
-                || !TryFindDeterministicActivationWinner(out StrategyResidentAgent winner, out anchor)
+                || !TryFindDeterministicActivationWinner(out StrategyResidentAgent winner, out candidate)
                 || winner != resident)
             {
-                anchor = null;
+                candidate = default;
                 return false;
             }
 
@@ -25,15 +25,16 @@ namespace ProjectUnknown.Strategy
         }
 
         internal bool TryCommitActivation(
-            StrategyStoryPointOfInterestAnchor anchor,
-            StrategyResidentAgent resident)
+            StrategyStoryPointOfInterestCandidatePlan candidate,
+            StrategyResidentAgent resident,
+            out StrategyStoryPointOfInterestAnchor anchor)
         {
-            if (anchor == null
-                || resident == null
-                || !anchor.IsLatent
+            anchor = null;
+            if (resident == null
                 || nextSequenceIndex < 0
                 || catalog == null
-                || nextSequenceIndex >= catalog.Count)
+                || nextSequenceIndex >= catalog.Count
+                || !ContainsCandidate(candidate))
             {
                 return false;
             }
@@ -41,12 +42,25 @@ namespace ProjectUnknown.Strategy
             StrategyStoryPointOfInterestDefinition definition =
                 catalog.Definitions[nextSequenceIndex];
             int sequenceIndex = nextSequenceIndex;
-            if (!anchor.TryCommit(definition, sequenceIndex, resident))
+            if (candidate.DistanceTier != definition.DistanceTier
+                || !CanUseStoryCandidateCell(candidate.Cell)
+                || !TryCreateAnchor(
+                    StrategyStoryPointOfInterestAnchor.BuildStableId(candidate.Cell),
+                    candidate.Cell,
+                    StrategyStoryPointOfInterestState.Committed,
+                    definition.Id,
+                    sequenceIndex,
+                    resident.ResidentId,
+                    definition.DistanceTier,
+                    out anchor)
+                || !anchor.TryBindCommittedResident(resident))
             {
                 return false;
             }
 
+            RemoveCandidate(candidate);
             nextSequenceIndex++;
+            PruneCandidatesWithoutRemainingDefinitions();
             StrategyDebugLogger.Info(
                 "StoryPointOfInterest",
                 "Committed",
@@ -195,10 +209,10 @@ namespace ProjectUnknown.Strategy
 
         private bool TryFindDeterministicActivationWinner(
             out StrategyResidentAgent bestResident,
-            out StrategyStoryPointOfInterestAnchor bestAnchor)
+            out StrategyStoryPointOfInterestCandidatePlan bestCandidate)
         {
             bestResident = null;
-            bestAnchor = null;
+            bestCandidate = default;
             bool found = false;
             long bestDistanceSquared = long.MaxValue;
             int residentCount = population?.Residents?.Count ?? 0;
@@ -212,17 +226,20 @@ namespace ProjectUnknown.Strategy
                     continue;
                 }
 
-                for (int anchorIndex = 0; anchorIndex < anchors.Count; anchorIndex++)
+                for (int candidateIndex = 0; candidateIndex < latentCandidates.Count; candidateIndex++)
                 {
-                    StrategyStoryPointOfInterestAnchor anchor = anchors[anchorIndex];
-                    if (!CanActivateAnchor(anchor, residentCell, out long distanceSquared)
+                    StrategyStoryPointOfInterestCandidatePlan candidate = latentCandidates[candidateIndex];
+                    string candidateId = StrategyStoryPointOfInterestAnchor.BuildStableId(candidate.Cell);
+                    if (!CanActivateCandidate(candidate, residentCell, out long distanceSquared)
                         || !StrategyStoryPointOfInterestActivationPolicy.IsBetterCandidate(
                             found,
                             distanceSquared,
-                            anchor.StableId,
+                            candidateId,
                             resident.ResidentId,
                             bestDistanceSquared,
-                            bestAnchor != null ? bestAnchor.StableId : string.Empty,
+                            found
+                                ? StrategyStoryPointOfInterestAnchor.BuildStableId(bestCandidate.Cell)
+                                : string.Empty,
                             bestResident != null ? bestResident.ResidentId : int.MaxValue))
                     {
                         continue;
@@ -230,7 +247,7 @@ namespace ProjectUnknown.Strategy
 
                     found = true;
                     bestResident = resident;
-                    bestAnchor = anchor;
+                    bestCandidate = candidate;
                     bestDistanceSquared = distanceSquared;
                 }
             }
@@ -238,26 +255,65 @@ namespace ProjectUnknown.Strategy
             return found;
         }
 
-        private bool CanActivateAnchor(
-            StrategyStoryPointOfInterestAnchor anchor,
+        private bool CanActivateCandidate(
+            StrategyStoryPointOfInterestCandidatePlan candidate,
             Vector2Int residentCell,
             out long distanceSquared)
         {
             distanceSquared = long.MaxValue;
-            if (anchor == null
-                || !anchor.IsLatent
-                || fog.IsCellPersistentlyExplored(anchor.Cell)
-                || fog.IsCellVisibleAtDaylightRange(anchor.Cell))
+            if (catalog == null
+                || nextSequenceIndex < 0
+                || nextSequenceIndex >= catalog.Count
+                || candidate.DistanceTier != catalog.Definitions[nextSequenceIndex].DistanceTier
+                || !CanUseStoryCandidateCell(candidate.Cell))
             {
                 return false;
             }
 
-            long deltaX = (long)anchor.Cell.x - residentCell.x;
-            long deltaY = (long)anchor.Cell.y - residentCell.y;
+            long deltaX = (long)candidate.Cell.x - residentCell.x;
+            long deltaY = (long)candidate.Cell.y - residentCell.y;
             distanceSquared = deltaX * deltaX + deltaY * deltaY;
             return StrategyStoryPointOfInterestActivationPolicy.IsInsideActivationBand(
                 distanceSquared,
                 fog.ResidentDaylightVisibleOuterRadius);
+        }
+
+        private bool ContainsCandidate(StrategyStoryPointOfInterestCandidatePlan candidate)
+        {
+            for (int i = 0; i < latentCandidates.Count; i++)
+            {
+                if (latentCandidates[i].Cell == candidate.Cell
+                    && latentCandidates[i].DistanceTier == candidate.DistanceTier)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private void RemoveCandidate(StrategyStoryPointOfInterestCandidatePlan candidate)
+        {
+            for (int i = latentCandidates.Count - 1; i >= 0; i--)
+            {
+                if (latentCandidates[i].Cell == candidate.Cell
+                    && latentCandidates[i].DistanceTier == candidate.DistanceTier)
+                {
+                    latentCandidates.RemoveAt(i);
+                    return;
+                }
+            }
+        }
+
+        private void PruneCandidatesWithoutRemainingDefinitions()
+        {
+            for (int i = latentCandidates.Count - 1; i >= 0; i--)
+            {
+                if (CountRemainingDefinitions(latentCandidates[i].DistanceTier) <= 0)
+                {
+                    latentCandidates.RemoveAt(i);
+                }
+            }
         }
 
         private bool IsLowestEligibleScout(StrategyResidentAgent resident)

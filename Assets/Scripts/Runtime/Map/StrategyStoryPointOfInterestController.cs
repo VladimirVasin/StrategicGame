@@ -7,10 +7,12 @@ namespace ProjectUnknown.Strategy
     [DisallowMultipleComponent]
     public sealed partial class StrategyStoryPointOfInterestController : MonoBehaviour
     {
-        private const int SpareAnchorCount = 2;
+        private const int SpareCandidateCount = 2;
         private const int PlacementSeedSalt = 4187;
+        private const int ResourceSeparation = 6;
 
         private readonly List<StrategyStoryPointOfInterestAnchor> anchors = new();
+        private readonly List<StrategyStoryPointOfInterestCandidatePlan> latentCandidates = new();
         private readonly Queue<StoryNotice> pendingNotices = new();
         private readonly Dictionary<string, IStrategyStoryPointOfInterestEncounter> encounters =
             new(StringComparer.Ordinal);
@@ -35,6 +37,7 @@ namespace ProjectUnknown.Strategy
         public IReadOnlyList<StrategyStoryPointOfInterestAnchor> Anchors => anchors;
         public StrategyStoryPointOfInterestCatalog Catalog => catalog;
         public int NextSequenceIndex => nextSequenceIndex;
+        public int LatentCandidateCount => latentCandidates.Count;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetActive()
@@ -139,46 +142,108 @@ namespace ProjectUnknown.Strategy
         {
             ClearAnchorObjects();
             nextSequenceIndex = 0;
-            if (!configured || catalog == null || catalog.Count <= 0)
+            RebuildLatentCandidates();
+        }
+
+        public void RebuildLatentCandidates()
+        {
+            latentCandidates.Clear();
+            if (!configured
+                || catalog == null
+                || nextSequenceIndex < 0
+                || nextSequenceIndex >= catalog.Count)
             {
                 return;
             }
 
-            int targetCount = catalog.Count + SpareAnchorCount;
-            List<Vector2Int> cells = StrategyPointOfInterestPlacement.SelectCells(
-                map.Width,
-                map.Height,
-                map.ActiveSeed ^ PlacementSeedSalt,
-                campCell,
-                targetCount,
-                map.IsCellWalkable,
-                CanUseStoryAnchorCell);
-            for (int i = 0; i < cells.Count; i++)
+            foreach (StrategyStoryPointOfInterestDistanceTier tier in Enum.GetValues(
+                typeof(StrategyStoryPointOfInterestDistanceTier)))
             {
-                TryCreateAnchor(
-                    StrategyStoryPointOfInterestAnchor.BuildStableId(cells[i]),
-                    cells[i],
-                    StrategyStoryPointOfInterestState.Latent,
-                    string.Empty,
-                    -1,
-                    0);
+                int remainingDefinitions = CountRemainingDefinitions(tier);
+                if (remainingDefinitions <= 0)
+                {
+                    continue;
+                }
+
+                int targetCount = Mathf.Max(
+                    StrategyStoryPointOfInterestPlacement.GetMinimumCandidateCount(tier),
+                    remainingDefinitions + SpareCandidateCount);
+                latentCandidates.AddRange(
+                    StrategyStoryPointOfInterestPlacement.SelectCandidates(
+                        map.Width,
+                        map.Height,
+                        map.ActiveSeed ^ PlacementSeedSalt,
+                        campCell,
+                        tier,
+                        targetCount,
+                        map.IsCellWalkable,
+                        CanUseStoryCandidateCell));
             }
 
             StrategyDebugLogger.Info(
                 "StoryPointOfInterest",
-                "AnchorsGenerated",
-                StrategyDebugLogger.F("anchors", anchors.Count),
-                StrategyDebugLogger.F("target", targetCount),
-                StrategyDebugLogger.F("definitions", catalog.Count));
+                "CandidatesGenerated",
+                StrategyDebugLogger.F("candidates", latentCandidates.Count),
+                StrategyDebugLogger.F("durableAnchors", anchors.Count),
+                StrategyDebugLogger.F("remainingDefinitions", catalog.Count - nextSequenceIndex));
         }
 
-        private bool CanUseStoryAnchorCell(Vector2Int cell)
+        private int CountRemainingDefinitions(StrategyStoryPointOfInterestDistanceTier tier)
+        {
+            int count = 0;
+            for (int i = nextSequenceIndex; i < catalog.Count; i++)
+            {
+                if (catalog.Definitions[i].DistanceTier == tier)
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
+        private bool CanUseStoryCandidateCell(Vector2Int cell)
         {
             return map != null
                 && map.IsCellWalkable(cell)
                 && map.IsCellBuildable(cell)
-                && resourcePoints?.HasPointAt(cell) != true
-                && !HasForageAt(cell);
+                && fog?.IsCellPersistentlyExplored(cell) != true
+                && fog?.IsCellVisibleAtDaylightRange(cell) != true
+                && !HasAnchorAt(cell)
+                && !IsNearResourcePoint(cell)
+                && !HasForageAt(cell)
+                && StrategyTrailController.Active?.HasRouteRoadAt(cell) != true;
+        }
+
+        private bool IsNearResourcePoint(Vector2Int cell)
+        {
+            IReadOnlyList<StrategyPointOfInterest> points = resourcePoints?.Points;
+            if (points == null)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < points.Count; i++)
+            {
+                StrategyPointOfInterest point = points[i];
+                if (point == null)
+                {
+                    continue;
+                }
+
+                Vector2Int markerDelta = point.Cell - cell;
+                if (Mathf.Max(Mathf.Abs(markerDelta.x), Mathf.Abs(markerDelta.y)) <= ResourceSeparation
+                    || point.HasMineralSite
+                    && StrategyPointOfInterestPlacement.DistanceToFootprint(
+                        cell,
+                        point.MineralOrigin,
+                        StrategyPointOfInterestPlacement.MineralFootprint) <= ResourceSeparation)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static bool HasForageAt(Vector2Int cell)
@@ -207,8 +272,11 @@ namespace ProjectUnknown.Strategy
             StrategyStoryPointOfInterestState state,
             string definitionId,
             int sequenceIndex,
-            int committedResidentId)
+            int committedResidentId,
+            StrategyStoryPointOfInterestDistanceTier distanceTier,
+            out StrategyStoryPointOfInterestAnchor createdAnchor)
         {
+            createdAnchor = null;
             EnsureAnchorRoot();
             GameObject anchorObject = null;
             try
@@ -225,12 +293,14 @@ namespace ProjectUnknown.Strategy
                     catalog,
                     stableId,
                     cell,
+                    distanceTier,
                     state,
                     definitionId,
                     sequenceIndex,
                     committedResidentId,
                     renderer);
                 anchors.Add(anchor);
+                createdAnchor = anchor;
                 return true;
             }
             catch (Exception exception)
@@ -259,6 +329,7 @@ namespace ProjectUnknown.Strategy
 
         private void ClearAnchorObjects()
         {
+            latentCandidates.Clear();
             for (int i = anchors.Count - 1; i >= 0; i--)
             {
                 StrategyStoryPointOfInterestAnchor anchor = anchors[i];

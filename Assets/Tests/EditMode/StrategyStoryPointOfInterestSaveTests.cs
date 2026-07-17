@@ -8,8 +8,18 @@ namespace ProjectUnknown.Strategy.EditorTests
         private static readonly StrategyStoryPointOfInterestCatalog StoryCatalog = new(
             new[]
             {
-                new StrategyStoryPointOfInterestDefinition("story-first", 0, "First", "First body"),
-                new StrategyStoryPointOfInterestDefinition("story-second", 1, "Second", "Second body")
+                new StrategyStoryPointOfInterestDefinition(
+                    "story-first",
+                    0,
+                    StrategyStoryPointOfInterestDistanceTier.Tier1Near,
+                    "First",
+                    "First body"),
+                new StrategyStoryPointOfInterestDefinition(
+                    "story-second",
+                    1,
+                    StrategyStoryPointOfInterestDistanceTier.Tier2Middle,
+                    "Second",
+                    "Second body")
             });
 
         [Test]

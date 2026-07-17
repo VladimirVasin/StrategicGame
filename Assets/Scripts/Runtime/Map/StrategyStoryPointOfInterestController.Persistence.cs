@@ -27,6 +27,11 @@ namespace ProjectUnknown.Strategy
                     continue;
                 }
 
+                if (anchor.State == StrategyStoryPointOfInterestState.Latent)
+                {
+                    continue;
+                }
+
                 target.Add(new StrategyStoryPointOfInterestSaveData
                 {
                     stableId = anchor.StableId,
@@ -51,15 +56,17 @@ namespace ProjectUnknown.Strategy
             IReadOnlyList<StrategyStoryPointOfInterestSaveData> savedAnchors,
             int savedNextSequenceIndex)
         {
+            RestorePersistentState(savedAnchors, savedNextSequenceIndex, true);
+        }
+
+        internal void RestorePersistentState(
+            IReadOnlyList<StrategyStoryPointOfInterestSaveData> savedAnchors,
+            int savedNextSequenceIndex,
+            bool rebuildCandidates)
+        {
             ClearForLoad();
             if (!configured || map == null)
             {
-                return;
-            }
-
-            if (savedAnchors == null || savedAnchors.Count <= 0)
-            {
-                GenerateDefaultAnchors();
                 return;
             }
 
@@ -68,7 +75,9 @@ namespace ProjectUnknown.Strategy
             bool failed = savedNextSequenceIndex < 0
                 || catalog == null
                 || savedNextSequenceIndex > catalog.Count;
-            for (int i = 0; i < savedAnchors.Count && !failed; i++)
+            int savedCount = savedAnchors?.Count ?? 0;
+            int discardedLegacyLatent = 0;
+            for (int i = 0; i < savedCount && !failed; i++)
             {
                 StrategyStoryPointOfInterestSaveData saved = savedAnchors[i];
                 if (saved == null)
@@ -83,6 +92,21 @@ namespace ProjectUnknown.Strategy
                     : saved.stableId;
                 StrategyStoryPointOfInterestState state =
                     (StrategyStoryPointOfInterestState)saved.state;
+                if (state == StrategyStoryPointOfInterestState.Latent)
+                {
+                    discardedLegacyLatent++;
+                    continue;
+                }
+
+                if (catalog == null
+                    || !catalog.TryGet(
+                        saved.definitionId,
+                        out StrategyStoryPointOfInterestDefinition definition))
+                {
+                    failed = true;
+                    break;
+                }
+
                 if (!ids.Add(stableId)
                     || !cells.Add(cell)
                     || !map.IsCellWalkable(cell)
@@ -93,7 +117,9 @@ namespace ProjectUnknown.Strategy
                         state,
                         saved.definitionId,
                         saved.sequenceIndex,
-                        saved.committedResidentId))
+                        saved.committedResidentId,
+                        definition.DistanceTier,
+                        out _))
                 {
                     failed = true;
                 }
@@ -104,17 +130,24 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.Warn(
                     "StoryPointOfInterest",
                     "RestoreRolledBack",
-                    StrategyDebugLogger.F("saved", savedAnchors.Count),
+                    StrategyDebugLogger.F("saved", savedCount),
                     StrategyDebugLogger.F("restored", anchors.Count));
                 GenerateDefaultAnchors();
                 return;
             }
 
             nextSequenceIndex = savedNextSequenceIndex;
+            if (rebuildCandidates)
+            {
+                RebuildLatentCandidates();
+            }
+
             StrategyDebugLogger.Info(
                 "StoryPointOfInterest",
                 "Restored",
                 StrategyDebugLogger.F("anchors", anchors.Count),
+                StrategyDebugLogger.F("candidates", latentCandidates.Count),
+                StrategyDebugLogger.F("discardedLegacyLatent", discardedLegacyLatent),
                 StrategyDebugLogger.F("nextSequenceIndex", nextSequenceIndex));
         }
     }
