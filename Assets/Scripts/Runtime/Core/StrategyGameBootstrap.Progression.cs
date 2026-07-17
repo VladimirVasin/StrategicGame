@@ -12,6 +12,7 @@ namespace ProjectUnknown.Strategy
             StrategyCameraController cameraController,
             StrategyWorldSelectionController selection,
             StrategyProfessionHudController professionHud,
+            StrategySettlementFaunaController settlementFauna,
             StrategyTimeScaleController timeScale,
             StrategyInputRouter inputRouter)
         {
@@ -39,6 +40,13 @@ namespace ProjectUnknown.Strategy
                 inputRouter);
             selection.SetScoutLodgeOnboarding(scoutOnboarding);
             professionHud.SetScoutLodgeOnboarding(scoutOnboarding);
+
+            StrategyFirstNightFaunaStoryController firstNightFaunaStory =
+                context.GetOrCreate<StrategyFirstNightFaunaStoryController>("Strategy First Night Fauna Story");
+            firstNightFaunaStory.Configure(timeScale, inputRouter);
+            StrategyFirstNightFaunaEventController firstNightFaunaEvent =
+                context.GetOrCreate<StrategyFirstNightFaunaEventController>("Strategy First Night Fauna Event");
+            firstNightFaunaEvent.Configure(settlementFauna, firstNightFaunaStory);
 
             StrategyFirstWinterController firstWinter = context.GetOrCreate<StrategyFirstWinterController>("Strategy First Winter Progression");
 

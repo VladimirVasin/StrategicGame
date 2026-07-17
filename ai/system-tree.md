@@ -1,6 +1,6 @@
 # System Tree
 
-Last updated: 2026-07-16
+Last updated: 2026-07-17
 
 This is a conceptual map of the current project. Keep concrete file ownership in `ai/systems-map.md`.
 
@@ -259,7 +259,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Drives tree, forest-group, and bush sway through per-prop animation phases
       - Shared procedural shadows keep day/night opacity and length tuning while wind-driven props sway
     - Wildlife MVP
-      - Settlement fauna grows with completed buildings: a low-density mouse population emerges near food structures with a recovery delay after catches, while coat/temperament-varied cats use distinct idle/walk/stalk/rest sprite animation while patrolling and hunting reserved mouse targets
+      - Settlement fauna starts through a saved first-night stage: no mice/cats before Day 1 `Dusk`, at least three mice and no cats until the three-frame `Night` chronicle resolves, then at least one cat plus ordinary building-driven growth; agents still use runtime idle/walk/stalk/rest behavior and mouse recovery after catches
       - Runtime-created wildlife controller
       - Spawns 12-16 deer across up to 8 compact herds only on currently hidden suitable land cells within a broad ring around completed buildings or active construction sites
       - Spawns 16-22 rabbits across up to 10 compact groups only on currently hidden suitable land cells within the same near-settlement ring
@@ -683,6 +683,11 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Holds three stable random adult candidates for the introduction, prioritizing Haulers/Builders, while later manual openings show the full adult roster
     - Transfers the exact selected ordinary worker through the previous role owner, shows portraits/blocking reasons, requires a choice when someone is eligible, and permits safe deferral only when nobody is available
     - Restores keyboard/controller focus and releases its owned input/pause state on appointment, deferral, cancellation, disable, or target loss
+  - Custom first-night fauna chronicle
+    - Preloads three `1672x941` Resources-backed story shots when Day 1 reaches `Dusk`
+    - Opens at the first `Night` boundary after other modal owners release the stack, pauses simulation, and blocks all input without moving the gameplay camera
+    - Reuses the Founding Journey cinematic presentation/atmosphere path for three frames about rustling stores, a mouse feast, and the cats that followed the caravan
+    - Completing or skipping the chronicle closes it before creating the first world cat; disable/destroy cleanup releases pause/input without falsely completing the event
   - Custom runtime world inspect microHUD for clicked graves, resources, nature props, and wildlife; residents, buildings, and construction sites use the right-side selection HUD only
     - MicroHUD supports typed chip/row dashboards for wildlife, deposits, trees, forage, and loose resource piles, with old body text kept as fallback
   - Custom runtime Profession HUD
@@ -705,16 +710,16 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - NUnit characterization tests cover resident task priority, game-context lifecycle, bounded save migration/validation/recovery, input routing/actions, and log rotation
   - Separate Play Mode checks cover menu isolation, the full menu-to-founding-to-prepared-gameplay launch with exact camp/cart/forage invariants, and direct gameplay bootstrap under wall-clock progress/stall watchdogs and unexpected-error collection
   - Pull requests and `main` run a 45-game-second `QuickSoak` covering 3 in-game hours and write `Logs/QuickSoakSmoke.txt`
-  - The deterministic full soak runs for 720 game seconds / 2 in-game days only on the nightly 01:23 UTC schedule, manual `workflow_dispatch`, `release`/`release/**` branches, and `v*` tags; it writes `Logs/SoakSmoke.txt` and checks context, resident IDs/positions, navigation capacity, audio voices, refugee-modal input-context release, Unity errors, and final/peak 128 MiB memory growth
+  - The deterministic full soak runs for 720 game seconds / 2 in-game days only on the nightly 01:23 UTC schedule, manual `workflow_dispatch`, `release`/`release/**` branches, and `v*` tags; it writes `Logs/SoakSmoke.txt` and checks context, resident IDs/positions, navigation capacity, audio voices, first-night/refugee/POI modal input-context release, Unity errors, and final/peak 128 MiB memory growth
   - Fast PR/main concurrency cancels stale superseded runs; full-soak concurrency never cancels an in-progress evidence run
   - Main menu layout can be rendered to a deterministic 1600x900 inspection image
   - Gameplay can be rendered at deterministic Noon, Spring, Autumn, Night, and Winter states for visual comparison when a graphics device is available
 
 - Persistence
-  - Version-6 JSON save data with v1/v2/v3/v4/v5 migration, validation, atomic temporary-file replacement, and `.bak` recovery
+  - Version-7 JSON save data with v1/v2/v3/v4/v5/v6 migration, validation, atomic temporary-file replacement, and `.bak` recovery
   - F5 saves the current settlement; F8 loads it by restarting and restoring the runtime scene
   - Stable IDs reconnect placed buildings, residents, homes, parents, and children without serializing Unity object references
-  - Snapshot coverage includes map seed/time/weather, founding profile answers and exact camp/current-cart origin, first-winter milestones, buildings, construction sites, resource and dish stock, residents and cold state, ground resources plus in-transit resident stock represented as loose resources at saved resident cells, exact prepared-dish payloads, explored fog, route-road cells, and point-of-interest position/resource kind/mineral origin/remaining amount/investigated state
+  - Snapshot coverage includes map seed/time/weather, founding profile answers and exact camp/current-cart origin, first-winter milestones, first-night fauna stage, buildings, construction sites, resource and dish stock, residents and cold state, ground resources plus in-transit resident stock represented as loose resources at saved resident cells, exact prepared-dish payloads, explored fog, route-road cells, and point-of-interest position/resource kind/mineral origin/remaining amount/investigated state
 
 - AI collaboration memory
   - Root entry point: `AI.md`
@@ -727,6 +732,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Runtime bootstrap depends on scene role, one scene-local game context, explicit preload ownership transfer, and the presence of a usable `Main Camera` or permission to create one.
 - Intro menu launch depends on save validation, one persistent preload coordinator, deterministic map seed handling, the Founding Journey decision gate for New Settlement, and the gameplay scene-loaded bootstrap hook; prepared terrain keeps Unity object creation/upload on the main thread.
 - Founding Journey presentation couples each authored shot to its atmosphere and scene-owned Weather/Fire ambience; its answers feed a pure selector over a captured map snapshot, and selected camp/cart cells feed population startup, nature/forage exclusions, exact starter-cart placement, save v3, and the initial camera focus.
+- The first-night fauna chronicle couples the shared Day 1 calendar, settlement-fauna target policy, Founding Journey presentation/atmosphere reuse, modal pause/input ownership, three Resources-backed narrative shots, and save v7 stage restoration; the final callback is the sole unlock path for the first world cat.
 - Audio bootstrap depends on map generation, camera setup/orthographic zoom, strategy wind/weather values, `Resources/Audio` assets, the in-game music/work/HUD-SFX folders, resident walk animation frames, resident work impact/release frames, and runtime HUD interaction events.
 - Application focus couples Player background execution with the audio mix only: it never mutates simulation time, so active modal pause locks remain authoritative while unfocused running settlements continue to advance.
 - The in-game pause menu couples Global Cancel arbitration, an all-channel modal context, a named time-scale pause lock, persistence, shared game settings, shared confirmations, and Main Menu scene flow; it releases input/time ownership on Resume, disable, and scene transition.

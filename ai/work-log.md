@@ -1,5 +1,17 @@
 # Work Log
 
+### 2026-07-17 - First-night mice and cats chronicle
+
+- Added a Day 1 fauna sequence: settlement mice remain absent until `Dusk`, then build toward a three-mouse minimum around the Caravan Cart/food buildings while cats stay hard-blocked.
+- Added a three-frame fullscreen first-night chronicle using three new `1672x941` pixel-art shots and the existing Founding Journey pan/zoom, crossfade, atmosphere, staged-copy, reduced-motion, pause, and all-input modal infrastructure.
+- Completing or skipping the chronicle closes the overlay and immediately creates the first cat near food stores; further settlement fauna growth returns to the ordinary building-driven policy. The event is narrative/visual and does not subtract food.
+- Upgraded persistence to version 7 with a validated `Dormant` / `MiceVisible` / `StoryCompleted` stage, v6 calendar-boundary migration, live fauna reset/reconstruction on load, and no retroactive chronicle for saves already at the first Night.
+- Added focused policy/timing/catalog/save tests and taught the deterministic two-day soak to advance the three story frames and verify pause/input cleanup.
+- Rebuild the story presentation after any aborted opening and release its retained art/view references after completion, preventing a half-faded curtain from blocking a later retry.
+- Added food-building, any-building, and camp-area spawn fallbacks plus soak assertions for visible mice before the chronicle and a live cat immediately after it; invalid persisted event stages are rejected instead of silently skipping the story.
+- Reset the static day/night elapsed-time offset during gameplay bootstrap so starting a new settlement after visiting a late save cannot immediately trigger the first-night event; pending saves still restore their own time during apply.
+- Verification: static technical gates pass; all five C# projects build individually with zero warnings/errors. Unity EditMode/PlayMode/full-soak execution is deferred because the project is currently open in the main Unity Editor; the new tests and soak path compile in their isolated assemblies.
+
 ### 2026-07-17 - Scout Lodge camera focus release
 
 - Fixed the first-expedition camera focus persisting at the Scout Lodge after the assignment board resolved: onboarding now captures the pre-cinematic camera position and zoom, then smoothly restores that exact view after appointment, deferral, cancellation, or target loss.

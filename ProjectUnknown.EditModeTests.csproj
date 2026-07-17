@@ -53,7 +53,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Tests\EditMode\StrategyBridgeVisualProfileTests.cs" />
-    <Compile Include="Assets\Tests\EditMode\StrategyScoutLodgeCameraFocusTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyScoutAssignmentFlowTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyPointOfInterestPlacementTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyForagerCampVisualProfileTests.cs" />
@@ -68,6 +67,7 @@
     <Compile Include="Assets\Tests\EditMode\StrategyPointOfInterestMineralTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyRoadOccupancyTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyAudioFocusGateTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyFirstNightFaunaTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyChickenCoopVisualProfileTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyHouseVisualEffectTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyBuildingSnowSpriteFactoryTests.cs" />
@@ -75,9 +75,11 @@
     <Compile Include="Assets\Tests\EditMode\StrategyStarterBuildProgressionTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyInputRouterTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyScoutTargetSelectorTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyFirstNightFaunaSaveTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategySaveSystemTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyPointOfInterestPendingReservationTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyProcessingStorageTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyScoutLodgeCameraFocusTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyMusicShuffleBagTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyInputActionsContractTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyBuildingVisualAnchorProfileTests.cs" />

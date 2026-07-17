@@ -37,6 +37,9 @@ namespace ProjectUnknown.Strategy
                     case 5:
                         MigrateVersion5To6(data);
                         break;
+                    case 6:
+                        MigrateVersion6To7(data);
+                        break;
                     default:
                         reason = "missing_migration_from_version_" + data.version;
                         return false;
@@ -77,6 +80,18 @@ namespace ProjectUnknown.Strategy
             data.pointsOfInterest ??= new List<StrategyPointOfInterestSaveData>();
             data.pointsOfInterest.Clear();
             data.version = 6;
+        }
+
+        private static void MigrateVersion6To7(StrategySaveData data)
+        {
+            // Version 6 used the six-minute day: Dusk began at 19:00 (210s)
+            // and the first Night began at 22:00 (255s).
+            data.firstNightFaunaStage = data.elapsedSeconds < 210f
+                ? (int)StrategyFirstNightFaunaStage.Dormant
+                : data.elapsedSeconds < 255f
+                    ? (int)StrategyFirstNightFaunaStage.MiceVisible
+                    : (int)StrategyFirstNightFaunaStage.StoryCompleted;
+            data.version = 7;
         }
 
         private static void NormalizeCollections(StrategySaveData data)

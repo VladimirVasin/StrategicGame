@@ -1,6 +1,6 @@
 # Tutorial Scenario
 
-Last updated: 2026-07-16
+Last updated: 2026-07-17
 
 ## Current State
 
@@ -31,6 +31,10 @@ When a real tutorial or onboarding flow is implemented:
 - Normal startup places a temporary Caravan Cart near the campfire instead of a prebuilt Storage Yard; it starts with 20 Logs, 20 Stone, and randomized raw food covering 3 days for the initial families.
 - Dawn counts as settlement work time on every day, so auto-assigned builders and haulers can begin starter construction immediately.
 - Residents cannot die from any cause during calendar days 1-2; normal mortality begins at the start of day 3.
+- At `Dusk` on Day 1, the settlement fauna enters its first-night stage: at least three mice begin appearing around the Caravan Cart and other food buildings, while cats remain completely blocked. The gnawed supplies are narrative and visual only; this event does not subtract food from the economy.
+- At the first `Night` boundary, a three-frame fullscreen chronicle waits for any higher-priority modal to close, then pauses simulation and blocks all input. The frames show the first rustling, the mice feasting on the stores, and the cats that quietly followed the caravan into the valley.
+- Completing the third frame or choosing `Skip story` closes the chronicle and immediately creates the first world cat near a food building. Further mouse/cat population follows the ordinary settlement-fauna rules, but the first-night minimum remains available after load.
+- Save version 7 persists the first-night fauna stage rather than individual runtime animals. Loading a pre-night save reconstructs the appropriate mouse/story state; legacy saves already at or beyond the first Night migrate as completed and do not replay the chronicle.
 - Until the starter sequence completes, the Build menu allows the seven-building base catalog: `House`, `Lumberjack Camp`, `Stonecutter Camp`, `Forager Camp`, `Scout Lodge`, `Storage Yard`, and `Granary`; all other building items remain locked.
 - Completed construction, not placed construction sites, advances goal progress.
 - Base buildings may be completed ahead of their displayed goal; the sequence remembers them and skips goals whose requirement is already satisfied.

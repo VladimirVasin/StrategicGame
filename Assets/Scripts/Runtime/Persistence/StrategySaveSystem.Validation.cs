@@ -30,6 +30,12 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
+            if (!Enum.IsDefined(typeof(StrategyFirstNightFaunaStage), data.firstNightFaunaStage))
+            {
+                reason = "invalid_first_night_fauna_stage";
+                return false;
+            }
+
             long cellCount = (long)data.mapWidth * data.mapHeight;
             if (data.mapSeed <= 0
                 || data.mapWidth <= 0

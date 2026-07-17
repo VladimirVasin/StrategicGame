@@ -1,6 +1,6 @@
 # Systems Map
 
-Last updated: 2026-07-16
+Last updated: 2026-07-17
 
 Use this file as the first navigation pass before broad searches. Owner cards are starting points, not hard boundaries.
 
@@ -873,7 +873,7 @@ Responsibilities:
 - Expose only persistently discovered, uninvestigated landmarks to Scout reservation; reject conflicts across multiple Scouts and cool down unreachable targets.
 - Mark investigation completion atomically and retain the marker in an investigated check state.
 - Queue a resource-specific one-action `OK` debug encounter, hold one simulation pause lock across queued notices, block all input, swallow cancel, and defer behind existing modal pause owners.
-- Capture and restore stable point IDs, cells, Coal/Iron/neutral role, exact mineral origin, remaining amount, and investigated state through save version 6; reserve pending live-site cells before deterministic nature/forage generation and treat depletion as a typed site with no live deposit.
+- Capture and restore stable point IDs, cells, Coal/Iron/neutral role, exact mineral origin, remaining amount, and investigated state through save version 7; reserve pending live-site cells before deterministic nature/forage generation and treat depletion as a typed site with no live deposit.
 - Clear legacy v5 point geometry during migration so the first v6 load restores buildings/construction first, then regenerates the owned-site layout around them instead of retaining ten neutral landmarks.
 
 Primary files/assets:
@@ -970,7 +970,8 @@ Impact hints:
 
 Responsibilities:
 
-- Grow settlement cats and mice from completed-building, occupied-house, and food-building counts; mice hide and scurry around food structures while cats patrol, reserve, pursue, and catch nearby mice.
+- Stage settlement fauna through the first Day 1 `Dusk`/`Night`: block all fauna before Dusk, force at least three mice while the chronicle is pending, then create the first cat only after the three-frame story resolves before returning to completed-building/occupied-house/food-building growth.
+- Keep the first-night chronicle as a gameplay overlay that reuses Founding Journey presentation/atmosphere behavior without loading another scene or moving the gameplay camera.
 
 - Spawn compact ambient deer herds only on currently hidden suitable land cells near completed buildings or active construction sites.
 - Spawn compact ambient rabbit groups only on currently hidden suitable land cells near completed buildings or active construction sites.
@@ -1026,9 +1027,15 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Wildlife/StrategySettlementFaunaController.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategySettlementFaunaController.Population.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategySettlementFaunaTypes.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyFirstNightFaunaEventController.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyCatAgent.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyMouseAgent.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategySettlementFaunaSpriteFactory.cs`
+- `Assets/Scripts/Runtime/UI/StrategyFirstNightFaunaStoryController.cs`
+- `Assets/Scripts/Runtime/UI/StrategyFirstNightFaunaStoryController.View.cs`
+- `Assets/Scripts/Runtime/UI/StrategyFirstNightFaunaStoryCatalog.cs`
+- `Assets/Resources/Visual/FirstNightFauna/`
+- `Assets/Tests/EditMode/StrategyFirstNightFaunaTests.cs`
 - `Assets/Scripts/Runtime/Build/StrategyFishingAccessUtility.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.Fishing.cs`
@@ -1074,7 +1081,8 @@ Primary files/assets:
 
 Impact hints:
 
-- Wildlife is runtime-only and not saved yet.
+- Individual wildlife/fauna agents remain runtime-only. Save version 7 persists only the first-night fauna stage; restore clears live cats/mice and reconstructs the required minimum population from that stage.
+- First-night story completion or Skip is the only path that unlocks cats for a new settlement. The modal must wait for other input/pause owners and must release its all-channel context without completing if disabled or destroyed.
 - Deer and birds do not reveal fog or block walkability; adult deer can yield `Game` only after the Hunter Camp upgrade, rabbits can yield `Game` through the base hunter-camp work loop, fish can yield `Fish` through the fisher-hut work loop, and wolves are predators rather than player-harvestable resources.
 - Initial rabbit spawn, deer herds, fish shoals, birds, and wolf packs depend on hidden near-settlement candidate cells instead of map-wide placement; if no hidden candidate exists for a species, that species should skip spawning rather than appearing far from buildings or inside visible fog.
 - Wildlife hidden checks use fog daylight-range visibility, not reduced nighttime current visibility, so animals do not spawn closer to the settlement just because night lowered player sight radius.
@@ -2722,7 +2730,7 @@ Responsibilities:
 - Materialize resident-carried stock into the save snapshot as loose resources at each resident's current cell because active tasks and carried state are intentionally rebuilt rather than serialized.
 - Write saves atomically and coordinate restoration only after runtime bootstrap has created all required systems.
 - Preserve F5 save and F8 load/restart controls while exposing read/validate/pending-load entry points to the intro menu Continue flow.
-- Preserve the founding profile, stable answer pairs, exact camp cell, current starter-cart origin, stable point-of-interest geometry/resource role/mineral origin/remaining amount/investigated state, and exact loose prepared-dish payloads across save version 6.
+- Preserve the founding profile, stable answer pairs, exact camp cell, current starter-cart origin, first-night fauna stage, stable point-of-interest geometry/resource role/mineral origin/remaining amount/investigated state, and exact loose prepared-dish payloads across save version 7.
 
 Primary files:
 
@@ -2746,10 +2754,11 @@ Primary files:
 - `Assets/Scripts/Runtime/Map/StrategyPointOfInterestController.Persistence.cs`
 - `Assets/Tests/EditMode/StrategySaveSystemTests.cs`
 - `Assets/Tests/EditMode/StrategySaveLooseResourceTests.cs`
+- `Assets/Tests/EditMode/StrategyFirstNightFaunaSaveTests.cs`
 
 Impact hints:
 
-- Current persistence is version 6 with v1/v2/v3/v4/v5 migration. Increment the version and add an explicit migration whenever persisted DTO shape changes; validate migrated data before applying it.
+- Current persistence is version 7 with v1/v2/v3/v4/v5/v6 migration. Increment the version and add an explicit migration whenever persisted DTO shape changes; validate migrated data before applying it.
 - Keep primary/temp/backup replacement and backup recovery in the file seam so interrupted writes do not destroy the last valid save.
 - Reject save files above 32 MiB before reading and keep top-level plus resident-child/prepared-dish/point-of-interest collection limits in validation.
 - Stable IDs are serialization contracts; never replace them with scene-instance IDs or object references.
@@ -2764,7 +2773,7 @@ Responsibilities:
 - Apply wall-clock progress/stall watchdogs and collect unexpected Unity runtime errors with only narrow batch-mode infrastructure exceptions.
 - Verify explicit map seeds and procedural plus production-16px catalog terrain golden output.
 - Run a 45-game-second `QuickSoak` covering 3 in-game hours for pull requests and `main`, writing `Logs/QuickSoakSmoke.txt`.
-- Run the deterministic 720-game-second full soak covering 2 in-game days only for the nightly 01:23 UTC schedule, manual `workflow_dispatch`, `release`/`release/**` branches, and `v*` tags; keep its modal input-context invariants, final/peak memory budgets, and `Logs/SoakSmoke.txt` evidence.
+- Run the deterministic 720-game-second full soak covering 2 in-game days only for the nightly 01:23 UTC schedule, manual `workflow_dispatch`, `release`/`release/**` branches, and `v*` tags; advance all three first-night chronicle frames, keep every modal input-context invariant, and retain final/peak memory budgets plus `Logs/SoakSmoke.txt` evidence.
 - Render the menu at 1600x900 for visual layout inspection.
 - Render deterministic Noon, Spring, Autumn, Night, and Winter gameplay frames for visual comparison on a real graphics device.
 

@@ -23,6 +23,9 @@
     <Compile Include="Assets\Scripts\Runtime\Menu\StrategyFoundingJourneyController.View.cs" />
     <Compile Include="Assets\Scripts\Runtime\Menu\StrategyFoundingJourneyAtmosphere.cs" />
     <Compile Include="Assets\Scripts\Runtime\Menu\StrategyFoundingJourneyPresentation.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyFirstNightFaunaStoryCatalog.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyFirstNightFaunaStoryController.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyFirstNightFaunaStoryController.View.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyFamilyTreeHudController.Transition.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyPopulationRosterHudController.Transition.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyUiButtonFeedback.cs" />
@@ -145,6 +148,7 @@
     <Compile Include="Assets\Scripts\Runtime\Selection\StrategyWorldSelectionController.Part12.cs" />
     <Compile Include="Assets\Scripts\Runtime\Visual\StrategyVisualCatalog.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategySettlementFaunaController.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyFirstNightFaunaEventController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyFishSpriteFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Visual\StrategyVisualSequenceIds.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyFogOfWarController.Chunks.cs" />

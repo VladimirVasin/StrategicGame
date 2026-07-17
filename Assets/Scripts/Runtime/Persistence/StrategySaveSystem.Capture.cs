@@ -19,6 +19,9 @@ namespace ProjectUnknown.Strategy
                 weatherKind = StrategyWeatherController.Active != null
                     ? (int)StrategyWeatherController.Active.CurrentWeather
                     : (int)StrategyWeatherKind.Clear,
+                firstNightFaunaStage = StrategyFirstNightFaunaEventController.Active != null
+                    ? (int)StrategyFirstNightFaunaEventController.Active.Stage
+                    : (int)StrategyFirstNightFaunaStage.Dormant,
                 foundingStart = CopyFoundingStartData(foundingStart)
             };
 

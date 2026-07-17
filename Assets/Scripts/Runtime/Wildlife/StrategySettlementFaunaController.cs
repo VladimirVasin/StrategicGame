@@ -19,11 +19,55 @@ namespace ProjectUnknown.Strategy
         private StrategyBuildPlacementController placement;
         private Transform faunaRoot;
         private StrategySettlementFaunaTargets targets;
+        private StrategyFirstNightFaunaStage firstNightStage = StrategyFirstNightFaunaStage.Dormant;
         private float refreshTimer;
         private bool dirty = true;
 
         public static StrategySettlementFaunaController Active { get; private set; }
         public StrategySettlementFaunaTargets Targets => targets;
+        public StrategyFirstNightFaunaStage Stage => firstNightStage;
+
+        public void ResetForWorldRestore()
+        {
+            ClearFaunaPopulation();
+            dirty = true;
+            refreshTimer = 0f;
+        }
+
+        public void SetFirstNightStage(StrategyFirstNightFaunaStage stage)
+        {
+            int stageValue = (int)stage;
+            if (stageValue < (int)StrategyFirstNightFaunaStage.Dormant
+                || stageValue > (int)StrategyFirstNightFaunaStage.StoryCompleted)
+            {
+                StrategyDebugLogger.Warn(
+                    "SettlementFauna",
+                    "FirstNightStageRejected",
+                    StrategyDebugLogger.F("stage", stageValue));
+                return;
+            }
+
+            StrategyFirstNightFaunaStage previous = firstNightStage;
+            firstNightStage = stage;
+            dirty = true;
+            refreshTimer = 0f;
+            if (map != null)
+            {
+                RefreshPopulationTargets();
+                UpdateFaunaPopulation();
+            }
+
+            if (previous != firstNightStage)
+            {
+                StrategyDebugLogger.Info(
+                    "SettlementFauna",
+                    "FirstNightStageChanged",
+                    StrategyDebugLogger.F("previous", previous),
+                    StrategyDebugLogger.F("current", firstNightStage),
+                    StrategyDebugLogger.F("targetCats", targets.TargetCats),
+                    StrategyDebugLogger.F("targetMice", targets.TargetMice));
+            }
+        }
 
         public void Configure(
             CityMapController mapController,
@@ -139,12 +183,15 @@ namespace ProjectUnknown.Strategy
                 && targetMice > 0
                     ? Mathf.Clamp(1 + completed / 8, 1, MaxCats)
                     : 0;
-            StrategySettlementFaunaTargets next = new StrategySettlementFaunaTargets(
+            StrategySettlementFaunaTargets organicTargets = new StrategySettlementFaunaTargets(
                 completed,
                 occupiedHouses,
                 foodBuildings,
                 targetCats,
                 targetMice);
+            StrategySettlementFaunaTargets next = StrategySettlementFaunaPolicy.ApplyFirstNightStage(
+                organicTargets,
+                firstNightStage);
             if (next.TargetCats != targets.TargetCats || next.TargetMice != targets.TargetMice)
             {
                 StrategyDebugLogger.Info(
@@ -153,8 +200,8 @@ namespace ProjectUnknown.Strategy
                     StrategyDebugLogger.F("buildings", completed),
                     StrategyDebugLogger.F("occupiedHouses", occupiedHouses),
                     StrategyDebugLogger.F("foodBuildings", foodBuildings),
-                    StrategyDebugLogger.F("targetCats", targetCats),
-                    StrategyDebugLogger.F("targetMice", targetMice));
+                    StrategyDebugLogger.F("targetCats", next.TargetCats),
+                    StrategyDebugLogger.F("targetMice", next.TargetMice));
             }
 
             targets = next;
@@ -185,5 +232,6 @@ namespace ProjectUnknown.Strategy
         }
 
         partial void UpdateFaunaPopulation();
+        partial void ClearFaunaPopulation();
     }
 }

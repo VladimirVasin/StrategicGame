@@ -14,6 +14,8 @@
     <Compile Include="Assets\Tests\EditMode\StrategyVerificationTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyAudioFocusGateTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategySaveSystemTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyFirstNightFaunaSaveTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyFirstNightFaunaTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategySaveLooseResourceTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyProcessingStorageTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyRoadOccupancyTests.cs" />

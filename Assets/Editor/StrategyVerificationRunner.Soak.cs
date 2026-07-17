@@ -186,6 +186,56 @@ namespace ProjectUnknown.Strategy.EditorTests
         {
             StrategyInputRouter router = UnityEngine.Object.FindAnyObjectByType<StrategyInputRouter>();
             Require(router != null, "Input router is missing during soak");
+            StrategyFirstNightFaunaStoryController firstNightStory =
+                UnityEngine.Object.FindAnyObjectByType<StrategyFirstNightFaunaStoryController>();
+            if (firstNightStory != null && firstNightStory.IsOpen)
+            {
+                StrategyTimeScaleController firstNightTimeScale =
+                    UnityEngine.Object.FindAnyObjectByType<StrategyTimeScaleController>();
+                Require(
+                    UnityEngine.Object.FindObjectsByType<StrategyCatAgent>().Length == 0,
+                    "A settlement cat appeared before the first-night story resolved");
+                Require(
+                    UnityEngine.Object.FindObjectsByType<StrategyMouseAgent>().Length >= 3,
+                    "First-night mice were not visibly established before the story opened");
+                Require(router.ActiveContextCount == 1, "First-night story created an unexpected input-context stack");
+                Require(router.BlockedChannels == StrategyInputChannel.All, "First-night story did not block all input channels");
+                Require(router.TopCancelMode == StrategyCancelMode.Swallow, "First-night story did not swallow cancellation");
+                Require(firstNightTimeScale != null && firstNightTimeScale.IsPausedByLock,
+                    "First-night story did not hold a pause lock");
+
+                Button[] storyButtons = firstNightStory.GetComponentsInChildren<Button>(true);
+                Button continueButton = null;
+                int continueButtonCount = 0;
+                for (int i = 0; i < storyButtons.Length; i++)
+                {
+                    if (storyButtons[i] != null && storyButtons[i].name == "ContinueButton")
+                    {
+                        continueButton = storyButtons[i];
+                        continueButtonCount++;
+                    }
+                }
+
+                Require(continueButtonCount == 1, "First-night story must expose exactly one continue action");
+                continueButton.onClick.Invoke();
+                soakResolvedDialogs++;
+                if (!firstNightStory.IsOpen)
+                {
+                    Require(
+                        StrategyFirstNightFaunaEventController.Active != null
+                        && StrategyFirstNightFaunaEventController.Active.Stage
+                            == StrategyFirstNightFaunaStage.StoryCompleted,
+                        "First-night story closed without completing the fauna event");
+                    Require(router.ActiveContextCount == 0, "First-night story leaked its input context");
+                    Require(!firstNightTimeScale.IsPausedByLock, "First-night story leaked its pause lock");
+                    Require(
+                        UnityEngine.Object.FindObjectsByType<StrategyCatAgent>().Length >= 1,
+                        "Completing the first-night story did not create the first settlement cat");
+                }
+
+                return;
+            }
+
             StrategyPointOfInterestDialogController pointDialog =
                 UnityEngine.Object.FindAnyObjectByType<StrategyPointOfInterestDialogController>();
             if (pointDialog != null && pointDialog.IsOpen)

@@ -217,6 +217,7 @@
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingSpriteFactory.Part09.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part52.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part18.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyFirstNightFaunaStoryController.View.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentPerformanceCounters.cs" />
     <Compile Include="Assets\Scripts\Runtime\Visual\StrategyVisualBakeSource.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyProfessionHudController.Part02.cs" />
@@ -277,6 +278,7 @@
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part22.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyDeerSpriteFactory.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part36.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyFirstNightFaunaStoryController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyStoneResourceController.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyFamilyTreeHudController.Transition.cs" />
     <Compile Include="Assets\Scripts\Runtime\Menu\StrategyMapPreloadCoordinator.cs" />
@@ -394,6 +396,7 @@
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyCinematicVisualMath.cs" />
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyLooseCarriedResourcePile.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentSpriteFactory.NightTorch.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyFirstNightFaunaStoryCatalog.cs" />
     <Compile Include="Assets\Scripts\Runtime\Founding\StrategyFoundingPreferences.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part17.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyForestryTree.cs" />
@@ -520,6 +523,7 @@
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyHouseResourceStore.Dishes.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyScoutAssignmentDialogController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part01.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyFirstNightFaunaEventController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyFuneralController.Part03.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyPopulationRosterRowView.cs" />
     <Compile Include="Assets\Scripts\Runtime\Menu\StrategyMapPreloadCoordinator.Content.cs" />

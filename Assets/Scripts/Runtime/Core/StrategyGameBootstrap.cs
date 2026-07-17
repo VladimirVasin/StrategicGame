@@ -127,6 +127,7 @@ namespace ProjectUnknown.Strategy
             cameraFeedback.Configure(mainCamera);
             StrategyDebugLogger.Info("Bootstrap", "CameraReady", StrategyDebugLogger.F("position", mainCamera.transform.position));
 
+            StrategyDayNightCycleController.RestoreElapsedSeconds(0f);
             StrategyDayNightCycleController dayNight = context.GetOrCreate<StrategyDayNightCycleController>("Strategy Day Night Cycle");
             dayNight.Configure(map, mainCamera);
             StrategyDebugLogger.Info("Bootstrap", "DayNightReady");
@@ -347,6 +348,7 @@ namespace ProjectUnknown.Strategy
                 cameraController,
                 selection,
                 professionHud,
+                settlementFauna,
                 timeScale,
                 inputRouter);
 

@@ -14,6 +14,18 @@ namespace ProjectUnknown.Strategy
         {
             cats.RemoveAll(agent => agent == null);
             mice.RemoveAll(agent => agent == null || agent.IsCaught);
+            while (cats.Count > targets.TargetCats)
+            {
+                int index = cats.Count - 1;
+                StrategyCatAgent excess = cats[index];
+                cats.RemoveAt(index);
+                if (excess != null)
+                {
+                    excess.gameObject.SetActive(false);
+                    Destroy(excess.gameObject);
+                }
+            }
+
             while (mice.Count > targets.TargetMice)
             {
                 int index = mice.Count - 1;
@@ -25,17 +37,63 @@ namespace ProjectUnknown.Strategy
                 }
             }
 
-            if (mice.Count < targets.TargetMice
-                && Time.time >= nextMouseSpawnTime
-                && TryFindSpawnCell(true, out Vector2Int mouseCell))
+            if (mice.Count < targets.TargetMice && Time.time >= nextMouseSpawnTime)
             {
-                SpawnMouse(mouseCell);
+                bool foundMouseCell = TryFindSpawnCell(true, out Vector2Int mouseCell);
+                if (!foundMouseCell && firstNightStage != StrategyFirstNightFaunaStage.Dormant)
+                {
+                    foundMouseCell = TryFindSpawnCell(false, out mouseCell)
+                        || TryFindFirstNightFallbackCell(out mouseCell);
+                }
+
+                if (foundMouseCell)
+                {
+                    SpawnMouse(mouseCell);
+                }
             }
 
-            if (cats.Count < targets.TargetCats && TryFindSpawnCell(false, out Vector2Int catCell))
+            bool firstStoryCat = cats.Count == 0;
+            if (firstNightStage == StrategyFirstNightFaunaStage.StoryCompleted
+                && cats.Count < targets.TargetCats)
             {
-                SpawnCat(catCell);
+                bool foundCatCell = TryFindSpawnCell(firstStoryCat, out Vector2Int catCell);
+                if (!foundCatCell && firstStoryCat)
+                {
+                    foundCatCell = TryFindSpawnCell(false, out catCell)
+                        || TryFindFirstNightFallbackCell(out catCell);
+                }
+
+                if (foundCatCell)
+                {
+                    SpawnCat(catCell);
+                }
             }
+        }
+
+        partial void ClearFaunaPopulation()
+        {
+            for (int i = 0; i < cats.Count; i++)
+            {
+                if (cats[i] != null)
+                {
+                    cats[i].gameObject.SetActive(false);
+                    Destroy(cats[i].gameObject);
+                }
+            }
+
+            for (int i = 0; i < mice.Count; i++)
+            {
+                if (mice[i] != null)
+                {
+                    mice[i].gameObject.SetActive(false);
+                    Destroy(mice[i].gameObject);
+                }
+            }
+
+            cats.Clear();
+            mice.Clear();
+            nextFaunaId = 0;
+            nextMouseSpawnTime = 0f;
         }
 
         internal StrategyMouseAgent FindMouseForCat(StrategyCatAgent cat, float radius)
@@ -121,6 +179,42 @@ namespace ProjectUnknown.Strategy
             {
                 if (cats[i] != null && cats[i].CurrentCell == cell) return true;
             }
+            return false;
+        }
+
+        private bool TryFindFirstNightFallbackCell(out Vector2Int cell)
+        {
+            if (map == null)
+            {
+                cell = default;
+                return false;
+            }
+
+            Vector2Int center = population != null && population.TryGetCampCell(out Vector2Int campCell)
+                ? campCell
+                : new Vector2Int(map.Width / 2, map.Height / 2);
+            for (int radius = 0; radius <= 8; radius++)
+            {
+                for (int y = -radius; y <= radius; y++)
+                {
+                    for (int x = -radius; x <= radius; x++)
+                    {
+                        if (radius > 0 && Mathf.Abs(x) != radius && Mathf.Abs(y) != radius)
+                        {
+                            continue;
+                        }
+
+                        Vector2Int candidate = center + new Vector2Int(x, y);
+                        if (map.IsCellWalkable(candidate) && !IsFaunaCellOccupied(candidate))
+                        {
+                            cell = candidate;
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            cell = default;
             return false;
         }
 

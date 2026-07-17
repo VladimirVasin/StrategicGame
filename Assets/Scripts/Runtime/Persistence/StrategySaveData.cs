@@ -6,7 +6,7 @@ namespace ProjectUnknown.Strategy
     [Serializable]
     public sealed class StrategySaveData
     {
-        public const int CurrentVersion = 6;
+        public const int CurrentVersion = 7;
 
         public int version = CurrentVersion;
         public long savedUtcTicks;
@@ -18,6 +18,7 @@ namespace ProjectUnknown.Strategy
         public bool firstWinterFoodPrepared;
         public bool firstWinterFuelPrepared;
         public bool firstWinterPassed;
+        public int firstNightFaunaStage = (int)StrategyFirstNightFaunaStage.Dormant;
         public StrategyFoundingStartSaveData foundingStart = new();
         public List<StrategyBuildingSaveData> buildings = new();
         public List<StrategyConstructionSiteSaveData> constructionSites = new();

@@ -1,5 +1,12 @@
 namespace ProjectUnknown.Strategy
 {
+    public enum StrategyFirstNightFaunaStage
+    {
+        Dormant = 0,
+        MiceVisible = 1,
+        StoryCompleted = 2
+    }
+
     public enum StrategyCatTemperament
     {
         Bold,
@@ -90,5 +97,47 @@ namespace ProjectUnknown.Strategy
         public int FoodBuildings { get; }
         public int TargetCats { get; }
         public int TargetMice { get; }
+    }
+
+    internal static class StrategySettlementFaunaPolicy
+    {
+        internal const int FirstNightMouseMinimum = 3;
+        internal const int FirstNightCatMinimum = 1;
+
+        internal static StrategySettlementFaunaTargets ApplyFirstNightStage(
+            StrategySettlementFaunaTargets organicTargets,
+            StrategyFirstNightFaunaStage stage)
+        {
+            int targetCats;
+            int targetMice;
+            switch (stage)
+            {
+                case StrategyFirstNightFaunaStage.MiceVisible:
+                    targetCats = 0;
+                    targetMice = UnityEngine.Mathf.Max(
+                        FirstNightMouseMinimum,
+                        organicTargets.TargetMice);
+                    break;
+                case StrategyFirstNightFaunaStage.StoryCompleted:
+                    targetCats = UnityEngine.Mathf.Max(
+                        FirstNightCatMinimum,
+                        organicTargets.TargetCats);
+                    targetMice = UnityEngine.Mathf.Max(
+                        FirstNightMouseMinimum,
+                        organicTargets.TargetMice);
+                    break;
+                default:
+                    targetCats = 0;
+                    targetMice = 0;
+                    break;
+            }
+
+            return new StrategySettlementFaunaTargets(
+                organicTargets.CompletedBuildings,
+                organicTargets.OccupiedHouses,
+                organicTargets.FoodBuildings,
+                targetCats,
+                targetMice);
+        }
     }
 }

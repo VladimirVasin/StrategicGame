@@ -85,6 +85,8 @@ namespace ProjectUnknown.Strategy
                 data.firstWinterFoodPrepared,
                 data.firstWinterFuelPrepared,
                 data.firstWinterPassed);
+            StrategyFirstNightFaunaEventController.Active?.RestoreStage(
+                (StrategyFirstNightFaunaStage)data.firstNightFaunaStage);
             pendingLoad = null;
             StrategyEventLogHudController.Notify("Game loaded", new Color(0.58f, 0.78f, 0.92f));
             StrategyDebugLogger.Info(
