@@ -7,6 +7,7 @@ namespace ProjectUnknown.Strategy
     internal static partial class StrategyPointOfInterestPlacement
     {
         internal const int DefaultPointCount = 10;
+        internal const int DefaultResourcePointCount = DefaultPointCount - 1;
         internal const int CampExclusionRadius = 16;
         internal const int EdgeMargin = 6;
         internal const int MinimumSpacing = 18;

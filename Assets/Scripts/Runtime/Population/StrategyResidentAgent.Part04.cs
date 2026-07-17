@@ -80,6 +80,11 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            if (TryCommitApproachedStoryPointOfInterest())
+            {
+                return;
+            }
+
             if (waitTimer > 0f)
             {
                 waitTimer -= Time.deltaTime;

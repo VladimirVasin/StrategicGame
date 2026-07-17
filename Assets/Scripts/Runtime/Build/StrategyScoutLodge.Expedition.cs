@@ -102,6 +102,7 @@ namespace ProjectUnknown.Strategy
             remainingFieldRations = requiredRations;
             lastProvisionedDayIndex = worker.LastNutritionDayIndex;
             expeditionState = StrategyScoutExpeditionState.Exploring;
+            returnAfterStoryPoint = false;
             missionStatus = "Preparing the first route";
             worker.BeginScoutExpedition(this);
             StrategyDebugLogger.Info(
@@ -116,16 +117,6 @@ namespace ProjectUnknown.Strategy
             return true;
         }
 
-        public bool RequestRecall()
-        {
-            if (IsReturning)
-            {
-                return true;
-            }
-
-            return BeginScoutReturn("Recalled to Lodge", "recall");
-        }
-
         public bool RestorePersistentState(
             StrategyResidentAgent resident,
             StrategyScoutExpeditionState state,
@@ -134,7 +125,8 @@ namespace ProjectUnknown.Strategy
             float endsAt,
             float savedRemainingFieldRations,
             float provisionCredit,
-            int savedLastProvisionedDayIndex)
+            int savedLastProvisionedDayIndex,
+            bool savedReturnAfterStoryPoint)
         {
             if (!IsValidRestoreState(
                     resident,
@@ -174,6 +166,7 @@ namespace ProjectUnknown.Strategy
             expeditionEndsElapsedSeconds = endsAt;
             remainingFieldRations = savedRemainingFieldRations;
             lastProvisionedDayIndex = savedLastProvisionedDayIndex;
+            returnAfterStoryPoint = savedReturnAfterStoryPoint;
             expeditionState = state;
             if (state == StrategyScoutExpeditionState.Returning
                 || endsAt <= StrategyDayNightCycleController.CurrentElapsedSeconds + RationEpsilon)
@@ -293,7 +286,8 @@ namespace ProjectUnknown.Strategy
             if (IsExploring)
             {
                 if (StrategyDayNightCycleController.CurrentElapsedSeconds + RationEpsilon
-                    >= expeditionEndsElapsedSeconds)
+                    >= expeditionEndsElapsedSeconds
+                    && !returnAfterStoryPoint)
                 {
                     BeginScoutReturn("Expedition complete - returning", "duration_complete");
                     return;
@@ -352,26 +346,6 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("remaining", remainingFieldRations));
         }
 
-        private bool BeginScoutReturn(string status, string reason)
-        {
-            if (!IsExploring || !TryGetWorker(0, out StrategyResidentAgent worker))
-            {
-                return false;
-            }
-
-            expeditionState = StrategyScoutExpeditionState.Returning;
-            remainingFieldRations = 0f;
-            missionStatus = status;
-            worker.BeginScoutReturn(this);
-            StrategyDebugLogger.Info(
-                "ScoutLodge",
-                "ExpeditionReturning",
-                StrategyDebugLogger.F("lodgeOrigin", Origin),
-                StrategyDebugLogger.F("worker", worker.FullName),
-                StrategyDebugLogger.F("reason", reason));
-            return true;
-        }
-
         private void HandleScoutWorkerAssigned()
         {
             ResetExpeditionState(true);
@@ -407,6 +381,7 @@ namespace ProjectUnknown.Strategy
             expeditionEndsElapsedSeconds = 0f;
             remainingFieldRations = 0f;
             lastProvisionedDayIndex = -1;
+            returnAfterStoryPoint = false;
             if (!preserveProvisionCredit)
             {
                 provisionRationCredit = 0f;

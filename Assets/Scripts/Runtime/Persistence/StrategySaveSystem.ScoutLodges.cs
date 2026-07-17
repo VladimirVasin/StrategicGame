@@ -35,7 +35,8 @@ namespace ProjectUnknown.Strategy
                     endsElapsedSeconds = lodge.ExpeditionEndsElapsedSeconds,
                     remainingFieldRations = lodge.RemainingFieldRations,
                     provisionRationCredit = lodge.ProvisionRationCredit,
-                    lastProvisionedDayIndex = lodge.LastProvisionedDayIndex
+                    lastProvisionedDayIndex = lodge.LastProvisionedDayIndex,
+                    returnAfterStoryPoint = lodge.ReturnAfterStoryPoint
                 });
             }
         }
@@ -80,7 +81,8 @@ namespace ProjectUnknown.Strategy
                     saved.endsElapsedSeconds,
                     saved.remainingFieldRations,
                     saved.provisionRationCredit,
-                    saved.lastProvisionedDayIndex))
+                    saved.lastProvisionedDayIndex,
+                    saved.returnAfterStoryPoint))
                 {
                     StrategyDebugLogger.Warn(
                         "Save",

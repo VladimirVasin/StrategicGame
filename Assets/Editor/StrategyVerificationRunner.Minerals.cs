@@ -22,9 +22,14 @@ namespace ProjectUnknown.Strategy.EditorTests
             StrategyIronResourceController iron = StrategyIronResourceController.Active;
             StrategyCoalResourceController coal = StrategyCoalResourceController.Active;
             StrategyPointOfInterestController points = StrategyPointOfInterestController.Active;
+            StrategyStoryPointOfInterestController storyPoints =
+                StrategyStoryPointOfInterestController.Active;
             Require(iron != null, "Iron resource controller is missing");
             Require(coal != null, "Coal resource controller is missing");
             Require(points != null, "Point-of-interest controller is missing");
+            Require(storyPoints != null, "Story point-of-interest controller is missing");
+            Require(storyPoints.Catalog.Count == 0 && storyPoints.Anchors.Count == 0,
+                "Production story points must stay empty until authored content is added");
             Require(population != null, "Population is missing for mineral verification");
             Require(population.TryGetCampCell(out Vector2Int campCell),
                 "Camp cell is missing for mineral verification");
@@ -47,14 +52,9 @@ namespace ProjectUnknown.Strategy.EditorTests
             Vector2Int campCell)
         {
             Require(points != null
-                && points.Count == StrategyPointOfInterestPlacement.DefaultPointCount,
-                "New world did not create the complete point-of-interest layout");
-            Require(points[0] != null
-                && points[0].ResourceKind == StrategyPointOfInterestResourceKind.None
-                && !points[0].HasMineralSite,
-                "The first point of interest must be mineral-free");
+                && points.Count == StrategyPointOfInterestPlacement.DefaultResourcePointCount,
+                "New world did not create the complete resource point layout");
 
-            int neutralCount = 0;
             int typedCount = 0;
             int coalCount = 0;
             int ironCount = 0;
@@ -62,14 +62,6 @@ namespace ProjectUnknown.Strategy.EditorTests
             {
                 StrategyPointOfInterest point = points[i];
                 Require(point != null, "Point-of-interest registry contains a missing entry");
-                if (point.ResourceKind == StrategyPointOfInterestResourceKind.None)
-                {
-                    neutralCount++;
-                    Require(!point.HasMineralSite, "Neutral point owns a mineral site");
-                    VerifyNoMineralsNearNeutral(point.Cell, ironDeposits, coalDeposits);
-                    continue;
-                }
-
                 typedCount++;
                 if (point.ResourceKind == StrategyPointOfInterestResourceKind.Coal)
                 {
@@ -80,7 +72,7 @@ namespace ProjectUnknown.Strategy.EditorTests
                     ironCount++;
                 }
 
-                Require(i <= 1 || point.ResourceKind != points[i - 1].ResourceKind,
+                Require(i <= 0 || point.ResourceKind != points[i - 1].ResourceKind,
                     "Resource points of interest do not alternate Coal and Iron");
                 Require(point.HasMineralSite, "Typed point has no owned mineral site");
                 int distance = StrategyPointOfInterestPlacement.DistanceToFootprint(
@@ -104,8 +96,7 @@ namespace ProjectUnknown.Strategy.EditorTests
                     "Typed point does not own exactly one matching live deposit");
             }
 
-            Require(neutralCount == 1, "New world must contain exactly one neutral point of interest");
-            Require(typedCount == points.Count - 1, "New world contains an untyped resource point");
+            Require(typedCount == points.Count, "New world contains an untyped resource point");
             Require(coalCount + ironCount == typedCount && Mathf.Abs(coalCount - ironCount) == 1,
                 "New world mineral points do not have the expected 5/4 Coal-Iron split");
 
@@ -191,40 +182,6 @@ namespace ProjectUnknown.Strategy.EditorTests
 
             Require(exactOwners == 1, "Live mineral deposit does not have exactly one owner");
             Require(zoneOwners == 1, "Live mineral deposit does not belong to exactly one typed POI zone");
-        }
-
-        private static void VerifyNoMineralsNearNeutral(
-            Vector2Int neutralCell,
-            IReadOnlyList<StrategyIronDeposit> ironDeposits,
-            IReadOnlyList<StrategyCoalDeposit> coalDeposits)
-        {
-            for (int i = 0; i < ironDeposits.Count; i++)
-            {
-                StrategyIronDeposit deposit = ironDeposits[i];
-                if (deposit != null && !deposit.IsDepleted)
-                {
-                    Require(StrategyPointOfInterestPlacement.DistanceToFootprint(
-                            neutralCell,
-                            deposit.Cell,
-                            deposit.Footprint)
-                        > StrategyPointOfInterestPlacement.MineralFreeRadius,
-                        "Iron generated near the neutral point of interest");
-                }
-            }
-
-            for (int i = 0; i < coalDeposits.Count; i++)
-            {
-                StrategyCoalDeposit deposit = coalDeposits[i];
-                if (deposit != null && !deposit.IsDepleted)
-                {
-                    Require(StrategyPointOfInterestPlacement.DistanceToFootprint(
-                            neutralCell,
-                            deposit.Cell,
-                            deposit.Footprint)
-                        > StrategyPointOfInterestPlacement.MineralFreeRadius,
-                        "Coal generated near the neutral point of interest");
-                }
-            }
         }
 
         private static int CountLiveDepositsAt(

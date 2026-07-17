@@ -281,10 +281,23 @@ namespace ProjectUnknown.Strategy
                 pointOfInterestDialog,
                 pointOfInterestCampCell,
                 !StrategySaveSystem.HasPendingLoad);
+            StrategyStoryPointOfInterestController storyPointsOfInterest =
+                context.GetOrCreate<StrategyStoryPointOfInterestController>("Strategy Story Points Of Interest");
+            storyPointsOfInterest.Configure(
+                map,
+                fog,
+                population,
+                pointsOfInterest,
+                timeScale,
+                pointOfInterestDialog,
+                pointOfInterestCampCell,
+                StrategyStoryPointOfInterestCatalog.Production,
+                !StrategySaveSystem.HasPendingLoad);
             StrategyDebugLogger.Info(
                 "Bootstrap",
                 "PointsOfInterestReady",
-                StrategyDebugLogger.F("generatedImmediately", !StrategySaveSystem.HasPendingLoad));
+                StrategyDebugLogger.F("generatedImmediately", !StrategySaveSystem.HasPendingLoad),
+                StrategyDebugLogger.F("storyDefinitions", StrategyStoryPointOfInterestCatalog.Production.Count));
 
             ConfigureWorldChunks(context, map, population, mainCamera);
             cinematicVisuals.RefreshSceneLightingNow();

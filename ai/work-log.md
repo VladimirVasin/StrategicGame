@@ -1,5 +1,13 @@
 # Work Log
 
+### 2026-07-17 - Ordered Scout story points and resource-point split
+
+- Split points of interest into nine unchanged deterministic Coal/Iron resource discoveries and an independent ordered story-point subsystem; removed the old production neutral landmark while retaining legacy neutral-save compatibility.
+- Added catalog-defined story order, latent deterministic anchors, an activation band outside maximum daylight visibility, stable multi-Scout tie-breaking, and route-first atomic commitment so a story point never materializes unless its assigned Scout already has a valid path.
+- Deferred expedition expiry and Recall while a Scout owns a committed story point, then handed the Scout into normal physical return after investigation; added independent authored notice queuing and kept the production story catalog intentionally empty with no example encounters.
+- Upgraded persistence to version 12 with story-anchor lifecycle, definition sequence, Scout commitment, and deferred-return state plus a v11-to-v12 empty-state migration and catalog-aware preflight validation.
+- Added focused activation, ordering, resource isolation, migration, save validation, commitment, and deferred-return coverage. Verification: technical quality gates pass; all five C# projects build sequentially with zero warnings/errors; all 10 new story/resource tests and the Scout deferred-return test pass; PlayMode smoke passes. The full EditMode suite remains 408/424 with the same 16 unrelated failures across snow, City Inventory layout, reward/audio presentation, fauna story cleanup, house smoke, input/UI feedback, characterization coverage, and audio import checks.
+
 ### 2026-07-17 - Adult resident personal inventory MVP
 
 - Added a six-slot catalog-backed personal inventory to each adult resident, kept completely separate from transient carried resources, physical stores, logistics, construction, food, trade, and City Inventory.

@@ -16,6 +16,11 @@ namespace ProjectUnknown.Strategy
                     data.residents,
                     StrategyResidentItemCatalog.Production,
                     out reason)
+                || !ValidateStoryPointsAgainstCatalog(
+                    data.storyPointsOfInterest,
+                    data.nextStoryPointOfInterestSequenceIndex,
+                    StrategyStoryPointOfInterestCatalog.Production,
+                    out reason)
                 || data.mapWidth != map.Width
                 || data.mapHeight != map.Height
                 || !TryRestoreCityInventory(
@@ -35,19 +40,30 @@ namespace ProjectUnknown.Strategy
                     StrategyDebugLogger.F("reason", string.IsNullOrEmpty(reason) ? "map_dimensions_changed" : reason));
                 pendingLoad = null;
                 StrategyPointOfInterestController.Active?.RestorePersistentState(null);
+                StrategyStoryPointOfInterestController.Active?.RestorePersistentState(null, 0);
                 return;
             }
 
             StrategyDayNightCycleController.RestoreElapsedSeconds(data.elapsedSeconds);
             StrategyPointOfInterestController.Active?.ClearForLoad();
+            StrategyStoryPointOfInterestController.Active?.ClearForLoad();
             population.ClearResidentsForLoad();
             placement.ClearWorldForLoad();
             ClearLooseResources();
             bool regenerateLegacyPointsAfterWorld = data.pointsOfInterest == null
                 || data.pointsOfInterest.Count <= 0;
+            bool regenerateStoryPointsAfterWorld = data.storyPointsOfInterest == null
+                || data.storyPointsOfInterest.Count <= 0;
             if (!regenerateLegacyPointsAfterWorld)
             {
                 StrategyPointOfInterestController.Active?.RestorePersistentState(data.pointsOfInterest);
+            }
+
+            if (!regenerateStoryPointsAfterWorld)
+            {
+                StrategyStoryPointOfInterestController.Active?.RestorePersistentState(
+                    data.storyPointsOfInterest,
+                    data.nextStoryPointOfInterestSequenceIndex);
             }
 
             Dictionary<string, StrategyPlacedBuilding> buildingsById = new();
@@ -86,6 +102,11 @@ namespace ProjectUnknown.Strategy
                 StrategyPointOfInterestController.Active?.RestorePersistentState(null);
             }
 
+            if (regenerateStoryPointsAfterWorld)
+            {
+                StrategyStoryPointOfInterestController.Active?.RestorePersistentState(null, 0);
+            }
+
             for (int i = 0; i < data.residents.Count; i++)
             {
                 population.RestoreResident(data.residents[i], buildingsById);
@@ -113,6 +134,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("sites", data.constructionSites.Count),
                 StrategyDebugLogger.F("residents", data.residents.Count),
                 StrategyDebugLogger.F("residentItems", CountResidentPersonalItems(data.residents)),
+                StrategyDebugLogger.F("storyPoints", data.storyPointsOfInterest.Count),
                 StrategyDebugLogger.F("scoutLodges", data.scoutLodges.Count),
                 StrategyDebugLogger.F("cityItems", data.cityItems.Count),
                 StrategyDebugLogger.F("day", StrategyDayNightCycleController.CurrentDayIndex + 1));

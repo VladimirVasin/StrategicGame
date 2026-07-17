@@ -43,6 +43,12 @@ namespace ProjectUnknown.Strategy
             FindAnyObjectByType<StrategyFogOfWarController>()?.CaptureExploredCells(data.exploredCells);
             StrategyTrailController.Active?.CapturePersistentTrailCells(data.trailCells);
             StrategyPointOfInterestController.Active?.CapturePersistentState(data.pointsOfInterest);
+            if (StrategyStoryPointOfInterestController.Active != null)
+            {
+                StrategyStoryPointOfInterestController.Active.CapturePersistentState(
+                    data.storyPointsOfInterest,
+                    out data.nextStoryPointOfInterestSequenceIndex);
+            }
             return data;
         }
 

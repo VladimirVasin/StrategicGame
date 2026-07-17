@@ -93,9 +93,11 @@
     <Compile Include="Assets\Tests\EditMode\StrategyScoutTargetSelectorTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyFirstNightFaunaStorySpeedTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyFirstNightFaunaSaveTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyStoryPointOfInterestSaveTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategySaveSystemTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyPointOfInterestPendingReservationTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyProcessingStorageTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyStoryPointOfInterestTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyScoutLodgeCameraFocusTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyMusicShuffleBagTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyInputActionsContractTests.cs" />

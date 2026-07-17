@@ -81,6 +81,8 @@ namespace ProjectUnknown.Strategy
                     || lodge.remainingFieldRations > lodge.plannedDays + 0.01f
                     || state == StrategyScoutExpeditionState.Returning
                     && lodge.remainingFieldRations > 0.01f
+                    || lodge.returnAfterStoryPoint
+                    && state != StrategyScoutExpeditionState.Exploring
                     || !IsFinite(lodge.provisionRationCredit)
                     || lodge.provisionRationCredit < 0f
                     || lodge.provisionRationCredit > 10f

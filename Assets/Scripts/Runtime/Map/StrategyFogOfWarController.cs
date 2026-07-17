@@ -48,6 +48,8 @@ namespace ProjectUnknown.Strategy
         private StrategyTimeOfDayPhase loggedVisionPhase = (StrategyTimeOfDayPhase)(-1);
 
         public bool IsPlayerFogEnabled => isPlayerFogEnabled;
+        public float ResidentDaylightVisibleOuterRadius =>
+            ResidentRevealRadius + RevealEdgeSoftness;
 
         public void Configure(
             CityMapController mapController,

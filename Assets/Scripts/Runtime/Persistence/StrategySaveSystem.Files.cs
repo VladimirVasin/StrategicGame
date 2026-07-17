@@ -104,6 +104,7 @@ namespace ProjectUnknown.Strategy
                 json,
                 StrategyCityItemCatalog.Production,
                 StrategyResidentItemCatalog.Production,
+                StrategyStoryPointOfInterestCatalog.Production,
                 out data,
                 out reason,
                 out migrated);
@@ -120,6 +121,7 @@ namespace ProjectUnknown.Strategy
                 json,
                 cityItemCatalog,
                 StrategyResidentItemCatalog.Production,
+                StrategyStoryPointOfInterestCatalog.Production,
                 out data,
                 out reason,
                 out migrated);
@@ -129,6 +131,25 @@ namespace ProjectUnknown.Strategy
             string json,
             StrategyCityItemCatalog cityItemCatalog,
             StrategyResidentItemCatalog residentItemCatalog,
+            out StrategySaveData data,
+            out string reason,
+            out bool migrated)
+        {
+            return TryDeserializeAndValidate(
+                json,
+                cityItemCatalog,
+                residentItemCatalog,
+                StrategyStoryPointOfInterestCatalog.Production,
+                out data,
+                out reason,
+                out migrated);
+        }
+
+        internal static bool TryDeserializeAndValidate(
+            string json,
+            StrategyCityItemCatalog cityItemCatalog,
+            StrategyResidentItemCatalog residentItemCatalog,
+            StrategyStoryPointOfInterestCatalog storyPointCatalog,
             out StrategySaveData data,
             out string reason,
             out bool migrated)
@@ -161,6 +182,11 @@ namespace ProjectUnknown.Strategy
                     && ValidateResidentItemsAgainstCatalog(
                         data.residents,
                         residentItemCatalog,
+                        out reason)
+                    && ValidateStoryPointsAgainstCatalog(
+                        data.storyPointsOfInterest,
+                        data.nextStoryPointOfInterestSequenceIndex,
+                        storyPointCatalog,
                         out reason))
                 {
                     return true;

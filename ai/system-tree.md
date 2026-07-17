@@ -329,11 +329,11 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Maintains a daylight-range visibility mask for systems that need "hidden from the player" checks without letting night darkness create extra spawn openings
       - Exposes a player fog off/on switch for the F9 debug panel without clearing explored state
     - Points of interest
-      - Places 10 seed-deterministic schematic landmarks on separated camp-connected walkable/buildable land cells
-      - Keeps the nearest introductory landmark mineral-free, then alternates nine Coal/Iron landmarks with a deterministic five/four split; each typed point owns one distinct 2x2 deposit 3-5 cells away and a usable 2x3 extraction block beyond the camp exclusion radius
-      - Leaves landmark cells walkable while blocking construction and future forage respawn overlap
-      - Reserves discovered uninvestigated landmarks across Scouts, applies bounded unreachable cooldowns, and marks completed landmarks with a check state
-      - Queues resource-specific one-button debug encounters after completed Scout investigations
+      - Resource points place nine seed-deterministic Coal/Iron landmarks on separated camp-connected walkable/buildable land cells with a deterministic five/four split; each owns one distinct 2x2 deposit 3-5 cells away and a usable 2x3 extraction block beyond the camp exclusion radius
+      - Resource points remain walkable while blocking construction/forage overlap, reserve only after persistent discovery, retain investigated check state, and queue the existing one-button resource report
+      - Story points use a separate ordered catalog and latent deterministic anchors; the production catalog is empty until authored content is added
+      - The next story definition materializes only for the deterministic eligible Scout/anchor pair in a narrow band outside maximum daylight visibility and only after an exact route succeeds
+      - Story commitment survives expedition expiry/Recall until investigation completes, then queues its authored notice and releases the Scout to return
     - Basic buildability data reserved for future economy/zoning
     - Dynamic walkability layer for runtime blockers such as placed buildings
   - Strategy camera
@@ -607,8 +607,9 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Residents assigned to a fisher hut reserve the nearest reachable in-range fish, move to shore, cast/reel while range remains valid, carry `Fish`, and deposit it into fisher hut stock
     - Residents assigned to a Forager Camp reserve generated Berries/Roots/Mushrooms nodes, gather forage with reach/crouch animation frames, and deposit it into camp stock
     - Scouts in `Exploring` reserve distinct walkable unknown-side frontier cells, use critical navigation plus short bounded retries, survey for 2.5-3.5 seconds, and repeat day and night while their ordinary Fog of War reveal radius uncovers the map
-    - Scouts prioritize the nearest persistently discovered uninvestigated point of interest, reserve it globally, travel to it, interact for 1.5-2.5 seconds, and resume frontier exploration after completion
-    - Expedition expiry or recall releases exploration reservations and routes the resident physically back to the Lodge before returning to `Ready`
+    - Scouts prioritize the nearest persistently discovered uninvestigated resource point, reserve it globally, travel to it, interact for 1.5-2.5 seconds, and resume frontier exploration after completion
+    - Ordered story points can materialize just outside daylight visibility only after route preflight succeeds; the materialized point and approaching Scout are committed together
+    - Expedition expiry or Recall releases ordinary exploration reservations and routes the resident physically back to the Lodge before returning to `Ready`, but an already committed story investigation finishes first
     - One prepaid field ration is applied per applicable Night boundary without a second household dinner; Ready and Returning Scouts use normal household nutrition
     - Residents assigned as Haulers path to lumberjack camp stock, carry Logs to storage, and deposit them
     - Residents assigned as Haulers also path to stonecutter camp stock, carry Stone to storage, and deposit it
@@ -735,11 +736,11 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Gameplay can be rendered at deterministic Noon, Spring, Autumn, Night, and Winter states for visual comparison when a graphics device is available
 
 - Persistence
-  - Version-11 JSON save data with migrations through v10-to-v11, validation, atomic temporary-file replacement, and `.bak` recovery
-  - The v8-to-v9 migration silently backfills `Cats`; v9-to-v10 initializes legacy Scout Lodge state; v10-to-v11 initializes every resident with an empty personal inventory
+  - Version-12 JSON save data with migrations through v11-to-v12, validation, atomic temporary-file replacement, and `.bak` recovery
+  - The v8-to-v9 migration silently backfills `Cats`; v9-to-v10 initializes legacy Scout Lodge state; v10-to-v11 initializes every resident with an empty personal inventory; v11-to-v12 initializes independent empty story-point state
   - F5 saves the current settlement; F8 loads it by restarting and restoring the runtime scene
   - Stable IDs reconnect placed buildings, residents, homes, parents, and children without serializing Unity object references
-  - Snapshot coverage includes map seed/time/weather, founding profile answers and exact camp/current-cart origin, first-winter milestones, first-night fauna stage, City Inventory stacks, buildings, construction sites, resource and dish stock, residents with cold and personal-item state, stable Scout Lodge assignment/mission/timing/field-ration/credit state, ground resources plus in-transit resident stock represented as loose resources at saved resident cells, exact prepared-dish payloads, explored fog, route-road cells, and point-of-interest position/resource kind/mineral origin/remaining amount/investigated state
+  - Snapshot coverage includes map seed/time/weather, founding profile answers and exact camp/current-cart origin, first-winter milestones, first-night fauna stage, City Inventory stacks, buildings, construction sites, resource and dish stock, residents with cold and personal-item state, stable Scout Lodge assignment/mission/timing/field-ration/credit/deferred-story-return state, ground resources plus in-transit resident stock represented as loose resources at saved resident cells, exact prepared-dish payloads, explored fog, route-road cells, resource-point mineral state, and story-anchor sequence/commitment state
 
 - AI collaboration memory
   - Root entry point: `AI.md`
@@ -752,7 +753,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Runtime bootstrap depends on scene role, one scene-local game context, explicit preload ownership transfer, and the presence of a usable `Main Camera` or permission to create one.
 - Intro menu launch depends on save validation, one persistent preload coordinator, deterministic map seed handling, the Founding Journey decision gate for New Settlement, and the gameplay scene-loaded bootstrap hook; prepared terrain keeps Unity object creation/upload on the main thread.
 - Founding Journey presentation couples each authored shot to its atmosphere and scene-owned Weather/Fire ambience; its answers feed a pure selector over a captured map snapshot, and selected camp/cart cells feed population startup, nature/forage exclusions, exact starter-cart placement, save v3, and the initial camera focus.
-- The first-night fauna presentation couples the shared Day 1 calendar, settlement-fauna target policy, reusable in-game cinematic player, strategy camera, deterministic resident/rat and cat/mouse staging, Founding Journey presentation/atmosphere reuse, modal pause/input ownership, three Resources-backed narrative shots, the `Cats` entitlement, cinematic reward reveal, and save-v11 restoration; the story callback grants the item before completing the stage and revealing the card, whose completed chest flight atomically starts the transient cat hunt.
+- The first-night fauna presentation couples the shared Day 1 calendar, settlement-fauna target policy, reusable in-game cinematic player, strategy camera, deterministic resident/rat and cat/mouse staging, Founding Journey presentation/atmosphere reuse, modal pause/input ownership, three Resources-backed narrative shots, the `Cats` entitlement, cinematic reward reveal, and save-v12 restoration; the story callback grants the item before completing the stage and revealing the card, whose completed chest flight atomically starts the transient cat hunt.
 - City Inventory couples bootstrap-owned scene lifetime, stable string-ID stacks, the first `Cats` production entitlement, event-driven read-only HUD refresh, scoped non-pausing inspection input, a separate simulation-pausing reward presenter, settlement fauna, and version-11 persistence while remaining separate from resource stores and logistics.
 - Resident Personal Inventory couples stable adult identity, age/life-stage eligibility, a dedicated empty production catalog, selected-resident HUD display, and version-11 persistence while remaining separate from City Inventory, transient carried resources, physical stores, and logistics.
 - Audio bootstrap depends on map generation, camera setup/orthographic zoom, strategy wind/weather values, `Resources/Audio` assets, the in-game music/work/HUD-SFX folders, resident walk animation frames, resident work impact/release frames, and runtime HUD interaction events.

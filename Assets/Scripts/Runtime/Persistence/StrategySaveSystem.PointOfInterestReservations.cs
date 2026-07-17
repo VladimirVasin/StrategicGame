@@ -45,6 +45,15 @@ namespace ProjectUnknown.Strategy
                 }
             }
 
+            for (int i = 0; i < pendingLoad.storyPointsOfInterest.Count; i++)
+            {
+                StrategyStoryPointOfInterestSaveData point = pendingLoad.storyPointsOfInterest[i];
+                if (point != null)
+                {
+                    uniqueCells.Add(new Vector2Int(point.cellX, point.cellY));
+                }
+            }
+
             foreach (Vector2Int cell in uniqueCells)
             {
                 map.SetCellsBuildable(cell, Vector2Int.one, false);

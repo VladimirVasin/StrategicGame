@@ -1,0 +1,68 @@
+using System;
+
+namespace ProjectUnknown.Strategy
+{
+    public sealed class StrategyStoryPointOfInterestDefinition
+    {
+        public const int MaximumIdLength = 96;
+
+        public StrategyStoryPointOfInterestDefinition(
+            string id,
+            int sequenceOrder,
+            string title,
+            string body,
+            string encounterId = "")
+        {
+            if (!IsValidId(id))
+            {
+                throw new ArgumentException(
+                    "Story point IDs must contain 1-96 lowercase ASCII letters, digits, dots, hyphens, or underscores, and must start with a letter or digit.",
+                    nameof(id));
+            }
+
+            if (sequenceOrder < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(sequenceOrder));
+            }
+
+            if (string.IsNullOrWhiteSpace(title))
+            {
+                throw new ArgumentException("A story point title is required.", nameof(title));
+            }
+
+            Id = id;
+            SequenceOrder = sequenceOrder;
+            Title = title;
+            Body = body ?? string.Empty;
+            EncounterId = encounterId ?? string.Empty;
+        }
+
+        public string Id { get; }
+        public int SequenceOrder { get; }
+        public string Title { get; }
+        public string Body { get; }
+        public string EncounterId { get; }
+
+        public static bool IsValidId(string id)
+        {
+            if (string.IsNullOrEmpty(id) || id.Length > MaximumIdLength)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < id.Length; i++)
+            {
+                char character = id[i];
+                bool valid = character >= 'a' && character <= 'z'
+                    || character >= '0' && character <= '9'
+                    || i > 0 && (character == '.' || character == '-' || character == '_');
+                if (!valid)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+    }
+}

@@ -52,6 +52,9 @@ namespace ProjectUnknown.Strategy
                     case 10:
                         MigrateVersion10To11(data);
                         break;
+                    case 11:
+                        MigrateVersion11To12(data);
+                        break;
                     default:
                         reason = "missing_migration_from_version_" + data.version;
                         return false;
@@ -149,6 +152,22 @@ namespace ProjectUnknown.Strategy
             data.version = 11;
         }
 
+        private static void MigrateVersion11To12(StrategySaveData data)
+        {
+            data.storyPointsOfInterest = new List<StrategyStoryPointOfInterestSaveData>();
+            data.nextStoryPointOfInterestSequenceIndex = 0;
+            data.scoutLodges ??= new List<StrategyScoutLodgeSaveData>();
+            for (int i = 0; i < data.scoutLodges.Count; i++)
+            {
+                if (data.scoutLodges[i] != null)
+                {
+                    data.scoutLodges[i].returnAfterStoryPoint = false;
+                }
+            }
+
+            data.version = 12;
+        }
+
         private static bool ContainsCityItem(
             IReadOnlyList<StrategyCityItemSaveData> items,
             string itemId)
@@ -171,6 +190,7 @@ namespace ProjectUnknown.Strategy
             data.residents ??= new List<StrategyResidentSaveData>();
             data.looseResources ??= new List<StrategyLooseResourceSaveData>();
             data.pointsOfInterest ??= new List<StrategyPointOfInterestSaveData>();
+            data.storyPointsOfInterest ??= new List<StrategyStoryPointOfInterestSaveData>();
             data.cityItems ??= new List<StrategyCityItemSaveData>();
             data.scoutLodges ??= new List<StrategyScoutLodgeSaveData>();
             data.exploredCells ??= new List<int>();
@@ -226,6 +246,16 @@ namespace ProjectUnknown.Strategy
                 if (lodge != null)
                 {
                     lodge.lodgeStableId ??= string.Empty;
+                }
+            }
+
+            for (int i = 0; i < data.storyPointsOfInterest.Count; i++)
+            {
+                StrategyStoryPointOfInterestSaveData point = data.storyPointsOfInterest[i];
+                if (point != null)
+                {
+                    point.stableId ??= string.Empty;
+                    point.definitionId ??= string.Empty;
                 }
             }
         }

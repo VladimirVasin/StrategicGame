@@ -56,7 +56,8 @@ namespace ProjectUnknown.Strategy.EditorTests
                 1000000f,
                 2f,
                 0.25f,
-                -1);
+                -1,
+                false);
 
             Assert.That(restored, Is.True);
             Assert.That(provisions.GetStored(StrategyResourceType.Dish), Is.EqualTo(foodBefore));
@@ -82,7 +83,8 @@ namespace ProjectUnknown.Strategy.EditorTests
                 0f,
                 0f,
                 0.75f,
-                -1);
+                -1,
+                false);
 
             Assert.That(restored, Is.True);
             Assert.That(lodge.WorkerCount, Is.Zero);
@@ -147,6 +149,49 @@ namespace ProjectUnknown.Strategy.EditorTests
             Assert.That(lodge.TryStartExpedition(1), Is.False);
             Assert.That(lodge.ExpeditionState, Is.EqualTo(StrategyScoutExpeditionState.Ready));
             Assert.That(provisions.GetStored(StrategyResourceType.Dish), Is.EqualTo(storedBefore));
+        }
+
+        [Test]
+        public void RecallWaitsForAnAlreadyCommittedStoryDiscovery()
+        {
+            StrategyScoutLodge lodge = CreateLodge();
+            StrategyResidentAgent resident = CreateResident(5);
+            StrategyResourceStore provisions = new();
+            provisions.Bind(lodge.gameObject, StrategyResourceStoreScope.Settlement);
+            provisions.Add(StrategyResourceType.Dish, 1);
+            Assert.That(lodge.AssignWorker(resident), Is.True);
+            Assert.That(lodge.TryStartExpedition(1), Is.True);
+
+            StrategyStoryPointOfInterestAnchor anchor =
+                CreateRoot("Committed Story Point").AddComponent<StrategyStoryPointOfInterestAnchor>();
+            anchor.Configure(
+                null,
+                "story-anchor-test",
+                new Vector2Int(8, 8),
+                StrategyStoryPointOfInterestState.Latent,
+                string.Empty,
+                -1,
+                0,
+                null);
+            Assert.That(
+                anchor.TryCommit(
+                    new StrategyStoryPointOfInterestDefinition("story-first", 0, "First", "Body"),
+                    0,
+                    resident),
+                Is.True);
+            SetPrivateField(resident, "activeStoryPointOfInterest", anchor);
+
+            Assert.That(lodge.RequestRecall(), Is.True);
+            Assert.That(lodge.IsExploring, Is.True);
+            Assert.That(lodge.IsReturning, Is.False);
+            Assert.That(lodge.ReturnAfterStoryPoint, Is.True);
+
+            Assert.That(anchor.MarkResolved(resident), Is.True);
+            SetPrivateField(resident, "activeStoryPointOfInterest", null);
+            lodge.NotifyStoryPointOfInterestCompleted(resident);
+
+            Assert.That(lodge.IsReturning, Is.True);
+            Assert.That(lodge.ReturnAfterStoryPoint, Is.False);
         }
 
         private StrategyScoutLodge CreateLodge()

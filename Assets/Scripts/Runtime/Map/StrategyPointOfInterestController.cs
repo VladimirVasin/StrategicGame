@@ -246,12 +246,12 @@ namespace ProjectUnknown.Strategy
 
             ClearPointObjects();
             HashSet<Vector2Int> forageCells = CaptureForageCells();
-            List<StrategyPointOfInterestPlan> planned = StrategyPointOfInterestPlacement.SelectMineralPlans(
+            List<StrategyPointOfInterestPlan> planned = StrategyPointOfInterestPlacement.SelectResourcePlans(
                 map.Width,
                 map.Height,
                 map.ActiveSeed,
                 campCell,
-                StrategyPointOfInterestPlacement.DefaultPointCount,
+                StrategyPointOfInterestPlacement.DefaultResourcePointCount,
                 map.IsCellWalkable,
                 cell => CanUsePlannedCell(cell, forageCells));
             bool layoutComplete = HasExpectedMineralDistribution(planned);
@@ -261,7 +261,7 @@ namespace ProjectUnknown.Strategy
                     "PointOfInterest",
                     "OwnedMineralLayoutShort",
                     StrategyDebugLogger.F("planned", planned.Count),
-                    StrategyDebugLogger.F("target", StrategyPointOfInterestPlacement.DefaultPointCount),
+                    StrategyDebugLogger.F("target", StrategyPointOfInterestPlacement.DefaultResourcePointCount),
                     StrategyDebugLogger.F("coal", CountPlannedKind(planned, StrategyPointOfInterestResourceKind.Coal)),
                     StrategyDebugLogger.F("iron", CountPlannedKind(planned, StrategyPointOfInterestResourceKind.Iron)));
             }
@@ -307,7 +307,7 @@ namespace ProjectUnknown.Strategy
                 "Generated",
                 StrategyDebugLogger.F("seed", map.ActiveSeed),
                 StrategyDebugLogger.F("points", points.Count),
-                StrategyDebugLogger.F("target", StrategyPointOfInterestPlacement.DefaultPointCount),
+                StrategyDebugLogger.F("target", StrategyPointOfInterestPlacement.DefaultResourcePointCount),
                 StrategyDebugLogger.F("coal", CountResourceKind(StrategyPointOfInterestResourceKind.Coal)),
                 StrategyDebugLogger.F("iron", CountResourceKind(StrategyPointOfInterestResourceKind.Iron)),
                 StrategyDebugLogger.F("layoutComplete", layoutComplete),

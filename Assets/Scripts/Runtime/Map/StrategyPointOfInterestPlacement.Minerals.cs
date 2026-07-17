@@ -101,6 +101,35 @@ namespace ProjectUnknown.Strategy
             return result;
         }
 
+        public static List<StrategyPointOfInterestPlan> SelectResourcePlans(
+            int width,
+            int height,
+            int seed,
+            Vector2Int campCell,
+            int targetCount,
+            Func<Vector2Int, bool> isWalkable,
+            Func<Vector2Int, bool> isBuildable)
+        {
+            List<StrategyPointOfInterestPlan> combined = SelectMineralPlans(
+                width,
+                height,
+                seed,
+                campCell,
+                targetCount + 1,
+                isWalkable,
+                isBuildable);
+            List<StrategyPointOfInterestPlan> resources = new(targetCount);
+            for (int i = 0; i < combined.Count && resources.Count < targetCount; i++)
+            {
+                if (combined[i].HasMineralSite)
+                {
+                    resources.Add(combined[i]);
+                }
+            }
+
+            return resources;
+        }
+
         private static bool TrySelectFirstPoint(
             int width,
             int height,

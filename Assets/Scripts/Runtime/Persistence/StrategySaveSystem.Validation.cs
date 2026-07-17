@@ -12,6 +12,7 @@ namespace ProjectUnknown.Strategy
         private const int MaxSaveResidents = 100_000;
         private const int MaxSaveLooseResources = 262_144;
         private const int MaxSavePointsOfInterest = 256;
+        internal const int MaxSaveStoryPointsOfInterest = 256;
         internal const int MaxSaveCityItems = 4_096;
         internal const int MaxSaveCityItemIdLength = StrategyCityItemDefinition.MaximumIdLength;
         internal const int MaxSaveCityItemQuantity = StrategyCityItemDefinition.MaximumQuantity;
@@ -76,6 +77,7 @@ namespace ProjectUnknown.Strategy
                 || data.residents == null
                 || data.looseResources == null
                 || data.pointsOfInterest == null
+                || data.storyPointsOfInterest == null
                 || data.cityItems == null
                 || data.scoutLodges == null
                 || data.exploredCells == null
@@ -90,6 +92,7 @@ namespace ProjectUnknown.Strategy
                 || data.residents.Count > MaxSaveResidents
                 || data.looseResources.Count > MaxSaveLooseResources
                 || data.pointsOfInterest.Count > MaxSavePointsOfInterest
+                || data.storyPointsOfInterest.Count > MaxSaveStoryPointsOfInterest
                 || data.cityItems.Count > MaxSaveCityItems
                 || data.scoutLodges.Count > data.buildings.Count
                 || data.exploredCells.Count > cellCount
@@ -105,6 +108,7 @@ namespace ProjectUnknown.Strategy
                 || !ValidateResidents(data, buildingIds, out reason)
                 || !ValidateLooseResources(data, out reason)
                 || !ValidatePointsOfInterest(data, out reason)
+                || !ValidateStoryPointsOfInterest(data, out reason)
                 || !ValidateCityItems(data.cityItems, out reason)
                 || !ValidateScoutLodges(data, out reason)
                 || !ValidateCellIndices(data.exploredCells, cellCount, "explored", out reason)

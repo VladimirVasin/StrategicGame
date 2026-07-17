@@ -185,18 +185,17 @@ namespace ProjectUnknown.Strategy
         private static bool HasExpectedMineralDistribution(
             IReadOnlyList<StrategyPointOfInterestPlan> plans)
         {
-            int targetCount = StrategyPointOfInterestPlacement.DefaultPointCount;
+            int targetCount = StrategyPointOfInterestPlacement.DefaultResourcePointCount;
             if (plans == null
-                || plans.Count != targetCount
-                || plans[0].ResourceKind != StrategyPointOfInterestResourceKind.None)
+                || plans.Count != targetCount)
             {
                 return false;
             }
 
-            for (int i = 1; i < plans.Count; i++)
+            for (int i = 0; i < plans.Count; i++)
             {
                 if (!plans[i].HasMineralSite
-                    || i > 1 && plans[i].ResourceKind == plans[i - 1].ResourceKind)
+                    || i > 0 && plans[i].ResourceKind == plans[i - 1].ResourceKind)
                 {
                     return false;
                 }
