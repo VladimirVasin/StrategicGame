@@ -73,7 +73,9 @@ namespace ProjectUnknown.Strategy
         Idle,
         Walk,
         Stalk,
-        Rest
+        Rest,
+        Pounce,
+        Joy
     }
 
     public readonly struct StrategySettlementFaunaTargets
@@ -116,7 +118,8 @@ namespace ProjectUnknown.Strategy
 
         internal static StrategySettlementFaunaTargets ApplyFirstNightStage(
             StrategySettlementFaunaTargets organicTargets,
-            StrategyFirstNightFaunaStage stage)
+            StrategyFirstNightFaunaStage stage,
+            bool ownsCats)
         {
             int targetCats;
             int targetMice;
@@ -129,9 +132,11 @@ namespace ProjectUnknown.Strategy
                         organicTargets.TargetMice);
                     break;
                 case StrategyFirstNightFaunaStage.StoryCompleted:
-                    targetCats = UnityEngine.Mathf.Max(
-                        FirstNightCatMinimum,
-                        organicTargets.TargetCats);
+                    targetCats = ownsCats
+                        ? UnityEngine.Mathf.Max(
+                            FirstNightCatMinimum,
+                            organicTargets.TargetCats)
+                        : 0;
                     targetMice = UnityEngine.Mathf.Max(
                         FirstNightMouseMinimum,
                         organicTargets.TargetMice);

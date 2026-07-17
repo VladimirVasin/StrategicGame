@@ -97,6 +97,7 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
+            timeScale.SetRequestedScale(1f);
             PushPauseLock();
             completedCallback = onCompleted;
             completionDelivered = false;

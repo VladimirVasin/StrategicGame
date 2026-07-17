@@ -77,11 +77,79 @@ namespace ProjectUnknown.Strategy.EditorTests
         }
 
         [Test]
+        public void OwnedItemsRenderAsVerticalDescriptiveRows()
+        {
+            Assert.That(inventory.TryAdd("old-king-seal", 1), Is.True);
+            Assert.That(inventory.TryAdd("survey-maps", 3), Is.True);
+
+            RectTransform content = hud.transform.Find(
+                    "CityInventoryHudCanvas/CityInventoryOverlay/CityInventoryPanel/ItemViewport/ItemContent")
+                ?.GetComponent<RectTransform>();
+            Assert.That(content, Is.Not.Null);
+            Assert.That(content.GetComponent<VerticalLayoutGroup>(), Is.Not.Null);
+            Assert.That(content.GetComponent<GridLayoutGroup>(), Is.Null);
+
+            LayoutRebuilder.ForceRebuildLayoutImmediate(content);
+            RectTransform uniqueRow = content.Find("ItemRow_0")?.GetComponent<RectTransform>();
+            RectTransform stackedRow = content.Find("ItemRow_1")?.GetComponent<RectTransform>();
+            Assert.That(uniqueRow, Is.Not.Null);
+            Assert.That(stackedRow, Is.Not.Null);
+            Assert.That(uniqueRow.anchoredPosition.y, Is.GreaterThan(stackedRow.anchoredPosition.y));
+            Assert.That(
+                uniqueRow.Find("Summary")?.GetComponent<Text>()?.text,
+                Is.EqualTo("Council decisions carry more weight."));
+            Assert.That(
+                uniqueRow.Find("Quantity")?.GetComponent<Text>()?.text,
+                Is.EqualTo("UNIQUE"));
+            Assert.That(
+                stackedRow.Find("Quantity")?.GetComponent<Text>()?.text,
+                Is.EqualTo("x3"));
+        }
+
+        [Test]
         public void LauncherUsesReservedTopRowSlotBetweenTreasuryAndPopulation()
         {
             Assert.That(hud.LauncherRoot.anchoredPosition, Is.EqualTo(new Vector2(204f, -18f)));
             Assert.That(hud.LauncherRoot.sizeDelta, Is.EqualTo(new Vector2(178f, 42f)));
             Assert.That(hud.HudCanvas.sortingOrder, Is.EqualTo(170));
+        }
+
+        [Test]
+        public void RewardDestinationUsesChestIconAndPulseResetsWithLifecycle()
+        {
+            Canvas.ForceUpdateCanvases();
+            Assert.That(hud.TryGetRewardDestination(out Vector2 destination), Is.True);
+
+            RectTransform chestIcon = hud.transform.Find(
+                    "CityInventoryHudCanvas/CityInventoryButton/ChestIconFrame/ChestIcon")
+                ?.GetComponent<RectTransform>();
+            Assert.That(chestIcon, Is.Not.Null);
+            Vector2 expected = RectTransformUtility.WorldToScreenPoint(
+                null,
+                chestIcon.TransformPoint(chestIcon.rect.center));
+            Assert.That(destination.x, Is.EqualTo(expected.x).Within(0.01f));
+            Assert.That(destination.y, Is.EqualTo(expected.y).Within(0.01f));
+
+            Time.timeScale = 0f;
+            hud.PlayRewardReceivedFeedback();
+            FieldInfo startedAt = typeof(StrategyCityInventoryHudController).GetField(
+                "rewardFeedbackStartedAt",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            MethodInfo updateFeedback = typeof(StrategyCityInventoryHudController).GetMethod(
+                "UpdateRewardReceivedFeedback",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(startedAt, Is.Not.Null);
+            Assert.That(updateFeedback, Is.Not.Null);
+            startedAt.SetValue(hud, Time.unscaledTime - 0.15f);
+            updateFeedback.Invoke(hud, null);
+            Assert.That(chestIcon.localScale.x, Is.GreaterThan(1.05f));
+
+            MethodInfo onDisable = typeof(StrategyCityInventoryHudController).GetMethod(
+                "OnDisable",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(onDisable, Is.Not.Null);
+            onDisable.Invoke(hud, null);
+            Assert.That(chestIcon.localScale, Is.EqualTo(Vector3.one));
         }
 
         [Test]
@@ -160,7 +228,13 @@ namespace ProjectUnknown.Strategy.EditorTests
                     "Old King's Seal",
                     1,
                     "A worn seal carried from the old capital.",
-                    "Council decisions carry more weight.")
+                    "Council decisions carry more weight."),
+                new StrategyCityItemDefinition(
+                    "survey-maps",
+                    "Survey Maps",
+                    5,
+                    "Rolled maps copied by the settlement's scouts.",
+                    "Nearby routes are easier to plan.")
             });
         }
     }

@@ -19,6 +19,10 @@
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyCityInventoryHudController.View.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyCityInventoryHudController.Items.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyCityInventoryHudController.Input.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyCityItemRewardRevealController.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyCityItemRewardRevealController.View.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyCityItemRewardRevealController.View.Helpers.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyCityItemRewardRevealController.Animation.cs" />
     <Compile Include="Assets\Scripts\Runtime\Cinematics\StrategyCinematicLetterboxView.cs" />
     <Compile Include="Assets\Scripts\Runtime\Cinematics\StrategyCinematicParticipantHighlight.cs" />
     <Compile Include="Assets\Scripts\Runtime\Cinematics\StrategyInGameCinematicMath.cs" />
@@ -32,6 +36,9 @@
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentSpriteFactory.MouseStartle.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyCinematicRatActor.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyCinematicRatSpriteFactory.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyCinematicCatActor.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyFirstNightCatHuntCinematic.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyFirstNightCatHuntShotPlanner.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyFirstNightRatCinematic.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyFirstNightRatShotPlanner.cs" />
     <Compile Include="Assets\Scripts\Runtime\Founding\StrategyFoundingPreferences.cs" />

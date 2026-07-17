@@ -10,15 +10,18 @@ namespace ProjectUnknown.Strategy
     {
         private const float PanelOpenDuration = 0.18f;
         private const float PanelCloseDuration = 0.13f;
+        private const float RewardFeedbackDuration = 0.58f;
 
         private readonly List<StrategyCityInventoryEntry> ownedItems = new();
-        private readonly List<ItemCardView> itemCards = new();
+        private readonly List<ItemRowView> itemRows = new();
 
         private StrategyCityInventory inventory;
         private StrategyInputRouter inputRouter;
         private StrategyInputContextHandle inputContext;
         private Canvas hudCanvas;
         private RectTransform launcherRoot;
+        private RectTransform launcherChestIcon;
+        private Vector3 launcherChestIconRestScale = Vector3.one;
         private GameObject overlayRoot;
         private RectTransform panelRoot;
         private CanvasGroup overlayGroup;
@@ -43,7 +46,9 @@ namespace ProjectUnknown.Strategy
         private bool subscribed;
         private bool isOpen;
         private bool isClosing;
+        private bool rewardFeedbackActive;
         private float closeReleaseTime;
+        private float rewardFeedbackStartedAt;
         private int selectedItemIndex = -1;
 
         public bool IsOpen => isOpen;
@@ -62,6 +67,45 @@ namespace ProjectUnknown.Strategy
         public bool HoldsInputContext => inputContext != null && !inputContext.IsDisposed;
         public string SelectedItemTitle => detailName != null ? detailName.text : string.Empty;
         public string SelectedItemEffect => detailEffect != null ? detailEffect.text : string.Empty;
+
+        public bool TryGetRewardDestination(out Vector2 screenPoint)
+        {
+            EnsureUi();
+            screenPoint = Vector2.zero;
+            if (launcherChestIcon == null
+                || hudCanvas == null
+                || !hudCanvas.gameObject.activeInHierarchy)
+            {
+                return false;
+            }
+
+            Canvas.ForceUpdateCanvases();
+            Camera eventCamera = hudCanvas.renderMode == RenderMode.ScreenSpaceOverlay
+                ? null
+                : hudCanvas.worldCamera;
+            Vector3 worldCenter = launcherChestIcon.TransformPoint(launcherChestIcon.rect.center);
+            screenPoint = RectTransformUtility.WorldToScreenPoint(eventCamera, worldCenter);
+            return !float.IsNaN(screenPoint.x)
+                && !float.IsInfinity(screenPoint.x)
+                && !float.IsNaN(screenPoint.y)
+                && !float.IsInfinity(screenPoint.y);
+        }
+
+        public void PlayRewardReceivedFeedback()
+        {
+            EnsureUi();
+            ResetRewardReceivedFeedback();
+            if (!isActiveAndEnabled
+                || hudCanvas == null
+                || !hudCanvas.gameObject.activeInHierarchy
+                || launcherChestIcon == null)
+            {
+                return;
+            }
+
+            rewardFeedbackStartedAt = Time.unscaledTime;
+            rewardFeedbackActive = true;
+        }
 
         public void Configure(
             StrategyCityInventory cityInventory,
@@ -122,6 +166,7 @@ namespace ProjectUnknown.Strategy
         private void Update()
         {
             UpdateInputAndClosingState();
+            UpdateRewardReceivedFeedback();
         }
 
         private void BindInventory(StrategyCityInventory cityInventory)
@@ -171,6 +216,7 @@ namespace ProjectUnknown.Strategy
         private void OnDisable()
         {
             UnsubscribeInventory();
+            ResetRewardReceivedFeedback();
             isOpen = false;
             isClosing = false;
             panelTransition?.SetVisible(false, true);
@@ -185,15 +231,18 @@ namespace ProjectUnknown.Strategy
         private void OnDestroy()
         {
             UnsubscribeInventory();
+            ResetRewardReceivedFeedback();
             ReleaseInputContext();
         }
 
-        private sealed class ItemCardView
+        private sealed class ItemRowView
         {
             public RectTransform Root;
             public Image Background;
+            public Image SelectionAccent;
             public Image Icon;
             public Text Name;
+            public Text Summary;
             public Text Quantity;
             public Button Button;
             public int Index;

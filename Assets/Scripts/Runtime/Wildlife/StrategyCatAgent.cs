@@ -5,7 +5,6 @@ namespace ProjectUnknown.Strategy
     [DisallowMultipleComponent]
     public sealed class StrategyCatAgent : MonoBehaviour
     {
-        private const float CatVisualScale = 0.70f;
         private StrategySettlementFaunaController owner;
         private CityMapController map;
         private SpriteRenderer renderer;
@@ -28,7 +27,8 @@ namespace ProjectUnknown.Strategy
         {
             owner = controller; map = cityMap; FaunaId = id; Coat = coat; Temperament = temperament; renderer = spriteRenderer;
             homeCell = cell; targetCell = cell; transform.position = World(cell);
-            transform.localScale = Vector3.one * CatVisualScale;
+            transform.localScale = Vector3.one
+                * StrategySettlementFaunaSpriteFactory.CatWorldScale;
             decisionTimer = Random.Range(0.5f, 2f); restTimer = Random.Range(2f, 6f);
             StrategyWorldSorting.Apply(renderer, transform.position, 1);
         }
@@ -78,7 +78,8 @@ namespace ProjectUnknown.Strategy
             transform.position = Vector3.MoveTowards(before, target, speed * Time.deltaTime);
             if (renderer != null && Mathf.Abs(transform.position.x - before.x) > 0.001f) renderer.flipX = transform.position.x < before.x;
             float bob = Mathf.Abs(Mathf.Sin((Time.time + FaunaId) * 8f)) * 0.035f;
-            transform.localScale = new Vector3(CatVisualScale, CatVisualScale + bob, 1f);
+            float scale = StrategySettlementFaunaSpriteFactory.CatWorldScale;
+            transform.localScale = new Vector3(scale, scale + bob, 1f);
             ApplyAnimatedSprite(pose, frameRate);
             StrategyWorldSorting.Apply(renderer, transform.position, 1);
         }
@@ -86,7 +87,11 @@ namespace ProjectUnknown.Strategy
         private void AnimateIdle()
         {
             float breathe = Mathf.Sin((Time.time + FaunaId) * 2.8f) * 0.018f;
-            transform.localScale = new Vector3(CatVisualScale - breathe * 0.4f, CatVisualScale + breathe, 1f);
+            float scale = StrategySettlementFaunaSpriteFactory.CatWorldScale;
+            transform.localScale = new Vector3(
+                scale - breathe * 0.4f,
+                scale + breathe,
+                1f);
             ApplyAnimatedSprite(restTimer > 2.4f ? StrategyCatSpritePose.Rest : StrategyCatSpritePose.Idle, 3.5f);
         }
 

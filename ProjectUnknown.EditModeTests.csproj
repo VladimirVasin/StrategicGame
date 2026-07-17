@@ -80,9 +80,11 @@
     <Compile Include="Assets\Tests\EditMode\StrategyHouseVisualEffectTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyBuildingSnowSpriteFactoryTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategySaveLooseResourceTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyCinematicCatTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyStarterBuildProgressionTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyInputRouterTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyScoutTargetSelectorTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyFirstNightFaunaStorySpeedTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyFirstNightFaunaSaveTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategySaveSystemTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyPointOfInterestPendingReservationTests.cs" />
@@ -90,6 +92,8 @@
     <Compile Include="Assets\Tests\EditMode\StrategyScoutLodgeCameraFocusTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyMusicShuffleBagTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyInputActionsContractTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyFirstNightCatHuntCinematicTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyCityItemRewardRevealTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyBuildingVisualAnchorProfileTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyInGameCinematicReturnTests.cs" />
   </ItemGroup>

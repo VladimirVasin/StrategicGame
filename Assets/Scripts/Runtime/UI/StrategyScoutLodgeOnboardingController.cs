@@ -355,6 +355,11 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            if (introduction)
+            {
+                timeScale.SetRequestedScale(1f);
+            }
+
             timeScale.PushPauseLock(PauseReason);
             pauseHeld = true;
         }

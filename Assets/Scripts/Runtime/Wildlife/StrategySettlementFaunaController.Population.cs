@@ -67,6 +67,7 @@ namespace ProjectUnknown.Strategy
 
             bool firstStoryCat = cats.Count == 0;
             if (firstNightStage == StrategyFirstNightFaunaStage.StoryCompleted
+                && OwnsCats
                 && cats.Count < targets.TargetCats)
             {
                 bool foundCatCell = TryFindSpawnCell(firstStoryCat, out Vector2Int catCell);

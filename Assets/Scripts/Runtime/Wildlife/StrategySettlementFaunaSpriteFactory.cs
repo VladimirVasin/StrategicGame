@@ -8,6 +8,7 @@ namespace ProjectUnknown.Strategy
         private static readonly Dictionary<int, Sprite> Cats = new();
         private static readonly Dictionary<int, Sprite> Mice = new();
         public const int CatFrameCount = 4;
+        public const float CatWorldScale = 0.70f;
         public const float MouseWorldScale = 0.72f;
 
         public static Sprite GetCatSprite(StrategyCatCoat coat)
@@ -34,6 +35,30 @@ namespace ProjectUnknown.Strategy
         {
             Texture2D t = NewTexture(30, 24, $"Settlement Cat {coat} {pose} {frame + 1}");
             Color body = CatColor(coat); Color dark = Color.Lerp(body, Color.black, 0.38f); Color light = Color.Lerp(body, Color.white, 0.28f);
+            if (pose == StrategyCatSpritePose.Pounce)
+            {
+                DrawPouncingCat(t, frame, body, dark, light);
+            }
+            else if (pose == StrategyCatSpritePose.Joy)
+            {
+                DrawJoyfulCat(t, frame, body, dark, light);
+            }
+            else
+            {
+                DrawStandardCat(t, pose, frame, body, dark, light);
+            }
+
+            t.Apply(false, false); return Sprite.Create(t, new Rect(1, 3, 26, 20), new Vector2(0.5f, 0.16f), 28f);
+        }
+
+        private static void DrawStandardCat(
+            Texture2D t,
+            StrategyCatSpritePose pose,
+            int frame,
+            Color body,
+            Color dark,
+            Color light)
+        {
             int bodyY = pose == StrategyCatSpritePose.Stalk ? 5 : pose == StrategyCatSpritePose.Rest ? 4 : 6 + (pose == StrategyCatSpritePose.Idle && frame == 2 ? 1 : 0);
             int headX = pose == StrategyCatSpritePose.Stalk ? 20 : 18;
             Fill(t, 7, bodyY, 21, bodyY + 8, dark); Fill(t, 8, bodyY + 1, 22, bodyY + 9, body);
@@ -45,7 +70,81 @@ namespace ProjectUnknown.Strategy
             Fill(t, 3, bodyY + 5, 8, bodyY + 7, dark); Fill(t, 2, bodyY + 7, 4, bodyY + 11 + tailLift, dark); Fill(t, 4, bodyY + 3, 7, bodyY + 5, body);
             Set(t, headX + 2, bodyY + 10, new Color(0.8f, 0.95f, 0.35f)); Set(t, headX + 5, bodyY + 10, new Color(0.8f, 0.95f, 0.35f));
             Set(t, headX + 4, bodyY + 8, new Color(0.92f, 0.55f, 0.58f)); Fill(t, 11, bodyY + 2, 17, bodyY + 3, light);
-            t.Apply(false, false); return Sprite.Create(t, new Rect(1, 3, 26, 20), new Vector2(0.5f, 0.16f), 28f);
+        }
+
+        private static void DrawPouncingCat(
+            Texture2D t,
+            int frame,
+            Color body,
+            Color dark,
+            Color light)
+        {
+            int lift = frame == 1 ? 2 : frame == 2 ? 1 : 0;
+            int bodyY = 5 + lift;
+            int headX = frame == 0 ? 19 : 21;
+            int rearX = frame == 0 ? 7 : 5;
+            int frontX = frame >= 2 ? 23 : 20;
+
+            Fill(t, 6, bodyY, 20, bodyY + 7, dark);
+            Fill(t, 7, bodyY + 1, 21, bodyY + 8, body);
+            Fill(t, headX, bodyY + 4, headX + 6, bodyY + 11, dark);
+            Fill(t, headX + 1, bodyY + 5, headX + 5, bodyY + 11, body);
+            Fill(t, headX + 1, bodyY + 10, headX + 2, bodyY + 13, dark);
+            Fill(t, headX + 5, bodyY + 10, headX + 6, bodyY + 13, dark);
+
+            Fill(t, rearX, bodyY - 2, rearX + 5, bodyY + 2, dark);
+            Fill(t, frontX, bodyY - 1, Mathf.Min(26, frontX + 3), bodyY + 1, dark);
+            if (frame == 2)
+            {
+                Fill(t, 20, bodyY - 2, 25, bodyY, body);
+            }
+            else
+            {
+                Fill(t, 17, bodyY - 2, 20, bodyY + 1, body);
+            }
+
+            int tailY = bodyY + (frame == 0 ? 3 : 6);
+            Fill(t, 2, tailY, 8, tailY + 2, dark);
+            Fill(t, 1, tailY + 1, 3, tailY + 4, dark);
+            Fill(t, 8, bodyY + 2, 14, bodyY + 3, light);
+            Set(t, headX + 2, bodyY + 8, new Color(0.8f, 0.95f, 0.35f));
+            Set(t, headX + 5, bodyY + 8, new Color(0.8f, 0.95f, 0.35f));
+            Set(t, headX + 4, bodyY + 6, new Color(0.92f, 0.55f, 0.58f));
+        }
+
+        private static void DrawJoyfulCat(
+            Texture2D t,
+            int frame,
+            Color body,
+            Color dark,
+            Color light)
+        {
+            int bounce = frame == 1 ? 1 : frame == 2 ? 2 : frame == 3 ? 1 : 0;
+            int bodyY = 4 + bounce;
+            int pawLift = frame % 2 == 0 ? 0 : 2;
+            int tailWag = frame is 1 or 2 ? 1 : 0;
+
+            Fill(t, 7, bodyY, 20, bodyY + 8, dark);
+            Fill(t, 8, bodyY + 1, 21, bodyY + 9, body);
+            Fill(t, 17, bodyY + 6, 24, bodyY + 14, dark);
+            Fill(t, 18, bodyY + 7, 23, bodyY + 14, body);
+            Fill(t, 18, bodyY + 13, 20, bodyY + 16, dark);
+            Fill(t, 22, bodyY + 13, 24, bodyY + 16, dark);
+
+            Fill(t, 9, bodyY - 2 + pawLift, 12, bodyY + 2 + pawLift, dark);
+            Fill(t, 17, bodyY - pawLift, 20, bodyY + 2, dark);
+            Fill(t, 10, bodyY + 2, 16, bodyY + 3, light);
+
+            Fill(t, 4, bodyY + 5, 8, bodyY + 7, dark);
+            Fill(t, 2 + tailWag, bodyY + 7, 5 + tailWag, bodyY + 13, dark);
+            Fill(t, 3 + tailWag, bodyY + 12, 7 + tailWag, bodyY + 15, dark);
+            Fill(t, 6 + tailWag, bodyY + 14, 9 + tailWag, bodyY + 16, body);
+
+            Set(t, 19, bodyY + 11, dark);
+            Set(t, 22, bodyY + 11, dark);
+            Set(t, 21, bodyY + 9, new Color(0.92f, 0.55f, 0.58f));
+            Set(t, 20, bodyY + 8, light);
+            Set(t, 22, bodyY + 8, light);
         }
 
         private static Sprite CreateMouse(int variant)

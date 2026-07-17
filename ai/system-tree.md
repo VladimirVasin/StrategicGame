@@ -32,7 +32,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Non-Bridge placed buildings add a catalog-overridable trampled-ground layer beneath their Y-sorted body and shadow
   - Spring/autumn camera-area details and centralized vegetation tinting make seasonal changes readable without per-prop Update components
   - Shared HUD presentation supplies readable Inter typography, sliced pixel panel/button frames, unscaled pointer/focus/press feedback, throttled hover cues, and interruptible reduced-motion-aware panel transitions
-  - Reusable gameplay-space cinematic player owns exact camera capture/restore through the full return, router and Unity-UI shielding, time locks, simultaneous smooth focus plus animated 2.39:1 letterbox bars, reduced-motion-aware unscaled sequencing, and atomic modal handoff
+  - Reusable gameplay-space cinematic player owns exact camera capture/restore through the full return, router and Unity-UI shielding, forced requested x1 before its time lock, simultaneous smooth focus plus animated 2.39:1 letterbox bars, reduced-motion-aware unscaled sequencing, and atomic modal handoff
 
 - Scene foundation
   - Build-index-0 `MainMenu` intro scene
@@ -94,10 +94,10 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Creates the refugee-arrival event controller and modal refugee decision HUD
     - Creates performance diagnostics after population, weather, wildlife, and time-scale setup so stable 15/30/50-resident benchmark windows include frame, memory, path/decision, world, and light counts
     - Creates the top status HUD with settlement population counts, a compact calendar/time/season widget, a clickable population roster HUD, family tree scene entry point, and a compact event log for births, deaths, adoptions, dawn, nightfall, and season starts
-    - Creates one scene-local City Inventory with the empty production special-item catalog, then wires its optional read-only top-bar HUD and versioned save owner
+    - Creates one scene-local City Inventory with the unique `Cats` production item, then wires its read-only top-bar HUD, reward reveal owner, post-reward cat-hunt handoff, settlement-fauna entitlement, and versioned save owner
     - Creates the runtime goals controller and starter goal sequence that gates early Build menu tools
     - Creates the first-Scout onboarding coordinator and expedition assignment board after camera, placement, population, selection, time-scale, and input owners are ready
-    - Creates one reusable in-game cinematic player and wires the first-night rat prelude after camera, population, map, input, time-scale, settlement fauna, and story owners are ready
+    - Creates one reusable in-game cinematic player and wires both the first-night rat prelude and post-reward cat hunt after camera, population, map, input, time-scale, settlement fauna, story, and City Inventory owners are ready
     - Creates the auto workforce controller before the Profession HUD so worker automation and priority controls share one runtime state
     - Creates the settlement Coin treasury and trade caravan controller after placement/storage systems are ready
     - Creates the in-game Escape pause menu after persistence so Save Game, settings, and confirmed scene/quit actions share the established runtime owners
@@ -131,7 +131,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - F3 sets x3 simulation speed
     - Build HUD exposes x1/x2/x3 speed buttons under the top-left construction resource panel
     - Updates both `Time.timeScale` and `Time.fixedDeltaTime`
-    - Supports pause locks for modal gameplay decisions while preserving the requested x1/x2/x3 speed
+    - Supports pause locks for ordinary modal gameplay decisions while preserving requested x1/x2/x3; cinematic/story owners explicitly set requested x1 before taking their locks
     - Treats application focus as independent from simulation pause state
     - Gives the in-game pause menu its own named lock so Resume restores the requested speed instead of resetting it
   - Strategy audio
@@ -262,7 +262,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Drives tree, forest-group, and bush sway through per-prop animation phases
       - Shared procedural shadows keep day/night opacity and length tuning while wind-driven props sway
     - Wildlife MVP
-      - Settlement fauna starts through a saved first-night stage: no mice/cats before Day 1 `Dusk`, exactly fills the pending three-mouse minimum in one refresh, runs an in-engine rat/resident scare before the three-frame `Night` chronicle, then creates at least one cat only after the story resolves and resumes ordinary building-driven growth
+      - Settlement fauna starts through a saved first-night stage: no mice/cats before Day 1 `Dusk`, exactly fills the pending three-mouse minimum in one refresh, runs an in-engine rat/resident scare before the three-frame `Night` chronicle, creates at least one cat after the story resolves, reveals the Cats reward, then shows a transient standard cat catching a standard mouse before ordinary building-driven growth resumes
       - Runtime-created wildlife controller
       - Spawns 12-16 deer across up to 8 compact herds only on currently hidden suitable land cells within a broad ring around completed buildings or active construction sites
       - Spawns 16-22 rabbits across up to 10 compact groups only on currently hidden suitable land cells within the same near-settlement ring
@@ -394,7 +394,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Creates granary components when the granary tool is placed
     - Creates trading post components when the trade tool is placed
     - Creates a one-worker Scout Lodge component on an exact `2x4` footprint when the exploration tool is placed
-    - First live Scout Lodge completion queues an unscaled camera focus, simulation pause, and exact-resident expedition assignment flow without delaying the next starter build goals
+    - First live Scout Lodge completion forces requested x1, then queues an unscaled camera focus, simulation pause, and exact-resident expedition assignment flow without delaying the next starter build goals; later manual picker openings preserve requested speed
     - Fisher huts require nearby water with adjacent walkable shore access before placement is accepted
     - Bridge uses a two-click placement flow: first river bank cell, then highlighted opposite-bank candidate across contiguous River water
     - Completed bridges make their selected River water span walkable through the map bridge-walkability overlay without changing water identity
@@ -677,9 +677,13 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Starter progression exposes a seven-tool base catalog from the beginning, guides Houses -> Forager Camp -> Lumberjack/Stonecutter camps -> Scout Lodge -> Storage Yard/Granary, and unlocks the full catalog after every base requirement is complete
   - Custom runtime top status HUD showing total population, adults, children, day number, 24-hour time, outdoor temperature, season day, time-of-day phase, winter food/fuel readiness, and day progress; clicking the population panel opens a larger residents roster HUD
   - Custom read-only City Inventory HUD in the top bar
-    - Shows a distinct-stack badge, English empty state, item grid, and selected-item detail view for settlement-wide special items
+    - Shows a distinct-stack badge, English empty state, one-column descriptive item rows, unique/stack labels, and selected-item detail view for settlement-wide special items
     - Refreshes from inventory change events, blocks Camera/Gameplay/Build input while open, closes through Cancel/X/backdrop, and never pauses simulation
-    - Exposes no Use/Equip controls; item effects, rewards, and production catalog content are not implemented yet
+    - Exposes no Use/Equip controls; the permanent `Cats` item is granted by the first-night story and gates settlement cats
+  - Reusable cinematic City Item reward reveal
+    - Holds an all-channel/swallow input context and named pause lock through reveal, explicit confirmation, flight to the actual chest icon, and HUD arrival feedback
+    - Uses unscaled animation and Reduced Motion, while item ownership is committed before presentation so lifecycle interruption cannot lose the reward
+    - Invokes its accepted callback only after the chest flight completes, allowing the first Cats reward to hand directly into the gameplay-space cat hunt before control returns
   - Custom runtime residents roster HUD showing settlement stats plus filterable resident rows for name, age, home state, role, current status, and food status
   - Custom fullscreen Family Trees HUD opened from the residents roster; it pauses simulation, provides permanent horizontal/vertical scrollbars, uses an animated modal transition, lays connected same-surname family cards out as affinity-ordered left-to-right columns, and shows compact generation rows connected by local parent-pair branches plus cross-family relationship lines, deceased markers, gender symbols, and hover relationship labels
   - Custom compact runtime event log showing births, deaths, adoptions, dawn, nightfall, season starts, and late-Autumn winter warnings
@@ -695,7 +699,8 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Opens at the first `Night` boundary after other modal owners release the stack, then first runs a separate reusable in-engine cinematic with a deterministic nearby adult and walkable rat corridor
     - Reveals/stages both actors with pulsing gold ground rings before simultaneously easing the strategy camera onto them and sliding in black bars for a 2.39:1 aperture; after the opening settles, the exact standard settlement-scale mouse uses subtle transform motion beside the eight-frame resident-startle animation
     - Restores the resident exactly and hands directly into the Founding Journey presentation/atmosphere path for three frames about rustling stores, a mouse feast, and the cats that followed the caravan
-    - Completing or skipping the chronicle closes it before creating the first world cat; disable/destroy cleanup releases pause/input without falsely completing the event
+    - Completing or skipping the chronicle closes it before creating the first world cat and revealing the Cats card; after confirmation and chest flight, a second focused/letterboxed in-engine cinematic highlights a standard cat stalking, pouncing on, and catching a standard mouse before ending in the cat's joyful pose
+    - The post-reward actors are transient and do not consume live settlement fauna; disable/destroy/cancel cleanup releases pause/input, removes actors/highlights, and never replays from a completed save
   - Custom runtime world inspect microHUD for clicked graves, resources, nature props, and wildlife; residents, buildings, and construction sites use the right-side selection HUD only
     - MicroHUD supports typed chip/row dashboards for wildlife, deposits, trees, forage, and loose resource piles, with old body text kept as fallback
   - Custom runtime Profession HUD
@@ -724,8 +729,8 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Gameplay can be rendered at deterministic Noon, Spring, Autumn, Night, and Winter states for visual comparison when a graphics device is available
 
 - Persistence
-  - Version-8 JSON save data with migrations through v7-to-v8, validation, atomic temporary-file replacement, and `.bak` recovery
-  - The v7-to-v8 migration initializes an empty `cityItems` list; current saves capture deterministic stable-ID special-item stacks and restore them atomically against the active catalog
+  - Version-9 JSON save data with migrations through v8-to-v9, validation, atomic temporary-file replacement, and `.bak` recovery
+  - The v8-to-v9 migration silently backfills `Cats` for completed first-night stories; current saves capture deterministic stable-ID special-item stacks and restore them atomically against the active catalog
   - F5 saves the current settlement; F8 loads it by restarting and restoring the runtime scene
   - Stable IDs reconnect placed buildings, residents, homes, parents, and children without serializing Unity object references
   - Snapshot coverage includes map seed/time/weather, founding profile answers and exact camp/current-cart origin, first-winter milestones, first-night fauna stage, City Inventory stacks, buildings, construction sites, resource and dish stock, residents and cold state, ground resources plus in-transit resident stock represented as loose resources at saved resident cells, exact prepared-dish payloads, explored fog, route-road cells, and point-of-interest position/resource kind/mineral origin/remaining amount/investigated state
@@ -741,8 +746,8 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Runtime bootstrap depends on scene role, one scene-local game context, explicit preload ownership transfer, and the presence of a usable `Main Camera` or permission to create one.
 - Intro menu launch depends on save validation, one persistent preload coordinator, deterministic map seed handling, the Founding Journey decision gate for New Settlement, and the gameplay scene-loaded bootstrap hook; prepared terrain keeps Unity object creation/upload on the main thread.
 - Founding Journey presentation couples each authored shot to its atmosphere and scene-owned Weather/Fire ambience; its answers feed a pure selector over a captured map snapshot, and selected camp/cart cells feed population startup, nature/forage exclusions, exact starter-cart placement, save v3, and the initial camera focus.
-- The first-night fauna presentation couples the shared Day 1 calendar, settlement-fauna target policy, reusable in-game cinematic player, strategy camera, deterministic resident/rat staging, Founding Journey presentation/atmosphere reuse, modal pause/input ownership, three Resources-backed narrative shots, and save v8 stage restoration; the story callback is the sole unlock path for the first world cat.
-- City Inventory couples bootstrap-owned scene lifetime, an empty production catalog, stable string-ID stacks, event-driven read-only HUD refresh, scoped non-pausing input blocking, and version-8 persistence while remaining separate from resource stores and logistics.
+- The first-night fauna presentation couples the shared Day 1 calendar, settlement-fauna target policy, reusable in-game cinematic player, strategy camera, deterministic resident/rat and cat/mouse staging, Founding Journey presentation/atmosphere reuse, modal pause/input ownership, three Resources-backed narrative shots, the `Cats` entitlement, cinematic reward reveal, and save-v9 restoration; the story callback grants the item before completing the stage and revealing the card, whose completed chest flight atomically starts the transient cat hunt.
+- City Inventory couples bootstrap-owned scene lifetime, stable string-ID stacks, the first `Cats` production entitlement, event-driven read-only HUD refresh, scoped non-pausing inspection input, a separate simulation-pausing reward presenter, settlement fauna, and version-9 persistence while remaining separate from resource stores and logistics.
 - Audio bootstrap depends on map generation, camera setup/orthographic zoom, strategy wind/weather values, `Resources/Audio` assets, the in-game music/work/HUD-SFX folders, resident walk animation frames, resident work impact/release frames, and runtime HUD interaction events.
 - Application focus couples Player background execution with the audio mix only: it never mutates simulation time, so active modal pause locks remain authoritative while unfocused running settlements continue to advance.
 - The in-game pause menu couples Global Cancel arbitration, an all-channel modal context, a named time-scale pause lock, persistence, shared game settings, shared confirmations, and Main Menu scene flow; it releases input/time ownership on Resume, disable, and scene transition.

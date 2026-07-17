@@ -17,6 +17,7 @@ namespace ProjectUnknown.Strategy
         private StrategyPopulationController population;
         private StrategyFogOfWarController fog;
         private StrategyBuildPlacementController placement;
+        private StrategyCityInventory cityInventory;
         private Transform faunaRoot;
         private StrategySettlementFaunaTargets targets;
         private StrategyFirstNightFaunaStage firstNightStage = StrategyFirstNightFaunaStage.Dormant;
@@ -26,6 +27,8 @@ namespace ProjectUnknown.Strategy
         public static StrategySettlementFaunaController Active { get; private set; }
         public StrategySettlementFaunaTargets Targets => targets;
         public StrategyFirstNightFaunaStage Stage => firstNightStage;
+        internal bool OwnsCats => cityInventory != null
+            && cityInventory.Contains(StrategyCityItemIds.Cats);
         public int LiveMouseCount => mice.Count;
         public int LiveCatCount => cats.Count;
 
@@ -75,20 +78,32 @@ namespace ProjectUnknown.Strategy
             CityMapController mapController,
             StrategyPopulationController populationController,
             StrategyFogOfWarController fogController,
-            StrategyBuildPlacementController placementController)
+            StrategyBuildPlacementController placementController,
+            StrategyCityInventory cityInventoryController)
         {
             if (placement != null)
             {
                 placement.BuildingCompleted -= HandleBuildingCompleted;
             }
 
+            if (cityInventory != null)
+            {
+                cityInventory.Changed -= HandleCityInventoryChanged;
+            }
+
             map = mapController;
             population = populationController;
             fog = fogController;
             placement = placementController;
+            cityInventory = cityInventoryController;
             if (placement != null)
             {
                 placement.BuildingCompleted += HandleBuildingCompleted;
+            }
+
+            if (cityInventory != null)
+            {
+                cityInventory.Changed += HandleCityInventoryChanged;
             }
 
             EnsureFaunaRoot();
@@ -101,6 +116,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("buildings", targets.CompletedBuildings),
                 StrategyDebugLogger.F("occupiedHouses", targets.OccupiedHouses),
                 StrategyDebugLogger.F("foodBuildings", targets.FoodBuildings),
+                StrategyDebugLogger.F("ownsCats", OwnsCats),
                 StrategyDebugLogger.F("targetCats", targets.TargetCats),
                 StrategyDebugLogger.F("targetMice", targets.TargetMice));
         }
@@ -115,6 +131,11 @@ namespace ProjectUnknown.Strategy
             if (placement != null)
             {
                 placement.BuildingCompleted -= HandleBuildingCompleted;
+            }
+
+            if (cityInventory != null)
+            {
+                cityInventory.Changed -= HandleCityInventoryChanged;
             }
 
             if (Active == this)
@@ -147,6 +168,17 @@ namespace ProjectUnknown.Strategy
             if (building != null)
             {
                 dirty = true;
+            }
+        }
+
+        private void HandleCityInventoryChanged()
+        {
+            dirty = true;
+            refreshTimer = 0f;
+            RefreshPopulationTargets();
+            if (map != null)
+            {
+                UpdateFaunaPopulation();
             }
         }
 
@@ -193,7 +225,8 @@ namespace ProjectUnknown.Strategy
                 targetMice);
             StrategySettlementFaunaTargets next = StrategySettlementFaunaPolicy.ApplyFirstNightStage(
                 organicTargets,
-                firstNightStage);
+                firstNightStage,
+                OwnsCats);
             if (next.TargetCats != targets.TargetCats || next.TargetMice != targets.TargetMice)
             {
                 StrategyDebugLogger.Info(

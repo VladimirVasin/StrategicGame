@@ -61,6 +61,8 @@ namespace ProjectUnknown.Strategy
             frame.raycastTarget = false;
             RectTransform iconRect = CreateUiObject("ChestIcon", iconFrame).GetComponent<RectTransform>();
             Stretch(iconRect, 4f, 4f, 4f, 4f);
+            launcherChestIcon = iconRect;
+            launcherChestIconRestScale = iconRect.localScale;
             Image icon = iconRect.gameObject.AddComponent<Image>();
             icon.sprite = GetChestSprite();
             icon.preserveAspect = true;
@@ -213,13 +215,14 @@ namespace ProjectUnknown.Strategy
             itemContent.pivot = new Vector2(0.5f, 1f);
             itemContent.anchoredPosition = Vector2.zero;
             itemContent.sizeDelta = new Vector2(0f, 1f);
-            GridLayoutGroup grid = itemContent.gameObject.AddComponent<GridLayoutGroup>();
-            grid.padding = new RectOffset(10, 10, 10, 10);
-            grid.cellSize = new Vector2(158f, 78f);
-            grid.spacing = new Vector2(10f, 10f);
-            grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-            grid.constraintCount = 3;
-            grid.childAlignment = TextAnchor.UpperLeft;
+            VerticalLayoutGroup list = itemContent.gameObject.AddComponent<VerticalLayoutGroup>();
+            list.padding = new RectOffset(10, 10, 10, 10);
+            list.spacing = 8f;
+            list.childAlignment = TextAnchor.UpperLeft;
+            list.childControlWidth = true;
+            list.childControlHeight = false;
+            list.childForceExpandWidth = true;
+            list.childForceExpandHeight = false;
             ContentSizeFitter fitter = itemContent.gameObject.AddComponent<ContentSizeFitter>();
             fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
@@ -321,6 +324,39 @@ namespace ProjectUnknown.Strategy
                 TextAnchor.UpperCenter,
                 new Color(0.70f, 0.78f, 0.74f));
             SetCenter(emptyStateBody.rectTransform, 0f, -62f, 600f, 58f);
+        }
+
+        private void UpdateRewardReceivedFeedback()
+        {
+            if (!rewardFeedbackActive || launcherChestIcon == null)
+            {
+                return;
+            }
+
+            float normalizedTime = Mathf.Clamp01(
+                (Time.unscaledTime - rewardFeedbackStartedAt) / RewardFeedbackDuration);
+            if (normalizedTime >= 1f)
+            {
+                ResetRewardReceivedFeedback();
+                return;
+            }
+
+            float firstPulseTime = Mathf.Clamp01(normalizedTime / 0.58f);
+            float echoPulseTime = Mathf.Clamp01((normalizedTime - 0.48f) / 0.52f);
+            float firstPulse = Mathf.Sin(firstPulseTime * Mathf.PI) * 0.24f;
+            float echoPulse = Mathf.Sin(echoPulseTime * Mathf.PI) * 0.08f;
+            launcherChestIcon.localScale = launcherChestIconRestScale
+                * (1f + firstPulse + echoPulse);
+        }
+
+        private void ResetRewardReceivedFeedback()
+        {
+            rewardFeedbackActive = false;
+            rewardFeedbackStartedAt = 0f;
+            if (launcherChestIcon != null)
+            {
+                launcherChestIcon.localScale = launcherChestIconRestScale;
+            }
         }
 
         private static Sprite GetChestSprite()

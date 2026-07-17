@@ -8,10 +8,14 @@ namespace ProjectUnknown.Strategy
         private StrategySettlementFaunaController fauna;
         private StrategyFirstNightFaunaStoryController story;
         private StrategyInGameCinematicPlayer cinematicPlayer;
+        private StrategyCityInventory cityInventory;
+        private StrategyCityItemRewardRevealController rewardReveal;
         private StrategyFirstNightRatCinematic ratCinematic;
+        private StrategyFirstNightCatHuntCinematic catHuntCinematic;
         private StrategyFirstNightFaunaStage stage = StrategyFirstNightFaunaStage.Dormant;
         private bool ratCinematicRunning;
         private bool ratCinematicCompletedThisSession;
+        private bool catHuntCinematicRunning;
         private bool configured;
 
         public static StrategyFirstNightFaunaEventController Active { get; private set; }
@@ -19,6 +23,11 @@ namespace ProjectUnknown.Strategy
         public bool IsRatCinematicPlaying => ratCinematicRunning
             && cinematicPlayer != null
             && cinematicPlayer.IsPlaying;
+        public bool IsCatHuntCinematicPlaying => catHuntCinematicRunning
+            && cinematicPlayer != null
+            && cinematicPlayer.IsPlaying;
+        public bool HasVisibleCatHuntActors => catHuntCinematic != null
+            && catHuntCinematic.AreBothActorsVisible;
         public bool IsStoryPending => configured
             && stage == StrategyFirstNightFaunaStage.MiceVisible
             && HasReachedFirstNight(StrategyDayNightCycleController.CurrentCalendarSnapshot);
@@ -28,14 +37,22 @@ namespace ProjectUnknown.Strategy
             StrategyFirstNightFaunaStoryController storyController,
             StrategyInGameCinematicPlayer inGameCinematicPlayer,
             StrategyPopulationController population,
-            CityMapController map)
+            CityMapController map,
+            StrategyCityInventory cityInventoryController,
+            StrategyCityItemRewardRevealController rewardRevealController)
         {
+            CancelCatHuntCinematic();
             CancelRatCinematic();
             fauna = faunaController;
             story = storyController;
             cinematicPlayer = inGameCinematicPlayer;
+            cityInventory = cityInventoryController;
+            rewardReveal = rewardRevealController;
             ratCinematic = population != null && map != null
                 ? new StrategyFirstNightRatCinematic(population, map, transform)
+                : null;
+            catHuntCinematic = population != null && map != null
+                ? new StrategyFirstNightCatHuntCinematic(population, map, transform)
                 : null;
             configured = fauna != null && story != null;
             stage = fauna != null ? fauna.Stage : StrategyFirstNightFaunaStage.Dormant;
@@ -51,10 +68,12 @@ namespace ProjectUnknown.Strategy
 
         public void RestoreStage(StrategyFirstNightFaunaStage restoredStage)
         {
+            CancelCatHuntCinematic();
             CancelRatCinematic();
             stage = IsValidStage(restoredStage)
                 ? restoredStage
                 : StrategyFirstNightFaunaStage.Dormant;
+            BackfillCatsEntitlementIfNeeded();
             ratCinematicCompletedThisSession = stage == StrategyFirstNightFaunaStage.StoryCompleted;
             fauna?.ResetForWorldRestore();
             fauna?.SetFirstNightStage(stage);
@@ -99,6 +118,12 @@ namespace ProjectUnknown.Strategy
 
         private void Update()
         {
+            if (catHuntCinematicRunning
+                && (cinematicPlayer == null || !cinematicPlayer.IsPlaying))
+            {
+                catHuntCinematicRunning = false;
+            }
+
             if (!configured || stage == StrategyFirstNightFaunaStage.StoryCompleted)
             {
                 return;
@@ -208,10 +233,103 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            bool catsAdded = cityInventory != null
+                && cityInventory.TryAdd(StrategyCityItemIds.Cats, 1);
+            bool ownsCats = cityInventory != null
+                && cityInventory.Contains(StrategyCityItemIds.Cats);
+            if (!ownsCats)
+            {
+                StrategyDebugLogger.Warn("FirstNightFauna", "CatsRewardGrantFailed");
+            }
+
             SetStage(StrategyFirstNightFaunaStage.StoryCompleted);
+            if (catsAdded)
+            {
+                TryShowCatsReward();
+            }
+
             StrategyEventLogHudController.Notify(
                 "The settlement has gained its first quiet hunter.",
                 new Color(0.90f, 0.70f, 0.35f));
+        }
+
+        private void TryShowCatsReward()
+        {
+            if (rewardReveal == null
+                || cityInventory == null
+                || !cityInventory.Catalog.TryGet(
+                    StrategyCityItemIds.Cats,
+                    out StrategyCityItemDefinition definition))
+            {
+                StrategyDebugLogger.Warn("FirstNightFauna", "CatsRewardRevealUnavailable");
+                return;
+            }
+
+            Sprite artwork = string.IsNullOrWhiteSpace(definition.IconResourcePath)
+                ? null
+                : Resources.Load<Sprite>(definition.IconResourcePath);
+            if (!rewardReveal.TryShow(
+                    definition,
+                    artwork,
+                    HandleCatsRewardAccepted))
+            {
+                StrategyDebugLogger.Warn("FirstNightFauna", "CatsRewardRevealRejected");
+            }
+        }
+
+        private void HandleCatsRewardAccepted()
+        {
+            if (stage != StrategyFirstNightFaunaStage.StoryCompleted
+                || cityInventory == null
+                || !cityInventory.Contains(StrategyCityItemIds.Cats))
+            {
+                StrategyDebugLogger.Warn("FirstNightFauna", "CatHuntCinematicEntitlementMissing");
+                return;
+            }
+
+            if (cinematicPlayer == null
+                || catHuntCinematic == null
+                || !cinematicPlayer.CanPlay)
+            {
+                StrategyDebugLogger.Warn("FirstNightFauna", "CatHuntCinematicUnavailable");
+                return;
+            }
+
+            catHuntCinematicRunning = cinematicPlayer.TryPlay(
+                catHuntCinematic,
+                StrategyInGameCinematicOptions.Default,
+                HandleCatHuntCinematicCompleted);
+            if (!catHuntCinematicRunning)
+            {
+                StrategyDebugLogger.Warn("FirstNightFauna", "CatHuntCinematicSkipped");
+            }
+        }
+
+        private void HandleCatHuntCinematicCompleted(StrategyInGameCinematicResult result)
+        {
+            StrategyDebugLogger.Info(
+                "FirstNightFauna",
+                "CatHuntCinematicCompleted",
+                StrategyDebugLogger.F("result", result));
+        }
+
+        private void BackfillCatsEntitlementIfNeeded()
+        {
+            if (stage != StrategyFirstNightFaunaStage.StoryCompleted
+                || cityInventory == null
+                || cityInventory.Contains(StrategyCityItemIds.Cats))
+            {
+                return;
+            }
+
+            if (cityInventory.TryAdd(StrategyCityItemIds.Cats, 1))
+            {
+                StrategyDebugLogger.Info("FirstNightFauna", "CatsEntitlementBackfilled");
+            }
+            else
+            {
+                StrategyDebugLogger.Warn("FirstNightFauna", "CatsEntitlementBackfillFailed");
+            }
         }
 
         private void SetStage(StrategyFirstNightFaunaStage nextStage)
@@ -248,13 +366,25 @@ namespace ProjectUnknown.Strategy
             ratCinematicRunning = false;
         }
 
+        private void CancelCatHuntCinematic()
+        {
+            if (cinematicPlayer != null && catHuntCinematic != null)
+            {
+                cinematicPlayer.Cancel(catHuntCinematic, false);
+            }
+
+            catHuntCinematicRunning = false;
+        }
+
         private void OnDisable()
         {
+            CancelCatHuntCinematic();
             CancelRatCinematic();
         }
 
         private void OnDestroy()
         {
+            CancelCatHuntCinematic();
             CancelRatCinematic();
             if (Active == this)
             {

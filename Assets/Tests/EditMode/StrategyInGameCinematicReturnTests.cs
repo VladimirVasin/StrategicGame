@@ -6,6 +6,20 @@ namespace ProjectUnknown.Strategy.EditorTests
     public sealed partial class StrategyInGameCinematicPlayerTests
     {
         [Test]
+        public void RejectedPlaybackLeavesRequestedSpeedUnchanged()
+        {
+            Assert.That(timeScale.CurrentScale, Is.EqualTo(2f));
+            Assert.That(Time.timeScale, Is.EqualTo(2f));
+
+            Assert.That(
+                player.TryPlay(null, StrategyInGameCinematicOptions.Default, null),
+                Is.False);
+
+            Assert.That(timeScale.CurrentScale, Is.EqualTo(2f));
+            Assert.That(Time.timeScale, Is.EqualTo(2f));
+        }
+
+        [Test]
         public void AnimatedCameraReturnRetainsOwnershipAndRejectsReentry()
         {
             BlockingSequence sequence = new();
@@ -52,7 +66,8 @@ namespace ProjectUnknown.Strategy.EditorTests
             Assert.That(player.CanPlay, Is.True);
             Assert.That(inputRouter.ActiveContextCount, Is.Zero);
             Assert.That(timeScale.IsPausedByLock, Is.False);
-            Assert.That(Time.timeScale, Is.EqualTo(2f));
+            Assert.That(timeScale.CurrentScale, Is.EqualTo(1f));
+            Assert.That(Time.timeScale, Is.EqualTo(1f));
             Assert.That(letterbox.IsInputShieldActive, Is.False);
             Assert.That(letterbox.Reveal, Is.Zero);
             AssertCameraRestored();

@@ -227,6 +227,50 @@ namespace ProjectUnknown.Strategy.EditorTests
                 Require(
                     cinematicTimeScale != null && cinematicTimeScale.IsPausedByLock,
                     "First-night rat cinematic did not hold a pause lock");
+                Require(
+                    Mathf.Approximately(cinematicTimeScale.CurrentScale, 1f),
+                    "First-night rat cinematic did not force requested speed to x1");
+                return;
+            }
+
+            StrategyCityItemRewardRevealController cityItemReward =
+                UnityEngine.Object.FindAnyObjectByType<StrategyCityItemRewardRevealController>();
+            if (cityItemReward != null && cityItemReward.IsOpen)
+            {
+                StrategyTimeScaleController rewardTimeScale =
+                    UnityEngine.Object.FindAnyObjectByType<StrategyTimeScaleController>();
+                Require(
+                    cityItemReward.ActiveItemId == StrategyCityItemIds.Cats,
+                    "First-night reward reveal opened with the wrong city item");
+                Require(
+                    router.ActiveContextCount == 1,
+                    "City-item reward reveal created an unexpected input-context stack");
+                Require(
+                    router.BlockedChannels == StrategyInputChannel.All,
+                    "City-item reward reveal did not block all input channels");
+                Require(
+                    router.TopCancelMode == StrategyCancelMode.Swallow,
+                    "City-item reward reveal did not swallow cancellation");
+                Require(
+                    rewardTimeScale != null && rewardTimeScale.IsPausedByLock,
+                    "City-item reward reveal did not hold a pause lock");
+                Require(
+                    Mathf.Approximately(rewardTimeScale.CurrentScale, 1f),
+                    "City-item reward reveal did not retain requested speed x1");
+
+                if (cityItemReward.IsAwaitingConfirmation)
+                {
+                    Require(
+                        cityItemReward.TryConfirm(),
+                        "City-item reward reveal rejected its confirmation");
+                    soakResolvedDialogs++;
+                }
+
+                return;
+            }
+
+            if (TryVerifyFirstNightCatHuntCinematic(firstNightEvent, router))
+            {
                 return;
             }
 
@@ -261,6 +305,9 @@ namespace ProjectUnknown.Strategy.EditorTests
                 Require(router.TopCancelMode == StrategyCancelMode.Swallow, "First-night story did not swallow cancellation");
                 Require(firstNightTimeScale != null && firstNightTimeScale.IsPausedByLock,
                     "First-night story did not hold a pause lock");
+                Require(
+                    Mathf.Approximately(firstNightTimeScale.CurrentScale, 1f),
+                    "First-night story did not retain requested speed x1");
 
                 Button[] storyButtons = firstNightStory.GetComponentsInChildren<Button>(true);
                 Button continueButton = null;
@@ -284,11 +331,24 @@ namespace ProjectUnknown.Strategy.EditorTests
                         && StrategyFirstNightFaunaEventController.Active.Stage
                             == StrategyFirstNightFaunaStage.StoryCompleted,
                         "First-night story closed without completing the fauna event");
-                    Require(router.ActiveContextCount == 0, "First-night story leaked its input context");
-                    Require(!firstNightTimeScale.IsPausedByLock, "First-night story leaked its pause lock");
+                    Require(
+                        cityItemReward != null && cityItemReward.IsOpen,
+                        "First-night story did not hand off to the city-item reward reveal");
+                    Require(
+                        router.ActiveContextCount == 1,
+                        "First-night story did not transfer modal input ownership to the reward reveal");
+                    Require(
+                        firstNightTimeScale.IsPausedByLock,
+                        "First-night story did not transfer its pause to the reward reveal");
                     Require(
                         UnityEngine.Object.FindObjectsByType<StrategyCinematicRatActor>().Length == 0,
                         "First-night sequence retained its transient rat after story completion");
+                    StrategyCityInventory cityInventory =
+                        UnityEngine.Object.FindAnyObjectByType<StrategyCityInventory>();
+                    Require(
+                        cityInventory != null
+                        && cityInventory.Contains(StrategyCityItemIds.Cats),
+                        "Completing the first-night story did not add Cats to City Inventory");
                     Require(
                         UnityEngine.Object.FindObjectsByType<StrategyCatAgent>().Length >= 1,
                         "Completing the first-night story did not create the first settlement cat");

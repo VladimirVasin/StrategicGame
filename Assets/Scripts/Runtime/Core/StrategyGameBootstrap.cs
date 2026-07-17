@@ -308,7 +308,7 @@ namespace ProjectUnknown.Strategy
             StrategyDebugLogger.Info("Bootstrap", "WildlifeReady");
 
             StrategySettlementFaunaController settlementFauna = context.GetOrCreate<StrategySettlementFaunaController>("Strategy Settlement Fauna");
-            settlementFauna.Configure(map, population, fog, placement);
+            settlementFauna.Configure(map, population, fog, placement, cityInventory);
             StrategyDebugLogger.Info("Bootstrap", "SettlementFaunaReady");
             yield return null;
 
@@ -363,6 +363,8 @@ namespace ProjectUnknown.Strategy
                 selection,
                 professionHud,
                 settlementFauna,
+                cityInventory,
+                cityInventoryHud,
                 timeScale,
                 inputRouter);
 

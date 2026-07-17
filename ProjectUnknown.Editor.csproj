@@ -58,6 +58,7 @@
     <Compile Include="Assets\Editor\StrategyVisualCatalogBaker.Residents.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.Input.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.HouseVisual.cs" />
+    <Compile Include="Assets\Editor\StrategyVerificationRunner.Soak.FirstNightCatHunt.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.Watchdog.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.AuthoredVisuals.Models.cs" />
     <Compile Include="Assets\Editor\StrategyAudioMixerBuilder.cs" />

@@ -246,6 +246,7 @@ namespace ProjectUnknown.Strategy.EditorTests
             Assert.That(inputRouter.BlockedChannels, Is.EqualTo(StrategyInputChannel.All));
             Assert.That(inputRouter.TopCancelMode, Is.EqualTo(StrategyCancelMode.Swallow));
             Assert.That(timeScale.IsPausedByLock, Is.True);
+            Assert.That(timeScale.CurrentScale, Is.EqualTo(1f));
             Assert.That(Time.timeScale, Is.Zero);
             Assert.That(player.CanPlay, Is.False);
             Assert.That(eventSystem.currentSelectedGameObject, Is.Null);
@@ -271,7 +272,7 @@ namespace ProjectUnknown.Strategy.EditorTests
             Assert.That(sequence.CleanupResult, Is.EqualTo(StrategyInGameCinematicResult.Completed));
             Assert.That(contextsAtCallback, Is.Zero);
             Assert.That(pausedAtCallback, Is.False);
-            Assert.That(timeScaleAtCallback, Is.EqualTo(2f));
+            Assert.That(timeScaleAtCallback, Is.EqualTo(1f));
             Assert.That(letterboxAtCallback, Is.EqualTo(1f).Within(0.0001f));
             Assert.That(cameraCenterAtCallback.x, Is.EqualTo(sequence.FocusCenter.x).Within(0.001f));
             Assert.That(cameraCenterAtCallback.y, Is.EqualTo(sequence.FocusCenter.y).Within(0.001f));
@@ -292,7 +293,8 @@ namespace ProjectUnknown.Strategy.EditorTests
             handoffPauseHeld = false;
             Assert.That(inputRouter.ActiveContextCount, Is.Zero);
             Assert.That(timeScale.IsPausedByLock, Is.False);
-            Assert.That(Time.timeScale, Is.EqualTo(2f));
+            Assert.That(timeScale.CurrentScale, Is.EqualTo(1f));
+            Assert.That(Time.timeScale, Is.EqualTo(1f));
             Assert.That(player.CanPlay, Is.True);
             AssertCameraFocusReleased();
         }
@@ -324,7 +326,8 @@ namespace ProjectUnknown.Strategy.EditorTests
             Assert.That(player.IsPlaying, Is.False);
             Assert.That(inputRouter.ActiveContextCount, Is.Zero);
             Assert.That(timeScale.IsPausedByLock, Is.False);
-            Assert.That(Time.timeScale, Is.EqualTo(2f));
+            Assert.That(timeScale.CurrentScale, Is.EqualTo(1f));
+            Assert.That(Time.timeScale, Is.EqualTo(1f));
             Assert.That(letterbox.Reveal, Is.Zero);
             Assert.That(letterbox.IsInputShieldActive, Is.False);
             Assert.That(eventSystem.currentSelectedGameObject, Is.SameAs(previousSelection));

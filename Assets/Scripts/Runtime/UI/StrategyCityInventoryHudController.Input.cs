@@ -139,8 +139,8 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            GameObject target = selectedItemIndex >= 0 && selectedItemIndex < itemCards.Count
-                ? itemCards[selectedItemIndex].Button.gameObject
+            GameObject target = selectedItemIndex >= 0 && selectedItemIndex < itemRows.Count
+                ? itemRows[selectedItemIndex].Button.gameObject
                 : closeButton != null ? closeButton.gameObject : null;
             EventSystem.current.SetSelectedGameObject(target);
         }

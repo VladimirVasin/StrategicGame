@@ -6,9 +6,9 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyCityInventoryHudController
     {
-        private static readonly Color ItemCardColor =
+        private static readonly Color ItemRowColor =
             new(0.085f, 0.115f, 0.11f, 0.98f);
-        private static readonly Color SelectedItemCardColor =
+        private static readonly Color SelectedItemRowColor =
             new(0.29f, 0.22f, 0.105f, 0.98f);
 
         private void RefreshInventoryView()
@@ -28,19 +28,19 @@ namespace ProjectUnknown.Strategy
             if (!hasItems)
             {
                 selectedItemIndex = -1;
-                HideAllItemCards();
+                HideAllItemRows();
                 return;
             }
 
-            EnsureItemCardCount(distinctItemCount);
-            for (int index = 0; index < itemCards.Count; index++)
+            EnsureItemRowCount(distinctItemCount);
+            for (int index = 0; index < itemRows.Count; index++)
             {
                 bool visible = index < distinctItemCount;
-                ItemCardView card = itemCards[index];
-                card.Root.gameObject.SetActive(visible);
+                ItemRowView row = itemRows[index];
+                row.Root.gameObject.SetActive(visible);
                 if (visible)
                 {
-                    PopulateItemCard(card, index);
+                    PopulateItemRow(row, index);
                 }
             }
 
@@ -73,30 +73,33 @@ namespace ProjectUnknown.Strategy
             return -1;
         }
 
-        private void HideAllItemCards()
+        private void HideAllItemRows()
         {
-            for (int index = 0; index < itemCards.Count; index++)
+            for (int index = 0; index < itemRows.Count; index++)
             {
-                itemCards[index].Root.gameObject.SetActive(false);
+                itemRows[index].Root.gameObject.SetActive(false);
             }
         }
 
-        private void EnsureItemCardCount(int requiredCount)
+        private void EnsureItemRowCount(int requiredCount)
         {
-            while (itemCards.Count < requiredCount)
+            while (itemRows.Count < requiredCount)
             {
-                itemCards.Add(CreateItemCard(itemCards.Count));
+                itemRows.Add(CreateItemRow(itemRows.Count));
             }
         }
 
-        private ItemCardView CreateItemCard(int index)
+        private ItemRowView CreateItemRow(int index)
         {
-            RectTransform root = CreateUiObject("ItemCard_" + index, itemContent)
+            RectTransform root = CreateUiObject("ItemRow_" + index, itemContent)
                 .GetComponent<RectTransform>();
+            LayoutElement layout = root.gameObject.AddComponent<LayoutElement>();
+            layout.preferredHeight = 88f;
+            layout.minHeight = 88f;
             Image background = root.gameObject.AddComponent<Image>();
-            background.color = ItemCardColor;
+            background.color = ItemRowColor;
 
-            ItemCardView card = new()
+            ItemRowView row = new()
             {
                 Root = root,
                 Background = background,
@@ -105,64 +108,93 @@ namespace ProjectUnknown.Strategy
 
             Button button = root.gameObject.AddComponent<Button>();
             button.targetGraphic = background;
-            button.onClick.AddListener(() => SelectItem(card.Index, true, false));
-            ConfigureButtonColors(button, ItemCardColor);
+            button.onClick.AddListener(() => SelectItem(row.Index, true, false));
+            ConfigureButtonColors(button, ItemRowColor);
             StrategyUiButtonFeedback.Attach(
                 button,
                 StrategyUiButtonFeedbackProfile.SoundOnly);
-            card.Button = button;
+            row.Button = button;
+
+            RectTransform accentRoot = CreateUiObject("SelectionAccent", root)
+                .GetComponent<RectTransform>();
+            accentRoot.anchorMin = new Vector2(0f, 0f);
+            accentRoot.anchorMax = new Vector2(0f, 1f);
+            accentRoot.pivot = new Vector2(0f, 0.5f);
+            accentRoot.anchoredPosition = Vector2.zero;
+            accentRoot.sizeDelta = new Vector2(4f, 0f);
+            row.SelectionAccent = accentRoot.gameObject.AddComponent<Image>();
+            row.SelectionAccent.color = Color.clear;
+            row.SelectionAccent.raycastTarget = false;
 
             RectTransform iconFrame = CreateUiObject("IconFrame", root)
                 .GetComponent<RectTransform>();
-            SetTopLeft(iconFrame, 8f, 11f, 54f, 54f);
+            SetTopLeft(iconFrame, 14f, 15f, 58f, 58f);
             Image frame = iconFrame.gameObject.AddComponent<Image>();
             frame.color = new Color(1f, 1f, 1f, 0.065f);
             frame.raycastTarget = false;
             RectTransform iconRoot = CreateUiObject("Icon", iconFrame)
                 .GetComponent<RectTransform>();
             Stretch(iconRoot, 6f, 6f, 6f, 6f);
-            card.Icon = iconRoot.gameObject.AddComponent<Image>();
-            card.Icon.preserveAspect = true;
-            card.Icon.raycastTarget = false;
+            row.Icon = iconRoot.gameObject.AddComponent<Image>();
+            row.Icon.preserveAspect = true;
+            row.Icon.raycastTarget = false;
 
-            card.Name = CreateText(
+            row.Name = CreateText(
                 "Name",
                 root,
                 string.Empty,
-                13,
+                15,
                 TextAnchor.UpperLeft,
                 Color.white);
-            card.Name.fontStyle = FontStyle.Bold;
-            card.Name.resizeTextForBestFit = true;
-            card.Name.resizeTextMinSize = 10;
-            card.Name.resizeTextMaxSize = 13;
-            SetTopLeft(card.Name.rectTransform, 69f, 12f, 80f, 36f);
+            row.Name.fontStyle = FontStyle.Bold;
+            row.Name.resizeTextForBestFit = true;
+            row.Name.resizeTextMinSize = 12;
+            row.Name.resizeTextMaxSize = 15;
+            SetTopStretch(row.Name.rectTransform, 84f, 12f, 96f, 24f);
 
-            card.Quantity = CreateText(
+            row.Summary = CreateText(
+                "Summary",
+                root,
+                string.Empty,
+                12,
+                TextAnchor.UpperLeft,
+                new Color(0.72f, 0.80f, 0.75f));
+            row.Summary.lineSpacing = 1.05f;
+            SetTopStretch(row.Summary.rectTransform, 84f, 40f, 96f, 36f);
+
+            row.Quantity = CreateText(
                 "Quantity",
                 root,
                 string.Empty,
                 11,
-                TextAnchor.LowerLeft,
+                TextAnchor.MiddleRight,
                 MutedGold);
-            card.Quantity.fontStyle = FontStyle.Bold;
-            SetTopLeft(card.Quantity.rectTransform, 69f, 49f, 80f, 18f);
-            return card;
+            row.Quantity.fontStyle = FontStyle.Bold;
+            RectTransform quantityRect = row.Quantity.rectTransform;
+            quantityRect.anchorMin = new Vector2(1f, 0.5f);
+            quantityRect.anchorMax = new Vector2(1f, 0.5f);
+            quantityRect.pivot = new Vector2(1f, 0.5f);
+            quantityRect.anchoredPosition = new Vector2(-14f, 0f);
+            quantityRect.sizeDelta = new Vector2(72f, 24f);
+            return row;
         }
 
-        private void PopulateItemCard(ItemCardView card, int index)
+        private void PopulateItemRow(ItemRowView row, int index)
         {
             StrategyCityInventoryEntry entry = ownedItems[index];
             StrategyCityItemDefinition definition = ResolveDefinition(entry.ItemId);
-            card.Index = index;
-            card.Name.text = definition != null ? definition.Title : "Unknown Item";
-            card.Quantity.text = "x" + entry.Quantity;
-            card.Icon.sprite = ResolveItemIcon(definition);
-            Color cardColor = index == selectedItemIndex
-                ? SelectedItemCardColor
-                : ItemCardColor;
-            card.Background.color = cardColor;
-            ConfigureButtonColors(card.Button, cardColor);
+            row.Index = index;
+            row.Name.text = definition != null ? definition.Title : "Unknown Item";
+            row.Summary.text = GetItemRowSummary(definition);
+            row.Quantity.text = definition != null && definition.MaxStack == 1
+                ? "UNIQUE"
+                : "x" + entry.Quantity;
+            row.Icon.sprite = ResolveItemIcon(definition);
+            bool selected = index == selectedItemIndex;
+            Color rowColor = selected ? SelectedItemRowColor : ItemRowColor;
+            row.Background.color = rowColor;
+            row.SelectionAccent.color = selected ? Gold : Color.clear;
+            ConfigureButtonColors(row.Button, rowColor);
         }
 
         private void SelectItem(int index, bool playSfx, bool moveUiSelection)
@@ -174,28 +206,28 @@ namespace ProjectUnknown.Strategy
 
             bool changed = selectedItemIndex != index;
             selectedItemIndex = index;
-            for (int cardIndex = 0; cardIndex < itemCards.Count; cardIndex++)
+            for (int rowIndex = 0; rowIndex < itemRows.Count; rowIndex++)
             {
-                ItemCardView card = itemCards[cardIndex];
-                if (!card.Root.gameObject.activeSelf)
+                ItemRowView row = itemRows[rowIndex];
+                if (!row.Root.gameObject.activeSelf)
                 {
                     continue;
                 }
 
-                Color cardColor = cardIndex == index
-                    ? SelectedItemCardColor
-                    : ItemCardColor;
-                card.Background.color = cardColor;
-                ConfigureButtonColors(card.Button, cardColor);
+                bool selected = rowIndex == index;
+                Color rowColor = selected ? SelectedItemRowColor : ItemRowColor;
+                row.Background.color = rowColor;
+                row.SelectionAccent.color = selected ? Gold : Color.clear;
+                ConfigureButtonColors(row.Button, rowColor);
             }
 
             RefreshSelectedItemDetails();
             if (moveUiSelection && EventSystem.current != null)
             {
-                ItemCardView selectedCard = itemCards[index];
-                selectedCard.Button.GetComponent<StrategyUiButtonFeedback>()
+                ItemRowView selectedRow = itemRows[index];
+                selectedRow.Button.GetComponent<StrategyUiButtonFeedback>()
                     ?.SuppressNextFocusCue();
-                EventSystem.current.SetSelectedGameObject(selectedCard.Button.gameObject);
+                EventSystem.current.SetSelectedGameObject(selectedRow.Button.gameObject);
             }
 
             if (playSfx && changed && Application.isPlaying)
@@ -210,8 +242,10 @@ namespace ProjectUnknown.Strategy
             StrategyCityItemDefinition definition = ResolveDefinition(entry.ItemId);
             detailIcon.sprite = ResolveItemIcon(definition);
             detailName.text = definition != null ? definition.Title : "Unknown Item";
-            detailQuantity.text = definition != null
-                ? entry.Quantity + " / " + definition.MaxStack + " STORED"
+            detailQuantity.text = definition != null && definition.MaxStack == 1
+                ? "UNIQUE CITY ITEM"
+                : definition != null
+                    ? entry.Quantity + " / " + definition.MaxStack + " STORED"
                 : entry.Quantity + " STORED";
             detailDescription.text = definition != null
                 && !string.IsNullOrWhiteSpace(definition.Description)
@@ -221,6 +255,23 @@ namespace ProjectUnknown.Strategy
                 && !string.IsNullOrWhiteSpace(definition.EffectText)
                     ? definition.EffectText
                     : "No active effect is recorded.";
+        }
+
+        private static string GetItemRowSummary(StrategyCityItemDefinition definition)
+        {
+            if (definition == null)
+            {
+                return "No record is available for this item.";
+            }
+
+            if (!string.IsNullOrWhiteSpace(definition.EffectText))
+            {
+                return definition.EffectText;
+            }
+
+            return !string.IsNullOrWhiteSpace(definition.Description)
+                ? definition.Description
+                : "No effect is recorded.";
         }
 
         private StrategyCityItemDefinition ResolveDefinition(string itemId)

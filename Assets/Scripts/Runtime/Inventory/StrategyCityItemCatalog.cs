@@ -4,6 +4,11 @@ using System.Collections.ObjectModel;
 
 namespace ProjectUnknown.Strategy
 {
+    public static class StrategyCityItemIds
+    {
+        public const string Cats = "cats";
+    }
+
     public sealed class StrategyCityItemCatalog
     {
         private readonly Dictionary<string, StrategyCityItemDefinition> definitionsById;
@@ -40,7 +45,16 @@ namespace ProjectUnknown.Strategy
         }
 
         public static StrategyCityItemCatalog Production { get; } =
-            new(Array.Empty<StrategyCityItemDefinition>());
+            new(new[]
+            {
+                new StrategyCityItemDefinition(
+                    StrategyCityItemIds.Cats,
+                    "Cats",
+                    maxStack: 1,
+                    description: "They followed the caravan unseen, then chose the settlement for their own.",
+                    effectText: "Cats hunt mice around the settlement, keeping their numbers down.",
+                    iconResourcePath: "Visual/CityItems/Cats")
+            });
 
         public IReadOnlyList<StrategyCityItemDefinition> Definitions => definitions;
         public int Count => definitions.Count;

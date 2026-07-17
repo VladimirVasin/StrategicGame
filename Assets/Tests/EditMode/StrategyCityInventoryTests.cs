@@ -25,9 +25,22 @@ namespace ProjectUnknown.Strategy.EditorTests
         }
 
         [Test]
-        public void ProductionCatalogStartsEmpty()
+        public void ProductionCatalogDefinesCatsAsAUniqueSettlementItem()
         {
-            Assert.That(StrategyCityItemCatalog.Production.Count, Is.Zero);
+            Assert.That(StrategyCityItemCatalog.Production.Count, Is.EqualTo(1));
+            Assert.That(
+                StrategyCityItemCatalog.Production.TryGet(
+                    StrategyCityItemIds.Cats,
+                    out StrategyCityItemDefinition cats),
+                Is.True);
+            Assert.That(cats.Title, Is.EqualTo("Cats"));
+            Assert.That(cats.MaxStack, Is.EqualTo(1));
+            Assert.That(cats.Description, Is.Not.Empty);
+            Assert.That(cats.EffectText, Does.Contain("hunt mice"));
+            Assert.That(cats.IconResourcePath, Is.EqualTo("Visual/CityItems/Cats"));
+            Sprite catsArtwork = Resources.Load<Sprite>(cats.IconResourcePath);
+            Assert.That(catsArtwork, Is.Not.Null, cats.IconResourcePath);
+            Assert.That(catsArtwork.rect.width, Is.EqualTo(catsArtwork.rect.height));
 
             GameObject productionObject = new("Production Inventory Test");
             try

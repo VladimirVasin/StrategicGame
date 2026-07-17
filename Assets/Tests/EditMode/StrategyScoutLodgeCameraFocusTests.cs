@@ -80,6 +80,51 @@ namespace ProjectUnknown.Strategy.EditorTests
             Assert.That(camera.orthographicSize, Is.EqualTo(12f));
         }
 
+        [Test]
+        public void IntroductionForcesNormalSpeedButManualPickerPreservesRequestedSpeed()
+        {
+            float previousTimeScale = Time.timeScale;
+            float previousFixedDeltaTime = Time.fixedDeltaTime;
+            Time.timeScale = 1f;
+            Time.fixedDeltaTime = 0.02f;
+            GameObject timeObject = new("Scout Speed Test Time");
+            GameObject onboardingObject = new("Scout Speed Test Onboarding");
+            try
+            {
+                StrategyTimeScaleController timeScale =
+                    timeObject.AddComponent<StrategyTimeScaleController>();
+                timeScale.Configure();
+                timeScale.SetRequestedScale(3f);
+                StrategyScoutLodgeOnboardingController onboarding =
+                    onboardingObject.AddComponent<StrategyScoutLodgeOnboardingController>();
+                onboarding.Configure(null, null, null, null, null, timeScale, null);
+
+                SetPrivateField(onboarding, "introduction", true);
+                InvokePrivate(onboarding, "PushPauseLock");
+
+                Assert.That(timeScale.CurrentScale, Is.EqualTo(1f));
+                Assert.That(Time.timeScale, Is.Zero);
+                InvokePrivate(onboarding, "ReleasePauseLock");
+                Assert.That(Time.timeScale, Is.EqualTo(1f));
+
+                timeScale.SetRequestedScale(3f);
+                SetPrivateField(onboarding, "introduction", false);
+                InvokePrivate(onboarding, "PushPauseLock");
+
+                Assert.That(timeScale.CurrentScale, Is.EqualTo(3f));
+                Assert.That(Time.timeScale, Is.Zero);
+                InvokePrivate(onboarding, "ReleasePauseLock");
+                Assert.That(Time.timeScale, Is.EqualTo(3f));
+            }
+            finally
+            {
+                Object.DestroyImmediate(onboardingObject);
+                Object.DestroyImmediate(timeObject);
+                Time.timeScale = previousTimeScale;
+                Time.fixedDeltaTime = previousFixedDeltaTime;
+            }
+        }
+
         private GameObject CreateRoot(string name)
         {
             GameObject root = new(name);
@@ -103,6 +148,15 @@ namespace ProjectUnknown.Strategy.EditorTests
                 BindingFlags.Instance | BindingFlags.NonPublic);
             Assert.That(method, Is.Not.Null, methodName + " should exist");
             method.Invoke(target, null);
+        }
+
+        private static void SetPrivateField(object target, string fieldName, object value)
+        {
+            FieldInfo field = target.GetType().GetField(
+                fieldName,
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(field, Is.Not.Null, fieldName + " should exist");
+            field.SetValue(target, value);
         }
     }
 }

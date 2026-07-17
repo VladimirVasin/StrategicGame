@@ -14,6 +14,8 @@ namespace ProjectUnknown.Strategy
             StrategyWorldSelectionController selection,
             StrategyProfessionHudController professionHud,
             StrategySettlementFaunaController settlementFauna,
+            StrategyCityInventory cityInventory,
+            StrategyCityInventoryHudController cityInventoryHud,
             StrategyTimeScaleController timeScale,
             StrategyInputRouter inputRouter)
         {
@@ -48,6 +50,9 @@ namespace ProjectUnknown.Strategy
             StrategyInGameCinematicPlayer inGameCinematicPlayer =
                 context.GetOrCreate<StrategyInGameCinematicPlayer>("Strategy In-Game Cinematic Player");
             inGameCinematicPlayer.Configure(cameraController, timeScale, inputRouter);
+            StrategyCityItemRewardRevealController cityItemRewardReveal =
+                context.GetOrCreate<StrategyCityItemRewardRevealController>("Strategy City Item Reward Reveal");
+            cityItemRewardReveal.Configure(timeScale, inputRouter, cityInventoryHud);
             StrategyFirstNightFaunaEventController firstNightFaunaEvent =
                 context.GetOrCreate<StrategyFirstNightFaunaEventController>("Strategy First Night Fauna Event");
             firstNightFaunaEvent.Configure(
@@ -55,7 +60,9 @@ namespace ProjectUnknown.Strategy
                 firstNightFaunaStory,
                 inGameCinematicPlayer,
                 population,
-                map);
+                map,
+                cityInventory,
+                cityItemRewardReveal);
 
             StrategyFirstWinterController firstWinter = context.GetOrCreate<StrategyFirstWinterController>("Strategy First Winter Progression");
 

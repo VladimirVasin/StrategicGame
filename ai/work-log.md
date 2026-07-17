@@ -1,5 +1,31 @@
 # Work Log
 
+### 2026-07-17 - Cinematic scenes force x1 speed
+
+- Gameplay-space cinematics previously paused simulation but retained the requested x2/x3, so gameplay resumed at that accelerated speed after the camera returned.
+- Successful cinematic entry now sets the requested simulation speed to x1 before taking its pause lock. The first-night rat scene, fullscreen chronicle, Cats reward reveal, post-reward cat hunt, and first Scout Lodge introduction all therefore resume gameplay at x1.
+- Rejected cinematic/story/reward openings leave the current requested speed unchanged. Ordinary pause menu, family tree, decision dialogs, and later manual Scout assignment continue preserving x1/x2/x3 through their pause locks.
+- Extended focused EditMode and two-day-soak contracts for x3-to-x1 entry, effective paused time, x1 resume, rejected-entry stability, and the distinction between the Scout introduction and later manual picker.
+- Verification: technical gates pass and all five C# projects build sequentially with zero warnings/errors. Focused Unity execution is deferred because the project is open in the main Unity Editor.
+
+### 2026-07-17 - Post-reward cat hunt cinematic
+
+- The Cats reward now hands directly from its completed chest flight into a reusable gameplay-space cinematic before control can return to the player.
+- Added a deterministic camp-area cat-and-mouse shot using the exact standard settlement sprites and world scales, with participant highlights, smooth camera focus, 2.39:1 letterbox bars, a stalk/pounce catch, and a non-looping joyful cat finish.
+- Extended the standard cat sprite set with four-frame `Pounce` and `Joy` poses and added a transient cinematic cat actor; the mouse is hidden at the catch without consuming or moving the live settlement-fauna population.
+- Cleanup is idempotent across completion, cancellation, disable, destroy, and failed preparation. Completed-stage save restore retains Cats without replaying either the reward card or the hunt cinematic.
+- Added focused actor/planner/sequence tests and two-day-soak assertions for modal ownership, standard actor visuals, reward-to-cinematic handoff, and cleanup.
+- Verification: technical gates pass; all five C# projects build sequentially with zero warnings/errors, and the focused Unity EditMode cat-actor/cat-hunt set passes 7/7. PlayMode and the long two-day soak were not rerun for this isolated presentation change.
+
+### 2026-07-17 - First City Inventory reward: Cats
+
+- Added `Cats` as the first unique production City Inventory item, with generated Resources-backed pixel art, permanent descriptive copy, and a real settlement-fauna entitlement: world cats require both `StoryCompleted` and ownership of `cats`.
+- The first-night chronicle now grants Cats on both final Continue and Skip, then synchronously hands its released modal ownership to a reusable cinematic reward reveal with immediate dimming, unscaled card reveal/floating, explicit confirmation, Reduced Motion, and a curved flight into the actual HUD chest icon before gameplay resumes.
+- Replaced the City Inventory item grid with one-column descriptive rows, `UNIQUE`/stack labels, retained details, and an unscaled chest-arrival pulse.
+- Upgraded persistence to version 9. The v8-to-v9 migration silently backfills Cats for completed first-night stories without replaying the reward; direct completed-stage restore has the same defensive repair.
+- Extended focused catalog, save migration, fauna entitlement, story grant, reward lifecycle, HUD row/target, and soak ownership coverage.
+- Verification: technical gates pass; runtime, Editor, and isolated runtime/EditMode projects build with zero warnings/errors. Unity EditMode/PlayMode/QuickSoak execution is deferred because the project is open in the main Unity Editor.
+
 ### 2026-07-17 - City Inventory MVP
 
 - Added one scene-local city chest for settlement-wide special items, kept strictly separate from physical resources, storage, logistics, construction affordability, and winter readiness.

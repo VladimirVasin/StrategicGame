@@ -43,6 +43,9 @@ namespace ProjectUnknown.Strategy
                     case 7:
                         MigrateVersion7To8(data);
                         break;
+                    case 8:
+                        MigrateVersion8To9(data);
+                        break;
                     default:
                         reason = "missing_migration_from_version_" + data.version;
                         return false;
@@ -101,6 +104,37 @@ namespace ProjectUnknown.Strategy
         {
             data.cityItems = new List<StrategyCityItemSaveData>();
             data.version = 8;
+        }
+
+        private static void MigrateVersion8To9(StrategySaveData data)
+        {
+            data.cityItems ??= new List<StrategyCityItemSaveData>();
+            if (data.firstNightFaunaStage == (int)StrategyFirstNightFaunaStage.StoryCompleted
+                && !ContainsCityItem(data.cityItems, StrategyCityItemIds.Cats))
+            {
+                data.cityItems.Add(new StrategyCityItemSaveData
+                {
+                    itemId = StrategyCityItemIds.Cats,
+                    quantity = 1
+                });
+            }
+
+            data.version = 9;
+        }
+
+        private static bool ContainsCityItem(
+            IReadOnlyList<StrategyCityItemSaveData> items,
+            string itemId)
+        {
+            for (int i = 0; i < items.Count; i++)
+            {
+                if (items[i] != null && items[i].itemId == itemId)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static void NormalizeCollections(StrategySaveData data)

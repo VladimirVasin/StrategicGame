@@ -12,8 +12,12 @@
     <Compile Include="Assets\Tests\EditMode\StrategyCityInventoryTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyCityInventorySaveTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyCityInventoryHudTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyCityItemRewardRevealTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyFirstNightFaunaStorySpeedTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyCinematicRatTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyCinematicCatTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyFirstNightRatCinematicTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyFirstNightCatHuntCinematicTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyFirstNightRatShotPlannerTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyInGameCinematicInfrastructureTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyInGameCinematicReturnTests.cs" />
@@ -56,6 +60,7 @@
     <Compile Include="Assets\Tests\EditMode\StrategyScoutAssignmentFlowTests.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.Quality.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.Soak.cs" />
+    <Compile Include="Assets\Editor\StrategyVerificationRunner.Soak.FirstNightCatHunt.cs" />
     <Compile Include="Assets\Editor\StrategyEditorAssemblyInfo.cs" />
     <ProjectCapability Include="Unity" />
     <ProjectCapability Include="EnableOnDemandExcludedFolderLoading" />

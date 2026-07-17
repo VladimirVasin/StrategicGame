@@ -122,6 +122,7 @@ namespace ProjectUnknown.Strategy
             }
 
             HoldUiInput();
+            timeScale.SetRequestedScale(1f);
             PushPauseLock();
             float targetSize = StrategyInGameCinematicMath.CalculateTargetOrthographicSize(
                 framing,

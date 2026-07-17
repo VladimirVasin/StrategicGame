@@ -820,7 +820,7 @@ Impact hints:
 Responsibilities:
 
 - Place one manually staffed exploration worksite on an exact `2x4` footprint.
-- On the first live Scout Lodge completion, capture the current camera view, smoothly focus/zoom the Lodge, hold a named simulation pause and modal input context, then open a storytelling expedition board and restore/release the camera view when the flow resolves.
+- On the first live Scout Lodge completion, force requested x1, capture the current camera view, smoothly focus/zoom the Lodge, hold a named simulation pause and modal input context, then open a storytelling expedition board and restore/release the camera view when the flow resolves; later manual picker openings preserve requested speed.
 - Hold three stable random adult candidates for the introduction, prioritizing Haulers/Builders, with portraits and exact eligibility/block reasons; later picker openings show the full adult roster.
 - Let explicit appointment transfer the exact selected resident from an ordinary worksite/Hauler/Builder role through owner-side unassignment while keeping automatic Scout assignment free-worker-only.
 - Reuse the same exact-resident picker from the selected Lodge and Profession HUD, with manual cancellation outside the first-completion introduction.
@@ -855,6 +855,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyResidentTask.cs`
 - `Assets/Tests/EditMode/StrategyScoutTargetSelectorTests.cs`
 - `Assets/Tests/EditMode/StrategyScoutAssignmentFlowTests.cs`
+- `Assets/Tests/EditMode/StrategyScoutLodgeCameraFocusTests.cs`
 
 Impact hints:
 
@@ -875,7 +876,7 @@ Responsibilities:
 - Expose only persistently discovered, uninvestigated landmarks to Scout reservation; reject conflicts across multiple Scouts and cool down unreachable targets.
 - Mark investigation completion atomically and retain the marker in an investigated check state.
 - Queue a resource-specific one-action `OK` debug encounter, hold one simulation pause lock across queued notices, block all input, swallow cancel, and defer behind existing modal pause owners.
-- Capture and restore stable point IDs, cells, Coal/Iron/neutral role, exact mineral origin, remaining amount, and investigated state through save version 8; reserve pending live-site cells before deterministic nature/forage generation and treat depletion as a typed site with no live deposit.
+- Capture and restore stable point IDs, cells, Coal/Iron/neutral role, exact mineral origin, remaining amount, and investigated state through current save version 9; reserve pending live-site cells before deterministic nature/forage generation and treat depletion as a typed site with no live deposit.
 - Clear legacy v5 point geometry during migration so the first v6 load restores buildings/construction first, then regenerates the owned-site layout around them instead of retaining ten neutral landmarks.
 
 Primary files/assets:
@@ -972,9 +973,10 @@ Impact hints:
 
 Responsibilities:
 
-- Stage settlement fauna through the first Day 1 `Dusk`/`Night`: block all fauna before Dusk, fill the pending three-mouse minimum in one refresh, run a rat/resident in-engine prelude, then create the first cat only after the following three-frame story resolves before returning to completed-building/occupied-house/food-building growth.
+- Stage settlement fauna through the first Day 1 `Dusk`/`Night`: block all fauna before Dusk, fill the pending three-mouse minimum in one refresh, run a rat/resident in-engine prelude, then grant the unique `Cats` City Inventory entitlement, create the first cat, reveal the reward, and finish with a transient in-engine cat hunt after the following three-frame story resolves.
 - Plan a deterministic, camera-readable 4-6-cell walkable rat corridor around a nearby adult; allow reversible visual staging when every adult is sleeping or hidden.
 - Reuse the exact standard settlement mouse sprite and world scale for the transient cinematic actor, with transform-only motion and separate pulsing world rings that mark both participants without changing simulation state.
+- Plan a deterministic camp-area cat/mouse corridor, reuse the exact standard cat/mouse sprites and scales, and run stalk, pounce, catch, and non-looping joy phases without mutating the live fauna population.
 - Keep the first-night story as a gameplay overlay that reuses Founding Journey presentation/atmosphere behavior after the in-engine cinematic without loading another scene.
 
 - Spawn compact ambient deer herds only on currently hidden suitable land cells near completed buildings or active construction sites.
@@ -1036,6 +1038,9 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Wildlife/StrategyFirstNightRatShotPlanner.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyCinematicRatActor.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyCinematicRatSpriteFactory.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyFirstNightCatHuntCinematic.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyFirstNightCatHuntShotPlanner.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyCinematicCatActor.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Cinematic.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentCinematicVisualOverride.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentSpriteFactory.MouseStartle.cs`
@@ -1045,11 +1050,19 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/UI/StrategyFirstNightFaunaStoryController.cs`
 - `Assets/Scripts/Runtime/UI/StrategyFirstNightFaunaStoryController.View.cs`
 - `Assets/Scripts/Runtime/UI/StrategyFirstNightFaunaStoryCatalog.cs`
+- `Assets/Scripts/Runtime/UI/StrategyCityItemRewardRevealController.cs`
+- `Assets/Scripts/Runtime/UI/StrategyCityItemRewardRevealController.View.cs`
+- `Assets/Scripts/Runtime/UI/StrategyCityItemRewardRevealController.View.Helpers.cs`
+- `Assets/Scripts/Runtime/UI/StrategyCityItemRewardRevealController.Animation.cs`
 - `Assets/Resources/Visual/FirstNightFauna/`
+- `Assets/Resources/Visual/CityItems/Cats.png`
 - `Assets/Tests/EditMode/StrategyFirstNightFaunaTests.cs`
+- `Assets/Tests/EditMode/StrategyFirstNightFaunaStorySpeedTests.cs`
 - `Assets/Tests/EditMode/StrategyFirstNightRatCinematicTests.cs`
 - `Assets/Tests/EditMode/StrategyFirstNightRatShotPlannerTests.cs`
 - `Assets/Tests/EditMode/StrategyCinematicRatTests.cs`
+- `Assets/Tests/EditMode/StrategyFirstNightCatHuntCinematicTests.cs`
+- `Assets/Tests/EditMode/StrategyCinematicCatTests.cs`
 - `Assets/Tests/EditMode/StrategyResidentCinematicVisualTests.cs`
 - `Assets/Scripts/Runtime/Build/StrategyFishingAccessUtility.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.cs`
@@ -1096,8 +1109,8 @@ Primary files/assets:
 
 Impact hints:
 
-- Individual wildlife/fauna agents and the transient cinematic rat remain runtime-only. Save version 8 retains the first-night fauna stage; restore clears live cats/mice and reconstructs the required minimum population from that stage.
-- `MiceVisible` means the full rat-prelude-plus-story presentation is unresolved, so restore/retry may replay the prelude. Story completion or Skip remains the only path that unlocks cats for a new settlement; cancellation must release only owned input/pause/camera state without advancing the stage.
+- Individual wildlife/fauna agents and the transient cinematic rat/cat hunt actors remain runtime-only. Save version 9 retains the first-night fauna stage plus City Inventory entitlement; restore clears live cats/mice and reconstructs the required minimum population from that state.
+- `MiceVisible` means the full rat-prelude-plus-story presentation is unresolved, so restore/retry may replay the prelude. Story completion or Skip grants `Cats`; world cats require both that ownership and `StoryCompleted`. The reward presenter must claim input/pause synchronously, its accepted callback must hand directly into the cat hunt, and migration/backfill must never replay either presentation.
 - Deer and birds do not reveal fog or block walkability; adult deer can yield `Game` only after the Hunter Camp upgrade, rabbits can yield `Game` through the base hunter-camp work loop, fish can yield `Fish` through the fisher-hut work loop, and wolves are predators rather than player-harvestable resources.
 - Initial rabbit spawn, deer herds, fish shoals, birds, and wolf packs depend on hidden near-settlement candidate cells instead of map-wide placement; if no hidden candidate exists for a species, that species should skip spawning rather than appearing far from buildings or inside visible fog.
 - Wildlife hidden checks use fog daylight-range visibility, not reduced nighttime current visibility, so animals do not spawn closer to the settlement just because night lowered player sight radius.
@@ -1266,9 +1279,11 @@ Responsibilities:
 - Run reusable gameplay-space cinematic sequences without loading another scene.
 - Capture and restore the exact strategy-camera position/zoom and release programmatic focus on every resolution path.
 - Own one all-channel/swallow input context and one named simulation pause lock while active.
+- Force the requested simulation speed to x1 only after playback preparation and input acquisition succeed, before taking the pause lock, so gameplay resumes at x1 while rejected playback leaves speed untouched.
 - Let a sequence stage its actors synchronously before camera movement, then animate focus and 2.39:1 black bars together with unscaled reduced-motion-aware timing.
 - Provide reusable unscaled world-space participant highlights that follow staged actors independently from their animation transforms.
 - Keep sequence cleanup idempotent and invoke resolved handoffs before restoring the camera/bars so a following modal can take ownership atomically.
+- Allow a completed modal reward to synchronously start a cinematic in the same stack-release call so no controllable frame appears between presentations.
 
 Primary files/assets:
 
@@ -1280,6 +1295,8 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Cinematics/StrategyInGameCinematicPlayer.UiInput.cs`
 - `Assets/Scripts/Runtime/Cinematics/StrategyCinematicLetterboxView.cs`
 - `Assets/Scripts/Runtime/Cinematics/StrategyCinematicParticipantHighlight.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyFirstNightCatHuntCinematic.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyCinematicCatActor.cs`
 - `Assets/Tests/EditMode/StrategyInGameCinematicInfrastructureTests.cs`
 - `Assets/Tests/EditMode/StrategyInGameCinematicReturnTests.cs`
 
@@ -1325,7 +1342,7 @@ Responsibilities:
 - Map F1/F2/F3 to x1/x2/x3 speed.
 - Expose a public requested-scale API used by the Build HUD speed buttons.
 - Keep `Time.fixedDeltaTime` synchronized with `Time.timeScale`.
-- Provide pause locks for modal gameplay decisions while preserving the requested x1/x2/x3 speed.
+- Provide pause locks that preserve requested x1/x2/x3 by default; cinematic/story owners may explicitly set requested x1 before acquiring their lock.
 - Reset simulation speed back to x1 when the controller is disabled.
 
 Primary files/assets:
@@ -1342,6 +1359,7 @@ Impact hints:
 - Time scale affects gameplay timers using scaled `Time.deltaTime`; UI, visual overlays, service caches, diagnostics throttles, and expensive maintenance loops should use unscaled time/realtime when their cadence should remain stable at x2/x3.
 - Future pause, speed HUD, or settings should extend this controller instead of adding separate `Time.timeScale` writes.
 - Modal systems should use pause locks instead of writing `Time.timeScale = 0` directly.
+- Do not move the cinematic x1 reset into the generic pause-lock API: pause menu, family tree, ordinary decisions, and manual Scout assignment intentionally preserve the player's requested speed.
 - Application focus loss must not push or pop a pause lock; background simulation and explicit/modal pause are independent states.
 
 ### In-Game Pause Menu
@@ -2724,8 +2742,10 @@ Responsibilities:
 
 - Own one scene-local settlement chest for special items, separate from physical resources, storage, reservations, logistics, construction affordability, and winter readiness.
 - Define stable string item IDs, catalog order, stack limits, deterministic snapshots, atomic restore, and one `Changed` event per successful mutation.
-- Present an optional read-only top-bar launcher, distinct-stack badge, empty state, item grid, and detail view without Use/Equip actions or simulation pause.
-- Persist deterministic `cityItems` through save version 8 and reject unknown IDs, duplicate stacks, or invalid quantities against the active catalog before mutation.
+- Define `Cats` as the first unique production item and expose its ownership as the permanent settlement-fauna entitlement granted by the first-night story.
+- Present a read-only top-bar launcher, distinct-stack badge, empty state, one-column descriptive rows, and detail view without Use/Equip actions or inspection-time simulation pause.
+- Present newly granted items through a reusable all-input, simulation-pausing cinematic card that commits ownership first, requires confirmation, and flies to the real HUD chest target before releasing ownership.
+- Persist deterministic `cityItems` through save version 9 and reject unknown IDs, duplicate stacks, or invalid quantities against the active catalog before mutation.
 
 Primary files:
 
@@ -2737,6 +2757,11 @@ Primary files:
 - `Assets/Scripts/Runtime/UI/StrategyCityInventoryHudController.View.cs`
 - `Assets/Scripts/Runtime/UI/StrategyCityInventoryHudController.Items.cs`
 - `Assets/Scripts/Runtime/UI/StrategyCityInventoryHudController.Input.cs`
+- `Assets/Scripts/Runtime/UI/StrategyCityItemRewardRevealController.cs`
+- `Assets/Scripts/Runtime/UI/StrategyCityItemRewardRevealController.View.cs`
+- `Assets/Scripts/Runtime/UI/StrategyCityItemRewardRevealController.View.Helpers.cs`
+- `Assets/Scripts/Runtime/UI/StrategyCityItemRewardRevealController.Animation.cs`
+- `Assets/Resources/Visual/CityItems/Cats.png`
 - `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.CityInventory.cs`
 - `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Validation.CityItems.cs`
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.cs`
@@ -2744,12 +2769,14 @@ Primary files:
 - `Assets/Tests/EditMode/StrategyCityInventoryTests.cs`
 - `Assets/Tests/EditMode/StrategyCityInventorySaveTests.cs`
 - `Assets/Tests/EditMode/StrategyCityInventoryHudTests.cs`
+- `Assets/Tests/EditMode/StrategyCityItemRewardRevealTests.cs`
 
 Impact hints:
 
-- The production catalog is intentionally empty; adding rewards or content requires explicit catalog definitions and save compatibility, not resource-store entries.
-- Keep the HUD observational. Use/Equip actions, item effects, reward grants, and consumption rules require separate future owners.
+- The production catalog currently contains only unique `cats`; future rewards require explicit stable definitions and save compatibility, not resource-store entries.
+- Keep the inspection HUD observational. Reward presentation is a separate owner, and future Use/Equip or consumption rules require separate gameplay owners.
 - Keep the HUD input context limited to Camera/Gameplay/Build with `CancelMode.Close`; it must never acquire a time-scale pause lock.
+- Keep the reward presenter on all-channel `Swallow` plus its own named pause lock until chest flight completes; item mutation must happen before presentation.
 
 ### Shared Resource Stores And Queries
 
@@ -2811,7 +2838,7 @@ Responsibilities:
 - Materialize resident-carried stock into the save snapshot as loose resources at each resident's current cell because active tasks and carried state are intentionally rebuilt rather than serialized.
 - Write saves atomically and coordinate restoration only after runtime bootstrap has created all required systems.
 - Preserve F5 save and F8 load/restart controls while exposing read/validate/pending-load entry points to the intro menu Continue flow.
-- Preserve the founding profile, stable answer pairs, exact camp cell, current starter-cart origin, first-night fauna stage, deterministic City Inventory stacks, stable point-of-interest geometry/resource role/mineral origin/remaining amount/investigated state, and exact loose prepared-dish payloads across save version 8.
+- Preserve the founding profile, stable answer pairs, exact camp cell, current starter-cart origin, first-night fauna stage, deterministic City Inventory stacks, stable point-of-interest geometry/resource role/mineral origin/remaining amount/investigated state, and exact loose prepared-dish payloads across save version 9.
 
 Primary files:
 
@@ -2842,7 +2869,7 @@ Primary files:
 
 Impact hints:
 
-- Current persistence is version 8 with explicit migrations through v7-to-v8; v7 saves receive an empty `cityItems` list. Increment the version and add an explicit migration whenever persisted DTO shape changes; validate migrated data before applying it.
+- Current persistence is version 9 with explicit migrations through v8-to-v9; completed v8 first-night stories receive `cats x1` silently, while unresolved stages remain empty. Increment the version and add an explicit migration whenever persisted DTO shape or required semantic entitlement changes; validate migrated data before applying it.
 - Keep primary/temp/backup replacement and backup recovery in the file seam so interrupted writes do not destroy the last valid save.
 - Reject save files above 32 MiB before reading and keep top-level plus resident-child/prepared-dish/point-of-interest/City Inventory collection limits in validation.
 - Stable IDs are serialization contracts; never replace them with scene-instance IDs or object references.
