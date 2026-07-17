@@ -23,7 +23,8 @@ namespace ProjectUnknown.Strategy
         Logistics,
         ProductionInput,
         Household,
-        Trade
+        Trade,
+        Expedition
     }
 
     public interface IStrategyResourceStoreOwner
@@ -244,6 +245,18 @@ namespace ProjectUnknown.Strategy
 
             Version++;
             return taken;
+        }
+
+        internal void RestoreTakenForTransaction(StrategyResourceType resource, int amount)
+        {
+            int index = NormalizeResourceIndex(resource);
+            if (index == 0 || amount <= 0)
+            {
+                return;
+            }
+
+            amounts[index] += amount;
+            Version++;
         }
 
         public void Release(

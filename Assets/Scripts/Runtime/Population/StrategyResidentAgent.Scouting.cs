@@ -21,7 +21,9 @@ namespace ProjectUnknown.Strategy
         private bool hasScoutTarget;
 
         public StrategyScoutLodge ScoutWorkplace => scoutWorkplace;
-        public bool IsOnScoutExpedition => scoutWorkplace != null;
+        public bool IsScoutExploring => scoutWorkplace != null && scoutWorkplace.IsExploring;
+        public bool IsScoutReturning => scoutWorkplace != null && scoutWorkplace.IsReturning;
+        public bool IsOnScoutExpedition => IsScoutExploring || IsScoutReturning;
 
         public void AssignScoutWorkplace(StrategyScoutLodge lodge)
         {
@@ -37,7 +39,6 @@ namespace ProjectUnknown.Strategy
             bool preserveResourceReturn = IsCompletingResourceReturn();
             CancelScoutWork();
             scoutWorkplace = lodge;
-            LeaveNightRestForScoutDuty();
             if (!preserveResourceReturn)
             {
                 ResetScoutMovementToIdle();
@@ -378,6 +379,7 @@ namespace ProjectUnknown.Strategy
             return activity == ResidentActivity.Idle
                 && lodge != null
                 && lodge == scoutWorkplace
+                && lodge.IsExploring
                 && CanWork
                 && scoutWorkCooldown <= 0f
                 && workplace == null
@@ -476,7 +478,8 @@ namespace ProjectUnknown.Strategy
             return residentActivity is ResidentActivity.MovingToScoutFrontier
                 or ResidentActivity.SurveyingFrontier
                 or ResidentActivity.MovingToPointOfInterest
-                or ResidentActivity.InvestigatingPointOfInterest;
+                or ResidentActivity.InvestigatingPointOfInterest
+                or ResidentActivity.ReturningToScoutLodge;
         }
     }
 }

@@ -82,7 +82,9 @@ namespace ProjectUnknown.Strategy
 
             pathBuildDeferredDuringDecision = false;
             evaluatingPlannedTasks = true;
-            bool started = TryStartScoutTask();
+            bool started = IsScoutReturning
+                ? TryStartScoutReturnTask()
+                : TryStartScoutTask();
             evaluatingPlannedTasks = false;
             if (pathBuildDeferredDuringDecision)
             {

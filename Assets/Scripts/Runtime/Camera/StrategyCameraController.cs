@@ -61,7 +61,8 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            if (Time.unscaledTime < inputSuppressedUntilUnscaledTime)
+            if (!Application.isFocused
+                || Time.unscaledTime < inputSuppressedUntilUnscaledTime)
             {
                 ClampToBounds();
                 return;

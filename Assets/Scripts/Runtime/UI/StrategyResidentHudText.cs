@@ -1,3 +1,5 @@
+using UnityEngine;
+
 namespace ProjectUnknown.Strategy
 {
     public static class StrategyResidentHudText
@@ -304,6 +306,7 @@ namespace ProjectUnknown.Strategy
                 StrategyResidentAgent.ResidentActivity.SurveyingFrontier => "surveying terrain",
                 StrategyResidentAgent.ResidentActivity.MovingToPointOfInterest => "approaching a point of interest",
                 StrategyResidentAgent.ResidentActivity.InvestigatingPointOfInterest => "investigating a point of interest",
+                StrategyResidentAgent.ResidentActivity.ReturningToScoutLodge => "returning to Scout Lodge",
                 _ => "idle"
             };
 
@@ -407,6 +410,8 @@ namespace ProjectUnknown.Strategy
                 return status;
             }
 
+            status = GetScoutExpeditionStatus(resident, status);
+
             if (resident.IsHungry)
             {
                 status += " | " + resident.NutritionStatusText + " " + resident.DaysHungry + "d";
@@ -418,6 +423,45 @@ namespace ProjectUnknown.Strategy
             }
 
             return status;
+        }
+
+        private static string GetScoutExpeditionStatus(
+            StrategyResidentAgent resident,
+            string activityStatus)
+        {
+            StrategyScoutLodge lodge = resident != null ? resident.ScoutWorkplace : null;
+            if (lodge == null)
+            {
+                return activityStatus;
+            }
+
+            if (lodge.ExpeditionState == StrategyScoutExpeditionState.Returning)
+            {
+                return "returning to the Scout Lodge";
+            }
+
+            if (lodge.ExpeditionState == StrategyScoutExpeditionState.Ready)
+            {
+                return resident.Activity == StrategyResidentAgent.ResidentActivity.Idle
+                    ? "ready for an expedition"
+                    : activityStatus;
+            }
+
+            float totalHours = Mathf.Max(0f, lodge.RemainingExpeditionSeconds)
+                / StrategyDayNightCycleController.DayLengthSeconds
+                * 24f;
+            int days = Mathf.FloorToInt(totalHours / 24f);
+            int hours = Mathf.CeilToInt(totalHours - days * 24f);
+            if (hours >= 24)
+            {
+                days++;
+                hours = 0;
+            }
+
+            string remaining = days > 0
+                ? days + "d " + hours + "h"
+                : Mathf.Max(1, hours) + "h";
+            return activityStatus + " | expedition " + remaining + " left";
         }
     }
 }

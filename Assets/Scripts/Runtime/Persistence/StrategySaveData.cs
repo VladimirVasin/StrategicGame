@@ -6,7 +6,7 @@ namespace ProjectUnknown.Strategy
     [Serializable]
     public sealed class StrategySaveData
     {
-        public const int CurrentVersion = 9;
+        public const int CurrentVersion = 10;
 
         public int version = CurrentVersion;
         public long savedUtcTicks;
@@ -26,6 +26,7 @@ namespace ProjectUnknown.Strategy
         public List<StrategyLooseResourceSaveData> looseResources = new();
         public List<StrategyPointOfInterestSaveData> pointsOfInterest = new();
         public List<StrategyCityItemSaveData> cityItems = new();
+        public List<StrategyScoutLodgeSaveData> scoutLodges = new();
         public List<int> exploredCells = new();
         public List<int> trailCells = new();
     }
@@ -156,6 +157,20 @@ namespace ProjectUnknown.Strategy
     {
         public string itemId = string.Empty;
         public int quantity;
+    }
+
+    [Serializable]
+    public sealed class StrategyScoutLodgeSaveData
+    {
+        public string lodgeStableId = string.Empty;
+        public int residentId;
+        public int expeditionState;
+        public int plannedDays;
+        public float startedElapsedSeconds;
+        public float endsElapsedSeconds;
+        public float remainingFieldRations;
+        public float provisionRationCredit;
+        public int lastProvisionedDayIndex = -1;
     }
 
     [Serializable]

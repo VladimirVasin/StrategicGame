@@ -11,6 +11,14 @@ namespace ProjectUnknown.Strategy
 
         private void ApplyModeCopy()
         {
+            if (expeditionOnlyMode)
+            {
+                titleText.text = "PLAN AN EXPEDITION";
+                subtitleText.text = "How Far Beyond the Firelight?";
+                storyText.text = "The Scout is ready and the route is open. Choose how many days of provisions to pack: a longer expedition can chart more ground, but every dawn beyond the Lodge costs another ration.";
+                return;
+            }
+
             titleText.text = introductionMode ? "THE FIRST EXPEDITION" : "APPOINT A SCOUT";
             subtitleText.text = introductionMode ? "Beyond the Firelight" : "Choose Who Takes the Trail";
             storyText.text = introductionMode
@@ -21,7 +29,15 @@ namespace ProjectUnknown.Strategy
         private void RefreshCandidates()
         {
             candidates.Clear();
-            if (population != null)
+            if (expeditionOnlyMode && fixedExpeditionResident != null)
+            {
+                bool eligible = IsResidentEligibleForCurrentRequest(fixedExpeditionResident);
+                candidates.Add(new ScoutCandidate(
+                    fixedExpeditionResident,
+                    eligible,
+                    eligible ? string.Empty : "Scout or Lodge no longer ready"));
+            }
+            else if (population != null)
             {
                 IReadOnlyList<StrategyResidentAgent> residents = introductionMode
                     ? introductionCandidates
@@ -64,7 +80,14 @@ namespace ProjectUnknown.Strategy
 
             if (!selectedStillEligible)
             {
-                selectedResident = null;
+                if (selectedResident != null && !expeditionOnlyMode)
+                {
+                    SetActionStatus(
+                        "The selected resident is no longer available. Choose another Scout.",
+                        true);
+                }
+
+                selectedResident = expeditionOnlyMode ? fixedExpeditionResident : null;
             }
 
             contentRoot.sizeDelta = new Vector2(
@@ -85,7 +108,7 @@ namespace ProjectUnknown.Strategy
 
         private void SelectCandidate(StrategyResidentAgent resident)
         {
-            if (resident == null || lodge == null || !lodge.CanAppointWorker(resident))
+            if (!IsResidentEligibleForCurrentRequest(resident))
             {
                 SetActionStatus("That resident is no longer available for the trail.", true);
                 RefreshCandidates();
@@ -94,7 +117,9 @@ namespace ProjectUnknown.Strategy
 
             selectedResident = resident;
             SetActionStatus(
-                introductionMode
+                expeditionOnlyMode
+                    ? "Ready to choose the range of this expedition."
+                    : introductionMode
                     ? "Ready to carry the settlement's first map."
                     : "Ready to take the Lodge's compass beyond the familiar roads.",
                 false);
@@ -105,16 +130,30 @@ namespace ProjectUnknown.Strategy
         private void ConfirmSelection()
         {
             StrategyResidentAgent resident = selectedResident;
-            if (resident == null || lodge == null || !lodge.CanAppointWorker(resident))
+            if (!IsResidentEligibleForCurrentRequest(resident))
             {
-                SetActionStatus("The chosen resident is no longer available. Choose another scout.", true);
+                SetActionStatus(
+                    expeditionOnlyMode
+                        ? "This Scout or Lodge is no longer ready to depart."
+                        : "The chosen resident is no longer available. Choose another Scout.",
+                    true);
                 RefreshCandidates();
                 return;
             }
 
-            if (tryAssign == null || !tryAssign(resident))
+            if (!HasSufficientExpeditionRations())
             {
-                SetActionStatus("The appointment could not be completed. Review the roster and try again.", true);
+                SetActionStatus("The expedition cannot leave without all required rations.", true);
+                RefreshCandidates();
+                return;
+            }
+
+            int expeditionDays = selectedExpeditionDays;
+            if (tryAssign == null || !tryAssign(resident, expeditionDays))
+            {
+                SetActionStatus(
+                    "Departure could not be completed. Provisions or the Lodge state may have changed.",
+                    true);
                 RefreshCandidates();
                 return;
             }
@@ -125,15 +164,18 @@ namespace ProjectUnknown.Strategy
             RefreshInputContext(ShouldHoldInputContext);
             StrategyDebugLogger.Info(
                 "ScoutAssignment",
-                "ScoutAppointed",
-                StrategyDebugLogger.F("resident", resident.FullName));
+                expeditionOnlyMode ? "ExpeditionStarted" : "ScoutAppointedAndDispatched",
+                StrategyDebugLogger.F("resident", resident.FullName),
+                StrategyDebugLogger.F("days", expeditionDays));
             ClearRequestState();
             PlaySfx(StrategyHudSfxKind.Confirm);
         }
 
         private void DeferSelection()
         {
-            if (introductionMode && CountEligibleCandidates() > 0)
+            if (introductionMode
+                && CountEligibleCandidates() > 0
+                && HasSufficientExpeditionRations())
             {
                 return;
             }
@@ -147,6 +189,15 @@ namespace ProjectUnknown.Strategy
         private void UpdateCandidateSummary()
         {
             int eligibleCount = CountEligibleCandidates();
+            if (expeditionOnlyMode)
+            {
+                candidateHeadingText.text = eligibleCount > 0
+                    ? "SCOUT ON DUTY  /  READY"
+                    : "SCOUT ON DUTY  /  DEPARTURE BLOCKED";
+                emptyText.gameObject.SetActive(false);
+                return;
+            }
+
             candidateHeadingText.text = eligibleCount == 1
                 ? "CHOOSE A RESIDENT  /  1 READY"
                 : "CHOOSE A RESIDENT  /  " + eligibleCount + " READY";
@@ -159,19 +210,29 @@ namespace ProjectUnknown.Strategy
 
         private void UpdateActions()
         {
-            bool hasSelection = selectedResident != null;
-            confirmButton.interactable = hasSelection;
+            RefreshExpeditionControls();
+            bool hasSelection = IsResidentEligibleForCurrentRequest(selectedResident);
+            bool affordable = HasSufficientExpeditionRations();
+            confirmButton.interactable = hasSelection && affordable;
             confirmLabel.text = hasSelection
-                ? "Appoint " + selectedResident.FullName + " as Scout"
+                ? expeditionOnlyMode
+                    ? "Send " + selectedResident.FullName + " for "
+                        + selectedExpeditionDays + (selectedExpeditionDays == 1 ? " day" : " days")
+                    : "Appoint " + selectedResident.FullName + "  /  "
+                        + selectedExpeditionDays + (selectedExpeditionDays == 1 ? " day" : " days")
                 : "Choose a resident to continue";
 
             int eligibleCount = CountEligibleCandidates();
-            bool showDefer = !introductionMode || eligibleCount == 0;
+            bool showDefer = !introductionMode || eligibleCount == 0 || !affordable;
             deferButton.gameObject.SetActive(showDefer);
             deferLabel.text = introductionMode ? "Decide Later" : "Cancel";
             if (introductionMode && eligibleCount == 0 && string.IsNullOrEmpty(actionStatusText.text))
             {
                 SetActionStatus("No one can leave their duties today. Return when an adult is free.", true);
+            }
+            else if (introductionMode && !affordable && string.IsNullOrEmpty(actionStatusText.text))
+            {
+                SetActionStatus("The first expedition must wait until enough rations are stored.", true);
             }
         }
 
@@ -184,7 +245,10 @@ namespace ProjectUnknown.Strategy
             }
 
             GameObject current = eventSystem.currentSelectedGameObject;
-            if (current != null && board != null && current.transform.IsChildOf(board))
+            if (current != null
+                && current.activeInHierarchy
+                && board != null
+                && current.transform.IsChildOf(board))
             {
                 return;
             }

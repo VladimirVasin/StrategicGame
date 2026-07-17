@@ -114,6 +114,11 @@ namespace ProjectUnknown.Strategy
                     continue;
                 }
 
+                if (IsResidentExemptFromNightMeal(resident, nightMealDayIndex))
+                {
+                    continue;
+                }
+
                 nightMealExpectedResidentCount++;
                 if (IsResidentPresentForNightMeal(resident))
                 {
@@ -128,8 +133,14 @@ namespace ProjectUnknown.Strategy
         {
             return resident.IsSleepingInsideHome
                 || resident.IsHomeboundYoungChild
-                || resident.IsOnScoutExpedition
                 || resident.Activity == StrategyResidentAgent.ResidentActivity.StayingInsideHome;
+        }
+
+        private static bool IsResidentExemptFromNightMeal(
+            StrategyResidentAgent resident,
+            int dayIndex)
+        {
+            return resident.IsScoutExploring || resident.LastNutritionDayIndex >= dayIndex;
         }
 
         private void ResolveNightMeal(int dayIndex, bool forced)
@@ -194,6 +205,7 @@ namespace ProjectUnknown.Strategy
                 if (resident == null
                     || resident.Home != house
                     || resident.IsPendingRefugee
+                    || IsResidentExemptFromNightMeal(resident, nightMealDayIndex)
                     || IsResidentPresentForNightMeal(resident))
                 {
                     continue;

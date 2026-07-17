@@ -163,7 +163,8 @@ namespace ProjectUnknown.Strategy
             InvestigatingPointOfInterest,
             StandingByAtSawmill,
             StandingByAtKiln,
-            StandingByAtForge
+            StandingByAtForge,
+            ReturningToScoutLodge
         }
     }
 }

@@ -21,6 +21,7 @@ namespace ProjectUnknown.Strategy
             HandleDeleteInput();
             HandleSelectionInput();
             UpdateHudAnimation();
+            UpdateSelectedScoutLodgeHud();
         }
 
         private void HandleDeleteInput()

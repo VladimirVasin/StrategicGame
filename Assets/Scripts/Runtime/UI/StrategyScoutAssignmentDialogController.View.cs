@@ -49,6 +49,7 @@ namespace ProjectUnknown.Strategy
             BuildHeader();
             BuildStoryCard();
             BuildCandidateList();
+            BuildExpeditionDurationControls();
             BuildFooter();
 
             panelTransition = root.gameObject.AddComponent<StrategyUiPanelTransition>();
@@ -191,7 +192,7 @@ namespace ProjectUnknown.Strategy
             SetTopStretch(candidateHeadingText.rectTransform, 46f, 329f, 28f, 24f);
 
             RectTransform viewport = CreateUiObject("CandidateViewport", board).GetComponent<RectTransform>();
-            SetTopStretch(viewport, 44f, 359f, 43f, 278f);
+            SetTopStretch(viewport, 44f, 359f, 43f, 210f);
             Image viewportImage = viewport.gameObject.AddComponent<Image>();
             viewportImage.color = new Color(0.025f, 0.038f, 0.036f, 0.92f);
             Mask mask = viewport.gameObject.AddComponent<Mask>();
@@ -205,7 +206,7 @@ namespace ProjectUnknown.Strategy
             contentRoot.sizeDelta = new Vector2(-12f, 1f);
 
             RectTransform scrollbarRoot = CreateUiObject("Scrollbar", board).GetComponent<RectTransform>();
-            SetTopRight(scrollbarRoot, 30f, 359f, 9f, 278f);
+            SetTopRight(scrollbarRoot, 30f, 359f, 9f, 210f);
             Image track = scrollbarRoot.gameObject.AddComponent<Image>();
             track.color = new Color(0f, 0f, 0f, 0.36f);
             RectTransform handle = CreateUiObject("Handle", scrollbarRoot).GetComponent<RectTransform>();
@@ -236,7 +237,7 @@ namespace ProjectUnknown.Strategy
                 14,
                 TextAnchor.MiddleCenter,
                 new Color(0.70f, 0.76f, 0.72f, 1f));
-            SetTopStretch(emptyText.rectTransform, 70f, 440f, 55f, 60f);
+            SetTopStretch(emptyText.rectTransform, 70f, 420f, 55f, 60f);
         }
 
         private void BuildFooter()
@@ -251,7 +252,7 @@ namespace ProjectUnknown.Strategy
             actionStatusText.resizeTextForBestFit = true;
             actionStatusText.resizeTextMinSize = 10;
             actionStatusText.resizeTextMaxSize = 12;
-            SetTopStretch(actionStatusText.rectTransform, 46f, 650f, 28f, 33f);
+            SetTopStretch(actionStatusText.rectTransform, 46f, 675f, 28f, 29f);
 
             confirmButton = CreateActionButton(
                 "ConfirmButton",

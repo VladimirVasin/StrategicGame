@@ -118,6 +118,29 @@ namespace ProjectUnknown.Strategy
             return count;
         }
 
+        private int CountAppointableScoutCandidates(StrategyScoutLodge[] lodges)
+        {
+            if (population == null || lodges == null || lodges.Length == 0)
+            {
+                return 0;
+            }
+
+            int count = 0;
+            foreach (StrategyResidentAgent resident in population.Residents)
+            {
+                for (int i = 0; i < lodges.Length; i++)
+                {
+                    if (lodges[i] != null && lodges[i].CanAppointWorker(resident))
+                    {
+                        count++;
+                        break;
+                    }
+                }
+            }
+
+            return count;
+        }
+
         private static int CountAssigned<T>(T[] items, Func<T, int> getCount)
             where T : Component
         {

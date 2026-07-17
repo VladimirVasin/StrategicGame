@@ -143,6 +143,8 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            bool preserveNightRest = sleepingInsideHome
+                || (returningHomeToSleep && activity == ResidentActivity.MovingHome);
             ClearConstructionSite(null);
             CancelLumberWork();
             CancelStoneWork();
@@ -182,14 +184,7 @@ namespace ProjectUnknown.Strategy
             SetCarriedGameVisible(false);
             SetCarriedFishVisible(false);
             SetCarriedForageVisible(false);
-            activity = ResidentActivity.Idle;
-            hasTarget = false;
-            path.Clear();
-            pathIndex = 0;
-            waitTimer = Random.Range(0.08f, 0.32f);
-            transform.localRotation = Quaternion.identity;
-            transform.localScale = Vector3.one;
-            UseIdleSprite();
+            ResetActivityForConstructionAssignment(preserveNightRest);
             StrategyDebugLogger.Info(
                 "Population",
                 "ResidentConstructionAssigned",

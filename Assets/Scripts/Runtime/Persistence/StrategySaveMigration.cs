@@ -46,6 +46,9 @@ namespace ProjectUnknown.Strategy
                     case 8:
                         MigrateVersion8To9(data);
                         break;
+                    case 9:
+                        MigrateVersion9To10(data);
+                        break;
                     default:
                         reason = "missing_migration_from_version_" + data.version;
                         return false;
@@ -122,6 +125,12 @@ namespace ProjectUnknown.Strategy
             data.version = 9;
         }
 
+        private static void MigrateVersion9To10(StrategySaveData data)
+        {
+            data.scoutLodges = new List<StrategyScoutLodgeSaveData>();
+            data.version = 10;
+        }
+
         private static bool ContainsCityItem(
             IReadOnlyList<StrategyCityItemSaveData> items,
             string itemId)
@@ -145,6 +154,7 @@ namespace ProjectUnknown.Strategy
             data.looseResources ??= new List<StrategyLooseResourceSaveData>();
             data.pointsOfInterest ??= new List<StrategyPointOfInterestSaveData>();
             data.cityItems ??= new List<StrategyCityItemSaveData>();
+            data.scoutLodges ??= new List<StrategyScoutLodgeSaveData>();
             data.exploredCells ??= new List<int>();
             data.trailCells ??= new List<int>();
             data.foundingStart ??= new StrategyFoundingStartSaveData();
@@ -188,6 +198,15 @@ namespace ProjectUnknown.Strategy
                 if (resource != null)
                 {
                     resource.preparedDishRecipeId ??= string.Empty;
+                }
+            }
+
+            for (int i = 0; i < data.scoutLodges.Count; i++)
+            {
+                StrategyScoutLodgeSaveData lodge = data.scoutLodges[i];
+                if (lodge != null)
+                {
+                    lodge.lodgeStableId ??= string.Empty;
                 }
             }
         }

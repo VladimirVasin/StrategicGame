@@ -1,5 +1,26 @@
 # Work Log
 
+### 2026-07-17 - Unfocused camera remains stationary
+
+- Fixed background edge-pan moving the strategy camera downward while the application was unfocused: the Input System retained a bottom-edge pointer position while `runInBackground` continued unscaled camera updates.
+- Manual pan, zoom, and camp recenter input now stop while `Application.isFocused` is false. Background simulation and authored animated/programmatic camera focus remain unchanged.
+- Verification: technical quality gates pass, and both `Assembly-CSharp` and `ProjectUnknown.Runtime` build with zero warnings/errors.
+
+### 2026-07-17 - Builder sleep survives late construction assignment
+
+- Fixed a late-evening construction assignment clearing a Builder's `MovingHome` activity and route while leaving `returningHomeToSleep` set, which stranded the resident outside and unable to restart sleep until Dawn.
+- Construction assignments now retain an active trip home or an existing in-home sleep while recording the new site for the next work period; ordinary daytime assignment keeps its immediate reset behavior.
+- No new regression tests were added by request. Verification: technical quality gates pass, and both `Assembly-CSharp` and `ProjectUnknown.Runtime` build with zero warnings/errors.
+
+### 2026-07-17 - Finite Scout expeditions and provisions
+
+- Replaced permanent assigned-Scout exploration with a persisted `Ready -> Exploring -> Returning -> Ready` expedition cycle. The first appointment and every later departure choose 1-7 full game days, defaulting to one day; expiry or manual recall sends the resident physically back to the Lodge before another expedition can begin.
+- Added an atomic expedition-provision service that prepays one ration per selected day from Settlement, Temporary Settlement, or Production stores while excluding Household and Loose stock, respecting existing reservations, rolling back partial transactions, retaining unavoidable whole-unit overage as Lodge credit, and refreshing affected food visuals.
+- Active Scouts receive one prepaid field ration at each applicable Night boundary and are excluded from that household dinner; Ready and Returning Scouts use ordinary sleep/dinner behavior. Duration follows scaled simulation time, freezes under pause locks, and completes before any same-frame expiry-boundary ration can be applied.
+- Extended the first-expedition board with a 1-7 day stepper, live cost/available provisions, projected return date, shortage messaging, safe deferral, and atomic appointment-plus-dispatch. Selected-Lodge, Profession, and resident HUDs now expose Ready/Exploring/Returning state, live remaining time/rations, Send, and Recall behavior.
+- Upgraded persistence to version 10 with stable Lodge/resident references, mission state, start/end time, remaining field rations, fractional credit, and nutrition-day guard. The v9-to-v10 migration adds no legacy Scout assignment, and restore never charges provisions a second time.
+- Added policy, economy, dialog, state, persistence, expiry-boundary, blocking-duty, manual-HUD eligibility, and existing Scout regression coverage. Verification: technical gates pass, all five C# projects build sequentially with zero warnings/errors, the combined focused Unity EditMode Scout suite passes 51/51, and Unity PlayMode smoke passes.
+
 ### 2026-07-17 - Cinematic scenes force x1 speed
 
 - Gameplay-space cinematics previously paused simulation but retained the requested x2/x3, so gameplay resumed at that accelerated speed after the camera returned.

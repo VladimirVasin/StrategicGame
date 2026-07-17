@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ProjectUnknown.Strategy
 {
     [DisallowMultipleComponent]
-    public sealed class StrategyScoutLodgeOnboardingController : MonoBehaviour
+    public sealed partial class StrategyScoutLodgeOnboardingController : MonoBehaviour
     {
         private const string PauseReason = "ScoutLodgeOnboarding";
         private const float FocusZoom = 7f;
@@ -132,6 +132,7 @@ namespace ProjectUnknown.Strategy
             bool showIntroduction)
         {
             ClearReturnCameraView();
+            ClearExpeditionDispatchRequest();
             pendingBuilding = building;
             pendingLodge = lodge;
             introduction = showIntroduction;
@@ -146,7 +147,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            if (pendingLodge.WorkerCount >= StrategyScoutLodge.MaxWorkers)
+            if (!CanProceedWithPendingRequest())
             {
                 selection?.SelectBuilding(pendingBuilding);
                 CancelFlow(false);
@@ -206,12 +207,23 @@ namespace ProjectUnknown.Strategy
             stage = FlowStage.Dialog;
             try
             {
-                dialog.Show(
-                    pendingLodge,
-                    population,
-                    introduction,
-                    TryAssignSelectedResident,
-                    HandleDeferred);
+                if (dispatchExistingScout)
+                {
+                    dialog.ShowExpedition(
+                        pendingLodge,
+                        pendingExpeditionResident,
+                        TryStartSelectedExpedition,
+                        HandleDeferred);
+                }
+                else
+                {
+                    dialog.Show(
+                        pendingLodge,
+                        population,
+                        introduction,
+                        TryAssignSelectedResident,
+                        HandleDeferred);
+                }
                 StrategyDebugLogger.Info(
                     "ScoutOnboarding",
                     introduction ? "IntroductionOpened" : "PickerOpened",
@@ -227,12 +239,12 @@ namespace ProjectUnknown.Strategy
             }
         }
 
-        private bool TryAssignSelectedResident(StrategyResidentAgent resident)
+        private bool TryAssignSelectedResident(StrategyResidentAgent resident, int expeditionDays)
         {
             bool isFirstScout = CountAssignedScouts() == 0;
             if (!HasUsableTarget()
                 || resident == null
-                || !pendingLodge.TryAppointWorker(resident))
+                || !pendingLodge.TryAppointAndStartExpedition(resident, expeditionDays))
             {
                 StrategyHudSfxAudio.Play(StrategyHudSfxKind.Deny);
                 return false;
@@ -243,12 +255,14 @@ namespace ProjectUnknown.Strategy
             StrategyEventLogHudController.Notify(
                 isFirstScout
                     ? resident.FullName + " set out beyond the firelight as the settlement's first Scout."
-                    : resident.FullName + " took up the Lodge's compass and joined the Scouts.",
+                    : resident.FullName + " took up the Lodge's compass for a "
+                        + expeditionDays + "-day expedition.",
                 new Color(0.86f, 0.70f, 0.42f));
             StrategyDebugLogger.Info(
                 "ScoutOnboarding",
                 "ScoutAppointed",
                 StrategyDebugLogger.F("resident", resident.FullName),
+                StrategyDebugLogger.F("days", expeditionDays),
                 StrategyDebugLogger.F("origin", completedBuilding.Origin));
             CompleteFlow();
             return true;
@@ -391,6 +405,7 @@ namespace ProjectUnknown.Strategy
             ReleasePauseLock();
             pendingBuilding = null;
             pendingLodge = null;
+            ClearExpeditionDispatchRequest();
             introduction = false;
             stage = FlowStage.None;
 

@@ -823,27 +823,36 @@ Responsibilities:
 - On the first live Scout Lodge completion, force requested x1, capture the current camera view, smoothly focus/zoom the Lodge, hold a named simulation pause and modal input context, then open a storytelling expedition board and restore/release the camera view when the flow resolves; later manual picker openings preserve requested speed.
 - Hold three stable random adult candidates for the introduction, prioritizing Haulers/Builders, with portraits and exact eligibility/block reasons; later picker openings show the full adult roster.
 - Let explicit appointment transfer the exact selected resident from an ordinary worksite/Hauler/Builder role through owner-side unassignment while keeping automatic Scout assignment free-worker-only.
-- Reuse the same exact-resident picker from the selected Lodge and Profession HUD, with manual cancellation outside the first-completion introduction.
+- Combine appointment with an atomic first dispatch, and reuse the same planning board for an already assigned Ready Scout from the selected Lodge.
+- Choose 1-7 full game days, default one, prepay one ration per day, show available provisions/projected return, and allow safe deferral when food is insufficient.
+- Drive each Lodge through persisted `Ready -> Exploring -> Returning -> Ready`; expiry or Recall releases active targets and routes the resident physically back to the Lodge.
 - Reserve distinct frontier targets across multiple Scout Lodges.
 - Select only in-bounds unexplored, walkable cells with an in-bounds cardinal explored neighbor.
 - Prefer the nearest frontier deterministically, using nearby unknown coverage and stable coordinates as tie-breakers.
-- Route one assigned Scout with critical navigation priority, survey for 2.5-3.5 seconds, and repeat continuously through day and night without generic idle wandering.
+- Route one actively Exploring Scout with critical navigation priority, survey for 2.5-3.5 seconds, and repeat through day and night without generic idle wandering until the finite timer expires.
 - Prioritize the nearest persistently discovered uninvestigated point of interest, reserve it across Scouts, travel to it, and investigate for 1.5-2.5 seconds before resuming frontier work.
-- Expose the single Scout slot through both the settlement-wide Profession HUD and the selected Scout Lodge HUD.
+- Expose Ready/Exploring/Returning counts through the Profession HUD, live mission/countdown/ration text through resident and Lodge HUDs, and Send/Recall through the selected Lodge slot.
 - Temporarily reject unreachable targets, release deferred paths immediately, and clear reservations on unassignment, death, funeral interruption, demolition, or resident-role change.
 - Expand map exploration only through the Scout resident's existing Fog of War reveal source.
-- Keep assigned Scouts out of home/camp sleep and settlement lamp-lighting duty, wake them when assigned at night, retain personal torch visuals, and treat their household ration as a field meal while they remain away.
+- Keep actively Exploring/Returning Scouts out of home/camp sleep and settlement lamp-lighting duty; only Exploring consumes prepaid field rations and skips household dinner, while Ready/Returning use ordinary household nutrition.
 
 Primary files/assets:
 
 - `Assets/Scripts/Runtime/Build/StrategyScoutLodge.cs`
+- `Assets/Scripts/Runtime/Build/StrategyScoutLodge.Expedition.cs`
+- `Assets/Scripts/Runtime/Build/StrategyScoutExpeditionPolicy.cs`
+- `Assets/Scripts/Runtime/Build/StrategyScoutExpeditionState.cs`
 - `Assets/Scripts/Runtime/Build/StrategyScoutTargetSelector.cs`
 - `Assets/Scripts/Runtime/UI/StrategyScoutLodgeOnboardingController.cs`
+- `Assets/Scripts/Runtime/UI/StrategyScoutLodgeOnboardingController.Expedition.cs`
 - `Assets/Scripts/Runtime/UI/StrategyScoutAssignmentDialogController.cs`
+- `Assets/Scripts/Runtime/UI/StrategyScoutAssignmentDialogController.Expedition.cs`
 - `Assets/Scripts/Runtime/UI/StrategyScoutAssignmentDialogController.View.cs`
 - `Assets/Scripts/Runtime/UI/StrategyScoutAssignmentDialogController.Candidates.cs`
 - `Assets/Scripts/Runtime/UI/StrategyScoutAssignmentRowView.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Scouting.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.ScoutReturn.cs`
+- `Assets/Scripts/Runtime/Economy/StrategyScoutProvisionService.cs`
 - `Assets/Scripts/Runtime/Map/StrategyPointOfInterestController.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part36.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Part41.cs`
@@ -856,13 +865,18 @@ Primary files/assets:
 - `Assets/Tests/EditMode/StrategyScoutTargetSelectorTests.cs`
 - `Assets/Tests/EditMode/StrategyScoutAssignmentFlowTests.cs`
 - `Assets/Tests/EditMode/StrategyScoutLodgeCameraFocusTests.cs`
+- `Assets/Tests/EditMode/StrategyScoutExpeditionDialogTests.cs`
+- `Assets/Tests/EditMode/StrategyScoutExpeditionPolicyTests.cs`
+- `Assets/Tests/EditMode/StrategyScoutExpeditionStateTests.cs`
+- `Assets/Tests/EditMode/StrategyScoutProvisionServiceTests.cs`
 
 Impact hints:
 
-- Scout assignments and active frontier/point reservations are transient like other worksite assignments; the placed Lodge, explored fog cells, point positions, and investigated point state persist through their owning snapshots.
+- Scout Lodge assignment, expedition state/timing, field rations, and provision credit persist in save v10; only active movement and frontier/point reservations rebuild after load, and restore never charges food again.
 - Scout is intentionally manual-only in this MVP and is not managed by Auto Workforce priorities.
 - Explicit profession-to-Scout transfer must remove the resident through the previous worksite owner so its roster and reservations stay consistent; carried-resource return can finish before Scout movement begins.
 - Restored Lodges do not replay the introduction; an empty restored Lodge can be staffed from either normal picker entry point.
+- Recall, unassignment, death, and demolition never refund prepaid provisions; unavoidable whole-food overage remains Lodge-local credit until spent or that Lodge is destroyed.
 - A `No reachable frontier` state may mean remaining unknown land is isolated by water or blockers, not that every map cell is explored.
 
 ### Point Of Interest Exploration MVP
@@ -876,7 +890,7 @@ Responsibilities:
 - Expose only persistently discovered, uninvestigated landmarks to Scout reservation; reject conflicts across multiple Scouts and cool down unreachable targets.
 - Mark investigation completion atomically and retain the marker in an investigated check state.
 - Queue a resource-specific one-action `OK` debug encounter, hold one simulation pause lock across queued notices, block all input, swallow cancel, and defer behind existing modal pause owners.
-- Capture and restore stable point IDs, cells, Coal/Iron/neutral role, exact mineral origin, remaining amount, and investigated state through current save version 9; reserve pending live-site cells before deterministic nature/forage generation and treat depletion as a typed site with no live deposit.
+- Capture and restore stable point IDs, cells, Coal/Iron/neutral role, exact mineral origin, remaining amount, and investigated state through current save version 10; reserve pending live-site cells before deterministic nature/forage generation and treat depletion as a typed site with no live deposit.
 - Clear legacy v5 point geometry during migration so the first v6 load restores buildings/construction first, then regenerates the owned-site layout around them instead of retaining ten neutral landmarks.
 
 Primary files/assets:
@@ -1109,7 +1123,7 @@ Primary files/assets:
 
 Impact hints:
 
-- Individual wildlife/fauna agents and the transient cinematic rat/cat hunt actors remain runtime-only. Save version 9 retains the first-night fauna stage plus City Inventory entitlement; restore clears live cats/mice and reconstructs the required minimum population from that state.
+- Individual wildlife/fauna agents and the transient cinematic rat/cat hunt actors remain runtime-only. Save version 10 retains the first-night fauna stage plus City Inventory entitlement; restore clears live cats/mice and reconstructs the required minimum population from that state.
 - `MiceVisible` means the full rat-prelude-plus-story presentation is unresolved, so restore/retry may replay the prelude. Story completion or Skip grants `Cats`; world cats require both that ownership and `StoryCompleted`. The reward presenter must claim input/pause synchronously, its accepted callback must hand directly into the cat hunt, and migration/backfill must never replay either presentation.
 - Deer and birds do not reveal fog or block walkability; adult deer can yield `Game` only after the Hunter Camp upgrade, rabbits can yield `Game` through the base hunter-camp work loop, fish can yield `Fish` through the fisher-hut work loop, and wolves are predators rather than player-harvestable resources.
 - Initial rabbit spawn, deer herds, fish shoals, birds, and wolf packs depend on hidden near-settlement candidate cells instead of map-wide placement; if no hidden candidate exists for a species, that species should skip spawning rather than appearing far from buildings or inside visible fog.
@@ -2745,7 +2759,7 @@ Responsibilities:
 - Define `Cats` as the first unique production item and expose its ownership as the permanent settlement-fauna entitlement granted by the first-night story.
 - Present a read-only top-bar launcher, distinct-stack badge, empty state, one-column descriptive rows, and detail view without Use/Equip actions or inspection-time simulation pause.
 - Present newly granted items through a reusable all-input, simulation-pausing cinematic card that commits ownership first, requires confirmation, and flies to the real HUD chest target before releasing ownership.
-- Persist deterministic `cityItems` through save version 9 and reject unknown IDs, duplicate stacks, or invalid quantities against the active catalog before mutation.
+- Persist deterministic `cityItems` through save version 10 and reject unknown IDs, duplicate stacks, or invalid quantities against the active catalog before mutation.
 
 Primary files:
 
@@ -2785,6 +2799,7 @@ Responsibilities:
 - Own physical resource amounts and reservations across settlement storage, production, houses, the starter cart, loose construction piles, and loose carried-resource piles.
 - Aggregate resource availability for HUD, construction affordability, logistics, and seasonal readiness without counting carried stock.
 - Adapt existing source-specific reserve/commit/release behavior to the common query contract.
+- Reserve and atomically commit Scout provisions through a dedicated Expedition channel without consuming Household or Loose food, and notify stock owners only after a successful cross-store transaction.
 - Preserve exact prepared-dish recipe/count/leftover payloads while loose and restore them when a Householder delivers the pile.
 
 Primary files:
@@ -2792,6 +2807,9 @@ Primary files:
 - `Assets/Scripts/Runtime/Economy/StrategyResourceStore.cs`
 - `Assets/Scripts/Runtime/Economy/StrategyResourceQueryService.cs`
 - `Assets/Scripts/Runtime/Economy/StrategyResourceReservationProviders.cs`
+- `Assets/Scripts/Runtime/Economy/StrategyScoutProvisionService.cs`
+- `Assets/Scripts/Runtime/Economy/StrategyFoodResourceTakeObservers.cs`
+- `Assets/Scripts/Runtime/Economy/IStrategyExternalResourceTakeObserver.cs`
 - `Assets/Scripts/Runtime/Economy/StrategyHouseResourceStore.cs`
 - `Assets/Scripts/Runtime/Economy/StrategyHouseResourceStore.Dishes.cs`
 - `Assets/Scripts/Runtime/Economy/StrategyLooseCarriedResourcePile.cs`
@@ -2805,6 +2823,7 @@ Impact hints:
 
 - New stock-owning buildings should expose a common store and declare the correct query scope.
 - Keep resources removed from a source while carried so settlement totals never double-count in-transit stock.
+- Expedition payment may span stores and must remain all-or-nothing; never expose the internal rollback helper as a general resource grant API.
 
 ### First Winter Progression
 
@@ -2838,7 +2857,7 @@ Responsibilities:
 - Materialize resident-carried stock into the save snapshot as loose resources at each resident's current cell because active tasks and carried state are intentionally rebuilt rather than serialized.
 - Write saves atomically and coordinate restoration only after runtime bootstrap has created all required systems.
 - Preserve F5 save and F8 load/restart controls while exposing read/validate/pending-load entry points to the intro menu Continue flow.
-- Preserve the founding profile, stable answer pairs, exact camp cell, current starter-cart origin, first-night fauna stage, deterministic City Inventory stacks, stable point-of-interest geometry/resource role/mineral origin/remaining amount/investigated state, and exact loose prepared-dish payloads across save version 9.
+- Preserve the founding profile, stable answer pairs, exact camp cell, current starter-cart origin, first-night fauna stage, deterministic City Inventory stacks, stable Scout Lodge assignment/mission/timing/provision state, stable point-of-interest geometry/resource role/mineral origin/remaining amount/investigated state, and exact loose prepared-dish payloads across save version 10.
 
 Primary files:
 
@@ -2848,10 +2867,12 @@ Primary files:
 - `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Files.cs`
 - `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Validation.cs`
 - `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Validation.CityItems.cs`
+- `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Validation.ScoutLodges.cs`
 - `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Validation.LooseResources.cs`
 - `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Capture.cs`
 - `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Apply.cs`
 - `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.CityInventory.cs`
+- `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.ScoutLodges.cs`
 - `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Founding.cs`
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.Persistence.cs`
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.Founding.cs`
@@ -2866,10 +2887,11 @@ Primary files:
 - `Assets/Tests/EditMode/StrategySaveLooseResourceTests.cs`
 - `Assets/Tests/EditMode/StrategyFirstNightFaunaSaveTests.cs`
 - `Assets/Tests/EditMode/StrategyCityInventorySaveTests.cs`
+- `Assets/Tests/EditMode/StrategyScoutExpeditionSaveTests.cs`
 
 Impact hints:
 
-- Current persistence is version 9 with explicit migrations through v8-to-v9; completed v8 first-night stories receive `cats x1` silently, while unresolved stages remain empty. Increment the version and add an explicit migration whenever persisted DTO shape or required semantic entitlement changes; validate migrated data before applying it.
+- Current persistence is version 10 with explicit migrations through v9-to-v10; completed v8 first-night stories still receive `cats x1` silently, while v9 legacy saves initialize an empty Scout Lodge state list. Increment the version and add an explicit migration whenever persisted DTO shape or required semantic entitlement changes; validate migrated data before applying it.
 - Keep primary/temp/backup replacement and backup recovery in the file seam so interrupted writes do not destroy the last valid save.
 - Reject save files above 32 MiB before reading and keep top-level plus resident-child/prepared-dish/point-of-interest/City Inventory collection limits in validation.
 - Stable IDs are serialization contracts; never replace them with scene-instance IDs or object references.

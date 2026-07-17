@@ -17,7 +17,7 @@ namespace ProjectUnknown.Strategy
 
         private StrategyScoutLodge lodge;
         private StrategyPopulationController population;
-        private Func<StrategyResidentAgent, bool> tryAssign;
+        private Func<StrategyResidentAgent, int, bool> tryAssign;
         private Action deferredCallback;
         private StrategyResidentAgent selectedResident;
         private StrategyInputRouter inputRouter;
@@ -80,8 +80,40 @@ namespace ProjectUnknown.Strategy
             StrategyScoutLodge scoutLodge,
             StrategyPopulationController populationController,
             bool introduction,
-            Func<StrategyResidentAgent, bool> assignmentHandler,
+            Func<StrategyResidentAgent, int, bool> assignmentHandler,
             Action onDeferred)
+        {
+            ShowInternal(
+                scoutLodge,
+                populationController,
+                introduction,
+                assignmentHandler,
+                onDeferred,
+                null);
+        }
+
+        public void ShowExpedition(
+            StrategyScoutLodge scoutLodge,
+            StrategyResidentAgent assignedScout,
+            Func<StrategyResidentAgent, int, bool> expeditionHandler,
+            Action onDeferred)
+        {
+            ShowInternal(
+                scoutLodge,
+                null,
+                false,
+                expeditionHandler,
+                onDeferred,
+                assignedScout);
+        }
+
+        private void ShowInternal(
+            StrategyScoutLodge scoutLodge,
+            StrategyPopulationController populationController,
+            bool introduction,
+            Func<StrategyResidentAgent, int, bool> assignmentHandler,
+            Action onDeferred,
+            StrategyResidentAgent assignedScout)
         {
             Configure();
             ResolvePreviousRequestIfNeeded();
@@ -93,7 +125,7 @@ namespace ProjectUnknown.Strategy
             tryAssign = assignmentHandler;
             deferredCallback = onDeferred;
             callbackResolved = false;
-            selectedResident = null;
+            PrepareExpeditionRequest(assignedScout);
             refreshTimer = CandidateRefreshInterval;
             PrepareIntroductionCandidates();
             ApplyModeCopy();
@@ -271,6 +303,7 @@ namespace ProjectUnknown.Strategy
             selectedResident = null;
             candidates.Clear();
             introductionCandidates.Clear();
+            ClearExpeditionRequestState();
         }
 
         private static void PlaySfx(StrategyHudSfxKind kind)

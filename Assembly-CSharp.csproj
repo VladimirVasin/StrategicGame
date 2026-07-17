@@ -15,6 +15,17 @@
     <Compile Include="Assets\Scripts\Runtime\Inventory\StrategyCityInventory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Persistence\StrategySaveSystem.CityInventory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Persistence\StrategySaveSystem.Validation.CityItems.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Persistence\StrategySaveSystem.Validation.ScoutLodges.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Persistence\StrategySaveSystem.ScoutLodges.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyScoutExpeditionPolicy.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyScoutExpeditionState.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyScoutLodge.Expedition.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Economy\IStrategyExternalResourceTakeObserver.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Economy\StrategyFoodResourceTakeObservers.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Economy\StrategyScoutProvisionService.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.ScoutReturn.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyScoutAssignmentDialogController.Expedition.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyScoutLodgeOnboardingController.Expedition.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyCityInventoryHudController.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyCityInventoryHudController.View.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyCityInventoryHudController.Items.cs" />

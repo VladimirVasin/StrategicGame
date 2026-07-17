@@ -85,9 +85,10 @@ namespace ProjectUnknown.Strategy.EditorTests
                 lodge,
                 population,
                 true,
-                resident =>
+                (resident, days) =>
                 {
                     assignments++;
+                    Assert.That(days, Is.EqualTo(StrategyScoutExpeditionPolicy.DefaultDays));
                     return lodge.AssignWorker(resident);
                 },
                 () => deferrals++);
@@ -127,7 +128,7 @@ namespace ProjectUnknown.Strategy.EditorTests
                 lodge,
                 population,
                 true,
-                resident =>
+                (resident, _) =>
                 {
                     assignments++;
                     return lodge.TryAppointWorker(resident);
@@ -167,7 +168,12 @@ namespace ProjectUnknown.Strategy.EditorTests
             Assert.That(fourth.AssignSettlementBuilderRole(), Is.True);
 
             StrategyScoutAssignmentDialogController dialog = CreateDialog(CreateConfiguredRouter());
-            dialog.Show(lodge, population, true, lodge.TryAppointWorker, null);
+            dialog.Show(
+                lodge,
+                population,
+                true,
+                (resident, _) => lodge.TryAppointWorker(resident),
+                null);
             List<Button> rows = GetActiveCandidateRows(dialog);
             List<string> namesBeforeRefresh = GetCandidateNames(rows);
             Assert.That(rows, Has.Count.EqualTo(3));
@@ -234,7 +240,7 @@ namespace ProjectUnknown.Strategy.EditorTests
             Assert.That(EventSystem.current, Is.SameAs(eventSystem));
             int cancelledRequests = 0;
 
-            dialog.Show(lodge, null, false, _ => false, () => cancelledRequests++);
+            dialog.Show(lodge, null, false, (_, _) => false, () => cancelledRequests++);
 
             Assert.That(EventSystem.current, Is.SameAs(eventSystem));
             Assert.That(router.ActiveContextCount, Is.EqualTo(1));
@@ -253,7 +259,7 @@ namespace ProjectUnknown.Strategy.EditorTests
             Assert.That(eventSystem.currentSelectedGameObject, Is.SameAs(previousSelection));
 
             int disabledRequests = 0;
-            dialog.Show(lodge, null, false, _ => false, () => disabledRequests++);
+            dialog.Show(lodge, null, false, (_, _) => false, () => disabledRequests++);
             Assert.That(router.ActiveContextCount, Is.EqualTo(1));
             InvokeDisableLifecycle(dialog);
             InvokeDisableLifecycle(dialog);
@@ -267,6 +273,9 @@ namespace ProjectUnknown.Strategy.EditorTests
             GameObject root = CreateRoot("Test Scout Lodge");
             StrategyScoutLodge lodge = root.AddComponent<StrategyScoutLodge>();
             lodge.Configure(null, null, null, null);
+            StrategyResourceStore provisions = new();
+            provisions.Bind(root, StrategyResourceStoreScope.Settlement);
+            provisions.Add(StrategyResourceType.Dish, 10);
             return lodge;
         }
 

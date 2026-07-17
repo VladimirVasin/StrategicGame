@@ -58,6 +58,11 @@
     <Compile Include="Assets\Tests\EditMode\StrategyScoutTargetSelectorTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyScoutLodgeCameraFocusTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyScoutAssignmentFlowTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyScoutExpeditionSaveTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyScoutExpeditionDialogTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyScoutExpeditionPolicyTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyScoutExpeditionStateTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyScoutProvisionServiceTests.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.Quality.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.Soak.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.Soak.FirstNightCatHunt.cs" />

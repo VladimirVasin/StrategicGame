@@ -175,6 +175,23 @@ namespace ProjectUnknown.Strategy
             UseIdleSprite();
         }
 
+        private void ResetActivityForConstructionAssignment(bool preserveNightRest)
+        {
+            if (preserveNightRest)
+            {
+                return;
+            }
+
+            activity = ResidentActivity.Idle;
+            hasTarget = false;
+            path.Clear();
+            pathIndex = 0;
+            waitTimer = Random.Range(0.08f, 0.32f);
+            transform.localRotation = Quaternion.identity;
+            transform.localScale = Vector3.one;
+            UseIdleSprite();
+        }
+
         private void ClearVisibleCarriedResourcesForHomeInterior()
         {
             StoreCarriedHouseholdLogsOnCancel(true, "enter_home");

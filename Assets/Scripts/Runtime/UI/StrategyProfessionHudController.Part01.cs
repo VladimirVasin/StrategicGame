@@ -76,6 +76,8 @@ namespace ProjectUnknown.Strategy
                     StrategyScoutLodge[] scoutLodges = FindSorted<StrategyScoutLodge>();
                     snapshot.Assigned = CountAssigned(scoutLodges, lodge => lodge.WorkerCount);
                     snapshot.Capacity = scoutLodges.Length * StrategyScoutLodge.MaxWorkers;
+                    snapshot.FreeWorkers = CountAppointableScoutCandidates(scoutLodges);
+                    snapshot.Subtitle = GetScoutProfessionSummary(scoutLodges, snapshot.Assigned);
                     break;
                 case StrategyProfessionType.StorageWorker:
                     snapshot.Assigned = population != null ? population.CountSettlementHaulers() : 0;
@@ -431,7 +433,8 @@ namespace ProjectUnknown.Strategy
                     StrategyScoutLodge[] scoutLodges = FindSorted<StrategyScoutLodge>();
                     for (int i = scoutLodges.Length - 1; i >= 0; i--)
                     {
-                        if (TryRemoveWorker(scoutLodges[i], scoutLodges[i].WorkerCount, out worker, index => scoutLodges[i].UnassignWorkerAt(index)))
+                        if (scoutLodges[i].ExpeditionState == StrategyScoutExpeditionState.Ready
+                            && TryRemoveWorker(scoutLodges[i], scoutLodges[i].WorkerCount, out worker, index => scoutLodges[i].UnassignWorkerAt(index)))
                         {
                             return true;
                         }
@@ -445,6 +448,43 @@ namespace ProjectUnknown.Strategy
                 default:
                     return false;
             }
+        }
+
+        private static string GetScoutProfessionSummary(
+            StrategyScoutLodge[] lodges,
+            int assigned)
+        {
+            int exploring = 0;
+            int returning = 0;
+            for (int i = 0; i < lodges.Length; i++)
+            {
+                if (lodges[i] == null || lodges[i].WorkerCount <= 0)
+                {
+                    continue;
+                }
+
+                exploring += lodges[i].ExpeditionState == StrategyScoutExpeditionState.Exploring ? 1 : 0;
+                returning += lodges[i].ExpeditionState == StrategyScoutExpeditionState.Returning ? 1 : 0;
+            }
+
+            int ready = Mathf.Max(0, assigned - exploring - returning);
+            return ready + " ready  /  " + exploring + " exploring  /  " + returning + " returning";
+        }
+
+        private static bool HasReadyScout()
+        {
+            StrategyScoutLodge[] lodges = FindSorted<StrategyScoutLodge>();
+            for (int i = 0; i < lodges.Length; i++)
+            {
+                if (lodges[i] != null
+                    && lodges[i].WorkerCount > 0
+                    && lodges[i].ExpeditionState == StrategyScoutExpeditionState.Ready)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
     }

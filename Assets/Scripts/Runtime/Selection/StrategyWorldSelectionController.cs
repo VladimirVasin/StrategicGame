@@ -21,6 +21,7 @@ namespace ProjectUnknown.Strategy
         private StrategyBuildingUpgradeController upgradeController;
         private StrategyBuildPlacementController placementController;
         private StrategyConfirmationDialogController confirmationDialog;
+        private StrategyPopulationController population;
         private StrategyScoutLodgeOnboardingController scoutLodgeOnboarding;
         private StrategyFogOfWarController fog;
         private CityMapController map;
@@ -148,6 +149,7 @@ namespace ProjectUnknown.Strategy
             upgradeController = upgrades;
             placementController = placement;
             confirmationDialog = confirmation;
+            population = populationController;
             fog = fogController;
             map = mapController != null ? mapController : Object.FindAnyObjectByType<CityMapController>();
             EnsureMarker();

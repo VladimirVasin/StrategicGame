@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ProjectUnknown.Strategy
 {
     [DisallowMultipleComponent]
-    public sealed class StrategyScoutLodge : MonoBehaviour
+    public sealed partial class StrategyScoutLodge : MonoBehaviour
     {
         public const int MaxWorkers = 1;
 
@@ -122,7 +122,7 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            missionStatus = "Planning route";
+            HandleScoutWorkerAssigned();
             StrategyDebugLogger.Info(
                 "ScoutLodge",
                 "WorkerAssigned",
@@ -139,6 +139,7 @@ namespace ProjectUnknown.Strategy
             }
 
             StrategyResidentAgent worker = workers[index];
+            HandleScoutWorkerRemoved(worker);
             workers.RemoveAt(index);
             if (worker != null)
             {
@@ -308,9 +309,7 @@ namespace ProjectUnknown.Strategy
 
         public string GetHudStatusText()
         {
-            return "Scouts: " + WorkerCount + "/" + MaxWorkers
-                + "\nMission: " + missionStatus
-                + "\nExploration expands the known map";
+            return BuildExpeditionHudStatusText();
         }
 
         public bool CanAssignWorker(StrategyResidentAgent resident)
@@ -468,6 +467,7 @@ namespace ProjectUnknown.Strategy
 
         private void OnDestroy()
         {
+            HandleScoutLodgeDestroyed();
             ReleaseExplorationTarget(null);
             for (int i = workers.Count - 1; i >= 0; i--)
             {

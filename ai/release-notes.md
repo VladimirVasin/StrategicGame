@@ -1,6 +1,6 @@
 # Release Notes
 
-Last updated: 2026-07-15
+Last updated: 2026-07-17
 
 ## Unreleased
 
@@ -12,6 +12,7 @@ Last updated: 2026-07-15
 - Settlements now continue running after Alt-Tab; explicit/modal pauses remain paused, and all audio mutes out of focus then returns at the previous volume.
 - Assigned Sawyers, Potters, and Blacksmiths now remain on duty at their production building throughout the workday when inputs or output space are unavailable, then resume production as soon as the blockage clears.
 - `Escape` now opens an in-game pause menu with Resume, Save Game, audio/display settings, and confirmed Main Menu or Quit actions.
+- Scout expeditions now last 1-7 selected days, cost one prepaid ration per day, show live mission state and provisions in the HUD, and end with the Scout physically returning to the Lodge.
 
 ## Maintenance Rule
 

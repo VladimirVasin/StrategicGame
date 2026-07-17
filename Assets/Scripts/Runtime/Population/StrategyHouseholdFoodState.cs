@@ -107,7 +107,7 @@ namespace ProjectUnknown.Strategy
 
         private void ResolveDailyRation(int dayIndex)
         {
-            CollectActiveResidents();
+            CollectActiveResidents(dayIndex);
             lastResidentCount = activeResidents.Count;
             if (lastResidentCount <= 0)
             {
@@ -230,7 +230,7 @@ namespace ProjectUnknown.Strategy
             }
         }
 
-        private void CollectActiveResidents()
+        private void CollectActiveResidents(int dayIndex)
         {
             activeResidents.Clear();
             if (house == null)
@@ -242,7 +242,11 @@ namespace ProjectUnknown.Strategy
             for (int i = 0; i < residents.Count; i++)
             {
                 StrategyResidentAgent resident = residents[i];
-                if (resident != null && resident.Home == house && !resident.IsPendingRefugee)
+                if (resident != null
+                    && resident.Home == house
+                    && !resident.IsPendingRefugee
+                    && !resident.IsScoutExploring
+                    && resident.LastNutritionDayIndex < dayIndex)
                 {
                     activeResidents.Add(resident);
                 }

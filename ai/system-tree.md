@@ -393,8 +393,8 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Creates storage yard components when the storage tool is placed
     - Creates granary components when the granary tool is placed
     - Creates trading post components when the trade tool is placed
-    - Creates a one-worker Scout Lodge component on an exact `2x4` footprint when the exploration tool is placed
-    - First live Scout Lodge completion forces requested x1, then queues an unscaled camera focus, simulation pause, and exact-resident expedition assignment flow without delaying the next starter build goals; later manual picker openings preserve requested speed
+    - Creates a one-worker Scout Lodge component on an exact `2x4` footprint with persisted `Ready`, `Exploring`, and `Returning` expedition state
+    - First live Scout Lodge completion forces requested x1, then queues an unscaled camera focus, simulation pause, exact-resident selection, 1-7 day duration, and prepaid provision flow without delaying the next starter build goals; later manual picker openings preserve requested speed
     - Fisher huts require nearby water with adjacent walkable shore access before placement is accepted
     - Bridge uses a two-click placement flow: first river bank cell, then highlighted opposite-bank candidate across contiguous River water
     - Completed bridges make their selected River water span walkable through the map bridge-walkability overlay without changing water identity
@@ -589,9 +589,9 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Resident pathing can recover a blocked start cell by moving the resident to a nearby walkable cell and logging the recovery
     - Resident logistics tests building perimeter cells for an entrance reachable by that resident and briefly caches failed resident/building pairs until retry time or a walkability-version change
     - Deferred resident path requests remain queued budget waits: planned-task scans yield without dropping construction assignments, reservations, or recording false unreachable failures; wildlife movement uses background navigation priority
-    - Resident work normally starts during the shared Dawn-through-Dusk work window; nightfall defers new production, construction, logistics, hunting, fishing, household-food pickup, and household cooking while allowing carried resources and deposits/returns to finish, while assigned Scouts remain on continuous expeditions
-    - During `Night`, housed idle residents other than assigned Scouts path to their home, hide inside the house, and wake at the home exit after night ends
-    - At the start of `Night`, random eligible housed adults other than assigned Scouts can be assigned building and roadside light sources; they leave home, walk to nearest queued lights, kindle them with animation, and return to night sleep
+    - Resident work normally starts during the shared Dawn-through-Dusk work window; nightfall defers new production, construction, logistics, hunting, fishing, household-food pickup, and household cooking while allowing carried resources and deposits/returns to finish, while actively Exploring Scouts remain on finite day/night expeditions
+    - During `Night`, housed idle residents other than actively Exploring/Returning Scouts path to their home, hide inside the house, and wake at the home exit after night ends
+    - At the start of `Night`, random eligible housed adults other than actively Exploring/Returning Scouts can be assigned building and roadside light sources; they leave home, walk to nearest queued lights, kindle them with animation, and return to night sleep
     - During `Night`, homeless idle residents reserve reachable spots around the startup campfire; one resident can relight embers with a visible kindling animation before sleeping on the ground by the fire, and sleeping residents show a small `Zzz...` indicator
     - Householders fetch raw `Fish`/`Game`/`Eggs`/forage ingredients from Granaries or production-food fallback sources, fetch Pottery from Storage Yards, fetch winter household `Logs`, or cook prepared `Dish` from ingredients and Pottery during `TendingHousehold` home duty
     - Non-householder residents no longer forage directly for their own house; generated forage nodes are consumed by assigned Forager Camp workers instead
@@ -606,8 +606,10 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Residents assigned to a hunter camp reserve the nearest available adult rabbit on the map, move to roughly 2-3 tile bow range, shoot arrow projectiles with a 20% miss chance, butcher carcasses on hit, carry `Game`, and deposit it into hunter camp stock
     - Residents assigned to a fisher hut reserve the nearest reachable in-range fish, move to shore, cast/reel while range remains valid, carry `Fish`, and deposit it into fisher hut stock
     - Residents assigned to a Forager Camp reserve generated Berries/Roots/Mushrooms nodes, gather forage with reach/crouch animation frames, and deposit it into camp stock
-    - Residents assigned to a Scout Lodge reserve distinct walkable unknown-side frontier cells, use critical navigation plus short bounded retries, survey for 2.5-3.5 seconds, and repeat day and night while their ordinary Fog of War reveal radius uncovers the map
+    - Scouts in `Exploring` reserve distinct walkable unknown-side frontier cells, use critical navigation plus short bounded retries, survey for 2.5-3.5 seconds, and repeat day and night while their ordinary Fog of War reveal radius uncovers the map
     - Scouts prioritize the nearest persistently discovered uninvestigated point of interest, reserve it globally, travel to it, interact for 1.5-2.5 seconds, and resume frontier exploration after completion
+    - Expedition expiry or recall releases exploration reservations and routes the resident physically back to the Lodge before returning to `Ready`
+    - One prepaid field ration is applied per applicable Night boundary without a second household dinner; Ready and Returning Scouts use normal household nutrition
     - Residents assigned as Haulers path to lumberjack camp stock, carry Logs to storage, and deposit them
     - Residents assigned as Haulers also path to stonecutter camp stock, carry Stone to storage, and deposit it
     - Residents assigned as Haulers also path to Mine stock, carry Iron to storage, and deposit it
@@ -650,7 +652,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - The house HUD does not expose Garden Beds or Chicken Coop house-upgrade actions
     - The house HUD shows a compact Dinner row with prepared rations vs family need, next prepared/cookable dish, the main blocker, a short local stock line, and filtered household resource icons/counts including single food units
     - The lumberjack, stonecutter, sawmill, mine, coal pit, clay pit, kiln, forge, hunter, fisher, and granary HUDs show status/resource context without assignment controls
-    - The Scout Lodge HUD exposes its single Scout slot with direct Assign/Remove controls and keeps Exploration status below the worker row
+    - The Scout Lodge HUD exposes its single Scout slot with Assign/Send/Recall/Returning actions plus live duration and field-ration status below the worker row
     - The Trading Post HUD shows settlement Coins, caravan ETA/status, and active buy/sell offer buttons while a caravan is trading
     - Eligible production/extraction building HUDs show a compact Tools-based production upgrade action row
     - The Storage Yard HUD shows icon-led Hauler/Builder/source chips, a resource stock grid, and logistics readiness status without assignment controls
@@ -692,7 +694,8 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Custom first-Scout expedition assignment board
     - Opens after the first live Scout Lodge completes, pauses simulation, temporarily focuses the Lodge, restores the prior camera view when resolved, and explains exploration through a storytelling panel
     - Holds three stable random adult candidates for the introduction, prioritizing Haulers/Builders, while later manual openings show the full adult roster
-    - Transfers the exact selected ordinary worker through the previous role owner, shows portraits/blocking reasons, requires a choice when someone is eligible, and permits safe deferral only when nobody is available
+    - Transfers the exact selected ordinary worker through the previous role owner, chooses 1-7 days, displays one-ration-per-day cost, available stock and projected return time, and atomically appoints plus dispatches
+    - Shows portraits/blocking reasons, requires a choice when someone is eligible and provisions suffice, and permits safe deferral when nobody is available or food is insufficient
     - Restores keyboard/controller focus and releases its owned input/pause state on appointment, deferral, cancellation, disable, or target loss
   - Custom first-night fauna chronicle
     - Preloads three `1672x941` Resources-backed story shots when Day 1 reaches `Dusk`
@@ -729,11 +732,11 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Gameplay can be rendered at deterministic Noon, Spring, Autumn, Night, and Winter states for visual comparison when a graphics device is available
 
 - Persistence
-  - Version-9 JSON save data with migrations through v8-to-v9, validation, atomic temporary-file replacement, and `.bak` recovery
-  - The v8-to-v9 migration silently backfills `Cats` for completed first-night stories; current saves capture deterministic stable-ID special-item stacks and restore them atomically against the active catalog
+  - Version-10 JSON save data with migrations through v9-to-v10, validation, atomic temporary-file replacement, and `.bak` recovery
+  - The v8-to-v9 migration silently backfills `Cats` for completed first-night stories; v9-to-v10 initializes an empty Scout Lodge state list for legacy saves
   - F5 saves the current settlement; F8 loads it by restarting and restoring the runtime scene
   - Stable IDs reconnect placed buildings, residents, homes, parents, and children without serializing Unity object references
-  - Snapshot coverage includes map seed/time/weather, founding profile answers and exact camp/current-cart origin, first-winter milestones, first-night fauna stage, City Inventory stacks, buildings, construction sites, resource and dish stock, residents and cold state, ground resources plus in-transit resident stock represented as loose resources at saved resident cells, exact prepared-dish payloads, explored fog, route-road cells, and point-of-interest position/resource kind/mineral origin/remaining amount/investigated state
+  - Snapshot coverage includes map seed/time/weather, founding profile answers and exact camp/current-cart origin, first-winter milestones, first-night fauna stage, City Inventory stacks, buildings, construction sites, resource and dish stock, residents and cold state, stable Scout Lodge assignment/mission/timing/field-ration/credit state, ground resources plus in-transit resident stock represented as loose resources at saved resident cells, exact prepared-dish payloads, explored fog, route-road cells, and point-of-interest position/resource kind/mineral origin/remaining amount/investigated state
 
 - AI collaboration memory
   - Root entry point: `AI.md`
@@ -746,8 +749,8 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Runtime bootstrap depends on scene role, one scene-local game context, explicit preload ownership transfer, and the presence of a usable `Main Camera` or permission to create one.
 - Intro menu launch depends on save validation, one persistent preload coordinator, deterministic map seed handling, the Founding Journey decision gate for New Settlement, and the gameplay scene-loaded bootstrap hook; prepared terrain keeps Unity object creation/upload on the main thread.
 - Founding Journey presentation couples each authored shot to its atmosphere and scene-owned Weather/Fire ambience; its answers feed a pure selector over a captured map snapshot, and selected camp/cart cells feed population startup, nature/forage exclusions, exact starter-cart placement, save v3, and the initial camera focus.
-- The first-night fauna presentation couples the shared Day 1 calendar, settlement-fauna target policy, reusable in-game cinematic player, strategy camera, deterministic resident/rat and cat/mouse staging, Founding Journey presentation/atmosphere reuse, modal pause/input ownership, three Resources-backed narrative shots, the `Cats` entitlement, cinematic reward reveal, and save-v9 restoration; the story callback grants the item before completing the stage and revealing the card, whose completed chest flight atomically starts the transient cat hunt.
-- City Inventory couples bootstrap-owned scene lifetime, stable string-ID stacks, the first `Cats` production entitlement, event-driven read-only HUD refresh, scoped non-pausing inspection input, a separate simulation-pausing reward presenter, settlement fauna, and version-9 persistence while remaining separate from resource stores and logistics.
+- The first-night fauna presentation couples the shared Day 1 calendar, settlement-fauna target policy, reusable in-game cinematic player, strategy camera, deterministic resident/rat and cat/mouse staging, Founding Journey presentation/atmosphere reuse, modal pause/input ownership, three Resources-backed narrative shots, the `Cats` entitlement, cinematic reward reveal, and save-v10 restoration; the story callback grants the item before completing the stage and revealing the card, whose completed chest flight atomically starts the transient cat hunt.
+- City Inventory couples bootstrap-owned scene lifetime, stable string-ID stacks, the first `Cats` production entitlement, event-driven read-only HUD refresh, scoped non-pausing inspection input, a separate simulation-pausing reward presenter, settlement fauna, and version-10 persistence while remaining separate from resource stores and logistics.
 - Audio bootstrap depends on map generation, camera setup/orthographic zoom, strategy wind/weather values, `Resources/Audio` assets, the in-game music/work/HUD-SFX folders, resident walk animation frames, resident work impact/release frames, and runtime HUD interaction events.
 - Application focus couples Player background execution with the audio mix only: it never mutates simulation time, so active modal pause locks remain authoritative while unfocused running settlements continue to advance.
 - The in-game pause menu couples Global Cancel arbitration, an all-channel modal context, a named time-scale pause lock, persistence, shared game settings, shared confirmations, and Main Menu scene flow; it releases input/time ownership on Resume, disable, and scene transition.
@@ -785,8 +788,9 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Resident movement records repeated completed building-to-building route traversals as stable roads after three real arrivals, shares road-aware 8-direction A* pathfinding with the road layer, tries direct road capture before falling back to smoothed travel waypoints, and reads formed roads for path-cost preference plus a 15% movement-speed bonus; ordinary footfalls and automatic route-network reinforcement no longer create roads, while roadside torch props are visual-only derivatives of existing road cells.
 - Time scale accelerates core simulation timers, while expensive visual/service systems use unscaled real-time cadences for fog, cinematic/weather/water/nature overlays, wildlife migration/caches/threat scans, population housekeeping, resident scheduled-work decision budgeting, and resident path-build budgeting.
 - World selection uses placed-building/resident/construction-site colliders, inspectable world-object sprite bounds, generated map cell data, fog state, the strategy camera, house resource state, and production-building upgrade state.
-- Profession HUD depends on population adults and current worksite components; it is the settlement-wide worker assignment surface while the selected Scout Lodge HUD also controls its single Scout slot, both Scout entry points depend on the onboarding coordinator/dialog for exact selection, existing worksite components still own capped role state and work loops, and settlement Haulers/Builders remain uncapped population roles.
-- First-Scout onboarding links placement completion, strategy camera focus, world selection, population eligibility, modal input ownership, time-scale pause locks, the selected-Lodge HUD, and the Profession HUD without becoming a persisted goal or workplace assignment.
+- Profession HUD depends on population adults and current worksite components; it remains the settlement-wide assignment surface and summarizes Scout Ready/Exploring/Returning counts, while the selected Scout Lodge owns Send/Recall and live countdown actions through the shared expedition dialog.
+- First-Scout onboarding links placement completion, strategy camera focus, world selection, population eligibility, provision availability, modal input ownership, time-scale pause locks, the selected-Lodge HUD, and the Profession HUD without becoming a persisted starter-goal requirement.
+- Scout expeditions couple Lodge/resident state, scaled calendar time, atomic shared-store provisioning, household nutrition, Fog of War/POI navigation, selected/Profession/resident HUDs, and version-10 persistence; only transient route reservations rebuild after load.
 - Refugee arrival demand depends on accepted adult counts plus finite worksite/construction slot counts, while intentionally ignoring uncapped settlement Hauler/Builder capacity.
 - Auto workforce depends on population availability, Profession HUD priority settings, construction sites, settlement Hauler/Builder role APIs, production worksite stock/capacity, Forge/Tools demand, household food emergency state, winter household Log reserve demand, and Granary raw food ingredient availability.
 - Strategy camera checks UI pointer state so bottom HUD interaction does not pan/zoom the map.

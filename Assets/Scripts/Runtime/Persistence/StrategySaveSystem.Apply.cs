@@ -87,6 +87,7 @@ namespace ProjectUnknown.Strategy
                 population.RestoreResident(data.residents[i], buildingsById);
             }
 
+            RestoreScoutLodges(data.scoutLodges, buildingsById);
             population.FinalizeResidentRestore();
             RestoreLooseResources(data.looseResources);
             StrategyTrailController.Active?.RestorePersistentTrailCells(data.trailCells);
@@ -107,6 +108,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("buildings", data.buildings.Count),
                 StrategyDebugLogger.F("sites", data.constructionSites.Count),
                 StrategyDebugLogger.F("residents", data.residents.Count),
+                StrategyDebugLogger.F("scoutLodges", data.scoutLodges.Count),
                 StrategyDebugLogger.F("cityItems", data.cityItems.Count),
                 StrategyDebugLogger.F("day", StrategyDayNightCycleController.CurrentDayIndex + 1));
         }

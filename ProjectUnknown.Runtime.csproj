@@ -151,6 +151,7 @@
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategyTradeTransactionService.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWildlifeController.FishRegions.cs" />
     <Compile Include="Assets\Scripts\Runtime\Navigation\StrategyNavigationTypes.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Economy\IStrategyExternalResourceTakeObserver.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyNaturePropController.Part02.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\IStrategyProductionLogisticsNode.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWildlifeRiverCrossing.cs" />
@@ -171,6 +172,7 @@
     <Compile Include="Assets\Scripts\Runtime\Selection\StrategyWorldSelectionController.Part11.cs" />
     <Compile Include="Assets\Scripts\Runtime\Selection\StrategyWorldSelectionController.Part12.cs" />
     <Compile Include="Assets\Scripts\Runtime\Visual\StrategyVisualCatalog.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyScoutLodge.Expedition.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategySettlementFaunaController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part55.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyFishSpriteFactory.cs" />
@@ -190,6 +192,7 @@
     <Compile Include="Assets\Scripts\Runtime\Founding\StrategyStartSiteFeatureMap.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyTrailController.RouteConnectionRepair.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingSpriteFactory.Part06.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Economy\StrategyFoodResourceTakeObservers.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyFamilyTreeCardHoverAnimator.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyConstructionSite.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyKiln.Part02.cs" />
@@ -231,6 +234,7 @@
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildPlacementController.Founding.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyProfessionHudController.Input.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyStorageYard.Part12.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyScoutAssignmentDialogController.Expedition.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyRabbitAgent.Part05.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyTrailController.Roadside.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyFogOfWarController.WeatherFog.cs" />
@@ -255,6 +259,7 @@
     <Compile Include="Assets\Scripts\Runtime\Persistence\StrategySaveSystem.Validation.CityItems.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyPerformanceDiagnostics.cs" />
     <Compile Include="Assets\Scripts\Runtime\Visual\StrategyVisualCatalog.Atlases.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyScoutExpeditionState.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyBuildTool.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyGoalDefinition.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyFirstNightCatHuntShotPlanner.cs" />
@@ -263,6 +268,7 @@
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyAutoWorkforceController.Part03.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyRoadsideLightSource.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyConstructionSite.Active.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Economy\StrategyScoutProvisionService.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyTerrainTexturePainter.Macro.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyCinematicVisualSprites.cs" />
     <Compile Include="Assets\Scripts\Runtime\Audio\StrategyMusicController.cs" />
@@ -342,6 +348,7 @@
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.SettlementRoles.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyCoalResourceController.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyFamilyTreeHudController.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Persistence\StrategySaveSystem.ScoutLodges.cs" />
     <Compile Include="Assets\Scripts\Runtime\Menu\StrategyFoundingJourneyController.Flow.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWildlifeController.Part11.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part47.cs" />
@@ -353,6 +360,7 @@
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part27.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyForestryTree.Part01.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyGameBootstrap.WorldChunks.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.ScoutReturn.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\IStrategyHuntTarget.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyAutoWorkforceController.SettlementRoles.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyGranary.Part01.cs" />
@@ -379,7 +387,9 @@
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part62.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part14.cs" />
     <Compile Include="Assets\Scripts\Runtime\Navigation\StrategyNavigationPathfinder.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyScoutLodgeOnboardingController.Expedition.cs" />
     <Compile Include="Assets\Scripts\Runtime\Founding\StrategyStartSiteSelector.Scoring.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Build\StrategyScoutExpeditionPolicy.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyFamilyTreeHudController.Part05.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyForge.Part02.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyPopulationController.SeasonReadiness.cs" />
@@ -402,6 +412,7 @@
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyTrailController.Persistence.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part40.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyCoalPit.Part01.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Persistence\StrategySaveSystem.Validation.ScoutLodges.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\CityMapController.Buildability.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyTrailController.Diagnostics.cs" />
     <Compile Include="Assets\Scripts\Runtime\Map\StrategyNatureFrameAnimator.cs" />

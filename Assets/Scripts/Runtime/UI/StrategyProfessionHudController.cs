@@ -469,7 +469,8 @@ namespace ProjectUnknown.Strategy
             row.Background.color = snapshot.Assigned > 0
                 ? new Color(snapshot.Accent.r, snapshot.Accent.g, snapshot.Accent.b, 0.18f)
                 : new Color(1f, 1f, 1f, 0.055f);
-            row.MinusButton.interactable = snapshot.Assigned > 0;
+            row.MinusButton.interactable = snapshot.Assigned > 0
+                && (snapshot.Type != StrategyProfessionType.Scout || HasReadyScout());
             row.PlusButton.interactable = (snapshot.IsUnlimited || snapshot.Assigned < snapshot.Capacity)
                 && snapshot.FreeWorkers > 0;
         }

@@ -143,7 +143,8 @@ namespace ProjectUnknown.Strategy
             if (activity is ResidentActivity.MovingToScoutFrontier
                 or ResidentActivity.SurveyingFrontier
                 or ResidentActivity.MovingToPointOfInterest
-                or ResidentActivity.InvestigatingPointOfInterest)
+                or ResidentActivity.InvestigatingPointOfInterest
+                or ResidentActivity.ReturningToScoutLodge)
             {
                 return StrategyResidentTaskKind.Exploration;
             }

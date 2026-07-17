@@ -74,6 +74,7 @@ namespace ProjectUnknown.Strategy
                 || data.looseResources == null
                 || data.pointsOfInterest == null
                 || data.cityItems == null
+                || data.scoutLodges == null
                 || data.exploredCells == null
                 || data.trailCells == null)
             {
@@ -87,6 +88,7 @@ namespace ProjectUnknown.Strategy
                 || data.looseResources.Count > MaxSaveLooseResources
                 || data.pointsOfInterest.Count > MaxSavePointsOfInterest
                 || data.cityItems.Count > MaxSaveCityItems
+                || data.scoutLodges.Count > data.buildings.Count
                 || data.exploredCells.Count > cellCount
                 || data.trailCells.Count > cellCount)
             {
@@ -101,6 +103,7 @@ namespace ProjectUnknown.Strategy
                 || !ValidateLooseResources(data, out reason)
                 || !ValidatePointsOfInterest(data, out reason)
                 || !ValidateCityItems(data.cityItems, out reason)
+                || !ValidateScoutLodges(data, out reason)
                 || !ValidateCellIndices(data.exploredCells, cellCount, "explored", out reason)
                 || !ValidateCellIndices(data.trailCells, cellCount, "trail", out reason))
             {
