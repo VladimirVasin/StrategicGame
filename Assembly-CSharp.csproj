@@ -9,6 +9,14 @@
   </PropertyGroup>
   <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
   <ItemGroup>
+    <Compile Include="Assets\Scripts\Runtime\Inventory\StrategyResidentItemDefinition.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Inventory\StrategyResidentItemCatalog.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Inventory\StrategyResidentPersonalInventoryData.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Inventory\StrategyResidentPersonalInventory.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.PersonalInventory.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Persistence\StrategySaveSystem.ResidentItems.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Persistence\StrategySaveSystem.Validation.ResidentItems.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Selection\StrategyWorldSelectionController.ResidentPersonalInventory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Inventory\StrategyCityItemDefinition.cs" />
     <Compile Include="Assets\Scripts\Runtime\Inventory\StrategyCityItemCatalog.cs" />
     <Compile Include="Assets\Scripts\Runtime\Inventory\StrategyCityInventoryData.cs" />

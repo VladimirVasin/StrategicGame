@@ -12,6 +12,10 @@ namespace ProjectUnknown.Strategy
             StrategyCityInventoryRestoreFailure inventoryFailure =
                 StrategyCityInventoryRestoreFailure.None;
             if (!ValidateSaveData(data, out string reason)
+                || !ValidateResidentItemsAgainstCatalog(
+                    data.residents,
+                    StrategyResidentItemCatalog.Production,
+                    out reason)
                 || data.mapWidth != map.Width
                 || data.mapHeight != map.Height
                 || !TryRestoreCityInventory(
@@ -108,6 +112,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("buildings", data.buildings.Count),
                 StrategyDebugLogger.F("sites", data.constructionSites.Count),
                 StrategyDebugLogger.F("residents", data.residents.Count),
+                StrategyDebugLogger.F("residentItems", CountResidentPersonalItems(data.residents)),
                 StrategyDebugLogger.F("scoutLodges", data.scoutLodges.Count),
                 StrategyDebugLogger.F("cityItems", data.cityItems.Count),
                 StrategyDebugLogger.F("day", StrategyDayNightCycleController.CurrentDayIndex + 1));

@@ -79,6 +79,21 @@ namespace ProjectUnknown.Strategy
                 data.coldExposure,
                 data.lastColdResolutionDayIndex,
                 data.childIds);
+            if (!StrategySaveSystem.TryRestoreResidentPersonalInventory(
+                    agent,
+                    data.personalItems,
+                    out StrategyResidentPersonalInventoryFailure inventoryFailure))
+            {
+                StrategyDebugLogger.Warn(
+                    "Save",
+                    "ResidentPersonalInventoryRestoreFailed",
+                    StrategyDebugLogger.F("residentId", data.residentId),
+                    StrategyDebugLogger.F("reason", inventoryFailure));
+                agent.gameObject.SetActive(false);
+                Destroy(agent.gameObject);
+                return null;
+            }
+
             RegisterResident(agent);
             nextResidentId = Mathf.Max(nextResidentId, data.residentId + 1);
             if (!string.IsNullOrWhiteSpace(agent.FamilyName))

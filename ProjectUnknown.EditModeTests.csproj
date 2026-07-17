@@ -62,12 +62,14 @@
     <Compile Include="Assets\Tests\EditMode\StrategyScoutProvisionServiceTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyStartSiteSelectorTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyPauseMenuControllerTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyResidentPersonalInventoryHudTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyScoutExpeditionSaveTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyPointOfInterestSaveValidationTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyCityInventorySaveTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyUiButtonFeedbackTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyResidentCharacterizationTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyVerificationTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyResidentPersonalInventorySaveTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyInGameCinematicInfrastructureTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyGameContextTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyFirstNightRatShotPlannerTests.cs" />
@@ -78,6 +80,7 @@
     <Compile Include="Assets\Tests\EditMode\StrategyFirstNightRatCinematicTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyFirstNightFaunaTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyChickenCoopVisualProfileTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyResidentPersonalInventoryTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyCinematicRatTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyScoutExpeditionStateTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyHouseVisualEffectTests.cs" />

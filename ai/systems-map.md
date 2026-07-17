@@ -890,7 +890,7 @@ Responsibilities:
 - Expose only persistently discovered, uninvestigated landmarks to Scout reservation; reject conflicts across multiple Scouts and cool down unreachable targets.
 - Mark investigation completion atomically and retain the marker in an investigated check state.
 - Queue a resource-specific one-action `OK` debug encounter, hold one simulation pause lock across queued notices, block all input, swallow cancel, and defer behind existing modal pause owners.
-- Capture and restore stable point IDs, cells, Coal/Iron/neutral role, exact mineral origin, remaining amount, and investigated state through current save version 10; reserve pending live-site cells before deterministic nature/forage generation and treat depletion as a typed site with no live deposit.
+- Capture and restore stable point IDs, cells, Coal/Iron/neutral role, exact mineral origin, remaining amount, and investigated state through current save version 11; reserve pending live-site cells before deterministic nature/forage generation and treat depletion as a typed site with no live deposit.
 - Clear legacy v5 point geometry during migration so the first v6 load restores buildings/construction first, then regenerates the owned-site layout around them instead of retaining ten neutral landmarks.
 
 Primary files/assets:
@@ -1123,7 +1123,7 @@ Primary files/assets:
 
 Impact hints:
 
-- Individual wildlife/fauna agents and the transient cinematic rat/cat hunt actors remain runtime-only. Save version 10 retains the first-night fauna stage plus City Inventory entitlement; restore clears live cats/mice and reconstructs the required minimum population from that state.
+- Individual wildlife/fauna agents and the transient cinematic rat/cat hunt actors remain runtime-only. Save version 11 retains the first-night fauna stage plus City Inventory entitlement; restore clears live cats/mice and reconstructs the required minimum population from that state.
 - `MiceVisible` means the full rat-prelude-plus-story presentation is unresolved, so restore/retry may replay the prelude. Story completion or Skip grants `Cats`; world cats require both that ownership and `StoryCompleted`. The reward presenter must claim input/pause synchronously, its accepted callback must hand directly into the cat hunt, and migration/backfill must never replay either presentation.
 - Deer and birds do not reveal fog or block walkability; adult deer can yield `Game` only after the Hunter Camp upgrade, rabbits can yield `Game` through the base hunter-camp work loop, fish can yield `Fish` through the fisher-hut work loop, and wolves are predators rather than player-harvestable resources.
 - Initial rabbit spawn, deer herds, fish shoals, birds, and wolf packs depend on hidden near-settlement candidate cells instead of map-wide placement; if no hidden candidate exists for a species, that species should skip spawning rather than appearing far from buildings or inside visible fog.
@@ -2353,6 +2353,7 @@ Responsibilities:
 - Spawn 3 initial families at startup, each with a father, a mother, and 1-2 adult children.
 - Assign random Germanic/Nordic-style full names and age-appropriate adult ages to startup family members.
 - Track resident runtime IDs, age, life stage, parent links, and child links.
+- Give each adult a separate six-slot catalog-backed Personal Items inventory that becomes available automatically at adulthood and never shares transient carried-resource state.
 - Keep lightweight family records for live and dead residents so ancestry-based kinship checks survive parent/ancestor death.
 - Apply the husband's family name to the wife when an adult male/female household pair is formed.
 - Adopt minor children with no living parents into eligible adult households without rewriting biological parent IDs.
@@ -2485,6 +2486,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyNightLightTaskController.Utilities.cs`
 - `Assets/Scripts/Runtime/Population/StrategyKinshipUtility.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.PersonalInventory.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.SettlementRoles.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.NightLights.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.NightTorchLight.cs`
@@ -2564,7 +2566,7 @@ Primary files/assets:
 
 Impact hints:
 
-- Resident identity, age/life state, home/kinship links, nutrition, and cold state are persisted; transient tasks and active movement are rebuilt after load.
+- Resident identity, age/life state, home/kinship links, nutrition, cold, and personal-item state are persisted; transient tasks and active movement are rebuilt after load.
 - Resident names are assigned at runtime from built-in first-name and family-name pools.
 - Startup residents spawn as family-linked adults; children born during play start at age 0, stay inside assigned homes until age 3, become adults at age 16 through scaled game time, and continue aging after adulthood.
 - `StrategyPopulationController` owns the live resident ID registry plus persistent family records used by kinship lookup after deaths.
@@ -2649,6 +2651,7 @@ Responsibilities:
 - Render typed inspect chip/row dashboards for wildlife, mineral deposits, trees, forage, loose carried resources, and loose construction materials while keeping legacy body text as a fallback.
 - Show selected-object preview sprites and status/context blocks.
 - Show selected residents with a dedicated compact dashboard: identity subtitle, portrait, role/home/food chips, and icon-led task, home, food, and family rows.
+- Show a separate read-only six-slot `Personal Items` section for selected adults and hide it for children.
 - Keep Garden Beds and Chicken Coop hidden from the selected-house HUD.
 - Expose Tools-based production upgrade actions in eligible selected-building HUDs.
 - Show selected-house resident portraits/names/age/life stage/statuses up to house capacity, including the Householder marker, prepared dish recipe summaries, Pottery, ingredient rations, and resource icons/counts.
@@ -2669,6 +2672,7 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.cs`
 - `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.ScoutWorkers.cs`
 - `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.Part09.cs`
+- `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.ResidentPersonalInventory.cs`
 - `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.Part10.cs`
 - `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.Part12.cs`
 - `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.Part13.cs`
@@ -2759,7 +2763,7 @@ Responsibilities:
 - Define `Cats` as the first unique production item and expose its ownership as the permanent settlement-fauna entitlement granted by the first-night story.
 - Present a read-only top-bar launcher, distinct-stack badge, empty state, one-column descriptive rows, and detail view without Use/Equip actions or inspection-time simulation pause.
 - Present newly granted items through a reusable all-input, simulation-pausing cinematic card that commits ownership first, requires confirmation, and flies to the real HUD chest target before releasing ownership.
-- Persist deterministic `cityItems` through save version 10 and reject unknown IDs, duplicate stacks, or invalid quantities against the active catalog before mutation.
+- Persist deterministic `cityItems` through save version 11 and reject unknown IDs, duplicate stacks, or invalid quantities against the active catalog before mutation.
 
 Primary files:
 
@@ -2791,6 +2795,36 @@ Impact hints:
 - Keep the inspection HUD observational. Reward presentation is a separate owner, and future Use/Equip or consumption rules require separate gameplay owners.
 - Keep the HUD input context limited to Camera/Gameplay/Build with `CancelMode.Close`; it must never acquire a time-scale pause lock.
 - Keep the reward presenter on all-channel `Swallow` plus its own named pause lock until chest flight completes; item mutation must happen before presentation.
+
+### Resident Personal Inventory
+
+Responsibilities:
+
+- Own one bounded special-item inventory per adult resident, separate from `StrategyResidentInventory`, `StrategyResourceType`, City Inventory, physical stores, reservations, carrying, and logistics.
+- Define stable string IDs, catalog order, per-definition stack limits, six distinct slots, atomic exact add/remove, deterministic snapshots, and adult eligibility that updates when children grow up.
+- Keep the production catalog intentionally empty and expose no grants, transfer, Use/Equip, effect, inheritance, or death-drop behavior yet.
+- Present an observational `Personal Items` section in the selected-adult HUD and hide it for children.
+- Persist item stacks inside each stable resident record and reject malformed, unknown, duplicate, over-stack, over-capacity, or child-owned entries before scene mutation.
+
+Primary files:
+
+- `Assets/Scripts/Runtime/Inventory/StrategyResidentItemDefinition.cs`
+- `Assets/Scripts/Runtime/Inventory/StrategyResidentItemCatalog.cs`
+- `Assets/Scripts/Runtime/Inventory/StrategyResidentPersonalInventoryData.cs`
+- `Assets/Scripts/Runtime/Inventory/StrategyResidentPersonalInventory.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.PersonalInventory.cs`
+- `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.ResidentPersonalInventory.cs`
+- `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.ResidentItems.cs`
+- `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Validation.ResidentItems.cs`
+- `Assets/Tests/EditMode/StrategyResidentPersonalInventoryTests.cs`
+- `Assets/Tests/EditMode/StrategyResidentPersonalInventorySaveTests.cs`
+- `Assets/Tests/EditMode/StrategyResidentPersonalInventoryHudTests.cs`
+
+Impact hints:
+
+- Do not add personal special items to the existing `StrategyResidentInventory`; that type is transient physical cargo and is intentionally materialized as loose resources during save.
+- Add the first production item and acquisition source only with an explicit ownership lifecycle, including the intended behavior on resident death.
+- Removing or changing a production item definition requires a save migration because catalog preflight rejects unknown IDs and over-stack quantities.
 
 ### Shared Resource Stores And Queries
 
@@ -2857,7 +2891,7 @@ Responsibilities:
 - Materialize resident-carried stock into the save snapshot as loose resources at each resident's current cell because active tasks and carried state are intentionally rebuilt rather than serialized.
 - Write saves atomically and coordinate restoration only after runtime bootstrap has created all required systems.
 - Preserve F5 save and F8 load/restart controls while exposing read/validate/pending-load entry points to the intro menu Continue flow.
-- Preserve the founding profile, stable answer pairs, exact camp cell, current starter-cart origin, first-night fauna stage, deterministic City Inventory stacks, stable Scout Lodge assignment/mission/timing/provision state, stable point-of-interest geometry/resource role/mineral origin/remaining amount/investigated state, and exact loose prepared-dish payloads across save version 10.
+- Preserve the founding profile, stable answer pairs, exact camp cell, current starter-cart origin, first-night fauna stage, deterministic City Inventory stacks, per-resident Personal Items stacks, stable Scout Lodge assignment/mission/timing/provision state, stable point-of-interest geometry/resource role/mineral origin/remaining amount/investigated state, and exact loose prepared-dish payloads across save version 11.
 
 Primary files:
 
@@ -2867,11 +2901,13 @@ Primary files:
 - `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Files.cs`
 - `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Validation.cs`
 - `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Validation.CityItems.cs`
+- `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Validation.ResidentItems.cs`
 - `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Validation.ScoutLodges.cs`
 - `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Validation.LooseResources.cs`
 - `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Capture.cs`
 - `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Apply.cs`
 - `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.CityInventory.cs`
+- `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.ResidentItems.cs`
 - `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.ScoutLodges.cs`
 - `Assets/Scripts/Runtime/Persistence/StrategySaveSystem.Founding.cs`
 - `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.Persistence.cs`
@@ -2887,13 +2923,14 @@ Primary files:
 - `Assets/Tests/EditMode/StrategySaveLooseResourceTests.cs`
 - `Assets/Tests/EditMode/StrategyFirstNightFaunaSaveTests.cs`
 - `Assets/Tests/EditMode/StrategyCityInventorySaveTests.cs`
+- `Assets/Tests/EditMode/StrategyResidentPersonalInventorySaveTests.cs`
 - `Assets/Tests/EditMode/StrategyScoutExpeditionSaveTests.cs`
 
 Impact hints:
 
-- Current persistence is version 10 with explicit migrations through v9-to-v10; completed v8 first-night stories still receive `cats x1` silently, while v9 legacy saves initialize an empty Scout Lodge state list. Increment the version and add an explicit migration whenever persisted DTO shape or required semantic entitlement changes; validate migrated data before applying it.
+- Current persistence is version 11 with explicit migrations through v10-to-v11; completed v8 first-night stories still receive `cats x1` silently, v9 legacy saves initialize an empty Scout Lodge state list, and v10 saves initialize every resident with an empty Personal Items list. Increment the version and add an explicit migration whenever persisted DTO shape or required semantic entitlement changes; validate migrated data before applying it.
 - Keep primary/temp/backup replacement and backup recovery in the file seam so interrupted writes do not destroy the last valid save.
-- Reject save files above 32 MiB before reading and keep top-level plus resident-child/prepared-dish/point-of-interest/City Inventory collection limits in validation.
+- Reject save files above 32 MiB before reading and keep top-level plus resident-child/personal-item/prepared-dish/point-of-interest/City Inventory collection limits in validation.
 - Stable IDs are serialization contracts; never replace them with scene-instance IDs or object references.
 
 ### Verification

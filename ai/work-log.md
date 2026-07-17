@@ -1,5 +1,13 @@
 # Work Log
 
+### 2026-07-17 - Adult resident personal inventory MVP
+
+- Added a six-slot catalog-backed personal inventory to each adult resident, kept completely separate from transient carried resources, physical stores, logistics, construction, food, trade, and City Inventory.
+- The production personal-item catalog is intentionally empty. The MVP exposes atomic add/remove APIs, deterministic snapshots, strict adult ownership, and automatic availability when a child grows into an adult, but adds no items, grants, transfer, use, equip, or effect behavior.
+- Extended the selected-resident HUD with a read-only `Personal Items` section for adults and an intentional empty state; children do not show the section.
+- Upgraded persistence to version 11 with personal items nested inside each stable resident record, a v10-to-v11 empty-inventory migration, deterministic capture/restore, six-slot bounds, and preflight rejection for malformed, unknown, duplicate, over-stack, or child-owned entries.
+- Added focused model, save/migration, ownership-isolation, and HUD coverage. Verification: technical quality gates pass, all five C# projects build sequentially with zero warnings/errors, all 18 new EditMode tests pass, and the PlayMode smoke test passes. The full EditMode suite still has 16 unrelated existing-suite failures across snow, City Inventory layout, reward/audio presentation, fauna story cleanup, house smoke, input/UI feedback, characterization coverage, and audio import checks.
+
 ### 2026-07-17 - Unfocused camera remains stationary
 
 - Fixed background edge-pan moving the strategy camera downward while the application was unfocused: the Input System retained a bottom-edge pointer position while `runInBackground` continued unscaled camera updates.

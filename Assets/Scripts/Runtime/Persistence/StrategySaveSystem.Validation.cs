@@ -15,6 +15,9 @@ namespace ProjectUnknown.Strategy
         internal const int MaxSaveCityItems = 4_096;
         internal const int MaxSaveCityItemIdLength = StrategyCityItemDefinition.MaximumIdLength;
         internal const int MaxSaveCityItemQuantity = StrategyCityItemDefinition.MaximumQuantity;
+        internal const int MaxSaveResidentItemsPerResident = StrategyResidentPersonalInventory.SlotCapacity;
+        internal const int MaxSaveResidentItemIdLength = StrategyResidentItemDefinition.MaximumIdLength;
+        internal const int MaxSaveResidentItemQuantity = StrategyResidentItemDefinition.MaximumQuantity;
         internal const int MaxSaveChildLinksPerResident = 256;
         internal const int MaxSavePreparedDishesPerBuilding = 256;
         internal const int MaxSavePreparedDishIdLength = 128;
@@ -270,6 +273,11 @@ namespace ProjectUnknown.Strategy
                 if (resident.childIds.Count > MaxSaveChildLinksPerResident)
                 {
                     reason = "resident_child_limit_exceeded_" + i;
+                    return false;
+                }
+
+                if (!ValidateResidentPersonalItems(resident, i, out reason))
+                {
                     return false;
                 }
 

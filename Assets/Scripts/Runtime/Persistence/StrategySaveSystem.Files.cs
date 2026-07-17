@@ -103,6 +103,7 @@ namespace ProjectUnknown.Strategy
             return TryDeserializeAndValidate(
                 json,
                 StrategyCityItemCatalog.Production,
+                StrategyResidentItemCatalog.Production,
                 out data,
                 out reason,
                 out migrated);
@@ -111,6 +112,23 @@ namespace ProjectUnknown.Strategy
         internal static bool TryDeserializeAndValidate(
             string json,
             StrategyCityItemCatalog cityItemCatalog,
+            out StrategySaveData data,
+            out string reason,
+            out bool migrated)
+        {
+            return TryDeserializeAndValidate(
+                json,
+                cityItemCatalog,
+                StrategyResidentItemCatalog.Production,
+                out data,
+                out reason,
+                out migrated);
+        }
+
+        internal static bool TryDeserializeAndValidate(
+            string json,
+            StrategyCityItemCatalog cityItemCatalog,
+            StrategyResidentItemCatalog residentItemCatalog,
             out StrategySaveData data,
             out string reason,
             out bool migrated)
@@ -139,6 +157,10 @@ namespace ProjectUnknown.Strategy
                     && ValidateCityItemsAgainstCatalog(
                         data.cityItems,
                         cityItemCatalog,
+                        out reason)
+                    && ValidateResidentItemsAgainstCatalog(
+                        data.residents,
+                        residentItemCatalog,
                         out reason))
                 {
                     return true;

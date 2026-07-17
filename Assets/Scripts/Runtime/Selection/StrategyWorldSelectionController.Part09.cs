@@ -30,7 +30,7 @@ namespace ProjectUnknown.Strategy
         private void CreateResidentHud()
         {
             residentHudRoot = CreateUiObject("ResidentHud", hudPanel).GetComponent<RectTransform>();
-            SetTopStretch(residentHudRoot, 18f, 128f, 18f, 404f);
+            SetTopStretch(residentHudRoot, 18f, 128f, 18f, 600f);
             residentHudRoot.gameObject.SetActive(false);
 
             CreateResidentChip(ResidentChipRole, "RoleChip", 0f, 0f, 138f, 30f);
@@ -40,6 +40,7 @@ namespace ProjectUnknown.Strategy
             CreateResidentRow(ResidentRowHome, "HomeRow", 148f, 70f);
             CreateResidentRow(ResidentRowFood, "FoodRow", 230f, 70f);
             CreateResidentRow(ResidentRowFamily, "FamilyRow", 312f, 86f);
+            CreateResidentPersonalInventoryHud();
         }
 
         private void RefreshResidentHud(StrategyResidentAgent resident)
@@ -117,6 +118,7 @@ namespace ProjectUnknown.Strategy
                 GetResidentPortraitIcon(resident),
                 "R",
                 new Color(0.13f, 0.18f, 0.18f, 0.94f));
+            RefreshResidentPersonalInventoryHud(resident);
         }
 
         private void SetResidentHudVisible(bool visible)

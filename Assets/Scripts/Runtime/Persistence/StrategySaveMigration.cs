@@ -49,6 +49,9 @@ namespace ProjectUnknown.Strategy
                     case 9:
                         MigrateVersion9To10(data);
                         break;
+                    case 10:
+                        MigrateVersion10To11(data);
+                        break;
                     default:
                         reason = "missing_migration_from_version_" + data.version;
                         return false;
@@ -131,6 +134,21 @@ namespace ProjectUnknown.Strategy
             data.version = 10;
         }
 
+        private static void MigrateVersion10To11(StrategySaveData data)
+        {
+            data.residents ??= new List<StrategyResidentSaveData>();
+            for (int i = 0; i < data.residents.Count; i++)
+            {
+                StrategyResidentSaveData resident = data.residents[i];
+                if (resident != null)
+                {
+                    resident.personalItems = new List<StrategyResidentItemSaveData>();
+                }
+            }
+
+            data.version = 11;
+        }
+
         private static bool ContainsCityItem(
             IReadOnlyList<StrategyCityItemSaveData> items,
             string itemId)
@@ -189,6 +207,7 @@ namespace ProjectUnknown.Strategy
                 if (resident != null)
                 {
                     resident.childIds ??= new List<int>();
+                    resident.personalItems ??= new List<StrategyResidentItemSaveData>();
                 }
             }
 

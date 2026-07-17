@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace ProjectUnknown.Strategy
@@ -156,6 +157,10 @@ namespace ProjectUnknown.Strategy
                 {
                     data.childIds.Add(resident.ChildIds[child]);
                 }
+
+                List<StrategyResidentPersonalItemEntry> personalItems = new();
+                resident.CopyPersonalItems(personalItems);
+                CopyResidentPersonalInventoryEntriesForSave(personalItems, data.personalItems);
 
                 save.residents.Add(data);
                 resident.CaptureCarriedResourcesForSave(save.looseResources);
