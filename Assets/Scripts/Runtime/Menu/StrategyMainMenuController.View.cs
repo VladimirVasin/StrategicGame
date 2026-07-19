@@ -19,11 +19,7 @@ namespace ProjectUnknown.Strategy
             Canvas canvas = canvasObject.GetComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 100;
-            CanvasScaler scaler = canvasObject.GetComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1600f, 900f);
-            scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
-            scaler.matchWidthOrHeight = 0.5f;
+            StrategyHudStyle.ConfigureScaler(canvasObject.GetComponent<CanvasScaler>());
 
             RectTransform shade = CreateRect("BackdropShade", canvasObject.transform);
             Stretch(shade);
@@ -129,8 +125,12 @@ namespace ProjectUnknown.Strategy
             masterSlider = CreateSlider(panel, "MasterVolume", "Master volume", -230f);
             musicSlider = CreateSlider(panel, "MusicVolume", "Music", -320f);
             sfxSlider = CreateSlider(panel, "SfxVolume", "Effects", -410f);
-            fullscreenToggle = CreateToggle(panel, "Fullscreen", "Fullscreen", -500f);
-            settingsBackButton = CreateButton("SettingsBack", panel, "Back", new Vector2(82f, -640f), out _);
+            uiScaleSlider = CreateSlider(panel, "UiScale", "Interface scale", -500f);
+            uiScaleSlider.minValue = 0.85f;
+            uiScaleSlider.maxValue = 1.25f;
+            fullscreenToggle = CreateToggle(panel, "Fullscreen", "Fullscreen", -580f);
+            reducedMotionToggle = CreateToggle(panel, "ReducedMotion", "Reduce motion", -626f);
+            settingsBackButton = CreateButton("SettingsBack", panel, "Back", new Vector2(82f, -700f), out _);
             settingsBackButton.GetComponent<RectTransform>().anchorMin = new Vector2(0f, 1f);
             settingsBackButton.GetComponent<RectTransform>().anchorMax = new Vector2(0f, 1f);
             settingsRoot.SetActive(false);

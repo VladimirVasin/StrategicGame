@@ -1,5 +1,90 @@
 # Work Log
 
+### 2026-07-19 - Two-row top-right calendar status
+
+- Removed the winter/food/logs readiness line from the persistent top-right calendar module, leaving only day/time/temperature and season/phase above the day-progress track.
+- Rebalanced the two remaining rows vertically and removed the now-unused per-refresh readiness evaluation and formatting from this HUD without changing the underlying season-readiness simulation.
+- Updated the focused layout regression to require the third row to stay absent and the season row to remain clear of the progress track. Verification: runtime and Editor builds pass with zero warnings/errors. No Git add, commit, or push was performed.
+
+### 2026-07-19 - Unified building microHUD redesign
+
+- Replaced the parallel completed-building/construction inspector branches with one fixed-capacity typed snapshot and reusable Hearth & Ledger renderer covering all 19 `StrategyBuildTool` values plus construction. The shared layout now uses compact chips, structured stock/source/reservation rows, progress tracks, and tone-coded status surfaces without parsing legacy multiline HUD strings or rebuilding the hierarchy at 5 Hz.
+- Preserved House residents/dinner, Scout assignment and expedition actions, Trading Post offers with original source indices, and Tools upgrade actions as compact modules after the shared dashboard; ordinary staffing remains in Professions. Added accurate per-resource incoming reservations for Sawmill/Kiln/Forge, semantic building subtitles, selection scroll reset, expandable content extent, and a demolition-only state that suppresses Trade/Scout/upgrade actions.
+- Added fixed-cap/reuse/all-19-tools/construction/demolition EditMode coverage and deterministic real-graphics captures for Extraction, Production, Storage, Trade, Scout, House, and Construction at `1280x720` and `1484x839`. Verification: runtime and Editor builds pass with zero warnings/errors; focused tests pass `3/3`; the visual matrix creates `14/14` fresh PNGs and PASS markers. The full EditMode suite reaches `463/474`, with 11 unrelated existing failures outside this change. No Git add, commit, or push was performed.
+
+### 2026-07-19 - Professions panel ornate-frame safe area
+
+- Moved the Professions title/subtitle, auto-workforce surface, list content, scrollbar, and footer into the ornate panel's actual visual safe area instead of letting them sit beneath its decorative rails.
+- Split `Free adults` and the action/availability status into non-overlapping footer columns, raised both above the bottom frame, and added bounded `10-13` best-fit sizing. The scrollbar now spans only the profession list and no longer covers the final auto-priority `+` control.
+- Added a focused layout regression and permanent real-graphics Professions captures at `1280x720` and `1484x839`. Verification: runtime and Editor builds pass with zero warnings/errors; the focused Unity EditMode test passes; the visual capture passes. No Git add, commit, or push was performed.
+
+### 2026-07-19 - Resident inspector identity header fit
+
+- Kept the selection inspector at its existing width while giving the name column slightly more room and reducing its bounded best-fit range to `17-22`, so current long resident names remain readable on one line without crowding the frame.
+- Added bounded `11-13` best-fit sizing to the `age / life stage / gender` line and kept the portrait plus the rest of the resident dashboard unchanged.
+- Added a focused regression using the longest current catalog name and an extreme metadata value, and updated the existing Personal Items hierarchy assertion for the scrollable inspector structure. Verification: runtime and Editor builds pass with zero warnings/errors; the focused Unity EditMode fixture passes `3/3`; real-graphics captures pass at `1280x720` and `1484x839`. No Git add, commit, or push was performed.
+
+### 2026-07-19 - Clickable settlement resource overview
+
+- Replaced the Build Menu-owned fixed `Logs | Stone | Planks` rail text with an independent clickable `Settlement Stores` module that keeps only construction-ready Logs and Stone in the compact view.
+- Added a compact grouped `All Resources` window with existing resource icons, all 20 resource types including muted zero-stock rows, stored totals, available/reserved tooltips, unscaled transitions, and X/Escape/repeat-click/outside-click closing without pausing simulation.
+- Added a reusable one-pass resource snapshot across settlement, production, household, temporary, and loose stores. The snapshot excludes resident-carried stock and handles House prepared dishes plus exact loose-dish payloads without counting leftover-ration sentinels as dishes.
+- Added focused aggregation and HUD interaction/geometry tests plus real-graphics popup captures at `1280x720` and `1484x839`. Verification: runtime and Editor builds pass with zero warnings/errors; the focused Unity EditMode run passes `10/10`; the visual capture passes. The full EditMode suite reaches `458/470`, with 12 unrelated existing failures outside this resource change. No Git add, commit, or push was performed.
+
+### 2026-07-19 - Explicit selection for single-item build categories
+
+- Removed automatic tool activation from single-item construction categories. Selecting `Housing` now reveals the House card and keeps the construction palette open; placement begins only after the player selects the House card itself.
+- Applied the same two-step category-then-item interaction consistently to other single-item categories such as `Trade`; affordability, locking, hotkeys, and placement collapse still run through the existing item-selection path.
+- Updated the focused HUD regression to verify `Housing -> House -> placement` explicitly. Verification: runtime and Editor builds pass with zero warnings/errors, and the focused HUD EditMode suite passes `19/19`. No Git add, commit, or push was performed.
+
+### 2026-07-18 - Minimal two-level construction palette
+
+- Replaced the four-layer construction stack with one `760x136` maximum bottom palette: a six-category rail and one shared context row. Extraction subcategories now use a compact vertical selector beside the item cards instead of consuming a third horizontal tier.
+- Reduced category controls to `114x34` and rebuilt construction cards as readable `132x72` horizontal rows with a `46x46` icon, two-line title, and persistent cost badge. Removed per-control outlines and hover scaling so selection is communicated by color and the existing accent strip.
+- Automatically select the first available construction subcategory, collapse browsing after a valid building choice, and replace the entire palette/Build button with one `520x48` placement bar. Cancelling placement restores the last palette context; successful placement still closes the flow.
+- Reduced the closed Build control to `132x40`, moved the open-state close action into the palette, kept build costs visible in locked/active states, and made short tooltips hug their content while preserving viewport clamping.
+- Added compact-footprint, two-level geometry, placement-collapse, and exact-resolution tooltip regression coverage. Verification: runtime and Editor builds pass with zero warnings/errors; focused HUD EditMode tests pass `19/19`; D3D11 browse/tooltip and placement captures pass at `1280x720` and `1484x839`. No Git add, commit, or push was performed.
+
+### 2026-07-18 - Build-card tooltip collision correction
+
+- Added explicit tooltip placement preferences and assigned construction cards to the protected area above the item tray; the resolver clamps the panel to the viewport and falls back safely when the preferred side cannot fit.
+- Replaced the ornate tooltip shell with a compact inset surface, shortened the build-card copy, and removed redundant category/subcategory hover tooltips that could cover adjacent navigation rows.
+- Recalculate a visible tooltip when its Canvas render mode or capture resolution changes so screen-space placement stays aligned with its owner.
+- Added maximum-height geometry coverage for `1280x720`, the player-provided `1484x839`, and `1280x720` at 125% UI scale, plus a lightweight real-graphics capture with the Lumberjack Camp tooltip open. Verification: focused HUD EditMode tests pass `18/18`; visual capture passes at both target resolutions. No Git add, commit, or push was performed.
+
+### 2026-07-18 - Build browsing and calendar fit correction
+
+- Reflowed the top-right calendar into three protected text rows above the day-progress track, shortened the winter-readiness copy, and enabled bounded best-fit sizing so the full status remains readable at `1280x720` and the player-provided `1484x839` resolution.
+- Disabled the persistent Build button tooltip while the construction menu is open, preventing it from covering the category dock.
+- Clear the active placement tool when the player browses to another construction category or subcategory, so a previously selected House no longer leaves stale placement feedback over the Extraction/Camps view.
+- Added focused tooltip, category-transition, calendar-spacing, and exact-resolution visual regression coverage. Verification: technical quality gates pass; focused HUD EditMode tests pass `14/14`; real-graphics visual capture passes at `1280x720` and `1484x839`. No Git add, commit, or push was performed.
+
+### 2026-07-18 - Hearth & Ledger real-resolution HUD correction
+
+- Used the player-provided `1484x839` gameplay screenshot as the acceptance reference and removed ornate nine-slice framing from compact rails, goals, notices, and construction controls; ornate framing now remains only on large information shells.
+- Rebuilt the top HUD as one continuous 70-pixel dark/brass rail, fixed the `Professions` wrap, reserved the rail above the selection inspector, reduced frame border weight, and prevented the delayed theme pass from restoring oversized frames.
+- Reworked goals and notices into compact dynamically sized surfaces; notice rows now support readable two-line messages and move clear of the construction stack while it is open.
+- Rebuilt the construction stack as a compact `Build Menu [B]` entry, six-category dock, optional subcategory row, and centered item tray. Opening construction dismisses the overlapping selection/inspect HUD, so all categories remain usable at `1280x720` and `1484x839`.
+- Added exact-resolution build-menu captures at `1280x720` and `1484x839` and extended the HUD style regression coverage. Verification: runtime and Editor builds pass with zero warnings/errors, focused HUD tests pass `11/11`, City Inventory HUD tests pass `8/8`, and the real-graphics visual capture passes. No Git commit or push was created.
+
+### 2026-07-18 - Full Hearth & Ledger HUD redesign
+
+- Replaced the fragmented floating HUD presentation with a continuous dark/brass top rail, ornate nine-sliced large-panel frames, and lightweight inset content surfaces while preserving code-built uGUI behavior.
+- Rebuilt the persistent hierarchy around settlement stores, simulation speed, City Inventory, population, Professions, and calendar modules; moved goals and coalesced notices into separate left-side framed surfaces that keep the map center clear.
+- Expanded the construction flow into an animated category/subcategory/item dock with stronger building art, costs, active state, a compact `Build Menu [B]` entry, and live placement feedback.
+- Widened the right selection panel, reserved the persistent rail above it, replaced stencil masking with `RectMask2D`, and retained its pinned identity header plus scrollable resident/building dashboards; visual capture now selects a resident and can open the full Production tray.
+- Added the production nine-slice asset at `Assets/Resources/UI/HearthLedger/PanelFrame.png`, retained the generated concept/source under `Assets/Design/Hud`, introduced `StrategyHudChromeController`, and made `StrategyUiThemeProvider` distinguish ornate frames from lightweight inset/card frames.
+- Verification: runtime and Editor C# builds pass with zero warnings/errors; focused HUD EditMode tests pass 10/10; real-graphics HUD/build/seasonal capture passes at 1280x720, 1366x768, 1600x900, 1920x1080, 2560x1440, and 3440x1440. No Git commit or push was created.
+
+### 2026-07-18 - Hearth & Ledger HUD foundation
+
+- Added a shared Hearth & Ledger UI foundation with one palette, sliced panel/button styling, Inter text hierarchy, persisted 85-125% interface scale, shared reduced-motion behavior, and pointer/focus tooltips.
+- Reorganized the persistent top rail into treasury, speed, City Inventory, population, Professions, and calendar modules; moved settlement notices and starter goals below it and made repeated notices coalesce.
+- Restyled the bottom Build dock and added a persistent active-plan banner with footprint, cost, controls, affordability, and player-readable placement diagnostics, including Bridge-bank and map-access blockers.
+- Made the right selection panel wider with a pinned header, masked vertical scrolling, and 5 Hz text refresh while preserving frame-driven world markers and links.
+- Added interface scale and reduced-motion controls to both main-menu and pause-menu Settings, migrated non-cinematic runtime canvases to the shared scaler, and added focused HUD foundation tests.
+- Verification: runtime and Editor C# builds pass with zero warnings/errors; focused HUD EditMode tests pass 8/8; the real-graphics Noon/Spring/Autumn/Night/Winter gameplay visual runner completes successfully. No Git commit or push was created.
+
 ### 2026-07-17 - Tiered Scout story-point placement
 
 - Added three authored story-distance tiers measured by camp-connected route distance: Tier I at `18-30`, Tier II at `45-70`, and Tier III at `85-120` normalized route steps. The trash heap is explicitly Tier I so it is available near the camp early in the first expedition.

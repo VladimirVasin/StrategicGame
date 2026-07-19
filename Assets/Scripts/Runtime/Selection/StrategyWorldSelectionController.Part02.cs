@@ -8,7 +8,6 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyWorldSelectionController
     {
-
         private void SetPreviewSprite(Sprite sprite)
         {
             if (hudPreviewImage == null)
@@ -32,24 +31,23 @@ namespace ProjectUnknown.Strategy
 
             Canvas canvas = canvasObject.GetComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            canvas.sortingOrder = 28;
+            canvas.sortingOrder = 180;
 
-            CanvasScaler scaler = canvasObject.GetComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1600f, 900f);
-            scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
-            scaler.matchWidthOrHeight = 0.5f;
+            StrategyHudStyle.ConfigureScaler(canvasObject.GetComponent<CanvasScaler>());
 
             hudPanel = CreateUiObject("SelectionSideHud", canvasObject.transform).GetComponent<RectTransform>();
             hudPanel.anchorMin = new Vector2(1f, 0f);
             hudPanel.anchorMax = new Vector2(1f, 1f);
             hudPanel.pivot = new Vector2(1f, 0.5f);
-            hudPanel.sizeDelta = new Vector2(HudWidth, 0f);
-            hudPanel.anchoredPosition = new Vector2(HudWidth, 0f);
+            hudPanel.sizeDelta = new Vector2(HudWidth, -StrategyHudStyle.TopRailHeight);
+            hudPanel.anchoredPosition = new Vector2(HudWidth, -StrategyHudStyle.TopRailHeight * 0.5f);
 
             Image background = hudPanel.gameObject.AddComponent<Image>();
-            background.color = new Color(0.035f, 0.052f, 0.050f, 0.97f);
-
+            StrategyHudStyle.StylePanel(background, new Color(
+                StrategyHudStyle.Background.r,
+                StrategyHudStyle.Background.g,
+                StrategyHudStyle.Background.b,
+                0.98f), true);
             hudGroup = hudPanel.gameObject.AddComponent<CanvasGroup>();
             hudGroup.alpha = 0f;
             hudGroup.blocksRaycasts = false;
@@ -62,20 +60,18 @@ namespace ProjectUnknown.Strategy
             accent.sizeDelta = new Vector2(5f, 0f);
             accent.anchoredPosition = Vector2.zero;
             Image accentImage = accent.gameObject.AddComponent<Image>();
-            accentImage.color = new Color(0.85f, 0.64f, 0.28f, 1f);
+            accentImage.color = StrategyHudStyle.Primary;
             accentImage.raycastTarget = false;
 
             RectTransform previewFrame = CreateUiObject("PreviewFrame", hudPanel).GetComponent<RectTransform>();
             SetTopLeft(previewFrame, 24f, 24f, 70f, 70f);
             Image previewBackground = previewFrame.gameObject.AddComponent<Image>();
-            previewBackground.color = new Color(1f, 1f, 1f, 0.08f);
-            previewBackground.raycastTarget = false;
+            StrategyHudStyle.StyleInset(previewBackground, new Color(1f, 1f, 1f, 0.12f));
 
             RectTransform previewInset = CreateUiObject("PreviewInset", previewFrame).GetComponent<RectTransform>();
             SetOffsets(previewInset, 4f, 4f, 4f, 4f);
             Image previewInsetImage = previewInset.gameObject.AddComponent<Image>();
-            previewInsetImage.color = new Color(0.02f, 0.03f, 0.03f, 0.82f);
-            previewInsetImage.raycastTarget = false;
+            StrategyHudStyle.StyleInset(previewInsetImage, new Color(0.02f, 0.03f, 0.03f, 0.82f));
 
             RectTransform previewImageRect = CreateUiObject("PreviewImage", previewInset).GetComponent<RectTransform>();
             SetOffsets(previewImageRect, 3f, 3f, 3f, 3f);
@@ -83,63 +79,64 @@ namespace ProjectUnknown.Strategy
             hudPreviewImage.preserveAspect = true;
             hudPreviewImage.raycastTarget = false;
 
-            hudTitleText = CreateText("Title", hudPanel, 24, TextAnchor.UpperLeft, Color.white);
+            hudTitleText = CreateText("Title", hudPanel, 22, TextAnchor.UpperLeft, Color.white);
             hudTitleText.fontStyle = FontStyle.Bold;
             hudTitleText.resizeTextForBestFit = true;
-            hudTitleText.resizeTextMinSize = 18;
-            hudTitleText.resizeTextMaxSize = 24;
-            SetTopStretch(hudTitleText.rectTransform, 108f, 27f, 24f, 34f);
-
-            hudSubtitleText = CreateText("Subtitle", hudPanel, 13, TextAnchor.UpperLeft, new Color(0.86f, 0.70f, 0.42f));
+            hudTitleText.resizeTextMinSize = 17;
+            hudTitleText.resizeTextMaxSize = 22;
+            SetTopStretch(hudTitleText.rectTransform, 104f, 27f, 24f, 34f);
+            hudSubtitleText = CreateText("Subtitle", hudPanel, 13, TextAnchor.UpperLeft, StrategyHudStyle.Primary);
             hudSubtitleText.fontStyle = FontStyle.Bold;
-            SetTopStretch(hudSubtitleText.rectTransform, 108f, 64f, 24f, 22f);
-
+            hudSubtitleText.resizeTextForBestFit = true;
+            hudSubtitleText.resizeTextMinSize = 11;
+            hudSubtitleText.resizeTextMaxSize = 13;
+            SetTopStretch(hudSubtitleText.rectTransform, 104f, 64f, 24f, 22f);
             RectTransform line = CreateUiObject("Divider", hudPanel).GetComponent<RectTransform>();
             SetTopStretch(line, 24f, 112f, 24f, 2f);
             Image lineImage = line.gameObject.AddComponent<Image>();
-            lineImage.color = new Color(1f, 1f, 1f, 0.15f);
+            lineImage.color = StrategyHudStyle.Divider;
             lineImage.raycastTarget = false;
 
-            summaryBackground = CreateSectionBackground("SummaryBackground", hudPanel, 128f, 128f);
-            hudSummaryTitleText = CreateText("SummaryTitle", hudPanel, 13, TextAnchor.UpperLeft, new Color(0.86f, 0.70f, 0.42f));
+            CreateScrollableContent();
+
+            summaryBackground = CreateSectionBackground("SummaryBackground", hudContent, 128f, 128f);
+            hudSummaryTitleText = CreateText("SummaryTitle", hudContent, 13, TextAnchor.UpperLeft, StrategyHudStyle.Primary);
             hudSummaryTitleText.fontStyle = FontStyle.Bold;
             SetTopStretch(hudSummaryTitleText.rectTransform, 24f, 140f, 24f, 20f);
 
-            hudBodyText = CreateText("Body", hudPanel, 14, TextAnchor.UpperLeft, new Color(0.84f, 0.89f, 0.91f));
+            hudBodyText = CreateText("Body", hudContent, 14, TextAnchor.UpperLeft, StrategyHudStyle.TextPrimary);
             hudBodyText.lineSpacing = 1.15f;
             SetTopStretch(hudBodyText.rectTransform, 24f, 166f, 24f, 92f);
 
-            residentsRoot = CreateUiObject("HouseResidents", hudPanel).GetComponent<RectTransform>();
+            residentsRoot = CreateUiObject("HouseResidents", hudContent).GetComponent<RectTransform>();
             SetTopStretch(residentsRoot, 18f, 128f, 18f, 236f);
             Image residentsBackground = residentsRoot.gameObject.AddComponent<Image>();
-            residentsBackground.color = new Color(1f, 1f, 1f, 0.055f);
-            residentsBackground.raycastTarget = false;
+            StrategyHudStyle.StyleCompactPanel(residentsBackground, WithAlpha(StrategyHudStyle.Surface, 0.90f));
             residentsRoot.gameObject.SetActive(false);
 
-            Text residentsTitle = CreateText("ResidentsTitle", residentsRoot, 13, TextAnchor.UpperLeft, new Color(0.86f, 0.70f, 0.42f));
+            Text residentsTitle = CreateText("ResidentsTitle", residentsRoot, 13, TextAnchor.UpperLeft, StrategyHudStyle.Primary);
             residentsTitle.fontStyle = FontStyle.Bold;
             residentsTitle.text = "Residents";
             SetTopStretch(residentsTitle.rectTransform, 6f, 10f, 6f, 18f);
 
-            residentsEmptyText = CreateText("ResidentsEmpty", residentsRoot, 13, TextAnchor.UpperLeft, new Color(0.75f, 0.83f, 0.79f));
+            residentsEmptyText = CreateText("ResidentsEmpty", residentsRoot, 13, TextAnchor.UpperLeft, StrategyHudStyle.TextMuted);
             residentsEmptyText.text = "no residents yet";
             SetTopStretch(residentsEmptyText.rectTransform, 6f, 44f, 6f, 24f);
 
             EnsureResidentRowCount(StrategyPlacedBuilding.MaxHouseResidents);
 
-            workersRoot = CreateUiObject("LumberjackWorkers", hudPanel).GetComponent<RectTransform>();
+            workersRoot = CreateUiObject("LumberjackWorkers", hudContent).GetComponent<RectTransform>();
             SetTopStretch(workersRoot, 18f, 128f, 18f, 250f);
             Image workersBackground = workersRoot.gameObject.AddComponent<Image>();
-            workersBackground.color = new Color(1f, 1f, 1f, 0.055f);
-            workersBackground.raycastTarget = false;
+            StrategyHudStyle.StyleCompactPanel(workersBackground, WithAlpha(StrategyHudStyle.Surface, 0.90f));
             workersRoot.gameObject.SetActive(false);
 
-            Text workersTitle = CreateText("WorkersTitle", workersRoot, 13, TextAnchor.UpperLeft, new Color(0.86f, 0.70f, 0.42f));
+            Text workersTitle = CreateText("WorkersTitle", workersRoot, 13, TextAnchor.UpperLeft, StrategyHudStyle.Primary);
             workersTitle.fontStyle = FontStyle.Bold;
             workersTitle.text = "Workers";
             SetTopStretch(workersTitle.rectTransform, 6f, 10f, 6f, 18f);
 
-            workersEmptyText = CreateText("WorkersEmpty", workersRoot, 12, TextAnchor.UpperLeft, new Color(0.75f, 0.83f, 0.79f));
+            workersEmptyText = CreateText("WorkersEmpty", workersRoot, 12, TextAnchor.UpperLeft, StrategyHudStyle.TextMuted);
             workersEmptyText.text = "assign residents";
             SetTopStretch(workersEmptyText.rectTransform, 6f, 220f, 6f, 22f);
 
@@ -148,37 +145,36 @@ namespace ProjectUnknown.Strategy
                 CreateWorkerRow(i);
             }
 
-            statusBackground = CreateSectionBackground("StatusBackground", hudPanel, 272f, 76f);
-            hudStatusTitleText = CreateText("StatusTitle", hudPanel, 13, TextAnchor.UpperLeft, new Color(0.86f, 0.70f, 0.42f));
+            statusBackground = CreateSectionBackground("StatusBackground", hudContent, 272f, 76f);
+            hudStatusTitleText = CreateText("StatusTitle", hudContent, 13, TextAnchor.UpperLeft, StrategyHudStyle.Primary);
             hudStatusTitleText.fontStyle = FontStyle.Bold;
             SetTopStretch(hudStatusTitleText.rectTransform, 24f, 284f, 24f, 20f);
 
-            hudStatusBodyText = CreateText("StatusBody", hudPanel, 14, TextAnchor.UpperLeft, new Color(0.84f, 0.89f, 0.91f));
+            hudStatusBodyText = CreateText("StatusBody", hudContent, 14, TextAnchor.UpperLeft, StrategyHudStyle.TextPrimary);
             hudStatusBodyText.lineSpacing = 1.12f;
             SetTopStretch(hudStatusBodyText.rectTransform, 24f, 310f, 24f, 28f);
 
-            contextBackground = CreateSectionBackground("ContextBackground", hudPanel, 366f, 118f);
-            hudContextTitleText = CreateText("ContextTitle", hudPanel, 13, TextAnchor.UpperLeft, new Color(0.86f, 0.70f, 0.42f));
+            contextBackground = CreateSectionBackground("ContextBackground", hudContent, 366f, 118f);
+            hudContextTitleText = CreateText("ContextTitle", hudContent, 13, TextAnchor.UpperLeft, StrategyHudStyle.Primary);
             hudContextTitleText.fontStyle = FontStyle.Bold;
             SetTopStretch(hudContextTitleText.rectTransform, 24f, 378f, 24f, 20f);
 
-            hudContextBodyText = CreateText("ContextBody", hudPanel, 13, TextAnchor.UpperLeft, new Color(0.77f, 0.86f, 0.81f));
+            hudContextBodyText = CreateText("ContextBody", hudContent, 13, TextAnchor.UpperLeft, StrategyHudStyle.TextMuted);
             hudContextBodyText.lineSpacing = 1.1f;
             SetTopStretch(hudContextBodyText.rectTransform, 24f, 404f, 24f, 70f);
 
             CreateResidentHud();
-            CreateStorageYardHud();
+            EnsureBuildingHudRenderer();
             CreateTradingPostHud();
             CreateProductionUpgradeHud();
 
-            resourcesRoot = CreateUiObject("HouseResources", hudPanel).GetComponent<RectTransform>();
+            resourcesRoot = CreateUiObject("HouseResources", hudContent).GetComponent<RectTransform>();
             SetTopStretch(resourcesRoot, 24f, 382f, 24f, 274f);
             Image resourcesBackground = resourcesRoot.gameObject.AddComponent<Image>();
-            resourcesBackground.color = new Color(0.08f, 0.11f, 0.10f, 0.86f);
-            resourcesBackground.raycastTarget = false;
+            StrategyHudStyle.StyleCompactPanel(resourcesBackground, WithAlpha(StrategyHudStyle.Surface, 0.90f));
             resourcesRoot.gameObject.SetActive(false);
 
-            Text resourcesTitle = CreateText("ResourcesTitle", resourcesRoot, 13, TextAnchor.UpperLeft, new Color(0.86f, 0.70f, 0.42f));
+            Text resourcesTitle = CreateText("ResourcesTitle", resourcesRoot, 13, TextAnchor.UpperLeft, StrategyHudStyle.Primary);
             resourcesTitle.fontStyle = FontStyle.Bold;
             resourcesTitle.text = "Dinner";
             SetTopStretch(resourcesTitle.rectTransform, 6f, 8f, 6f, 18f);
@@ -186,15 +182,14 @@ namespace ProjectUnknown.Strategy
             RectTransform foodStatusRow = CreateUiObject("FoodStatusRow", resourcesRoot).GetComponent<RectTransform>();
             SetTopStretch(foodStatusRow, 6f, 32f, 6f, 60f);
             foodStatusRowImage = foodStatusRow.gameObject.AddComponent<Image>();
-            foodStatusRowImage.color = new Color(0.16f, 0.25f, 0.22f, 0.92f);
-            foodStatusRowImage.raycastTarget = false;
+            StrategyHudStyle.StyleCompactPanel(foodStatusRowImage, WithAlpha(StrategyHudStyle.Elevated, 0.94f));
 
             foodStatusText = CreateText("FoodStatusText", foodStatusRow, 11, TextAnchor.MiddleLeft, Color.white);
             foodStatusText.fontStyle = FontStyle.Bold;
             foodStatusText.lineSpacing = 1.05f;
             SetOffsets(foodStatusText.rectTransform, 8f, 0f, 128f, 0f);
 
-            foodMealText = CreateText("FoodMealText", foodStatusRow, 11, TextAnchor.MiddleRight, new Color(0.88f, 0.93f, 0.90f));
+            foodMealText = CreateText("FoodMealText", foodStatusRow, 11, TextAnchor.MiddleRight, StrategyHudStyle.TextPrimary);
             foodMealText.fontStyle = FontStyle.Bold;
             foodMealText.lineSpacing = 1.05f;
             foodMealText.resizeTextForBestFit = true;
@@ -205,7 +200,7 @@ namespace ProjectUnknown.Strategy
             RectTransform foodMeter = CreateUiObject("FoodMealMeter", resourcesRoot).GetComponent<RectTransform>();
             SetTopStretch(foodMeter, 6f, 98f, 6f, 8f);
             Image foodMeterBackground = foodMeter.gameObject.AddComponent<Image>();
-            foodMeterBackground.color = new Color(0.01f, 0.03f, 0.025f, 0.88f);
+            foodMeterBackground.color = WithAlpha(StrategyHudStyle.Background, 0.88f);
             foodMeterBackground.raycastTarget = false;
 
             foodMealFillRect = CreateUiObject("FoodMealMeterFill", foodMeter).GetComponent<RectTransform>();
@@ -214,20 +209,19 @@ namespace ProjectUnknown.Strategy
             foodMealFillRect.offsetMin = Vector2.zero;
             foodMealFillRect.offsetMax = Vector2.zero;
             foodMealFillImage = foodMealFillRect.gameObject.AddComponent<Image>();
-            foodMealFillImage.color = new Color(0.63f, 0.74f, 0.42f, 0.95f);
+            foodMealFillImage.color = WithAlpha(StrategyHudStyle.Success, 0.95f);
             foodMealFillImage.raycastTarget = false;
 
             RectTransform granaryRow = CreateUiObject("GranaryFoodRow", resourcesRoot).GetComponent<RectTransform>();
             SetTopStretch(granaryRow, 6f, 114f, 6f, 22f);
             Image granaryBackground = granaryRow.gameObject.AddComponent<Image>();
-            granaryBackground.color = new Color(1f, 1f, 1f, 0.035f);
-            granaryBackground.raycastTarget = false;
+            StrategyHudStyle.StyleCompactPanel(granaryBackground, WithAlpha(StrategyHudStyle.Surface, 0.72f));
 
-            foodGranaryText = CreateText("GranaryFoodText", granaryRow, 10, TextAnchor.MiddleLeft, new Color(0.78f, 0.86f, 0.82f));
+            foodGranaryText = CreateText("GranaryFoodText", granaryRow, 10, TextAnchor.MiddleLeft, StrategyHudStyle.TextMuted);
             foodGranaryText.fontStyle = FontStyle.Bold;
             SetOffsets(foodGranaryText.rectTransform, 8f, 0f, 8f, 0f);
 
-            resourcesEmptyText = CreateText("ResourcesEmptyText", resourcesRoot, 11, TextAnchor.UpperLeft, new Color(0.62f, 0.70f, 0.66f));
+            resourcesEmptyText = CreateText("ResourcesEmptyText", resourcesRoot, 11, TextAnchor.UpperLeft, StrategyHudStyle.TextMuted);
             resourcesEmptyText.text = "No food stored at this house";
             SetTopStretch(resourcesEmptyText.rectTransform, 6f, 142f, 6f, 24f);
 
@@ -236,7 +230,7 @@ namespace ProjectUnknown.Strategy
                 CreateResourceSlot(i);
             }
 
-            upgradeActionsRoot = CreateUiObject("HouseUpgradeActions", hudPanel).GetComponent<RectTransform>();
+            upgradeActionsRoot = CreateUiObject("HouseUpgradeActions", hudContent).GetComponent<RectTransform>();
             SetTopStretch(upgradeActionsRoot, 24f, 666f, 24f, 196f);
             Image upgradesBackground = upgradeActionsRoot.gameObject.AddComponent<Image>();
             upgradesBackground.color = new Color(0.05f, 0.08f, 0.075f, 0.86f);
@@ -271,6 +265,44 @@ namespace ProjectUnknown.Strategy
             upgradeStatusText = CreateText("UpgradeStatus", upgradeActionsRoot, 12, TextAnchor.UpperLeft, new Color(0.75f, 0.83f, 0.79f));
             upgradeStatusText.lineSpacing = 1.05f;
             SetTopStretch(upgradeStatusText.rectTransform, 0f, 152f, 0f, 34f);
+        }
+
+        private void CreateScrollableContent()
+        {
+            RectTransform viewport = CreateUiObject("ContentViewport", hudPanel).GetComponent<RectTransform>();
+            viewport.anchorMin = Vector2.zero;
+            viewport.anchorMax = Vector2.one;
+            viewport.offsetMin = new Vector2(8f, 8f);
+            viewport.offsetMax = new Vector2(-8f, -122f);
+            Image viewportImage = viewport.gameObject.AddComponent<Image>();
+            viewportImage.color = new Color(1f, 1f, 1f, 0.001f);
+            viewportImage.raycastTarget = true;
+            viewport.gameObject.AddComponent<RectMask2D>();
+
+            RectTransform scrollContent = CreateUiObject("ScrollContent", viewport).GetComponent<RectTransform>();
+            scrollContent.anchorMin = new Vector2(0f, 1f);
+            scrollContent.anchorMax = new Vector2(1f, 1f);
+            scrollContent.pivot = new Vector2(0.5f, 1f);
+            scrollContent.anchoredPosition = Vector2.zero;
+            scrollContent.sizeDelta = new Vector2(0f, 1050f);
+            hudScrollContent = scrollContent;
+
+            hudContent = CreateUiObject("ContextSections", scrollContent).GetComponent<RectTransform>();
+            hudContent.anchorMin = new Vector2(0f, 1f);
+            hudContent.anchorMax = new Vector2(1f, 1f);
+            hudContent.pivot = new Vector2(0.5f, 1f);
+            hudContent.anchoredPosition = new Vector2(0f, 122f);
+            hudContent.sizeDelta = new Vector2(0f, 1050f);
+
+            hudScrollRect = hudPanel.gameObject.AddComponent<ScrollRect>();
+            hudScrollRect.viewport = viewport;
+            hudScrollRect.content = scrollContent;
+            hudScrollRect.horizontal = false;
+            hudScrollRect.vertical = true;
+            hudScrollRect.movementType = ScrollRect.MovementType.Clamped;
+            hudScrollRect.scrollSensitivity = 36f;
+            hudScrollRect.inertia = !StrategyHudStyle.ReducedMotion;
+            hudScrollRect.verticalNormalizedPosition = 1f;
         }
 
         private void RefreshResidents(StrategyPlacedBuilding building)

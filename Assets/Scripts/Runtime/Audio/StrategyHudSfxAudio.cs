@@ -58,6 +58,11 @@ namespace ProjectUnknown.Strategy
 
         public static void Play(StrategyHudSfxKind kind, float volumeScale = 1f)
         {
+            if (!Application.isPlaying)
+            {
+                return;
+            }
+
             StrategyHudSfxAudio audio = EnsureInstance();
             audio?.PlayInternal(kind, volumeScale);
         }

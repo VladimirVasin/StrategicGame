@@ -166,11 +166,6 @@ namespace ProjectUnknown.Strategy
 
         private void RefreshPassiveBuildHud()
         {
-            if (treasuryText != null)
-            {
-                treasuryText.text = FormatConstructionResourceCounter(StrategyStorageYard.GetTotalConstructionResources());
-            }
-
             RefreshSpeedControls();
         }
     }

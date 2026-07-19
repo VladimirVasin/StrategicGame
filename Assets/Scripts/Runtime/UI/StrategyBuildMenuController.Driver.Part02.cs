@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace ProjectUnknown.Strategy
@@ -46,12 +45,6 @@ namespace ProjectUnknown.Strategy
             rect.anchorMax = Vector2.one;
             rect.offsetMin = new Vector2(left, bottom);
             rect.offsetMax = new Vector2(-right, -top);
-        }
-
-        private static void AddHoverRelay(GameObject target, Action<bool> onHoverChanged)
-        {
-            HoverRelay relay = target.AddComponent<HoverRelay>();
-            relay.OnHoverChanged = onHoverChanged;
         }
 
         private static float Smooth01(float t)
@@ -127,8 +120,6 @@ namespace ProjectUnknown.Strategy
             public Button Button;
             public BuildSubcategoryUi[] Subcategories;
             public BuildItemUi[] Items;
-            public bool IsHovered;
-            public float HoverT;
         }
 
         private sealed class BuildSubcategoryUi
@@ -139,8 +130,6 @@ namespace ProjectUnknown.Strategy
             public Image Background;
             public Text Label;
             public Button Button;
-            public bool IsHovered;
-            public float HoverT;
         }
 
         private sealed class BuildItemUi
@@ -154,23 +143,6 @@ namespace ProjectUnknown.Strategy
             public Image BadgeBackground;
             public Text BadgeText;
             public Button Button;
-            public bool IsHovered;
-            public float HoverT;
-        }
-
-        private sealed class HoverRelay : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
-        {
-            public Action<bool> OnHoverChanged;
-
-            public void OnPointerEnter(PointerEventData eventData)
-            {
-                OnHoverChanged?.Invoke(true);
-            }
-
-            public void OnPointerExit(PointerEventData eventData)
-            {
-                OnHoverChanged?.Invoke(false);
-            }
         }
 
         private static BuildItemData[] FlattenItems(BuildSubcategoryData[] subcategories)

@@ -36,13 +36,22 @@ namespace ProjectUnknown.Strategy
         {
             if (!TryGetMouseWorld(out Vector3 world) || !map.TryWorldToCell(world, out Vector2Int cell))
             {
+                buildMenu.SetPlacementFeedback(false, "Move the pointer over the map.");
                 HidePreview();
                 return;
             }
 
             hoveredOrigin = ClampOriginToMap(cell, toolInfo.Footprint);
             Bounds bounds = map.GetCellRectWorld(hoveredOrigin, toolInfo.Footprint);
-            bool canPlace = buildMenu.CanAffordActiveTool() && CanPlace(hoveredOrigin, toolInfo);
+            bool affordable = buildMenu.CanAffordActiveTool();
+            bool canPlace = affordable && CanPlace(hoveredOrigin, toolInfo);
+            string feedback = canPlace
+                ? "Valid site. Click to place the construction plan."
+                : !affordable
+                    ? StrategyBuildPlacementFeedbackText.FormatFailureReason("not_affordable")
+                    : StrategyBuildPlacementFeedbackText.FormatFailureReason(
+                        GetPlacementFailureReason(hoveredOrigin, toolInfo));
+            buildMenu.SetPlacementFeedback(canPlace, feedback);
 
             previewRenderer.gameObject.SetActive(true);
             bool hasSprite = StrategyBuildingSpriteFactory.TryGetBuildSprite(toolInfo.Tool, out Sprite sprite);

@@ -63,7 +63,9 @@
     <Compile Include="Assets\Editor\StrategyVerificationRunner.AuthoredVisuals.Models.cs" />
     <Compile Include="Assets\Editor\StrategyAudioMixerBuilder.cs" />
     <Compile Include="Assets\Editor\StrategyVisualCatalogBaker.cs" />
+    <Compile Include="Assets\Editor\StrategyVerificationRunner.BuildingHudCapture.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.AuthoredVisuals.cs" />
+    <Compile Include="Assets\Editor\StrategyVerificationRunner.HudCapture.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.Errors.cs" />
     <Compile Include="Assets\Editor\StrategyVisualCatalogBaker.Terrain.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.AuthoredVisuals.Animations.cs" />

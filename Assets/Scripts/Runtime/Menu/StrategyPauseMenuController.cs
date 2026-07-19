@@ -35,7 +35,9 @@ namespace ProjectUnknown.Strategy
         private Slider masterSlider;
         private Slider musicSlider;
         private Slider sfxSlider;
+        private Slider uiScaleSlider;
         private Toggle fullscreenToggle;
+        private Toggle reducedMotionToggle;
         private bool configured;
         private bool isOpen;
         private bool pauseLockHeld;
@@ -293,7 +295,9 @@ namespace ProjectUnknown.Strategy
             masterSlider.onValueChanged.AddListener(StrategyGameSettings.SetMasterVolume);
             musicSlider.onValueChanged.AddListener(StrategyGameSettings.SetMusicVolume);
             sfxSlider.onValueChanged.AddListener(StrategyGameSettings.SetSfxVolume);
+            uiScaleSlider.onValueChanged.AddListener(StrategyGameSettings.SetUiScale);
             fullscreenToggle.onValueChanged.AddListener(ChangeFullscreen);
+            reducedMotionToggle.onValueChanged.AddListener(ChangeReducedMotion);
         }
 
         private void RefreshInputContext()
@@ -356,12 +360,20 @@ namespace ProjectUnknown.Strategy
             masterSlider.SetValueWithoutNotify(StrategyGameSettings.MasterVolume);
             musicSlider.SetValueWithoutNotify(StrategyGameSettings.MusicVolume);
             sfxSlider.SetValueWithoutNotify(StrategyGameSettings.SfxVolume);
+            uiScaleSlider.SetValueWithoutNotify(StrategyGameSettings.UiScale);
             fullscreenToggle.SetIsOnWithoutNotify(StrategyGameSettings.Fullscreen);
+            reducedMotionToggle.SetIsOnWithoutNotify(StrategyGameSettings.ReducedMotion);
         }
 
         private static void ChangeFullscreen(bool value)
         {
             StrategyGameSettings.SetFullscreen(value);
+            PlaySfx(StrategyHudSfxKind.Step);
+        }
+
+        private static void ChangeReducedMotion(bool value)
+        {
+            StrategyGameSettings.SetReducedMotion(value);
             PlaySfx(StrategyHudSfxKind.Step);
         }
 

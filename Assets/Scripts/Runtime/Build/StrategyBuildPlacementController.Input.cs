@@ -87,6 +87,9 @@ namespace ProjectUnknown.Strategy
 
             if (!buildMenu.CanAffordActiveTool())
             {
+                buildMenu.SetPlacementFeedback(
+                    false,
+                    StrategyBuildPlacementFeedbackText.FormatFailureReason("not_affordable"));
                 StrategyDebugLogger.Warn(
                     "Build",
                     "PlacementRejected",
@@ -102,6 +105,10 @@ namespace ProjectUnknown.Strategy
 
             if (!hasValidHover || !CanPlace(hoveredOrigin, toolInfo))
             {
+                buildMenu.SetPlacementFeedback(
+                    false,
+                    StrategyBuildPlacementFeedbackText.FormatFailureReason(
+                        GetPlacementFailureReason(hoveredOrigin, toolInfo)));
                 StrategyDebugLogger.Warn(
                     "Build",
                     "PlacementRejected",
@@ -155,6 +162,9 @@ namespace ProjectUnknown.Strategy
 
             if (!buildMenu.CanAffordActiveTool())
             {
+                buildMenu.SetPlacementFeedback(
+                    false,
+                    StrategyBuildPlacementFeedbackText.FormatFailureReason("not_affordable"));
                 StrategyDebugLogger.Warn(
                     "Build",
                     "BridgePlacementRejected",
@@ -203,6 +213,9 @@ namespace ProjectUnknown.Strategy
                 "BridgePlacementRejected",
                 StrategyDebugLogger.F("cell", clickedCell),
                 StrategyDebugLogger.F("reason", "not_a_suggested_bank"));
+            buildMenu.SetPlacementFeedback(
+                false,
+                StrategyBuildPlacementFeedbackText.FormatFailureReason("not_a_suggested_bank"));
         }
 
         private void RefreshPlacementInputContext()

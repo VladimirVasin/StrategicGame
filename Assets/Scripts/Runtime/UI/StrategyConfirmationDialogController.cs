@@ -175,11 +175,7 @@ namespace ProjectUnknown.Strategy
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 265;
 
-            CanvasScaler scaler = canvasObject.GetComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1600f, 900f);
-            scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
-            scaler.matchWidthOrHeight = 0.5f;
+            StrategyHudStyle.ConfigureScaler(canvasObject.GetComponent<CanvasScaler>());
 
             RectTransform root = CreateUiObject("Root", canvasObject.transform).GetComponent<RectTransform>();
             Stretch(root, 0f, 0f, 0f, 0f);

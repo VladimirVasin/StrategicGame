@@ -8,8 +8,9 @@ namespace ProjectUnknown.Strategy
     [DisallowMultipleComponent]
     public sealed partial class StrategyWorldSelectionController : MonoBehaviour
     {
-        private const float HudWidth = 352f;
+        private const float HudWidth = 410f;
         private const float HudAnimationSpeed = 9f;
+        private const float HudRefreshInterval = 0.20f;
         private const float ResourceCellWidth = 138f;
         private const int StorageWorkerHudSlots = 2;
         private const int StorageBuilderHudSlots = 2;
@@ -36,6 +37,9 @@ namespace ProjectUnknown.Strategy
         private readonly List<SpriteRenderer> linkedResidentMarkers = new();
         private readonly List<LineRenderer> linkedResidentLines = new();
         private RectTransform hudPanel;
+        private RectTransform hudContent;
+        private RectTransform hudScrollContent;
+        private ScrollRect hudScrollRect;
         private CanvasGroup hudGroup;
         private Image hudPreviewImage;
         private Text hudTitleText;
@@ -89,6 +93,7 @@ namespace ProjectUnknown.Strategy
         private Transform selectedTransform;
         private string upgradeStatusMessage = string.Empty;
         private float hudT;
+        private float nextHudRefreshTime;
 
         public void SetScoutLodgeOnboarding(StrategyScoutLodgeOnboardingController onboarding)
         {

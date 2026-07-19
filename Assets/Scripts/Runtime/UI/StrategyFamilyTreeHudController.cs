@@ -183,11 +183,7 @@ namespace ProjectUnknown.Strategy
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 240;
 
-            CanvasScaler scaler = canvasObject.GetComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1600f, 900f);
-            scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
-            scaler.matchWidthOrHeight = 0.5f;
+            StrategyHudStyle.ConfigureScaler(canvasObject.GetComponent<CanvasScaler>());
 
             panel = CreateUiObject("FamilyTreeScene", canvasObject.transform).GetComponent<RectTransform>();
             Stretch(panel, 0f, 0f, 0f, 0f);

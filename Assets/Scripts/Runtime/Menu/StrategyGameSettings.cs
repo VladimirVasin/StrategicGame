@@ -8,12 +8,16 @@ namespace ProjectUnknown.Strategy
         private const string MusicVolumeKey = "settings.musicVolume";
         private const string SfxVolumeKey = "settings.sfxVolume";
         private const string FullscreenKey = "settings.fullscreen";
+        private const string UiScaleKey = "settings.uiScale";
+        private const string ReducedMotionKey = "ProjectUnknown.Founding.ReducedMotion";
 
         private static bool loaded;
         private static float masterVolume;
         private static float musicVolume;
         private static float sfxVolume;
         private static bool fullscreen;
+        private static float uiScale;
+        private static bool reducedMotion;
 
         public static float MasterVolume
         {
@@ -48,6 +52,24 @@ namespace ProjectUnknown.Strategy
             {
                 EnsureLoaded();
                 return fullscreen;
+            }
+        }
+
+        public static float UiScale
+        {
+            get
+            {
+                EnsureLoaded();
+                return uiScale;
+            }
+        }
+
+        public static bool ReducedMotion
+        {
+            get
+            {
+                EnsureLoaded();
+                return reducedMotion;
             }
         }
 
@@ -87,6 +109,30 @@ namespace ProjectUnknown.Strategy
             Screen.fullScreen = fullscreen;
         }
 
+        public static void SetUiScale(float value)
+        {
+            EnsureLoaded();
+            uiScale = Mathf.Clamp(value, 0.85f, 1.25f);
+            PlayerPrefs.SetFloat(UiScaleKey, uiScale);
+            PlayerPrefs.Save();
+            StrategyHudStyle.RefreshCanvasScalers();
+        }
+
+        public static void SetReducedMotion(bool value)
+        {
+            EnsureLoaded();
+            reducedMotion = value;
+            PlayerPrefs.SetInt(ReducedMotionKey, reducedMotion ? 1 : 0);
+            PlayerPrefs.Save();
+
+            StrategyUiButtonFeedback[] feedback = Object.FindObjectsByType<StrategyUiButtonFeedback>(
+                FindObjectsInactive.Include);
+            for (int i = 0; i < feedback.Length; i++)
+            {
+                feedback[i].SetReducedMotion(reducedMotion);
+            }
+        }
+
         private static void EnsureLoaded()
         {
             if (loaded)
@@ -99,6 +145,8 @@ namespace ProjectUnknown.Strategy
             musicVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(MusicVolumeKey, 1f));
             sfxVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(SfxVolumeKey, 1f));
             fullscreen = PlayerPrefs.GetInt(FullscreenKey, Screen.fullScreen ? 1 : 0) != 0;
+            uiScale = Mathf.Clamp(PlayerPrefs.GetFloat(UiScaleKey, 1f), 0.85f, 1.25f);
+            reducedMotion = PlayerPrefs.GetInt(ReducedMotionKey, 0) != 0;
         }
 
         private static float SaveVolume(string key, float value)

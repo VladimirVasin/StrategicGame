@@ -1,6 +1,7 @@
 using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace ProjectUnknown.Strategy.EditorTests
 {
@@ -50,7 +51,7 @@ namespace ProjectUnknown.Strategy.EditorTests
             Assert.That(selection.ResidentPersonalInventoryEmptyCopy, Does.Contain("No personal items"));
             Assert.That(
                 root.transform.Find(
-                    "SelectionHudCanvas/SelectionSideHud/ResidentHud/ResidentPersonalInventory/PersonalItemSlot_0")
+                    "SelectionHudCanvas/SelectionSideHud/ContentViewport/ScrollContent/ContextSections/ResidentHud/ResidentPersonalInventory/PersonalItemSlot_0")
                     ?.gameObject.activeSelf,
                 Is.False);
         }
@@ -70,6 +71,41 @@ namespace ProjectUnknown.Strategy.EditorTests
             refreshMethod.Invoke(selection, new object[] { resident });
 
             Assert.That(selection.IsResidentPersonalInventoryVisible, Is.False);
+        }
+
+        [Test]
+        public void ResidentHeaderFitsLongestCatalogIdentityOnSingleLines()
+        {
+            Transform panel = root.transform.Find("SelectionHudCanvas/SelectionSideHud");
+            Text title = panel?.Find("Title")?.GetComponent<Text>();
+            Text subtitle = panel?.Find("Subtitle")?.GetComponent<Text>();
+            Assert.That(title, Is.Not.Null);
+            Assert.That(subtitle, Is.Not.Null);
+
+            Assert.That(title.rectTransform.rect.width, Is.GreaterThanOrEqualTo(282f));
+            Assert.That(title.resizeTextForBestFit, Is.True);
+            Assert.That(title.resizeTextMinSize, Is.EqualTo(17));
+            Assert.That(title.resizeTextMaxSize, Is.EqualTo(22));
+            Assert.That(subtitle.rectTransform.rect.width, Is.GreaterThanOrEqualTo(282f));
+            Assert.That(subtitle.resizeTextForBestFit, Is.True);
+            Assert.That(subtitle.resizeTextMinSize, Is.EqualTo(11));
+            Assert.That(subtitle.resizeTextMaxSize, Is.EqualTo(13));
+
+            AssertFitsSingleLine(title, "Maerwynn Ravenshield");
+            AssertFitsSingleLine(subtitle, "103y adult | female");
+        }
+
+        private static void AssertFitsSingleLine(Text text, string value)
+        {
+            text.text = value;
+            TextGenerator generator = new();
+            bool populated = generator.Populate(
+                value,
+                text.GetGenerationSettings(text.rectTransform.rect.size));
+
+            Assert.That(populated, Is.True);
+            Assert.That(generator.lineCount, Is.EqualTo(1));
+            Assert.That(generator.characterCountVisible, Is.EqualTo(value.Length));
         }
     }
 }

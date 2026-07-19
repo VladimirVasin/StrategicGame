@@ -7,13 +7,13 @@ namespace ProjectUnknown.Strategy
     [DisallowMultipleComponent]
     public sealed class StrategyGoalsHudController : MonoBehaviour
     {
-        private static readonly Color PanelColor = new Color(0.055f, 0.075f, 0.075f, 0.92f);
-        private static readonly Color RowColor = new Color(0.095f, 0.125f, 0.12f, 0.94f);
-        private static readonly Color CompleteColor = new Color(0.42f, 0.78f, 0.45f, 1f);
-        private static readonly Color AccentColor = new Color(0.78f, 0.59f, 0.25f, 1f);
-        private const float PanelWidth = 268f;
-        private const float HeaderHeight = 30f;
-        private const float RowHeight = 42f;
+        private static Color PanelColor => StrategyHudStyle.Background;
+        private static Color RowColor => StrategyHudStyle.Surface;
+        private static Color CompleteColor => StrategyHudStyle.Success;
+        private static Color AccentColor => StrategyHudStyle.Primary;
+        private const float PanelWidth = 300f;
+        private const float HeaderHeight = 36f;
+        private const float RowHeight = 46f;
         private const float RowSpacing = 6f;
         private const float IntroDelaySeconds = 2.1f;
         private const float IntroAnimationSeconds = 0.55f;
@@ -62,7 +62,7 @@ namespace ProjectUnknown.Strategy
             canvasRoot.SetActive(true);
             PrepareIntroIfNeeded();
 
-            titleText.text = "Goals";
+            titleText.text = "CURRENT GOALS";
             panelRoot.sizeDelta = new Vector2(PanelWidth, CalculatePanelHeight(goals.Count));
 
             EnsureRowCount(goals.Count);
@@ -132,23 +132,32 @@ namespace ProjectUnknown.Strategy
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 28;
 
-            CanvasScaler scaler = canvasRoot.GetComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1600f, 900f);
-            scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
-            scaler.matchWidthOrHeight = 0.5f;
+            StrategyHudStyle.ConfigureScaler(canvasRoot.GetComponent<CanvasScaler>());
 
             panelRoot = CreateUiObject("GoalsPanel", canvasRoot.transform).GetComponent<RectTransform>();
             panelRoot.anchorMin = new Vector2(0f, 1f);
             panelRoot.anchorMax = new Vector2(0f, 1f);
             panelRoot.pivot = new Vector2(0f, 1f);
-            panelBasePosition = new Vector2(18f, -206f);
+            panelBasePosition = new Vector2(16f, -84f);
             panelRoot.anchoredPosition = panelBasePosition;
             panelRoot.sizeDelta = new Vector2(PanelWidth, CalculatePanelHeight(1));
 
             Image panelImage = panelRoot.gameObject.AddComponent<Image>();
-            panelImage.color = PanelColor;
-            panelImage.raycastTarget = false;
+            StrategyHudStyle.StyleCompactPanel(panelImage, new Color(
+                PanelColor.r,
+                PanelColor.g,
+                PanelColor.b,
+                0.96f));
+
+            RectTransform accent = CreateUiObject("Accent", panelRoot).GetComponent<RectTransform>();
+            accent.anchorMin = Vector2.zero;
+            accent.anchorMax = new Vector2(0f, 1f);
+            accent.pivot = new Vector2(0f, 0.5f);
+            accent.sizeDelta = new Vector2(4f, 0f);
+            accent.anchoredPosition = Vector2.zero;
+            Image accentImage = accent.gameObject.AddComponent<Image>();
+            accentImage.color = AccentColor;
+            accentImage.raycastTarget = false;
 
             Outline outline = panelRoot.gameObject.AddComponent<Outline>();
             outline.effectColor = new Color(0f, 0f, 0f, 0.75f);
@@ -158,7 +167,7 @@ namespace ProjectUnknown.Strategy
             canvasGroup.blocksRaycasts = false;
             canvasGroup.interactable = false;
 
-            titleText = CreateText("Title", panelRoot, "Goals", 16, TextAnchor.MiddleLeft, Color.white);
+            titleText = CreateText("Title", panelRoot, "CURRENT GOALS", 14, TextAnchor.MiddleLeft, StrategyHudStyle.Primary);
             titleText.fontStyle = FontStyle.Bold;
             titleText.rectTransform.anchorMin = new Vector2(0f, 1f);
             titleText.rectTransform.anchorMax = new Vector2(1f, 1f);
@@ -195,8 +204,7 @@ namespace ProjectUnknown.Strategy
             SetRowOffsets(root, index);
 
             Image image = root.gameObject.AddComponent<Image>();
-            image.color = RowColor;
-            image.raycastTarget = false;
+            StrategyHudStyle.StyleInset(image, RowColor);
 
             HorizontalLayoutGroup layout = root.gameObject.AddComponent<HorizontalLayoutGroup>();
             layout.padding = new RectOffset(8, 8, 4, 4);
@@ -224,7 +232,7 @@ namespace ProjectUnknown.Strategy
             Stretch(checkMark.rectTransform);
             checkMark.fontStyle = FontStyle.Bold;
 
-            Text label = CreateText("Label", root, string.Empty, 13, TextAnchor.MiddleLeft, Color.white);
+            Text label = CreateText("Label", root, string.Empty, 14, TextAnchor.MiddleLeft, StrategyHudStyle.TextPrimary);
             label.horizontalOverflow = HorizontalWrapMode.Wrap;
             label.verticalOverflow = VerticalWrapMode.Truncate;
             label.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1f;
@@ -271,10 +279,12 @@ namespace ProjectUnknown.Strategy
             }
 
             introPending = true;
-            introDelayTimer = IntroDelaySeconds;
+            introDelayTimer = StrategyHudStyle.ReducedMotion ? 0f : IntroDelaySeconds;
             introAnimationTimer = 0f;
             canvasGroup.alpha = 0f;
-            panelRoot.anchoredPosition = panelBasePosition + new Vector2(-IntroSlideOffset, 0f);
+            panelRoot.anchoredPosition = StrategyHudStyle.ReducedMotion
+                ? panelBasePosition
+                : panelBasePosition + new Vector2(-IntroSlideOffset, 0f);
         }
 
         private void UpdateIntro(float delta)
@@ -288,7 +298,9 @@ namespace ProjectUnknown.Strategy
             {
                 introDelayTimer -= delta;
                 canvasGroup.alpha = 0f;
-                panelRoot.anchoredPosition = panelBasePosition + new Vector2(-IntroSlideOffset, 0f);
+                panelRoot.anchoredPosition = StrategyHudStyle.ReducedMotion
+                    ? panelBasePosition
+                    : panelBasePosition + new Vector2(-IntroSlideOffset, 0f);
                 return;
             }
 
@@ -296,8 +308,11 @@ namespace ProjectUnknown.Strategy
             float t = Mathf.Clamp01(introAnimationTimer / IntroAnimationSeconds);
             float eased = t * t * (3f - 2f * t);
             canvasGroup.alpha = eased;
+            Vector2 introStart = StrategyHudStyle.ReducedMotion
+                ? panelBasePosition
+                : panelBasePosition + new Vector2(-IntroSlideOffset, 0f);
             panelRoot.anchoredPosition = Vector2.Lerp(
-                panelBasePosition + new Vector2(-IntroSlideOffset, 0f),
+                introStart,
                 panelBasePosition,
                 eased);
 
@@ -329,8 +344,12 @@ namespace ProjectUnknown.Strategy
             pulseTimer -= delta;
             float normalized = Mathf.Clamp01(pulseTimer / 1.1f);
             float wave = Mathf.Sin((1f - normalized) * Mathf.PI);
-            panelRoot.localScale = Vector3.one * (1f + wave * 0.035f);
-            panelRoot.anchoredPosition = panelBasePosition + new Vector2(wave * 2f, 0f);
+            panelRoot.localScale = StrategyHudStyle.ReducedMotion
+                ? Vector3.one
+                : Vector3.one * (1f + wave * 0.035f);
+            panelRoot.anchoredPosition = StrategyHudStyle.ReducedMotion
+                ? panelBasePosition
+                : panelBasePosition + new Vector2(wave * 2f, 0f);
             flashOverlay.color = new Color(CompleteColor.r, CompleteColor.g, CompleteColor.b, wave * 0.16f);
         }
 

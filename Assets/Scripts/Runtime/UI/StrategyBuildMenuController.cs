@@ -9,6 +9,7 @@ namespace ProjectUnknown.Strategy
         private StrategyBuildMenuControllerDriver driver;
 
         public StrategyBuildTool ActiveTool => driver != null ? driver.ActiveTool : StrategyBuildTool.None;
+        public bool IsMenuOpen => driver != null && driver.IsOpen;
         public int LastPlacementFrame => driver != null ? driver.LastPlacementFrame : -1;
         public StrategyConstructionResourceCost AvailableConstructionResources => StrategyStorageYard.GetTotalConstructionResources();
 
@@ -22,6 +23,8 @@ namespace ProjectUnknown.Strategy
         public void ClearAllowedTools() => Driver.ClearAllowedTools();
         public bool IsToolAllowed(StrategyBuildTool tool) => Driver.IsToolAllowedForBuild(tool);
         public void SetInputRouter(StrategyInputRouter router) => Driver.SetInputRouter(router);
+        public void SetPlacementFeedback(bool valid, string message) => Driver.SetPlacementFeedback(valid, message);
+        public void ToggleMenu() => Driver.ToggleOpen();
 
         private StrategyBuildMenuControllerDriver Driver
         {

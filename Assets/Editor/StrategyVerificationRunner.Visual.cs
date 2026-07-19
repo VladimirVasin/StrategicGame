@@ -9,6 +9,7 @@ namespace ProjectUnknown.Strategy.EditorTests
     {
         private static int visualCaptureStage;
         private static int visualCaptureWaitFrames;
+        private static GameObject buildTooltipCaptureRoot;
 
         public static void RunGameplayVisualCapture()
         {
@@ -16,6 +17,95 @@ namespace ProjectUnknown.Strategy.EditorTests
             visualCaptureStage = 0;
             visualCaptureWaitFrames = 0;
             StartPlayModeSmoke(SmokeKind.GameplayVisualCapture, GameplayScenePath);
+        }
+
+        public static void RunBuildTooltipVisualCapture()
+        {
+            File.WriteAllText(GetResultPath("BuildTooltipVisualCapture.txt"), "RUNNING");
+            visualCaptureStage = 0;
+            visualCaptureWaitFrames = 0;
+            StartPlayModeSmoke(SmokeKind.BuildTooltipVisualCapture, MainMenuScenePath);
+        }
+
+        private static void UpdateBuildTooltipVisualCapture()
+        {
+            if (visualCaptureWaitFrames > 0)
+            {
+                visualCaptureWaitFrames--;
+                return;
+            }
+
+            if (visualCaptureStage == 0)
+            {
+                Canvas[] existingCanvases =
+                    UnityEngine.Object.FindObjectsByType<Canvas>(FindObjectsInactive.Exclude);
+                for (int i = 0; i < existingCanvases.Length; i++)
+                {
+                    existingCanvases[i].gameObject.SetActive(false);
+                }
+
+                buildTooltipCaptureRoot = new GameObject("Build Tooltip Visual Capture");
+                StrategyDebugOptions.SetInstantConstructionEnabled(true);
+                StrategyBuildMenuController menu =
+                    buildTooltipCaptureRoot.AddComponent<StrategyBuildMenuController>();
+                menu.ClearAllowedTools();
+                menu.ToggleMenu();
+                UnityEngine.UI.Button extraction = FindCaptureComponent<UnityEngine.UI.Button>(
+                    buildTooltipCaptureRoot,
+                    "BuildCategory_Extraction");
+                Require(extraction != null, "Extraction category missing");
+                extraction.onClick.Invoke();
+                visualCaptureWaitFrames = 30;
+                visualCaptureStage = 1;
+                return;
+            }
+
+            if (visualCaptureStage == 1)
+            {
+                StrategyHudTooltip tooltip = FindCaptureComponent<StrategyHudTooltip>(
+                    buildTooltipCaptureRoot,
+                    "BuildItem_LumberjackCamp");
+                Require(tooltip != null, "Lumberjack build tooltip missing");
+                Require(tooltip.gameObject.activeInHierarchy, "Lumberjack build item is not visible");
+                tooltip.OnSelect(null);
+                visualCaptureWaitFrames = 2;
+                visualCaptureStage = 2;
+                return;
+            }
+
+            if (visualCaptureStage == 2)
+            {
+                CaptureGameplayRender("VisualBuildTooltip_1280x720.png", 1280, 720);
+                CaptureGameplayRender("VisualBuildTooltip_1484x839.png", 1484, 839);
+                StrategyHudTooltip tooltip = FindCaptureComponent<StrategyHudTooltip>(
+                    buildTooltipCaptureRoot,
+                    "BuildItem_LumberjackCamp");
+                tooltip.OnDeselect(null);
+                tooltip.GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
+                visualCaptureWaitFrames = 12;
+                visualCaptureStage = 3;
+                return;
+            }
+
+            CaptureGameplayRender("VisualBuildPlacement_1280x720.png", 1280, 720);
+            CaptureGameplayRender("VisualBuildPlacement_1484x839.png", 1484, 839);
+            StrategyDebugOptions.SetInstantConstructionEnabled(false);
+            CompletePlayMode(true, "PASS: compact build browse and placement visuals captured");
+        }
+
+        private static T FindCaptureComponent<T>(GameObject root, string name)
+            where T : Component
+        {
+            T[] components = root.GetComponentsInChildren<T>(true);
+            for (int i = 0; i < components.Length; i++)
+            {
+                if (components[i].gameObject.name == name)
+                {
+                    return components[i];
+                }
+            }
+
+            return null;
         }
 
         internal static void VerifyVisualCatalog()
@@ -278,29 +368,81 @@ namespace ProjectUnknown.Strategy.EditorTests
                     break;
                 case 1:
                     CaptureGameplayRender("VisualNoon.png");
+                    CaptureGameplayRender("VisualHud_1280x720.png", 1280, 720);
+                    CaptureGameplayRender("VisualHud_1366x768.png", 1366, 768);
+                    CaptureGameplayRender("VisualHud_1484x839.png", 1484, 839);
+                    CaptureGameplayRender("VisualHud_1920x1080.png", 1920, 1080);
+                    CaptureGameplayRender("VisualHud_2560x1440.png", 2560, 1440);
+                    CaptureGameplayRender("VisualHud_3440x1440.png", 3440, 1440);
+                    StrategyResourceOverviewHudController resourceOverview =
+                        UnityEngine.Object.FindAnyObjectByType<StrategyResourceOverviewHudController>();
+                    Require(resourceOverview != null, "Resource overview HUD missing");
+                    resourceOverview.SetOpen(true, true, false);
+                    CaptureGameplayRender("VisualResourceOverview_1280x720.png", 1280, 720);
+                    CaptureGameplayRender("VisualResourceOverview_1484x839.png", 1484, 839);
+                    resourceOverview.SetOpen(false, true, false);
+                    CaptureProfessionHudFrames();
+                    StrategyBuildMenuController menu =
+                        UnityEngine.Object.FindAnyObjectByType<StrategyBuildMenuController>();
+                    menu?.ClearAllowedTools();
+                    menu?.ToggleMenu();
+                    GameObject productionCategory = GameObject.Find("BuildCategory_Production");
+                    productionCategory?.GetComponent<UnityEngine.UI.Button>()?.onClick.Invoke();
+                    visualCaptureWaitFrames = 30;
+                    visualCaptureStage = 2;
+                    break;
+                case 2:
+                    CaptureGameplayRender("VisualBuildMenu.png");
+                    CaptureGameplayRender("VisualBuildMenu_1280x720.png", 1280, 720);
+                    CaptureGameplayRender("VisualBuildMenu_1484x839.png", 1484, 839);
+                    GameObject housingCategory = GameObject.Find("BuildCategory_Housing");
+                    housingCategory?.GetComponent<UnityEngine.UI.Button>()?.onClick.Invoke();
+                    GameObject extractionCategory = GameObject.Find("BuildCategory_Extraction");
+                    extractionCategory?.GetComponent<UnityEngine.UI.Button>()?.onClick.Invoke();
+                    visualCaptureWaitFrames = 30;
+                    visualCaptureStage = 3;
+                    break;
+                case 3:
+                    CaptureGameplayRender("VisualBuildBrowse_1280x720.png", 1280, 720);
+                    CaptureGameplayRender("VisualBuildBrowse_1484x839.png", 1484, 839);
+                    GameObject lumberjackItem = GameObject.Find("BuildItem_LumberjackCamp");
+                    Require(lumberjackItem != null, "Lumberjack build item missing");
+                    StrategyHudTooltip itemTooltip = lumberjackItem.GetComponent<StrategyHudTooltip>();
+                    Require(itemTooltip != null, "Lumberjack build tooltip missing");
+                    itemTooltip.OnSelect(null);
+                    visualCaptureWaitFrames = 2;
+                    visualCaptureStage = 4;
+                    break;
+                case 4:
+                    CaptureGameplayRender("VisualBuildTooltip_1280x720.png", 1280, 720);
+                    CaptureGameplayRender("VisualBuildTooltip_1484x839.png", 1484, 839);
+                    GameObject.Find("BuildItem_LumberjackCamp")
+                        ?.GetComponent<StrategyHudTooltip>()
+                        ?.OnDeselect(null);
+                    UnityEngine.Object.FindAnyObjectByType<StrategyBuildMenuController>()?.ToggleMenu();
                     StrategyDayNightCycleController.RestoreElapsedSeconds(105f);
                     StrategyWeatherController.Active?.ForceWeather(StrategyWeatherKind.Clear);
                     RefreshVisualLighting();
                     visualCaptureWaitFrames = 40;
-                    visualCaptureStage = 2;
+                    visualCaptureStage = 5;
                     break;
-                case 2:
+                case 5:
                     CaptureGameplayRender("VisualSpring.png");
                     StrategyDayNightCycleController.RestoreElapsedSeconds(
                         StrategyDayNightCycleController.DayLengthSeconds * 14f + 105f);
                     StrategyWeatherController.Active?.ForceWeather(StrategyWeatherKind.Clear);
                     RefreshVisualLighting();
                     visualCaptureWaitFrames = 40;
-                    visualCaptureStage = 3;
+                    visualCaptureStage = 6;
                     break;
-                case 3:
+                case 6:
                     CaptureGameplayRender("VisualAutumn.png");
                     StrategyDayNightCycleController.RestoreElapsedSeconds(270f);
                     RefreshVisualLighting();
                     visualCaptureWaitFrames = 16;
-                    visualCaptureStage = 4;
+                    visualCaptureStage = 7;
                     break;
-                case 4:
+                case 7:
                     CaptureGameplayRender("VisualNight.png");
                     StrategyDayNightCycleController.RestoreElapsedSeconds(
                         StrategyDayNightCycleController.DayLengthSeconds * 21f + 105f);
@@ -310,11 +452,11 @@ namespace ProjectUnknown.Strategy.EditorTests
                     seasonal?.DebugSetCoverage(0.88f, 0.82f);
                     RefreshVisualLighting();
                     visualCaptureWaitFrames = 16;
-                    visualCaptureStage = 5;
+                    visualCaptureStage = 8;
                     break;
                 default:
                     CaptureGameplayRender("VisualWinter.png");
-                    CompletePlayMode(true, "PASS: noon, spring, autumn, night, and winter visuals captured");
+                    CompletePlayMode(true, "PASS: HUD, build menu, and seasonal visuals captured");
                     break;
             }
         }
@@ -323,11 +465,26 @@ namespace ProjectUnknown.Strategy.EditorTests
             CityMapController map,
             StrategyPopulationController population)
         {
+            StrategyFirstNightFaunaEventController.Active?.RestoreStage(
+                StrategyFirstNightFaunaStage.StoryCompleted);
             Require(population.TryGetCampCell(out Vector2Int campCell), "Camp focus cell missing");
             StrategyCameraController cameraController =
                 UnityEngine.Object.FindAnyObjectByType<StrategyCameraController>();
             Require(cameraController != null, "Strategy camera controller missing");
             cameraController.FocusOn(map.GetCellCenterWorld(campCell.x, campCell.y), 11f);
+
+            StrategyBuildPlacementController placement =
+                UnityEngine.Object.FindAnyObjectByType<StrategyBuildPlacementController>();
+            StrategyWorldSelectionController selection =
+                UnityEngine.Object.FindAnyObjectByType<StrategyWorldSelectionController>();
+            if (selection != null && population.Residents.Count > 0)
+            {
+                selection.SelectResident(population.Residents[0]);
+            }
+            else if (placement != null && selection != null && placement.PlacedBuildings.Count > 0)
+            {
+                selection.SelectBuilding(placement.PlacedBuildings[0]);
+            }
         }
 
         private static void RefreshVisualLighting()
@@ -337,27 +494,5 @@ namespace ProjectUnknown.Strategy.EditorTests
             visuals?.RefreshSceneLightingNow();
         }
 
-        private static void CaptureGameplayRender(string fileName)
-        {
-            Require(
-                SystemInfo.graphicsDeviceType != UnityEngine.Rendering.GraphicsDeviceType.Null,
-                "Gameplay visual capture requires a graphics device");
-            Camera camera = Camera.main;
-            Require(camera != null, "Gameplay camera missing");
-            RenderTexture renderTexture = new(1600, 900, 24, RenderTextureFormat.ARGB32);
-            Texture2D screenshot = new(1600, 900, TextureFormat.RGB24, false);
-            RenderTexture previous = RenderTexture.active;
-            RenderTexture previousTarget = camera.targetTexture;
-            camera.targetTexture = renderTexture;
-            RenderTexture.active = renderTexture;
-            camera.Render();
-            screenshot.ReadPixels(new Rect(0f, 0f, 1600f, 900f), 0, 0);
-            screenshot.Apply(false, false);
-            File.WriteAllBytes(GetResultPath(fileName), screenshot.EncodeToPNG());
-            camera.targetTexture = previousTarget;
-            RenderTexture.active = previous;
-            UnityEngine.Object.DestroyImmediate(screenshot);
-            UnityEngine.Object.DestroyImmediate(renderTexture);
-        }
     }
 }

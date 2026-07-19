@@ -133,11 +133,7 @@ namespace ProjectUnknown.Strategy
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 160;
 
-            CanvasScaler scaler = canvasObject.GetComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1366f, 768f);
-            scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
-            scaler.matchWidthOrHeight = 0.5f;
+            StrategyHudStyle.ConfigureScaler(canvasObject.GetComponent<CanvasScaler>());
 
             CreateTopButton(canvasObject.transform);
             CreatePanel(canvasObject.transform);
@@ -151,11 +147,11 @@ namespace ProjectUnknown.Strategy
             root.anchorMin = new Vector2(0f, 1f);
             root.anchorMax = new Vector2(0f, 1f);
             root.pivot = new Vector2(0f, 1f);
-            root.anchoredPosition = new Vector2(18f, -106f);
-            root.sizeDelta = new Vector2(178f, 42f);
+            root.anchoredPosition = new Vector2(812f, -5f);
+            root.sizeDelta = new Vector2(156f, 60f);
 
             Image background = root.gameObject.AddComponent<Image>();
-            background.color = new Color(0.12f, 0.16f, 0.18f, 0.94f);
+            StrategyHudStyle.StyleRailModule(background, true);
 
             Outline outline = root.gameObject.AddComponent<Outline>();
             outline.effectColor = new Color(0f, 0f, 0f, 0.36f);
@@ -168,15 +164,21 @@ namespace ProjectUnknown.Strategy
             iconImage.preserveAspect = true;
             iconImage.raycastTarget = false;
 
-            buttonText = CreateText("Label", root, "Professions", 15, TextAnchor.MiddleLeft, new Color(0.95f, 0.88f, 0.62f));
+            buttonText = CreateText("Label", root, "Professions", 14, TextAnchor.MiddleLeft, new Color(0.95f, 0.88f, 0.62f));
             buttonText.fontStyle = FontStyle.Bold;
-            SetOffsets(buttonText.rectTransform, 46f, 0f, 12f, 0f);
+            buttonText.horizontalOverflow = HorizontalWrapMode.Overflow;
+            buttonText.verticalOverflow = VerticalWrapMode.Truncate;
+            buttonText.resizeTextForBestFit = true;
+            buttonText.resizeTextMinSize = 12;
+            buttonText.resizeTextMaxSize = 14;
+            SetOffsets(buttonText.rectTransform, 44f, 0f, 8f, 0f);
 
             Button button = root.gameObject.AddComponent<Button>();
             button.targetGraphic = background;
             button.onClick.AddListener(ToggleOpen);
             ConfigureButtonColors(button, background.color);
             StrategyUiButtonFeedback.Attach(button);
+            StrategyHudTooltip.Attach(root.gameObject, "Assign residents to professions and configure automatic workforce priorities.");
         }
 
         private void CreatePanel(Transform parent)
@@ -189,7 +191,7 @@ namespace ProjectUnknown.Strategy
             panelRoot.sizeDelta = new Vector2(620f, 620f);
 
             Image background = panelRoot.gameObject.AddComponent<Image>();
-            background.color = new Color(0.06f, 0.09f, 0.09f, 0.96f);
+            StrategyHudStyle.StylePanel(background, new Color(0.88f, 0.92f, 0.86f, 0.98f), true);
 
             Outline outline = panelRoot.gameObject.AddComponent<Outline>();
             outline.effectColor = new Color(0f, 0f, 0f, 0.45f);
@@ -209,17 +211,17 @@ namespace ProjectUnknown.Strategy
 
             Text title = CreateText("Title", panelRoot, "Professions", 25, TextAnchor.UpperLeft, Color.white);
             title.fontStyle = FontStyle.Bold;
-            SetTopStretch(title.rectTransform, 24f, 18f, 84f, 34f);
+            SetTopStretch(title.rectTransform, 40f, 28f, 84f, 34f);
 
             Text subtitle = CreateText("Subtitle", panelRoot, "settlement workers", 13, TextAnchor.UpperLeft, new Color(0.86f, 0.70f, 0.42f));
             subtitle.fontStyle = FontStyle.Bold;
-            SetTopStretch(subtitle.rectTransform, 24f, 52f, 84f, 20f);
+            SetTopStretch(subtitle.rectTransform, 40f, 62f, 84f, 20f);
 
             RectTransform closeRoot = CreateUiObject("Close", panelRoot).GetComponent<RectTransform>();
             closeRoot.anchorMin = new Vector2(1f, 1f);
             closeRoot.anchorMax = new Vector2(1f, 1f);
             closeRoot.pivot = new Vector2(1f, 1f);
-            closeRoot.anchoredPosition = new Vector2(-18f, -18f);
+            closeRoot.anchoredPosition = new Vector2(-26f, -24f);
             closeRoot.sizeDelta = new Vector2(38f, 34f);
             Image closeImage = closeRoot.gameObject.AddComponent<Image>();
             closeImage.color = new Color(0.10f, 0.14f, 0.15f, 0.95f);
@@ -233,7 +235,7 @@ namespace ProjectUnknown.Strategy
             SetOffsets(closeText.rectTransform, 0f, 0f, 0f, 1f);
 
             RectTransform line = CreateUiObject("Line", panelRoot).GetComponent<RectTransform>();
-            SetTopStretch(line, 24f, 84f, 24f, 2f);
+            SetTopStretch(line, 40f, 92f, 40f, 2f);
             Image lineImage = line.gameObject.AddComponent<Image>();
             lineImage.color = new Color(1f, 1f, 1f, 0.22f);
             lineImage.raycastTarget = false;
@@ -242,7 +244,7 @@ namespace ProjectUnknown.Strategy
 
             RectTransform viewport = CreateUiObject("ListViewport", panelRoot).GetComponent<RectTransform>();
             viewportRoot = viewport;
-            SetOffsets(viewport, 18f, 210f, 38f, 70f);
+            SetOffsets(viewport, 32f, 210f, 61f, 88f);
             Image viewportImage = viewport.gameObject.AddComponent<Image>();
             viewportImage.color = new Color(1f, 1f, 1f, 0.01f);
             Mask mask = viewport.gameObject.AddComponent<Mask>();
@@ -272,8 +274,8 @@ namespace ProjectUnknown.Strategy
             scrollbarRoot.anchorMin = new Vector2(1f, 0f);
             scrollbarRoot.anchorMax = new Vector2(1f, 1f);
             scrollbarRoot.pivot = new Vector2(1f, 0.5f);
-            scrollbarRoot.offsetMin = new Vector2(-30f, 70f);
-            scrollbarRoot.offsetMax = new Vector2(-18f, -96f);
+            scrollbarRoot.offsetMin = new Vector2(-53f, 88f);
+            scrollbarRoot.offsetMax = new Vector2(-41f, -210f);
             Image scrollbarTrack = scrollbarRoot.gameObject.AddComponent<Image>();
             scrollbarTrack.color = new Color(0f, 0f, 0f, 0.32f);
 
@@ -307,11 +309,17 @@ namespace ProjectUnknown.Strategy
             }
 
             freeWorkersText = CreateText("FreeWorkers", panelRoot, string.Empty, 13, TextAnchor.UpperLeft, new Color(0.75f, 0.83f, 0.79f));
-            SetBottomStretch(freeWorkersText.rectTransform, 24f, 30f, 260f, 20f);
+            freeWorkersText.resizeTextForBestFit = true;
+            freeWorkersText.resizeTextMinSize = 10;
+            freeWorkersText.resizeTextMaxSize = 13;
+            SetBottomStretch(freeWorkersText.rectTransform, 40f, 48f, 310f, 20f);
 
             actionStatusText = CreateText("ActionStatus", panelRoot, string.Empty, 13, TextAnchor.UpperRight, new Color(0.86f, 0.70f, 0.42f));
             actionStatusText.fontStyle = FontStyle.Bold;
-            SetBottomStretch(actionStatusText.rectTransform, 260f, 30f, 24f, 20f);
+            actionStatusText.resizeTextForBestFit = true;
+            actionStatusText.resizeTextMinSize = 10;
+            actionStatusText.resizeTextMaxSize = 13;
+            SetBottomStretch(actionStatusText.rectTransform, 310f, 48f, 40f, 20f);
         }
 
         private ProfessionRow CreateRow(StrategyProfessionType type, Transform parent)

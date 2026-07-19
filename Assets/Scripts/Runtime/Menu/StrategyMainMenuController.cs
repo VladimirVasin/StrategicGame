@@ -25,7 +25,9 @@ namespace ProjectUnknown.Strategy
         private Slider masterSlider;
         private Slider musicSlider;
         private Slider sfxSlider;
+        private Slider uiScaleSlider;
         private Toggle fullscreenToggle;
+        private Toggle reducedMotionToggle;
         private bool configured;
         private bool settingsOpen;
         private StrategyInputRouter inputRouter;
@@ -84,7 +86,9 @@ namespace ProjectUnknown.Strategy
             masterSlider.onValueChanged.AddListener(ChangeMasterVolume);
             musicSlider.onValueChanged.AddListener(ChangeMusicVolume);
             sfxSlider.onValueChanged.AddListener(ChangeSfxVolume);
+            uiScaleSlider.onValueChanged.AddListener(ChangeUiScale);
             fullscreenToggle.onValueChanged.AddListener(ChangeFullscreen);
+            reducedMotionToggle.onValueChanged.AddListener(ChangeReducedMotion);
         }
 
         private void RefreshView()
@@ -195,7 +199,9 @@ namespace ProjectUnknown.Strategy
             masterSlider.SetValueWithoutNotify(StrategyGameSettings.MasterVolume);
             musicSlider.SetValueWithoutNotify(StrategyGameSettings.MusicVolume);
             sfxSlider.SetValueWithoutNotify(StrategyGameSettings.SfxVolume);
+            uiScaleSlider.SetValueWithoutNotify(StrategyGameSettings.UiScale);
             fullscreenToggle.SetIsOnWithoutNotify(StrategyGameSettings.Fullscreen);
+            reducedMotionToggle.SetIsOnWithoutNotify(StrategyGameSettings.ReducedMotion);
         }
 
         private static void ChangeMasterVolume(float value)
@@ -213,9 +219,20 @@ namespace ProjectUnknown.Strategy
             StrategyGameSettings.SetSfxVolume(value);
         }
 
+        private static void ChangeUiScale(float value)
+        {
+            StrategyGameSettings.SetUiScale(value);
+        }
+
         private static void ChangeFullscreen(bool value)
         {
             StrategyGameSettings.SetFullscreen(value);
+            StrategyHudSfxAudio.Play(StrategyHudSfxKind.Step);
+        }
+
+        private static void ChangeReducedMotion(bool value)
+        {
+            StrategyGameSettings.SetReducedMotion(value);
             StrategyHudSfxAudio.Play(StrategyHudSfxKind.Step);
         }
 

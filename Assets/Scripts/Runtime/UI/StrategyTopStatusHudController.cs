@@ -7,7 +7,7 @@ namespace ProjectUnknown.Strategy
     public sealed class StrategyTopStatusHudController : MonoBehaviour
     {
         private const float RefreshInterval = 0.25f;
-        private const float DayProgressWidth = 236f;
+        private const float DayProgressWidth = 218f;
 
         private StrategyPopulationController population;
         private StrategyPopulationRosterHudController rosterHud;
@@ -16,7 +16,6 @@ namespace ProjectUnknown.Strategy
         private Text timeText;
         private Text temperatureText;
         private Text phaseText;
-        private Text readinessText;
         private Image phaseSwatch;
         private Image dayProgressImage;
         private RectTransform dayProgressFill;
@@ -85,23 +84,19 @@ namespace ProjectUnknown.Strategy
 
             Canvas canvas = canvasObject.GetComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            canvas.sortingOrder = 26;
+            canvas.sortingOrder = 150;
 
-            CanvasScaler scaler = canvasObject.GetComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1600f, 900f);
-            scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
-            scaler.matchWidthOrHeight = 0.5f;
+            StrategyHudStyle.ConfigureScaler(canvasObject.GetComponent<CanvasScaler>());
 
             RectTransform panel = CreateUiObject("PopulationPanel", canvasObject.transform).GetComponent<RectTransform>();
             panel.anchorMin = new Vector2(0f, 1f);
             panel.anchorMax = new Vector2(0f, 1f);
             panel.pivot = new Vector2(0f, 1f);
-            panel.anchoredPosition = new Vector2(400f, -18f);
-            panel.sizeDelta = new Vector2(250f, 42f);
+            panel.anchoredPosition = new Vector2(612f, -5f);
+            panel.sizeDelta = new Vector2(196f, 60f);
 
             Image background = panel.gameObject.AddComponent<Image>();
-            background.color = new Color(0.08f, 0.11f, 0.13f, 0.92f);
+            StrategyHudStyle.StyleRailModule(background, true);
             background.raycastTarget = true;
 
             Outline outline = panel.gameObject.AddComponent<Outline>();
@@ -112,9 +107,11 @@ namespace ProjectUnknown.Strategy
             button.targetGraphic = background;
             button.onClick.AddListener(TogglePopulationRoster);
             StrategyUiButtonFeedback.Attach(button);
+            StrategyHudTooltip.Attach(panel.gameObject, "Open the resident roster and review adults, children, families, and current work.");
 
-            populationText = CreateText("PopulationText", panel, string.Empty, 15, TextAnchor.MiddleCenter, new Color(0.95f, 0.88f, 0.62f));
+            populationText = CreateText("PopulationText", panel, string.Empty, 13, TextAnchor.MiddleCenter, StrategyHudStyle.TextPrimary);
             populationText.fontStyle = FontStyle.Bold;
+            populationText.lineSpacing = 0.90f;
             Stretch(populationText.rectTransform, 8f, 0f, 8f, 0f);
 
             BuildTimePanel(canvasObject.transform);
@@ -126,11 +123,11 @@ namespace ProjectUnknown.Strategy
             panel.anchorMin = new Vector2(1f, 1f);
             panel.anchorMax = new Vector2(1f, 1f);
             panel.pivot = new Vector2(1f, 1f);
-            panel.anchoredPosition = new Vector2(-22f, -18f);
-            panel.sizeDelta = new Vector2(306f, 78f);
+            panel.anchoredPosition = new Vector2(-16f, -3f);
+            panel.sizeDelta = new Vector2(290f, 64f);
 
             Image background = panel.gameObject.AddComponent<Image>();
-            background.color = new Color(0.07f, 0.10f, 0.12f, 0.94f);
+            StrategyHudStyle.StyleRailModule(background);
             background.raycastTarget = false;
 
             Outline outline = panel.gameObject.AddComponent<Outline>();
@@ -141,8 +138,8 @@ namespace ProjectUnknown.Strategy
             swatch.anchorMin = new Vector2(0f, 1f);
             swatch.anchorMax = new Vector2(0f, 1f);
             swatch.pivot = new Vector2(0f, 1f);
-            swatch.anchoredPosition = new Vector2(12f, -12f);
-            swatch.sizeDelta = new Vector2(14f, 14f);
+            swatch.anchoredPosition = new Vector2(12f, -13f);
+            swatch.sizeDelta = new Vector2(12f, 12f);
             phaseSwatch = swatch.gameObject.AddComponent<Image>();
             phaseSwatch.color = new Color(0.95f, 0.88f, 0.62f);
             phaseSwatch.raycastTarget = false;
@@ -153,8 +150,8 @@ namespace ProjectUnknown.Strategy
             timeRect.anchorMin = new Vector2(0f, 1f);
             timeRect.anchorMax = new Vector2(1f, 1f);
             timeRect.pivot = new Vector2(0f, 1f);
-            timeRect.anchoredPosition = new Vector2(34f, -7f);
-            timeRect.sizeDelta = new Vector2(-154f, 24f);
+            timeRect.anchoredPosition = new Vector2(32f, -7f);
+            timeRect.sizeDelta = new Vector2(-152f, 22f);
 
             temperatureText = CreateText("CalendarTemperatureText", panel, string.Empty, 15, TextAnchor.MiddleRight, new Color(0.84f, 0.92f, 0.84f));
             temperatureText.fontStyle = FontStyle.Bold;
@@ -162,31 +159,23 @@ namespace ProjectUnknown.Strategy
             temperatureRect.anchorMin = new Vector2(1f, 1f);
             temperatureRect.anchorMax = new Vector2(1f, 1f);
             temperatureRect.pivot = new Vector2(1f, 1f);
-            temperatureRect.anchoredPosition = new Vector2(-34f, -7f);
-            temperatureRect.sizeDelta = new Vector2(76f, 24f);
+            temperatureRect.anchoredPosition = new Vector2(-18f, -7f);
+            temperatureRect.sizeDelta = new Vector2(76f, 22f);
 
             phaseText = CreateText("CalendarPhaseText", panel, string.Empty, 13, TextAnchor.MiddleLeft, new Color(0.78f, 0.87f, 1f));
             RectTransform phaseRect = phaseText.rectTransform;
             phaseRect.anchorMin = new Vector2(0f, 1f);
             phaseRect.anchorMax = new Vector2(1f, 1f);
             phaseRect.pivot = new Vector2(0f, 1f);
-            phaseRect.anchoredPosition = new Vector2(34f, -30f);
-            phaseRect.sizeDelta = new Vector2(-46f, 20f);
-
-            readinessText = CreateText("CalendarReadinessText", panel, string.Empty, 11, TextAnchor.MiddleLeft, new Color(0.78f, 0.86f, 0.84f));
-            RectTransform readinessRect = readinessText.rectTransform;
-            readinessRect.anchorMin = new Vector2(0f, 1f);
-            readinessRect.anchorMax = new Vector2(1f, 1f);
-            readinessRect.pivot = new Vector2(0f, 1f);
-            readinessRect.anchoredPosition = new Vector2(34f, -48f);
-            readinessRect.sizeDelta = new Vector2(-46f, 18f);
+            phaseRect.anchoredPosition = new Vector2(32f, -30f);
+            phaseRect.sizeDelta = new Vector2(-44f, 18f);
 
             RectTransform track = CreateUiObject("DayProgressTrack", panel).GetComponent<RectTransform>();
             track.anchorMin = new Vector2(0f, 0f);
             track.anchorMax = new Vector2(0f, 0f);
             track.pivot = new Vector2(0f, 0f);
-            track.anchoredPosition = new Vector2(34f, 9f);
-            track.sizeDelta = new Vector2(DayProgressWidth, 4f);
+            track.anchoredPosition = new Vector2(32f, 1f);
+            track.sizeDelta = new Vector2(DayProgressWidth, 3f);
 
             Image trackImage = track.gameObject.AddComponent<Image>();
             trackImage.color = new Color(0.16f, 0.20f, 0.22f, 0.95f);
@@ -220,8 +209,7 @@ namespace ProjectUnknown.Strategy
             int children = population != null ? population.ChildResidentCount : 0;
             int total = adults + children;
             populationText.text = "Population " + total
-                + "   adults " + adults
-                + " / children " + children;
+                + "\n" + adults + " adults  ·  " + children + " children";
         }
 
         private void RefreshTimeText()
@@ -237,7 +225,6 @@ namespace ProjectUnknown.Strategy
                 : StrategyDayNightCycleController.CurrentCalendarSnapshot;
             Color accent = StrategyDayNightCycleController.GetPhaseAccentColor(snapshot.Phase);
             Color seasonAccent = StrategySeasonCalendar.GetSeasonAccentColor(snapshot.Season);
-            StrategySeasonReadinessSnapshot readiness = StrategySeasonReadiness.Evaluate(snapshot, population);
             StrategyTemperatureSnapshot temperature =
                 StrategyTemperatureModel.Evaluate(snapshot, StrategyWeatherController.Active);
 
@@ -258,12 +245,6 @@ namespace ProjectUnknown.Strategy
                 phaseSwatch.color = accent;
             }
 
-            if (readinessText != null)
-            {
-                readinessText.text = FormatReadinessText(snapshot, readiness);
-                readinessText.color = GetReadinessColor(snapshot, readiness);
-            }
-
             if (dayProgressFill != null)
             {
                 dayProgressFill.sizeDelta = new Vector2(
@@ -274,42 +255,6 @@ namespace ProjectUnknown.Strategy
                     dayProgressImage.color = accent;
                 }
             }
-        }
-
-        private static string FormatReadinessText(
-            StrategyCalendarSnapshot snapshot,
-            StrategySeasonReadinessSnapshot readiness)
-        {
-            string food = readiness.HasPopulationNeed ? readiness.FoodDays.ToString("0.#") + "d food" : "food n/a";
-            string logs = readiness.HasFuelNeed ? readiness.FuelDays.ToString("0.#") + "d logs" : "logs n/a";
-            if (snapshot.Season == StrategySeason.Winter)
-            {
-                return "Winter now   " + food + " / " + logs + " / " + readiness.WinterDaysToCover + "d left";
-            }
-
-            return "Winter in " + readiness.DaysUntilWinter + "d   " + food + " / " + logs;
-        }
-
-        private static Color GetReadinessColor(
-            StrategyCalendarSnapshot snapshot,
-            StrategySeasonReadinessSnapshot readiness)
-        {
-            if (!readiness.HasPopulationNeed && !readiness.HasFuelNeed)
-            {
-                return new Color(0.68f, 0.76f, 0.78f);
-            }
-
-            if (readiness.CoversWinter)
-            {
-                return new Color(0.70f, 0.96f, 0.64f);
-            }
-
-            if (snapshot.Season == StrategySeason.Winter || readiness.DaysUntilWinter <= 3)
-            {
-                return new Color(1f, 0.62f, 0.42f);
-            }
-
-            return new Color(0.93f, 0.82f, 0.52f);
         }
 
         private void TogglePopulationRoster()

@@ -135,6 +135,12 @@ namespace ProjectUnknown.Strategy.EditorTests
                     return;
                 }
 
+                if (smokeKind == SmokeKind.BuildTooltipVisualCapture)
+                {
+                    UpdateBuildTooltipVisualCapture();
+                    return;
+                }
+
                 if (smokeKind == SmokeKind.MainMenu)
                 {
                     StrategyMainMenuController menu = UnityEngine.Object.FindAnyObjectByType<StrategyMainMenuController>();
@@ -180,7 +186,9 @@ namespace ProjectUnknown.Strategy.EditorTests
                 Require(UnityEngine.Object.FindAnyObjectByType<StrategyWorldAudioDirector>() != null, "World audio director bootstrap failed");
                 Require(StrategyAudioVoicePool.ActiveVoiceCount <= StrategyAudioVoicePool.Capacity, "World audio voice budget exceeded");
                 Require(StrategyTrailController.Active != null, "Trail bootstrap failed");
-                VerifyRuntimeInput(context, !IsSoakKind(smokeKind));
+                VerifyRuntimeInput(
+                    context,
+                    smokeKind != SmokeKind.GameplayVisualCapture && !IsSoakKind(smokeKind));
                 VerifyBuildingGroundDetails();
                 if (smokeKind == SmokeKind.GameplayVisualCapture)
                 {
@@ -381,6 +389,7 @@ namespace ProjectUnknown.Strategy.EditorTests
                 SmokeKind.MainMenu => "MainMenuSmoke.txt",
                 SmokeKind.MainMenuLaunch => "MainMenuLaunchSmoke.txt",
                 SmokeKind.MainMenuRenderCapture => "MainMenuRenderCapture.txt",
+                SmokeKind.BuildTooltipVisualCapture => "BuildTooltipVisualCapture.txt",
                 SmokeKind.GameplayVisualCapture => "GameplayVisualCapture.txt",
                 SmokeKind.Soak => "SoakSmoke.txt",
                 SmokeKind.QuickSoak => "QuickSoakSmoke.txt",
@@ -458,6 +467,7 @@ namespace ProjectUnknown.Strategy.EditorTests
             MainMenu,
             MainMenuLaunch,
             MainMenuRenderCapture,
+            BuildTooltipVisualCapture,
             GameplayVisualCapture,
             Soak,
             QuickSoak

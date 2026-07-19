@@ -7,18 +7,20 @@ namespace ProjectUnknown.Strategy
     public static class StrategyUiThemeProvider
     {
         private const string FontPath = "Fonts/Inter-Regular";
+        private const string HearthLedgerFramePath = "UI/HearthLedger/PanelFrame";
 
         private static Font font;
         private static Sprite panelSprite;
+        private static Sprite insetSprite;
         private static Sprite buttonSprite;
 
         public static Font Font => font ??= Resources.Load<Font>(FontPath)
             ?? Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
 
-        public static Color PanelColor => new(0.075f, 0.105f, 0.105f, 0.96f);
-        public static Color ButtonColor => new(0.14f, 0.18f, 0.17f, 0.98f);
-        public static Color TextColor => new(0.91f, 0.92f, 0.82f, 1f);
-        public static Color AccentColor => new(0.78f, 0.49f, 0.24f, 1f);
+        public static Color PanelColor => StrategyHudStyle.Surface;
+        public static Color ButtonColor => StrategyHudStyle.Elevated;
+        public static Color TextColor => StrategyHudStyle.TextPrimary;
+        public static Color AccentColor => StrategyHudStyle.Primary;
 
         public static void EnsureRuntime()
         {
@@ -33,7 +35,18 @@ namespace ProjectUnknown.Strategy
 
         internal static Sprite GetPanelSprite()
         {
-            return panelSprite ??= CreateFrameSprite("UI Pixel Panel", false);
+            if (panelSprite == null)
+            {
+                panelSprite = Resources.Load<Sprite>(HearthLedgerFramePath)
+                    ?? CreateFrameSprite("Hearth and Ledger Panel Fallback", false);
+            }
+
+            return panelSprite;
+        }
+
+        internal static Sprite GetInsetSprite()
+        {
+            return insetSprite ??= CreateFrameSprite("Hearth and Ledger Inset", false);
         }
 
         internal static Sprite GetButtonSprite()
@@ -137,6 +150,17 @@ namespace ProjectUnknown.Strategy
 
             private static void ApplyTheme()
             {
+                CanvasScaler[] scalers = FindObjectsByType<CanvasScaler>(FindObjectsInactive.Include);
+                for (int i = 0; i < scalers.Length; i++)
+                {
+                    if (scalers[i].GetComponent<StrategyCinematicLetterboxView>() != null)
+                    {
+                        continue;
+                    }
+
+                    StrategyHudStyle.ConfigureScaler(scalers[i], scalers[i].matchWidthOrHeight);
+                }
+
                 Text[] texts = FindObjectsByType<Text>(FindObjectsInactive.Include);
                 for (int i = 0; i < texts.Length; i++)
                 {
@@ -147,7 +171,10 @@ namespace ProjectUnknown.Strategy
                 for (int i = 0; i < images.Length; i++)
                 {
                     Image image = images[i];
-                    if (image == null || image.color.a < 0.20f || IsDecorativeImage(image.name))
+                    if (image == null
+                        || image.sprite != null
+                        || image.color.a < 0.20f
+                        || IsDecorativeImage(image.name))
                     {
                         continue;
                     }
@@ -163,9 +190,14 @@ namespace ProjectUnknown.Strategy
                         continue;
                     }
 
-                    image.sprite = button ? GetButtonSprite() : GetPanelSprite();
+                    bool inset = image.name.Contains("Dock")
+                        || image.name.Contains("Tray")
+                        || image.name.Contains("Card");
+                    image.sprite = button
+                        ? GetButtonSprite()
+                        : inset ? GetInsetSprite() : GetPanelSprite();
                     image.type = Image.Type.Sliced;
-                    image.pixelsPerUnitMultiplier = 1f;
+                    image.pixelsPerUnitMultiplier = 2f;
                 }
             }
 

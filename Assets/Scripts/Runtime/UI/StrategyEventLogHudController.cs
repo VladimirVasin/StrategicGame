@@ -8,14 +8,17 @@ namespace ProjectUnknown.Strategy
     public sealed class StrategyEventLogHudController : MonoBehaviour
     {
         private const int MaxEntries = 4;
-        private const float EntryLifetime = 6.5f;
+        private const float EntryLifetime = 8f;
         private const float FadeSeconds = 1.25f;
 
         private static readonly List<PendingEvent> PendingEvents = new();
 
         private readonly List<EventEntry> entries = new();
         private readonly List<Text> entryTexts = new();
+        private readonly List<Image> entryAccents = new();
+        private RectTransform panelRoot;
         private CanvasGroup canvasGroup;
+        private StrategyBuildMenuController buildMenu;
         private bool initialized;
 
         public static StrategyEventLogHudController Active { get; private set; }
@@ -82,11 +85,44 @@ namespace ProjectUnknown.Strategy
                 }
             }
 
+            UpdatePanelPosition(delta);
             RefreshRows();
+        }
+
+        private void UpdatePanelPosition(float delta)
+        {
+            if (panelRoot == null)
+            {
+                return;
+            }
+
+            buildMenu ??= Object.FindAnyObjectByType<StrategyBuildMenuController>();
+            float targetY = buildMenu != null && buildMenu.IsMenuOpen ? 386f : 20f;
+            float y = StrategyHudStyle.ReducedMotion
+                ? targetY
+                : Mathf.Lerp(panelRoot.anchoredPosition.y, targetY, 1f - Mathf.Exp(-12f * delta));
+            panelRoot.anchoredPosition = new Vector2(16f, y);
         }
 
         private void AddEntry(string message, Color color)
         {
+            for (int i = 0; i < entries.Count; i++)
+            {
+                EventEntry existing = entries[i];
+                if (existing.Message != message)
+                {
+                    continue;
+                }
+
+                entries.RemoveAt(i);
+                existing.Count++;
+                existing.TimeLeft = EntryLifetime;
+                existing.Color = color;
+                entries.Insert(0, existing);
+                RefreshRows();
+                return;
+            }
+
             entries.Insert(0, new EventEntry(message, color, EntryLifetime));
             while (entries.Count > MaxEntries)
             {
@@ -115,33 +151,76 @@ namespace ProjectUnknown.Strategy
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 29;
 
-            CanvasScaler scaler = canvasObject.GetComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1600f, 900f);
-            scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
-            scaler.matchWidthOrHeight = 0.5f;
+            StrategyHudStyle.ConfigureScaler(canvasObject.GetComponent<CanvasScaler>());
 
-            RectTransform panel = CreateUiObject("EventLogPanel", canvasObject.transform).GetComponent<RectTransform>();
-            panel.anchorMin = new Vector2(0.5f, 1f);
-            panel.anchorMax = new Vector2(0.5f, 1f);
-            panel.pivot = new Vector2(0.5f, 1f);
-            panel.anchoredPosition = new Vector2(0f, -18f);
-            panel.sizeDelta = new Vector2(420f, 92f);
+            panelRoot = CreateUiObject("EventLogPanel", canvasObject.transform).GetComponent<RectTransform>();
+            panelRoot.anchorMin = new Vector2(0f, 0f);
+            panelRoot.anchorMax = new Vector2(0f, 0f);
+            panelRoot.pivot = new Vector2(0f, 0f);
+            panelRoot.anchoredPosition = new Vector2(16f, 20f);
+            panelRoot.sizeDelta = new Vector2(320f, CalculatePanelHeight(1));
 
-            canvasGroup = panel.gameObject.AddComponent<CanvasGroup>();
+            Image panelBackground = panelRoot.gameObject.AddComponent<Image>();
+            StrategyHudStyle.StyleCompactPanel(panelBackground, new Color(
+                StrategyHudStyle.Background.r,
+                StrategyHudStyle.Background.g,
+                StrategyHudStyle.Background.b,
+                0.94f));
+            StrategyHudStyle.AddShadow(panelRoot.gameObject, 0.52f);
+
+            canvasGroup = panelRoot.gameObject.AddComponent<CanvasGroup>();
             canvasGroup.alpha = 0f;
             canvasGroup.blocksRaycasts = false;
             canvasGroup.interactable = false;
 
+            Text title = CreateText(
+                "Title",
+                panelRoot,
+                "SETTLEMENT NOTICES",
+                12,
+                TextAnchor.MiddleLeft,
+                StrategyHudStyle.Primary);
+            title.fontStyle = FontStyle.Bold;
+            title.rectTransform.anchorMin = new Vector2(0f, 1f);
+            title.rectTransform.anchorMax = new Vector2(1f, 1f);
+            title.rectTransform.pivot = new Vector2(0.5f, 1f);
+            title.rectTransform.offsetMin = new Vector2(14f, -26f);
+            title.rectTransform.offsetMax = new Vector2(-14f, -4f);
+
             for (int i = 0; i < MaxEntries; i++)
             {
-                Text text = CreateText("EventEntry" + i, panel, string.Empty, 14, TextAnchor.MiddleCenter, Color.white);
+                RectTransform row = CreateUiObject("EventRow" + i, panelRoot).GetComponent<RectTransform>();
+                row.anchorMin = new Vector2(0f, 1f);
+                row.anchorMax = new Vector2(1f, 1f);
+                row.pivot = new Vector2(0.5f, 1f);
+                row.offsetMin = new Vector2(10f, -70f - i * 44f);
+                row.offsetMax = new Vector2(-10f, -30f - i * 44f);
+                Image rowBackground = row.gameObject.AddComponent<Image>();
+                rowBackground.color = new Color(
+                    StrategyHudStyle.Surface.r,
+                    StrategyHudStyle.Surface.g,
+                    StrategyHudStyle.Surface.b,
+                    0.92f);
+                rowBackground.raycastTarget = false;
+
+                RectTransform accent = CreateUiObject("Accent", row).GetComponent<RectTransform>();
+                accent.anchorMin = Vector2.zero;
+                accent.anchorMax = new Vector2(0f, 1f);
+                accent.sizeDelta = new Vector2(4f, 0f);
+                accent.anchoredPosition = Vector2.zero;
+                Image accentImage = accent.gameObject.AddComponent<Image>();
+                accentImage.raycastTarget = false;
+                entryAccents.Add(accentImage);
+
+                Text text = CreateText("EventEntry" + i, row, string.Empty, 13, TextAnchor.MiddleLeft, Color.white);
+                text.horizontalOverflow = HorizontalWrapMode.Wrap;
+                text.verticalOverflow = VerticalWrapMode.Truncate;
+                text.lineSpacing = 0.9f;
                 RectTransform rect = text.rectTransform;
-                rect.anchorMin = new Vector2(0f, 1f);
-                rect.anchorMax = new Vector2(1f, 1f);
-                rect.pivot = new Vector2(0.5f, 1f);
-                rect.anchoredPosition = new Vector2(0f, -i * 22f);
-                rect.sizeDelta = new Vector2(0f, 22f);
+                rect.anchorMin = Vector2.zero;
+                rect.anchorMax = Vector2.one;
+                rect.offsetMin = new Vector2(14f, 0f);
+                rect.offsetMax = new Vector2(-10f, 0f);
                 entryTexts.Add(text);
             }
         }
@@ -154,11 +233,16 @@ namespace ProjectUnknown.Strategy
             }
 
             canvasGroup.alpha = entries.Count > 0 ? 1f : 0f;
+            if (panelRoot != null)
+            {
+                panelRoot.sizeDelta = new Vector2(320f, CalculatePanelHeight(entries.Count));
+            }
+
             for (int i = 0; i < entryTexts.Count; i++)
             {
                 Text text = entryTexts[i];
                 bool visible = i < entries.Count;
-                text.gameObject.SetActive(visible);
+                text.transform.parent.gameObject.SetActive(visible);
                 if (!visible)
                 {
                     continue;
@@ -167,8 +251,12 @@ namespace ProjectUnknown.Strategy
                 EventEntry entry = entries[i];
                 Color color = entry.Color;
                 color.a = Mathf.Clamp01(entry.TimeLeft / FadeSeconds);
-                text.text = entry.Message;
+                text.text = entry.Message + (entry.Count > 1 ? "  ×" + entry.Count : string.Empty);
                 text.color = color;
+                if (i < entryAccents.Count)
+                {
+                    entryAccents[i].color = color;
+                }
             }
         }
 
@@ -177,6 +265,11 @@ namespace ProjectUnknown.Strategy
             GameObject obj = new GameObject(name, typeof(RectTransform));
             obj.transform.SetParent(parent, false);
             return obj;
+        }
+
+        private static float CalculatePanelHeight(int count)
+        {
+            return 34f + Mathf.Max(1, count) * 44f;
         }
 
         private static Text CreateText(string name, Transform parent, string value, int size, TextAnchor anchor, Color color)
@@ -199,11 +292,13 @@ namespace ProjectUnknown.Strategy
                 Message = message;
                 Color = color;
                 TimeLeft = timeLeft;
+                Count = 1;
             }
 
             public string Message;
             public Color Color;
             public float TimeLeft;
+            public int Count;
         }
 
         private readonly struct PendingEvent

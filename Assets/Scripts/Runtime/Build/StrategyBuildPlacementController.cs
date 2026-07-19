@@ -162,6 +162,7 @@ namespace ProjectUnknown.Strategy
             if (!TryGetMouseWorld(out Vector3 world) || !map.TryWorldToCell(world, out Vector2Int cell))
             {
                 hasValidHover = false;
+                buildMenu.SetPlacementFeedback(false, "Move the pointer over the map.");
                 HideBridgePreview();
                 return;
             }
@@ -169,9 +170,16 @@ namespace ProjectUnknown.Strategy
             hoveredOrigin = cell;
             if (!hasBridgeStart)
             {
-                bool valid = buildMenu.CanAffordActiveTool()
-                    && CanSelectBridgeStart(cell, out _);
+                bool affordable = buildMenu.CanAffordActiveTool();
+                bool validBank = CanSelectBridgeStart(cell, out string reason);
+                bool valid = affordable && validBank;
                 hasValidHover = valid;
+                buildMenu.SetPlacementFeedback(
+                    valid,
+                    valid
+                        ? "Valid first bank. Click to choose the bridge start."
+                        : StrategyBuildPlacementFeedbackText.FormatFailureReason(
+                            affordable ? reason : "not_affordable"));
                 int index = 0;
                 DrawBridgePreviewCell(cell, valid ? new Color(0.33f, 0.95f, 0.62f, 0.46f) : new Color(0.95f, 0.18f, 0.14f, 0.42f), ref index);
                 HideUnusedBridgePreviewRenderers(index);
@@ -181,6 +189,12 @@ namespace ProjectUnknown.Strategy
             TryGetBridgeCandidate(cell, out BridgeCandidate hoveredCandidate);
             bool hasHoveredCandidate = hoveredCandidate.Cells != null && hoveredCandidate.Cells.Count > 0;
             hasValidHover = buildMenu.CanAffordActiveTool() && hasHoveredCandidate;
+            buildMenu.SetPlacementFeedback(
+                hasValidHover,
+                hasValidHover
+                    ? "Valid span. Click the highlighted opposite bank to place."
+                    : StrategyBuildPlacementFeedbackText.FormatFailureReason(
+                        buildMenu.CanAffordActiveTool() ? "not_a_suggested_bank" : "not_affordable"));
             DrawBridgeCandidatePreview(hasHoveredCandidate ? hoveredCandidate : default);
         }
 
@@ -188,6 +202,9 @@ namespace ProjectUnknown.Strategy
         {
             if (!CanSelectBridgeStart(startCell, out string reason))
             {
+                buildMenu.SetPlacementFeedback(
+                    false,
+                    StrategyBuildPlacementFeedbackText.FormatFailureReason(reason));
                 StrategyDebugLogger.Warn(
                     "Build",
                     "BridgeStartRejected",

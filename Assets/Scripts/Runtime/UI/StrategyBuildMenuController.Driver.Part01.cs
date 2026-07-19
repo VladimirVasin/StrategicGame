@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
 
 namespace ProjectUnknown.Strategy
@@ -16,36 +13,39 @@ namespace ProjectUnknown.Strategy
             buildButtonRoot.anchorMin = new Vector2(0.5f, 0f);
             buildButtonRoot.anchorMax = new Vector2(0.5f, 0f);
             buildButtonRoot.pivot = new Vector2(0.5f, 0f);
-            buildButtonRoot.anchoredPosition = new Vector2(0f, 22f);
-            buildButtonRoot.sizeDelta = new Vector2(134f, 54f);
+            buildButtonRoot.anchoredPosition = new Vector2(0f, 12f);
+            buildButtonRoot.sizeDelta = new Vector2(132f, 40f);
 
             buildButtonImage = buildButtonRoot.gameObject.AddComponent<Image>();
-            buildButtonImage.color = new Color(0.13f, 0.20f, 0.24f, 0.96f);
+            StrategyHudStyle.StyleCompactPanel(buildButtonImage, StrategyHudStyle.Elevated, true);
+            StrategyHudStyle.AddShadow(buildButtonRoot.gameObject, 0.48f);
 
-            Outline outline = buildButtonRoot.gameObject.AddComponent<Outline>();
-            outline.effectColor = new Color(0f, 0f, 0f, 0.42f);
-            outline.effectDistance = new Vector2(1.6f, -1.6f);
+            buildButtonIconRoot = CreateUiObject("BuildIcon", buildButtonRoot).GetComponent<RectTransform>();
+            buildButtonIconRoot.anchorMin = new Vector2(0f, 0.5f);
+            buildButtonIconRoot.anchorMax = new Vector2(0f, 0.5f);
+            buildButtonIconRoot.pivot = new Vector2(0f, 0.5f);
+            buildButtonIconRoot.anchoredPosition = new Vector2(10f, 0f);
+            buildButtonIconRoot.sizeDelta = new Vector2(24f, 24f);
+            StrategyBuildMenuCatalog.DrawBuildIcon(buildButtonIconRoot, new Color(0.95f, 0.72f, 0.28f), new Color(0.35f, 0.42f, 0.46f));
 
-            RectTransform icon = CreateUiObject("BuildIcon", buildButtonRoot).GetComponent<RectTransform>();
-            icon.anchorMin = new Vector2(0f, 0.5f);
-            icon.anchorMax = new Vector2(0f, 0.5f);
-            icon.pivot = new Vector2(0f, 0.5f);
-            icon.anchoredPosition = new Vector2(14f, 0f);
-            icon.sizeDelta = new Vector2(32f, 32f);
-            StrategyBuildMenuCatalog.DrawBuildIcon(icon, new Color(0.95f, 0.72f, 0.28f), new Color(0.35f, 0.42f, 0.46f));
-
-            buildButtonText = CreateText("BuildButtonText", buildButtonRoot, "Build", 17, TextAnchor.MiddleLeft, Color.white);
+            buildButtonText = CreateText("BuildButtonText", buildButtonRoot, "BUILD  [B]", 13, TextAnchor.MiddleLeft, StrategyHudStyle.TextPrimary);
             buildButtonText.fontStyle = FontStyle.Bold;
+            buildButtonText.resizeTextForBestFit = true;
+            buildButtonText.resizeTextMinSize = 11;
+            buildButtonText.resizeTextMaxSize = 13;
             buildButtonText.rectTransform.anchorMin = new Vector2(0f, 0f);
             buildButtonText.rectTransform.anchorMax = new Vector2(1f, 1f);
-            buildButtonText.rectTransform.offsetMin = new Vector2(54f, 0f);
-            buildButtonText.rectTransform.offsetMax = new Vector2(-12f, 0f);
+            buildButtonText.rectTransform.offsetMin = new Vector2(40f, 0f);
+            buildButtonText.rectTransform.offsetMax = new Vector2(-8f, 0f);
 
             Button button = buildButtonRoot.gameObject.AddComponent<Button>();
             button.targetGraphic = buildButtonImage;
             button.onClick.AddListener(ToggleOpen);
             ConfigureButtonColors(button);
             StrategyUiButtonFeedback.Attach(button, StrategyUiButtonFeedbackProfile.SoundOnly);
+            buildButtonTooltip = StrategyHudTooltip.Attach(
+                buildButtonRoot.gameObject,
+                "Open construction palette [B].");
         }
 
         private void CreateMenuLayer(Transform parent)
@@ -57,54 +57,72 @@ namespace ProjectUnknown.Strategy
             menuGroup.blocksRaycasts = false;
             menuGroup.interactable = false;
 
-            trayRoot = CreateUiObject("BuildItemTray", menuRoot).GetComponent<RectTransform>();
-            trayRoot.anchorMin = new Vector2(0.5f, 0f);
-            trayRoot.anchorMax = new Vector2(0.5f, 0f);
-            trayRoot.pivot = new Vector2(0.5f, 0f);
-            trayRoot.anchoredPosition = new Vector2(0f, 122f);
-            trayRoot.sizeDelta = new Vector2(1080f, 138f);
+            paletteRoot = CreateUiObject("BuildPalette", menuRoot).GetComponent<RectTransform>();
+            paletteRoot.anchorMin = new Vector2(0.5f, 0f);
+            paletteRoot.anchorMax = new Vector2(0.5f, 0f);
+            paletteRoot.pivot = new Vector2(0.5f, 0f);
+            paletteRoot.anchoredPosition = new Vector2(0f, 12f);
+            paletteRoot.sizeDelta = new Vector2(760f, 48f);
+            Image paletteBackground = paletteRoot.gameObject.AddComponent<Image>();
+            StrategyHudStyle.StyleCompactPanel(paletteBackground, new Color(
+                StrategyHudStyle.Background.r,
+                StrategyHudStyle.Background.g,
+                StrategyHudStyle.Background.b,
+                0.94f));
+            StrategyHudStyle.AddShadow(paletteRoot.gameObject, 0.58f);
+
+            contextRoot = CreateUiObject("BuildContextRow", paletteRoot).GetComponent<RectTransform>();
+            contextRoot.anchorMin = new Vector2(0.5f, 0f);
+            contextRoot.anchorMax = new Vector2(0.5f, 0f);
+            contextRoot.pivot = new Vector2(0.5f, 0f);
+            contextRoot.anchoredPosition = new Vector2(0f, 48f);
+            contextRoot.sizeDelta = new Vector2(660f, 76f);
+
+            trayRoot = CreateUiObject("BuildItemTray", contextRoot).GetComponent<RectTransform>();
+            trayRoot.anchorMin = new Vector2(0f, 0.5f);
+            trayRoot.anchorMax = new Vector2(0f, 0.5f);
+            trayRoot.pivot = new Vector2(0f, 0.5f);
+            trayRoot.anchoredPosition = Vector2.zero;
+            trayRoot.sizeDelta = new Vector2(132f, 72f);
             trayGroup = trayRoot.gameObject.AddComponent<CanvasGroup>();
             trayGroup.alpha = 0f;
             trayGroup.blocksRaycasts = false;
             trayGroup.interactable = false;
             HorizontalLayoutGroup trayLayout = trayRoot.gameObject.AddComponent<HorizontalLayoutGroup>();
-            trayLayout.padding = new RectOffset(12, 12, 8, 8);
-            trayLayout.spacing = 10f;
-            trayLayout.childAlignment = TextAnchor.MiddleCenter;
+            trayLayout.spacing = 6f;
+            trayLayout.childAlignment = TextAnchor.MiddleLeft;
             trayLayout.childControlWidth = false;
             trayLayout.childControlHeight = false;
             trayLayout.childForceExpandWidth = false;
             trayLayout.childForceExpandHeight = false;
 
-            subcategoryRoot = CreateUiObject("BuildSubcategoryDock", menuRoot).GetComponent<RectTransform>();
-            subcategoryRoot.anchorMin = new Vector2(0.5f, 0f);
-            subcategoryRoot.anchorMax = new Vector2(0.5f, 0f);
-            subcategoryRoot.pivot = new Vector2(0.5f, 0f);
-            subcategoryRoot.anchoredPosition = new Vector2(0f, 122f);
-            subcategoryRoot.sizeDelta = new Vector2(720f, 52f);
+            subcategoryRoot = CreateUiObject("BuildSubcategoryDock", contextRoot).GetComponent<RectTransform>();
+            subcategoryRoot.anchorMin = new Vector2(0f, 0.5f);
+            subcategoryRoot.anchorMax = new Vector2(0f, 0.5f);
+            subcategoryRoot.pivot = new Vector2(0f, 0.5f);
+            subcategoryRoot.anchoredPosition = Vector2.zero;
+            subcategoryRoot.sizeDelta = new Vector2(96f, 72f);
             subcategoryGroup = subcategoryRoot.gameObject.AddComponent<CanvasGroup>();
             subcategoryGroup.alpha = 0f;
             subcategoryGroup.blocksRaycasts = false;
             subcategoryGroup.interactable = false;
-            HorizontalLayoutGroup subcategoryLayout = subcategoryRoot.gameObject.AddComponent<HorizontalLayoutGroup>();
-            subcategoryLayout.padding = new RectOffset(10, 10, 6, 6);
-            subcategoryLayout.spacing = 8f;
-            subcategoryLayout.childAlignment = TextAnchor.MiddleCenter;
+            VerticalLayoutGroup subcategoryLayout = subcategoryRoot.gameObject.AddComponent<VerticalLayoutGroup>();
+            subcategoryLayout.spacing = 3f;
+            subcategoryLayout.childAlignment = TextAnchor.UpperLeft;
             subcategoryLayout.childControlWidth = false;
             subcategoryLayout.childControlHeight = false;
             subcategoryLayout.childForceExpandWidth = false;
             subcategoryLayout.childForceExpandHeight = false;
 
-            dockRoot = CreateUiObject("BuildCategoryDock", menuRoot).GetComponent<RectTransform>();
-            dockRoot.anchorMin = new Vector2(0.5f, 0f);
-            dockRoot.anchorMax = new Vector2(0.5f, 0f);
-            dockRoot.pivot = new Vector2(0.5f, 0f);
-            dockRoot.anchoredPosition = new Vector2(0f, 82f);
-            dockRoot.sizeDelta = new Vector2(920f, 78f);
+            dockRoot = CreateUiObject("BuildCategoryDock", paletteRoot).GetComponent<RectTransform>();
+            dockRoot.anchorMin = new Vector2(0f, 0f);
+            dockRoot.anchorMax = new Vector2(0f, 0f);
+            dockRoot.pivot = new Vector2(0f, 0f);
+            dockRoot.anchoredPosition = new Vector2(8f, 7f);
+            dockRoot.sizeDelta = new Vector2(704f, 34f);
             HorizontalLayoutGroup dockLayout = dockRoot.gameObject.AddComponent<HorizontalLayoutGroup>();
-            dockLayout.padding = new RectOffset(12, 12, 8, 8);
-            dockLayout.spacing = 10f;
-            dockLayout.childAlignment = TextAnchor.MiddleCenter;
+            dockLayout.spacing = 4f;
+            dockLayout.childAlignment = TextAnchor.MiddleLeft;
             dockLayout.childControlWidth = false;
             dockLayout.childControlHeight = false;
             dockLayout.childForceExpandWidth = false;
@@ -119,35 +137,34 @@ namespace ProjectUnknown.Strategy
         private CategoryUi CreateCategoryUi(BuildCategoryData data, int index)
         {
             RectTransform root = CreateUiObject("BuildCategory_" + data.Label, dockRoot).GetComponent<RectTransform>();
-            root.sizeDelta = new Vector2(154f, 62f);
+            root.sizeDelta = new Vector2(114f, 34f);
             LayoutElement layout = root.gameObject.AddComponent<LayoutElement>();
-            layout.preferredWidth = 154f;
-            layout.preferredHeight = 62f;
+            layout.preferredWidth = 114f;
+            layout.preferredHeight = 34f;
 
             Image background = root.gameObject.AddComponent<Image>();
-            background.color = new Color(0.09f, 0.15f, 0.18f, 0.96f);
-            Outline outline = root.gameObject.AddComponent<Outline>();
-            outline.effectColor = new Color(0f, 0f, 0f, 0.36f);
-            outline.effectDistance = new Vector2(1.4f, -1.4f);
-
+            StrategyHudStyle.StyleInset(background, StrategyHudStyle.Elevated, true);
             RectTransform accent = CreateUiObject("Accent", root).GetComponent<RectTransform>();
             accent.anchorMin = new Vector2(0f, 0f);
             accent.anchorMax = new Vector2(0f, 1f);
             accent.pivot = new Vector2(0f, 0.5f);
             accent.offsetMin = new Vector2(0f, 0f);
-            accent.offsetMax = new Vector2(8f, 0f);
+            accent.offsetMax = new Vector2(3f, 0f);
             Image accentImage = accent.gameObject.AddComponent<Image>();
             accentImage.color = data.AccentColor;
             accentImage.raycastTarget = false;
 
             Text label = CreateText("Label", root, data.Label, 12, TextAnchor.MiddleLeft, new Color(0.86f, 0.91f, 0.96f));
             label.fontStyle = FontStyle.Bold;
+            label.resizeTextForBestFit = true;
+            label.resizeTextMinSize = 10;
+            label.resizeTextMaxSize = 12;
             label.horizontalOverflow = HorizontalWrapMode.Wrap;
             label.verticalOverflow = VerticalWrapMode.Truncate;
             label.rectTransform.anchorMin = new Vector2(0f, 0f);
             label.rectTransform.anchorMax = new Vector2(1f, 1f);
-            label.rectTransform.offsetMin = new Vector2(18f, 6f);
-            label.rectTransform.offsetMax = new Vector2(-10f, -6f);
+            label.rectTransform.offsetMin = new Vector2(10f, 3f);
+            label.rectTransform.offsetMax = new Vector2(-5f, -3f);
 
             Button button = root.gameObject.AddComponent<Button>();
             button.targetGraphic = background;
@@ -165,8 +182,6 @@ namespace ProjectUnknown.Strategy
 
             button.onClick.AddListener(() => SelectCategory(category, true));
             StrategyUiButtonFeedback.Attach(button, StrategyUiButtonFeedbackProfile.SoundOnly);
-            AddHoverRelay(root.gameObject, hovered => category.IsHovered = hovered);
-
             List<BuildItemUi> items = new();
             if (data.HasSubcategories)
             {
@@ -198,30 +213,29 @@ namespace ProjectUnknown.Strategy
         private BuildSubcategoryUi CreateSubcategoryUi(CategoryUi category, BuildSubcategoryData data, int index)
         {
             RectTransform root = CreateUiObject("BuildSubcategory_" + data.Label, subcategoryRoot).GetComponent<RectTransform>();
-            root.sizeDelta = new Vector2(138f, 38f);
+            root.sizeDelta = new Vector2(96f, 22f);
             LayoutElement layout = root.gameObject.AddComponent<LayoutElement>();
-            layout.preferredWidth = 138f;
-            layout.preferredHeight = 38f;
+            layout.preferredWidth = 96f;
+            layout.preferredHeight = 22f;
 
             Image background = root.gameObject.AddComponent<Image>();
-            background.color = new Color(0.10f, 0.16f, 0.17f, 0.96f);
-            Outline outline = root.gameObject.AddComponent<Outline>();
-            outline.effectColor = new Color(0f, 0f, 0f, 0.32f);
-            outline.effectDistance = new Vector2(1.2f, -1.2f);
-
+            StrategyHudStyle.StyleInset(background, StrategyHudStyle.Elevated, true);
             RectTransform accent = CreateUiObject("Accent", root).GetComponent<RectTransform>();
             accent.anchorMin = new Vector2(0f, 0f);
             accent.anchorMax = new Vector2(0f, 1f);
             accent.pivot = new Vector2(0f, 0.5f);
             accent.offsetMin = new Vector2(0f, 0f);
-            accent.offsetMax = new Vector2(6f, 0f);
+            accent.offsetMax = new Vector2(3f, 0f);
             Image accentImage = accent.gameObject.AddComponent<Image>();
             accentImage.color = data.AccentColor;
             accentImage.raycastTarget = false;
 
-            Text label = CreateText("Label", root, data.Label, 11, TextAnchor.MiddleCenter, new Color(0.86f, 0.91f, 0.96f));
+            Text label = CreateText("Label", root, data.Label, 11, TextAnchor.MiddleLeft, new Color(0.86f, 0.91f, 0.96f));
             label.fontStyle = FontStyle.Bold;
-            Stretch(label.rectTransform, 12f, 0f, 8f, 0f);
+            label.resizeTextForBestFit = true;
+            label.resizeTextMinSize = 10;
+            label.resizeTextMaxSize = 11;
+            Stretch(label.rectTransform, 9f, 1f, 4f, 1f);
 
             Button button = root.gameObject.AddComponent<Button>();
             button.targetGraphic = background;
@@ -239,61 +253,58 @@ namespace ProjectUnknown.Strategy
 
             button.onClick.AddListener(() => SelectSubcategory(category, subcategory, true));
             StrategyUiButtonFeedback.Attach(button, StrategyUiButtonFeedbackProfile.SoundOnly);
-            AddHoverRelay(root.gameObject, hovered => subcategory.IsHovered = hovered);
             return subcategory;
         }
 
         private BuildItemUi CreateItemUi(BuildItemData data, int subcategoryIndex)
         {
             RectTransform root = CreateUiObject("BuildItem_" + data.Tool, trayRoot).GetComponent<RectTransform>();
-            root.sizeDelta = new Vector2(138f, 116f);
+            root.sizeDelta = new Vector2(132f, 72f);
             LayoutElement layout = root.gameObject.AddComponent<LayoutElement>();
-            layout.preferredWidth = 138f;
-            layout.preferredHeight = 116f;
+            layout.preferredWidth = 132f;
+            layout.preferredHeight = 72f;
 
             Image background = root.gameObject.AddComponent<Image>();
-            background.color = new Color(0.13f, 0.18f, 0.24f, 0.98f);
-            Outline outline = root.gameObject.AddComponent<Outline>();
-            outline.effectColor = new Color(0f, 0f, 0f, 0.38f);
-            outline.effectDistance = new Vector2(1.5f, -1.5f);
-
+            StrategyHudStyle.StyleInset(background, StrategyHudStyle.Elevated, true);
             RectTransform icon = CreateUiObject("Icon", root).GetComponent<RectTransform>();
-            icon.anchorMin = new Vector2(0.5f, 1f);
-            icon.anchorMax = new Vector2(0.5f, 1f);
-            icon.pivot = new Vector2(0.5f, 1f);
-            icon.anchoredPosition = new Vector2(0f, -6f);
-            icon.sizeDelta = new Vector2(96f, 64f);
+            icon.anchorMin = new Vector2(0f, 0.5f);
+            icon.anchorMax = new Vector2(0f, 0.5f);
+            icon.pivot = new Vector2(0f, 0.5f);
+            icon.anchoredPosition = new Vector2(6f, 0f);
+            icon.sizeDelta = new Vector2(46f, 46f);
             Image iconBackground = icon.gameObject.AddComponent<Image>();
             iconBackground.color = data.Color;
             iconBackground.raycastTarget = false;
             StrategyBuildMenuCatalog.DrawItemIcon(icon, data);
 
-            Text title = CreateText("Title", root, data.Title, 11, TextAnchor.MiddleCenter, Color.white);
+            Text title = CreateText("Title", root, data.Title, 12, TextAnchor.UpperLeft, Color.white);
             title.fontStyle = FontStyle.Bold;
             title.horizontalOverflow = HorizontalWrapMode.Wrap;
             title.verticalOverflow = VerticalWrapMode.Truncate;
-            title.rectTransform.anchorMin = new Vector2(0f, 0f);
-            title.rectTransform.anchorMax = new Vector2(1f, 0f);
-            title.rectTransform.pivot = new Vector2(0.5f, 0f);
-            title.rectTransform.offsetMin = new Vector2(7f, 7f);
-            title.rectTransform.offsetMax = new Vector2(-7f, 33f);
+            title.resizeTextForBestFit = true;
+            title.resizeTextMinSize = 10;
+            title.resizeTextMaxSize = 12;
+            title.rectTransform.anchorMin = Vector2.zero;
+            title.rectTransform.anchorMax = Vector2.one;
+            title.rectTransform.offsetMin = new Vector2(58f, 23f);
+            title.rectTransform.offsetMax = new Vector2(-5f, -5f);
 
             RectTransform badge = CreateUiObject("CostBadge", root).GetComponent<RectTransform>();
-            badge.anchorMin = new Vector2(1f, 1f);
-            badge.anchorMax = new Vector2(1f, 1f);
-            badge.pivot = new Vector2(1f, 1f);
-            badge.anchoredPosition = new Vector2(-6f, -6f);
-            badge.sizeDelta = new Vector2(82f, 22f);
+            badge.anchorMin = Vector2.zero;
+            badge.anchorMax = Vector2.zero;
+            badge.pivot = Vector2.zero;
+            badge.anchoredPosition = new Vector2(58f, 5f);
+            badge.sizeDelta = new Vector2(68f, 17f);
             Image badgeBackground = badge.gameObject.AddComponent<Image>();
             badgeBackground.color = new Color(0.18f, 0.13f, 0.06f, 0.98f);
             badgeBackground.raycastTarget = false;
 
-            Text badgeText = CreateText("CostText", badge, "L0 S0", 11, TextAnchor.MiddleCenter, Color.white);
+            Text badgeText = CreateText("CostText", badge, "L0 S0", 10, TextAnchor.MiddleCenter, Color.white);
             badgeText.fontStyle = FontStyle.Bold;
             badgeText.resizeTextForBestFit = true;
-            badgeText.resizeTextMinSize = 8;
-            badgeText.resizeTextMaxSize = 11;
-            Stretch(badgeText.rectTransform, 4f, 0f, 4f, 0f);
+            badgeText.resizeTextMinSize = 9;
+            badgeText.resizeTextMaxSize = 10;
+            Stretch(badgeText.rectTransform, 3f, 0f, 3f, 0f);
 
             Button button = root.gameObject.AddComponent<Button>();
             button.targetGraphic = background;
@@ -314,30 +325,27 @@ namespace ProjectUnknown.Strategy
 
             button.onClick.AddListener(() => ToggleTool(data));
             StrategyUiButtonFeedback.Attach(button, StrategyUiButtonFeedbackProfile.SoundOnly);
-            AddHoverRelay(root.gameObject, hovered => item.IsHovered = hovered);
+            StrategyHudTooltip.Attach(
+                root.gameObject,
+                "Footprint " + GetFootprint(data.Tool).x + " × " + GetFootprint(data.Tool).y,
+                StrategyHudTooltipPlacement.Above);
             return item;
         }
 
         private void RefreshUi()
         {
-            if (treasuryText != null)
-            {
-                treasuryText.text = FormatConstructionResourceCounter(StrategyStorageYard.GetTotalConstructionResources());
-            }
-
             RefreshSpeedControls();
+            RefreshPlacementFeedback();
 
             if (buildButtonImage != null)
             {
                 buildButtonImage.color = isOpen
                     ? new Color(0.23f, 0.36f, 0.38f, 0.98f)
-                    : new Color(0.13f, 0.20f, 0.24f, 0.96f);
+                    : new Color(0.12f, 0.19f, 0.17f, 0.98f);
             }
 
-            if (buildButtonText != null)
-            {
-                buildButtonText.text = "Build";
-            }
+            RefreshBuildButtonVisual();
+            RefreshBuildButtonTooltip();
 
             for (int i = 0; i < categoryUis.Count; i++)
             {
@@ -349,7 +357,7 @@ namespace ProjectUnknown.Strategy
                     ? new Color(0.06f, 0.07f, 0.08f, 0.88f)
                     : selected
                     ? new Color(0.17f, 0.32f, 0.36f, 0.99f)
-                    : new Color(0.09f, 0.15f, 0.18f, 0.96f);
+                    : new Color(0.11f, 0.17f, 0.15f, 0.98f);
                 category.Label.color = !categoryAllowed
                     ? new Color(0.44f, 0.47f, 0.50f, 1f)
                     : selected ? Color.white : new Color(0.86f, 0.91f, 0.96f);
@@ -371,7 +379,7 @@ namespace ProjectUnknown.Strategy
                         ? new Color(0.06f, 0.07f, 0.08f, 0.88f)
                         : subcategorySelected
                             ? new Color(0.18f, 0.32f, 0.32f, 0.98f)
-                            : new Color(0.10f, 0.16f, 0.17f, 0.96f);
+                            : new Color(0.11f, 0.17f, 0.15f, 0.98f);
                     subcategory.Label.color = subcategoryAllowed
                         ? Color.white
                         : new Color(0.48f, 0.51f, 0.54f, 1f);
@@ -397,7 +405,7 @@ namespace ProjectUnknown.Strategy
                         ? new Color(0.10f, 0.11f, 0.13f, 0.88f)
                         : active
                             ? new Color(0.24f, 0.30f, 0.38f, 1f)
-                            : new Color(0.13f, 0.18f, 0.24f, 0.98f);
+                            : new Color(0.13f, 0.20f, 0.18f, 0.98f);
                     item.IconBackground.color = allowed && affordable ? item.Data.Color : new Color(0.24f, 0.25f, 0.27f, 0.92f);
                     item.Title.color = allowed && affordable ? Color.white : new Color(0.62f, 0.66f, 0.70f, 1f);
                     item.BadgeBackground.color = active
@@ -405,58 +413,15 @@ namespace ProjectUnknown.Strategy
                         : allowed && affordable
                             ? new Color(0.18f, 0.13f, 0.06f, 0.98f)
                             : new Color(0.24f, 0.06f, 0.05f, 0.98f);
-                    item.BadgeText.text = GetBuildItemBadgeText(item.Data.Cost, allowed, active);
+                    item.BadgeText.text = GetBuildItemBadgeText(item.Data.Cost);
                 }
             }
 
+            RefreshCompactBuildGeometry();
             LayoutRebuilder.ForceRebuildLayoutImmediate(dockRoot);
             LayoutRebuilder.ForceRebuildLayoutImmediate(subcategoryRoot);
             LayoutRebuilder.ForceRebuildLayoutImmediate(trayRoot);
             isDirty = false;
-        }
-
-        private void SetSpeedFromHud(int speed)
-        {
-            if (timeScale == null)
-            {
-                timeScale = UnityEngine.Object.FindAnyObjectByType<StrategyTimeScaleController>();
-            }
-
-            timeScale?.SetRequestedScale(speed);
-            RefreshSpeedControls();
-            StrategyHudSfxAudio.Play(StrategyHudSfxKind.Step);
-            StrategyDebugLogger.Info(
-                "BuildMenu",
-                "SpeedButtonClicked",
-                StrategyDebugLogger.F("speed", speed),
-                StrategyDebugLogger.F("timeScaleFound", timeScale != null));
-        }
-
-        private void RefreshSpeedControls()
-        {
-            if (timeScale == null)
-            {
-                timeScale = UnityEngine.Object.FindAnyObjectByType<StrategyTimeScaleController>();
-            }
-
-            float currentScale = timeScale != null ? timeScale.CurrentScale : 1f;
-            for (int i = 0; i < speedButtons.Length; i++)
-            {
-                bool active = Mathf.RoundToInt(currentScale) == i + 1;
-                if (speedButtonImages[i] != null)
-                {
-                    speedButtonImages[i].color = active
-                        ? new Color(0.25f, 0.36f, 0.36f, 0.98f)
-                        : new Color(0.11f, 0.16f, 0.17f, 0.96f);
-                }
-
-                if (speedButtonTexts[i] != null)
-                {
-                    speedButtonTexts[i].color = active
-                        ? new Color(0.95f, 0.88f, 0.62f)
-                        : Color.white;
-                }
-            }
         }
 
     }

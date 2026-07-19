@@ -58,11 +58,7 @@ namespace ProjectUnknown.Strategy
             rewardCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
             rewardCanvas.sortingOrder = 320;
 
-            CanvasScaler scaler = rewardCanvasRoot.GetComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1600f, 900f);
-            scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
-            scaler.matchWidthOrHeight = 0.5f;
+            StrategyHudStyle.ConfigureScaler(rewardCanvasRoot.GetComponent<CanvasScaler>());
 
             CreateBackdrop();
             CreateAtmosphere();

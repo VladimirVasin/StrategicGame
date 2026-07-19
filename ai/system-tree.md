@@ -1,6 +1,6 @@
 # System Tree
 
-Last updated: 2026-07-17
+Last updated: 2026-07-19
 
 This is a conceptual map of the current project. Keep concrete file ownership in `ai/systems-map.md`.
 
@@ -31,7 +31,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Generated terrain hides the cell grid, classifies kind/water before reusing that mask for relief, reads main-thread-prewarmed authored swatches in its parallel painter, and caches one paint/catalog context per tile outside the inner pixel loop
   - Non-Bridge placed buildings add a catalog-overridable trampled-ground layer beneath their Y-sorted body and shadow
   - Spring/autumn camera-area details and centralized vegetation tinting make seasonal changes readable without per-prop Update components
-  - Shared HUD presentation supplies readable Inter typography, sliced pixel panel/button frames, unscaled pointer/focus/press feedback, throttled hover cues, and interruptible reduced-motion-aware panel transitions
+  - Shared HUD presentation supplies the Hearth & Ledger palette, readable Inter typography, a generated timber/brass/teal nine-slice frame, distinct ornate/inset surfaces, a continuous runtime top-rail chrome layer, persisted 85-125% interface scaling, screen-clamped pointer/focus tooltips, unscaled feedback, throttled hover cues, and reduced-motion-aware transitions
   - Reusable gameplay-space cinematic player owns exact camera capture/restore through the full return, router and Unity-UI shielding, forced requested x1 before its time lock, simultaneous smooth focus plus animated 2.39:1 letterbox bars, reduced-motion-aware unscaled sequencing, and atomic modal handoff
 
 - Scene foundation
@@ -93,7 +93,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Keeps desktop Player updates running after application focus loss without creating or releasing simulation pause locks
     - Creates the refugee-arrival event controller and modal refugee decision HUD
     - Creates performance diagnostics after population, weather, wildlife, and time-scale setup so stable 15/30/50-resident benchmark windows include frame, memory, path/decision, world, and light counts
-    - Creates the top status HUD with settlement population counts, a compact calendar/time/season widget, a clickable population roster HUD, family tree scene entry point, and a compact event log for births, deaths, adoptions, dawn, nightfall, and season starts
+    - Creates the persistent top rail with a clickable settlement-resource overview, speed, inventory, population, professions, calendar/time/season, roster/family-tree entry, and a repeated-message-coalescing notice log below it
     - Creates one scene-local City Inventory with the unique `Cats` production item, then wires its read-only top-bar HUD, reward reveal owner, post-reward cat-hunt handoff, settlement-fauna entitlement, and versioned save owner
     - Creates the runtime goals controller and starter goal sequence that gates early Build menu tools
     - Creates the first-Scout onboarding coordinator and expedition assignment board after camera, placement, population, selection, time-scale, and input owners are ready
@@ -129,7 +129,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - F1 sets x1 simulation speed
     - F2 sets x2 simulation speed
     - F3 sets x3 simulation speed
-    - Build HUD exposes x1/x2/x3 speed buttons under the top-left construction resource panel
+    - Persistent top rail exposes x1/x2/x3 speed buttons beside the settlement resource launcher
     - Updates both `Time.timeScale` and `Time.fixedDeltaTime`
     - Supports pause locks for ordinary modal gameplay decisions while preserving requested x1/x2/x3; cinematic/story owners explicitly set requested x1 before taking their locks
     - Treats application focus as independent from simulation pause state
@@ -357,10 +357,11 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Direct active-tool selection for placement/economy systems
     - Fully closes category/tool UI after a successful placement
     - Exposes selected tool info, footprint, color, and cost
+    - Keeps an active construction-plan banner visible with footprint, cost, input hints, affordability, and player-readable placement blockers
     - Reads construction stock availability through `StrategyStorageYard.GetTotalConstructionResources()`, including loose piles, Storage Yard stock, production-local construction stock, and the low-priority starter Caravan Cart
-    - Shows x1/x2/x3 simulation speed buttons under the top-left resource panel, reusing `StrategyTimeScaleController`
+    - Shows x1/x2/x3 simulation speed buttons in the persistent top rail, reusing `StrategyTimeScaleController`
     - Current catalog contains `Housing` / `House`, `Extraction` grouped into `Camps`, `Deposits`, and `Food`, `Production` / `Sawmill`, `Kiln`, and `Forge`, `Storage` / `Storage Yard` and `Granary`, `Trade` / `Trading Post`, and `Infrastructure` / `Scout Lodge` and `Bridge`
-    - Single-item categories directly activate their only build tool on click
+    - Single-item categories still require an explicit item-card click after category selection before placement begins
   - Build placement
     - Runtime-created placement controller
     - Mouse hover preview aligned to map cells
@@ -644,7 +645,8 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Clicks in unexplored fog cells do not select world objects while player fog is enabled
     - Selected objects show a simple runtime selection marker
     - Selected completed buildings and selected construction sites show linked-resident markers and lines without changing the selected-object HUD
-    - Selection opens a compact full-height right-side HUD panel with selected-object preview art
+    - Selection opens a compact full-height right-side HUD panel with a pinned preview header and vertically scrollable contextual sections
+    - Selection text refreshes at 5 Hz while marker/link positioning stays frame-driven
     - Left-click also updates a separate bottom-right world inspect microHUD for non-building, non-resident inspect targets without replacing the selected-object HUD
     - World inspect priority is non-building inspectable world object, then grave; selected residents use the full right-side HUD only
     - Empty terrain cells do not open inspect microHUD; empty clicks hide it
@@ -674,12 +676,19 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - UI Toolkit module available through Unity modules
   - Shared code-built button feedback provides pointer, keyboard/controller focus, press motion/tint, and quiet globally/local-throttled hover audio without replacing semantic click sounds
   - Shared panel transitions provide interruptible unscaled fade/slide/scale, immediate control disable, close-time raycast shielding, and short fade-only reduced-motion behavior
+  - Shared HUD style configures palette, sliced panels/buttons, reference resolution, persisted interface scaling, and delayed pointer/immediate focus tooltips
+  - Scene-local HUD chrome draws the continuous compact top rail behind independently owned code-built HUD canvases; ornate framing is reserved for large information panels
   - Full-screen runtime intro menu with Continue, New Settlement, Settings, Quit, disabled/no-save Continue state, and loading progress
   - Custom in-game Escape pause menu over a dimmed live map with a dark left panel, Resume/Save/Settings commands, and confirmed Main Menu/Quit actions
   - Custom runtime F9 debug panel with player fog-of-war, instant construction, refugee arrival summon, and forced Clear/Cloudy/Rain/Fog/Storm/Snow/Blizzard weather-state controls
   - Custom runtime Build menu HUD
+    - Uses a compact two-level category/context palette with readable building art/cost cards, a small closed Build entry, and a separate placement bar while a tool is active
     - Starter progression exposes a seven-tool base catalog from the beginning, guides Houses -> Forager Camp -> Lumberjack/Stonecutter camps -> Scout Lodge -> Storage Yard/Granary, and unlocks the full catalog after every base requirement is complete
-  - Custom runtime top status HUD showing total population, adults, children, day number, 24-hour time, outdoor temperature, season day, time-of-day phase, winter food/fuel readiness, and day progress; clicking the population panel opens a larger residents roster HUD
+  - Custom settlement resource overview HUD in the top bar
+    - Keeps only construction-ready `Logs` and `Stone` in the compact launcher
+    - Opens a non-pausing grouped window for all 20 resource types, including zero-stock rows, with stored totals plus available/reserved detail tooltips
+    - Aggregates physical settlement, production, household, temporary, and loose stock without double-counting resident-carried resources, including exact prepared-dish counts
+  - Custom runtime top status HUD showing total population, adults, children, day number, 24-hour time, outdoor temperature, season day, time-of-day phase, and day progress in a two-row calendar widget; clicking the population panel opens a larger residents roster HUD
   - Custom read-only City Inventory HUD in the top bar
     - Shows a distinct-stack badge, English empty state, one-column descriptive item rows, unique/stack labels, and selected-item detail view for settlement-wide special items
     - Refreshes from inventory change events, blocks Camera/Gameplay/Build input while open, closes through Cancel/X/backdrop, and never pauses simulation
@@ -694,9 +703,9 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Shows the unique Holey Spoon granted to the exact Scout who searches the first story trash heap
     - Has no transfers, inheritance, death drops, Use/Equip actions, effects, or resource/logistics integration
   - Custom fullscreen Family Trees HUD opened from the residents roster; it pauses simulation, provides permanent horizontal/vertical scrollbars, uses an animated modal transition, lays connected same-surname family cards out as affinity-ordered left-to-right columns, and shows compact generation rows connected by local parent-pair branches plus cross-family relationship lines, deceased markers, gender symbols, and hover relationship labels
-  - Custom compact runtime event log showing births, deaths, adoptions, dawn, nightfall, season starts, and late-Autumn winter warnings
+  - Custom compact notice log below the top rail showing births, deaths, adoptions, dawn, nightfall, season starts, and late-Autumn winter warnings while coalescing repeated identical messages
   - Goals HUD supports optional live progress bars; first-winter Food and Firewood goals show current reserve days out of the seven-day target
-  - Custom runtime goals HUD showing the active starter build checklist on the left side
+  - Custom runtime goals HUD showing the active starter build checklist below the top rail on the left side
   - Custom first-Scout expedition assignment board
     - Opens after the first live Scout Lodge completes, pauses simulation, temporarily focuses the Lodge, restores the prior camera view when resolved, and explains exploration through a storytelling panel
     - Holds three stable random adult candidates for the introduction, prioritizing Haulers/Builders, while later manual openings show the full adult roster
@@ -712,6 +721,10 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - The post-reward actors are transient and do not consume live settlement fauna; disable/destroy/cancel cleanup releases pause/input, removes actors/highlights, and never replays from a completed save
   - Custom runtime world inspect microHUD for clicked graves, resources, nature props, and wildlife; residents, buildings, and construction sites use the right-side selection HUD only
     - MicroHUD supports typed chip/row dashboards for wildlife, deposits, trees, forage, and loose resource piles, with old body text kept as fallback
+  - Unified right-side building selection dashboard
+    - One fixed-capacity typed snapshot and reusable renderer cover all 19 completed building types plus construction without parsing legacy multiline status strings
+    - House residents/dinner, Scout assignment/expedition actions, Trading Post offers, and Tools upgrades remain compact interactive extensions; ordinary staffing stays in Professions
+    - Selection changes reset scroll position, content extent grows for long dashboards, and demolition replaces operational state while suppressing building actions
   - Custom runtime Profession HUD
     - Top-menu `Professions` button
     - Dynamic profession rows for built worksites
@@ -757,6 +770,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Founding Journey presentation couples each authored shot to its atmosphere and scene-owned Weather/Fire ambience; its answers feed a pure selector over a captured map snapshot, and selected camp/cart cells feed population startup, nature/forage exclusions, exact starter-cart placement, save v3, and the initial camera focus.
 - The first-night fauna presentation couples the shared Day 1 calendar, settlement-fauna target policy, reusable in-game cinematic player, strategy camera, deterministic resident/rat and cat/mouse staging, Founding Journey presentation/atmosphere reuse, modal pause/input ownership, three Resources-backed narrative shots, the `Cats` entitlement, cinematic reward reveal, and save-v12 restoration; the story callback grants the item before completing the stage and revealing the card, whose completed chest flight atomically starts the transient cat hunt.
 - City Inventory couples bootstrap-owned scene lifetime, stable string-ID stacks, the first `Cats` production entitlement, event-driven read-only HUD refresh, scoped non-pausing inspection input, a separate simulation-pausing reward presenter, settlement fauna, and version-11 persistence while remaining separate from resource stores and logistics.
+- The settlement resource overview couples the top rail, construction-ready Logs/Stone availability, a one-pass all-store snapshot, resource icons, and scoped non-pausing input; stored totals exclude resident-carried stock and special-case exact prepared dishes.
 - Resident Personal Inventory couples stable adult identity, age/life-stage eligibility, the first Holey Spoon story reward, selected-resident HUD display, and version-11 persistence while remaining separate from City Inventory, transient carried resources, physical stores, and logistics.
 - The trash-heap story couples ordered story activation, guaranteed Scout routing, definition-specific world art, modal input/time ownership, the reusable in-game cinematic player, a Scout-only visual override, exact personal-inventory mutation, the resident reward card, deferred Scout return, and save-v12 resolved/item state.
 - Audio bootstrap depends on map generation, camera setup/orthographic zoom, strategy wind/weather values, `Resources/Audio` assets, the in-game music/work/HUD-SFX folders, resident walk animation frames, resident work impact/release frames, and runtime HUD interaction events.

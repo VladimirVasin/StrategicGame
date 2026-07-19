@@ -23,8 +23,7 @@ namespace ProjectUnknown.Strategy
             resourceSlots[index] = slot;
 
             Image background = slot.gameObject.AddComponent<Image>();
-            background.color = new Color(1f, 1f, 1f, 0.045f);
-            background.raycastTarget = false;
+            StrategyHudStyle.StyleCompactPanel(background, WithAlpha(StrategyHudStyle.Surface, 0.78f));
 
             RectTransform iconRect = CreateUiObject("Icon", slot).GetComponent<RectTransform>();
             iconRect.anchorMin = new Vector2(0f, 0.5f);
@@ -38,7 +37,7 @@ namespace ProjectUnknown.Strategy
             icon.raycastTarget = false;
             resourceIconImages[index] = icon;
 
-            Text amountText = CreateText("Name", slot, 10, TextAnchor.MiddleLeft, new Color(0.88f, 0.93f, 0.90f));
+            Text amountText = CreateText("Name", slot, 10, TextAnchor.MiddleLeft, StrategyHudStyle.TextPrimary);
             amountText.fontStyle = FontStyle.Bold;
             amountText.resizeTextForBestFit = true;
             amountText.resizeTextMinSize = 8;
@@ -46,12 +45,12 @@ namespace ProjectUnknown.Strategy
             SetOffsets(amountText.rectTransform, 32f, 0f, 116f, 0f);
             resourceAmountTexts[index] = amountText;
 
-            Text quantityText = CreateText("Qty", slot, 10, TextAnchor.MiddleCenter, new Color(0.88f, 0.93f, 0.90f));
+            Text quantityText = CreateText("Qty", slot, 10, TextAnchor.MiddleCenter, StrategyHudStyle.TextPrimary);
             quantityText.fontStyle = FontStyle.Bold;
             SetOffsets(quantityText.rectTransform, 162f, 0f, 72f, 0f);
             resourceQuantityTexts[index] = quantityText;
 
-            Text nutritionText = CreateText("Nutrition", slot, 10, TextAnchor.MiddleRight, new Color(0.88f, 0.93f, 0.90f));
+            Text nutritionText = CreateText("Nutrition", slot, 10, TextAnchor.MiddleRight, StrategyHudStyle.TextPrimary);
             nutritionText.fontStyle = FontStyle.Bold;
             SetOffsets(nutritionText.rectTransform, 208f, 0f, 8f, 0f);
             resourceNutritionTexts[index] = nutritionText;
@@ -72,14 +71,12 @@ namespace ProjectUnknown.Strategy
             residentRows.Add(row);
 
             Image background = row.gameObject.AddComponent<Image>();
-            background.color = new Color(0f, 0f, 0f, 0.20f);
-            background.raycastTarget = false;
+            StrategyHudStyle.StyleCompactPanel(background, WithAlpha(StrategyHudStyle.Elevated, 0.82f));
 
             RectTransform portraitFrame = CreateUiObject("PortraitFrame", row).GetComponent<RectTransform>();
             SetTopLeft(portraitFrame, 4f, 4f, 32f, 30f);
             Image portraitBackground = portraitFrame.gameObject.AddComponent<Image>();
-            portraitBackground.color = new Color(1f, 1f, 1f, 0.07f);
-            portraitBackground.raycastTarget = false;
+            StrategyHudStyle.StyleInset(portraitBackground, WithAlpha(StrategyHudStyle.Surface, 0.90f));
 
             RectTransform portraitRect = CreateUiObject("Portrait", portraitFrame).GetComponent<RectTransform>();
             SetOffsets(portraitRect, 2f, 2f, 2f, 2f);
@@ -96,7 +93,7 @@ namespace ProjectUnknown.Strategy
             SetTopStretch(nameText.rectTransform, 44f, 4f, 8f, 16f);
             residentNameTexts.Add(nameText);
 
-            Text statusText = CreateText("Status", row, 11, TextAnchor.UpperLeft, new Color(0.75f, 0.83f, 0.79f));
+            Text statusText = CreateText("Status", row, 11, TextAnchor.UpperLeft, StrategyHudStyle.TextMuted);
             statusText.resizeTextForBestFit = true;
             statusText.resizeTextMinSize = 9;
             statusText.resizeTextMaxSize = 11;
@@ -113,14 +110,12 @@ namespace ProjectUnknown.Strategy
             workerRows[index] = row;
 
             Image background = row.gameObject.AddComponent<Image>();
-            background.color = new Color(0f, 0f, 0f, 0.20f);
-            background.raycastTarget = false;
+            StrategyHudStyle.StyleCompactPanel(background, WithAlpha(StrategyHudStyle.Elevated, 0.88f));
 
             RectTransform portraitFrame = CreateUiObject("PortraitFrame", row).GetComponent<RectTransform>();
             SetTopLeft(portraitFrame, 4f, 5f, 34f, 32f);
             Image portraitBackground = portraitFrame.gameObject.AddComponent<Image>();
-            portraitBackground.color = new Color(1f, 1f, 1f, 0.07f);
-            portraitBackground.raycastTarget = false;
+            StrategyHudStyle.StyleInset(portraitBackground, WithAlpha(StrategyHudStyle.Surface, 0.90f));
 
             RectTransform portraitRect = CreateUiObject("Portrait", portraitFrame).GetComponent<RectTransform>();
             SetOffsets(portraitRect, 2f, 2f, 2f, 2f);
@@ -137,7 +132,7 @@ namespace ProjectUnknown.Strategy
             SetTopStretch(nameText.rectTransform, 46f, 5f, 94f, 17f);
             workerNameTexts[index] = nameText;
 
-            Text statusText = CreateText("Status", row, 11, TextAnchor.UpperLeft, new Color(0.75f, 0.83f, 0.79f));
+            Text statusText = CreateText("Status", row, 11, TextAnchor.UpperLeft, StrategyHudStyle.TextMuted);
             statusText.resizeTextForBestFit = true;
             statusText.resizeTextMinSize = 9;
             statusText.resizeTextMaxSize = 11;
@@ -151,17 +146,9 @@ namespace ProjectUnknown.Strategy
             action.sizeDelta = new Vector2(82f, 28f);
             action.anchoredPosition = new Vector2(-6f, 0f);
             Image actionImage = action.gameObject.AddComponent<Image>();
-            actionImage.color = new Color(0.18f, 0.30f, 0.27f, 0.96f);
 
             Button button = action.gameObject.AddComponent<Button>();
-            button.targetGraphic = actionImage;
-            ColorBlock colors = button.colors;
-            colors.normalColor = new Color(0.18f, 0.30f, 0.27f, 0.96f);
-            colors.highlightedColor = new Color(0.24f, 0.38f, 0.34f, 1f);
-            colors.pressedColor = new Color(0.12f, 0.20f, 0.18f, 1f);
-            colors.selectedColor = colors.highlightedColor;
-            colors.disabledColor = new Color(0.10f, 0.13f, 0.12f, 0.88f);
-            button.colors = colors;
+            StrategyHudStyle.StyleButton(button, actionImage, true);
             int slotIndex = index;
             button.onClick.AddListener(() => ToggleWorkerSlot(slotIndex));
             StrategyUiButtonFeedback.Attach(
@@ -268,8 +255,11 @@ namespace ProjectUnknown.Strategy
             RectTransform rect = CreateUiObject(name, parent).GetComponent<RectTransform>();
             SetTopStretch(rect, 18f, top, 18f, height);
             Image image = rect.gameObject.AddComponent<Image>();
-            image.color = new Color(1f, 1f, 1f, 0.045f);
-            image.raycastTarget = false;
+            StrategyHudStyle.StyleInset(image, new Color(
+                StrategyHudStyle.Surface.r,
+                StrategyHudStyle.Surface.g,
+                StrategyHudStyle.Surface.b,
+                0.88f));
             return rect;
         }
 

@@ -380,6 +380,11 @@ namespace ProjectUnknown.Strategy
                 return reason;
             }
 
+            if (ContainsActiveResident(finalBlockOrigin, finalBlockFootprint))
+            {
+                return "resident_in_footprint";
+            }
+
             if (!HasBuilderWorkAccess(origin, toolInfo.Footprint))
             {
                 return "no_builder_access";

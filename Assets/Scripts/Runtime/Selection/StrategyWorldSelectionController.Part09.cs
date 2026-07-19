@@ -29,7 +29,7 @@ namespace ProjectUnknown.Strategy
 
         private void CreateResidentHud()
         {
-            residentHudRoot = CreateUiObject("ResidentHud", hudPanel).GetComponent<RectTransform>();
+            residentHudRoot = CreateUiObject("ResidentHud", hudContent).GetComponent<RectTransform>();
             SetTopStretch(residentHudRoot, 18f, 128f, 18f, 600f);
             residentHudRoot.gameObject.SetActive(false);
 

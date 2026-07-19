@@ -31,15 +31,41 @@ namespace ProjectUnknown.Strategy
 
         private static string GetBuildingSubtitle(StrategyPlacedBuilding building)
         {
-            if (building == null || building.Tool != StrategyBuildTool.House)
+            if (building == null)
             {
                 return "Building";
             }
 
-            string familyName = GetHouseFamilyName(building);
-            return string.IsNullOrWhiteSpace(familyName)
-                ? "Unoccupied home"
-                : familyName + " family home";
+            if (building.Tool == StrategyBuildTool.House)
+            {
+                string familyName = GetHouseFamilyName(building);
+                return string.IsNullOrWhiteSpace(familyName)
+                    ? "Housing  ·  Unoccupied"
+                    : "Housing  ·  " + familyName + " family";
+            }
+
+            return building.Tool switch
+            {
+                StrategyBuildTool.LumberjackCamp => "Extraction  ·  Timber",
+                StrategyBuildTool.StonecutterCamp => "Extraction  ·  Stone",
+                StrategyBuildTool.Mine => "Extraction  ·  Iron",
+                StrategyBuildTool.CoalPit => "Extraction  ·  Coal",
+                StrategyBuildTool.ClayPit => "Extraction  ·  Clay",
+                StrategyBuildTool.HunterCamp => "Food  ·  Game",
+                StrategyBuildTool.FisherHut => "Food  ·  Fish",
+                StrategyBuildTool.ForagerCamp => "Food  ·  Foraging",
+                StrategyBuildTool.ChickenCoop => "Food  ·  Eggs",
+                StrategyBuildTool.Sawmill => "Production  ·  Planks",
+                StrategyBuildTool.Kiln => "Production  ·  Pottery",
+                StrategyBuildTool.Forge => "Production  ·  Tools",
+                StrategyBuildTool.StarterCaravanCart => "Settlement  ·  Supplies",
+                StrategyBuildTool.StorageYard => "Storage  ·  Materials",
+                StrategyBuildTool.Granary => "Storage  ·  Food",
+                StrategyBuildTool.TradingPost => "Trade  ·  Caravan market",
+                StrategyBuildTool.ScoutLodge => "Exploration  ·  Expeditions",
+                StrategyBuildTool.Bridge => "Infrastructure  ·  Crossing",
+                _ => "Settlement building"
+            };
         }
 
         private static string GetHouseFamilyName(StrategyPlacedBuilding building)

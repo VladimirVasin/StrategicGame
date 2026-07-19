@@ -8,32 +8,9 @@ namespace ProjectUnknown.Strategy
                 || cost.CanAfford(StrategyStorageYard.GetTotalConstructionResources());
         }
 
-        private static string FormatConstructionResourceCounter(StrategyConstructionResourceCost resources)
+        private static string GetBuildItemBadgeText(StrategyConstructionResourceCost cost)
         {
-            return "Logs "
-                + resources.Logs
-                + "  Stone "
-                + resources.Stone
-                + "  Planks "
-                + resources.Planks;
-        }
-
-        private static string GetBuildItemBadgeText(
-            StrategyConstructionResourceCost cost,
-            bool allowed,
-            bool active)
-        {
-            if (!allowed)
-            {
-                return "Locked";
-            }
-
-            if (active)
-            {
-                return "Active";
-            }
-
-            return StrategyDebugOptions.InstantConstructionEnabled ? "Free" : cost.ToBadgeText();
+            return cost.ToBadgeText();
         }
     }
 }

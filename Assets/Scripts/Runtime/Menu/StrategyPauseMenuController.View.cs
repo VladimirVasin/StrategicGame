@@ -25,11 +25,7 @@ namespace ProjectUnknown.Strategy
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 250;
 
-            CanvasScaler scaler = canvasObject.GetComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1600f, 900f);
-            scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
-            scaler.matchWidthOrHeight = 0.5f;
+            StrategyHudStyle.ConfigureScaler(canvasObject.GetComponent<CanvasScaler>());
 
             RectTransform root = CreateRect("Root", canvasObject.transform);
             Stretch(root);
@@ -173,7 +169,7 @@ namespace ProjectUnknown.Strategy
             root.anchorMax = new Vector2(0f, 1f);
             root.pivot = new Vector2(0f, 1f);
             root.anchoredPosition = new Vector2(88f, -274f);
-            root.sizeDelta = new Vector2(455f, 510f);
+            root.sizeDelta = new Vector2(455f, 570f);
 
             Text title = CreateText("SettingsTitle", root, "SETTINGS", 24, TextAnchor.UpperLeft, Color.white);
             title.fontStyle = FontStyle.Bold;
@@ -181,11 +177,15 @@ namespace ProjectUnknown.Strategy
             Text subtitle = CreateText("SettingsSubtitle", root, "Audio and display", 13, TextAnchor.UpperLeft, MutedColor);
             SetTopRect(subtitle.rectTransform, 0f, -37f, 420f, 24f);
 
-            masterSlider = CreateSlider(root, "MasterVolume", "Master volume", -92f);
-            musicSlider = CreateSlider(root, "MusicVolume", "Music", -176f);
-            sfxSlider = CreateSlider(root, "SfxVolume", "Effects", -260f);
-            fullscreenToggle = CreateToggle(root, "Fullscreen", "Fullscreen", -340f);
-            settingsBackButton = CreateButton("SettingsBack", root, "Back", -408f, true);
+            masterSlider = CreateSlider(root, "MasterVolume", "Master volume", -82f);
+            musicSlider = CreateSlider(root, "MusicVolume", "Music", -154f);
+            sfxSlider = CreateSlider(root, "SfxVolume", "Effects", -226f);
+            uiScaleSlider = CreateSlider(root, "UiScale", "Interface scale", -298f);
+            uiScaleSlider.minValue = 0.85f;
+            uiScaleSlider.maxValue = 1.25f;
+            fullscreenToggle = CreateToggle(root, "Fullscreen", "Fullscreen", -378f);
+            reducedMotionToggle = CreateToggle(root, "ReducedMotion", "Reduce motion", -418f);
+            settingsBackButton = CreateButton("SettingsBack", root, "Back", -474f, true);
             settingsRoot.SetActive(false);
         }
 

@@ -24,16 +24,27 @@ namespace ProjectUnknown.Strategy
         private CanvasGroup subcategoryGroup;
         private CanvasGroup trayGroup;
         private RectTransform buildButtonRoot;
+        private RectTransform buildButtonIconRoot;
+        private RectTransform paletteRoot;
+        private RectTransform contextRoot;
         private RectTransform dockRoot;
         private RectTransform subcategoryRoot;
         private RectTransform trayRoot;
         private Image buildButtonImage;
         private Text buildButtonText;
-        private Text treasuryText;
+        private StrategyHudTooltip buildButtonTooltip;
+        private RectTransform placementFeedbackRoot;
+        private Image placementFeedbackAccent;
+        private Text placementFeedbackTitle;
+        private Text placementFeedbackCost;
+        private Text placementFeedbackStatus;
+        private string placementFeedbackMessage = "Choose a buildable location.";
+        private bool placementFeedbackValid;
         private readonly Button[] speedButtons = new Button[3];
         private readonly Image[] speedButtonImages = new Image[3];
         private readonly Text[] speedButtonTexts = new Text[3];
         private StrategyTimeScaleController timeScale;
+        private StrategyWorldSelectionController worldSelection;
         private Font font;
         private bool initialized;
         private bool isOpen;
@@ -45,6 +56,7 @@ namespace ProjectUnknown.Strategy
         private float trayT;
 
         public StrategyBuildTool ActiveTool { get; private set; }
+        public bool IsOpen => isOpen;
         public int LastPlacementFrame { get; private set; } = -1;
         public StrategyConstructionResourceCost AvailableConstructionResources => StrategyStorageYard.GetTotalConstructionResources();
 
@@ -91,6 +103,21 @@ namespace ProjectUnknown.Strategy
             return CanAffordActiveTool();
         }
 
+        public void SetPlacementFeedback(bool valid, string message)
+        {
+            string normalized = string.IsNullOrWhiteSpace(message)
+                ? "Choose a buildable location."
+                : message;
+            if (placementFeedbackValid == valid && placementFeedbackMessage == normalized)
+            {
+                return;
+            }
+
+            placementFeedbackValid = valid;
+            placementFeedbackMessage = normalized;
+            RefreshPlacementFeedback();
+        }
+
         public void ClearActiveTool()
         {
             if (ActiveTool == StrategyBuildTool.None)
@@ -98,8 +125,16 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            bool returnToPalette = !isOpen && selectedCategoryIndex >= 0;
             StrategyDebugLogger.Info("BuildMenu", "ToolCleared", StrategyDebugLogger.F("tool", ActiveTool));
             ActiveTool = StrategyBuildTool.None;
+            if (returnToPalette)
+            {
+                isOpen = true;
+                RefreshBuildButtonTooltip();
+                StrategyHudSfxAudio.Play(StrategyHudSfxKind.Open);
+            }
+
             isDirty = true;
         }
 
@@ -117,6 +152,7 @@ namespace ProjectUnknown.Strategy
             }
 
             isOpen = false;
+            RefreshBuildButtonTooltip();
             selectedCategoryIndex = -1;
             selectedSubcategoryIndex = -1;
             ActiveTool = StrategyBuildTool.None;
@@ -159,9 +195,10 @@ namespace ProjectUnknown.Strategy
             }
         }
 
-        private void ToggleOpen()
+        internal void ToggleOpen()
         {
             isOpen = !isOpen;
+            RefreshBuildButtonTooltip();
             if (!isOpen)
             {
                 if (selectedCategoryIndex < 0 && ActiveTool == StrategyBuildTool.None)
@@ -173,6 +210,8 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            worldSelection ??= UnityEngine.Object.FindAnyObjectByType<StrategyWorldSelectionController>();
+            worldSelection?.DismissForBuildMode();
             isDirty = true;
             StrategyHudSfxAudio.Play(StrategyHudSfxKind.Open);
         }
@@ -185,55 +224,12 @@ namespace ProjectUnknown.Strategy
             }
 
             bool sameCategory = selectedCategoryIndex == category.Index;
-            if (!category.Data.HasSubcategories && category.Items is { Length: 1 })
-            {
-                BuildItemData item = category.Items[0].Data;
-                selectedCategoryIndex = category.Index;
-                selectedSubcategoryIndex = -1;
-                if (!sameCategory)
-                {
-                    subcategoryT = 0f;
-                    trayT = 0f;
-                }
-
-                if (!IsToolAllowed(item.Tool))
-                {
-                    RejectLockedTool(item.Tool);
-                    return;
-                }
-
-                if (!CanAffordBuildCost(item.Cost))
-                {
-                    ActiveTool = StrategyBuildTool.None;
-                    isDirty = true;
-                    StrategyHudSfxAudio.Play(StrategyHudSfxKind.Deny);
-                    StrategyDebugLogger.Warn(
-                        "BuildMenu",
-                        "ToolSelectionRejected",
-                        StrategyDebugLogger.F("tool", item.Tool),
-                        StrategyDebugLogger.F("reason", "not_affordable"),
-                        StrategyDebugLogger.F("cost", item.Cost),
-                        StrategyDebugLogger.F("available", StrategyStorageYard.GetTotalConstructionResources()));
-                    return;
-                }
-
-                ActiveTool = allowToggle && ActiveTool == item.Tool ? StrategyBuildTool.None : item.Tool;
-                StrategyHudSfxAudio.Play(ActiveTool == StrategyBuildTool.None ? StrategyHudSfxKind.Cancel : StrategyHudSfxKind.Select);
-                StrategyDebugLogger.Info(
-                    "BuildMenu",
-                    "ToolSelected",
-                    StrategyDebugLogger.F("tool", ActiveTool),
-                    StrategyDebugLogger.F("category", category.Data != null ? category.Data.Label : string.Empty),
-                    StrategyDebugLogger.F("cost", item.Cost),
-                    StrategyDebugLogger.F("available", StrategyStorageYard.GetTotalConstructionResources()));
-
-                isDirty = true;
-                return;
-            }
-
+            ClearActiveTool();
             bool closingCategory = allowToggle && sameCategory;
             selectedCategoryIndex = closingCategory ? -1 : category.Index;
-            selectedSubcategoryIndex = -1;
+            selectedSubcategoryIndex = closingCategory || !category.Data.HasSubcategories
+                ? -1
+                : FindFirstAllowedSubcategory(category);
             StrategyHudSfxAudio.Play(closingCategory ? StrategyHudSfxKind.Cancel : StrategyHudSfxKind.Select);
             if (!sameCategory || closingCategory)
             {
@@ -257,6 +253,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            ClearActiveTool();
             bool sameSubcategory = selectedCategoryIndex == category.Index
                 && selectedSubcategoryIndex == subcategory.Index;
             selectedCategoryIndex = category.Index;
@@ -302,7 +299,32 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("tool", ActiveTool),
                 StrategyDebugLogger.F("cost", item.Cost),
                 StrategyDebugLogger.F("available", StrategyStorageYard.GetTotalConstructionResources()));
+            if (ActiveTool != StrategyBuildTool.None)
+            {
+                CollapseForPlacement();
+            }
+
             isDirty = true;
+        }
+
+        private void CollapseForPlacement()
+        {
+            isOpen = false;
+            RefreshBuildButtonTooltip();
+            StrategyHudTooltipPresenter.Hide(null);
+        }
+
+        private int FindFirstAllowedSubcategory(CategoryUi category)
+        {
+            for (int i = 0; i < category.Subcategories.Length; i++)
+            {
+                if (SubcategoryHasAllowedTool(category, category.Subcategories[i]))
+                {
+                    return i;
+                }
+            }
+
+            return -1;
         }
 
         private void CancelOneLayer()

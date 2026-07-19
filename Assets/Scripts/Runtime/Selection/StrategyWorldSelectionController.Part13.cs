@@ -9,8 +9,6 @@ namespace ProjectUnknown.Strategy
         private const int TradeOfferSlotCount = 8;
 
         private RectTransform tradingPostHudRoot;
-        private Text tradeCoinsText;
-        private Text tradeStatusText;
         private Text tradeEmptyText;
         private readonly RectTransform[] tradeOfferRows = new RectTransform[TradeOfferSlotCount];
         private readonly Image[] tradeOfferIcons = new Image[TradeOfferSlotCount];
@@ -18,48 +16,30 @@ namespace ProjectUnknown.Strategy
         private readonly Text[] tradeOfferDetailTexts = new Text[TradeOfferSlotCount];
         private readonly Button[] tradeOfferButtons = new Button[TradeOfferSlotCount];
         private readonly Text[] tradeOfferButtonTexts = new Text[TradeOfferSlotCount];
+        private readonly int[] tradeOfferSourceIndices = new int[TradeOfferSlotCount];
 
         private void CreateTradingPostHud()
         {
-            tradingPostHudRoot = CreateUiObject("TradingPostHud", hudPanel).GetComponent<RectTransform>();
+            tradingPostHudRoot = CreateUiObject("TradingPostHud", hudContent).GetComponent<RectTransform>();
             SetTopStretch(tradingPostHudRoot, 18f, 128f, 18f, 508f);
             tradingPostHudRoot.gameObject.SetActive(false);
 
-            RectTransform status = CreateUiObject("Status", tradingPostHudRoot).GetComponent<RectTransform>();
-            SetTopStretch(status, 0f, 0f, 0f, 78f);
-            Image statusImage = status.gameObject.AddComponent<Image>();
-            statusImage.color = new Color(0.10f, 0.15f, 0.14f, 0.94f);
-            statusImage.raycastTarget = false;
-
-            Text title = CreateText("Title", status, 13, TextAnchor.UpperLeft, new Color(0.86f, 0.70f, 0.42f));
-            title.fontStyle = FontStyle.Bold;
-            title.text = "Trade";
-            SetTopStretch(title.rectTransform, 12f, 9f, 12f, 18f);
-
-            tradeCoinsText = CreateText("Coins", status, 13, TextAnchor.UpperRight, new Color(0.95f, 0.78f, 0.40f));
-            tradeCoinsText.fontStyle = FontStyle.Bold;
-            SetTopStretch(tradeCoinsText.rectTransform, 130f, 9f, 12f, 18f);
-
-            tradeStatusText = CreateText("StatusText", status, 11, TextAnchor.UpperLeft, new Color(0.78f, 0.86f, 0.82f));
-            tradeStatusText.lineSpacing = 1.03f;
-            SetTopStretch(tradeStatusText.rectTransform, 12f, 31f, 12f, 40f);
-
-            Text offersTitle = CreateText("OffersTitle", tradingPostHudRoot, 13, TextAnchor.UpperLeft, new Color(0.86f, 0.70f, 0.42f));
+            Text offersTitle = CreateText("OffersTitle", tradingPostHudRoot, 13, TextAnchor.UpperLeft, StrategyHudStyle.Primary);
             offersTitle.fontStyle = FontStyle.Bold;
             offersTitle.text = "Offers";
-            SetTopStretch(offersTitle.rectTransform, 0f, 92f, 0f, 20f);
+            SetTopStretch(offersTitle.rectTransform, 0f, 0f, 0f, 20f);
 
-            tradeEmptyText = CreateText("Empty", tradingPostHudRoot, 12, TextAnchor.UpperLeft, new Color(0.70f, 0.78f, 0.75f));
+            tradeEmptyText = CreateText("Empty", tradingPostHudRoot, 12, TextAnchor.UpperLeft, StrategyHudStyle.TextMuted);
             tradeEmptyText.text = "No caravan is trading here.";
-            SetTopStretch(tradeEmptyText.rectTransform, 0f, 120f, 0f, 24f);
+            SetTopStretch(tradeEmptyText.rectTransform, 0f, 28f, 0f, 24f);
 
             for (int i = 0; i < TradeOfferSlotCount; i++)
             {
-                CreateTradeOfferRow(i, 120f + i * 46f);
+                CreateTradeOfferRow(i, 28f + i * 46f);
             }
         }
 
-        private void RefreshTradingPostHud(StrategyTradingPost post)
+        private float RefreshTradingPostHud(StrategyTradingPost post, float top = 128f)
         {
             SetProfileSectionVisible(false);
             SetStatusSectionVisible(false);
@@ -72,23 +52,39 @@ namespace ProjectUnknown.Strategy
             SetTradingPostHudVisible(true);
 
             StrategyTradeCaravanController controller = StrategyTradeCaravanController.Active;
-            int coins = StrategySettlementTreasury.Active != null ? StrategySettlementTreasury.Active.Coins : 0;
-            tradeCoinsText.text = "Coins " + coins;
-            tradeStatusText.text = post != null ? post.GetHudStatusText() : "Trading post unavailable.";
-
             IReadOnlyList<StrategyTradeOffer> offers = controller != null ? controller.CurrentOffers : null;
             bool isTrading = controller != null && controller.IsTradingAt(post);
             int count = offers != null ? offers.Count : 0;
-            tradeEmptyText.gameObject.SetActive(count <= 0);
+            int visibleCount = 0;
+            for (int sourceIndex = 0; sourceIndex < count && visibleCount < TradeOfferSlotCount; sourceIndex++)
+            {
+                if (!offers[sourceIndex].IsValid)
+                {
+                    continue;
+                }
+
+                tradeOfferSourceIndices[visibleCount] = sourceIndex;
+                tradeOfferRows[visibleCount].gameObject.SetActive(true);
+                RefreshTradeOfferRow(
+                    visibleCount,
+                    offers[sourceIndex],
+                    post,
+                    isTrading);
+                visibleCount++;
+            }
+
+            tradeEmptyText.gameObject.SetActive(visibleCount <= 0);
             for (int i = 0; i < TradeOfferSlotCount; i++)
             {
-                bool visible = offers != null && i < count && offers[i].IsValid;
-                tradeOfferRows[i].gameObject.SetActive(visible);
-                if (visible)
+                if (i >= visibleCount)
                 {
-                    RefreshTradeOfferRow(i, offers[i], post, isTrading);
+                    tradeOfferRows[i].gameObject.SetActive(false);
                 }
             }
+
+            float height = Mathf.Max(56f, 28f + visibleCount * 46f);
+            SetTopStretch(tradingPostHudRoot, 18f, top, 18f, height);
+            return top + height;
         }
 
         private void SetTradingPostHudVisible(bool visible)
@@ -106,14 +102,16 @@ namespace ProjectUnknown.Strategy
             tradeOfferRows[index] = row;
 
             Image background = row.gameObject.AddComponent<Image>();
-            background.color = new Color(0.08f, 0.11f, 0.10f, 0.90f);
-            background.raycastTarget = false;
+            StrategyHudStyle.StyleCompactPanel(
+                background,
+                WithAlpha(StrategyHudStyle.Surface, 0.90f));
 
             RectTransform iconFrame = CreateUiObject("IconFrame", row).GetComponent<RectTransform>();
             SetTopLeft(iconFrame, 8f, 7f, 26f, 26f);
             Image frame = iconFrame.gameObject.AddComponent<Image>();
-            frame.color = new Color(1f, 1f, 1f, 0.06f);
-            frame.raycastTarget = false;
+            StrategyHudStyle.StyleInset(
+                frame,
+                WithAlpha(StrategyHudStyle.Elevated, 0.90f));
 
             RectTransform iconRect = CreateUiObject("Icon", iconFrame).GetComponent<RectTransform>();
             SetOffsets(iconRect, 4f, 4f, 4f, 4f);
@@ -125,7 +123,7 @@ namespace ProjectUnknown.Strategy
             tradeOfferTitleTexts[index].fontStyle = FontStyle.Bold;
             SetTopStretch(tradeOfferTitleTexts[index].rectTransform, 42f, 6f, 72f, 17f);
 
-            tradeOfferDetailTexts[index] = CreateText("Detail", row, 10, TextAnchor.UpperLeft, new Color(0.70f, 0.78f, 0.75f));
+            tradeOfferDetailTexts[index] = CreateText("Detail", row, 10, TextAnchor.UpperLeft, StrategyHudStyle.TextMuted);
             SetTopStretch(tradeOfferDetailTexts[index].rectTransform, 42f, 23f, 72f, 13f);
 
             RectTransform action = CreateUiObject("Action", row).GetComponent<RectTransform>();
@@ -135,16 +133,9 @@ namespace ProjectUnknown.Strategy
             action.sizeDelta = new Vector2(62f, 26f);
             action.anchoredPosition = new Vector2(-7f, 0f);
             Image actionImage = action.gameObject.AddComponent<Image>();
-            actionImage.color = new Color(0.19f, 0.31f, 0.29f, 0.96f);
 
             Button button = action.gameObject.AddComponent<Button>();
-            button.targetGraphic = actionImage;
-            ColorBlock colors = button.colors;
-            colors.normalColor = new Color(0.19f, 0.31f, 0.29f, 0.96f);
-            colors.highlightedColor = new Color(0.25f, 0.40f, 0.35f, 1f);
-            colors.pressedColor = new Color(0.12f, 0.20f, 0.18f, 1f);
-            colors.disabledColor = new Color(0.09f, 0.11f, 0.11f, 0.88f);
-            button.colors = colors;
+            StrategyHudStyle.StyleButton(button, actionImage, true);
             int slot = index;
             button.onClick.AddListener(() => TryExecuteSelectedTradeOffer(slot));
             StrategyUiButtonFeedback.Attach(
@@ -172,7 +163,7 @@ namespace ProjectUnknown.Strategy
             bool canExecute = isTrading && StrategyTradeTransactionService.CanExecute(offer, nearWorld);
 
             tradeOfferIcons[index].sprite = StrategyResourceIconFactory.GetSprite(offer.Resource);
-            tradeOfferIcons[index].color = canExecute ? Color.white : new Color(1f, 1f, 1f, 0.42f);
+            tradeOfferIcons[index].color = canExecute ? Color.white : WithAlpha(Color.white, 0.42f);
             tradeOfferTitleTexts[index].text = verb + " " + offer.Amount + " " + GetResourceTitle(offer.Resource);
             tradeOfferDetailTexts[index].text = sign + offer.TotalCoins + " Coins / stock " + available;
             tradeOfferButtons[index].interactable = canExecute;
@@ -193,7 +184,10 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            controller.TryExecuteOffer(post, index, out _);
+            int sourceIndex = index >= 0 && index < tradeOfferSourceIndices.Length
+                ? tradeOfferSourceIndices[index]
+                : index;
+            controller.TryExecuteOffer(post, sourceIndex, out _);
             RefreshHud();
         }
     }

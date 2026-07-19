@@ -164,10 +164,15 @@ namespace ProjectUnknown.Strategy
             ConfigureAudio(context, map, mainCamera);
             yield return null;
 
+            StrategyHudChromeController hudChrome = context.GetOrCreate<StrategyHudChromeController>("Strategy HUD Chrome");
+            hudChrome.Configure();
             StrategyBuildMenuController buildMenu = context.GetOrCreate<StrategyBuildMenuController>("Strategy Build Menu");
             StrategyBuildPlacementController placement = context.GetOrCreate<StrategyBuildPlacementController>("Strategy Build Placement");
             StrategyPopulationController population = context.GetOrCreate<StrategyPopulationController>("Strategy Population");
             buildMenu.SetInputRouter(inputRouter);
+            StrategyResourceOverviewHudController resourceOverviewHud =
+                context.GetOrCreate<StrategyResourceOverviewHudController>("Strategy Resource Overview HUD");
+            resourceOverviewHud.Configure(inputRouter);
             placement.SetInputRouter(inputRouter);
 
             population.SetFoundingStartState(foundingStart);

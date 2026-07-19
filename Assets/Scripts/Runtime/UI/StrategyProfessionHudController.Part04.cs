@@ -36,7 +36,7 @@ namespace ProjectUnknown.Strategy
         private void CreateAutoControls(Transform parent)
         {
             RectTransform root = CreateUiObject("AutoWorkforce", parent).GetComponent<RectTransform>();
-            SetTopStretch(root, 24f, 96f, 24f, 102f);
+            SetTopStretch(root, 28f, 100f, 28f, 102f);
             Image background = root.gameObject.AddComponent<Image>();
             background.color = new Color(0.09f, 0.13f, 0.13f, 0.95f);
 

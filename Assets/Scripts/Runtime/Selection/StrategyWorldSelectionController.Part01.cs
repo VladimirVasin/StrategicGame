@@ -1,8 +1,4 @@
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
-using UnityEngine.UI;
 
 namespace ProjectUnknown.Strategy
 {
@@ -47,6 +43,11 @@ namespace ProjectUnknown.Strategy
             }
 
             RefreshHud();
+            if (changedSelection)
+            {
+                ResetHudScroll();
+            }
+
             UpdateSelectionMarker(bounds);
             UpdateSelectionLinks(target);
         }
@@ -60,6 +61,17 @@ namespace ProjectUnknown.Strategy
 
             inspectHud?.Hide();
             Select(building.transform, building.SelectionBounds);
+        }
+
+        public void SelectResident(StrategyResidentAgent resident)
+        {
+            if (resident == null)
+            {
+                return;
+            }
+
+            inspectHud?.Hide();
+            Select(resident.transform, resident.SelectionBounds);
         }
 
         private void UpdateSelectionMarker(Bounds bounds)
@@ -103,6 +115,12 @@ namespace ProjectUnknown.Strategy
             }
         }
 
+        public void DismissForBuildMode()
+        {
+            ClearSelection();
+            inspectHud?.Hide();
+        }
+
         private void LateUpdate()
         {
             if (selectedTransform == null || markerRenderer == null || !markerRenderer.gameObject.activeSelf)
@@ -110,12 +128,21 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            bool refreshHud = Time.unscaledTime >= nextHudRefreshTime;
+            if (refreshHud)
+            {
+                nextHudRefreshTime = Time.unscaledTime + HudRefreshInterval;
+            }
+
             StrategyResidentAgent resident = selectedTransform.GetComponent<StrategyResidentAgent>();
             if (resident != null)
             {
                 UpdateSelectionMarker(resident.SelectionBounds);
                 ClearSelectionLinks();
-                RefreshHud();
+                if (refreshHud)
+                {
+                    RefreshHud();
+                }
                 return;
             }
 
@@ -124,7 +151,10 @@ namespace ProjectUnknown.Strategy
             {
                 UpdateSelectionMarker(building.SelectionBounds);
                 UpdateSelectionLinks(building);
-                RefreshHud();
+                if (refreshHud)
+                {
+                    RefreshHud();
+                }
                 return;
             }
 
@@ -133,7 +163,10 @@ namespace ProjectUnknown.Strategy
             {
                 UpdateSelectionMarker(constructionSite.SelectionBounds);
                 UpdateSelectionLinks(constructionSite);
-                RefreshHud();
+                if (refreshHud)
+                {
+                    RefreshHud();
+                }
                 return;
             }
 
@@ -142,7 +175,10 @@ namespace ProjectUnknown.Strategy
             {
                 UpdateSelectionMarker(grave.SelectionBounds);
                 ClearSelectionLinks();
-                RefreshHud();
+                if (refreshHud)
+                {
+                    RefreshHud();
+                }
             }
         }
 
@@ -156,9 +192,13 @@ namespace ProjectUnknown.Strategy
             }
 
             float target = selectedTransform != null ? 1f : 0f;
-            hudT = Mathf.MoveTowards(hudT, target, Time.unscaledDeltaTime * HudAnimationSpeed);
+            hudT = StrategyHudStyle.ReducedMotion
+                ? target
+                : Mathf.MoveTowards(hudT, target, Time.unscaledDeltaTime * HudAnimationSpeed);
             float eased = Smooth01(hudT);
-            hudPanel.anchoredPosition = new Vector2(Mathf.Lerp(HudWidth, 0f, eased), 0f);
+            hudPanel.anchoredPosition = new Vector2(
+                Mathf.Lerp(HudWidth, 0f, eased),
+                -StrategyHudStyle.TopRailHeight * 0.5f);
             hudGroup.alpha = eased;
             hudGroup.blocksRaycasts = eased > 0.9f;
             hudGroup.interactable = eased > 0.9f;
@@ -167,6 +207,7 @@ namespace ProjectUnknown.Strategy
         private void RefreshHud()
         {
             EnsureHud();
+            HideBuildingSelectionHud();
 
             if (selectedTransform == null)
             {
@@ -208,173 +249,7 @@ namespace ProjectUnknown.Strategy
             StrategyPlacedBuilding building = selectedTransform.GetComponent<StrategyPlacedBuilding>();
             if (building != null)
             {
-                hudTitleText.text = GetBuildingTitle(building.Tool);
-                hudSubtitleText.text = GetBuildingSubtitle(building);
-                SetBuildingPreviewSprite(building);
-                SetProfileSectionVisible(false);
-                SetStatusSectionVisible(false);
-                SetContextSectionVisible(false);
-
-                bool isHouse = building.Tool == StrategyBuildTool.House;
-                StrategyLumberjackCamp camp = building.GetComponent<StrategyLumberjackCamp>();
-                StrategyStonecutterCamp stoneCamp = building.GetComponent<StrategyStonecutterCamp>();
-                StrategySawmill sawmill = building.GetComponent<StrategySawmill>();
-                StrategyMine mine = building.GetComponent<StrategyMine>();
-                StrategyCoalPit coalPit = building.GetComponent<StrategyCoalPit>();
-                StrategyClayPit clayPit = building.GetComponent<StrategyClayPit>();
-                StrategyKiln kiln = building.GetComponent<StrategyKiln>();
-                StrategyForge forge = building.GetComponent<StrategyForge>();
-                StrategyHunterCamp hunterCamp = building.GetComponent<StrategyHunterCamp>();
-                StrategyFisherHut fisherHut = building.GetComponent<StrategyFisherHut>();
-                StrategyForagerCamp foragerCamp = building.GetComponent<StrategyForagerCamp>();
-                StrategyScoutLodge scoutLodge = building.GetComponent<StrategyScoutLodge>();
-                StrategyChickenCoop chickenCoop = building.GetComponent<StrategyChickenCoop>();
-                StrategyTradingPost tradingPost = building.GetComponent<StrategyTradingPost>();
-                StrategyStarterCaravanCart starterCart = building.GetComponent<StrategyStarterCaravanCart>();
-                StrategyStorageYard yard = building.GetComponent<StrategyStorageYard>();
-                StrategyGranary granary = building.GetComponent<StrategyGranary>();
-                bool isLumberjackCamp = camp != null;
-                bool isStonecutterCamp = stoneCamp != null;
-                bool isSawmill = sawmill != null;
-                bool isMine = mine != null;
-                bool isCoalPit = coalPit != null;
-                bool isClayPit = clayPit != null;
-                bool isKiln = kiln != null;
-                bool isForge = forge != null;
-                bool isHunterCamp = hunterCamp != null;
-                bool isFisherHut = fisherHut != null;
-                bool isForagerCamp = foragerCamp != null;
-                bool isScoutLodge = scoutLodge != null;
-                bool isChickenCoop = chickenCoop != null;
-                bool isTradingPost = tradingPost != null;
-                bool isStarterCart = starterCart != null;
-                bool isStorageYard = yard != null;
-                bool isGranary = granary != null;
-                SetResidentsSectionVisible(isHouse);
-                if (isHouse)
-                {
-                    RefreshResidents(building);
-                }
-
-                SetWorkersSectionVisible(isScoutLodge);
-                if (isScoutLodge)
-                {
-                    RefreshWorkers(scoutLodge);
-                    LayoutContextSection(238f, 214f);
-                }
-                else if (isLumberjackCamp || isStonecutterCamp || isSawmill || isMine || isCoalPit || isClayPit || isKiln || isForge || isHunterCamp || isFisherHut || isForagerCamp || isChickenCoop || isStarterCart || isGranary)
-                {
-                    LayoutContextSection(128f, 214f);
-                }
-
-                if (isLumberjackCamp)
-                {
-                    hudContextTitleText.text = "Forest and Stock";
-                    hudContextBodyText.text = camp.GetHudStatusText();
-                    SetContextSectionVisible(true);
-                }
-                else if (isStonecutterCamp)
-                {
-                    hudContextTitleText.text = "Stone and Stock";
-                    hudContextBodyText.text = stoneCamp.GetHudStatusText();
-                    SetContextSectionVisible(true);
-                }
-                else if (isSawmill)
-                {
-                    hudContextTitleText.text = "Logs and Planks";
-                    hudContextBodyText.text = sawmill.GetHudStatusText();
-                    SetContextSectionVisible(true);
-                }
-                else if (isMine)
-                {
-                    hudContextTitleText.text = "Iron and Stock";
-                    hudContextBodyText.text = mine.GetHudStatusText();
-                    SetContextSectionVisible(true);
-                }
-                else if (isCoalPit)
-                {
-                    hudContextTitleText.text = "Coal and Stock";
-                    hudContextBodyText.text = coalPit.GetHudStatusText();
-                    SetContextSectionVisible(true);
-                }
-                else if (isClayPit)
-                {
-                    hudContextTitleText.text = "Clay and Stock";
-                    hudContextBodyText.text = clayPit.GetHudStatusText();
-                    SetContextSectionVisible(true);
-                }
-                else if (isKiln)
-                {
-                    hudContextTitleText.text = "Clay, Coal and Pottery";
-                    hudContextBodyText.text = kiln.GetHudStatusText();
-                    SetContextSectionVisible(true);
-                }
-                else if (isForge)
-                {
-                    hudContextTitleText.text = "Iron, Coal, Logs and Tools";
-                    hudContextBodyText.text = forge.GetHudStatusText();
-                    SetContextSectionVisible(true);
-                }
-                else if (isHunterCamp)
-                {
-                    hudContextTitleText.text = "Hunting and Stock";
-                    hudContextBodyText.text = hunterCamp.GetHudStatusText();
-                    SetContextSectionVisible(true);
-                }
-                else if (isFisherHut)
-                {
-                    hudContextTitleText.text = "Fishing and Stock";
-                    hudContextBodyText.text = fisherHut.GetHudStatusText();
-                    SetContextSectionVisible(true);
-                }
-                else if (isForagerCamp)
-                {
-                    hudContextTitleText.text = "Forage and Stock";
-                    hudContextBodyText.text = foragerCamp.GetHudStatusText();
-                    SetContextSectionVisible(true);
-                }
-                else if (isScoutLodge)
-                {
-                    hudContextTitleText.text = "Exploration";
-                    hudContextBodyText.text = scoutLodge.GetHudStatusText();
-                    SetContextSectionVisible(true);
-                }
-                else if (isChickenCoop)
-                {
-                    hudContextTitleText.text = "Eggs and Stock";
-                    hudContextBodyText.text = chickenCoop.GetHudStatusText();
-                    SetContextSectionVisible(true);
-                }
-                else if (isTradingPost)
-                {
-                    RefreshTradingPostHud(tradingPost);
-                }
-                else if (isStarterCart)
-                {
-                    hudContextTitleText.text = "Starter Supplies";
-                    hudContextBodyText.text = starterCart.GetHudStatusText();
-                    SetContextSectionVisible(true);
-                }
-                else if (isStorageYard)
-                {
-                    RefreshStorageYardHud(yard);
-                }
-                else if (isGranary)
-                {
-                    hudContextTitleText.text = "Food and Stock";
-                    hudContextBodyText.text = granary.GetHudStatusText();
-                    SetContextSectionVisible(true);
-                }
-
-                SetResourcesVisible(isHouse);
-                if (isHouse)
-                {
-                    RefreshResources(building);
-                }
-
-                SetUpgradeActionsVisible(false);
-
-                RefreshProductionUpgradeHud(building);
+                RefreshPlacedBuildingHud(building);
 
                 return;
             }
@@ -408,33 +283,7 @@ namespace ProjectUnknown.Strategy
             StrategyConstructionSite constructionSite = selectedTransform.GetComponent<StrategyConstructionSite>();
             if (constructionSite != null)
             {
-                hudTitleText.text = "Construction";
-                hudSubtitleText.text = constructionSite.Title;
-                int materialStage = Mathf.Clamp(Mathf.FloorToInt(constructionSite.DeliveredResourceFraction * 2f), 0, 2);
-                int progressStage = constructionSite.Progress > 0f
-                    ? Mathf.Clamp(1 + Mathf.FloorToInt(constructionSite.Progress * (StrategyConstructionSpriteFactory.StageCount - 1)), 1, StrategyConstructionSpriteFactory.StageCount - 1)
-                    : materialStage;
-                int stage = constructionSite.ResourcesComplete ? progressStage : Mathf.Max(materialStage, progressStage);
-                SetPreviewSprite(constructionSite.Tool == StrategyBuildTool.Bridge
-                    ? StrategyConstructionSpriteFactory.GetBridgeConstructionSprite(constructionSite.Footprint, stage)
-                    : StrategyConstructionSpriteFactory.GetConstructionSprite(constructionSite.Tool, constructionSite.VisualVariant, stage));
-                hudSummaryTitleText.text = "Plan";
-                hudBodyText.text = GetBuildingTitle(constructionSite.Tool)
-                    + "\n"
-                    + constructionSite.Cost.ToDisplayText();
-                hudStatusTitleText.text = "Construction Progress";
-                hudStatusBodyText.text = constructionSite.GetHudStatusText();
-                hudContextTitleText.text = "Builders";
-                hudContextBodyText.text = GetConstructionBuildersText(constructionSite);
-                SetProfileSectionVisible(true);
-                SetStatusSectionVisible(true);
-                SetContextSectionVisible(true);
-                SetResidentsSectionVisible(false);
-                SetWorkersSectionVisible(false);
-                SetResourcesVisible(false);
-                SetUpgradeActionsVisible(false);
-                SetProductionUpgradeHudVisible(false);
-                SetTradingPostHudVisible(false);
+                RefreshConstructionSiteHud(constructionSite);
             }
         }
 

@@ -81,6 +81,7 @@ namespace ProjectUnknown.Strategy.EditorTests
         {
             Assert.That(inventory.TryAdd("old-king-seal", 1), Is.True);
             Assert.That(inventory.TryAdd("survey-maps", 3), Is.True);
+            hud.SetOpen(true, true, false);
 
             RectTransform content = hud.transform.Find(
                     "CityInventoryHudCanvas/CityInventoryOverlay/CityInventoryPanel/ItemViewport/ItemContent")
@@ -89,6 +90,7 @@ namespace ProjectUnknown.Strategy.EditorTests
             Assert.That(content.GetComponent<VerticalLayoutGroup>(), Is.Not.Null);
             Assert.That(content.GetComponent<GridLayoutGroup>(), Is.Null);
 
+            Canvas.ForceUpdateCanvases();
             LayoutRebuilder.ForceRebuildLayoutImmediate(content);
             RectTransform uniqueRow = content.Find("ItemRow_0")?.GetComponent<RectTransform>();
             RectTransform stackedRow = content.Find("ItemRow_1")?.GetComponent<RectTransform>();
@@ -109,8 +111,8 @@ namespace ProjectUnknown.Strategy.EditorTests
         [Test]
         public void LauncherUsesReservedTopRowSlotBetweenTreasuryAndPopulation()
         {
-            Assert.That(hud.LauncherRoot.anchoredPosition, Is.EqualTo(new Vector2(204f, -18f)));
-            Assert.That(hud.LauncherRoot.sizeDelta, Is.EqualTo(new Vector2(178f, 42f)));
+            Assert.That(hud.LauncherRoot.anchoredPosition, Is.EqualTo(new Vector2(458f, -5f)));
+            Assert.That(hud.LauncherRoot.sizeDelta, Is.EqualTo(new Vector2(146f, 60f)));
             Assert.That(hud.HudCanvas.sortingOrder, Is.EqualTo(170));
         }
 

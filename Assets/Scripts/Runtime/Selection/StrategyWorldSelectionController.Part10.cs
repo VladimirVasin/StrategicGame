@@ -38,7 +38,7 @@ namespace ProjectUnknown.Strategy
 
         private void CreateStorageYardHud()
         {
-            storageYardHudRoot = CreateUiObject("StorageYardHud", hudPanel).GetComponent<RectTransform>();
+            storageYardHudRoot = CreateUiObject("StorageYardHud", hudContent).GetComponent<RectTransform>();
             SetTopStretch(storageYardHudRoot, 18f, 128f, 18f, 508f);
             storageYardHudRoot.gameObject.SetActive(false);
 

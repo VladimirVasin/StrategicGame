@@ -47,6 +47,10 @@
     <Compile Include="Assets\Tests\EditMode\StrategyGameContextTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyInputActionsContractTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyInputRouterTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyHudFoundationTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyBuildingHudSnapshotTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyResourceQueryServiceTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyResourceOverviewHudTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyPauseMenuControllerTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyHouseVisualEffectTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyForagerCampVisualProfileTests.cs" />
@@ -125,6 +129,8 @@
     <Compile Include="Assets\Editor\StrategyVerificationRunner.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.FoundingJourney.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.Visual.cs" />
+    <Compile Include="Assets\Editor\StrategyVerificationRunner.HudCapture.cs" />
+    <Compile Include="Assets\Editor\StrategyVerificationRunner.BuildingHudCapture.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.HouseVisual.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.ForagerCampVisual.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.AuthoredVisuals.cs" />

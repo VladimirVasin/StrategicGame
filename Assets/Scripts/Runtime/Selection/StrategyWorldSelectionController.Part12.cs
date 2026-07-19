@@ -17,15 +17,16 @@ namespace ProjectUnknown.Strategy
 
         private void CreateProductionUpgradeHud()
         {
-            productionUpgradeRoot = CreateUiObject("ProductionUpgrade", hudPanel).GetComponent<RectTransform>();
+            productionUpgradeRoot = CreateUiObject("ProductionUpgrade", hudContent).GetComponent<RectTransform>();
             SetTopStretch(productionUpgradeRoot, 24f, 356f, 24f, 132f);
             productionUpgradeRoot.gameObject.SetActive(false);
 
             productionUpgradeBackground = productionUpgradeRoot.gameObject.AddComponent<Image>();
-            productionUpgradeBackground.color = new Color(0.07f, 0.11f, 0.10f, 0.92f);
-            productionUpgradeBackground.raycastTarget = false;
+            StrategyHudStyle.StyleCompactPanel(
+                productionUpgradeBackground,
+                WithAlpha(StrategyHudStyle.Surface, 0.92f));
 
-            Text title = CreateText("SectionTitle", productionUpgradeRoot, 13, TextAnchor.UpperLeft, new Color(0.86f, 0.70f, 0.42f));
+            Text title = CreateText("SectionTitle", productionUpgradeRoot, 13, TextAnchor.UpperLeft, StrategyHudStyle.Primary);
             title.fontStyle = FontStyle.Bold;
             title.text = "Production Upgrade";
             SetTopStretch(title.rectTransform, 0f, 0f, 0f, 20f);
@@ -33,13 +34,16 @@ namespace ProjectUnknown.Strategy
             RectTransform row = CreateUiObject("UpgradeRow", productionUpgradeRoot).GetComponent<RectTransform>();
             SetTopStretch(row, 0f, 30f, 0f, 62f);
             Image rowBackground = row.gameObject.AddComponent<Image>();
-            rowBackground.color = new Color(0.08f, 0.13f, 0.12f, 0.98f);
+            StrategyHudStyle.StyleCompactPanel(
+                rowBackground,
+                WithAlpha(StrategyHudStyle.Elevated, 0.96f));
 
             RectTransform iconFrame = CreateUiObject("IconFrame", row).GetComponent<RectTransform>();
             SetTopLeft(iconFrame, 12f, 13f, 36f, 36f);
             Image frame = iconFrame.gameObject.AddComponent<Image>();
-            frame.color = new Color(1f, 1f, 1f, 0.07f);
-            frame.raycastTarget = false;
+            StrategyHudStyle.StyleInset(
+                frame,
+                WithAlpha(StrategyHudStyle.Surface, 0.86f));
 
             productionUpgradeIcon = CreateUiObject("Icon", iconFrame).AddComponent<Image>();
             productionUpgradeIcon.sprite = StrategyResourceIconFactory.GetSprite(StrategyResourceType.Tools);
@@ -51,7 +55,7 @@ namespace ProjectUnknown.Strategy
             productionUpgradeTitleText.fontStyle = FontStyle.Bold;
             SetTopStretch(productionUpgradeTitleText.rectTransform, 58f, 8f, 86f, 18f);
 
-            productionUpgradeEffectText = CreateText("Effect", row, 11, TextAnchor.UpperLeft, new Color(0.76f, 0.84f, 0.80f));
+            productionUpgradeEffectText = CreateText("Effect", row, 11, TextAnchor.UpperLeft, StrategyHudStyle.TextMuted);
             productionUpgradeEffectText.resizeTextForBestFit = true;
             productionUpgradeEffectText.resizeTextMinSize = 8;
             productionUpgradeEffectText.resizeTextMaxSize = 11;
@@ -64,16 +68,9 @@ namespace ProjectUnknown.Strategy
             action.sizeDelta = new Vector2(76f, 30f);
             action.anchoredPosition = new Vector2(-8f, 0f);
             Image actionImage = action.gameObject.AddComponent<Image>();
-            actionImage.color = new Color(0.19f, 0.31f, 0.29f, 0.96f);
 
             productionUpgradeButton = action.gameObject.AddComponent<Button>();
-            productionUpgradeButton.targetGraphic = actionImage;
-            ColorBlock colors = productionUpgradeButton.colors;
-            colors.normalColor = new Color(0.19f, 0.31f, 0.29f, 0.96f);
-            colors.highlightedColor = new Color(0.25f, 0.40f, 0.35f, 1f);
-            colors.pressedColor = new Color(0.12f, 0.20f, 0.18f, 1f);
-            colors.disabledColor = new Color(0.10f, 0.13f, 0.12f, 0.88f);
-            productionUpgradeButton.colors = colors;
+            StrategyHudStyle.StyleButton(productionUpgradeButton, actionImage, true);
             productionUpgradeButton.onClick.AddListener(TryInstallSelectedProductionUpgrade);
             StrategyUiButtonFeedback.Attach(
                 productionUpgradeButton,
@@ -87,17 +84,31 @@ namespace ProjectUnknown.Strategy
             productionUpgradeActionText.resizeTextMaxSize = 11;
             SetOffsets(productionUpgradeActionText.rectTransform, 4f, 0f, 4f, 0f);
 
-            productionUpgradeCostText = CreateText("Cost", productionUpgradeRoot, 11, TextAnchor.UpperLeft, new Color(0.82f, 0.88f, 0.84f));
+            productionUpgradeCostText = CreateText("Cost", productionUpgradeRoot, 11, TextAnchor.UpperLeft, StrategyHudStyle.TextPrimary);
             productionUpgradeCostText.fontStyle = FontStyle.Bold;
             SetTopStretch(productionUpgradeCostText.rectTransform, 0f, 98f, 0f, 16f);
 
-            productionUpgradeStatusText = CreateText("Status", productionUpgradeRoot, 11, TextAnchor.UpperLeft, new Color(0.74f, 0.82f, 0.78f));
+            productionUpgradeStatusText = CreateText("Status", productionUpgradeRoot, 11, TextAnchor.UpperLeft, StrategyHudStyle.TextMuted);
             SetTopStretch(productionUpgradeStatusText.rectTransform, 0f, 116f, 0f, 14f);
+        }
+
+        private void LayoutProductionUpgradeHud(float top)
+        {
+            if (productionUpgradeRoot != null)
+            {
+                SetTopStretch(
+                    productionUpgradeRoot,
+                    24f,
+                    top,
+                    24f,
+                    ProductionUpgradeHeight);
+            }
         }
 
         private void RefreshProductionUpgradeHud(StrategyPlacedBuilding building)
         {
             if (building == null
+                || building.IsDemolishing
                 || !StrategyProductionBuildingUpgradeCatalog.TryGetForTool(building.Tool, out StrategyProductionBuildingUpgradeDefinition definition))
             {
                 SetProductionUpgradeHudVisible(false);
@@ -107,11 +118,13 @@ namespace ProjectUnknown.Strategy
             SetProductionUpgradeHudVisible(true);
             bool installed = building.HasProductionUpgrade(definition.Type);
             bool canAfford = StrategyStorageYard.CanAffordProductionUpgrade(definition.Cost);
-            productionUpgradeBackground.color = installed
-                ? new Color(0.10f, 0.18f, 0.14f, 0.94f)
-                : canAfford
-                    ? new Color(0.07f, 0.11f, 0.10f, 0.92f)
-                    : new Color(0.20f, 0.13f, 0.09f, 0.92f);
+            Color stateColor = installed
+                ? StrategyHudStyle.Success
+                : canAfford ? StrategyHudStyle.Secondary : StrategyHudStyle.Warning;
+            productionUpgradeBackground.color = Color.Lerp(
+                WithAlpha(StrategyHudStyle.Surface, 0.94f),
+                WithAlpha(stateColor, 0.94f),
+                0.18f);
             productionUpgradeTitleText.text = definition.Title;
             productionUpgradeEffectText.text = definition.EffectText;
             productionUpgradeCostText.text = installed ? "Installed" : "Cost: " + definition.Cost.ToDisplayText();
@@ -120,8 +133,8 @@ namespace ProjectUnknown.Strategy
                 : upgradeStatusMessage;
             productionUpgradeActionText.text = installed ? "Done" : canAfford ? "Install" : "No";
             productionUpgradeActionText.color = installed
-                ? new Color(0.70f, 0.88f, 0.74f)
-                : canAfford ? Color.white : new Color(0.65f, 0.69f, 0.67f);
+                ? StrategyHudStyle.Success
+                : canAfford ? StrategyHudStyle.TextPrimary : StrategyHudStyle.TextMuted;
             productionUpgradeButton.interactable = !installed && canAfford;
         }
 
@@ -177,6 +190,12 @@ namespace ProjectUnknown.Strategy
                 StrategyProductionUpgradeInstallFailureReason.InvalidTarget => "This building cannot use that upgrade.",
                 _ => "Upgrade failed."
             };
+        }
+
+        private static Color WithAlpha(Color color, float alpha)
+        {
+            color.a = alpha;
+            return color;
         }
     }
 }

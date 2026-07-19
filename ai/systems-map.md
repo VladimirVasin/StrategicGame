@@ -1,6 +1,6 @@
 # Systems Map
 
-Last updated: 2026-07-17
+Last updated: 2026-07-19
 
 Use this file as the first navigation pass before broad searches. Owner cards are starting points, not hard boundaries.
 
@@ -1432,7 +1432,7 @@ Primary files/assets:
 Impact hints:
 
 - F1/F2/F3 read Global actions through `StrategyInputRouter`; keep action ownership centralized when adding shortcuts.
-- The Build HUD also calls this controller from x1/x2/x3 buttons under the top-left construction resource panel.
+- The persistent top rail also calls this controller from its x1/x2/x3 speed buttons beside the settlement resource launcher.
 - Time scale affects gameplay timers using scaled `Time.deltaTime`; UI, visual overlays, service caches, diagnostics throttles, and expensive maintenance loops should use unscaled time/realtime when their cadence should remain stable at x2/x3.
 - Future pause, speed HUD, or settings should extend this controller instead of adding separate `Time.timeScale` writes.
 - Modal systems should use pause locks instead of writing `Time.timeScale = 0` directly.
@@ -1467,13 +1467,17 @@ Impact hints:
 - Keep pause ownership in `StrategyTimeScaleController`; never write `Time.timeScale` directly from the menu.
 - Keep Escape arbitration on the input router's context and consumed-frame contract so closing another HUD cannot reopen this menu in the same frame.
 - The pause canvas sorts below the shared confirmation canvas so Main Menu/Quit prompts remain the active top modal.
-- Settings share `StrategyGameSettings` with the intro menu; changes are persistent and must stay synchronized across both surfaces.
+- Settings share `StrategyGameSettings` with the intro menu; audio, fullscreen, 85-125% interface scale, and reduced motion are persistent and must stay synchronized across both surfaces.
 - Returning to Main Menu deliberately warns about unsaved progress; Save Game remains an explicit separate action.
 
 ### Shared Runtime UI Feedback
 
 Responsibilities:
 
+- Apply the shared Hearth & Ledger palette, sliced panel/button styling, text hierarchy, and reference-resolution scaling to code-built canvases.
+- Draw the scene-local continuous compact top rail behind independently owned HUD canvases with lightweight rail surfaces; reserve the Resources-backed ornate frame for large panel shells and use procedural inset frames for dense modules/cards.
+- Persist 85-125% interface scale and reduced motion through `StrategyGameSettings`; scaler refresh skips the cinematic letterbox canvas.
+- Present delayed pointer and immediate keyboard/controller-focus tooltips with screen-clamped target-relative placement.
 - Attach consistent unscaled pointer, keyboard/controller focus, press tint/motion, and quiet hover audio to code-built player-facing buttons.
 - Animate code-built panels with interruptible unscaled fade/slide/scale while preserving input/raycast safety and persistent reduced motion.
 
@@ -1481,7 +1485,15 @@ Primary files/assets:
 
 - `Assets/Scripts/Runtime/UI/StrategyUiButtonFeedback.cs`
 - `Assets/Scripts/Runtime/UI/StrategyUiPanelTransition.cs`
+- `Assets/Scripts/Runtime/UI/StrategyHudStyle.cs`
+- `Assets/Scripts/Runtime/UI/StrategyHudChromeController.cs`
+- `Assets/Scripts/Runtime/UI/StrategyUiThemeProvider.cs`
+- `Assets/Scripts/Runtime/UI/StrategyHudTooltip.cs`
+- `Assets/Resources/UI/HearthLedger/PanelFrame.png`
+- `Assets/Design/Hud/HearthLedgerHudMockup.png`
+- `Assets/Scripts/Runtime/Menu/StrategyGameSettings.cs`
 - `Assets/Scripts/Runtime/Audio/StrategyHudSfxAudio.cs`
+- `Assets/Tests/EditMode/StrategyHudFoundationTests.cs`
 
 Impact hints:
 
@@ -1493,19 +1505,20 @@ Impact hints:
 
 Responsibilities:
 
-- Runtime-created Build menu inspired by `Gruzovichky` bottom Build dock.
+- Runtime-created compact two-level Hearth & Ledger Build palette with a separate placement bar while a tool is active.
 - Bottom Build button.
 - Category cards, optional subcategory dock, and item tray.
 - Build item cards with Logs/Stone/Planks construction costs, affordability state, and active state.
+- Persistent active-plan banner with tool name, footprint, cost, mouse/Cancel hints, affordability, and player-readable live placement status.
 - F9 instant construction debug mode makes build tools affordable and shows item cost badges as `Free`.
 - Temporary goal-driven tool locks that disable locked categories/items, block mouse and hotkey selection, and show `Locked` item badges.
 - Starter progression keeps `House`, `Lumberjack Camp`, `Stonecutter Camp`, `Forager Camp`, `Scout Lodge`, `Storage Yard`, and `Granary` available from the beginning, then unlocks the full catalog after its ordered base requirements are complete.
-- Top-left construction resource panel with x1/x2/x3 speed buttons directly beneath it.
+- The x1/x2/x3 speed controls occupy the left side of the persistent top rail; the settlement-resource launcher is owned by its dedicated HUD controller.
 - Current catalog entries: `Housing` / `House`, `Extraction` / `Camps` (`Lumberjack Camp`, `Stonecutter Camp`), `Deposits` (`Mine`, `Coal Pit`, `Clay Pit`), and `Food` (`Hunter Camp`, `Fisher Hut`, `Forager Camp`, `Chicken Coop`), `Production` / `Sawmill`, `Kiln`, and `Forge`, `Storage` / `Storage Yard` and `Granary`, `Trade` / `Trading Post`, and `Infrastructure` / `Scout Lodge` and `Bridge`.
 - Hotkeys for open/close, category/subcategory/item selection, and layered cancel.
 - EventSystem/Input System UI setup when the scene has no UI event module.
 - Add tools/buildings gradually only by explicit user request.
-- Single-item categories behave as direct build-tool buttons.
+- Single-item categories reveal their item card and require an explicit item click before placement begins.
 
 Primary files/assets:
 
@@ -1521,6 +1534,8 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/UI/StrategyBuildMenuController.Catalog.cs`
 - `Assets/Scripts/Runtime/UI/StrategyStarterBuildProgression.cs`
 - `Assets/Scripts/Runtime/UI/StrategyStarterGoalSequenceController.cs`
+- `Assets/Scripts/Runtime/UI/StrategyBuildPlacementFeedbackText.cs`
+- `Assets/Scripts/Runtime/Build/StrategyBuildPlacementController.cs`
 - `Assets/Scripts/Runtime/Build/StrategyBuildingSpriteFactory.cs`
 - `Assets/Scripts/Runtime/Build/StrategyLumberjackCamp.cs`
 - `Assets/Scripts/Runtime/Build/StrategyStonecutterCamp.cs`
@@ -1559,27 +1574,56 @@ Impact hints:
 - Placement reads `StrategyBuildMenuController.ActiveTool` / active tool info.
 - Starter goals apply the pure `StrategyStarterBuildProgression` base-tool policy through `StrategyBuildMenuController.SetAllowedTools()` and call `ClearAllowedTools()` only after Houses, Forager Camp, both raw-resource camps, Scout Lodge, Storage Yard, and Granary are complete; keep lock checks shared by mouse clicks, hotkeys, active tool info, subcategory visibility, and affordability/selection visuals.
 - Current catalog has user-requested buildings only: `House`, `Lumberjack Camp`, `Stonecutter Camp`, `Sawmill`, `Kiln`, `Forge`, `Hunter Camp`, `Fisher Hut`, `Forager Camp`, `Mine`, `Coal Pit`, `Clay Pit`, `Storage Yard`, `Granary`, `Trading Post`, `Scout Lodge`, and `Bridge`; do not add more without a user request.
-- Current `Housing` category directly activates `House` because it has one item.
+- Current `Housing` category reveals its `House` card and requires an explicit second click before placement begins.
 - Current `Extraction` category opens a subcategory dock before item cards: `Camps` for `Lumberjack Camp`/`Stonecutter Camp`, `Deposits` for Mine/Coal/Clay extraction, and `Food` for Hunter/Fisher/Forager/Chicken Coop food buildings.
 - Current `Production` category opens a tray with processing buildings: `Sawmill`, `Kiln`, and `Forge`.
 - Current `Storage` category opens a tray with `Storage Yard` and `Granary`.
-- Current `Trade` category directly activates `Trading Post` because it has one item.
+- Current `Trade` category reveals its `Trading Post` card and requires an explicit second click before placement begins.
 - Successful placement asks the menu to close all open layers and records the placement frame.
-- If a full HUD/menu shell appears later, decide whether this controller remains standalone or becomes part of the HUD shell.
+- Placement pushes current terrain, occupancy, resource, access, resident, and Bridge-bank diagnostics into the active-plan banner without changing placement validity rules.
+
+### Resource Overview HUD
+
+Responsibilities:
+
+- Own the first clickable `Settlement Stores` module in the persistent top rail independently from the Build Menu.
+- Keep only construction-ready Logs and Stone in the compact launcher.
+- Open a compact grouped read-only window containing all 20 `StrategyResourceType` values except `None`, including muted zero-stock rows and existing resource icons.
+- Show stored physical totals as the primary value and expose available/reserved detail through row tooltips.
+- Close through X, Escape, repeat launcher click, or outside click without pausing simulation; block Camera, Gameplay, and Build input while open.
+
+Primary files:
+
+- `Assets/Scripts/Runtime/UI/StrategyResourceOverviewHudController.cs`
+- `Assets/Scripts/Runtime/UI/StrategyResourceOverviewHudController.View.cs`
+- `Assets/Scripts/Runtime/UI/StrategyResourceOverviewHudController.Input.cs`
+- `Assets/Scripts/Runtime/UI/StrategyResourceOverviewHudController.Rows.cs`
+- `Assets/Scripts/Runtime/Economy/StrategyResourceQueryService.cs`
+- `Assets/Scripts/Runtime/Economy/StrategyResourceType.cs`
+- `Assets/Scripts/Runtime/Economy/StrategyResourceIconFactory.cs`
+- `Assets/Scripts/Runtime/Core/StrategyGameBootstrap.cs`
+- `Assets/Tests/EditMode/StrategyResourceOverviewHudTests.cs`
+- `Assets/Tests/EditMode/StrategyResourceQueryServiceTests.cs`
+
+Impact hints:
+
+- The launcher intentionally retains the construction-specific availability contract; do not silently replace it with generic stored totals.
+- The detail snapshot covers Settlement, Production, Household, TemporarySettlement, and Loose stores but excludes resident-carried stock because pickup removes it from its source.
+- Prepared `Dish` totals must continue to special-case House recipe stacks and exact loose-dish payloads so leftover-ration transport sentinels are not counted as dishes.
 
 ### Top Status HUD
 
 Responsibilities:
 
-- Runtime-created top status canvas.
-- Show total settlement population, adult count, child count, display day, 24-hour clock time, outdoor temperature, season day, time-of-day phase, winter food/fuel readiness, and day progress.
+- Runtime-created top rail coordinated with resource overview/speed, City Inventory, population, Professions, and the right-aligned calendar canvas.
+- Show total settlement population, adult count, child count, display day, 24-hour clock time, outdoor temperature, season day, time-of-day phase, and day progress in a two-row calendar widget.
 - Treat the compact population panel as a click target that toggles the larger resident roster HUD.
 - Show a larger residents roster HUD with settlement stats plus filterable rows for name, age, home/camp state, role, current status, and food status.
 - Expose a `Family Trees` button from the residents roster.
 - Show a fullscreen modal Family Trees HUD that pauses simulation, has permanent horizontal/vertical scrollbars, groups recorded members into connected same-surname family cards, lays those cards out as affinity-ordered left-to-right columns with compact generation rows, and draws parent-child portrait-card trees plus cross-family relationship lines with distinct deceased cards, gender symbols, and hover relationship labels.
 - Animate roster and Family Trees opening/closing through the shared interruptible panel transition.
 - Share resident role/status/home/food label formatting through `StrategyResidentHudText`.
-- Show compact birth, death, adoption, dawn, nightfall, season-start, and late-Autumn winter-warning messages through a separate event-log canvas.
+- Show compact birth, death, adoption, dawn, nightfall, season-start, and late-Autumn winter-warning messages below the rail; repeated identical notices coalesce with a count and refresh their lifetime.
 - Refresh counts from `StrategyPopulationController` without owning population state.
 
 Primary files/assets:
@@ -1587,9 +1631,6 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/UI/StrategyTopStatusHudController.cs`
 - `Assets/Scripts/Runtime/Weather/StrategyTemperatureModel.cs`
 - `Assets/Scripts/Runtime/Core/StrategySeasonCalendar.cs`
-- `Assets/Scripts/Runtime/Core/StrategySeasonReadiness.cs`
-- `Assets/Scripts/Runtime/Population/StrategyHouseWarmthState.cs`
-- `Assets/Scripts/Runtime/Population/StrategyPopulationController.SeasonReadiness.cs`
 - `Assets/Scripts/Runtime/UI/StrategyPopulationRosterHudController.cs`
 - `Assets/Scripts/Runtime/UI/StrategyPopulationRosterHudController.Part01.cs`
 - `Assets/Scripts/Runtime/UI/StrategyPopulationRosterHudController.Input.cs`
@@ -1613,10 +1654,10 @@ Primary files/assets:
 Impact hints:
 
 - Population counts exclude pending refugee families until they are accepted into the settlement.
-- The calendar/time/season widget reads `StrategyDayNightCycleController.CurrentSnapshot`; its temperature readout comes from `StrategyTemperatureModel`, and its winter readiness line aggregates food rations plus household fuel Logs from Granaries, Storage Yards, starter cart, and house-local stores against accepted residents/occupied houses. Keep it separate from the clickable population panel so the roster entry point remains obvious.
+- The calendar/time/season widget reads `StrategyDayNightCycleController.CurrentSnapshot`, takes its temperature readout from `StrategyTemperatureModel`, and keeps exactly two text rows above the day-progress track. Winter food/fuel readiness remains owned by first-winter goals rather than the persistent calendar. Keep the calendar separate from the clickable population panel so the roster entry point remains obvious.
 - Family Trees reads recorded family data, including deceased residents preserved by `StrategyResidentFamilyRecord`, and renders deceased relatives as muted monochrome cards with a skull marker.
 - Family Trees relationship labels, cross-family lines, and column affinity currently derive from recorded parent/child links plus co-parent inference through shared children; explicit marriage/birth-family links should extend this owner instead of overloading family-name grouping.
-- Keep top HUD click targets coordinated with Build/Profession HUD positioning and raycasts.
+- Keep top-rail click targets coordinated across Build, City Inventory, Population, Profession, and Calendar canvases; the calendar remains above the right selection panel.
 
 ### Goals HUD
 
@@ -1624,7 +1665,7 @@ Responsibilities:
 
 - Provide a runtime goals/checklist infrastructure used by the starter onboarding build sequence.
 - Track active goal definitions, completed goal kinds, and the derived HUD view state without owning tutorial scenario logic.
-- Keep the goals HUD hidden when there are no active goals, then show the left-side starter build checklist when bootstrap starts the sequence.
+- Keep the goals HUD hidden when there are no active goals, then show the left-side starter build checklist below the top rail when bootstrap starts the sequence.
 - Render a compact non-blocking Screen Space Overlay checklist with completion marks and a short completion pulse.
 - Run the initial build sequence: 3 Houses, then Forager Camp, then Lumberjack Camp plus Stonecutter Camp, then unlock the full Build menu.
 
@@ -2709,6 +2750,8 @@ Responsibilities:
 - Show a simple marker under the selected world object.
 - Show dynamic linked-resident markers/lines when a completed building or construction site is selected while keeping the HUD focused on the clicked object.
 - Show a compact full-height right-side selection HUD for the selected object.
+- Keep preview/title/subtitle pinned while vertically scrolling contextual sections inside a masked viewport.
+- Refresh text presentation at 5 Hz while marker and linked-resident world positioning remains frame-driven.
 - Show a separate bottom-right world inspect microHUD for clicked graves, resources, nature props, and wildlife; residents, placed buildings, construction sites, and house upgrades use the right-side selection HUD only.
 - Resolve inspect information through `IStrategyWorldInspectable` and visible sprite bounds for non-building world objects; empty terrain cells do not open the microHUD.
 - Render typed inspect chip/row dashboards for wildlife, mineral deposits, trees, forage, loose carried resources, and loose construction materials while keeping legacy body text as a fallback.
@@ -2719,12 +2762,14 @@ Responsibilities:
 - Expose Tools-based production upgrade actions in eligible selected-building HUDs.
 - Show selected-house resident portraits/names/age/life stage/statuses up to house capacity, including the Householder marker, prepared dish recipe summaries, Pottery, ingredient rations, and resource icons/counts.
 - Show selected worksite status/resource context without worker assignment controls, except for the Scout Lodge's single direct Assign/Remove slot.
+- Build every completed-building and construction dashboard from a fixed-capacity typed snapshot and one reusable chip/section/row/status renderer; do not parse legacy multiline HUD strings.
 - Route an empty Scout Lodge's Assign action into the shared exact-resident picker, then reselect/focus the Lodge after appointment or introductory deferral.
-- Show selected Storage Yards with a dedicated icon-led logistics dashboard for Haulers, builders, available sources, resource stock, and readiness status.
+- Show selected Storage Yards through the shared dashboard with Haulers, builders, available sources, resource stock, reservations, and readiness status.
 - Show selected starter Caravan Carts with compact temporary construction and food stock context.
 - Show selected Trading Posts with settlement Coins, caravan status/ETA, and active buy/sell offer buttons.
 - Show selected lumberjack/stonecutter/sawmill/kiln/forge/hunter/fisher/mine/coal pit/clay pit/granary/storage stock and nearby source/target counts.
 - Show selected-construction-site cost, delivered resources, builder count, and progress/status context.
+- Reset inspector scrolling when selection changes, grow the scroll extent for long dashboards, and replace operational/action surfaces with a demolition warning while removal is queued.
 - Show selected-resident full name, portrait, profile, age/life stage, current activity, and home/camp assignment.
 - Show selected-grave deceased name, epitaph, age, final profession, family role, and memory text.
 - Listen for `Delete` on selected construction sites/buildings and open the reusable confirmation dialog before cancellation or demolition.
@@ -2733,12 +2778,23 @@ Responsibilities:
 Primary files/assets:
 
 - `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.cs`
+- `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.BuildingHud.cs`
+- `Assets/Scripts/Runtime/Selection/StrategyBuildingHudSnapshot.cs`
+- `Assets/Scripts/Runtime/Selection/StrategyBuildingHudSnapshotFactory.cs`
+- `Assets/Scripts/Runtime/Selection/StrategyBuildingHudSnapshotFactory.Common.cs`
+- `Assets/Scripts/Runtime/Selection/StrategyBuildingHudSnapshotFactory.Resources.cs`
+- `Assets/Scripts/Runtime/Selection/StrategyBuildingHudSnapshotFactory.State.cs`
+- `Assets/Scripts/Runtime/Selection/StrategyBuildingSelectionHudRenderer.cs`
 - `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.ScoutWorkers.cs`
 - `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.Part09.cs`
 - `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.ResidentPersonalInventory.cs`
 - `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.Part10.cs`
 - `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.Part12.cs`
 - `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.Part13.cs`
+- `Assets/Scripts/Runtime/Build/StrategyBuildingHudReadModels.cs`
+- `Assets/Scripts/Runtime/Economy/StrategyTradeCaravanHudSnapshot.cs`
+- `Assets/Editor/StrategyVerificationRunner.BuildingHudCapture.cs`
+- `Assets/Tests/EditMode/StrategyBuildingHudSnapshotTests.cs`
 - `Assets/Scripts/Runtime/Selection/IStrategyWorldInspectable.cs`
 - `Assets/Scripts/Runtime/Selection/StrategyWorldInspectInfo.cs`
 - `Assets/Scripts/Runtime/Selection/StrategyWorldInspectInfoFactory.cs`
@@ -2783,7 +2839,8 @@ Impact hints:
 - Destructive selection actions route through `StrategyBuildPlacementController` so map blockers, bridge walkability, residents, worksite assignments, and construction resources clean up consistently.
 - Selection ignores the same frame that completed placement so the new building is not auto-selected by the placement click.
 - Selection consults fog exploration state before checking 2D world colliders.
-- Selection HUD is runtime-created in the world selection controller and slides in from the right.
+- Selection HUD is runtime-created in the world selection controller, slides in from the right, keeps its header pinned, and clamps vertical scrolling within the contextual content area.
+- Building snapshots and renderer hierarchy are reused across 5 Hz refreshes; add new building metrics through typed read models/factory branches rather than formatted-string parsing or per-refresh UI creation.
 - World inspect microHUD is runtime-created by the selection controller, uses non-blocking Screen Space Overlay UI, shifts left while the right-side selected-object HUD is open, and intentionally excludes residents, placed buildings, construction sites, and house upgrades.
 - Non-selectable world objects should implement `IStrategyWorldInspectable`; do not add mass click-only physics colliders for inspect objects unless they are also truly selectable.
 - Building selection links are visual-only world overlays: Houses use `StrategyPlacedBuilding.Residents`; worksites use their assigned worker lists; Storage Yards show stock/logistics context without owning Hauler/Builder links; selected construction sites link to their assigned builders.
@@ -2898,6 +2955,7 @@ Responsibilities:
 
 - Own physical resource amounts and reservations across settlement storage, production, houses, the starter cart, loose construction piles, and loose carried-resource piles.
 - Aggregate resource availability for HUD, construction affordability, logistics, and seasonal readiness without counting carried stock.
+- Populate reusable stored/available snapshots for all resource types in one store pass, with exact prepared-dish normalization for resource overview consumers.
 - Adapt existing source-specific reserve/commit/release behavior to the common query contract.
 - Reserve and atomically commit Scout provisions through a dedicated Expedition channel without consuming Household or Loose food, and notify stock owners only after a successful cross-store transaction.
 - Preserve exact prepared-dish recipe/count/leftover payloads while loose and restore them when a Householder delivers the pile.
@@ -2918,6 +2976,7 @@ Primary files:
 - `Assets/Scripts/Runtime/Build/StrategyProductionConstructionResources.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.LooseStoragePickup.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.LoosePreparedDish.cs`
+- `Assets/Tests/EditMode/StrategyResourceQueryServiceTests.cs`
 
 Impact hints:
 
@@ -2939,7 +2998,8 @@ Primary files:
 - `Assets/Scripts/Runtime/Core/StrategyFirstWinterController.cs`
 - `Assets/Scripts/Runtime/Core/StrategyFirstYearBalance.cs`
 - `Assets/Scripts/Runtime/Core/StrategySeasonReadiness.cs`
-- `Assets/Scripts/Runtime/Economy/StrategyHouseWarmthState.Cold.cs`
+- `Assets/Scripts/Runtime/Population/StrategyPopulationController.SeasonReadiness.cs`
+- `Assets/Scripts/Runtime/Population/StrategyHouseWarmthState.Cold.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentColdState.cs`
 - `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Cold.cs`
 - `Assets/Scripts/Runtime/Population/StrategyPopulationController.Cold.cs`

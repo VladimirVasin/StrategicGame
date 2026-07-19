@@ -16,12 +16,6 @@ namespace ProjectUnknown.Strategy
                 menuGroup.interactable = isOpen && easedMenu > 0.15f;
             }
 
-            if (dockRoot != null)
-            {
-                dockRoot.anchoredPosition = new Vector2(0f, Mathf.Lerp(-92f, 84f, easedMenu));
-                dockRoot.localScale = Vector3.one * Mathf.Lerp(0.96f, 1f, easedMenu);
-            }
-
             bool subcategoryOpen = isOpen && selectedCategoryIndex >= 0
                 && selectedCategoryIndex < categoryUis.Count
                 && categoryUis[selectedCategoryIndex].Data.HasSubcategories;
@@ -33,12 +27,6 @@ namespace ProjectUnknown.Strategy
                 subcategoryGroup.alpha = easedSubcategory;
                 subcategoryGroup.blocksRaycasts = subcategoryOpen && easedSubcategory > 0.45f;
                 subcategoryGroup.interactable = subcategoryOpen && easedSubcategory > 0.45f;
-            }
-
-            if (subcategoryRoot != null)
-            {
-                subcategoryRoot.anchoredPosition = new Vector2(0f, Mathf.Lerp(78f, 152f, easedSubcategory) + Mathf.Lerp(-112f, 0f, easedMenu));
-                subcategoryRoot.localScale = Vector3.one * Mathf.Lerp(0.94f, 1f, easedSubcategory);
             }
 
             bool trayOpen = isOpen
@@ -54,54 +42,84 @@ namespace ProjectUnknown.Strategy
                 trayGroup.interactable = trayOpen && easedTray > 0.45f;
             }
 
-            if (trayRoot != null)
+            if (paletteRoot != null)
             {
-                float trayOpenY = subcategoryOpen ? 204f : 152f;
-                trayRoot.anchoredPosition = new Vector2(0f, Mathf.Lerp(78f, trayOpenY, easedTray) + Mathf.Lerp(-112f, 0f, easedMenu));
-                trayRoot.localScale = Vector3.one * Mathf.Lerp(0.94f, 1f, easedTray);
+                float contextAmount = Mathf.Max(easedSubcategory, easedTray);
+                paletteRoot.anchoredPosition = new Vector2(0f, Mathf.Lerp(-44f, 12f, easedMenu));
+                paletteRoot.sizeDelta = new Vector2(760f, Mathf.Lerp(48f, 136f, contextAmount));
             }
 
-            UpdateHoverAnimation();
+            if (placementFeedbackRoot != null && placementFeedbackRoot.gameObject.activeSelf)
+            {
+                const float targetY = 12f;
+                float currentY = placementFeedbackRoot.anchoredPosition.y;
+                float y = StrategyHudStyle.ReducedMotion
+                    ? targetY
+                    : Mathf.Lerp(currentY, targetY, 1f - Mathf.Exp(-14f * Time.unscaledDeltaTime));
+                placementFeedbackRoot.anchoredPosition = new Vector2(0f, y);
+            }
+
         }
 
-        private void UpdateHoverAnimation()
+        private void RefreshCompactBuildGeometry()
         {
-            for (int i = 0; i < categoryUis.Count; i++)
+            bool hasSelection = selectedCategoryIndex >= 0
+                && selectedCategoryIndex < categoryUis.Count;
+            CategoryUi selected = hasSelection ? categoryUis[selectedCategoryIndex] : null;
+            bool hasSubcategories = selected != null && selected.Data.HasSubcategories;
+            int visibleItemCount = 0;
+            if (selected != null)
             {
-                CategoryUi category = categoryUis[i];
-                bool selected = selectedCategoryIndex == i;
-                float target = category.IsHovered || selected ? 1f : 0f;
-                category.HoverT = Mathf.MoveTowards(category.HoverT, target, Time.unscaledDeltaTime * 8f);
-                category.Root.localScale = Vector3.one * Mathf.Lerp(1f, selected ? 1.08f : 1.04f, Smooth01(category.HoverT));
-
-                for (int j = 0; j < category.Subcategories.Length; j++)
+                for (int i = 0; i < selected.Items.Length; i++)
                 {
-                    BuildSubcategoryUi subcategory = category.Subcategories[j];
-                    if (!subcategory.Root.gameObject.activeSelf)
+                    if (IsItemInSelectedLayer(selected, selected.Items[i]))
                     {
-                        continue;
+                        visibleItemCount++;
                     }
-
-                    bool active = selectedSubcategoryIndex == subcategory.Index;
-                    float subcategoryTarget = subcategory.IsHovered || active ? 1f : 0f;
-                    subcategory.HoverT = Mathf.MoveTowards(subcategory.HoverT, subcategoryTarget, Time.unscaledDeltaTime * 8f);
-                    subcategory.Root.localScale = Vector3.one * Mathf.Lerp(1f, active ? 1.06f : 1.03f, Smooth01(subcategory.HoverT));
-                }
-
-                for (int j = 0; j < category.Items.Length; j++)
-                {
-                    BuildItemUi item = category.Items[j];
-                    if (!item.Root.gameObject.activeSelf)
-                    {
-                        continue;
-                    }
-
-                    bool active = ActiveTool == item.Data.Tool;
-                    float itemTarget = item.IsHovered || active ? 1f : 0f;
-                    item.HoverT = Mathf.MoveTowards(item.HoverT, itemTarget, Time.unscaledDeltaTime * 9f);
-                    item.Root.localScale = Vector3.one * Mathf.Lerp(1f, active ? 1.08f : 1.04f, Smooth01(item.HoverT));
                 }
             }
+
+            float trayWidth = visibleItemCount > 0
+                ? visibleItemCount * 132f + (visibleItemCount - 1) * 6f
+                : 0f;
+            float subcategoryWidth = hasSubcategories ? 96f : 0f;
+            float gap = subcategoryWidth > 0f && trayWidth > 0f ? 6f : 0f;
+            float contextWidth = Mathf.Max(1f, subcategoryWidth + gap + trayWidth);
+            contextRoot.sizeDelta = new Vector2(contextWidth, 76f);
+            subcategoryRoot.anchoredPosition = Vector2.zero;
+            trayRoot.anchoredPosition = new Vector2(subcategoryWidth + gap, 0f);
+            trayRoot.sizeDelta = new Vector2(Mathf.Max(1f, trayWidth), 72f);
+        }
+
+        private void RefreshBuildButtonVisual()
+        {
+            if (buildButtonRoot == null || buildButtonText == null)
+            {
+                return;
+            }
+
+            bool placementMode = ActiveTool != StrategyBuildTool.None && !isOpen;
+            buildButtonRoot.gameObject.SetActive(!placementMode);
+            if (placementMode)
+            {
+                return;
+            }
+
+            buildButtonRoot.anchoredPosition = isOpen
+                ? new Vector2(358f, 18f)
+                : new Vector2(0f, 12f);
+            buildButtonRoot.sizeDelta = isOpen
+                ? new Vector2(36f, 36f)
+                : new Vector2(132f, 40f);
+            buildButtonRoot.SetAsLastSibling();
+            buildButtonIconRoot.gameObject.SetActive(!isOpen);
+            buildButtonText.text = isOpen ? "×" : "BUILD  [B]";
+            buildButtonText.alignment = isOpen ? TextAnchor.MiddleCenter : TextAnchor.MiddleLeft;
+            buildButtonText.fontSize = isOpen ? 20 : 13;
+            buildButtonText.resizeTextMinSize = isOpen ? 18 : 11;
+            buildButtonText.resizeTextMaxSize = isOpen ? 20 : 13;
+            buildButtonText.rectTransform.offsetMin = isOpen ? Vector2.zero : new Vector2(40f, 0f);
+            buildButtonText.rectTransform.offsetMax = isOpen ? Vector2.zero : new Vector2(-8f, 0f);
         }
     }
 }

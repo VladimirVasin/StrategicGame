@@ -29,11 +29,7 @@ namespace ProjectUnknown.Strategy
             hudCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
             hudCanvas.sortingOrder = 170;
 
-            CanvasScaler scaler = canvasObject.GetComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1600f, 900f);
-            scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
-            scaler.matchWidthOrHeight = 0.5f;
+            StrategyHudStyle.ConfigureScaler(canvasObject.GetComponent<CanvasScaler>());
 
             CreateLauncher(canvasObject.transform);
             CreateOverlay(canvasObject.transform);
@@ -45,11 +41,11 @@ namespace ProjectUnknown.Strategy
             launcherRoot.anchorMin = new Vector2(0f, 1f);
             launcherRoot.anchorMax = new Vector2(0f, 1f);
             launcherRoot.pivot = new Vector2(0f, 1f);
-            launcherRoot.anchoredPosition = new Vector2(204f, -18f);
-            launcherRoot.sizeDelta = new Vector2(178f, 42f);
+            launcherRoot.anchoredPosition = new Vector2(458f, -5f);
+            launcherRoot.sizeDelta = new Vector2(146f, 60f);
 
             Image background = launcherRoot.gameObject.AddComponent<Image>();
-            background.color = new Color(0.10f, 0.14f, 0.15f, 0.95f);
+            StrategyHudStyle.StyleRailModule(background, true);
             Outline outline = launcherRoot.gameObject.AddComponent<Outline>();
             outline.effectColor = new Color(0f, 0f, 0f, 0.40f);
             outline.effectDistance = new Vector2(1.4f, -1.4f);
@@ -71,8 +67,8 @@ namespace ProjectUnknown.Strategy
             Text label = CreateText(
                 "Label",
                 launcherRoot,
-                "City Inventory",
-                15,
+                "Inventory",
+                14,
                 TextAnchor.MiddleLeft,
                 new Color(0.95f, 0.88f, 0.62f));
             label.fontStyle = FontStyle.Bold;
@@ -104,6 +100,7 @@ namespace ProjectUnknown.Strategy
             button.onClick.AddListener(Toggle);
             ConfigureButtonColors(button, background.color);
             StrategyUiButtonFeedback.Attach(button);
+            StrategyHudTooltip.Attach(launcherRoot.gameObject, "Open the settlement chest for unique story and city items.");
         }
 
         private void CreateOverlay(Transform parent)
@@ -144,7 +141,7 @@ namespace ProjectUnknown.Strategy
             panelRoot.anchoredPosition = new Vector2(0f, -8f);
             panelRoot.sizeDelta = new Vector2(900f, 600f);
             Image background = panelRoot.gameObject.AddComponent<Image>();
-            background.color = PanelColor;
+            StrategyHudStyle.StylePanel(background, new Color(0.88f, 0.92f, 0.86f, 0.98f), true);
             Outline outline = panelRoot.gameObject.AddComponent<Outline>();
             outline.effectColor = new Color(0f, 0f, 0f, 0.62f);
             outline.effectDistance = new Vector2(2f, -2f);
@@ -160,7 +157,7 @@ namespace ProjectUnknown.Strategy
 
             Text title = CreateText("Title", panelRoot, "CITY INVENTORY", 25, TextAnchor.UpperLeft, Color.white);
             title.fontStyle = FontStyle.Bold;
-            SetTopStretch(title.rectTransform, 26f, 18f, 90f, 32f);
+            SetTopStretch(title.rectTransform, 30f, 24f, 90f, 32f);
             Text subtitle = CreateText(
                 "Subtitle",
                 panelRoot,
@@ -169,13 +166,13 @@ namespace ProjectUnknown.Strategy
                 TextAnchor.UpperLeft,
                 MutedGold);
             subtitle.fontStyle = FontStyle.Bold;
-            SetTopStretch(subtitle.rectTransform, 26f, 52f, 90f, 18f);
+            SetTopStretch(subtitle.rectTransform, 30f, 58f, 90f, 18f);
 
             RectTransform closeRoot = CreateUiObject("Close", panelRoot).GetComponent<RectTransform>();
             closeRoot.anchorMin = new Vector2(1f, 1f);
             closeRoot.anchorMax = new Vector2(1f, 1f);
             closeRoot.pivot = new Vector2(1f, 1f);
-            closeRoot.anchoredPosition = new Vector2(-18f, -18f);
+            closeRoot.anchoredPosition = new Vector2(-26f, -24f);
             closeRoot.sizeDelta = new Vector2(40f, 34f);
             Image closeImage = closeRoot.gameObject.AddComponent<Image>();
             closeImage.color = new Color(0.11f, 0.15f, 0.16f, 0.98f);
@@ -189,7 +186,7 @@ namespace ProjectUnknown.Strategy
             Stretch(closeText.rectTransform, 0f, 0f, 0f, 1f);
 
             RectTransform divider = CreateUiObject("HeaderDivider", panelRoot).GetComponent<RectTransform>();
-            SetTopStretch(divider, 26f, 82f, 24f, 2f);
+            SetTopStretch(divider, 30f, 88f, 30f, 2f);
             Image dividerImage = divider.gameObject.AddComponent<Image>();
             dividerImage.color = new Color(1f, 1f, 1f, 0.17f);
             dividerImage.raycastTarget = false;
