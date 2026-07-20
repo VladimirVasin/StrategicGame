@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
+using UnityEditor.Localization;
 using UnityEngine;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 
 namespace ProjectUnknown.Strategy.EditorTests
 {
@@ -15,26 +18,57 @@ namespace ProjectUnknown.Strategy.EditorTests
         [TestCase(
             StrategyPointOfInterestResourceKind.Iron,
             "Iron Deposits Found",
-            "Iron deposits were found near this point.\n\nA Mine can be built over the deposit.")]
+            "Iron deposits were found near this point.\n\nA Mine can be built over the deposit.",
+            "Найдена железная жила",
+            "Поблизости проходит железная жила.\n\nНад залежью можно построить шахту.")]
         [TestCase(
             StrategyPointOfInterestResourceKind.Coal,
             "Coal Deposits Found",
-            "Coal deposits were found near this point.\n\nA Coal Pit can be built over the deposit.")]
+            "Coal deposits were found near this point.\n\nA Coal Pit can be built over the deposit.",
+            "Найден угольный пласт",
+            "Поблизости залегает угольный пласт.\n\nНад залежью можно построить угольный разрез.")]
         [TestCase(
             StrategyPointOfInterestResourceKind.None,
             "Point Investigated",
-            "No useful mineral deposits were found near this point.")]
-        public void InvestigationMessageStatesTheDiscoveredResource(
+            "No useful mineral deposits were found near this point.",
+            "Место осмотрено",
+            "Ни руды, ни угля поблизости не нашлось.")]
+        public void InvestigationMessageStatesTheDiscoveredResourceInBothLanguages(
             StrategyPointOfInterestResourceKind kind,
-            string expectedTitle,
-            string expectedResult)
+            string expectedEnglishTitle,
+            string expectedEnglishResult,
+            string expectedRussianTitle,
+            string expectedRussianResult)
         {
-            Assert.That(
-                StrategyPointOfInterestController.GetInvestigationTitle(kind),
-                Is.EqualTo(expectedTitle));
-            Assert.That(
-                StrategyPointOfInterestController.GetInvestigationResult(kind),
-                Is.EqualTo(expectedResult));
+            IReadOnlyList<Locale> locales = LocalizationEditorSettings.GetLocales();
+            Locale english = FindLocale(locales, StrategyLocalization.EnglishLocaleCode);
+            Locale russian = FindLocale(locales, StrategyLocalization.RussianLocaleCode);
+            Locale previous = LocalizationSettings.SelectedLocale;
+            Assert.That(english, Is.Not.Null);
+            Assert.That(russian, Is.Not.Null);
+
+            try
+            {
+                LocalizationSettings.SelectedLocale = english;
+                Assert.That(
+                    StrategyPointOfInterestController.GetInvestigationTitle(kind),
+                    Is.EqualTo(expectedEnglishTitle));
+                Assert.That(
+                    StrategyPointOfInterestController.GetInvestigationResult(kind),
+                    Is.EqualTo(expectedEnglishResult));
+
+                LocalizationSettings.SelectedLocale = russian;
+                Assert.That(
+                    StrategyPointOfInterestController.GetInvestigationTitle(kind),
+                    Is.EqualTo(expectedRussianTitle));
+                Assert.That(
+                    StrategyPointOfInterestController.GetInvestigationResult(kind),
+                    Is.EqualTo(expectedRussianResult));
+            }
+            finally
+            {
+                LocalizationSettings.SelectedLocale = previous;
+            }
         }
 
         [TestCase(101)]
@@ -239,6 +273,22 @@ namespace ProjectUnknown.Strategy.EditorTests
             }
 
             return count;
+        }
+
+        private static Locale FindLocale(
+            IReadOnlyList<Locale> locales,
+            string code)
+        {
+            for (int index = 0; index < locales.Count; index++)
+            {
+                Locale locale = locales[index];
+                if (locale != null && locale.Identifier.Code == code)
+                {
+                    return locale;
+                }
+            }
+
+            return null;
         }
     }
 }

@@ -1,9 +1,9 @@
 Key	English	Russian
 city_item.cats.title	Cats	Кошки
-city_item.cats.description	They followed the caravan unseen, then chose the settlement for their own.	Они незаметно шли за караваном, а затем сами выбрали это поселение своим домом.
+city_item.cats.description	They followed the caravan unseen, then chose the settlement for their own.	Они незаметно шли за караваном, а потом сами выбрали поселение своим домом.
 city_item.cats.effect	Cats hunt mice around the settlement, keeping their numbers down.	Кошки охотятся на мышей в поселении и сдерживают их численность.
 resident_item.holey_spoon.title	Holey Spoon	Дырявая ложка
-resident_item.holey_spoon.description	Not the most dignified spoon for soup: half of it escapes back into the bowl.	Есть ею суп не очень-то почётно: половина успевает вытечь обратно в миску.
+resident_item.holey_spoon.description	Not the most dignified spoon for soup: half of it escapes back into the bowl.	С такой ложкой трудно есть суп с достоинством: половина сбегает обратно в миску.
 resident.age.short	{0}y	{0} л.
 resident.role.settler	Settler	Поселенец
 resident.role.child	Child	Ребёнок

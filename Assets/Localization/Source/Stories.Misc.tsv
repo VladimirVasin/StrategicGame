@@ -1,6 +1,13 @@
 Key	English	Russian
-story.poi.fallback_title	Point of Interest	Интересное место
-story.poi.subtitle	SCOUT REPORT	ДОКЛАД РАЗВЕДЧИКА
+story.poi.fallback_title	Point of Interest	Примечательное место
+story.poi.subtitle	SCOUT REPORT	ВЕСТИ ОТ РАЗВЕДЧИКА
 story.poi.ok	OK	ПОНЯТНО
 story.poi.choice.yes	Yes	Да
 story.poi.choice.no	No	Нет
+story.poi.mineral.report	Scout: {0}\nLandmark: {1}\n\n{2}	Разведчик: {0}\nОриентир: {1}\n\n{2}
+story.poi.mineral.coal.title	Coal Deposits Found	Найден угольный пласт
+story.poi.mineral.coal.result	Coal deposits were found near this point.\n\nA Coal Pit can be built over the deposit.	Поблизости залегает угольный пласт.\n\nНад залежью можно построить угольный разрез.
+story.poi.mineral.iron.title	Iron Deposits Found	Найдена железная жила
+story.poi.mineral.iron.result	Iron deposits were found near this point.\n\nA Mine can be built over the deposit.	Поблизости проходит железная жила.\n\nНад залежью можно построить шахту.
+story.poi.mineral.fallback.title	Point Investigated	Место осмотрено
+story.poi.mineral.fallback.result	No useful mineral deposits were found near this point.	Ни руды, ни угля поблизости не нашлось.

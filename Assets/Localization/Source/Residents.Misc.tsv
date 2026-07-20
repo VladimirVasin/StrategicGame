@@ -45,11 +45,11 @@ resident.scout_assignment.block.construction	Assigned to construction	Назна
 resident.scout_assignment.block.householder	Responsible for a household	Отвечает за домашнее хозяйство
 resident.scout_assignment.block.currently	Currently {0}	Сейчас: {0}
 resident.reward.city.heading	THE CITY REMEMBERS	ПОСЕЛЕНИЕ ПОМНИТ
-resident.reward.city.collection	NEW CITY ITEM	НОВАЯ ЦЕННОСТЬ ПОСЕЛЕНИЯ
-resident.reward.city.type_unique	UNIQUE CITY BOON	УНИКАЛЬНЫЙ ДАР ПОСЕЛЕНИЯ
-resident.reward.city.type_regular	CITY ITEM	ЦЕННОСТЬ ПОСЕЛЕНИЯ
+resident.reward.city.collection	NEW CITY ITEM	НОВОЕ ДОСТОЯНИЕ
+resident.reward.city.type_unique	UNIQUE CITY BOON	УНИКАЛЬНЫЙ ДАР
+resident.reward.city.type_regular	CITY ITEM	ДОСТОЯНИЕ ПОСЕЛЕНИЯ
 resident.reward.city.footer	CITY CHEST / PERMANENT	СУНДУК ПОСЕЛЕНИЯ / НАВСЕГДА
-resident.reward.city.confirm	SEND TO CITY CHEST	ОТПРАВИТЬ В СУНДУК
+resident.reward.city.confirm	SEND TO CITY CHEST	УБРАТЬ В СУНДУК
 resident.reward.personal.category	PERSONAL SCOUT FIND	ЛИЧНАЯ НАХОДКА РАЗВЕДЧИКА
-resident.reward.personal.owner	Now carried by {0}	Теперь предмет у {0}
+resident.reward.personal.owner	Now carried by {0}	Сейчас несёт: {0}
 resident.reward.personal.confirm	TAKE ITEM	ЗАБРАТЬ

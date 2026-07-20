@@ -1,7 +1,7 @@
 Key	English	Russian
 resident.dialog.refugee.title	Refugees	Беженцы
-resident.dialog.refugee.subtitle	settlement decision	решение поселения
-resident.dialog.refugee.body	A refugee family has reached the campfire. They are asking for shelter in the settlement.	К костру пришла семья беженцев. Они просят приюта в поселении.
+resident.dialog.refugee.subtitle	settlement decision	решение общины
+resident.dialog.refugee.body	A refugee family has reached the campfire. They are asking for shelter in the settlement.	К костру вышла семья беженцев. Они просят крова в поселении.
 resident.dialog.refugee.action.accept	Accept	Принять
 resident.dialog.refugee.action.refuse	Refuse	Отказать
 resident.dialog.refugee.family.no_data	Family: no data	Семья: нет данных
@@ -15,18 +15,18 @@ resident.dialog.refugee.role.son	son	сын
 resident.dialog.refugee.role.daughter	daughter	дочь
 resident.dialog.scout.compass	N\n+\nS	С\n+\nЮ
 resident.dialog.scout.eyebrow	SCOUT LODGE  /  EXPEDITION BOARD	ПОСТ РАЗВЕДЧИКОВ  /  ЭКСПЕДИЦИИ
-resident.dialog.scout.briefing.label	WHY THE TRAIL MATTERS	ЗАЧЕМ НУЖЕН ЭТОТ ПУТЬ
-resident.dialog.scout.briefing.mechanics	Scouts range by day and night, reveal unexplored land, investigate landmarks, and report distant Iron and Coal deposits - and whatever else waits beyond the fog.	Разведчики идут днём и ночью, открывают неизведанные земли, изучают ориентиры и сообщают о далёких залежах железа и угля — и обо всём прочем, что скрывает туман.
+resident.dialog.scout.briefing.label	WHY THE TRAIL MATTERS	ПОЧЕМУ ВАЖЕН ЭТОТ ПУТЬ
+resident.dialog.scout.briefing.mechanics	Scouts range by day and night, reveal unexplored land, investigate landmarks, and report distant Iron and Coal deposits - and whatever else waits beyond the fog.	Разведчики идут и днём, и ночью: открывают неизведанные земли, обследуют приметные места и приносят вести об отдалённых залежах железа и угля — и обо всём, что ещё скрывает туман.
 resident.dialog.scout.briefing.capacity	ONE LODGE  /  ONE SCOUT  /  REASSIGN ANY TIME	ОДИН ПОСТ  /  ОДИН РАЗВЕДЧИК  /  МОЖНО СМЕНИТЬ В ЛЮБОЙ МОМЕНТ
 resident.dialog.scout.mode.introduction.title	THE FIRST EXPEDITION	ПЕРВАЯ ЭКСПЕДИЦИЯ
-resident.dialog.scout.mode.introduction.subtitle	Beyond the Firelight	За пределами света костра
-resident.dialog.scout.mode.introduction.story	The roofs are standing and the camps are working, but beyond the last familiar path the valley is still only rumor. Choose one adult to carry our first map into the unknown.	Крыши возведены, лагеря работают, но за последней знакомой тропой долина остаётся лишь слухом. Выберите взрослого, который понесёт нашу первую карту в неизвестность.
+resident.dialog.scout.mode.introduction.subtitle	Beyond the Firelight	Там, где гаснет свет костра
+resident.dialog.scout.mode.introduction.story	The roofs are standing and the camps are working, but beyond the last familiar path the valley is still only rumor. Choose one adult to carry our first map into the unknown.	Дома уже под крышей, промысловые лагеря работают. Но всё, что лежит за последней знакомой тропой, пока известно лишь по слухам. Выберите взрослого, который понесёт нашу первую карту в неизвестность.
 resident.dialog.scout.mode.appointment.title	APPOINT A SCOUT	НАЗНАЧИТЬ РАЗВЕДЧИКА
-resident.dialog.scout.mode.appointment.subtitle	Choose Who Takes the Trail	Выберите, кто отправится в путь
-resident.dialog.scout.mode.appointment.story	Every map begins with someone willing to leave the familiar road. Choose an adult to carry the Lodge's compass and chart what waits beyond the settlement.	Каждая карта начинается с того, кто готов свернуть со знакомой дороги. Выберите взрослого, который возьмёт компас поста и нанесёт на карту земли за пределами поселения.
+resident.dialog.scout.mode.appointment.subtitle	Choose Who Takes the Trail	Кто выйдет на тропу?
+resident.dialog.scout.mode.appointment.story	Every map begins with someone willing to leave the familiar road. Choose an adult to carry the Lodge's compass and chart what waits beyond the settlement.	Каждая карта начинается с того, кто решается сойти со знакомой дороги. Выберите взрослого, который возьмёт компас поста и нанесёт на карту земли за пределами поселения.
 resident.dialog.scout.mode.expedition.title	PLAN AN EXPEDITION	СПЛАНИРОВАТЬ ЭКСПЕДИЦИЮ
-resident.dialog.scout.mode.expedition.subtitle	How Far Beyond the Firelight?	Как далеко уйти от света костра?
-resident.dialog.scout.mode.expedition.story	The Scout is ready and the route is open. Choose how many days of provisions to pack: a longer expedition can chart more ground, but every dawn beyond the Lodge costs another ration.	Разведчик готов, путь открыт. Выберите, на сколько дней собрать провизию: долгая экспедиция нанесёт на карту больше земель, но каждый рассвет вдали от поста потребует ещё один паёк.
+resident.dialog.scout.mode.expedition.subtitle	How Far Beyond the Firelight?	Как далеко уйти от костра?
+resident.dialog.scout.mode.expedition.story	The Scout is ready and the route is open. Choose how many days of provisions to pack: a longer expedition can chart more ground, but every dawn beyond the Lodge costs another ration.	Разведчик готов, путь открыт. Решите, на сколько дней собрать ему провизию: чем дольше поход, тем больше земли появится на карте, но каждый рассвет вдали от поста потребует ещё одного пайка.
 resident.dialog.scout.row.blocked.scout_lodge	Scout or Lodge no longer ready	Разведчик или пост больше не готовы
 resident.dialog.scout.status.selected_unavailable_choose_another	The selected resident is no longer available. Choose another Scout.	Выбранный житель больше недоступен. Выберите другого разведчика.
 resident.dialog.scout.status.resident_unavailable_for_trail	That resident is no longer available for the trail.	Этот житель больше не может отправиться в путь.

@@ -375,9 +375,9 @@ literal.49544fbb14372b74	Nephew	Племянник
 literal.ba9e5ccaed66b919	Niece	Племянница
 literal.6cb55f1e7446f1c8	Cousin	Двоюродный родственник
 literal.5e040a65fd2a4909	Kin	Родня
-literal.52a3b4955f4e9acf	A refugee family has reached the campfire. They are asking for shelter in the settlement.	К костру пришла семья беженцев. Они просят приюта в поселении.
+literal.52a3b4955f4e9acf	A refugee family has reached the campfire. They are asking for shelter in the settlement.	К костру вышла семья беженцев. Они просят крова в поселении.
 literal.36e89d93f7aafaa5	Refugees	Беженцы
-literal.676b07b5361441f8	settlement decision	решение поселения
+literal.676b07b5361441f8	settlement decision	решение общины
 literal.ed85dd20b7395075	Accept	Принять
 literal.d10a24a69786c14f	Refuse	Отказать
 literal.f1f7b595f3af8398	Family: no data	Семья: нет данных
@@ -386,19 +386,19 @@ literal.e15a808ada401975	SCOUT REPORT	ДОКЛАД РАЗВЕДЧИКА
 literal.6abdbebed9772059	OK	ПОНЯТНО
 literal.6afccfa5c46727ca	SCOUT LODGE  /  EXPEDITION BOARD	ПОСТ РАЗВЕДЧИКОВ  /  ЭКСПЕДИЦИИ
 literal.7752982d5d14ec47	THE FIRST EXPEDITION	ПЕРВАЯ ЭКСПЕДИЦИЯ
-literal.0baa722e673132c1	Beyond the Firelight	За пределами света костра
-literal.ae4830e008897190	WHY THE TRAIL MATTERS	ЗАЧЕМ НУЖЕН ЭТОТ ПУТЬ
-literal.9d0da4bd0127b550	The roofs are standing and the camps are working, but beyond the last familiar path the valley is still only rumor. Choose one adult to carry our first map into the unknown.	Крыши возведены, лагеря работают, но за последней знакомой тропой долина остаётся лишь слухом. Выберите взрослого, который понесёт нашу первую карту в неизвестность.
-literal.a1ad0263dbb03255	Scouts range by day and night, reveal unexplored land, investigate landmarks, and report distant Iron and Coal deposits - and whatever else waits beyond the fog.	Разведчики идут днём и ночью, открывают неизведанные земли, изучают ориентиры и сообщают о далёких залежах железа и угля — и обо всём прочем, что скрывает туман.
+literal.0baa722e673132c1	Beyond the Firelight	Там, где гаснет свет костра
+literal.ae4830e008897190	WHY THE TRAIL MATTERS	ПОЧЕМУ ВАЖЕН ЭТОТ ПУТЬ
+literal.9d0da4bd0127b550	The roofs are standing and the camps are working, but beyond the last familiar path the valley is still only rumor. Choose one adult to carry our first map into the unknown.	Дома уже под крышей, промысловые лагеря работают. Но всё, что лежит за последней знакомой тропой, пока известно лишь по слухам. Выберите взрослого, который понесёт нашу первую карту в неизвестность.
+literal.a1ad0263dbb03255	Scouts range by day and night, reveal unexplored land, investigate landmarks, and report distant Iron and Coal deposits - and whatever else waits beyond the fog.	Разведчики идут и днём, и ночью: открывают неизведанные земли, обследуют приметные места и приносят вести об отдалённых залежах железа и угля — и обо всём, что ещё скрывает туман.
 literal.e221c28818863a13	ONE LODGE  /  ONE SCOUT  /  REASSIGN ANY TIME	ОДИН ПОСТ  /  ОДИН РАЗВЕДЧИК  /  МОЖНО СМЕНИТЬ В ЛЮБОЙ МОМЕНТ
 literal.5afd2ab4b3afc607	CHOOSE A RESIDENT	ВЫБЕРИТЕ ЖИТЕЛЯ
 literal.3c6baebcc2c6a88a	No adult residents are in the settlement yet.	В поселении пока нет взрослых жителей.
 literal.92e0c701861b0d70	PLAN AN EXPEDITION	СПЛАНИРОВАТЬ ЭКСПЕДИЦИЮ
-literal.a55cb22362b04613	How Far Beyond the Firelight?	Как далеко уйти от света костра?
-literal.24436d60355f300c	The Scout is ready and the route is open. Choose how many days of provisions to pack: a longer expedition can chart more ground, but every dawn beyond the Lodge costs another ration.	Разведчик готов, путь открыт. Выберите, на сколько дней собрать провизию: долгая экспедиция нанесёт на карту больше земель, но каждый рассвет вдали от поста потребует ещё один паёк.
+literal.a55cb22362b04613	How Far Beyond the Firelight?	Как далеко уйти от костра?
+literal.24436d60355f300c	The Scout is ready and the route is open. Choose how many days of provisions to pack: a longer expedition can chart more ground, but every dawn beyond the Lodge costs another ration.	Разведчик готов, путь открыт. Решите, на сколько дней собрать ему провизию: чем дольше поход, тем больше земли появится на карте, но каждый рассвет вдали от поста потребует ещё одного пайка.
 literal.f5f17d909bf8bf37	APPOINT A SCOUT	НАЗНАЧИТЬ РАЗВЕДЧИКА
-literal.b54043fbd31b332b	Choose Who Takes the Trail	Выберите, кто отправится в путь
-literal.502feef090e08dc8	Every map begins with someone willing to leave the familiar road. Choose an adult to carry the Lodge's compass and chart what waits beyond the settlement.	Каждая карта начинается с того, кто готов свернуть со знакомой дороги. Выберите взрослого, который возьмёт компас поста и нанесёт на карту земли за пределами поселения.
+literal.b54043fbd31b332b	Choose Who Takes the Trail	Кто выйдет на тропу?
+literal.502feef090e08dc8	Every map begins with someone willing to leave the familiar road. Choose an adult to carry the Lodge's compass and chart what waits beyond the settlement.	Каждая карта начинается с того, кто решается сойти со знакомой дороги. Выберите взрослого, который возьмёт компас поста и нанесёт на карту земли за пределами поселения.
 literal.4452c65a6ef7b79c	Scout or Lodge no longer ready	Разведчик или пост больше не готовы
 literal.bef881429f34028c	The selected resident is no longer available. Choose another Scout.	Выбранный житель больше недоступен. Выберите другого разведчика.
 literal.0e034eebe49641db	That resident is no longer available for the trail.	Этот житель больше не может отправиться в путь.
@@ -426,13 +426,13 @@ literal.93a2bd7e27084c1c	SELECTED	ВЫБРАН
 literal.a691335a7f7b0e56	READY FOR THE TRAIL	ГОТОВ К ПОХОДУ
 literal.f0a3ca74e28e4086	Unavailable for scouting duty	Не может быть разведчиком
 literal.40e43185c0977564	The Scout Lodge awaits a free adult for the first expedition.	Пост разведчиков ждёт свободного взрослого для первой экспедиции.
-literal.21ee79e7eefa397f	THE CITY REMEMBERS	ГОРОД ПОМНИТ
-literal.c602ad59812f8ddb	NEW CITY ITEM	НОВАЯ ГОРОДСКАЯ РЕЛИКВИЯ
+literal.21ee79e7eefa397f	THE CITY REMEMBERS	ПОСЕЛЕНИЕ ПОМНИТ
+literal.c602ad59812f8ddb	NEW CITY ITEM	НОВОЕ ДОСТОЯНИЕ
 literal.93e73fb2f4fa6b28	UNKNOWN FIND	НЕИЗВЕСТНАЯ НАХОДКА
-literal.5ce5da99ef15c46d	UNIQUE CITY BOON	УНИКАЛЬНЫЙ ДАР ГОРОДУ
-literal.81f691d22024d47e	CITY CHEST  /  PERMANENT	ГОРОДСКОЙ СУНДУК  /  НАВСЕГДА
-literal.26791baf19238224	SEND TO CITY CHEST	ОТПРАВИТЬ В ГОРОДСКОЙ СУНДУК
-literal.60d6bdc996ce4b8f	CITY ITEM	ГОРОДСКАЯ РЕЛИКВИЯ
+literal.5ce5da99ef15c46d	UNIQUE CITY BOON	УНИКАЛЬНЫЙ ДАР
+literal.81f691d22024d47e	CITY CHEST  /  PERMANENT	СУНДУК ПОСЕЛЕНИЯ  /  НАВСЕГДА
+literal.26791baf19238224	SEND TO CITY CHEST	УБРАТЬ В СУНДУК
+literal.60d6bdc996ce4b8f	CITY ITEM	ДОСТОЯНИЕ ПОСЕЛЕНИЯ
 literal.79f434d0350e2c07	Confirm	Подтвердить
 literal.4fa59cb3dfebed49	SETTLEMENT NOTICES	ВЕСТИ ПОСЕЛЕНИЯ
 literal.ee11ef68d3aa4abe	Choose a buildable location.	Выберите подходящее место для строительства.

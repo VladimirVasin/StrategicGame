@@ -137,35 +137,43 @@ namespace ProjectUnknown.Strategy
 
         internal static string GetInvestigationTitle(StrategyPointOfInterestResourceKind kind)
         {
-            return kind switch
+            string key = kind switch
             {
-                StrategyPointOfInterestResourceKind.Coal => "Coal Deposits Found",
-                StrategyPointOfInterestResourceKind.Iron => "Iron Deposits Found",
-                _ => "Point Investigated"
+                StrategyPointOfInterestResourceKind.Coal => "story.poi.mineral.coal.title",
+                StrategyPointOfInterestResourceKind.Iron => "story.poi.mineral.iron.title",
+                _ => "story.poi.mineral.fallback.title"
             };
+            return StoryText(key);
         }
 
         internal static string GetInvestigationResult(StrategyPointOfInterestResourceKind kind)
         {
-            return kind switch
+            string key = kind switch
             {
-                StrategyPointOfInterestResourceKind.Coal =>
-                    "Coal deposits were found near this point.\n\nA Coal Pit can be built over the deposit.",
-                StrategyPointOfInterestResourceKind.Iron =>
-                    "Iron deposits were found near this point.\n\nA Mine can be built over the deposit.",
-                _ => "No useful mineral deposits were found near this point."
+                StrategyPointOfInterestResourceKind.Coal => "story.poi.mineral.coal.result",
+                StrategyPointOfInterestResourceKind.Iron => "story.poi.mineral.iron.result",
+                _ => "story.poi.mineral.fallback.result"
             };
+            return StoryText(key);
         }
 
         private static string GetInvestigationBody(
             StrategyPointOfInterest point,
             StrategyResidentAgent resident)
         {
-            string report = resident.FullName
-                + " investigated a landmark at "
-                + FormatCell(point.Cell)
-                + ".\n\n";
-            return report + GetInvestigationResult(point.ResourceKind);
+            return StoryText(
+                "story.poi.mineral.report",
+                resident.FullName,
+                FormatCell(point.Cell),
+                GetInvestigationResult(point.ResourceKind));
+        }
+
+        private static string StoryText(string key, params object[] arguments)
+        {
+            return StrategyLocalization.Get(
+                StrategyLocalizationTables.Stories,
+                key,
+                arguments);
         }
 
         private int CountResourceKind(StrategyPointOfInterestResourceKind kind)
