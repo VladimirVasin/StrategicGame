@@ -1,0 +1,54 @@
+Key	English	Russian
+resource.none.name	None	Нет
+resource.dish.name	Prepared Dishes	Готовые блюда
+resource.eggs.name	Eggs	Яйца
+resource.turnip.name	Turnip	Репа
+resource.cabbage.name	Cabbage	Капуста
+resource.onion.name	Onion	Лук
+resource.carrot.name	Carrot	Морковь
+resource.potato.name	Potato	Картофель
+resource.berries.name	Berries	Ягоды
+resource.roots.name	Roots	Коренья
+resource.mushrooms.name	Mushrooms	Грибы
+resource.game.name	Game Meat	Дичь
+resource.fish.name	Fish	Рыба
+resource.stone.name	Stone	Камень
+resource.iron.name	Iron	Железо
+resource.coal.name	Coal	Уголь
+resource.clay.name	Clay	Глина
+resource.pottery.name	Pottery	Керамика
+resource.planks.name	Planks	Доски
+resource.logs.name	Logs	Брёвна
+resource.tools.name	Tools	Инструменты
+dish.mushroom_broth.name	Mushroom Broth	Грибной отвар
+dish.root_soup.name	Root Soup	Суп из кореньев
+dish.turnip_soup.name	Turnip Soup	Реповый суп
+dish.berry_mash.name	Berry Mash	Ягодное пюре
+dish.potato_broth.name	Potato Broth	Картофельный отвар
+dish.cabbage_soup.name	Cabbage Soup	Капустный суп
+dish.roasted_roots.name	Roasted Roots	Жареные коренья
+dish.egg_mash.name	Egg Mash	Яичное пюре
+dish.egg_and_greens.name	Egg and Greens	Яйца с зеленью
+dish.vegetable_hash.name	Vegetable Hash	Овощное жаркое
+dish.foragers_bowl.name	Forager's Bowl	Миска собирателя
+dish.fish_soup.name	Fish Soup	Рыбный суп
+dish.garden_stew.name	Garden Stew	Овощное рагу
+dish.mushroom_pottage.name	Mushroom Pottage	Густая грибная похлёбка
+dish.fish_and_roots.name	Fish and Roots	Рыба с кореньями
+dish.fish_stew.name	Fish Stew	Рыбное рагу
+dish.fishers_pottage.name	Fisher's Pottage	Рыбацкая похлёбка
+dish.game_roast.name	Game Roast	Жаркое из дичи
+dish.game_stew.name	Game Stew	Рагу из дичи
+dish.hunters_pot.name	Hunter's Pot	Охотничий котелок
+dish.hearty_pottage.name	Hearty Pottage	Сытная похлёбка
+dish.fine_fish_dish.name	Fine Fish Dish	Изысканное рыбное блюдо
+dish.fine_game_dish.name	Fine Game Dish	Изысканное блюдо из дичи
+dish.fishers_feast.name	Fisher's Feast	Рыбацкий пир
+dish.hunters_feast.name	Hunter's Feast	Охотничий пир
+dish.settlement_feast.name	Settlement Feast	Пир поселения
+dish.quality.poor	Poor	Скудное
+dish.quality.common	Common	Обычное
+dish.quality.hearty	Hearty	Сытное
+dish.quality.fine	Fine	Изысканное
+dish.quality.feast	Feast	Пиршество
+dish.quality.unknown	Unknown	Неизвестно

@@ -9,38 +9,38 @@ namespace ProjectUnknown.Strategy
             int span = building.BridgeCells != null ? building.BridgeCells.Count : 0;
             snapshot.AddChip(
                 "state",
-                "State",
-                "Operational",
+                L("label.state"),
+                LocalizedValue("Operational"),
                 GetBuildingIcon(StrategyBuildTool.Bridge),
                 StrategyBuildingHudTone.Positive);
             snapshot.AddChip(
                 "span",
-                "Span",
-                span + " cells",
+                L("label.span"),
+                L("format.cells", span),
                 GetBuildingIcon(StrategyBuildTool.Bridge),
                 StrategyBuildingHudTone.Info);
             snapshot.AddChip(
                 "footprint",
-                "Footprint",
+                L("label.footprint"),
                 building.Footprint.x + "x" + building.Footprint.y,
                 GetBuildingIcon(StrategyBuildTool.Bridge));
 
             StrategyBuildingHudSection infrastructure = snapshot.AddSection(
                 "infrastructure",
-                "Infrastructure");
+                L("section.infrastructure"));
             infrastructure.AddRow(
                 "start",
-                "Start cell",
+                L("label.start_cell"),
                 FormatCell(building.BridgeStartCell),
                 null);
             infrastructure.AddRow(
                 "end",
-                "End cell",
+                L("label.end_cell"),
                 FormatCell(building.BridgeEndCell),
                 null);
             snapshot.SetStatus(
-                "Crossing open",
-                "Residents can use this span as part of the walkable network.",
+                L("bridge.open_title"),
+                L("bridge.open_body"),
                 StrategyBuildingHudTone.Positive);
         }
 
@@ -50,16 +50,16 @@ namespace ProjectUnknown.Strategy
         {
             snapshot.AddChip(
                 "state",
-                "State",
-                "Operational",
+                L("label.state"),
+                LocalizedValue("Operational"),
                 GetBuildingIcon(building.Tool),
                 StrategyBuildingHudTone.Positive);
             StrategyBuildingHudSection overview = snapshot.AddSection(
                 "overview",
-                "Overview");
+                L("section.overview"));
             overview.AddRow(
                 "footprint",
-                "Footprint",
+                L("label.footprint"),
                 building.Footprint.x + "x" + building.Footprint.y,
                 GetBuildingIcon(building.Tool));
         }
@@ -70,29 +70,29 @@ namespace ProjectUnknown.Strategy
         {
             snapshot.AddChip(
                 "state",
-                "State",
-                "Demolition queued",
+                L("label.state"),
+                L("demolition.queued_title"),
                 GetBuildingIcon(building.Tool),
                 StrategyBuildingHudTone.Warning);
             snapshot.AddChip(
                 "footprint",
-                "Footprint",
+                L("label.footprint"),
                 building.Footprint.x + "x" + building.Footprint.y,
                 GetBuildingIcon(building.Tool));
 
             StrategyBuildingHudSection overview = snapshot.AddSection(
                 "demolition",
-                "Demolition");
+                L("section.demolition"));
             overview.AddRow(
                 "status",
-                "Current state",
-                "Queued",
+                L("label.current_state"),
+                LocalizedValue("Queued"),
                 GetBuildingIcon(building.Tool),
                 StrategyBuildingHudTone.Warning,
-                "The building remains visible until the demolition flow completes.");
+                L("demolition.visible_until_complete"));
             snapshot.SetStatus(
-                "Demolition queued",
-                "Trade, Scout and upgrade actions are unavailable while removal is pending.",
+                L("demolition.queued_title"),
+                L("demolition.actions_unavailable"),
                 StrategyBuildingHudTone.Warning);
         }
     }

@@ -20,8 +20,15 @@ namespace ProjectUnknown.Strategy
         private StrategyInputContextHandle inputContext;
         private Canvas hudCanvas;
         private RectTransform launcherRoot;
+        private Text launcherTitleText;
         private Text launcherSummary;
+        private Text launcherAllText;
         private RectTransform panelRoot;
+        private Text panelTitleText;
+        private Text panelSubtitleText;
+        private Text constructionSectionTitleText;
+        private Text materialsSectionTitleText;
+        private Text foodSectionTitleText;
         private GameObject overlayRoot;
         private CanvasGroup overlayGroup;
         private StrategyUiPanelTransition panelTransition;
@@ -84,6 +91,7 @@ namespace ProjectUnknown.Strategy
         public void RefreshNow()
         {
             EnsureUi();
+            RefreshLocalizedLabels();
             RefreshLauncherSummary();
             StrategyResourceQueryService.PopulateSnapshot(snapshot);
             RefreshResourceRows();
@@ -145,6 +153,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            RefreshLocalizedLabels();
             RefreshLauncherSummary();
             if (isOpen)
             {

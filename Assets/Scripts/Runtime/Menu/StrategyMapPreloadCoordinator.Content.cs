@@ -9,7 +9,7 @@ namespace ProjectUnknown.Strategy
         {
             yield return null;
             StrategyVisualCatalogProvider.Prewarm();
-            contentStage = "Preparing buildings";
+            contentStageKey = "menu.preload.preparing_buildings";
             StrategyBuildTool[] starterBuildings =
             {
                 StrategyBuildTool.House,
@@ -25,7 +25,7 @@ namespace ProjectUnknown.Strategy
                 yield return null;
             }
 
-            contentStage = "Preparing residents";
+            contentStageKey = "menu.preload.preparing_residents";
             for (int gender = 0; gender < 2; gender++)
             {
                 for (int variant = 0; variant < StrategyResidentSpriteFactory.VariantCountPerGender; variant++)
@@ -40,7 +40,7 @@ namespace ProjectUnknown.Strategy
                 }
             }
 
-            contentStage = "Preparing landscape";
+            contentStageKey = "menu.preload.preparing_landscape";
             StrategyNatureSpriteFactory.GetSprite(StrategyNaturePropKind.LargeTree, 0);
             yield return null;
             StrategyNatureSpriteFactory.GetSprite(StrategyNaturePropKind.SmallTree, 0);
@@ -51,13 +51,13 @@ namespace ProjectUnknown.Strategy
             contentProgress = 0.75f;
             yield return null;
 
-            contentStage = "Preparing interface audio";
+            contentStageKey = "menu.preload.preparing_interface_audio";
             Resources.LoadAll<AudioClip>("Audio/HudSfx");
             contentProgress = 0.88f;
             yield return null;
             Resources.LoadAll<AudioClip>("Audio/Footsteps");
             contentProgress = 1f;
-            contentStage = "Content ready";
+            contentStageKey = "menu.preload.content_ready";
         }
     }
 }

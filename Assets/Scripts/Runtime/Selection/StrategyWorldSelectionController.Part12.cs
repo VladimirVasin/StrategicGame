@@ -127,11 +127,15 @@ namespace ProjectUnknown.Strategy
                 0.18f);
             productionUpgradeTitleText.text = definition.Title;
             productionUpgradeEffectText.text = definition.EffectText;
-            productionUpgradeCostText.text = installed ? "Installed" : "Cost: " + definition.Cost.ToDisplayText();
+            productionUpgradeCostText.text = installed
+                ? LocalizedValue("Installed")
+                : L("upgrade.cost", StrategySelectionLocalization.ProductionCost(definition.Cost));
             productionUpgradeStatusText.text = string.IsNullOrEmpty(upgradeStatusMessage)
                 ? GetProductionUpgradeStatus(installed, canAfford)
                 : upgradeStatusMessage;
-            productionUpgradeActionText.text = installed ? "Done" : canAfford ? "Install" : "No";
+            productionUpgradeActionText.text = installed
+                ? L("action.done")
+                : canAfford ? L("action.install") : L("action.no");
             productionUpgradeActionText.color = installed
                 ? StrategyHudStyle.Success
                 : canAfford ? StrategyHudStyle.TextPrimary : StrategyHudStyle.TextMuted;
@@ -151,7 +155,7 @@ namespace ProjectUnknown.Strategy
             if (StrategyProductionBuildingUpgradeCatalog.TryInstall(building, out StrategyProductionUpgradeInstallFailureReason failureReason)
                 && StrategyProductionBuildingUpgradeCatalog.TryGetForTool(building.Tool, out StrategyProductionBuildingUpgradeDefinition definition))
             {
-                upgradeStatusMessage = definition.Title + " installed.";
+                upgradeStatusMessage = L("upgrade.installed", definition.Title);
             }
             else
             {
@@ -173,22 +177,22 @@ namespace ProjectUnknown.Strategy
         {
             if (installed)
             {
-                return "Workers already use this upgrade.";
+                return L("upgrade.workers_use");
             }
 
             return canAfford
-                ? "Storage stock is ready."
-                : "Missing storage resources.";
+                ? L("upgrade.stock_ready")
+                : L("upgrade.missing_storage");
         }
 
         private static string GetProductionUpgradeFailureText(StrategyProductionUpgradeInstallFailureReason reason)
         {
             return reason switch
             {
-                StrategyProductionUpgradeInstallFailureReason.AlreadyInstalled => "Already installed.",
-                StrategyProductionUpgradeInstallFailureReason.NotEnoughResources => "Not enough storage resources.",
-                StrategyProductionUpgradeInstallFailureReason.InvalidTarget => "This building cannot use that upgrade.",
-                _ => "Upgrade failed."
+                StrategyProductionUpgradeInstallFailureReason.AlreadyInstalled => L("upgrade.already_installed"),
+                StrategyProductionUpgradeInstallFailureReason.NotEnoughResources => L("upgrade.not_enough_storage"),
+                StrategyProductionUpgradeInstallFailureReason.InvalidTarget => L("upgrade.invalid_target"),
+                _ => L("upgrade.failed")
             };
         }
 

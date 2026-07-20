@@ -13,6 +13,12 @@ namespace ProjectUnknown.Strategy
     {
         public const int MaximumIdLength = 96;
 
+        private readonly string title;
+        private readonly string body;
+        private readonly string localizationTable;
+        private readonly string titleKey;
+        private readonly string bodyKey;
+
         public StrategyStoryPointOfInterestDefinition(
             string id,
             int sequenceOrder,
@@ -21,7 +27,10 @@ namespace ProjectUnknown.Strategy
             string body,
             string encounterId = "",
             string unresolvedSpriteResourcePath = "",
-            string resolvedSpriteResourcePath = "")
+            string resolvedSpriteResourcePath = "",
+            string localizationTable = "",
+            string titleKey = "",
+            string bodyKey = "")
         {
             if (!IsValidId(id))
             {
@@ -48,18 +57,21 @@ namespace ProjectUnknown.Strategy
             Id = id;
             SequenceOrder = sequenceOrder;
             DistanceTier = distanceTier;
-            Title = title;
-            Body = body ?? string.Empty;
+            this.title = title;
+            this.body = body ?? string.Empty;
             EncounterId = encounterId ?? string.Empty;
             UnresolvedSpriteResourcePath = unresolvedSpriteResourcePath ?? string.Empty;
             ResolvedSpriteResourcePath = resolvedSpriteResourcePath ?? string.Empty;
+            this.localizationTable = localizationTable ?? string.Empty;
+            this.titleKey = titleKey ?? string.Empty;
+            this.bodyKey = bodyKey ?? string.Empty;
         }
 
         public string Id { get; }
         public int SequenceOrder { get; }
         public StrategyStoryPointOfInterestDistanceTier DistanceTier { get; }
-        public string Title { get; }
-        public string Body { get; }
+        public string Title => Resolve(title, titleKey);
+        public string Body => Resolve(body, bodyKey);
         public string EncounterId { get; }
         public string UnresolvedSpriteResourcePath { get; }
         public string ResolvedSpriteResourcePath { get; }
@@ -84,6 +96,17 @@ namespace ProjectUnknown.Strategy
             }
 
             return true;
+        }
+
+        private string Resolve(string fallback, string key)
+        {
+            if (string.IsNullOrEmpty(localizationTable) || string.IsNullOrEmpty(key))
+            {
+                return fallback;
+            }
+
+            string localized = StrategyLocalization.Get(localizationTable, key);
+            return localized == key ? fallback : localized;
         }
     }
 }

@@ -78,17 +78,17 @@ namespace ProjectUnknown.Strategy
             int sourceCount = yard != null ? yard.GetAvailableSourceCount() : 0;
             SetStorageChip(
                 StorageChipHaulers,
-                "Haulers " + haulerCount,
+                L("storage.haulers_count", haulerCount),
                 StrategyProfessionIconFactory.GetIcon(StrategyProfessionType.StorageWorker),
                 GetStorageLaborColor(haulerCount));
             SetStorageChip(
                 StorageChipBuilders,
-                "Builders " + builderCount,
+                L("storage.builders_count", builderCount),
                 StrategyProfessionIconFactory.GetIcon(StrategyProfessionType.Builder),
                 GetStorageLaborColor(builderCount));
             SetStorageChip(
                 StorageChipSources,
-                "Sources " + sourceCount,
+                L("storage.sources_count", sourceCount),
                 GetStorageYardIcon(),
                 sourceCount > 0 ? new Color(0.14f, 0.22f, 0.18f, 0.96f) : new Color(0.17f, 0.16f, 0.13f, 0.96f));
 
@@ -235,20 +235,15 @@ namespace ProjectUnknown.Strategy
         {
             if (yard == null)
             {
-                return "no stock";
+                return L("storage.no_stock");
             }
 
             return type switch
             {
-                StrategyResourceType.Logs => "available " + yard.AvailableConstructionLogs,
-                StrategyResourceType.Stone => "available " + yard.AvailableConstructionStone,
-                StrategyResourceType.Planks => "available " + yard.AvailableConstructionPlanks,
-                StrategyResourceType.Iron => "stored",
-                StrategyResourceType.Coal => "stored",
-                StrategyResourceType.Clay => "stored",
-                StrategyResourceType.Pottery => "stored",
-                StrategyResourceType.Tools => "stored",
-                _ => "stored"
+                StrategyResourceType.Logs => L("storage.available", yard.AvailableConstructionLogs),
+                StrategyResourceType.Stone => L("storage.available", yard.AvailableConstructionStone),
+                StrategyResourceType.Planks => L("storage.available", yard.AvailableConstructionPlanks),
+                _ => L("storage.stored")
             };
         }
 
@@ -256,32 +251,34 @@ namespace ProjectUnknown.Strategy
         {
             if (yard == null || haulerCount <= 0)
             {
-                return "No haulers assigned";
+                return L("storage.no_haulers_title");
             }
 
-            return sourceCount > 0 ? "Ready for hauling" : "Idle logistics";
+            return sourceCount > 0
+                ? L("storage.ready_title")
+                : L("storage.idle_title");
         }
 
         private static string GetStorageStatusBody(StrategyStorageYard yard, int sourceCount, int haulerCount, int builderCount)
         {
             if (yard == null)
             {
-                return "Storage data unavailable.";
+                return L("storage.data_unavailable");
             }
 
             if (haulerCount <= 0)
             {
-                return "Assign Haulers in the Professions HUD to move resources.";
+                return L("storage.assign_haulers");
             }
 
             if (sourceCount > 0)
             {
-                return sourceCount + " source" + (sourceCount == 1 ? " has" : "s have") + " stock waiting for pickup.";
+                return L("storage.sources_waiting_pickup", sourceCount);
             }
 
             return builderCount > 0
-                ? "No source stock is waiting. Builders are ready for construction jobs."
-                : "No source stock is waiting. Builders can be assigned separately.";
+                ? L("storage.builders_ready")
+                : L("storage.builders_separate");
         }
 
         private static Color GetStorageStatusColor(StrategyStorageYard yard, int sourceCount, int haulerCount)

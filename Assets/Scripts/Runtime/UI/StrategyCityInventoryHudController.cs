@@ -39,6 +39,7 @@ namespace ProjectUnknown.Strategy
         private Text detailQuantity;
         private Text detailDescription;
         private Text detailEffect;
+        private StrategyHudTooltip launcherTooltip;
         private Button closeButton;
         private GameObject previousSelectedObject;
         private bool hasStoredSelection;
@@ -154,6 +155,7 @@ namespace ProjectUnknown.Strategy
 
         private void OnEnable()
         {
+            StrategyLocalization.LanguageChanged += HandleLanguageChanged;
             if (initialized && hudCanvas != null)
             {
                 hudCanvas.gameObject.SetActive(true);
@@ -213,8 +215,22 @@ namespace ProjectUnknown.Strategy
             RefreshInventoryView();
         }
 
+        private void HandleLanguageChanged()
+        {
+            if (!initialized)
+            {
+                return;
+            }
+
+            launcherTooltip?.SetText(StrategyLocalization.Get(
+                StrategyLocalizationTables.Hud,
+                "hud.inventory.tooltip"));
+            RefreshInventoryView();
+        }
+
         private void OnDisable()
         {
+            StrategyLocalization.LanguageChanged -= HandleLanguageChanged;
             UnsubscribeInventory();
             ResetRewardReceivedFeedback();
             isOpen = false;

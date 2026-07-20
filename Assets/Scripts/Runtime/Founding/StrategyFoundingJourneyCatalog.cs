@@ -80,80 +80,87 @@ namespace ProjectUnknown.Strategy
 
     internal static class StrategyFoundingJourneyCatalog
     {
-        public static readonly StrategyFoundingStoryPanel[] StoryPanels =
+        public static StrategyFoundingStoryPanel[] StoryPanels =>
+            new StrategyFoundingStoryPanel[]
         {
             new(
                 "Visual/Founding/01_Departure",
-                "THE LAST NIGHT",
-                "We left before dawn.",
-                "War had reached every road behind us. We took only what the cart could carry and promised the children we would find a place beyond its reach.",
+                F("story.departure.chapter"),
+                F("story.departure.title"),
+                F("story.departure.body"),
                 StrategyFoundingAtmosphere.Embers,
                 StrategyFoundingShot.Departure),
             new(
                 "Visual/Founding/02_LongRoad",
-                "THE LONG ROAD",
-                "The road asked everything of us.",
-                "Weeks passed beneath rain and cold stone. We crossed the high paths together, following no banner and serving no lord.",
+                F("story.long_road.chapter"),
+                F("story.long_road.title"),
+                F("story.long_road.body"),
                 StrategyFoundingAtmosphere.Rain,
                 StrategyFoundingShot.LongRoad),
             new(
                 "Visual/Founding/03_QuietValley",
-                "A QUIET VALLEY",
-                "At last, the horizon was silent.",
-                "No smoke. No marching columns. Only water, forest and open land. For the first time, the road ahead belonged to us.",
+                F("story.quiet_valley.chapter"),
+                F("story.quiet_valley.title"),
+                F("story.quiet_valley.body"),
                 StrategyFoundingAtmosphere.Mist,
                 StrategyFoundingShot.QuietValley),
             new(
                 "Visual/Founding/04_Council",
-                "THE FIRST DECISION",
-                "Safety was only the beginning.",
-                "Before unloading the cart, the families gathered around the map. Where we stop tonight will shape every winter that follows.",
+                F("story.council.chapter"),
+                F("story.council.title"),
+                F("story.council.body"),
                 StrategyFoundingAtmosphere.Fireflies,
                 StrategyFoundingShot.Council)
         };
 
-        public static readonly StrategyFoundingQuestion[] Questions =
+        public static StrategyFoundingQuestion[] Questions =>
+            new StrategyFoundingQuestion[]
         {
             new(
                 StrategyFoundingChoiceIds.WaterQuestion,
-                "What landmark did the scouts follow?",
-                "Water shapes travel, food and the first routes through the valley.",
+                F("question.water.prompt"),
+                F("question.water.context"),
                 new[]
                 {
-                    new StrategyFoundingAnswerOption(StrategyFoundingChoiceIds.WaterRiver, "A running river", "Safe ground within reach of a river."),
-                    new StrategyFoundingAnswerOption(StrategyFoundingChoiceIds.WaterLake, "A quiet lake", "Sheltered water and reliable fishing access."),
-                    new StrategyFoundingAnswerOption(StrategyFoundingChoiceIds.WaterInland, "High, dry ground", "More distance from shore and floodwater.")
+                    new StrategyFoundingAnswerOption(StrategyFoundingChoiceIds.WaterRiver, F("answer.water.river.label"), F("answer.water.river.description")),
+                    new StrategyFoundingAnswerOption(StrategyFoundingChoiceIds.WaterLake, F("answer.water.lake.label"), F("answer.water.lake.description")),
+                    new StrategyFoundingAnswerOption(StrategyFoundingChoiceIds.WaterInland, F("answer.water.inland.label"), F("answer.water.inland.description"))
                 }),
             new(
                 StrategyFoundingChoiceIds.LandscapeQuestion,
-                "What kind of shelter did they seek?",
-                "The land around camp determines visibility and room to grow.",
+                F("question.landscape.prompt"),
+                F("question.landscape.context"),
                 new[]
                 {
-                    new StrategyFoundingAnswerOption(StrategyFoundingChoiceIds.LandscapeForestEdge, "The forest edge", "Timber and cover beside open ground."),
-                    new StrategyFoundingAnswerOption(StrategyFoundingChoiceIds.LandscapeOpenMeadow, "An open meadow", "Clear sightlines and easier construction."),
-                    new StrategyFoundingAnswerOption(StrategyFoundingChoiceIds.LandscapeMixed, "A little of both", "A varied landscape without one strong bias.")
+                    new StrategyFoundingAnswerOption(StrategyFoundingChoiceIds.LandscapeForestEdge, F("answer.landscape.forest_edge.label"), F("answer.landscape.forest_edge.description")),
+                    new StrategyFoundingAnswerOption(StrategyFoundingChoiceIds.LandscapeOpenMeadow, F("answer.landscape.open_meadow.label"), F("answer.landscape.open_meadow.description")),
+                    new StrategyFoundingAnswerOption(StrategyFoundingChoiceIds.LandscapeMixed, F("answer.landscape.mixed.label"), F("answer.landscape.mixed.description"))
                 }),
             new(
                 StrategyFoundingChoiceIds.LivelihoodQuestion,
-                "What should feed the first winter?",
-                "The scouts marked the places most suited to an early livelihood.",
+                F("question.livelihood.prompt"),
+                F("question.livelihood.context"),
                 new[]
                 {
-                    new StrategyFoundingAnswerOption(StrategyFoundingChoiceIds.LivelihoodHunting, "Game trails", "Meadow and forest-edge habitat for hunting."),
-                    new StrategyFoundingAnswerOption(StrategyFoundingChoiceIds.LivelihoodFishing, "Fishing water", "Reachable water with better fishing potential."),
-                    new StrategyFoundingAnswerOption(StrategyFoundingChoiceIds.LivelihoodForaging, "Wild harvest", "Mixed forest and meadow for gathering.")
+                    new StrategyFoundingAnswerOption(StrategyFoundingChoiceIds.LivelihoodHunting, F("answer.livelihood.hunting.label"), F("answer.livelihood.hunting.description")),
+                    new StrategyFoundingAnswerOption(StrategyFoundingChoiceIds.LivelihoodFishing, F("answer.livelihood.fishing.label"), F("answer.livelihood.fishing.description")),
+                    new StrategyFoundingAnswerOption(StrategyFoundingChoiceIds.LivelihoodForaging, F("answer.livelihood.foraging.label"), F("answer.livelihood.foraging.description"))
                 }),
             new(
                 StrategyFoundingChoiceIds.PriorityQuestion,
-                "What matters most when the cart stops?",
-                "Every site remains playable; this choice breaks close decisions.",
+                F("question.priority.prompt"),
+                F("question.priority.context"),
                 new[]
                 {
-                    new StrategyFoundingAnswerOption(StrategyFoundingChoiceIds.PriorityConstruction, "Room to build", "Favor open, buildable ground."),
-                    new StrategyFoundingAnswerOption(StrategyFoundingChoiceIds.PriorityResources, "Nearby resources", "Favor varied terrain and resource opportunity."),
-                    new StrategyFoundingAnswerOption(StrategyFoundingChoiceIds.PriorityBalanced, "A balanced beginning", "Keep construction and resources in balance.")
+                    new StrategyFoundingAnswerOption(StrategyFoundingChoiceIds.PriorityConstruction, F("answer.priority.construction.label"), F("answer.priority.construction.description")),
+                    new StrategyFoundingAnswerOption(StrategyFoundingChoiceIds.PriorityResources, F("answer.priority.resources.label"), F("answer.priority.resources.description")),
+                    new StrategyFoundingAnswerOption(StrategyFoundingChoiceIds.PriorityBalanced, F("answer.priority.balanced.label"), F("answer.priority.balanced.description"))
                 })
         };
+
+        private static string F(string key)
+        {
+            return StrategyLocalization.Get(StrategyLocalizationTables.Founding, key);
+        }
     }
 }

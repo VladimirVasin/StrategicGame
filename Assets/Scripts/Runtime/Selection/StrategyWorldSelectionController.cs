@@ -92,8 +92,36 @@ namespace ProjectUnknown.Strategy
         private Text upgradeStatusText;
         private Transform selectedTransform;
         private string upgradeStatusMessage = string.Empty;
+        private Vector3 lastInspectWorld;
+        private bool hasLastInspectWorld;
         private float hudT;
         private float nextHudRefreshTime;
+
+        private void OnEnable()
+        {
+            StrategyLocalization.LanguageChanged += HandleLanguageChanged;
+            StrategyLocalization.Initialize();
+        }
+
+        private void OnDisable()
+        {
+            StrategyLocalization.LanguageChanged -= HandleLanguageChanged;
+        }
+
+        private void HandleLanguageChanged()
+        {
+            upgradeStatusMessage = string.Empty;
+            RefreshHud();
+            if (selectedTransform != null || !hasLastInspectWorld || inspectHud == null)
+            {
+                return;
+            }
+
+            Physics2D.SyncTransforms();
+            Collider2D[] hits = Physics2D.OverlapPointAll(
+                new Vector2(lastInspectWorld.x, lastInspectWorld.y));
+            UpdateInspectHud(lastInspectWorld, hits);
+        }
 
         public void SetScoutLodgeOnboarding(StrategyScoutLodgeOnboardingController onboarding)
         {
@@ -169,14 +197,12 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            string body = "Cancel construction of "
-                + GetBuildingTitle(site.Tool)
-                + "?\nDelivered materials will be left on the ground for storage workers or other builders.";
+            string body = L("confirm.cancel_construction.body", GetBuildingTitle(site.Tool));
             confirmationDialog.Show(
-                "Cancel Construction",
+                L("confirm.cancel_construction.title"),
                 body,
-                "Cancel Construction",
-                "Keep",
+                L("confirm.cancel_construction.confirm"),
+                L("confirm.keep"),
                 () =>
                 {
                     if (placementController != null && placementController.CancelConstructionSite(site))
@@ -193,20 +219,17 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            string body = "Demolish "
-                + GetBuildingTitle(building.Tool)
-                + "?\nThe building will be removed from the settlement."
-                + "\nStored resources will be left on the ground for hauling.";
+            string body = L("confirm.demolish.body", GetBuildingTitle(building.Tool));
             if (building.Tool == StrategyBuildTool.House && building.ResidentCount > 0)
             {
-                body += "\nResidents living here will become homeless.";
+                body = L("confirm.demolish.occupied_house_body", body);
             }
 
             confirmationDialog.Show(
-                "Demolish Building",
+                L("confirm.demolish.title"),
                 body,
-                "Demolish",
-                "Keep",
+                L("confirm.demolish.confirm"),
+                L("confirm.keep"),
                 () =>
                 {
                     if (placementController != null && placementController.DemolishBuilding(building))
@@ -280,6 +303,8 @@ namespace ProjectUnknown.Strategy
 
         private void UpdateInspectHud(Vector3 world, Collider2D[] hits)
         {
+            lastInspectWorld = world;
+            hasLastInspectWorld = true;
             EnsureInspectHud();
             if (inspectHud == null)
             {

@@ -55,7 +55,9 @@ namespace ProjectUnknown.Strategy
                 button.onClick.AddListener(() => SetSpeedFromHud(index + 1));
                 ConfigureButtonColors(button);
                 StrategyUiButtonFeedback.Attach(button, StrategyUiButtonFeedbackProfile.SoundOnly);
-                StrategyHudTooltip.Attach(buttonRoot.gameObject, "Set simulation speed to x" + (i + 1) + ". Keyboard shortcut: F" + (i + 1) + ".");
+                StrategyHudTooltip.Attach(
+                    buttonRoot.gameObject,
+                    BuildHudText("build.speed.tooltip", i + 1));
 
                 Text label = CreateText("Label", buttonRoot, "x" + (i + 1), 13, TextAnchor.MiddleCenter, Color.white);
                 label.fontStyle = FontStyle.Bold;
@@ -164,9 +166,15 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            placementFeedbackTitle.text = info.Title + " · " + info.Footprint.x + "×" + info.Footprint.y;
-            placementFeedbackCost.text = info.Cost.ToDisplayText();
-            placementFeedbackStatus.text = placementFeedbackMessage + " · LMB place · RMB/Esc cancel";
+            placementFeedbackTitle.text = BuildHudText(
+                "build.placement.title",
+                info.Title,
+                info.Footprint.x,
+                info.Footprint.y);
+            placementFeedbackCost.text = FormatLocalizedCost(info.Cost);
+            placementFeedbackStatus.text = BuildHudText(
+                "build.placement.status",
+                LocalizePlacementMessage(placementFeedbackMessage));
             placementFeedbackStatus.color = placementFeedbackValid
                 ? StrategyHudStyle.Success
                 : StrategyHudStyle.Danger;
@@ -224,7 +232,87 @@ namespace ProjectUnknown.Strategy
                         ? new Color(0.95f, 0.88f, 0.62f)
                         : Color.white;
                 }
+
+                speedButtons[i]?.GetComponent<StrategyHudTooltip>()?.SetText(
+                    BuildHudText("build.speed.tooltip", i + 1));
             }
+        }
+
+        private static string LocalizePlacementMessage(string message)
+        {
+            string key = message switch
+            {
+                "Choose a buildable location." => "build.placement.choose_location",
+                "Move the pointer over the map." => "build.placement.move_pointer",
+                "Explore this area before building here." => "build.placement.explore_area",
+                "Another structure already occupies this space." => "build.placement.occupied",
+                "Move the whole footprint inside the map." => "build.placement.inside_map",
+                "This building needs suitable land or water access." => "build.placement.land_or_water",
+                "Not enough construction materials." => "build.placement.not_affordable",
+                "Builders cannot reach this site." => "build.placement.no_builder_access",
+                "A resident is standing in the footprint." => "build.placement.resident_in_footprint",
+                "The Fisher Hut needs accessible fishing water." => "build.placement.no_water_access",
+                "Place the Mine over a discovered Iron deposit." => "build.placement.iron_deposit",
+                "Place the Coal Pit over a discovered Coal deposit." => "build.placement.coal_deposit",
+                "Place the Clay Pit over a Clay field." => "build.placement.clay_field",
+                "The bridge bank must be walkable." => "build.placement.bridge_bank_walkable",
+                "The bridge bank is not buildable." => "build.placement.bridge_bank_buildable",
+                "Explore both bridge banks first." => "build.placement.bridge_banks_explored",
+                "Start the bridge beside a river." => "build.placement.bridge_beside_river",
+                "The bridge span is blocked." => "build.placement.bridge_span_blocked",
+                "Explore the whole bridge span first." => "build.placement.bridge_span_explored",
+                "The bridge must cross at least one river cell." => "build.placement.bridge_cross_river",
+                "No valid opposite bank is in range." => "build.placement.bridge_no_opposite_bank",
+                "Choose one of the highlighted opposite banks." => "build.placement.bridge_choose_bank",
+                "Terrain blocks construction here." => "build.placement.terrain_blocked",
+                "Choose a valid, reachable location." => "build.placement.valid_reachable",
+                "Valid first bank. Click to choose the bridge start." => "build.placement.valid_first_bank",
+                "Valid span. Click the highlighted opposite bank to place." => "build.placement.valid_span",
+                "Valid site. Click to place the construction plan." => "build.placement.valid_site",
+                _ => string.Empty
+            };
+            return string.IsNullOrEmpty(key)
+                ? StrategyLocalization.TranslateLiteral(message)
+                : BuildHudText(key);
+        }
+
+        private static string FormatLocalizedCost(StrategyConstructionResourceCost cost)
+        {
+            if (cost.IsFree)
+            {
+                return BuildHudText("build.cost.free");
+            }
+
+            string text = string.Empty;
+            AppendLocalizedCost(ref text, "resource.logs.name", cost.Logs);
+            AppendLocalizedCost(ref text, "resource.stone.name", cost.Stone);
+            AppendLocalizedCost(ref text, "resource.planks.name", cost.Planks);
+            return text;
+        }
+
+        private static void AppendLocalizedCost(ref string text, string resourceKey, int amount)
+        {
+            if (amount <= 0)
+            {
+                return;
+            }
+
+            if (!string.IsNullOrEmpty(text))
+            {
+                text += " / ";
+            }
+
+            text += StrategyLocalization.Get(
+                StrategyLocalizationTables.Resources,
+                resourceKey) + " " + amount;
+        }
+
+        private static string BuildHudText(string key, params object[] arguments)
+        {
+            return StrategyLocalization.Get(
+                StrategyLocalizationTables.Buildings,
+                key,
+                arguments);
         }
     }
 }

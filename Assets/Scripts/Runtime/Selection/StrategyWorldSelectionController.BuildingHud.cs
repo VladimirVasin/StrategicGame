@@ -87,8 +87,10 @@ namespace ProjectUnknown.Strategy
             }
 
             HideLegacyBuildingHudSections();
-            hudTitleText.text = "Construction";
-            hudSubtitleText.text = constructionSite.Title;
+            hudTitleText.text = L("construction.title");
+            hudSubtitleText.text = L(
+                "construction.subtitle",
+                GetBuildingTitle(constructionSite.Tool));
             SetPreviewSprite(GetConstructionPreviewSprite(constructionSite));
             float bottom = ShowBuildingSnapshot(constructionSite, BuildingHudTop);
             EnsureHudContentExtent(bottom + 24f);

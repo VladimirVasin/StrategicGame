@@ -1,5 +1,18 @@
 # Work Log
 
+### 2026-07-20 - Dynamic Selection/HUD localization completion
+
+- Completed semantic Russian/English localization for dynamic building, resident, house, trade, Scout, grave, wildlife, terrain, and world-inspector snapshots. Open selection surfaces now refresh on language changes, Russian ration values use a decimal comma, and unknown runtime values fall back to localized literals or retained English instead of exposing localization keys.
+- Added 526 paired source entries across deterministic `Hud.Selection`, `Hud.Selection.Values`, and `Buildings.Selection` catalog fragments, including a distinct zero-cost `cost.free` label; regenerated all nine official collections with 1,772 validated RU/EN entries in total.
+- Verification: all five tracked C# projects build sequentially with zero warnings/errors; focused Unity EditMode coverage passes `61/61`; Unity Main Menu smoke and technical quality gates pass. Catalog validation, generated-asset presence, runtime-Cyrillic, UTF-8/mojibake, 500-line, project-parity, and diff checks are included in those passes. No Git add, commit, or push was performed.
+
+### 2026-07-19 - Russian/English localization foundation
+
+- Added Unity Localization 1.5.12 with Russian and English locales, Russian first-launch default, persisted `settings.language`, `-language=ru|en` startup override, English fallback, and nine preloaded String Table collections generated from authoritative UTF-8 TSV catalogs.
+- Added live language controls to Main Menu and Pause Settings and migrated player-facing menu, founding journey, HUD, inventory, residents, stories, goals, dialogs, build feedback, world inspection, building dashboard, trade, and Scout copy. Open supported UI refreshes without changing gameplay state or stable save/content IDs; the exact-match Legacy bridge covers remaining static code-built labels during semantic migration.
+- Established the bilingual authoring contract: every new player-facing key supplies English and Russian together, duplicate/missing entries and placeholder mismatches fail validation, and runtime C# must not hardcode Cyrillic player copy. Generated 1,772 paired entries, including 651 Legacy literals.
+- Verification: all five tracked C# projects build with zero warnings/errors; focused Unity EditMode coverage passes `61/61`; Unity Main Menu smoke passes; technical quality gates, UTF-8/mojibake checks, runtime-Cyrillic scan, 500-line limit, and `git diff --check` pass. No Git add, commit, or push was performed.
+
 ### 2026-07-19 - Two-row top-right calendar status
 
 - Removed the winter/food/logs readiness line from the persistent top-right calendar module, leaving only day/time/temperature and season/phase above the day-progress track.

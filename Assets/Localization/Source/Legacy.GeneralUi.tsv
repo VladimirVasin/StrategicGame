@@ -1,0 +1,466 @@
+Key	English	Russian
+literal.1cda38d493fe12f9	Output full	Склад продукции заполнен
+literal.53ced57ff5987da4	Working	Работает
+literal.f167bb554c04056a	Needs input	Нужны материалы
+literal.b0e22a866a45ba52	State	Состояние
+literal.59db72899d896292	Output	Продукция
+literal.a30912be12241c9a	No worker assigned	Работник не назначен
+literal.297914a2c6e13880	Assign this profession in the Professions HUD.	Назначьте работника этой профессии в окне «Профессии».
+literal.96579c12ff962698	Output storage full	Склад продукции заполнен
+literal.4f7c843de765002a	Haulers need to collect finished goods.	Носильщики должны забрать готовую продукцию.
+literal.6450ce0270830e20	Waiting for inputs	Ожидание материалов
+literal.75a4a118021f996c	Required materials must be delivered before work continues.	Для продолжения работы нужно доставить необходимые материалы.
+literal.3e38a0b84fa980d2	Production active	Производство работает
+literal.4fdde8a1fd3b4521	Inputs are available and output storage has room.	Материалы в наличии, а на складе продукции есть место.
+literal.a0c33ded0cb43e38	Input material	Входной материал
+literal.25d3b5cc262b1e98	Finished output	Готовая продукция
+literal.7d557a7612331d90	Workers	Работники
+literal.6aa69f30bee21e95	Stock	Запасы
+literal.3d89f897590bde56	Stock full	Склад заполнен
+literal.c1fb972f6cfde9e2	No sources	Нет источников
+literal.2c736d1115de6eb3	Haulers need to clear the local stock.	Носильщики должны освободить местный склад.
+literal.05ba517b6b8b2af2	No usable sources are currently in the work area.	В рабочей зоне сейчас нет доступных источников.
+literal.b82a4de5c338a818	Workers have sources available and local storage space.	У работников есть доступные источники и место на местном складе.
+literal.eb2fef50f10e27bf	Builders	Строители
+literal.a63caf02aa741a8d	Materials	Материалы
+literal.848466c0500e6090	Progress	Прогресс
+literal.8395712ea952ca59	Delivered Materials	Доставленные материалы
+literal.d4133ac8949884b7	Assigned Builders	Назначенные строители
+literal.6b953c50364207b4	Materials are ready and builders can finish the structure.	Материалы готовы, строители могут завершить постройку.
+literal.99423c2b73b20e51	Materials are ready. Assign Builders in the Professions HUD.	Материалы готовы. Назначьте строителей в окне «Профессии».
+literal.ac837f195d25051b	Ready to build	Готово к строительству
+literal.49ca459ab58e445d	Waiting for materials	Ожидание материалов
+literal.ae61b8ba6c3792b8	Residents	Жители
+literal.14c213946a21244a	Home	Дом
+literal.4ac29ac49acabd6f	Occupied	Занято
+literal.9654091504369afc	Available	Доступно
+literal.7e0f4e6b297518ed	Sheltered	Под крышей
+literal.f48657b5eeafe540	Warmth	Тепло
+literal.0013a19764c8dc22	Demolition queued	Снос запланирован
+literal.7815181da8ab1d8d	Residents and household stock will be detached safely.	Жители и домашние запасы будут перемещены без потерь.
+literal.b03b84ed6529f2d0	Scouts	Разведчики
+literal.cfc0f25523d1ac99	Mission	Задание
+literal.eca1d322cdece47e	Unassigned	Не назначен
+literal.3ae9e54ef2929207	Provisions	Провизия
+literal.22dea0bb15021744	Expedition	Экспедиция
+literal.fe78b2110f657d0b	Current state	Текущее состояние
+literal.dd409062dc278fd7	Planned duration	Плановая длительность
+literal.e2ac176e0e7dcd8b	Returns in	До возвращения
+literal.e5b1de87b5b19e4b	Field rations	Походные пайки
+literal.b7cb0562ffea5147	Exploration ready	Готово к разведке
+literal.debd17cc1e22b8c8	Scout needed	Нужен разведчик
+literal.b349a9d8668e7397	Use the Scout action above to send, recall or review the expedition.	Используйте действие разведчика выше, чтобы отправить, отозвать или проверить экспедицию.
+literal.cbf18f39fc9bc72c	Assign a Scout here; ordinary professions remain managed separately.	Назначьте сюда разведчика; остальные профессии управляются отдельно.
+literal.84851ed00d63bd0f	Unavailable	Недоступно
+literal.998f1c5a49a50e7d	Caravan	Караван
+literal.dd5e5525e6279441	Trade controller is unavailable.	Торговая система недоступна.
+literal.81a5c67c2237336d	Coins	Монеты
+literal.175a3f34ff0c4d71	Market	Рынок
+literal.5b9780f550a289a2	Active offers	Активные предложения
+literal.66bcf5776c6c0272	Available now	Доступно сейчас
+literal.05a25474fa570360	Available when a caravan is trading	Доступно во время торговли с караваном
+literal.0fdc9a32d6103669	Delivered	Доставлено
+literal.a966efc5a9fb784b	Builders can continue with the delivered materials.	Строители могут продолжить работу с доставленными материалами.
+literal.5bed80b5fa91b5eb	Game	Дичь
+literal.3449c7d814a04799	Fish	Рыба
+literal.bab16278ed17d003	Eggs	Яйца
+literal.a20dfa69b7ecee75	Berries	Ягоды
+literal.d3acdbef14718038	Roots	Коренья
+literal.cceb795c71eb1ee2	Mushrooms	Грибы
+literal.64dc4d8762445052	Logs	Брёвна
+literal.8c31635a6f54d546	Stone	Камень
+literal.3bf9295122a56516	Planks	Доски
+literal.12c6655e78b446df	Iron	Железо
+literal.e88204bb6ac0ae0c	Coal	Уголь
+literal.05aea0e97715c1aa	Clay	Глина
+literal.80c51e53724cc84c	Pottery	Керамика
+literal.5bb6cfe35bc5a3c6	Tools	Инструменты
+literal.8164720afc207836	Deposits	Месторождения
+literal.a217703a5a4dc950	Local Stock	Местные запасы
+literal.ee627db75931d18b	Work Area	Рабочая зона
+literal.bd97b3195c14c912	Mature trees	Взрослые деревья
+literal.3c408f2068cb4dc8	Trunks	Стволы
+literal.150b897adc958c58	Saplings	Саженцы
+literal.1a32f215b7a80124	Hunting Grounds	Охотничьи угодья
+literal.321cea20dfd0ae50	Rabbits	Кролики
+literal.5b8884def4433cdb	Deer	Олени
+literal.83783797b59b377f	Locked	Заблокировано
+literal.4f2b7eb3b17a984c	Requires Deer Hunting Kit	Требуется набор для охоты на оленей
+literal.fc102a3018b01c6f	Frozen	Замёрзло
+literal.9e9d2ed17305a3dc	Fishing Water	Рыбные воды
+literal.891bbc387d15ff72	Fish nearby	Рыба поблизости
+literal.53ba7343e95ee700	Water	Вода
+literal.9e13b2a403af4221	Open	Открыто
+literal.8b9c47e843f1be2a	Fishing is blocked until the water thaws.	Рыбалка невозможна, пока вода не оттает.
+literal.4e7d7a63ddba30a0	Gathering	Собирает
+literal.bb89a4c6e45467cd	Forage Stock	Запасы собранной пищи
+literal.c7a047708237bf29	Ration value	Ценность пайков
+literal.feaaba9d207f37b1	Assign Foragers in the Professions HUD.	Назначьте собирателей в окне «Профессии».
+literal.de98fddf4a59c4ba	Nearby food is gathered into local stock for Haulers.	Собранная поблизости пища складывается на местный склад для носильщиков.
+literal.21d404baae05ab3f	Labor	Труд
+literal.78033358ac9cbad7	Autonomous	Автономно
+literal.e503c2a6fb5c8752	Producing	Производит
+literal.ebf2c6100de9f6c6	Production	Производство
+literal.6013baf278abc01f	Next egg	Следующее яйцо
+literal.96e5b9371931bad0	Automatic cycle	Автоматический цикл
+literal.65a910d2dcfa60c0	Waiting for free storage	Ожидание места на складе
+literal.e76f3fefec94694b	Automatic production	Автоматическое производство
+literal.a700df76c5283329	Local stock is full	Местный склад заполнен
+literal.1c1099cdd6e04328	Eggs are produced without an assigned worker.	Яйца производятся без назначенного работника.
+literal.00aad27b226d1a0e	Haulers need to collect eggs before production continues.	Для продолжения производства носильщики должны забрать яйца.
+literal.c9bc949b2c438903	Input	Материалы
+literal.8e3a6f46409833c1	Haulers	Носильщики
+literal.ea8d1cc2163a5b73	Sources	Источники
+literal.852354c42d8d6140	Construction Stock	Строительные запасы
+literal.2b13c39351de16e0	No Haulers assigned	Носильщики не назначены
+literal.c06f6547257c9b95	Ready for hauling	Готово к перевозке
+literal.48ecc7039f120fa2	Logistics idle	Логистика бездействует
+literal.638b25332ccca41f	Assign Haulers in the Professions HUD to move resources.	Назначьте носильщиков в окне «Профессии», чтобы перевозить ресурсы.
+literal.24daf468921828cd	No source stock is currently waiting for pickup.	На складах-источниках сейчас нет запасов для вывоза.
+literal.4f258158baf3bff1	Rations	Пайки
+literal.8b84bc38d9fb5167	Food Stock	Запасы еды
+literal.f5a3ccb26f6a10fd	Food storage ready	Хранилище еды готово
+literal.bda068ea155e7c34	Assign Haulers in the Professions HUD.	Назначьте носильщиков в окне «Профессии».
+literal.90c78baa00592770	Food is waiting at production sources.	Еда ожидает вывоза из мест производства.
+literal.30c9cdc86e4348e8	Stored food is ready for households.	Еда на складе готова к доставке в дома.
+literal.4a074f04472a61c6	Temporary	Временно
+literal.8e60827b2a137ceb	Build stock	Запасы для строительства
+literal.2d8f9287bcde6fb7	Starter supplies	Начальные припасы
+literal.ce18c728afcf1150	Construction materials and food remain available until transferred.	Строительные материалы и еда останутся доступными до перевозки.
+literal.f4e685df3e3c4845	Operational	Работает
+literal.23a6fd4ceb6193b9	Span	Пролёт
+literal.fcdd270ed1055ece	Footprint	Площадь
+literal.696c6b589cb06a32	Infrastructure	Инфраструктура
+literal.0a15f2b1dc88869b	Start cell	Начальная клетка
+literal.b0be0729072560c4	End cell	Конечная клетка
+literal.00e21542efcdab9f	Crossing open	Переход открыт
+literal.932f252fa7d6ac2b	Residents can use this span as part of the walkable network.	Жители могут пользоваться этим пролётом как частью сети дорог.
+literal.55f5f249216e4446	Overview	Обзор
+literal.961c9c36dce07d8f	Demolition	Снос
+literal.e7ab733ffb9e3380	Queued	В очереди
+literal.619c7bca8056a354	The building remains visible until the demolition flow completes.	Здание останется видимым до завершения сноса.
+literal.04ef462ccaa908a9	Trade, Scout and upgrade actions are unavailable while removal is pending.	Торговля, действия разведчика и улучшения недоступны до завершения сноса.
+literal.6785569b0f501a69	Rabbit Carcass	Туша кролика
+literal.32eb8284609fd5a3	Rabbit	Кролик
+literal.0558fc216c2413fd	Wildlife	Дикая природа
+literal.7f1e22a7ee306b58	Huntable	Можно охотиться
+literal.79f8bfc501c4be27	Protected	Защищено
+literal.3275a83b3f5e9d02	Group	Группа
+literal.bc00b4026ce833b5	Radius	Радиус
+literal.b57f60408b785d7c	Stag	Олень
+literal.a8be05f13f6858ab	Doe	Олениха
+literal.4e9a28f7f6824ed1	Wolf prey	Добыча волков
+literal.d73630169eefe424	Safe	В безопасности
+literal.96bfdd50f8a236c6	Herd	Стадо
+literal.d18b8c9ff3ac3247	River wildlife	Речная фауна
+literal.c034063be1e219fe	Lake wildlife	Озёрная фауна
+literal.8b52b67dc9ffc90b	Fishable	Можно ловить
+literal.d0a3b2f2cb061401	Stage	Стадия
+literal.5091f76be93d9ed4	Shoal	Косяк
+literal.60675cafe6a1051d	Region	Область
+literal.7b5b210f39f1d8af	none	нет
+literal.d65054b9dca630cd	Decorative wildlife	Декоративная фауна
+literal.60c772e90c81b53f	Wolf	Волк
+literal.224068553bca4326	Predator wildlife	Хищная фауна
+literal.ed1f90542cec01bc	Pack	Стая
+literal.437bb9e0c51a1574	Chicken	Курица
+literal.0f00b9a2e84895b0	Household animal	Домашнее животное
+literal.a6fec53020a75b3e	Coop	Курятник
+literal.4ccb8d8b1792170e	Stone deposit	Месторождение камня
+literal.08da8c9a39cac790	depleted	истощено
+literal.9ced2404ef66d891	reserved	зарезервировано
+literal.1bc555df5377ef05	blocked	заблокировано
+literal.6be2075d5169095b	Iron Vein	Железная жила
+literal.b1f5c7e82ca84c9f	Iron-stained Ground	Железистая почва
+literal.bbd38d3966c35277	Iron deposit	Месторождение железа
+literal.a6f538b19dba9e08	mineable	можно добывать
+literal.3859d92e3b98afb9	free	свободно
+literal.36a14d89810d4c56	Mine only	Только для шахты
+literal.5bcef1dabb23b746	Coal Seam	Угольный пласт
+literal.4589bcd2ed125bff	Coal Dust Ground	Почва с угольной пылью
+literal.80c16f0d2cdec574	Coal deposit	Месторождение угля
+literal.046c64b3aa0c2045	Coal Pit only	Только для угольной ямы
+literal.486e1aa9225b6dec	Clay Bank	Глиняный откос
+literal.e61ac15f948bd654	Clay Patch	Глиняный участок
+literal.39256c6268edc2d2	Clay deposit	Месторождение глины
+literal.8a42769fe7796f49	logs ready	брёвна готовы
+literal.752e3ece2329f48a	falling	падает
+literal.a391ffdf832f905f	felled	срублено
+literal.363eaff49616b479	standing	растёт
+literal.58ede344e6a3cd00	growing	подрастает
+literal.630f3a5568423d4b	Tree	Дерево
+literal.c052c82c9ee50139	Young Tree	Молодое дерево
+literal.ca33ae1e1ec5298e	Forest resource	Лесной ресурс
+literal.c3d775f974813383	not ready	не готово
+literal.bd532a32484c2bd7	regrowing	восстанавливается
+literal.f0fd1910771d930d	Forage node	Место сбора пищи
+literal.2fe41c7f32ce3597	Resource	Ресурс
+literal.8aacdc591664a0b0	Yield	Запас
+literal.58fd0a592984b44e	Use	Назначение
+literal.0776035e02baea94	household food	пища для жителей
+literal.95e977692941d27d	Loose resource	Ресурс на земле
+literal.d7fd18cce6702659	Amount	Количество
+literal.9327fc29bb418a51	Loose Building Materials	Строительные материалы на земле
+literal.c8605fad2782d54a	Construction resource pile	Куча строительных материалов
+literal.42bad25b82fd6b25	Walk/Build	Проход/стройка
+literal.5b6706dd0c7a1482	yes	да
+literal.0dbfd5bc6af73d4c	no	нет
+literal.de16476c444acceb	Sapling	Саженец
+literal.02d9fa5c043fa19f	Young	Молодое
+literal.901429da2c969797	Mature	Взрослое
+literal.81571fa727402c2a	Rock Cluster	Скопление камней
+literal.c54c368d93c3efa0	Stone Cliff	Каменный утёс
+literal.c5f5496c0cb3e752	Boulder	Валун
+literal.44d3f7a329cadc49	Turnip	Репа
+literal.5a09c380f10f91c4	Cabbage	Капуста
+literal.2d966155a1db3814	Onion	Лук
+literal.025cc630a9651af4	Carrot	Морковь
+literal.14ebba4fb71cfc4c	Potato	Картофель
+literal.43d1530d2128679d	Unknown	Неизвестно
+literal.8f04c5413abfe548	Object	Объект
+literal.d399de66ff0118a8	Construction	Строительство
+literal.21d979309820dae6	Cancel Construction	Отменить строительство
+literal.7ffc456a8055f526	Keep	Оставить
+literal.9621b6cc34606dae	Demolish Building	Снести здание
+literal.f3944b28414bba80	Demolish	Снести
+literal.06172fa2d6cb89c2	Grave	Могила
+literal.b5b53c6b6aa524c4	Epitaph	Эпитафия
+literal.1a1da0b183c43563	Life	Жизнь
+literal.bb9f3980f2bbc97c	Memory	Память
+literal.002c74bfb00511a9	no residents yet	жителей пока нет
+literal.994b327060761b81	assign residents	назначьте жителей
+literal.e5b2146f27130767	Dinner	Ужин
+literal.86248b6463a42aea	No food stored at this house	В этом доме нет запасов еды
+literal.a5ea660e2761d5de	Upgrades	Улучшения
+literal.e0dfb377d79d4016	Garden Beds	Грядки
+literal.918ec358db8564ef	Chicken Coop	Курятник
+literal.738bc03ba50223d5	no free residents	нет свободных жителей
+literal.5e6b239f4c33243d	Open slot	Свободное место
+literal.91b01d1ffbaee35c	up to 2 workers	до 2 работников
+literal.12541b0615599a3b	Remove	Убрать
+literal.7a7839c284604264	Assign	Назначить
+literal.d408e3eb618c7397	assign hunters	назначьте охотников
+literal.b366831c9a309a23	Hunter: open	Охотник: свободно
+literal.0865fa25f8c0f505	hunts rabbits/deer	охотится на кроликов и оленей
+literal.72f3ce431b6c731c	hunts rabbits	охотится на кроликов
+literal.39a8cb1c24e9bfcc	assign fishers	назначьте рыбаков
+literal.92400370657ab270	Fisher: open	Рыбак: свободно
+literal.9264ec834c7c9ab7	catches fish near water	ловит рыбу у воды
+literal.5497dc57a8f63e46	hire haulers and builders	назначьте носильщиков и строителей
+literal.f58a7ac39147e1ba	Builder: open	Строитель: свободно
+literal.5c65024581a58944	Hauler: open	Носильщик: свободно
+literal.9c1d50550baf1696	builds structures	строит здания
+literal.05d930e48a88256e	hauls resources and food	перевозит ресурсы и еду
+literal.3887621387b94a0d	Already installed.	Уже установлено.
+literal.be607218848cf8f2	Upgrade system is not ready.	Система улучшений не готова.
+literal.276fe200243529ef	No free space near the house.	Рядом с домом нет свободного места.
+literal.4d9b99d70db1c3a5	Done	Готово
+literal.9dc4d081b2635aa4	Add	Добавить
+literal.92249378c1c3f025	Dishes	Блюда
+literal.15f58b8108693c83	Leftovers	Остатки еды
+literal.82b1924b30430477	Fuel	Топливо
+literal.9d1380e2a9841eca	Housing  ·  Unoccupied	Жильё  ·  Свободно
+literal.dc528091e47827e2	Extraction  ·  Timber	Добыча  ·  Древесина
+literal.df97dd6447a62edc	Extraction  ·  Stone	Добыча  ·  Камень
+literal.c5a4064b88cdf295	Extraction  ·  Iron	Добыча  ·  Железо
+literal.40abc634931bfdd6	Extraction  ·  Coal	Добыча  ·  Уголь
+literal.e9cbd196e6386410	Extraction  ·  Clay	Добыча  ·  Глина
+literal.9a3d8f69cf79fe46	Food  ·  Game	Еда  ·  Дичь
+literal.99c506e8da9882d4	Food  ·  Fish	Еда  ·  Рыба
+literal.a843537bbf8ebe55	Food  ·  Foraging	Еда  ·  Собирательство
+literal.40e1e1e50bfd0b6e	Food  ·  Eggs	Еда  ·  Яйца
+literal.0cf5d93510e025aa	Production  ·  Planks	Производство  ·  Доски
+literal.cc43d14299da71b0	Production  ·  Pottery	Производство  ·  Керамика
+literal.a206610530aff61a	Production  ·  Tools	Производство  ·  Инструменты
+literal.19bf2a6809c52a02	Settlement  ·  Supplies	Поселение  ·  Припасы
+literal.bf9435b5df926a33	Storage  ·  Materials	Склад  ·  Материалы
+literal.8abcc367aa728a31	Storage  ·  Food	Склад  ·  Еда
+literal.6a3d98429eff3c68	Trade  ·  Caravan market	Торговля  ·  Караванный рынок
+literal.46b40e24d8c45309	Exploration  ·  Expeditions	Разведка  ·  Экспедиции
+literal.2ff1bf94cadc1b8b	Infrastructure  ·  Crossing	Инфраструктура  ·  Переход
+literal.3ee1871c7b5de99e	Settlement building	Здание поселения
+literal.1eac9989cf1bfea9	House	Дом
+literal.1829c8a3354a3340	Lumberjack Camp	Лагерь лесорубов
+literal.602424a7d222fbf0	Stonecutter Camp	Лагерь каменотёсов
+literal.fdb49aae0ff18f64	Sawmill	Лесопилка
+literal.12593f5841cb8c0a	Mine	Шахта
+literal.a1e3b1fb8febf7d1	Coal Pit	Угольная яма
+literal.d250a18533516bb7	Clay Pit	Глиняный карьер
+literal.ac52de3748986e7d	Kiln	Обжиговая печь
+literal.e6024c1528b1345c	Forge	Кузница
+literal.80a37e460ab642c2	Hunter Camp	Лагерь охотников
+literal.d29264ac7dfd5547	Fisher Hut	Хижина рыбаков
+literal.7bd69b245f4cc860	Forager Camp	Лагерь собирателей
+literal.2a281f1b538dffce	Scout Lodge	Пост разведчиков
+literal.875455efc673c866	Trading Post	Торговый пост
+literal.ad9da53384112b99	Caravan Cart	Караванная повозка
+literal.05e8b86e48f2bc02	Storage Yard	Складской двор
+literal.a993ec4012fc4eed	Granary	Амбар
+literal.6889dd3503008362	Bridge	Мост
+literal.b47f6af35a2e5806	no builders assigned	строители не назначены
+literal.4cca15effc0595d5	Housed	Есть дом
+literal.afb181dbf5df83d2	Camp	Лагерь
+literal.ae9108c02ef1f549	Current Task	Текущее занятие
+literal.ede773d021efee2f	Food	Еда
+literal.bb4aa51a60f5997e	Needs food	Нужна еда
+literal.a365dfa9a1e8bd3b	Family	Семья
+literal.92687f129f9fac0c	Unrecorded family	Семья не записана
+literal.c9404708132ae1fa	Awaiting settlement decision	Ожидает решения поселения
+literal.7e238030aa911dc9	Too young for assigned work	Слишком мал для назначенной работы
+literal.aa5553c6bd291af4	Available for assignment	Доступен для назначения
+literal.69c9e08f704af60f	Assigned to this home	Прикреплён к этому дому
+literal.4ea18cb856bef0f6	House is under construction	Дом строится
+literal.7a42755ab0e957fa	Temporary refugee camp	Временный лагерь беженцев
+literal.49e61fb82bbc6e2b	Waiting for a home	Ожидает жильё
+literal.7a671261fd524fc7	Rations are currently covered	Пайков сейчас достаточно
+literal.b9052b84fed9a4c4	no stock	нет запасов
+literal.630e702136a2239e	stored	на складе
+literal.71443a092be3808a	Idle logistics	Логистика бездействует
+literal.6a7864f52f51f218	Storage data unavailable.	Данные склада недоступны.
+literal.831b9c623c89b38d	No source stock is waiting. Builders are ready for construction jobs.	Нет запасов для вывоза. Строители готовы к строительным работам.
+literal.97617e6fcf765f89	No source stock is waiting. Builders can be assigned separately.	Нет запасов для вывоза. Строителей можно назначать отдельно.
+literal.33cea5f4d75a1f73	now	сейчас
+literal.1d714d696a3faac7	No dishes ready	Нет готовых блюд
+literal.d85e69d72912480d	No food ready	Нет готовой еды
+literal.f16c444f12936b6e	Next: Leftovers	Дальше: остатки еды
+literal.55bab3fd93d5f8bb	Food                         Qty   Nutrition	Еда                     Кол-во   Питательность
+literal.f64d655358cfe6a6	Ready	Готово
+literal.42e09813df9db712	Pending	Ожидание
+literal.c02d2fc23bd8406a	Missing: Pottery	Не хватает: керамика
+literal.035072a986b78479	Missing: Food	Не хватает: еда
+literal.07453561d08310fd	Raw fallback	Сырая еда
+literal.24c08625d3345ad5	Stock: none	Запасы: нет
+literal.b3a77e83db8b5f86	Production Upgrade	Улучшение производства
+literal.caadbf1b9206d675	Installed	Установлено
+literal.0ce4315466a0ef84	Install	Установить
+literal.5737ef8f95ab3c1d	Workers already use this upgrade.	Работники уже используют это улучшение.
+literal.a08cee890fefed33	Storage stock is ready.	Материалы на складе готовы.
+literal.eb84e815d5d167af	Missing storage resources.	На складе не хватает ресурсов.
+literal.b2be94f6faba0640	Not enough storage resources.	На складе недостаточно ресурсов.
+literal.7dd31a06c6fc5198	This building cannot use that upgrade.	Это здание не может использовать данное улучшение.
+literal.0520a1aa503361e0	Upgrade failed.	Не удалось установить улучшение.
+literal.28d2852e12221d1e	Offers	Предложения
+literal.d7dc0f4a4bb4b0c1	No caravan is trading here.	Сейчас здесь не торгует ни один караван.
+literal.2a0956ca96597543	Personal Items	Личные вещи
+literal.48fb20bb7f0aba57	Select an item	Выберите предмет
+literal.fc5af574b7b5120d	Scout: open	Разведчик: свободно
+literal.0e1be595972c1060	free adult available	есть свободный взрослый
+literal.71630a3123229699	no free adult available	нет свободного взрослого
+literal.699d4f0a3f7ff2a1	Send	Отправить
+literal.45d4e033bdce8100	Recall	Отозвать
+literal.3205ccfceba003f7	Returning	Возвращается
+literal.cb01996e6f8bf4eb	ready for an expedition	готов к экспедиции
+literal.e40d5ced88db9429	finishing another duty	завершает другую работу
+literal.80f8e56b6e157470	returning to the Lodge	возвращается на пост
+literal.b541d2400122567e	Family Trees	Семейные древа
+literal.71ae7a27b4b84d8e	Back	Назад
+literal.f802b0613e8bedac	No family records	Нет семейных записей
+literal.6615a32941da0ee6	No accepted residents yet.	Принятых жителей пока нет.
+literal.34fb01f2541b1e7b	Unknown family	Неизвестная семья
+literal.a02393e5aab362e1	Father	Отец
+literal.4412daf500d10984	Mother	Мать
+literal.8453861020aae577	Son	Сын
+literal.b72d7520c27a2559	Daughter	Дочь
+literal.3d4b24671add2c5a	Husband	Муж
+literal.6a29ec476934a468	Wife	Жена
+literal.452fd7363c9af7a1	Brother	Брат
+literal.f9eb0ff8bb48d5f7	Sister	Сестра
+literal.81ba03e94ce19e17	Grandfather	Дед
+literal.b641ed7c267b8692	Grandmother	Бабушка
+literal.92df0e8cd2c1cf71	Grandson	Внук
+literal.0e4e8fecd355d84f	Granddaughter	Внучка
+literal.c55aab898bdb77c4	Uncle	Дядя
+literal.f401d02ad1e1f0b3	Aunt	Тётя
+literal.49544fbb14372b74	Nephew	Племянник
+literal.ba9e5ccaed66b919	Niece	Племянница
+literal.6cb55f1e7446f1c8	Cousin	Двоюродный родственник
+literal.5e040a65fd2a4909	Kin	Родня
+literal.52a3b4955f4e9acf	A refugee family has reached the campfire. They are asking for shelter in the settlement.	К костру пришла семья беженцев. Они просят приюта в поселении.
+literal.36e89d93f7aafaa5	Refugees	Беженцы
+literal.676b07b5361441f8	settlement decision	решение поселения
+literal.ed85dd20b7395075	Accept	Принять
+literal.d10a24a69786c14f	Refuse	Отказать
+literal.f1f7b595f3af8398	Family: no data	Семья: нет данных
+literal.ffabbe9e70ce4dce	Point of Interest	Точка интереса
+literal.e15a808ada401975	SCOUT REPORT	ДОКЛАД РАЗВЕДЧИКА
+literal.6abdbebed9772059	OK	ПОНЯТНО
+literal.6afccfa5c46727ca	SCOUT LODGE  /  EXPEDITION BOARD	ПОСТ РАЗВЕДЧИКОВ  /  ЭКСПЕДИЦИИ
+literal.7752982d5d14ec47	THE FIRST EXPEDITION	ПЕРВАЯ ЭКСПЕДИЦИЯ
+literal.0baa722e673132c1	Beyond the Firelight	За пределами света костра
+literal.ae4830e008897190	WHY THE TRAIL MATTERS	ЗАЧЕМ НУЖЕН ЭТОТ ПУТЬ
+literal.9d0da4bd0127b550	The roofs are standing and the camps are working, but beyond the last familiar path the valley is still only rumor. Choose one adult to carry our first map into the unknown.	Крыши возведены, лагеря работают, но за последней знакомой тропой долина остаётся лишь слухом. Выберите взрослого, который понесёт нашу первую карту в неизвестность.
+literal.a1ad0263dbb03255	Scouts range by day and night, reveal unexplored land, investigate landmarks, and report distant Iron and Coal deposits - and whatever else waits beyond the fog.	Разведчики идут днём и ночью, открывают неизведанные земли, изучают ориентиры и сообщают о далёких залежах железа и угля — и обо всём прочем, что скрывает туман.
+literal.e221c28818863a13	ONE LODGE  /  ONE SCOUT  /  REASSIGN ANY TIME	ОДИН ПОСТ  /  ОДИН РАЗВЕДЧИК  /  МОЖНО СМЕНИТЬ В ЛЮБОЙ МОМЕНТ
+literal.5afd2ab4b3afc607	CHOOSE A RESIDENT	ВЫБЕРИТЕ ЖИТЕЛЯ
+literal.3c6baebcc2c6a88a	No adult residents are in the settlement yet.	В поселении пока нет взрослых жителей.
+literal.92e0c701861b0d70	PLAN AN EXPEDITION	СПЛАНИРОВАТЬ ЭКСПЕДИЦИЮ
+literal.a55cb22362b04613	How Far Beyond the Firelight?	Как далеко уйти от света костра?
+literal.24436d60355f300c	The Scout is ready and the route is open. Choose how many days of provisions to pack: a longer expedition can chart more ground, but every dawn beyond the Lodge costs another ration.	Разведчик готов, путь открыт. Выберите, на сколько дней собрать провизию: долгая экспедиция нанесёт на карту больше земель, но каждый рассвет вдали от поста потребует ещё один паёк.
+literal.f5f17d909bf8bf37	APPOINT A SCOUT	НАЗНАЧИТЬ РАЗВЕДЧИКА
+literal.b54043fbd31b332b	Choose Who Takes the Trail	Выберите, кто отправится в путь
+literal.502feef090e08dc8	Every map begins with someone willing to leave the familiar road. Choose an adult to carry the Lodge's compass and chart what waits beyond the settlement.	Каждая карта начинается с того, кто готов свернуть со знакомой дороги. Выберите взрослого, который возьмёт компас поста и нанесёт на карту земли за пределами поселения.
+literal.4452c65a6ef7b79c	Scout or Lodge no longer ready	Разведчик или пост больше не готовы
+literal.bef881429f34028c	The selected resident is no longer available. Choose another Scout.	Выбранный житель больше недоступен. Выберите другого разведчика.
+literal.0e034eebe49641db	That resident is no longer available for the trail.	Этот житель больше не может отправиться в путь.
+literal.5e4559a73f3b187e	Ready to choose the range of this expedition.	Можно выбрать дальность экспедиции.
+literal.539ff63370a0db2e	Ready to carry the settlement's first map.	Готов нести первую карту поселения.
+literal.8ed7d863db5267c4	Ready to take the Lodge's compass beyond the familiar roads.	Готов унести компас поста за пределы знакомых дорог.
+literal.2bf5f224d6f2872b	This Scout or Lodge is no longer ready to depart.	Этот разведчик или пост больше не готовы к отправлению.
+literal.6b48a1ea26f2d839	The chosen resident is no longer available. Choose another Scout.	Выбранный житель больше недоступен. Выберите другого разведчика.
+literal.107ebe3d65dafb09	The expedition cannot leave without all required rations.	Экспедиция не может отправиться без всех необходимых пайков.
+literal.82a9a29d176046e6	Departure could not be completed. Provisions or the Lodge state may have changed.	Не удалось отправить экспедицию. Возможно, изменился запас провизии или состояние поста.
+literal.0794ecf82ef20192	SCOUT ON DUTY  /  READY	РАЗВЕДЧИК НА СЛУЖБЕ  /  ГОТОВ
+literal.9bf8a12fc75e9c25	SCOUT ON DUTY  /  DEPARTURE BLOCKED	РАЗВЕДЧИК НА СЛУЖБЕ  /  ОТПРАВЛЕНИЕ НЕДОСТУПНО
+literal.1e2ef29d52e3662a	CHOOSE A RESIDENT  /  1 READY	ВЫБЕРИТЕ ЖИТЕЛЯ  /  1 ГОТОВ
+literal.9fa490294b7ef5bd	Choose a resident to continue	Выберите жителя, чтобы продолжить
+literal.8f8dadbed34e4029	Decide Later	Решить позже
+literal.76fc6c8df39e8293	Cancel	Отмена
+literal.c32c605e50382647	No one can leave their duties today. Return when an adult is free.	Сегодня никто не может оставить свои обязанности. Вернитесь, когда освободится взрослый житель.
+literal.bedde9c8393b04a0	The first expedition must wait until enough rations are stored.	Первая экспедиция должна подождать, пока не будет собрано достаточно пайков.
+literal.9aaccb45a1c7e703	EXPEDITION RANGE	ДАЛЬНОСТЬ ЭКСПЕДИЦИИ
+literal.3ae3a551972b7900	1 DAY	1 ДЕНЬ
+literal.e944fac8f1fc5501	Provisions are packed before the Scout leaves.	Провизия будет собрана перед отправлением разведчика.
+literal.17741ba8015d241a	The selected resident is no longer available for the trail.	Выбранный житель больше не может отправиться в путь.
+literal.da153f81b6d9adcb	Unknown resident	Неизвестный житель
+literal.93a2bd7e27084c1c	SELECTED	ВЫБРАН
+literal.a691335a7f7b0e56	READY FOR THE TRAIL	ГОТОВ К ПОХОДУ
+literal.f0a3ca74e28e4086	Unavailable for scouting duty	Не может быть разведчиком
+literal.40e43185c0977564	The Scout Lodge awaits a free adult for the first expedition.	Пост разведчиков ждёт свободного взрослого для первой экспедиции.
+literal.21ee79e7eefa397f	THE CITY REMEMBERS	ГОРОД ПОМНИТ
+literal.c602ad59812f8ddb	NEW CITY ITEM	НОВАЯ ГОРОДСКАЯ РЕЛИКВИЯ
+literal.93e73fb2f4fa6b28	UNKNOWN FIND	НЕИЗВЕСТНАЯ НАХОДКА
+literal.5ce5da99ef15c46d	UNIQUE CITY BOON	УНИКАЛЬНЫЙ ДАР ГОРОДУ
+literal.81f691d22024d47e	CITY CHEST  /  PERMANENT	ГОРОДСКОЙ СУНДУК  /  НАВСЕГДА
+literal.26791baf19238224	SEND TO CITY CHEST	ОТПРАВИТЬ В ГОРОДСКОЙ СУНДУК
+literal.60d6bdc996ce4b8f	CITY ITEM	ГОРОДСКАЯ РЕЛИКВИЯ
+literal.79f434d0350e2c07	Confirm	Подтвердить
+literal.4fa59cb3dfebed49	SETTLEMENT NOTICES	ВЕСТИ ПОСЕЛЕНИЯ
+literal.ee11ef68d3aa4abe	Choose a buildable location.	Выберите подходящее место для строительства.
+literal.d89de25a91eedefe	Explore this area before building here.	Сначала исследуйте эту область.
+literal.7e52790681a4bffc	Another structure already occupies this space.	Это место уже занято другой постройкой.
+literal.bcd7e6962ea17648	Move the whole footprint inside the map.	Переместите всю постройку в границы карты.
+literal.5abe1d57a1c0c2f0	This building needs suitable land or water access.	Этому зданию нужна подходящая земля или доступ к воде.
+literal.b675f8296c0d8f75	Not enough construction materials.	Недостаточно строительных материалов.
+literal.d27a6f6f8a80aed8	Builders cannot reach this site.	Строители не могут добраться до этого места.
+literal.223afad9e14059e7	A resident is standing in the footprint.	На месте строительства находится житель.
+literal.6a063d9aaad96406	The Fisher Hut needs accessible fishing water.	Хижине рыбаков нужен доступ к рыбным водам.
+literal.346f706554631551	Place the Mine over a discovered Iron deposit.	Разместите шахту над разведанным месторождением железа.
+literal.fbfd5efd2a3d7f61	Place the Coal Pit over a discovered Coal deposit.	Разместите угольную яму над разведанным месторождением угля.
+literal.04026d5ad2c2bc81	Place the Clay Pit over a Clay field.	Разместите глиняный карьер на глиняном поле.
+literal.0ea19d29498f6b90	The bridge bank must be walkable.	Берег у моста должен быть проходимым.
+literal.44d98dd3c4caf608	The bridge bank is not buildable.	На этом берегу нельзя построить мост.
+literal.9054775bcdcf02db	Explore both bridge banks first.	Сначала исследуйте оба берега.
+literal.63baf08bab8ce56a	Start the bridge beside a river.	Начните мост у реки.
+literal.0d5f03c6b963dceb	The bridge span is blocked.	Пролёт моста заблокирован.
+literal.b11c1da727078593	Explore the whole bridge span first.	Сначала исследуйте весь пролёт моста.
+literal.cf65d1679de78cde	The bridge must cross at least one river cell.	Мост должен пересекать хотя бы одну речную клетку.
+literal.862a9a90fb478073	No valid opposite bank is in range.	В пределах дальности нет подходящего противоположного берега.
+literal.9fff15fbc6c428b5	Choose one of the highlighted opposite banks.	Выберите один из подсвеченных противоположных берегов.
+literal.15ad0c514bf18ea1	Terrain blocks construction here.	Рельеф не позволяет строить здесь.
+literal.2c84fefd020399b7	Choose a valid, reachable location.	Выберите подходящее доступное место.
+literal.dcb67264d7b762af	BUILD  [B]	СТРОИТЬ  [B]
+literal.38fc9442f4154d23	Open construction palette [B].	Открыть меню строительства [B].
+literal.a59ea63d701647ab	Let the hunter loose	Выпустить охотника
+literal.cbc4841825bc1ab4	Continue	Продолжить
+literal.b6af80a82decff02	A SETTLEMENT CHRONICLE	ЛЕТОПИСЬ ПОСЕЛЕНИЯ
+literal.0fbb1dc7d1c06687	Skip story	Пропустить историю

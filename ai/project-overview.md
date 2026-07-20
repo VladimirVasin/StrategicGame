@@ -16,6 +16,8 @@ Last updated: 2026-07-19
 - `Assets/Scripts/Runtime/`
   Runtime C# scripts for the strategy foundation, navigation, map, economy, population, seasons, persistence, audio, and UI.
   Runtime `.cs` files must stay at or below 500 lines; oversized classes are split into same-owner `.PartNN.cs` partial files or extracted when a real service/type boundary exists.
+- `Assets/Localization/`
+  UTF-8 Russian/English source catalogs plus generated Unity Localization settings, locales, and String Tables. Russian is the first-launch default; every new player-facing string must ship in both catalogs together.
 - `Assets/Scripts/Runtime/Cinematics/`
   Reusable gameplay-space cinematic sequencing, exact camera/input/time ownership, and animated 2.39:1 letterbox presentation.
 - `Assets/Scripts/Runtime/Inventory/`
@@ -70,11 +72,12 @@ Confirmed from `Packages/manifest.json`:
 - Input System: `com.unity.inputsystem` `1.19.0`
 - 2D editor foundations retained for sprites and tilemaps; unused animation/import/SpriteShape/tooling packages were removed
 - UI: `com.unity.ugui` `2.5.0`
+- Localization: `com.unity.localization` `1.5.12`
 - Test Framework: `com.unity.test-framework` `1.7.0`
 
 ## Implemented Gameplay
 
-- Application startup opens a full-screen intro menu with Continue/New Settlement/Settings/Quit, one dedicated static generated pixel-art key image, animated pointer/selection button hover, persistent audio/display/interface-scale/reduced-motion settings, save-aware status, and actual map/content preload progress. Menu music stays disabled while HUD SFX remain available. Continue transfers the prepared save candidate directly into gameplay; New Settlement keeps the same candidate alive while opening `FoundingJourney`, then transfers it after the founding decision so `SampleScene` skips duplicate terrain generation.
+- Application startup opens a full-screen intro menu with Continue/New Settlement/Settings/Quit, one dedicated static generated pixel-art key image, animated pointer/selection button hover, persistent audio/display/interface-scale/reduced-motion/language settings, save-aware status, and actual map/content preload progress. Russian is selected on first launch, and the main-menu and in-game settings can switch the live interface between Russian and English while persisting the choice. Menu music stays disabled while HUD SFX remain available. Continue transfers the prepared save candidate directly into gameplay; New Settlement keeps the same candidate alive while opening `FoundingJourney`, then transfers it after the founding decision so `SampleScene` skips duplicate terrain generation.
 - `FoundingJourney` presents four generated point-filtered pixel-art story panels about families fleeing war with authored cover-cropped pan/zoom shots, cinematic crossfades, narrative shading, vignette/letterbox chrome, staged text/control reveals, normalized artwork-bound rain/embers/mist/fireflies that crossfade with the shot, and scene-owned wind/rain/fire ambience. Back/Skip, keyboard/controller UI navigation, and persistent reduced motion remain available. Four stable-ID questions cover water, landscape, first livelihood, and construction/resource priority, plus a balanced-default shortcut.
 - Founding answers feed a deterministic pure start-site selector over a defensive map snapshot. Safety and playability remain hard constraints; preferences score valid cells, reserve the exact `3x3` Caravan Cart blocker, and fall back through relaxed space/water policies before the legacy center-out search. The selected camp/cart geometry and profile are carried into gameplay and persisted through the current save version 12.
 - Runtime bootstrap creates the first MVP strategy scene layer inside a scene-local `StrategyGameContext`, exposes explicit Created/Configuring/Ready/Failed/Disposed lifecycle state, holds a temporary simulation pause, and spreads deterministic full-map nature creation across bounded frame batches before releasing gameplay; it includes a Unity `WindZone`-backed strategy wind source, runtime Stone/Iron/Coal/Clay resource registries, runtime weather, and runtime ambience audio. Desktop Player updates continue while the application is unfocused, while existing requested speed and modal pause locks remain authoritative.

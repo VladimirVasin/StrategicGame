@@ -1,0 +1,101 @@
+Key	English	Russian
+goals.header	CURRENT GOALS	ТЕКУЩИЕ ЦЕЛИ
+goals.starter.houses.title	Build 3 Houses ({0}/{1})	Постройте 3 дома ({0}/{1})
+goals.starter.houses.description	Secure shelter before expanding production.	Обеспечьте жителей жильём, прежде чем расширять производство.
+goals.starter.forager_camp.title	Build Forager Camp	Постройте лагерь собирателей
+goals.starter.forager_camp.description	Move forage food production outside homes.	Перенесите сбор дикорастущей еды из домов в отдельный лагерь.
+goals.starter.lumberjack_camp.title	Build Lumberjack Camp	Постройте лагерь лесорубов
+goals.starter.stonecutter_camp.title	Build Stonecutter Camp	Постройте лагерь каменотёсов
+goals.starter.scout_lodge.title	Build Scout Lodge	Постройте пост разведчиков
+goals.starter.scout_lodge.description	Raise an expedition base for the settlement's first Scout.	Создайте базу для первой разведывательной экспедиции поселения.
+goals.starter.storage_yard.title	Build Storage Yard	Постройте складской двор
+goals.starter.storage_yard.description	Move construction supplies out of the temporary caravan cart.	Перенесите строительные материалы из временной караванной повозки.
+goals.starter.granary.title	Build Granary	Постройте амбар
+goals.starter.granary.description	Centralize food reserves before the first winter.	Соберите запасы еды в одном месте до первой зимы.
+goals.winter.food.title	Store {0} days of food	Запасите еду на {0} суток
+goals.winter.food.description	Households need enough rations to cross the first winter.	Семьям нужны достаточные запасы, чтобы пережить первую зиму.
+goals.winter.fuel.title	Store {0} days of firewood	Запасите дрова на {0} суток
+goals.winter.fuel.description	Occupied houses consume firewood during winter nights.	Зимой обитаемые дома расходуют дрова по ночам.
+goals.winter.preparation.notice	Prepare for the first winter	Подготовьтесь к первой зиме
+goals.winter.progress_days	{0:0.#} / {1:0} days	{0:0.#} / {1:0} дн.
+goals.winter.survive.title	Endure the first winter	Переживите первую зиму
+goals.winter.survive.description	Manage food, firewood, and shelter until summer returns.	Следите за едой, дровами и жильём до возвращения лета.
+goals.winter.started_prepared	The first winter has begun. The settlement is prepared.	Началась первая зима. Поселение подготовлено.
+goals.winter.started_short	The first winter has begun. Supplies are short.	Началась первая зима. Запасов не хватает.
+goals.winter.ended	The first winter has ended	Первая зима закончилась
+hud.population.tooltip	Open the resident roster and review adults, children, families, and current work.	Открыть список жителей: взрослые, дети, семьи и текущая работа.
+hud.population.summary	Population {0}\n{1} adults  ·  {2} children	Население {0}\nВзрослых: {1}  ·  Детей: {2}
+hud.calendar.day_time	Day {0}   {1}	День {0}   {1}
+hud.calendar.season_phase	{0} {1}/{2} - {3}	{0} {1}/{2} — {3}
+hud.season.spring	Spring	Весна
+hud.season.summer	Summer	Лето
+hud.season.autumn	Autumn	Осень
+hud.season.winter	Winter	Зима
+hud.phase.dawn	Dawn	Рассвет
+hud.phase.morning	Morning	Утро
+hud.phase.noon	Noon	Полдень
+hud.phase.afternoon	Afternoon	День
+hud.phase.dusk	Dusk	Сумерки
+hud.phase.night	Night	Ночь
+hud.resources.launcher_title	SETTLEMENT STORES	СКЛАДЫ ПОСЕЛЕНИЯ
+hud.resources.all_badge	ALL	ВСЕ
+hud.resources.launcher_summary	Logs {0}  |  Stone {1}	Брёвна {0}  |  Камень {1}
+hud.resources.launcher_tooltip	Logs and Stone show construction-ready stock. Open all resources stored across the settlement.	Здесь показаны доступные для строительства брёвна и камень. Откройте полный список запасов поселения.
+hud.resources.title	ALL RESOURCES	ВСЕ РЕСУРСЫ
+hud.resources.subtitle	STORED ACROSS THE SETTLEMENT	ЗАПАСЫ ВСЕГО ПОСЕЛЕНИЯ
+hud.resources.section.construction	CONSTRUCTION	СТРОИТЕЛЬСТВО
+hud.resources.section.materials	MATERIALS	МАТЕРИАЛЫ
+hud.resources.section.food	FOOD	ЕДА
+hud.resources.row_tooltip	{0}\nStored: {1}\nAvailable: {2}	{0}\nНа складе: {1}\nДоступно: {2}
+hud.resources.row_tooltip_reserved	{0}\nStored: {1}\nAvailable: {2}\nReserved: {3}	{0}\nНа складе: {1}\nДоступно: {2}\nЗарезервировано: {3}
+hud.roster.empty	No residents	Нет жителей
+hud.roster.title	Residents {0}	Жители: {0}
+hud.roster.stats	Adults {0} / Children {1}   Housed {2} / Camp {3}   Workers {4} / Free adults {5}   Hungry {6} / Starving {7}	Взрослых {0} / Детей {1}   В домах {2} / В лагере {3}   Работают {4} / Свободны {5}   Голодны {6} / Истощены {7}
+hud.roster.filter.all	All	Все
+hud.roster.filter.adults	Adults	Взрослые
+hud.roster.filter.children	Children	Дети
+hud.roster.filter.workers	Workers	Работники
+hud.roster.filter.hungry	Hungry	Голодные
+hud.roster.filter.homeless	Homeless	Бездомные
+hud.roster.family_trees	Family Trees	Семейные древа
+hud.roster.column.name	Name	Имя
+hud.roster.column.age	Age	Возраст
+hud.roster.column.home	Home	Дом
+hud.roster.column.role	Role	Роль
+hud.roster.column.status	Status	Состояние
+hud.roster.column.food	Food	Питание
+hud.professions.title	Professions	Профессии
+hud.professions.subtitle	settlement workers	работники поселения
+hud.professions.tooltip	Assign residents to professions and configure automatic workforce priorities.	Назначайте жителей на работы и настраивайте приоритеты автоматического распределения.
+hud.professions.free_adults	Free adults: {0}	Свободных взрослых: {0}
+hud.professions.available	Available: {0}	Доступно профессий: {0}
+hud.professions.no_workplaces	No workplaces	Нет рабочих мест
+hud.professions.scout_lodge_required	An empty Scout Lodge is required before appointing a Scout.	Для назначения разведчика нужен свободный пост разведчиков.
+hud.professions.assign_failed	{0}: no free residents or workplaces	{0}: нет свободных жителей или рабочих мест
+hud.professions.remove_failed	{0}: nobody to remove	{0}: некого снять с работы
+hud.professions.assigned	{0}: assigned	{0}: назначено
+hud.professions.removed	{0}: removed	{0}: снято
+hud.professions.scout_summary	{0} ready / {1} exploring / {2} returning	Готовы: {0} / В разведке: {1} / Возвращаются: {2}
+hud.professions.priority_changed	{0}: {1}	{0}: {1}
+hud.professions.auto_on	Auto Assign: On	Автоназначение: вкл.
+hud.professions.auto_off	Auto Assign: Off	Автоназначение: выкл.
+hud.professions.auto_status	{0} / free adults {1}	{0} / свободных взрослых: {1}
+hud.professions.auto_unavailable	Auto workforce unavailable	Автораспределение недоступно
+hud.inventory.launcher	Inventory	Инвентарь
+hud.inventory.tooltip	Open the settlement chest for unique story and city items.	Открыть городской сундук с уникальными сюжетными предметами.
+hud.inventory.title	CITY INVENTORY	ГОРОДСКОЙ ИНВЕНТАРЬ
+hud.inventory.subtitle	THE SETTLEMENT CHEST / SPECIAL ITEMS	СУНДУК ПОСЕЛЕНИЯ / ОСОБЫЕ ПРЕДМЕТЫ
+hud.inventory.story	STORY	ИСТОРИЯ
+hud.inventory.effect	EFFECT	ЭФФЕКТ
+hud.inventory.read_only	Stored safely for the whole city	Надёжно хранится для всего города
+hud.inventory.empty_title	The city chest is empty	Городской сундук пуст
+hud.inventory.empty_body	Special finds and keepsakes will appear here as the settlement's story unfolds.	По мере развития истории поселения здесь появятся особые находки и памятные вещи.
+hud.inventory.unknown_item	Unknown Item	Неизвестный предмет
+hud.inventory.unique	UNIQUE	УНИКАЛЬНЫЙ
+hud.inventory.unique_city_item	UNIQUE CITY ITEM	УНИКАЛЬНЫЙ ГОРОДСКОЙ ПРЕДМЕТ
+hud.inventory.stored_capacity	{0} / {1} STORED	НА СКЛАДЕ: {0} / {1}
+hud.inventory.stored	{0} STORED	НА СКЛАДЕ: {0}
+hud.inventory.story_missing	This item's story has not been recorded yet.	История этого предмета ещё не записана.
+hud.inventory.effect_missing	No active effect is recorded.	Активный эффект не указан.
+hud.inventory.record_missing	No record is available for this item.	Об этом предмете нет записей.
+hud.inventory.effect_none	No effect is recorded.	Эффект не указан.

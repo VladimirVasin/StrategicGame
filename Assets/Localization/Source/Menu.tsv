@@ -1,0 +1,62 @@
+Key	English	Russian
+menu.brand.subtitle	Build a settlement that can outlast winter.	Постройте поселение, способное пережить зиму.
+menu.continue	Continue	Продолжить
+menu.new_settlement	New Settlement	Новое поселение
+menu.quit	Quit	Выйти
+menu.back	Back	Назад
+menu.loading.title	PREPARING SETTLEMENT	ПОДГОТОВКА ПОСЕЛЕНИЯ
+settings.open	Settings	Настройки
+settings.title	SETTINGS	НАСТРОЙКИ
+settings.subtitle	Audio and display	Звук и изображение
+settings.master_volume	Master volume	Общая громкость
+settings.music	Music	Музыка
+settings.effects	Effects	Эффекты
+settings.interface_scale	Interface scale	Масштаб интерфейса
+settings.fullscreen	Fullscreen	Полноэкранный режим
+settings.reduced_motion	Reduce motion	Уменьшить анимацию
+menu.preload.preparing_settlement	Preparing settlement	Подготовка поселения
+menu.preload.progress	{0}  {1}%	{0}  {1}%
+menu.preload.preparing_content	Preparing content	Подготовка данных
+menu.preload.preparing_buildings	Preparing buildings	Подготовка зданий
+menu.preload.preparing_residents	Preparing residents	Подготовка жителей
+menu.preload.preparing_landscape	Preparing landscape	Подготовка окружения
+menu.preload.preparing_interface_audio	Preparing interface audio	Подготовка звуков интерфейса
+menu.preload.content_ready	Content ready	Данные готовы
+menu.preload.opening_founding_journey	Opening founding journey	Открытие истории основания
+menu.preload.returning_to_main_menu	Returning to main menu	Возвращение в главное меню
+menu.preload.opening_settlement	Opening settlement	Открытие поселения
+menu.save.none	No saved settlement	Нет сохранённого поселения
+menu.save.summary	Day {0}  /  Residents: {1}	День {0}  /  Жители: {1}
+menu.error.main_menu_open_failed	The main menu scene could not be opened.	Не удалось открыть главное меню.
+menu.error.gameplay_open_failed	The gameplay scene could not be opened.	Не удалось открыть поселение.
+menu.error.founding_journey_open_failed	The founding journey scene could not be opened.	Не удалось открыть историю основания.
+map.generation.waiting	Waiting	Ожидание
+map.generation.cancelled	Cancelled	Отменено
+map.generation.generating_terrain	Generating terrain	Создание ландшафта
+map.generation.shaping_terrain	Shaping terrain	Формирование ландшафта
+map.generation.raising_terrain	Raising terrain	Создание рельефа
+map.generation.smoothing_terrain	Smoothing terrain	Сглаживание рельефа
+map.generation.painting_terrain	Painting terrain	Отрисовка ландшафта
+map.generation.preload_failed	Preload failed	Предзагрузка не удалась
+map.generation.uploading_terrain	Uploading terrain	Загрузка ландшафта
+map.generation.ready	Ready	Готово
+map.generation.starting	Starting	Запуск
+pause.escape_hint	ESC  Resume / Back	ESC  Продолжить / Назад
+pause.kicker	SETTLEMENT PAUSED	ПОСЕЛЕНИЕ НА ПАУЗЕ
+pause.title	PAUSE MENU	МЕНЮ ПАУЗЫ
+pause.subtitle	The settlement waits. Review your options before returning.	Поселение ждёт. Проверьте настройки перед возвращением.
+pause.resume	Resume	Продолжить
+pause.save_game	Save Game	Сохранить игру
+pause.main_menu	Main Menu	Главное меню
+pause.quit_game	Quit Game	Выйти из игры
+pause.saved	Settlement saved.	Поселение сохранено.
+pause.save_failed	Save failed. Check the event log for details.	Не удалось сохранить. Подробности — в журнале событий.
+pause.confirm.return.title	Return to main menu?	Вернуться в главное меню?
+pause.confirm.unsaved_body	Unsaved settlement progress will be lost.	Несохранённый прогресс поселения будет потерян.
+pause.confirm.return.accept	Return	Вернуться
+pause.confirm.stay	Stay	Остаться
+pause.confirm.quit.title	Quit the game?	Выйти из игры?
+pause.confirm.quit.accept	Quit	Выйти
+pause.returning_to_main_menu	Returning to main menu...	Возвращение в главное меню...
+pause.main_menu_open_failed	The main menu could not be opened.	Не удалось открыть главное меню.
+pause.quit_standalone_only	Quit is available in a standalone build.	Выход доступен только в отдельной сборке.

@@ -1,0 +1,324 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: Founding Shared Data
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.SharedTableData
+  m_TableCollectionName: Founding
+  m_TableCollectionNameGuidString: feb330b9f2ce63c479b452f508e723ff
+  m_Entries:
+  - m_Id: 183706273861632
+    m_Key: story.departure.chapter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193280
+    m_Key: story.departure.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193281
+    m_Key: story.departure.body
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193282
+    m_Key: story.long_road.chapter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193283
+    m_Key: story.long_road.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193284
+    m_Key: story.long_road.body
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193285
+    m_Key: story.quiet_valley.chapter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193286
+    m_Key: story.quiet_valley.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193287
+    m_Key: story.quiet_valley.body
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193288
+    m_Key: story.council.chapter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193289
+    m_Key: story.council.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193290
+    m_Key: story.council.body
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193291
+    m_Key: question.water.prompt
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193292
+    m_Key: question.water.context
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193293
+    m_Key: answer.water.river.label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193294
+    m_Key: answer.water.river.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193295
+    m_Key: answer.water.lake.label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193296
+    m_Key: answer.water.lake.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193297
+    m_Key: answer.water.inland.label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193298
+    m_Key: answer.water.inland.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193299
+    m_Key: question.landscape.prompt
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193300
+    m_Key: question.landscape.context
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193301
+    m_Key: answer.landscape.forest_edge.label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193302
+    m_Key: answer.landscape.forest_edge.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193303
+    m_Key: answer.landscape.open_meadow.label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193304
+    m_Key: answer.landscape.open_meadow.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193305
+    m_Key: answer.landscape.mixed.label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193306
+    m_Key: answer.landscape.mixed.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193307
+    m_Key: question.livelihood.prompt
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193308
+    m_Key: question.livelihood.context
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193309
+    m_Key: answer.livelihood.hunting.label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193310
+    m_Key: answer.livelihood.hunting.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193311
+    m_Key: answer.livelihood.fishing.label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193312
+    m_Key: answer.livelihood.fishing.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193313
+    m_Key: answer.livelihood.foraging.label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193314
+    m_Key: answer.livelihood.foraging.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193315
+    m_Key: question.priority.prompt
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193316
+    m_Key: question.priority.context
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193317
+    m_Key: answer.priority.construction.label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193318
+    m_Key: answer.priority.construction.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193319
+    m_Key: answer.priority.resources.label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193320
+    m_Key: answer.priority.resources.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193321
+    m_Key: answer.priority.balanced.label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193322
+    m_Key: answer.priority.balanced.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193323
+    m_Key: founding.back
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193324
+    m_Key: founding.preparing_settlement
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193325
+    m_Key: founding.preparing_valley
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193326
+    m_Key: founding.skip_story
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193327
+    m_Key: founding.use_balanced_defaults
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193328
+    m_Key: founding.summary.chapter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193329
+    m_Key: founding.summary.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193330
+    m_Key: founding.begin_settlement
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193331
+    m_Key: founding.change_answers
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193332
+    m_Key: founding.reduce_motion
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193333
+    m_Key: founding.continue
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193334
+    m_Key: founding.choose_refuge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193335
+    m_Key: founding.progress
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193336
+    m_Key: founding.choice_progress
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193337
+    m_Key: founding.summary.body
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193338
+    m_Key: founding.summary.compromise
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193339
+    m_Key: founding.summary.safety_note
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193340
+    m_Key: founding.no_strong_preference
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193341
+    m_Key: founding.balanced
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193342
+    m_Key: founding.valley_ready
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193343
+    m_Key: founding.preparation_progress
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193344
+    m_Key: founding.loading.finding_safe_place
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193345
+    m_Key: founding.loading.comparing_site
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193346
+    m_Key: founding.loading.begin_again
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193347
+    m_Key: founding.loading.opening_valley
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193348
+    m_Key: founding.error.prepared_valley_lost
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193349
+    m_Key: founding.error.preparation_timeout
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193350
+    m_Key: founding.error.no_safe_site
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193351
+    m_Key: founding.error.settlement_open_failed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193352
+    m_Key: founding.error.scouts_failed
+    m_Metadata:
+      m_Items: []
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 465534772507312158
+  references:
+    version: 2
+    RefIds:
+    - rid: 465534772507312158
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1784493437715

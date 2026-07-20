@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
+using UnityEngine;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 
 namespace ProjectUnknown.Strategy.EditorTests
 {
@@ -15,7 +18,44 @@ namespace ProjectUnknown.Strategy.EditorTests
             StrategyResidentItemDefinition spoon = catalog.Definitions[0];
             Assert.That(spoon.Id, Is.EqualTo(StrategyResidentItemCatalog.HoleySpoonId));
             Assert.That(spoon.MaxStack, Is.EqualTo(1));
-            Assert.That(spoon.Description, Does.Contain("суп"));
+            Locale previousLocale = LocalizationSettings.SelectedLocale;
+            bool hadPreference = PlayerPrefs.HasKey(StrategyLocalization.LanguagePreferenceKey);
+            string previousPreference = PlayerPrefs.GetString(
+                StrategyLocalization.LanguagePreferenceKey,
+                StrategyLocalization.RussianLocaleCode);
+            try
+            {
+                Assert.That(
+                    StrategyLocalization.SetLanguage(StrategyGameLanguage.English),
+                    Is.True);
+                Assert.That(spoon.Title, Is.EqualTo("Holey Spoon"));
+                Assert.That(spoon.Description, Does.Contain("soup"));
+
+                Assert.That(
+                    StrategyLocalization.SetLanguage(StrategyGameLanguage.Russian),
+                    Is.True);
+                Assert.That(spoon.Title, Is.EqualTo("Дырявая ложка"));
+                Assert.That(spoon.Description, Does.Contain("суп"));
+            }
+            finally
+            {
+                StrategyGameLanguage restoreLanguage = previousLocale != null
+                    ? StrategyLocalization.FromLocaleCode(previousLocale.Identifier.Code)
+                    : StrategyLocalization.FromLocaleCode(previousPreference);
+                StrategyLocalization.SetLanguage(restoreLanguage);
+                LocalizationSettings.SelectedLocale = previousLocale;
+                if (hadPreference)
+                {
+                    PlayerPrefs.SetString(
+                        StrategyLocalization.LanguagePreferenceKey,
+                        previousPreference);
+                }
+                else
+                {
+                    PlayerPrefs.DeleteKey(StrategyLocalization.LanguagePreferenceKey);
+                }
+            }
+
             Assert.That(spoon.IconResourcePath, Does.EndWith("HoleySpoon"));
         }
 

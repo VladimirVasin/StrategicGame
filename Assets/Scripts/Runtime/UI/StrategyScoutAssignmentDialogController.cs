@@ -42,6 +42,9 @@ namespace ProjectUnknown.Strategy
         private bool callbackResolved;
         private bool hasStoredSelection;
         private float refreshTimer;
+        private string actionStatusKey;
+        private object[] actionStatusArguments = Array.Empty<object>();
+        private bool actionStatusWarning;
 
         public bool IsOpen => panelTransition != null
             ? panelTransition.TargetVisible
@@ -159,6 +162,11 @@ namespace ProjectUnknown.Strategy
             Configure();
         }
 
+        private void OnEnable()
+        {
+            StrategyLocalization.LanguageChanged += HandleLanguageChanged;
+        }
+
         private void Update()
         {
             RefreshInputContext(ShouldHoldInputContext);
@@ -184,12 +192,29 @@ namespace ProjectUnknown.Strategy
 
         private void OnDisable()
         {
+            StrategyLocalization.LanguageChanged -= HandleLanguageChanged;
             ResolveDeferredCallback();
             inputContext?.Dispose();
             inputContext = null;
             panelTransition?.SetVisible(false, true);
             RestorePreviousSelection();
             ClearRequestState();
+        }
+
+        private void HandleLanguageChanged()
+        {
+            if (!initialized)
+            {
+                return;
+            }
+
+            ApplyModeCopy();
+            if (IsOpen)
+            {
+                RefreshCandidates();
+            }
+
+            RefreshActionStatus();
         }
 
         private void StorePreviousSelection()

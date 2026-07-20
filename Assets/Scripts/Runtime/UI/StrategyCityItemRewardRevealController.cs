@@ -134,6 +134,11 @@ namespace ProjectUnknown.Strategy
             Tick(Time.unscaledDeltaTime);
         }
 
+        private void OnEnable()
+        {
+            StrategyLocalization.LanguageChanged += RefreshLocalizedRewardView;
+        }
+
         internal void Tick(float unscaledDeltaTime)
         {
             if (!IsOpen)
@@ -241,6 +246,7 @@ namespace ProjectUnknown.Strategy
 
         private void OnDisable()
         {
+            StrategyLocalization.LanguageChanged -= RefreshLocalizedRewardView;
             CloseWithoutCompletion();
             if (rewardCanvasRoot != null)
             {

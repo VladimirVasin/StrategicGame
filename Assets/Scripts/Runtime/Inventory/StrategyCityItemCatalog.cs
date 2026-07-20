@@ -53,7 +53,11 @@ namespace ProjectUnknown.Strategy
                     maxStack: 1,
                     description: "They followed the caravan unseen, then chose the settlement for their own.",
                     effectText: "Cats hunt mice around the settlement, keeping their numbers down.",
-                    iconResourcePath: "Visual/CityItems/Cats")
+                    iconResourcePath: "Visual/CityItems/Cats",
+                    localizationTable: StrategyLocalizationTables.Residents,
+                    titleKey: "city_item.cats.title",
+                    descriptionKey: "city_item.cats.description",
+                    effectTextKey: "city_item.cats.effect")
             });
 
         public IReadOnlyList<StrategyCityItemDefinition> Definitions => definitions;

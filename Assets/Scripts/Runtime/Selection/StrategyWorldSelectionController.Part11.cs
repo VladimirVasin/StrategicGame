@@ -15,21 +15,20 @@ namespace ProjectUnknown.Strategy
             float fill = dinnerNeed > 0.01f ? availableRations / dinnerNeed : availableRations > 0f ? 1f : 0f;
             StrategyHouseWarmthState warmth = building != null ? building.Warmth : null;
 
-            string summaryLabels = "Need\nAvailable\nMeal check\nHeat";
-            string summaryValues = FormatRations(dinnerNeed)
-                + "r\n"
-                + FormatRations(availableRations)
-                + "r\n"
-                + FormatMealCheckTimer(food)
-                + "\n"
-                + FormatHouseWarmthLine(warmth, store);
+            string summaryLabels = L("house.food.summary_labels");
+            string summaryValues = L(
+                "house.food.summary_values",
+                StrategySelectionLocalization.Rations(dinnerNeed),
+                StrategySelectionLocalization.Rations(availableRations),
+                FormatMealCheckTimer(food),
+                FormatHouseWarmthLine(warmth, store));
             GetDinnerColors(food, dinnerNeed, availableRations, out Color rowColor, out Color fillColor);
             ApplyHouseWarmthColors(warmth, ref rowColor, ref fillColor);
 
             ApplyFoodStatus(
                 summaryLabels,
                 summaryValues,
-                "Food                         Qty   Nutrition",
+                L("house.food.table_header"),
                 fill,
                 rowColor,
                 fillColor);
@@ -40,10 +39,14 @@ namespace ProjectUnknown.Strategy
             int logs = store != null ? store.GetLogsAmount() : 0;
             if (warmth == null)
             {
-                return logs + " Logs";
+                return L("house.food.logs", logs);
             }
 
-            return warmth.StatusText + " / " + logs + " Logs";
+            string warmthText = L(
+                "warmth.status",
+                LocalizedValue(warmth.WarmthLevel.ToString()),
+                StrategyTemperatureModel.FormatCelsius(warmth.IndoorCelsius));
+            return L("house.food.warmth_logs", warmthText, logs);
         }
 
         private static void ApplyHouseWarmthColors(
@@ -86,7 +89,7 @@ namespace ProjectUnknown.Strategy
             float seconds = food.IsNightMealWaiting
                 ? food.NightMealFallbackSecondsRemaining
                 : food.NextFoodTickSeconds;
-            return seconds <= 0.5f ? "now" : FormatDuration(seconds);
+            return seconds <= 0.5f ? LocalizedValue("now") : FormatDuration(seconds);
         }
 
         private static string GetDinnerDetailLine(
@@ -97,21 +100,21 @@ namespace ProjectUnknown.Strategy
         {
             if (food != null && food.IsNightMealWaiting)
             {
-                return "Family home: "
-                    + food.NightMealPresentResidentCount
-                    + "/"
-                    + food.NightMealExpectedResidentCount;
+                return L(
+                    "house.food.family_home",
+                    food.NightMealPresentResidentCount,
+                    food.NightMealExpectedResidentCount);
             }
 
             if (store != null && store.LeftoverRations > 0.01f)
             {
-                return "Next: Leftovers";
+                return L("house.food.next", L("house.food.leftovers"));
             }
 
             if (store != null
                 && store.TryGetNextPreparedDish(out StrategyDishRecipe preparedRecipe, out _))
             {
-                return "Next: " + preparedRecipe.DisplayName;
+                return L("house.food.next", preparedRecipe.DisplayName);
             }
 
             float missingRations = Mathf.Max(0f, dinnerNeed - readyRations);
@@ -119,22 +122,22 @@ namespace ProjectUnknown.Strategy
                 && store.TryGetBestCookableRecipe(missingRations, out StrategyDishRecipe recipe)
                 && store.GetPotteryAmount() > 0)
             {
-                return "Next: " + recipe.DisplayName;
+                return L("house.food.next", recipe.DisplayName);
             }
 
             if (food != null
                 && food.Status == StrategyHouseholdFoodStatus.Settling
                 && food.FoodGraceSecondsRemaining > 0.01f)
             {
-                return "Dinner in " + FormatDuration(food.FoodGraceSecondsRemaining);
+                return L("house.food.dinner_in", FormatDuration(food.FoodGraceSecondsRemaining));
             }
 
             if (store != null && store.GetTotalIngredientRationValue() > 0.01f)
             {
-                return "No dishes ready";
+                return L("house.food.no_dishes");
             }
 
-            return "No food ready";
+            return L("house.food.no_food");
         }
 
         private static string GetDinnerStateLine(
@@ -145,42 +148,47 @@ namespace ProjectUnknown.Strategy
         {
             if (food != null && food.Status == StrategyHouseholdFoodStatus.Starving)
             {
-                return "Starving";
+                return LocalizedValue("Starving");
             }
 
             if (food != null && food.Status == StrategyHouseholdFoodStatus.Hungry)
             {
-                return "Hungry";
+                return LocalizedValue("Hungry");
             }
 
             if (dinnerNeed > 0.01f && readyRations >= dinnerNeed - 0.01f)
             {
-                return "Ready";
+                return LocalizedValue("Ready");
             }
 
             if (store == null)
             {
-                return "Pending";
+                return LocalizedValue("Pending");
             }
 
             bool hasIngredients = store.GetTotalIngredientRationValue() > 0.01f;
             bool canCookByIngredients = store.GetCookableDishCountByIngredients() > 0;
             if (canCookByIngredients && store.GetPotteryAmount() <= 0)
             {
-                return "Missing: Pottery";
+                return L("house.food.missing", GetResourceTitle(StrategyResourceType.Pottery));
             }
 
             if (!canCookByIngredients && readyRations <= 0.01f)
             {
-                return hasIngredients ? "Raw fallback" : "Missing: Food";
+                return hasIngredients
+                    ? L("house.food.raw_fallback")
+                    : L("house.food.missing", L("label.food"));
             }
 
             if (readyRations <= 0.01f && hasIngredients)
             {
-                return "Raw fallback";
+                return L("house.food.raw_fallback");
             }
 
-            return "Short: " + FormatRations(Mathf.Max(0f, dinnerNeed - readyRations)) + "r";
+            return L(
+                "house.food.short",
+                StrategySelectionLocalization.Rations(
+                    Mathf.Max(0f, dinnerNeed - readyRations)));
         }
 
         private static void GetDinnerColors(
@@ -219,19 +227,16 @@ namespace ProjectUnknown.Strategy
         {
             if (store == null || !store.HasAny)
             {
-                return "Stock: none";
+                return L("house.food.stock_none");
             }
 
-            return "Stock: Dishes "
-                + store.GetPreparedDishAmount()
-                + " | Leftovers "
-                + FormatRations(store.LeftoverRations)
-                + "r"
-                + " | Pottery "
-                + store.GetPotteryAmount()
-                + " | Raw "
-                + FormatRations(store.GetTotalIngredientRationValue())
-                + "r";
+            return L(
+                "house.food.stock",
+                store.GetPreparedDishAmount(),
+                StrategySelectionLocalization.Rations(store.LeftoverRations),
+                store.GetPotteryAmount(),
+                StrategySelectionLocalization.Rations(
+                    store.GetTotalIngredientRationValue()));
         }
 
         private static float CalculateHouseDinnerNeed(StrategyPlacedBuilding building)
@@ -256,19 +261,14 @@ namespace ProjectUnknown.Strategy
             return total;
         }
 
-        private static string FormatRations(float rations)
-        {
-            return rations.ToString("0.#");
-        }
-
         private static string FormatDuration(float seconds)
         {
             int totalSeconds = Mathf.CeilToInt(Mathf.Max(0f, seconds));
             int minutes = totalSeconds / 60;
             int remainder = totalSeconds % 60;
             return minutes > 0
-                ? minutes + "m " + remainder.ToString("00") + "s"
-                : remainder + "s";
+                ? L("format.minutes_seconds_short", minutes, remainder.ToString("00"))
+                : L("format.seconds_short", remainder);
         }
 
         private void ApplyFoodStatus(

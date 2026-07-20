@@ -147,7 +147,7 @@ namespace ProjectUnknown.Strategy
             outline.effectColor = new Color(0f, 0f, 0f, 0.45f);
             outline.effectDistance = new Vector2(1.5f, -1.5f);
 
-            titleText = CreateText("Title", panel, "Residents", 24, TextAnchor.MiddleLeft, Color.white);
+            titleText = CreateText("Title", panel, string.Empty, 24, TextAnchor.MiddleLeft, Color.white);
             titleText.fontStyle = FontStyle.Bold;
             SetTopLeft(titleText.rectTransform, 24f, 17f, 360f, 34f);
 
@@ -217,12 +217,17 @@ namespace ProjectUnknown.Strategy
             scroll.vertical = true;
             scroll.movementType = ScrollRect.MovementType.Clamped;
 
-            emptyText = CreateText("Empty", panel, "No residents", 15, TextAnchor.MiddleCenter, new Color(0.70f, 0.78f, 0.76f));
+            emptyText = CreateText("Empty", panel, string.Empty, 15, TextAnchor.MiddleCenter, new Color(0.70f, 0.78f, 0.76f));
+            StrategyLocalizedTextBinding.Bind(
+                emptyText,
+                StrategyLocalizationTables.Hud,
+                "hud.roster.empty");
             Stretch(emptyText.rectTransform, 24f, 250f, 24f, 260f);
         }
 
         private void RefreshNow()
         {
+            UpdateSortHeaderLabels();
             if (population == null)
             {
                 population = Object.FindAnyObjectByType<StrategyPopulationController>();
@@ -285,15 +290,21 @@ namespace ProjectUnknown.Strategy
                 }
             }
 
-            titleText.text = "Residents " + total;
-            statsText.text = "Adults " + adults
-                + " / Children " + children
-                + "   Housed " + housed
-                + " / Camp " + Mathf.Max(0, total - housed)
-                + "   Workers " + workers
-                + " / Free adults " + freeAdults
-                + "   Hungry " + hungry
-                + " / Starving " + starving;
+            titleText.text = StrategyLocalization.Get(
+                StrategyLocalizationTables.Hud,
+                "hud.roster.title",
+                total);
+            statsText.text = StrategyLocalization.Get(
+                StrategyLocalizationTables.Hud,
+                "hud.roster.stats",
+                adults,
+                children,
+                housed,
+                Mathf.Max(0, total - housed),
+                workers,
+                freeAdults,
+                hungry,
+                starving);
         }
 
         private void BuildVisibleResidents()
@@ -354,6 +365,10 @@ namespace ProjectUnknown.Strategy
         private void CreateFilterButton(RectTransform root, string label, ResidentFilter filter, int index)
         {
             Button button = CreateButton("Filter_" + label, root, label, 12, new Color(0.12f, 0.15f, 0.16f, 1f));
+            StrategyLocalizedTextBinding.Bind(
+                button.GetComponentInChildren<Text>(),
+                StrategyLocalizationTables.Hud,
+                "hud.roster.filter." + filter.ToString().ToLowerInvariant());
             button.onClick.AddListener(() => SetFilter(filter));
             SetTopLeft(button.GetComponent<RectTransform>(), index * 105f, 0f, 96f, 30f);
             StrategyUiButtonFeedback.Attach(button, StrategyUiButtonFeedbackProfile.Compact, null);
@@ -454,32 +469,6 @@ namespace ProjectUnknown.Strategy
             text.color = color;
             text.raycastTarget = false;
             return text;
-        }
-
-        private static void SetTopLeft(RectTransform rect, float x, float y, float width, float height)
-        {
-            rect.anchorMin = new Vector2(0f, 1f);
-            rect.anchorMax = new Vector2(0f, 1f);
-            rect.pivot = new Vector2(0f, 1f);
-            rect.anchoredPosition = new Vector2(x, -y);
-            rect.sizeDelta = new Vector2(width, height);
-        }
-
-        private static void SetTopRight(RectTransform rect, float x, float y, float width, float height)
-        {
-            rect.anchorMin = new Vector2(1f, 1f);
-            rect.anchorMax = new Vector2(1f, 1f);
-            rect.pivot = new Vector2(1f, 1f);
-            rect.anchoredPosition = new Vector2(-x, -y);
-            rect.sizeDelta = new Vector2(width, height);
-        }
-
-        private static void Stretch(RectTransform rect, float left, float top, float right, float bottom)
-        {
-            rect.anchorMin = Vector2.zero;
-            rect.anchorMax = Vector2.one;
-            rect.offsetMin = new Vector2(left, bottom);
-            rect.offsetMax = new Vector2(-right, -top);
         }
 
     }

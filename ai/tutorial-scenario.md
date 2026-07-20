@@ -6,6 +6,7 @@ Last updated: 2026-07-19
 
 - A lightweight starter onboarding goal sequence exists in the normal strategy runtime.
 - A separate pre-game `FoundingJourney` onboarding scene now precedes normal New Settlement gameplay.
+- All current onboarding and gameplay UI is bilingual Russian/English; Russian is the first-launch default and Settings can switch language live without changing progression.
 - No `GameStartMode.Tutorial`-style mode is documented yet.
 - No dedicated gameplay tutorial scene or mode exists beyond the founding onboarding and normal starter goals.
 
@@ -21,13 +22,14 @@ When a real tutorial or onboarding flow is implemented:
 ## Current Scenario
 
 - Application startup first opens `MainMenu`: `Continue` is enabled only for a valid save and opens gameplay directly, while `New Settlement` opens `FoundingJourney`.
+- The main-menu and in-game Settings pages expose the same persisted Russian/English control. Switching it refreshes the open menu, founding copy, HUDs, dialogs, goals, and content names without restarting or changing any onboarding state.
 - The menu prepares the likely saved/new map seed in the background. The same New Settlement candidate continues preparing while the founding story is shown; no second map is generated.
 - Four story panels describe the families leaving a war-torn home, crossing the long road, discovering a quiet valley, and gathering for their first decision. Each uses an authored cover-cropped shot, cinematic shot/atmosphere crossfade, staged reveal, normalized artwork-bound effects, and scene-local wind/rain/fire ambience; persistent reduced motion removes the travel/particle motion and shortens transitions. The player can move Back, Skip the story, or use normal UI submit/navigation controls.
 - The player answers four questions: preferred water landmark (River/Lake/High Dry Ground), surrounding landscape (Forest Edge/Open Meadow/Mixed), first livelihood (Hunting/Fishing/Foraging), and immediate priority (Construction/Resources/Balanced). `Use balanced defaults` skips individual answers with a neutral profile.
 - The answers rank safe cells on the already prepared map. They never override water clearance, connected-land, resident-spawn, buildability, or Caravan Cart reservation requirements; explicit relaxed/legacy fallbacks keep unusually constrained maps playable.
 - The summary lets the player change answers or begin. Beginning selects one deterministic camp cell and an exact `3x3` reserved Caravan Cart blocker, then opens gameplay.
 - Gameplay places the campfire, initial families, camera focus, nature/forage exclusions, and visible `3x2` Caravan Cart from that selected layout. A new settlement begins at Dawn on Spring day 1. The profile and exact geometry are included in save version 3; Continue does not replay the story or create temporary new-game residents/cart.
-- An optional `City Inventory` launcher in the persistent top rail opens a read-only special-item chest with an English empty state and descriptive item rows. Opening the HUD blocks map/build input without pausing and does not alter founding, starter-build, or First Winter goals.
+- An optional `City Inventory` launcher in the persistent top rail opens a read-only special-item chest with a localized empty state and descriptive item rows. Opening the HUD blocks map/build input without pausing and does not alter founding, starter-build, or First Winter goals.
 - The persistent `Settlement Stores` launcher shows only construction-ready Logs and Stone. Clicking it opens a non-pausing read-only window for every physical resource type; this overview blocks map/build input while open and does not change tutorial goals, unlocks, or resource ownership.
 - Selecting an adult resident shows a separate read-only `Personal Items` section with six slots and an empty state. Children do not show it. A Scout who searches the first story trash heap receives the unique Holey Spoon here; the surface still has no transfers, Use/Equip actions, or gameplay effects.
 - After `New Settlement` reaches the gameplay scene, the left-side Goals HUD below the top rail shows `Build 3 Houses (0/3)`.
@@ -70,4 +72,4 @@ When a real tutorial or onboarding flow is implemented:
 - After the first Winter ends, the winter goal is cleared and the same settlement continues as an unrestricted sandbox.
 - There is deliberately no victory screen, defeat screen, forced pause, or terminal game state at this stage.
 - When no higher-priority modal or HUD owns Cancel, `Escape` opens the in-game pause menu and pauses simulation without changing the requested x1/x2/x3 speed. `Escape` returns from Settings before closing the menu; Resume continues the existing onboarding or sandbox state.
-- The pause menu exposes Save Game, master/music/effects/fullscreen/interface-scale/reduced-motion settings, and confirmed Main Menu/Quit actions without changing tutorial goals or unlocks. F5 still saves the current settlement snapshot and F8 restarts the scene into the saved state.
+- The pause menu exposes Save Game, master/music/effects/fullscreen/interface-scale/reduced-motion/language settings, and confirmed Main Menu/Quit actions without changing tutorial goals or unlocks. F5 still saves the current settlement snapshot and F8 restarts the scene into the saved state.

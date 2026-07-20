@@ -34,13 +34,29 @@ namespace ProjectUnknown.Strategy
         private float pulseTimer;
         private float hideTimer;
         private bool configured;
+        private bool languageSubscribed;
 
         public void Configure()
         {
             configured = true;
+            if (!languageSubscribed)
+            {
+                StrategyLocalization.LanguageChanged += HandleLanguageChanged;
+                languageSubscribed = true;
+            }
+
             if (canvasRoot != null)
             {
                 canvasRoot.SetActive(false);
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (languageSubscribed)
+            {
+                StrategyLocalization.LanguageChanged -= HandleLanguageChanged;
+                languageSubscribed = false;
             }
         }
 
@@ -62,7 +78,7 @@ namespace ProjectUnknown.Strategy
             canvasRoot.SetActive(true);
             PrepareIntroIfNeeded();
 
-            titleText.text = "CURRENT GOALS";
+            titleText.text = H("goals.header");
             panelRoot.sizeDelta = new Vector2(PanelWidth, CalculatePanelHeight(goals.Count));
 
             EnsureRowCount(goals.Count);
@@ -167,7 +183,7 @@ namespace ProjectUnknown.Strategy
             canvasGroup.blocksRaycasts = false;
             canvasGroup.interactable = false;
 
-            titleText = CreateText("Title", panelRoot, "CURRENT GOALS", 14, TextAnchor.MiddleLeft, StrategyHudStyle.Primary);
+            titleText = CreateText("Title", panelRoot, H("goals.header"), 14, TextAnchor.MiddleLeft, StrategyHudStyle.Primary);
             titleText.fontStyle = FontStyle.Bold;
             titleText.rectTransform.anchorMin = new Vector2(0f, 1f);
             titleText.rectTransform.anchorMax = new Vector2(1f, 1f);
@@ -394,6 +410,19 @@ namespace ProjectUnknown.Strategy
             rect.offsetMax = Vector2.zero;
         }
 
+        private void HandleLanguageChanged()
+        {
+            if (titleText != null)
+            {
+                titleText.text = H("goals.header");
+            }
+        }
+
+        private static string H(string key)
+        {
+            return StrategyLocalization.Get(StrategyLocalizationTables.Hud, key);
+        }
+
         private sealed class GoalRowUi
         {
             public GoalRowUi(
@@ -441,7 +470,7 @@ namespace ProjectUnknown.Strategy
                     RectTransform fillRect = ProgressFill.rectTransform;
                     fillRect.anchorMax = new Vector2(state.ProgressNormalized, 1f);
                     ProgressFill.color = state.Completed ? CompleteColor : AccentColor;
-                    ProgressText.text = state.Completed ? "7 / 7 days" : state.ProgressText;
+                    ProgressText.text = state.ProgressText;
                     ProgressText.color = state.Completed ? CompleteColor : new Color(0.82f, 0.88f, 0.84f);
                 }
             }

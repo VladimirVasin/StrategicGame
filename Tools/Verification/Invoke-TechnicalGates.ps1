@@ -8,7 +8,7 @@ $projectRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 $violations = [System.Collections.Generic.List[string]]::new()
 $textExtensions = @(
     '.asmdef', '.asmref', '.asset', '.cs', '.csproj', '.inputactions', '.json',
-    '.md', '.meta', '.ps1', '.shader', '.slnx', '.txt', '.unity', '.uss',
+    '.md', '.meta', '.ps1', '.shader', '.slnx', '.tsv', '.txt', '.unity', '.uss',
     '.uxml', '.yaml', '.yml'
 )
 $mojibakeSequences = @(

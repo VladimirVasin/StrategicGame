@@ -1,0 +1,240 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: Resources Shared Data
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.SharedTableData
+  m_TableCollectionName: Resources
+  m_TableCollectionNameGuidString: 28ef12682b4fc594eb4dcd5cf8285513
+  m_Entries:
+  - m_Id: 183702830338048
+    m_Key: resource.none.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058304
+    m_Key: resource.dish.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058305
+    m_Key: resource.eggs.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058306
+    m_Key: resource.turnip.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058307
+    m_Key: resource.cabbage.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058308
+    m_Key: resource.onion.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058309
+    m_Key: resource.carrot.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058310
+    m_Key: resource.potato.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058311
+    m_Key: resource.berries.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058312
+    m_Key: resource.roots.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058313
+    m_Key: resource.mushrooms.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058314
+    m_Key: resource.game.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058315
+    m_Key: resource.fish.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058316
+    m_Key: resource.stone.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058317
+    m_Key: resource.iron.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058318
+    m_Key: resource.coal.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058319
+    m_Key: resource.clay.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058320
+    m_Key: resource.pottery.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058321
+    m_Key: resource.planks.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058322
+    m_Key: resource.logs.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058323
+    m_Key: resource.tools.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058324
+    m_Key: dish.mushroom_broth.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058325
+    m_Key: dish.root_soup.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058326
+    m_Key: dish.turnip_soup.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058327
+    m_Key: dish.berry_mash.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058328
+    m_Key: dish.potato_broth.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058329
+    m_Key: dish.cabbage_soup.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058330
+    m_Key: dish.roasted_roots.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058331
+    m_Key: dish.egg_mash.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058332
+    m_Key: dish.egg_and_greens.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058333
+    m_Key: dish.vegetable_hash.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058334
+    m_Key: dish.foragers_bowl.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058335
+    m_Key: dish.fish_soup.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058336
+    m_Key: dish.garden_stew.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058337
+    m_Key: dish.mushroom_pottage.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058338
+    m_Key: dish.fish_and_roots.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058339
+    m_Key: dish.fish_stew.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058340
+    m_Key: dish.fishers_pottage.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058341
+    m_Key: dish.game_roast.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058342
+    m_Key: dish.game_stew.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058343
+    m_Key: dish.hunters_pot.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058344
+    m_Key: dish.hearty_pottage.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058345
+    m_Key: dish.fine_fish_dish.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058346
+    m_Key: dish.fine_game_dish.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058347
+    m_Key: dish.fishers_feast.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058348
+    m_Key: dish.hunters_feast.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058349
+    m_Key: dish.settlement_feast.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058350
+    m_Key: dish.quality.poor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058351
+    m_Key: dish.quality.common
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058352
+    m_Key: dish.quality.hearty
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058353
+    m_Key: dish.quality.fine
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058354
+    m_Key: dish.quality.feast
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183702889058355
+    m_Key: dish.quality.unknown
+    m_Metadata:
+      m_Items: []
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 465534772507312161
+  references:
+    version: 2
+    RefIds:
+    - rid: 465534772507312161
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1784493438615

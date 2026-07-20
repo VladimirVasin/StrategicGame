@@ -8,141 +8,147 @@ namespace ProjectUnknown.Strategy
         {
             if (resident == null)
             {
-                return "Settler";
+                return L("resident.role.settler");
             }
 
             if (!resident.IsAdult)
             {
-                return "Child";
+                return L("resident.role.child");
             }
 
             if (resident.IsHouseholder)
             {
-                return "Householder";
+                return L("resident.role.householder");
             }
 
             if (resident.IsSettlementBuilder || resident.BuilderWorkplace != null || resident.ConstructionSite != null)
             {
-                return "Builder";
+                return L("resident.role.builder");
             }
 
             if (resident.Workplace != null)
             {
-                return "Lumberjack";
+                return L("resident.role.lumberjack");
             }
 
             if (resident.StoneWorkplace != null)
             {
-                return "Stonecutter";
+                return L("resident.role.stonecutter");
             }
 
             if (resident.MineWorkplace != null)
             {
-                return "Miner";
+                return L("resident.role.miner");
             }
 
             if (resident.CoalPitWorkplace != null)
             {
-                return "Coal Miner";
+                return L("resident.role.coal_miner");
             }
 
             if (resident.ClayPitWorkplace != null)
             {
-                return "Clay Digger";
+                return L("resident.role.clay_digger");
             }
 
             if (resident.SawmillWorkplace != null)
             {
-                return "Sawyer";
+                return L("resident.role.sawyer");
             }
 
             if (resident.KilnWorkplace != null)
             {
-                return "Potter";
+                return L("resident.role.potter");
             }
 
             if (resident.ForgeWorkplace != null)
             {
-                return "Blacksmith";
+                return L("resident.role.blacksmith");
             }
 
             if (resident.HunterWorkplace != null)
             {
-                return "Hunter";
+                return L("resident.role.hunter");
             }
 
             if (resident.FisherWorkplace != null)
             {
-                return "Fisher";
+                return L("resident.role.fisher");
             }
 
             if (resident.ForagerWorkplace != null)
             {
-                return "Forager";
+                return L("resident.role.forager");
             }
 
             if (resident.ScoutWorkplace != null)
             {
-                return "Scout";
+                return L("resident.role.scout");
             }
 
             if (resident.IsSettlementHauler || resident.StorageWorkplace != null || resident.GranaryWorkplace != null)
             {
-                return "Hauler";
+                return L("resident.role.hauler");
             }
 
-            return "Settler";
+            return L("resident.role.settler");
         }
 
         public static string GetHomeTitle(StrategyResidentAgent resident)
         {
             if (resident == null)
             {
-                return "Unknown";
+                return L("resident.home.unknown");
             }
 
             if (resident.Home != null)
             {
-                return "House";
+                return L("resident.home.house");
             }
 
             if (resident.ConstructionWillBecomeHome)
             {
-                return "Future House";
+                return L("resident.home.future_house");
             }
 
-            return resident.IsPendingRefugee ? "Refugee Camp" : "Camp";
+            return resident.IsPendingRefugee
+                ? L("resident.home.refugee_camp")
+                : L("resident.home.camp");
         }
 
         public static string GetFoodTitle(StrategyResidentAgent resident)
         {
             if (resident == null)
             {
-                return "unknown";
+                return L("resident.common.unknown");
             }
 
+            string nutrition = StrategyLocalization.TranslateLiteral(
+                resident.NutritionStatusText);
             return resident.IsHungry
-                ? resident.NutritionStatusText + " " + resident.DaysHungry + "d"
-                : resident.NutritionStatusText;
+                ? L("resident.food.hungry_days", nutrition, resident.DaysHungry)
+                : nutrition;
         }
 
         public static string GetGenderTitle(StrategyResidentGender gender)
         {
-            return gender == StrategyResidentGender.Male ? "male" : "female";
+            return gender == StrategyResidentGender.Male
+                ? L("resident.gender.male")
+                : L("resident.gender.female");
         }
 
         public static string GetLifeStageTitle(StrategyResidentAgent resident)
         {
             return resident != null && resident.LifeStage == StrategyResidentLifeStage.Child
-                ? "child"
-                : "adult";
+                ? L("resident.life_stage.child")
+                : L("resident.life_stage.adult");
         }
 
         public static string GetStatusText(StrategyResidentAgent resident)
         {
             if (resident == null)
             {
-                return "unknown";
+                return L("resident.common.unknown");
             }
 
             string status = resident.Activity switch
@@ -407,19 +413,27 @@ namespace ProjectUnknown.Strategy
         {
             if (resident == null)
             {
-                return status;
+                return StrategyLocalization.TranslateLiteral(status);
             }
 
+            status = StrategyLocalization.TranslateLiteral(status);
             status = GetScoutExpeditionStatus(resident, status);
 
             if (resident.IsHungry)
             {
-                status += " | " + resident.NutritionStatusText + " " + resident.DaysHungry + "d";
+                status = L(
+                    "resident.status.hungry_suffix",
+                    status,
+                    StrategyLocalization.TranslateLiteral(resident.NutritionStatusText),
+                    resident.DaysHungry);
             }
 
             if (resident.IsColdAffected)
             {
-                status += " | " + resident.ColdStatusText;
+                status = L(
+                    "resident.status.cold_suffix",
+                    status,
+                    StrategyLocalization.TranslateLiteral(resident.ColdStatusText));
             }
 
             return status;
@@ -437,13 +451,13 @@ namespace ProjectUnknown.Strategy
 
             if (lodge.ExpeditionState == StrategyScoutExpeditionState.Returning)
             {
-                return "returning to the Scout Lodge";
+                return L("resident.status.returning_to_scout_lodge");
             }
 
             if (lodge.ExpeditionState == StrategyScoutExpeditionState.Ready)
             {
                 return resident.Activity == StrategyResidentAgent.ResidentActivity.Idle
-                    ? "ready for an expedition"
+                    ? L("resident.status.ready_for_expedition")
                     : activityStatus;
             }
 
@@ -459,9 +473,17 @@ namespace ProjectUnknown.Strategy
             }
 
             string remaining = days > 0
-                ? days + "d " + hours + "h"
-                : Mathf.Max(1, hours) + "h";
-            return activityStatus + " | expedition " + remaining + " left";
+                ? L("resident.time.days_hours", days, hours)
+                : L("resident.time.hours", Mathf.Max(1, hours));
+            return L("resident.status.expedition_remaining", activityStatus, remaining);
+        }
+
+        private static string L(string key, params object[] arguments)
+        {
+            return StrategyLocalization.Get(
+                StrategyLocalizationTables.Residents,
+                key,
+                arguments);
         }
     }
 }

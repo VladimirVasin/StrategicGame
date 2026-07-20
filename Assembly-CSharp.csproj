@@ -19,6 +19,13 @@
     <Compile Include="Assets\Scripts\Runtime\Persistence\StrategySaveSystem.Validation.ResidentItems.cs" />
     <Compile Include="Assets\Scripts\Runtime\Persistence\StrategySaveSystem.Validation.StoryPoints.cs" />
     <Compile Include="Assets\Scripts\Runtime\Selection\StrategyWorldSelectionController.ResidentPersonalInventory.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Selection\StrategySelectionLocalization.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Localization\StrategyGameLanguage.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Localization\StrategyLegacyTextAutoLocalizer.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Localization\StrategyLocalization.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Localization\StrategyLocalization.Initialization.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Localization\StrategyLocalizationTables.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Localization\StrategyLocalizedTextBinding.cs" />
     <Compile Include="Assets\Scripts\Runtime\Inventory\StrategyCityItemDefinition.cs" />
     <Compile Include="Assets\Scripts\Runtime\Inventory\StrategyCityItemCatalog.cs" />
     <Compile Include="Assets\Scripts\Runtime\Inventory\StrategyCityInventoryData.cs" />
@@ -39,6 +46,7 @@
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyScoutLodgeOnboardingController.Expedition.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyCityInventoryHudController.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyCityInventoryHudController.View.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyCityInventoryHudController.Icon.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyCityInventoryHudController.Items.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyCityInventoryHudController.Input.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyResourceOverviewHudController.cs" />
@@ -196,6 +204,7 @@
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part02.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyGameBootstrap.Audio.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyPopulationRosterHudController.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyPopulationRosterHudController.Layout.cs" />
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategySettlementTreasury.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingSpriteFactory.Polish.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyFirstYearBalance.cs" />
@@ -677,6 +686,7 @@
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingUpgradeSpriteFactory.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyDayNightCycleController.Calendar.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyProfessionHudController.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyProfessionHudController.Presentation.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part54.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategySawmill.Construction.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyAutoWorkforceController.FoodSources.cs" />
@@ -2037,6 +2047,14 @@
     </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>Library\ScriptAssemblies\UnityEngine.UI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.Localization">
+      <HintPath>Library\ScriptAssemblies\Unity.Localization.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.ResourceManager">
+      <HintPath>Library\ScriptAssemblies\Unity.ResourceManager.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.Burst">

@@ -325,9 +325,10 @@ namespace ProjectUnknown.Strategy
 
             button.onClick.AddListener(() => ToggleTool(data));
             StrategyUiButtonFeedback.Attach(button, StrategyUiButtonFeedbackProfile.SoundOnly);
+            Vector2Int footprint = GetFootprint(data.Tool);
             StrategyHudTooltip.Attach(
                 root.gameObject,
-                "Footprint " + GetFootprint(data.Tool).x + " × " + GetFootprint(data.Tool).y,
+                BuildHudText("build.tooltip.footprint", footprint.x, footprint.y),
                 StrategyHudTooltipPlacement.Above);
             return item;
         }
@@ -408,6 +409,9 @@ namespace ProjectUnknown.Strategy
                             : new Color(0.13f, 0.20f, 0.18f, 0.98f);
                     item.IconBackground.color = allowed && affordable ? item.Data.Color : new Color(0.24f, 0.25f, 0.27f, 0.92f);
                     item.Title.color = allowed && affordable ? Color.white : new Color(0.62f, 0.66f, 0.70f, 1f);
+                    Vector2Int footprint = GetFootprint(item.Data.Tool);
+                    item.Root.GetComponent<StrategyHudTooltip>()?.SetText(
+                        BuildHudText("build.tooltip.footprint", footprint.x, footprint.y));
                     item.BadgeBackground.color = active
                         ? new Color(0.60f, 0.36f, 0.10f, 0.96f)
                         : allowed && affordable

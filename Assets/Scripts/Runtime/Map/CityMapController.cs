@@ -96,7 +96,7 @@ namespace ProjectUnknown.Strategy
             IsGenerated = false;
             GenerationFailed = false;
             GenerationProgress = 0f;
-            GenerationStage = "Generating terrain";
+            generationStageKey = "map.generation.generating_terrain";
             width = Mathf.Max(8, width);
             height = Mathf.Max(8, height);
             cellSize = Mathf.Max(0.25f, cellSize);
@@ -163,7 +163,7 @@ namespace ProjectUnknown.Strategy
             IsGenerating = false;
             IsGenerated = true;
             GenerationProgress = 1f;
-            GenerationStage = "Ready";
+            generationStageKey = "map.generation.ready";
         }
 
         public bool TryGetCell(int x, int y, out CityMapCell cell)

@@ -9,6 +9,7 @@ namespace ProjectUnknown.Strategy
         private const int TradeOfferSlotCount = 8;
 
         private RectTransform tradingPostHudRoot;
+        private Text tradeOffersTitleText;
         private Text tradeEmptyText;
         private readonly RectTransform[] tradeOfferRows = new RectTransform[TradeOfferSlotCount];
         private readonly Image[] tradeOfferIcons = new Image[TradeOfferSlotCount];
@@ -24,13 +25,18 @@ namespace ProjectUnknown.Strategy
             SetTopStretch(tradingPostHudRoot, 18f, 128f, 18f, 508f);
             tradingPostHudRoot.gameObject.SetActive(false);
 
-            Text offersTitle = CreateText("OffersTitle", tradingPostHudRoot, 13, TextAnchor.UpperLeft, StrategyHudStyle.Primary);
-            offersTitle.fontStyle = FontStyle.Bold;
-            offersTitle.text = "Offers";
-            SetTopStretch(offersTitle.rectTransform, 0f, 0f, 0f, 20f);
+            tradeOffersTitleText = CreateText(
+                "OffersTitle",
+                tradingPostHudRoot,
+                13,
+                TextAnchor.UpperLeft,
+                StrategyHudStyle.Primary);
+            tradeOffersTitleText.fontStyle = FontStyle.Bold;
+            tradeOffersTitleText.text = L("label.active_offers");
+            SetTopStretch(tradeOffersTitleText.rectTransform, 0f, 0f, 0f, 20f);
 
             tradeEmptyText = CreateText("Empty", tradingPostHudRoot, 12, TextAnchor.UpperLeft, StrategyHudStyle.TextMuted);
-            tradeEmptyText.text = "No caravan is trading here.";
+            tradeEmptyText.text = L("trade.no_caravan_here");
             SetTopStretch(tradeEmptyText.rectTransform, 0f, 28f, 0f, 24f);
 
             for (int i = 0; i < TradeOfferSlotCount; i++)
@@ -50,6 +56,16 @@ namespace ProjectUnknown.Strategy
             SetUpgradeActionsVisible(false);
             SetProductionUpgradeHudVisible(false);
             SetTradingPostHudVisible(true);
+
+            if (tradeOffersTitleText != null)
+            {
+                tradeOffersTitleText.text = L("label.active_offers");
+            }
+
+            if (tradeEmptyText != null)
+            {
+                tradeEmptyText.text = L("trade.no_caravan_here");
+            }
 
             StrategyTradeCaravanController controller = StrategyTradeCaravanController.Active;
             IReadOnlyList<StrategyTradeOffer> offers = controller != null ? controller.CurrentOffers : null;
@@ -156,7 +172,9 @@ namespace ProjectUnknown.Strategy
             StrategyTradingPost post,
             bool isTrading)
         {
-            string verb = offer.Direction == StrategyTradeDirection.PlayerSells ? "Sell" : "Buy";
+            string verb = offer.Direction == StrategyTradeDirection.PlayerSells
+                ? L("action.sell")
+                : L("action.buy");
             string sign = offer.Direction == StrategyTradeDirection.PlayerSells ? "+" : "-";
             int available = StrategyTradeTransactionService.GetAvailableStock(offer.Resource);
             Vector3 nearWorld = post != null ? post.FootprintBounds.center : Vector3.zero;
@@ -164,8 +182,15 @@ namespace ProjectUnknown.Strategy
 
             tradeOfferIcons[index].sprite = StrategyResourceIconFactory.GetSprite(offer.Resource);
             tradeOfferIcons[index].color = canExecute ? Color.white : WithAlpha(Color.white, 0.42f);
-            tradeOfferTitleTexts[index].text = verb + " " + offer.Amount + " " + GetResourceTitle(offer.Resource);
-            tradeOfferDetailTexts[index].text = sign + offer.TotalCoins + " Coins / stock " + available;
+            tradeOfferTitleTexts[index].text = L(
+                "trade.offer_title",
+                verb,
+                offer.Amount,
+                GetResourceTitle(offer.Resource));
+            tradeOfferDetailTexts[index].text = L(
+                "trade.offer_detail",
+                sign + offer.TotalCoins,
+                available);
             tradeOfferButtons[index].interactable = canExecute;
             tradeOfferButtonTexts[index].text = verb;
         }

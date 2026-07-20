@@ -76,6 +76,7 @@ namespace ProjectUnknown.Strategy
             if (fog != null && !fog.IsWorldExplored(world))
             {
                 ClearSelection();
+                hasLastInspectWorld = false;
                 inspectHud?.Hide();
                 return;
             }

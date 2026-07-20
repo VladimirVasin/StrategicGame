@@ -148,10 +148,10 @@ namespace ProjectUnknown.Strategy
             storyChapterText.text = panel.Chapter;
             storyTitleText.text = panel.Title;
             storyBodyText.text = panel.Body;
-            storyProgressText.text = (storyIndex + 1) + " / " + StrategyFoundingJourneyCatalog.StoryPanels.Length;
+            storyProgressText.text = StrategyLocalization.Get(StrategyLocalizationTables.Founding, "founding.progress", storyIndex + 1, StrategyFoundingJourneyCatalog.StoryPanels.Length);
             nextButtonLabel.text = storyIndex + 1 < StrategyFoundingJourneyCatalog.StoryPanels.Length
-                ? "Continue"
-                : "Choose our refuge";
+                ? StrategyLocalization.Get(StrategyLocalizationTables.Founding, "founding.continue")
+                : StrategyLocalization.Get(StrategyLocalizationTables.Founding, "founding.choose_refuge");
             backButton.interactable = true;
             presentationController.RevealStory();
             if (immediate)
@@ -173,7 +173,7 @@ namespace ProjectUnknown.Strategy
             questionRoot.SetActive(true);
             summaryRoot.SetActive(false);
             loadingRoot.SetActive(false);
-            questionChapterText.text = "FOUNDING CHOICE  " + (questionIndex + 1) + " / " + StrategyFoundingJourneyCatalog.Questions.Length;
+            questionChapterText.text = StrategyLocalization.Get(StrategyLocalizationTables.Founding, "founding.choice_progress", questionIndex + 1, StrategyFoundingJourneyCatalog.Questions.Length);
             questionTitleText.text = question.Prompt;
             questionContextText.text = question.Context;
             string selected = GetAnswer(question.Id);
@@ -233,8 +233,8 @@ namespace ProjectUnknown.Strategy
             summaryBodyText.text = BuildSummaryText();
             summaryNoteText.text = waterChoice == StrategyFoundingChoiceIds.WaterInland
                 && livelihoodChoice == StrategyFoundingChoiceIds.LivelihoodFishing
-                ? "The scouts will compromise between dry ground and reachable fishing water."
-                : "Safety remains the first rule. Preferences guide the best playable site.";
+                ? StrategyLocalization.Get(StrategyLocalizationTables.Founding, "founding.summary.compromise")
+                : StrategyLocalization.Get(StrategyLocalizationTables.Founding, "founding.summary.safety_note");
             backButton.interactable = true;
             SelectUi(beginButton);
         }
@@ -266,7 +266,7 @@ namespace ProjectUnknown.Strategy
             {
                 if (preloader == null)
                 {
-                    ShowLaunchFailure("The prepared valley was lost. Return to the main menu and try again.");
+                    ShowLaunchFailure(StrategyLocalization.Get(StrategyLocalizationTables.Founding, "founding.error.prepared_valley_lost"));
                     yield break;
                 }
 
@@ -277,15 +277,15 @@ namespace ProjectUnknown.Strategy
                         "PreparedMapTimeout",
                         StrategyDebugLogger.F("phase", PreloadPhase),
                         StrategyDebugLogger.F("stage", PreparationStage));
-                    ShowLaunchFailure("Preparing the valley took too long. Return to the main menu and try again.");
+                    ShowLaunchFailure(StrategyLocalization.Get(StrategyLocalizationTables.Founding, "founding.error.preparation_timeout"));
                     yield break;
                 }
 
                 yield return null;
             }
 
-            loadingTitleText.text = "Finding a safe place";
-            loadingDetailText.text = "Comparing water, shelter and room to build";
+            loadingTitleText.text = StrategyLocalization.Get(StrategyLocalizationTables.Founding, "founding.loading.finding_safe_place");
+            loadingDetailText.text = StrategyLocalization.Get(StrategyLocalizationTables.Founding, "founding.loading.comparing_site");
             yield return null;
 
             StrategyFoundingPreferences preferences = CreatePreferences();
@@ -318,7 +318,7 @@ namespace ProjectUnknown.Strategy
             float selectionMs = (Time.realtimeSinceStartup - selectionStarted) * 1000f;
             if (!layout.IsValid)
             {
-                ShowLaunchFailure("No safe starting site could be resolved.");
+                ShowLaunchFailure(StrategyLocalization.Get(StrategyLocalizationTables.Founding, "founding.error.no_safe_site"));
                 yield break;
             }
 
@@ -336,12 +336,12 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("snapshotMs", snapshotMs),
                 StrategyDebugLogger.F("selectionMs", selectionMs));
 
-            loadingTitleText.text = "Here we begin again";
-            loadingDetailText.text = "Opening the valley";
+            loadingTitleText.text = StrategyLocalization.Get(StrategyLocalizationTables.Founding, "founding.loading.begin_again");
+            loadingDetailText.text = StrategyLocalization.Get(StrategyLocalizationTables.Founding, "founding.loading.opening_valley");
             yield return new WaitForSecondsRealtime(reducedMotion ? 0.05f : 0.35f);
             if (!CompleteJourney())
             {
-                ShowLaunchFailure("The settlement could not be opened.");
+                ShowLaunchFailure(StrategyLocalization.Get(StrategyLocalizationTables.Founding, "founding.error.settlement_open_failed"));
             }
         }
 
@@ -352,7 +352,7 @@ namespace ProjectUnknown.Strategy
                 eventName,
                 StrategyDebugLogger.F("exception", exception.GetType().Name),
                 StrategyDebugLogger.F("message", exception.Message));
-            ShowLaunchFailure("The scouts could not resolve a safe site. Return to the main menu and try again.");
+            ShowLaunchFailure(StrategyLocalization.Get(StrategyLocalizationTables.Founding, "founding.error.scouts_failed"));
         }
 
         private void ShowLaunchFailure(string message)
@@ -386,10 +386,13 @@ namespace ProjectUnknown.Strategy
 
         private string BuildSummaryText()
         {
-            return "WATER\n" + GetOptionLabel(StrategyFoundingChoiceIds.WaterQuestion, waterChoice)
-                + "\n\nLANDSCAPE\n" + GetOptionLabel(StrategyFoundingChoiceIds.LandscapeQuestion, landscapeChoice)
-                + "\n\nFIRST LIVELIHOOD\n" + GetOptionLabel(StrategyFoundingChoiceIds.LivelihoodQuestion, livelihoodChoice)
-                + "\n\nPRIORITY\n" + GetOptionLabel(StrategyFoundingChoiceIds.PriorityQuestion, priorityChoice);
+            return StrategyLocalization.Get(
+                StrategyLocalizationTables.Founding,
+                "founding.summary.body",
+                GetOptionLabel(StrategyFoundingChoiceIds.WaterQuestion, waterChoice),
+                GetOptionLabel(StrategyFoundingChoiceIds.LandscapeQuestion, landscapeChoice),
+                GetOptionLabel(StrategyFoundingChoiceIds.LivelihoodQuestion, livelihoodChoice),
+                GetOptionLabel(StrategyFoundingChoiceIds.PriorityQuestion, priorityChoice));
         }
 
         private static string GetOptionLabel(string questionId, string answerId)
@@ -413,8 +416,8 @@ namespace ProjectUnknown.Strategy
 
             return answerId == StrategyFoundingChoiceIds.WaterNoPreference
                 || answerId == StrategyFoundingChoiceIds.LivelihoodBalanced
-                ? "No strong preference"
-                : "Balanced";
+                ? StrategyLocalization.Get(StrategyLocalizationTables.Founding, "founding.no_strong_preference")
+                : StrategyLocalization.Get(StrategyLocalizationTables.Founding, "founding.balanced");
         }
 
         private string GetAnswer(string questionId)

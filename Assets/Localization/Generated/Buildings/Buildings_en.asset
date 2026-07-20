@@ -1,0 +1,361 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Buildings_en
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: en
+  m_SharedData: {fileID: 11400000, guid: daf391106076a1a4391b2e2cd0ecefab, type: 2}
+  m_Metadata:
+    m_Items:
+    - rid: 465534772507312171
+  m_TableData:
+  - m_Id: 183703899885568
+    m_Localized: Housing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703946022912
+    m_Localized: Extraction
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703946022913
+    m_Localized: Production
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703946022914
+    m_Localized: Storage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703946022915
+    m_Localized: Trade
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703946022916
+    m_Localized: Infrastructure
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703946022917
+    m_Localized: Camps
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703946022918
+    m_Localized: Deposits
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703946022919
+    m_Localized: Food
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217216
+    m_Localized: House
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217217
+    m_Localized: Lumberjack Camp
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217218
+    m_Localized: Stonecutter Camp
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217219
+    m_Localized: Mine
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217220
+    m_Localized: Coal Pit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217221
+    m_Localized: Clay Pit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217222
+    m_Localized: Hunter Camp
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217223
+    m_Localized: Fisher Hut
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217224
+    m_Localized: Forager Camp
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217225
+    m_Localized: Chicken Coop
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217226
+    m_Localized: Sawmill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217227
+    m_Localized: Kiln
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217228
+    m_Localized: Forge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217229
+    m_Localized: Storage Yard
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217230
+    m_Localized: Granary
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217231
+    m_Localized: Trading Post
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217232
+    m_Localized: Scout Lodge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217233
+    m_Localized: Bridge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217234
+    m_Localized: Iron Axes
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217235
+    m_Localized: Faster chopping and bucking.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217236
+    m_Localized: Iron Pickaxes
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217237
+    m_Localized: Faster stonecutting.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217238
+    m_Localized: Reinforced Mining Tools
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217239
+    m_Localized: Faster underground iron mining.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217240
+    m_Localized: Pit Tool Rack
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217241
+    m_Localized: Faster coal extraction.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217242
+    m_Localized: Iron Shovels
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217243
+    m_Localized: Faster clay digging.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217244
+    m_Localized: Saw Blade Set
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217245
+    m_Localized: Faster plank sawing.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217246
+    m_Localized: Kiln Tool Set
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217247
+    m_Localized: Faster pottery firing.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217248
+    m_Localized: Better Anvil Tools
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217249
+    m_Localized: Faster tool forging.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217250
+    m_Localized: Deer Hunting Kit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217251
+    m_Localized: Unlocks adult deer hunting.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217252
+    m_Localized: Hooks and Line Kit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217253
+    m_Localized: Faster fishing cycle.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217254
+    m_Localized: 'Set simulation speed to x{0}. Keyboard shortcut: F{0}.'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312171
+  - m_Id: 183703950217255
+    m_Localized: "Footprint {0} \xD7 {1}"
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312171
+  - m_Id: 183703950217256
+    m_Localized: "{0} \xB7 {1}\xD7{2}"
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312171
+  - m_Id: 183703950217257
+    m_Localized: "{0} \xB7 LMB place \xB7 RMB/Esc cancel"
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312171
+  - m_Id: 183703950217258
+    m_Localized: Choose a buildable location.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217259
+    m_Localized: Move the pointer over the map.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217260
+    m_Localized: Explore this area before building here.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217261
+    m_Localized: Another structure already occupies this space.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217262
+    m_Localized: Move the whole footprint inside the map.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217263
+    m_Localized: This building needs suitable land or water access.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217264
+    m_Localized: Not enough construction materials.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217265
+    m_Localized: Builders cannot reach this site.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217266
+    m_Localized: A resident is standing in the footprint.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217267
+    m_Localized: The Fisher Hut needs accessible fishing water.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217268
+    m_Localized: Place the Mine over a discovered Iron deposit.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217269
+    m_Localized: Place the Coal Pit over a discovered Coal deposit.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217270
+    m_Localized: Place the Clay Pit over a Clay field.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217271
+    m_Localized: The bridge bank must be walkable.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217272
+    m_Localized: The bridge bank is not buildable.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217273
+    m_Localized: Explore both bridge banks first.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217274
+    m_Localized: Start the bridge beside a river.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217275
+    m_Localized: The bridge span is blocked.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217276
+    m_Localized: Explore the whole bridge span first.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217277
+    m_Localized: The bridge must cross at least one river cell.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217278
+    m_Localized: No valid opposite bank is in range.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217279
+    m_Localized: Choose one of the highlighted opposite banks.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217280
+    m_Localized: Terrain blocks construction here.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217281
+    m_Localized: Choose a valid, reachable location.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217282
+    m_Localized: Valid first bank. Click to choose the bridge start.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217283
+    m_Localized: Valid span. Click the highlighted opposite bank to place.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217284
+    m_Localized: Valid site. Click to place the construction plan.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217285
+    m_Localized: Free
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217286
+    m_Localized: Caravan Cart
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 465534772507312171
+      type: {class: SmartFormatTag, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_Entries: 
+        m_SharedEntries:
+        - id: 716329006
+        - id: 716329007
+        - id: 716329008
+        - id: 716329009
+        - id: 183703950217254
+        - id: 183703950217255
+        - id: 183703950217256
+        - id: 183703950217257

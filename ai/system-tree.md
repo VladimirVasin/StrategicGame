@@ -15,6 +15,14 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Assembly boundaries isolate Runtime, Editor tooling, and EditMode tests
   - Local/CI technical gates enforce UTF-8, `.meta` coverage, source size, input ownership, project parity, sequential builds, Unity tests, smoke checks, and soak checks
 
+- Localization foundation
+  - Unity Localization owns Russian (`ru`) and English (`en`) locales across nine preloaded String Table collections
+  - Russian is the first-launch default; `settings.language` persists the explicit player choice and `-language=ru|en` supports deterministic launch overrides
+  - Main-menu and in-game settings switch language live without restarting or changing gameplay state
+  - UTF-8 TSV catalogs under `Assets/Localization/Source` are the source of truth; generation rejects missing translations, duplicate keys, and mismatched Smart String placeholders
+  - Semantic keys own migrated menus, founding flow, HUDs, catalogs, stories, and dynamic value text; an exact-match hashed Legacy bridge covers remaining code-built `UnityEngine.UI.Text` while migration continues
+  - Project instructions require every future player-facing string to add Russian and English in the same change; debug/log labels, comments, and technical documentation remain English
+
 - Rendering foundation
   - Universal Render Pipeline `17.5.0`
   - 2D renderer configuration
@@ -52,7 +60,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Four generated static pixel-art panels tell the departure/road/valley/council story with authored cover-cropped shots, cinematic crossfades/chrome, staged reveals, artwork-bound atmosphere, asynchronous wind/rain/fire ambience, and a reduced-motion setting
   - Four stable-ID founding choices cover water, landscape, livelihood, and construction/resource priority; balanced defaults remain available
   - A deterministic defensive-snapshot selector scores only safe playable cells, reserves the Caravan Cart `3x3` blocker, and reports explicit fallback diagnostics
-  - Master, music, effects, and fullscreen settings persist through `PlayerPrefs`
+  - Master, music, effects, fullscreen, and Russian/English language settings persist through `PlayerPrefs`
   - Exactly one candidate map is prepared to cap memory usage
   - Cell generation is incremental; terrain pixels are painted in a cancellable parallel worker; Unity texture upload stays on the main thread
   - Starter building/resident/nature sprites plus short HUD/footstep clips warm while the menu remains interactive; long Music/Nature folders remain deferred to gameplay owners
@@ -679,7 +687,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Shared HUD style configures palette, sliced panels/buttons, reference resolution, persisted interface scaling, and delayed pointer/immediate focus tooltips
   - Scene-local HUD chrome draws the continuous compact top rail behind independently owned code-built HUD canvases; ornate framing is reserved for large information panels
   - Full-screen runtime intro menu with Continue, New Settlement, Settings, Quit, disabled/no-save Continue state, and loading progress
-  - Custom in-game Escape pause menu over a dimmed live map with a dark left panel, Resume/Save/Settings commands, and confirmed Main Menu/Quit actions
+  - Custom in-game Escape pause menu over a dimmed live map with a dark left panel, Resume/Save/Settings commands, live Russian/English switching, and confirmed Main Menu/Quit actions
   - Custom runtime F9 debug panel with player fog-of-war, instant construction, refugee arrival summon, and forced Clear/Cloudy/Rain/Fog/Storm/Snow/Blizzard weather-state controls
   - Custom runtime Build menu HUD
     - Uses a compact two-level category/context palette with readable building art/cost cards, a small closed Build entry, and a separate placement bar while a tool is active
@@ -765,6 +773,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 ## Cross-System Links
 
 - Rendering settings affect all scenes using the URP pipeline.
+- Localization crosses menu, founding, HUD, dialog, content-catalog, and gameplay-status owners through one runtime facade; language changes update presentation only and never alter stable IDs, save payloads, simulation state, or English diagnostic labels.
 - Runtime bootstrap depends on scene role, one scene-local game context, explicit preload ownership transfer, and the presence of a usable `Main Camera` or permission to create one.
 - Intro menu launch depends on save validation, one persistent preload coordinator, deterministic map seed handling, the Founding Journey decision gate for New Settlement, and the gameplay scene-loaded bootstrap hook; prepared terrain keeps Unity object creation/upload on the main thread.
 - Founding Journey presentation couples each authored shot to its atmosphere and scene-owned Weather/Fire ambience; its answers feed a pure selector over a captured map snapshot, and selected camp/cart cells feed population startup, nature/forage exclusions, exact starter-cart placement, save v3, and the initial camera focus.

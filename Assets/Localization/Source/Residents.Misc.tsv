@@ -1,0 +1,55 @@
+Key	English	Russian
+resident.family_tree.title	Family Trees	Семейные древа
+resident.family_tree.back	Back	Назад
+resident.family_tree.empty	No family records	Нет семейных записей
+resident.family_tree.no_residents	No accepted residents yet.	В поселении пока нет принятых жителей.
+resident.family_tree.summary	{0} families / {1} recorded members	Семей: {0} / Учтено жителей: {1}
+resident.family_tree.unknown_family	Unknown family	Неизвестная семья
+resident.family_tree.family_header	{0} family	Семья {0}
+resident.family_tree.family_header_index	{0} family {1}	Семья {0} ({1})
+resident.family_tree.member_count	{0} members	Жителей: {0}
+resident.family_tree.member_status	{0}, {1}y	{0}, {1} л.
+resident.family_tree.deceased_male	deceased, {0}y	умер, {0} л.
+resident.family_tree.deceased_female	deceased, {0}y	умерла, {0} л.
+resident.family_tree.relationship.father	Father	Отец
+resident.family_tree.relationship.mother	Mother	Мать
+resident.family_tree.relationship.son	Son	Сын
+resident.family_tree.relationship.daughter	Daughter	Дочь
+resident.family_tree.relationship.husband	Husband	Муж
+resident.family_tree.relationship.wife	Wife	Жена
+resident.family_tree.relationship.brother	Brother	Брат
+resident.family_tree.relationship.sister	Sister	Сестра
+resident.family_tree.relationship.grandfather	Grandfather	Дед
+resident.family_tree.relationship.grandmother	Grandmother	Бабушка
+resident.family_tree.relationship.grandson	Grandson	Внук
+resident.family_tree.relationship.granddaughter	Granddaughter	Внучка
+resident.family_tree.relationship.uncle	Uncle	Дядя
+resident.family_tree.relationship.aunt	Aunt	Тётя
+resident.family_tree.relationship.nephew	Nephew	Племянник
+resident.family_tree.relationship.niece	Niece	Племянница
+resident.family_tree.relationship.cousin	Cousin	Двоюродный родственник
+resident.family_tree.relationship.kin	Kin	Родня
+resident.scout_assignment.unknown_resident	Unknown resident	Неизвестный житель
+resident.scout_assignment.unavailable	Unavailable	Недоступен
+resident.scout_assignment.age_role	{0} years / {1}	{0} л. / {1}
+resident.scout_assignment.selected	SELECTED	ВЫБРАН
+resident.scout_assignment.reassign_from	REASSIGN FROM {0}	СМЕНИТЬ ДОЛЖНОСТЬ: {0}
+resident.scout_assignment.ready_for_trail	READY FOR THE TRAIL	ГОТОВ К ПОХОДУ
+resident.scout_assignment.unavailable_for_duty	Unavailable for scouting duty	Не может стать разведчиком
+resident.scout_assignment.block.resident_unavailable	Resident unavailable	Житель недоступен
+resident.scout_assignment.block.already_assigned	Already assigned to this Lodge	Уже назначен в этот пост
+resident.scout_assignment.block.slot_filled	Scout slot already filled	Место разведчика уже занято
+resident.scout_assignment.block.adults_only	Only adults can become Scouts	Разведчиками могут стать только взрослые
+resident.scout_assignment.block.not_joined	Has not joined the settlement	Ещё не принят в поселение
+resident.scout_assignment.block.construction	Assigned to construction	Назначен на строительство
+resident.scout_assignment.block.householder	Responsible for a household	Отвечает за домашнее хозяйство
+resident.scout_assignment.block.currently	Currently {0}	Сейчас: {0}
+resident.reward.city.heading	THE CITY REMEMBERS	ПОСЕЛЕНИЕ ПОМНИТ
+resident.reward.city.collection	NEW CITY ITEM	НОВАЯ ЦЕННОСТЬ ПОСЕЛЕНИЯ
+resident.reward.city.type_unique	UNIQUE CITY BOON	УНИКАЛЬНЫЙ ДАР ПОСЕЛЕНИЯ
+resident.reward.city.type_regular	CITY ITEM	ЦЕННОСТЬ ПОСЕЛЕНИЯ
+resident.reward.city.footer	CITY CHEST / PERMANENT	СУНДУК ПОСЕЛЕНИЯ / НАВСЕГДА
+resident.reward.city.confirm	SEND TO CITY CHEST	ОТПРАВИТЬ В СУНДУК
+resident.reward.personal.category	PERSONAL SCOUT FIND	ЛИЧНАЯ НАХОДКА РАЗВЕДЧИКА
+resident.reward.personal.owner	Now carried by {0}	Теперь предмет у {0}
+resident.reward.personal.confirm	TAKE ITEM	ЗАБРАТЬ

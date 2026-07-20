@@ -73,6 +73,15 @@ namespace ProjectUnknown.Strategy
             }
         }
 
+        public static StrategyGameLanguage Language
+        {
+            get
+            {
+                EnsureLoaded();
+                return StrategyLocalization.CurrentLanguage;
+            }
+        }
+
         public static void ApplyAtStartup()
         {
             EnsureLoaded();
@@ -118,6 +127,15 @@ namespace ProjectUnknown.Strategy
             StrategyHudStyle.RefreshCanvasScalers();
         }
 
+        public static void SetLanguage(StrategyGameLanguage value)
+        {
+            EnsureLoaded();
+            StrategyGameLanguage supported = value == StrategyGameLanguage.English
+                ? StrategyGameLanguage.English
+                : StrategyGameLanguage.Russian;
+            StrategyLocalization.SetLanguage(supported);
+        }
+
         public static void SetReducedMotion(bool value)
         {
             EnsureLoaded();
@@ -147,6 +165,7 @@ namespace ProjectUnknown.Strategy
             fullscreen = PlayerPrefs.GetInt(FullscreenKey, Screen.fullScreen ? 1 : 0) != 0;
             uiScale = Mathf.Clamp(PlayerPrefs.GetFloat(UiScaleKey, 1f), 0.85f, 1.25f);
             reducedMotion = PlayerPrefs.GetInt(ReducedMotionKey, 0) != 0;
+            StrategyLocalization.Initialize();
         }
 
         private static float SaveVolume(string key, float value)

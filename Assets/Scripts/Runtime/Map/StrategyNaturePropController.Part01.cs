@@ -300,15 +300,11 @@ namespace ProjectUnknown.Strategy
                 inspectable = prop.AddComponent<StrategyStaticWorldInspectable>();
             }
 
-            string title = kind == StrategyNaturePropKind.ForestGroup ? "Forest Thicket" : "Bush";
-            string body = "Nature prop"
-                + "\nBlocks movement: yes"
-                + "\nCell terrain: "
-                + cell.Kind;
-            inspectable.Configure(
-                title,
-                "Nature",
-                body,
+            inspectable.ConfigureLocalized(
+                kind == StrategyNaturePropKind.ForestGroup ? "inspect.forest_thicket" : "inspect.bush",
+                "inspect.nature",
+                "inspect.nature_body",
+                new[] { "yes", cell.Kind.ToString() },
                 renderer.sprite,
                 new Vector2Int(cell.X, cell.Y),
                 true);

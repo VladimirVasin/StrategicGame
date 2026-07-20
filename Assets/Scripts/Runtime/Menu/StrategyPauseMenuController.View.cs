@@ -51,10 +51,10 @@ namespace ProjectUnknown.Strategy
             BuildActions(panel);
             BuildSettings(panel);
 
-            Text hint = CreateText(
+            Text hint = CreateLocalizedText(
                 "EscapeHint",
                 panel,
-                "ESC  Resume / Back",
+                "pause.escape_hint",
                 12,
                 TextAnchor.LowerLeft,
                 new Color(MutedColor.r, MutedColor.g, MutedColor.b, 0.74f));
@@ -79,10 +79,10 @@ namespace ProjectUnknown.Strategy
             topAccent.sizeDelta = new Vector2(0f, 5f);
             topAccent.gameObject.AddComponent<Image>().color = GoldColor;
 
-            Text kicker = CreateText(
+            Text kicker = CreateLocalizedText(
                 "Kicker",
                 panel,
-                "SETTLEMENT PAUSED",
+                "pause.kicker",
                 14,
                 TextAnchor.UpperLeft,
                 GoldColor);
@@ -94,7 +94,7 @@ namespace ProjectUnknown.Strategy
                 new Vector2(88f, -78f),
                 new Vector2(420f, 24f));
 
-            Text title = CreateText("Title", panel, "PAUSE MENU", 44, TextAnchor.UpperLeft, Color.white);
+            Text title = CreateLocalizedText("Title", panel, "pause.title", 44, TextAnchor.UpperLeft, Color.white);
             title.fontStyle = FontStyle.Bold;
             SetRect(
                 title.rectTransform,
@@ -103,10 +103,10 @@ namespace ProjectUnknown.Strategy
                 new Vector2(88f, -108f),
                 new Vector2(480f, 58f));
 
-            Text subtitle = CreateText(
+            Text subtitle = CreateLocalizedText(
                 "Subtitle",
                 panel,
-                "The settlement waits. Review your options before returning.",
+                "pause.subtitle",
                 15,
                 TextAnchor.UpperLeft,
                 MutedColor);
@@ -137,11 +137,11 @@ namespace ProjectUnknown.Strategy
             root.anchoredPosition = new Vector2(88f, -278f);
             root.sizeDelta = new Vector2(455f, 480f);
 
-            resumeButton = CreateButton("Resume", root, "Resume", 0f, true);
-            saveButton = CreateButton("SaveGame", root, "Save Game", -68f, false);
-            settingsButton = CreateButton("Settings", root, "Settings", -136f, false);
-            mainMenuButton = CreateButton("MainMenu", root, "Main Menu", -204f, false);
-            quitButton = CreateButton("Quit", root, "Quit Game", -272f, false);
+            resumeButton = CreateButton("Resume", root, "pause.resume", 0f, true);
+            saveButton = CreateButton("SaveGame", root, "pause.save_game", -68f, false);
+            settingsButton = CreateButton("Settings", root, "settings.open", -136f, false);
+            mainMenuButton = CreateButton("MainMenu", root, "pause.main_menu", -204f, false);
+            quitButton = CreateButton("Quit", root, "pause.quit_game", -272f, false);
 
             RectTransform statusCard = CreateRect("StatusCard", root);
             statusCard.anchorMin = new Vector2(0f, 1f);
@@ -171,30 +171,33 @@ namespace ProjectUnknown.Strategy
             root.anchoredPosition = new Vector2(88f, -274f);
             root.sizeDelta = new Vector2(455f, 570f);
 
-            Text title = CreateText("SettingsTitle", root, "SETTINGS", 24, TextAnchor.UpperLeft, Color.white);
+            Text title = CreateLocalizedText("SettingsTitle", root, "settings.title", 24, TextAnchor.UpperLeft, Color.white);
             title.fontStyle = FontStyle.Bold;
             SetTopRect(title.rectTransform, 0f, 0f, 420f, 34f);
-            Text subtitle = CreateText("SettingsSubtitle", root, "Audio and display", 13, TextAnchor.UpperLeft, MutedColor);
+            Text subtitle = CreateLocalizedText("SettingsSubtitle", root, "settings.subtitle", 13, TextAnchor.UpperLeft, MutedColor);
             SetTopRect(subtitle.rectTransform, 0f, -37f, 420f, 24f);
 
-            masterSlider = CreateSlider(root, "MasterVolume", "Master volume", -82f);
-            musicSlider = CreateSlider(root, "MusicVolume", "Music", -154f);
-            sfxSlider = CreateSlider(root, "SfxVolume", "Effects", -226f);
-            uiScaleSlider = CreateSlider(root, "UiScale", "Interface scale", -298f);
+            masterSlider = CreateSlider(root, "MasterVolume", "settings.master_volume", -82f);
+            musicSlider = CreateSlider(root, "MusicVolume", "settings.music", -154f);
+            sfxSlider = CreateSlider(root, "SfxVolume", "settings.effects", -226f);
+            uiScaleSlider = CreateSlider(root, "UiScale", "settings.interface_scale", -298f);
             uiScaleSlider.minValue = 0.85f;
             uiScaleSlider.maxValue = 1.25f;
-            fullscreenToggle = CreateToggle(root, "Fullscreen", "Fullscreen", -378f);
-            reducedMotionToggle = CreateToggle(root, "ReducedMotion", "Reduce motion", -418f);
-            settingsBackButton = CreateButton("SettingsBack", root, "Back", -474f, true);
+            fullscreenToggle = CreateToggle(root, "Fullscreen", "settings.fullscreen", -378f);
+            reducedMotionToggle = CreateToggle(root, "ReducedMotion", "settings.reduced_motion", -418f);
+            languageButton = CreateButton("Language", root, string.Empty, -458f, false, out languageButtonLabel, false);
+            settingsBackButton = CreateButton("SettingsBack", root, "menu.back", -520f, true);
             settingsRoot.SetActive(false);
         }
 
         private static Button CreateButton(
             string name,
             Transform parent,
-            string label,
+            string labelKey,
             float y,
-            bool primary)
+            bool primary,
+            out Text labelText,
+            bool localized = true)
         {
             RectTransform root = CreateRect(name, parent);
             root.anchorMin = new Vector2(0f, 1f);
@@ -224,22 +227,39 @@ namespace ProjectUnknown.Strategy
                 ? new Color(1f, 0.92f, 0.70f, 0.95f)
                 : new Color(GoldColor.r, GoldColor.g, GoldColor.b, 0.72f);
 
-            Text text = CreateText(
+            string label = localized
+                ? StrategyLocalization.Get(StrategyLocalizationTables.Menu, labelKey)
+                : labelKey;
+            labelText = CreateText(
                 "Label",
                 root,
                 label,
                 17,
                 TextAnchor.MiddleLeft,
                 primary ? new Color(0.10f, 0.095f, 0.07f, 1f) : Color.white);
-            text.fontStyle = FontStyle.Bold;
-            Stretch(text.rectTransform, new Vector2(22f, 0f), new Vector2(-18f, 0f));
+            labelText.fontStyle = FontStyle.Bold;
+            Stretch(labelText.rectTransform, new Vector2(22f, 0f), new Vector2(-18f, 0f));
+            if (localized)
+            {
+                StrategyLocalizedTextBinding.Bind(labelText, StrategyLocalizationTables.Menu, labelKey);
+            }
             StrategyUiButtonFeedback.Attach(button, StrategyUiButtonFeedbackProfile.Standard, null);
             return button;
         }
 
-        private static Slider CreateSlider(Transform parent, string name, string label, float y)
+        private static Button CreateButton(
+            string name,
+            Transform parent,
+            string labelKey,
+            float y,
+            bool primary)
         {
-            Text text = CreateText(name + "Label", parent, label, 14, TextAnchor.MiddleLeft, Color.white);
+            return CreateButton(name, parent, labelKey, y, primary, out _);
+        }
+
+        private static Slider CreateSlider(Transform parent, string name, string labelKey, float y)
+        {
+            Text text = CreateLocalizedText(name + "Label", parent, labelKey, 14, TextAnchor.MiddleLeft, Color.white);
             SetTopRect(text.rectTransform, 0f, y, 420f, 24f);
             RectTransform root = CreateRect(name, parent);
             SetTopRect(root, 0f, y - 34f, 420f, 24f);
@@ -265,7 +285,7 @@ namespace ProjectUnknown.Strategy
             return slider;
         }
 
-        private static Toggle CreateToggle(Transform parent, string name, string label, float y)
+        private static Toggle CreateToggle(Transform parent, string name, string labelKey, float y)
         {
             RectTransform root = CreateRect(name, parent);
             SetTopRect(root, 0f, y, 420f, 34f);
@@ -281,7 +301,7 @@ namespace ProjectUnknown.Strategy
             Stretch(mark, new Vector2(5f, 5f), new Vector2(-5f, -5f));
             Image checkmark = mark.gameObject.AddComponent<Image>();
             checkmark.color = GoldColor;
-            Text text = CreateText("Label", root, label, 14, TextAnchor.MiddleLeft, Color.white);
+            Text text = CreateLocalizedText("Label", root, labelKey, 14, TextAnchor.MiddleLeft, Color.white);
             Stretch(text.rectTransform, new Vector2(46f, 0f), Vector2.zero);
             toggle.targetGraphic = background;
             toggle.graphic = checkmark;
@@ -306,6 +326,25 @@ namespace ProjectUnknown.Strategy
             text.raycastTarget = false;
             text.horizontalOverflow = HorizontalWrapMode.Wrap;
             text.verticalOverflow = VerticalWrapMode.Truncate;
+            return text;
+        }
+
+        private static Text CreateLocalizedText(
+            string name,
+            Transform parent,
+            string key,
+            int size,
+            TextAnchor alignment,
+            Color color)
+        {
+            Text text = CreateText(
+                name,
+                parent,
+                StrategyLocalization.Get(StrategyLocalizationTables.Menu, key),
+                size,
+                alignment,
+                color);
+            StrategyLocalizedTextBinding.Bind(text, StrategyLocalizationTables.Menu, key);
             return text;
         }
 

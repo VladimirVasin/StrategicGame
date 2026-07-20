@@ -17,8 +17,10 @@ namespace ProjectUnknown.Strategy
         public bool IsGenerated { get; private set; }
         public bool IsGenerating { get; private set; }
         public bool GenerationFailed { get; private set; }
+        private string generationStageKey = "map.generation.waiting";
+
         public float GenerationProgress { get; private set; }
-        public string GenerationStage { get; private set; } = "Waiting";
+        public string GenerationStage => StrategyLocalization.Get(StrategyLocalizationTables.Menu, generationStageKey);
 
         public void SetGenerationFrameBudget(float milliseconds)
         {
@@ -32,7 +34,7 @@ namespace ProjectUnknown.Strategy
             IsGenerating = false;
             if (!IsGenerated)
             {
-                GenerationStage = "Cancelled";
+                generationStageKey = "map.generation.cancelled";
             }
         }
 
@@ -64,7 +66,7 @@ namespace ProjectUnknown.Strategy
             MapGenerationProfile profile = CreateGenerationProfile(activeSeed);
             riverFlowDirection = profile.RiverHorizontal ? Vector2Int.right : Vector2Int.up;
 
-            GenerationStage = "Shaping terrain";
+            generationStageKey = "map.generation.shaping_terrain";
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
@@ -91,7 +93,7 @@ namespace ProjectUnknown.Strategy
                 }
             }
 
-            GenerationStage = "Raising terrain";
+            generationStageKey = "map.generation.raising_terrain";
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
@@ -119,7 +121,7 @@ namespace ProjectUnknown.Strategy
                 }
             }
 
-            GenerationStage = "Smoothing terrain";
+            generationStageKey = "map.generation.smoothing_terrain";
             CityMapCell[,] smoothed = new CityMapCell[width, height];
             for (int y = 0; y < height; y++)
             {
@@ -185,7 +187,7 @@ namespace ProjectUnknown.Strategy
                 yield break;
             }
 
-            GenerationStage = "Painting terrain";
+            generationStageKey = "map.generation.painting_terrain";
             CityMapCell[,] paintCells = cells;
             int paintWidth = width;
             int paintHeight = height;
@@ -247,7 +249,7 @@ namespace ProjectUnknown.Strategy
             {
                 IsGenerating = false;
                 GenerationFailed = true;
-                GenerationStage = "Preload failed";
+                generationStageKey = "map.generation.preload_failed";
                 StrategyDebugLogger.Warn(
                     "Map",
                     "PreloadPaintFailed",
@@ -256,7 +258,7 @@ namespace ProjectUnknown.Strategy
             }
 
             Color32[] pixels = paintTask.Result;
-            GenerationStage = "Uploading terrain";
+            generationStageKey = "map.generation.uploading_terrain";
             GenerationProgress = 0.98f;
             ApplyTexturePixels(pixels, textureWidth, textureHeight);
             WorldBounds = new Bounds(Vector3.zero, new Vector3(width * cellSize, height * cellSize, 0f));
@@ -266,7 +268,7 @@ namespace ProjectUnknown.Strategy
             IsGenerated = true;
             GenerationFailed = false;
             GenerationProgress = 1f;
-            GenerationStage = "Ready";
+            generationStageKey = "map.generation.ready";
             StrategyDebugLogger.Info(
                 "Map",
                 "Preloaded",
@@ -294,7 +296,7 @@ namespace ProjectUnknown.Strategy
             IsGenerated = false;
             GenerationFailed = false;
             GenerationProgress = 0f;
-            GenerationStage = "Starting";
+            generationStageKey = "map.generation.starting";
             generationCancellation?.Cancel();
             generationCancellation = new CancellationTokenSource();
         }

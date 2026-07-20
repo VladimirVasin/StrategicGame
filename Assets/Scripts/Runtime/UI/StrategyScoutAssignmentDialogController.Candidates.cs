@@ -13,17 +13,27 @@ namespace ProjectUnknown.Strategy
         {
             if (expeditionOnlyMode)
             {
-                titleText.text = "PLAN AN EXPEDITION";
-                subtitleText.text = "How Far Beyond the Firelight?";
-                storyText.text = "The Scout is ready and the route is open. Choose how many days of provisions to pack: a longer expedition can chart more ground, but every dawn beyond the Lodge costs another ration.";
+                SetLocalizedText(titleText, "resident.dialog.scout.mode.expedition.title");
+                SetLocalizedText(subtitleText, "resident.dialog.scout.mode.expedition.subtitle");
+                SetLocalizedText(storyText, "resident.dialog.scout.mode.expedition.story");
                 return;
             }
 
-            titleText.text = introductionMode ? "THE FIRST EXPEDITION" : "APPOINT A SCOUT";
-            subtitleText.text = introductionMode ? "Beyond the Firelight" : "Choose Who Takes the Trail";
-            storyText.text = introductionMode
-                ? "The roofs are standing and the camps are working, but beyond the last familiar path the valley is still only rumor. Choose one adult to carry our first map into the unknown."
-                : "Every map begins with someone willing to leave the familiar road. Choose an adult to carry the Lodge's compass and chart what waits beyond the settlement.";
+            SetLocalizedText(
+                titleText,
+                introductionMode
+                    ? "resident.dialog.scout.mode.introduction.title"
+                    : "resident.dialog.scout.mode.appointment.title");
+            SetLocalizedText(
+                subtitleText,
+                introductionMode
+                    ? "resident.dialog.scout.mode.introduction.subtitle"
+                    : "resident.dialog.scout.mode.appointment.subtitle");
+            SetLocalizedText(
+                storyText,
+                introductionMode
+                    ? "resident.dialog.scout.mode.introduction.story"
+                    : "resident.dialog.scout.mode.appointment.story");
         }
 
         private void RefreshCandidates()
@@ -35,7 +45,9 @@ namespace ProjectUnknown.Strategy
                 candidates.Add(new ScoutCandidate(
                     fixedExpeditionResident,
                     eligible,
-                    eligible ? string.Empty : "Scout or Lodge no longer ready"));
+                    eligible
+                        ? string.Empty
+                        : L("resident.dialog.scout.row.blocked.scout_lodge")));
             }
             else if (population != null)
             {
@@ -83,7 +95,7 @@ namespace ProjectUnknown.Strategy
                 if (selectedResident != null && !expeditionOnlyMode)
                 {
                     SetActionStatus(
-                        "The selected resident is no longer available. Choose another Scout.",
+                        "resident.dialog.scout.status.selected_unavailable_choose_another",
                         true);
                 }
 
@@ -110,7 +122,9 @@ namespace ProjectUnknown.Strategy
         {
             if (!IsResidentEligibleForCurrentRequest(resident))
             {
-                SetActionStatus("That resident is no longer available for the trail.", true);
+                SetActionStatus(
+                    "resident.dialog.scout.status.resident_unavailable_for_trail",
+                    true);
                 RefreshCandidates();
                 return;
             }
@@ -118,10 +132,10 @@ namespace ProjectUnknown.Strategy
             selectedResident = resident;
             SetActionStatus(
                 expeditionOnlyMode
-                    ? "Ready to choose the range of this expedition."
+                    ? "resident.dialog.scout.status.ready_choose_range"
                     : introductionMode
-                    ? "Ready to carry the settlement's first map."
-                    : "Ready to take the Lodge's compass beyond the familiar roads.",
+                    ? "resident.dialog.scout.status.ready_first_map"
+                    : "resident.dialog.scout.status.ready_lodge_compass",
                 false);
             RefreshCandidates();
             PlaySfx(StrategyHudSfxKind.Step);
@@ -134,8 +148,8 @@ namespace ProjectUnknown.Strategy
             {
                 SetActionStatus(
                     expeditionOnlyMode
-                        ? "This Scout or Lodge is no longer ready to depart."
-                        : "The chosen resident is no longer available. Choose another Scout.",
+                        ? "resident.dialog.scout.status.scout_lodge_not_ready"
+                        : "resident.dialog.scout.status.chosen_unavailable_choose_another",
                     true);
                 RefreshCandidates();
                 return;
@@ -143,7 +157,9 @@ namespace ProjectUnknown.Strategy
 
             if (!HasSufficientExpeditionRations())
             {
-                SetActionStatus("The expedition cannot leave without all required rations.", true);
+                SetActionStatus(
+                    "resident.dialog.scout.status.required_rations_missing",
+                    true);
                 RefreshCandidates();
                 return;
             }
@@ -152,7 +168,7 @@ namespace ProjectUnknown.Strategy
             if (tryAssign == null || !tryAssign(resident, expeditionDays))
             {
                 SetActionStatus(
-                    "Departure could not be completed. Provisions or the Lodge state may have changed.",
+                    "resident.dialog.scout.status.departure_failed",
                     true);
                 RefreshCandidates();
                 return;
@@ -191,20 +207,27 @@ namespace ProjectUnknown.Strategy
             int eligibleCount = CountEligibleCandidates();
             if (expeditionOnlyMode)
             {
-                candidateHeadingText.text = eligibleCount > 0
-                    ? "SCOUT ON DUTY  /  READY"
-                    : "SCOUT ON DUTY  /  DEPARTURE BLOCKED";
+                SetLocalizedText(
+                    candidateHeadingText,
+                    eligibleCount > 0
+                        ? "resident.dialog.scout.candidates.expedition_ready"
+                        : "resident.dialog.scout.candidates.expedition_blocked");
                 emptyText.gameObject.SetActive(false);
                 return;
             }
 
-            candidateHeadingText.text = eligibleCount == 1
-                ? "CHOOSE A RESIDENT  /  1 READY"
-                : "CHOOSE A RESIDENT  /  " + eligibleCount + " READY";
+            SetLocalizedText(
+                candidateHeadingText,
+                eligibleCount == 1
+                    ? "resident.dialog.scout.candidates.ready.one"
+                    : "resident.dialog.scout.candidates.ready.many",
+                eligibleCount);
             emptyText.gameObject.SetActive(candidates.Count == 0);
             if (candidates.Count == 0)
             {
-                emptyText.text = "No adult residents are in the settlement yet.";
+                SetLocalizedText(
+                    emptyText,
+                    "resident.dialog.scout.candidates.empty");
             }
         }
 
@@ -214,25 +237,48 @@ namespace ProjectUnknown.Strategy
             bool hasSelection = IsResidentEligibleForCurrentRequest(selectedResident);
             bool affordable = HasSufficientExpeditionRations();
             confirmButton.interactable = hasSelection && affordable;
-            confirmLabel.text = hasSelection
-                ? expeditionOnlyMode
-                    ? "Send " + selectedResident.FullName + " for "
-                        + selectedExpeditionDays + (selectedExpeditionDays == 1 ? " day" : " days")
-                    : "Appoint " + selectedResident.FullName + "  /  "
-                        + selectedExpeditionDays + (selectedExpeditionDays == 1 ? " day" : " days")
-                : "Choose a resident to continue";
+            if (!hasSelection)
+            {
+                SetLocalizedText(
+                    confirmLabel,
+                    "resident.dialog.scout.confirm.choose_resident");
+            }
+            else if (expeditionOnlyMode)
+            {
+                SetLocalizedText(
+                    confirmLabel,
+                    GetDayFormKey("resident.dialog.scout.confirm.send", selectedExpeditionDays),
+                    selectedResident.FullName,
+                    selectedExpeditionDays);
+            }
+            else
+            {
+                SetLocalizedText(
+                    confirmLabel,
+                    GetDayFormKey("resident.dialog.scout.confirm.appoint", selectedExpeditionDays),
+                    selectedResident.FullName,
+                    selectedExpeditionDays);
+            }
 
             int eligibleCount = CountEligibleCandidates();
             bool showDefer = !introductionMode || eligibleCount == 0 || !affordable;
             deferButton.gameObject.SetActive(showDefer);
-            deferLabel.text = introductionMode ? "Decide Later" : "Cancel";
-            if (introductionMode && eligibleCount == 0 && string.IsNullOrEmpty(actionStatusText.text))
+            SetLocalizedText(
+                deferLabel,
+                introductionMode
+                    ? "resident.dialog.scout.action.decide_later"
+                    : "resident.dialog.scout.action.cancel");
+            if (introductionMode && eligibleCount == 0 && !HasActionStatus)
             {
-                SetActionStatus("No one can leave their duties today. Return when an adult is free.", true);
+                SetActionStatus(
+                    "resident.dialog.scout.status.no_free_adult",
+                    true);
             }
-            else if (introductionMode && !affordable && string.IsNullOrEmpty(actionStatusText.text))
+            else if (introductionMode && !affordable && !HasActionStatus)
             {
-                SetActionStatus("The first expedition must wait until enough rations are stored.", true);
+                SetActionStatus(
+                    "resident.dialog.scout.status.first_expedition_needs_rations",
+                    true);
             }
         }
 
@@ -282,17 +328,84 @@ namespace ProjectUnknown.Strategy
             return count;
         }
 
-        private void SetActionStatus(string message, bool warning)
+        private bool HasActionStatus => !string.IsNullOrEmpty(actionStatusKey);
+
+        private void SetActionStatus(
+            string key,
+            bool warning,
+            params object[] arguments)
+        {
+            actionStatusKey = key ?? string.Empty;
+            actionStatusArguments = arguments ?? Array.Empty<object>();
+            actionStatusWarning = warning;
+            RefreshActionStatus();
+        }
+
+        private void RefreshActionStatus()
         {
             if (actionStatusText == null)
             {
                 return;
             }
 
-            actionStatusText.text = message ?? string.Empty;
-            actionStatusText.color = warning
+            SetLocalizedText(
+                actionStatusText,
+                HasActionStatus ? actionStatusKey : string.Empty,
+                actionStatusArguments);
+            actionStatusText.color = actionStatusWarning
                 ? new Color(1f, 0.62f, 0.42f, 1f)
                 : new Color(0.84f, 0.75f, 0.52f, 1f);
+        }
+
+        private static string L(string key, params object[] arguments)
+        {
+            return StrategyLocalization.Get(
+                StrategyLocalizationTables.Residents,
+                key,
+                arguments);
+        }
+
+        private static void SetLocalizedText(
+            UnityEngine.UI.Text target,
+            string key,
+            params object[] arguments)
+        {
+            if (target == null)
+            {
+                return;
+            }
+
+            StrategyLocalizedTextBinding.Bind(
+                target,
+                StrategyLocalizationTables.Residents,
+                key,
+                arguments);
+        }
+
+        private static string GetDayFormKey(string prefix, int days)
+        {
+            if (StrategyLocalization.CurrentLanguage == StrategyGameLanguage.English)
+            {
+                return prefix + (days == 1 ? ".one" : ".many");
+            }
+
+            int value = Mathf.Abs(days);
+            int mod100 = value % 100;
+            if (mod100 < 11 || mod100 > 14)
+            {
+                int mod10 = value % 10;
+                if (mod10 == 1)
+                {
+                    return prefix + ".one";
+                }
+
+                if (mod10 >= 2 && mod10 <= 4)
+                {
+                    return prefix + ".few";
+                }
+            }
+
+            return prefix + ".many";
         }
 
         private static int CompareCandidates(ScoutCandidate left, ScoutCandidate right)

@@ -48,7 +48,14 @@ namespace ProjectUnknown.Strategy
 
         public void SetText(string text)
         {
-            content = text ?? string.Empty;
+            string normalized = text ?? string.Empty;
+            if (content == normalized)
+            {
+                return;
+            }
+
+            content = normalized;
+            StrategyHudTooltipPresenter.RefreshText(target, content, placement);
         }
 
         private void Update()
@@ -141,6 +148,29 @@ namespace ProjectUnknown.Strategy
             {
                 instance.panel.gameObject.SetActive(false);
             }
+        }
+
+        internal static void RefreshText(
+            RectTransform target,
+            string text,
+            StrategyHudTooltipPlacement placement)
+        {
+            if (instance == null
+                || target == null
+                || instance.owner != target
+                || instance.panel == null
+                || !instance.panel.gameObject.activeInHierarchy)
+            {
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                Hide(target);
+                return;
+            }
+
+            instance.ShowInternal(target, text, placement);
         }
 
         internal static void RefreshVisible()

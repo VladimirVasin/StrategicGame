@@ -1,0 +1,352 @@
+Key	English	Russian
+hud.selection.action.add	Add	Добавить
+hud.selection.action.assign	Assign	Назначить
+hud.selection.action.buy	Buy	Купить
+hud.selection.action.done	Done	Готово
+hud.selection.action.install	Install	Установить
+hud.selection.action.no	Unavailable	Недоступно
+hud.selection.action.recall	Recall	Отозвать
+hud.selection.action.remove	Remove	Снять
+hud.selection.action.sell	Sell	Продать
+hud.selection.action.send	Send	Отправить
+hud.selection.label.active_offers	ACTIVE OFFERS	АКТИВНЫЕ ПРЕДЛОЖЕНИЯ
+hud.selection.label.amount	Amount	Количество
+hud.selection.label.build_stock	Building materials	Стройматериалы
+hud.selection.label.builders	Builders	Строители
+hud.selection.label.caravan	Caravan	Караван
+hud.selection.label.coins	Coins	Монеты
+hud.selection.label.coop	Coop	Курятник
+hud.selection.label.current_state	Current state	Текущее состояние
+hud.selection.label.deer	Deer	Олени
+hud.selection.label.deposits	Deposits	Месторождения
+hud.selection.label.end_cell	End cell	Конечная клетка
+hud.selection.label.family	Family	Семья
+hud.selection.label.field_rations	Field rations	Походные припасы
+hud.selection.label.fish_nearby	Fish nearby	Рыба поблизости
+hud.selection.label.food	Food	Еда
+hud.selection.label.footprint	Footprint	Размер
+hud.selection.label.group	Group	Группа
+hud.selection.label.haulers	Haulers	Грузчики
+hud.selection.label.herd	Herd	Стадо
+hud.selection.label.home	Home	Дом
+hud.selection.label.id	ID	ID
+hud.selection.label.labor	Labor	Работа
+hud.selection.label.materials	Materials	Материалы
+hud.selection.label.mature_trees	Mature trees	Взрослые деревья
+hud.selection.label.mission	Mission	Задание
+hud.selection.label.next_egg	Next egg	Следующее яйцо
+hud.selection.label.output	Output	Продукция
+hud.selection.label.pack	Pack	Стая
+hud.selection.label.planned_duration	Planned duration	Плановая длительность
+hud.selection.label.progress	Progress	Прогресс
+hud.selection.label.provisions	Provisions	Припасы
+hud.selection.label.rabbits	Rabbits	Кролики
+hud.selection.label.radius	Radius	Радиус
+hud.selection.label.ration_value	Ration value	Пищевая ценность
+hud.selection.label.rations	Rations	Рационы
+hud.selection.label.region	Region	Область
+hud.selection.label.reserved	Reserved	Зарезервировано
+hud.selection.label.residents	Residents	Жители
+hud.selection.label.resource	Resource	Ресурс
+hud.selection.label.returns_in	Returns in	Вернётся через
+hud.selection.label.saplings	Saplings	Саженцы
+hud.selection.label.scouts	Scouts	Разведчики
+hud.selection.label.shoal	Shoal	Косяк
+hud.selection.label.sources	Sources	Источники
+hud.selection.label.span	Span	Пролёт
+hud.selection.label.stage	Stage	Возраст
+hud.selection.label.start_cell	Start cell	Начальная клетка
+hud.selection.label.state	State	Состояние
+hud.selection.label.stock	Stock	Запас
+hud.selection.label.trunks	Trunks	Стволы
+hud.selection.label.use	Use	Назначение
+hud.selection.label.walk_build	Walk / Build	Проход / строительство
+hud.selection.label.warmth	Warmth	Тепло
+hud.selection.label.water	Water	Вода
+hud.selection.label.workers	Workers	Работники
+hud.selection.label.yield	Yield	Добыча
+hud.selection.section.assigned_builders	Assigned Builders	Назначенные строители
+hud.selection.section.construction_stock	Construction Stock	Запас стройматериалов
+hud.selection.section.delivered_materials	Delivered Materials	Доставленные материалы
+hud.selection.section.demolition	Demolition	Снос
+hud.selection.section.expedition	Expedition	Экспедиция
+hud.selection.section.fishing_water	Fishing Water	Рыбные воды
+hud.selection.section.food_stock	Food Stock	Запас еды
+hud.selection.section.forage_stock	Forage Stock	Запас собранной еды
+hud.selection.section.hunting_grounds	Hunting Grounds	Охотничьи угодья
+hud.selection.section.infrastructure	Infrastructure	Инфраструктура
+hud.selection.section.input	Input	Сырьё
+hud.selection.section.local_stock	Local Stock	Местный запас
+hud.selection.section.market	Market	Рынок
+hud.selection.section.materials	Materials	Материалы
+hud.selection.section.output	Output	Продукция
+hud.selection.section.overview	Overview	Обзор
+hud.selection.section.production	Production	Производство
+hud.selection.section.work_area	Work Area	Рабочая зона
+hud.selection.format.amount_free	{0} / {1} free	{0} / {1} свободно
+hud.selection.format.build_rule	Build: {0}	Строительство: {0}
+hud.selection.format.cell	Cell {0}, {1}	Клетка {0}, {1}
+hud.selection.format.cells	{0} cells	{0} кл.
+hud.selection.format.cost_join	{0} · {1}	{0} · {1}
+hud.selection.format.days_hours_short	{0}d {1}h	{0} д. {1} ч.
+hud.selection.format.days_short	{0}d	{0} д.
+hud.selection.format.dropped_resource	Dropped {0}	Брошено: {0}
+hud.selection.format.home_radius	Home radius {0}	Радиус обитания: {0}
+hud.selection.format.hours_short	{0}h	{0} ч.
+hud.selection.format.incoming	{0} incoming	В пути: {0}
+hud.selection.format.join_detail	{0} · {1}	{0} · {1}
+hud.selection.format.minutes_seconds_short	{0}m {1}s	{0} мин. {1} с.
+hud.selection.format.pack	Pack {0}	Стая {0}
+hud.selection.format.pending	{0} pending	Ожидается: {0}
+hud.selection.format.rations_short	{0}r	{0} рац.
+hud.selection.format.reserved	{0} reserved	Зарезервировано: {0}
+hud.selection.format.resident_status	{0} — {1}	{0} — {1}
+hud.selection.format.resource_amount	{0} {1}	{0}: {1}
+hud.selection.format.row_title	{0}: {1}	{0}: {1}
+hud.selection.format.seconds_short	{0}s	{0} с.
+hud.selection.format.size	Size {0}	Численность: {0}
+hud.selection.format.still_needed	{0} still needed	Нужно ещё: {0}
+hud.selection.format.subtitle_cell	{0} · {1}	{0} · {1}
+hud.selection.format.walk_build	{0} / {1}	{0} / {1}
+hud.selection.format.yield	Yield {0}	Добыча: {0}
+hud.selection.detail.finished_output	Finished output	Готовая продукция
+hud.selection.detail.input_material	Input material	Сырьё
+hud.selection.cost.free	Free	Бесплатно
+hud.selection.status.clear_local_stock	Clear space in the local stock.	Освободите место в местном запасе.
+hud.selection.status.no_usable_sources	No usable sources are in range.	В рабочей зоне нет доступных источников.
+hud.selection.status.no_worker.title	Worker needed	Нужен работник
+hud.selection.status.no_worker.body	Assign a worker to start production.	Назначьте работника, чтобы начать производство.
+hud.selection.status.output_full.title	Output full	Склад продукции заполнен
+hud.selection.status.output_full.body	Move finished goods to free output space.	Перенесите готовую продукцию и освободите место.
+hud.selection.status.production_active.title	Production active	Производство идёт
+hud.selection.status.production_active.body	Workers have materials and output space.	У работников есть сырьё и место для продукции.
+hud.selection.status.sources_and_space_ready	Sources and storage space are available.	Источники доступны, на складе есть место.
+hud.selection.status.waiting_inputs.title	Waiting for inputs	Ожидание сырья
+hud.selection.status.waiting_inputs.body	Deliver the required input materials.	Доставьте необходимое сырьё.
+hud.selection.building.generic	Settlement building	Здание поселения
+hud.selection.building.subtitle.none	Settlement building	Здание поселения
+hud.selection.building.subtitle.house_unoccupied	Housing · Unoccupied	Жильё · Не заселено
+hud.selection.building.subtitle.house_family	Housing · {0} family	Жильё · Семья {0}
+hud.selection.building.subtitle.lumberjack_camp	Extraction · Timber	Добыча · Древесина
+hud.selection.building.subtitle.stonecutter_camp	Extraction · Stone	Добыча · Камень
+hud.selection.building.subtitle.mine	Extraction · Iron	Добыча · Железо
+hud.selection.building.subtitle.coal_pit	Extraction · Coal	Добыча · Уголь
+hud.selection.building.subtitle.clay_pit	Extraction · Clay	Добыча · Глина
+hud.selection.building.subtitle.hunter_camp	Food · Game	Еда · Дичь
+hud.selection.building.subtitle.fisher_hut	Food · Fish	Еда · Рыба
+hud.selection.building.subtitle.forager_camp	Food · Foraging	Еда · Собирательство
+hud.selection.building.subtitle.chicken_coop	Food · Eggs	Еда · Яйца
+hud.selection.building.subtitle.sawmill	Production · Planks	Производство · Доски
+hud.selection.building.subtitle.kiln	Production · Pottery	Производство · Керамика
+hud.selection.building.subtitle.forge	Production · Tools	Производство · Инструменты
+hud.selection.building.subtitle.starter_caravan_cart	Settlement · Supplies	Поселение · Припасы
+hud.selection.building.subtitle.storage_yard	Storage · Materials	Склад · Материалы
+hud.selection.building.subtitle.granary	Storage · Food	Склад · Еда
+hud.selection.building.subtitle.trading_post	Trade · Caravan market	Торговля · Караванный рынок
+hud.selection.building.subtitle.scout_lodge	Exploration · Expeditions	Разведка · Экспедиции
+hud.selection.building.subtitle.bridge	Infrastructure · Crossing	Инфраструктура · Переправа
+hud.selection.construction.title	Construction Site	Стройплощадка
+hud.selection.construction.subtitle	Future {0}	Будущее здание: {0}
+hud.selection.construction.no_builders	No builders assigned.	Строители не назначены.
+hud.selection.construction.ready_title	Ready to build	Можно строить
+hud.selection.construction.waiting_title	Waiting for materials	Ожидание материалов
+hud.selection.construction.ready_with_builders	Materials are ready and builders can finish the structure.	Материалы доставлены, строители могут завершить здание.
+hud.selection.construction.ready_needs_builders	Materials are ready. Assign Builders in the Professions HUD.	Материалы доставлены. Назначьте строителей в окне профессий.
+hud.selection.construction.builders_continue	Builders can continue with the delivered materials.	Строители могут продолжить работу с доставленными материалами.
+hud.selection.construction.still_needed	Still needed: {0}.	Осталось доставить: {0}.
+hud.selection.confirm.cancel_construction.title	Cancel construction?	Отменить строительство?
+hud.selection.confirm.cancel_construction.body	Cancel construction of {0}? Delivered materials will be returned.	Отменить строительство здания «{0}»? Доставленные материалы будут возвращены.
+hud.selection.confirm.cancel_construction.confirm	Cancel construction	Отменить стройку
+hud.selection.confirm.demolish.title	Demolish building?	Снести здание?
+hud.selection.confirm.demolish.body	Demolish {0}? This cannot be undone.	Снести здание «{0}»? Это действие нельзя отменить.
+hud.selection.confirm.demolish.occupied_house_body	{0}\nResidents and household stock will be detached safely.	{0}\nЖители будут выселены, а семейные запасы — освобождены.
+hud.selection.confirm.demolish.confirm	Demolish	Снести
+hud.selection.confirm.keep	Keep	Оставить
+hud.selection.demolition.queued_title	Demolition queued	Снос запланирован
+hud.selection.demolition.house_body	Residents and household stock will be detached safely.	Жители будут выселены, а семейные запасы — освобождены.
+hud.selection.demolition.visible_until_complete	The structure remains visible until demolition is complete.	Здание останется на месте до завершения сноса.
+hud.selection.demolition.actions_unavailable	Building actions are unavailable while demolition is queued.	Действия со зданием недоступны, пока запланирован снос.
+hud.selection.bridge.open_title	Crossing open	Переправа открыта
+hud.selection.bridge.open_body	Residents can cross this bridge.	Жители могут переходить по этому мосту.
+hud.selection.workers.assign_residents	Assign residents to this workplace.	Назначьте жителей на это рабочее место.
+hud.selection.workers.assign_hunters	Assign hunters to this camp.	Назначьте охотников в этот лагерь.
+hud.selection.workers.assign_fishers	Assign fishers to this hut.	Назначьте рыбаков в эту хижину.
+hud.selection.workers.hire_haulers_builders	Assign haulers or builders here.	Назначьте сюда грузчиков или строителей.
+hud.selection.workers.no_free_residents	No free adult residents are available.	Нет свободных взрослых жителей.
+hud.selection.workers.open_slot	Open worker slot	Свободное рабочее место
+hud.selection.workers.up_to_two	Up to two workers can be assigned.	Можно назначить до двух работников.
+hud.selection.workers.hunter_open	Open hunter slot	Свободное место охотника
+hud.selection.workers.hunts_rabbits	Hunts rabbits.	Охотится на кроликов.
+hud.selection.workers.hunts_rabbits_deer	Hunts rabbits and deer.	Охотится на кроликов и оленей.
+hud.selection.workers.fisher_open	Open fisher slot	Свободное место рыбака
+hud.selection.workers.catches_fish	Catches fish in nearby water.	Ловит рыбу в ближайших водоёмах.
+hud.selection.workers.builder_open	Open builder slot	Свободное место строителя
+hud.selection.workers.hauler_open	Open hauler slot	Свободное место грузчика
+hud.selection.workers.builds_structures	Builds settlement structures.	Строит здания поселения.
+hud.selection.workers.hauls_resources_food	Hauls resources and food.	Перевозит ресурсы и еду.
+hud.selection.workers.scout_open	Open scout slot	Свободное место разведчика
+hud.selection.hunter.requires_deer_kit	Requires deer hunting equipment.	Требуется снаряжение для охоты на оленей.
+hud.selection.fisher.water_frozen	The fishing water is frozen.	Рыбные воды замёрзли.
+hud.selection.forager.assign_workers	Assign foragers to gather food.	Назначьте собирателей для сбора еды.
+hud.selection.forager.gathering_body	Workers are gathering edible plants.	Работники собирают съедобные растения.
+hud.selection.coop.automatic_cycle	Automatic production cycle	Автоматический цикл производства
+hud.selection.coop.waiting_storage	Waiting for storage space	Ожидание места на складе
+hud.selection.coop.automatic_title	Egg production active	Производство яиц идёт
+hud.selection.coop.stock_full_title	Egg stock full	Запас яиц заполнен
+hud.selection.coop.automatic_body	The chickens produce eggs automatically.	Куры автоматически несут яйца.
+hud.selection.coop.collect_eggs_body	Move eggs to free local storage space.	Перенесите яйца и освободите местный склад.
+hud.selection.storage.haulers_count	Haulers: {0}	Грузчики: {0}
+hud.selection.storage.builders_count	Builders: {0}	Строители: {0}
+hud.selection.storage.sources_count	Sources: {0}	Источники: {0}
+hud.selection.storage.no_stock	No stock	Нет запасов
+hud.selection.storage.available	{0} available	Доступно: {0}
+hud.selection.storage.stored	Stored	На складе
+hud.selection.storage.no_haulers_title	Haulers needed	Нужны грузчики
+hud.selection.storage.ready_title	Hauling ready	Готово к перевозке
+hud.selection.storage.idle_title	No pickup sources	Нет источников для перевозки
+hud.selection.storage.data_unavailable	Storage data is unavailable.	Данные склада недоступны.
+hud.selection.storage.assign_haulers	Assign Haulers in the Professions HUD.	Назначьте грузчиков в окне профессий.
+hud.selection.storage.sources_waiting	{0} sources are waiting for pickup.	Источников ожидают вывоза: {0}.
+hud.selection.storage.no_sources_waiting	No sources are currently waiting.	Сейчас нет источников, ожидающих вывоза.
+hud.selection.storage.sources_waiting_pickup	{0} sources are waiting for pickup.	Источников ожидают вывоза: {0}.
+hud.selection.storage.builders_ready	Builders are also assigned here.	Здесь также назначены строители.
+hud.selection.storage.builders_separate	Builders are managed separately.	Строители назначаются отдельно.
+hud.selection.granary.ready_title	Food hauling ready	Готово к перевозке еды
+hud.selection.granary.food_waiting	Food sources are waiting for pickup.	Источники еды ожидают вывоза.
+hud.selection.granary.food_ready	The granary is ready for food deliveries.	Амбар готов принимать еду.
+hud.selection.cart.supplies_title	Founding supplies	Начальные припасы
+hud.selection.cart.supplies_body	Temporary construction materials and food for the new settlement.	Временный запас стройматериалов и еды для нового поселения.
+hud.selection.warmth.status	{0} · {1}	{0} · {1}
+hud.selection.house.householder_status	Householder · {0}, age {1}	Глава семьи · {0}, возраст {1}
+hud.selection.house.householder_status_hungry	Householder · {0}, age {1} · {2}	Глава семьи · {0}, возраст {1} · {2}
+hud.selection.house.resident_status	Resident · {0}, age {1}	Житель · {0}, возраст {1}
+hud.selection.house.resident_status_hungry	Resident · {0}, age {1} · {2}	Житель · {0}, возраст {1} · {2}
+hud.selection.house.food.summary_labels	DINNER NEED\nAVAILABLE\nNEXT CHECK\nWARMTH	НУЖНО НА УЖИН\nДОСТУПНО\nСЛЕДУЮЩАЯ ПРОВЕРКА\nТЕПЛО
+hud.selection.house.food.summary_values	{0}\n{1}\n{2}\n{3}	{0}\n{1}\n{2}\n{3}
+hud.selection.house.food.table_header	HOUSEHOLD DINNER	СЕМЕЙНЫЙ УЖИН
+hud.selection.house.food.logs	Logs: {0}	Дрова: {0}
+hud.selection.house.food.warmth_logs	{0} · Logs: {1}	{0} · Дрова: {1}
+hud.selection.house.food.family_home	Family home: {0}/{1}	Семья дома: {0}/{1}
+hud.selection.house.food.next	Next: {0}	Далее: {0}
+hud.selection.house.food.dinner_in	Dinner in {0}	Ужин через {0}
+hud.selection.house.food.no_dishes	No prepared dishes	Нет готовых блюд
+hud.selection.house.food.no_food	No household food	В доме нет еды
+hud.selection.house.food.leftovers	Leftovers	Остатки еды
+hud.selection.house.food.fuel	Fuel	Топливо
+hud.selection.house.food.missing	Missing: {0}	Не хватает: {0}
+hud.selection.house.food.raw_fallback	Raw-food fallback	Сырая еда на крайний случай
+hud.selection.house.food.short	Short by {0}	Не хватает {0}
+hud.selection.house.food.stock_none	No dinner stock	Нет запасов для ужина
+hud.selection.house.food.stock	Dishes {0} · Leftovers {1} · Pottery {2} · Ingredients {3}	Блюда: {0} · Остатки: {1} · Посуда: {2} · Продукты: {3}
+hud.selection.resident.subtitle	Age {0} · {1} · {2}	Возраст {0} · {1} · {2}
+hud.selection.resident.current_task	Current task	Текущее занятие
+hud.selection.resident.unrecorded_family	Family not recorded	Семья не указана
+hud.selection.resident.family_name	House {0}	Дом {0}
+hud.selection.resident.task.awaiting_decision	Awaiting your decision.	Ожидает вашего решения.
+hud.selection.resident.task.too_young	Too young for a profession.	Слишком юн для профессии.
+hud.selection.resident.task.assigned_as	Assigned as {0}.	Назначение: {0}.
+hud.selection.resident.task.available	Available for assignment.	Можно назначить на работу.
+hud.selection.resident.home.assigned	Assigned to a completed home.	Жильё назначено.
+hud.selection.resident.home.under_construction	Future home is under construction.	Будущий дом строится.
+hud.selection.resident.home.refugee_camp	Staying at the refugee camp.	Живёт в лагере беженцев.
+hud.selection.resident.home.waiting	Waiting for housing.	Ожидает жильё.
+hud.selection.resident.food.covered	Food needs are covered.	Потребность в еде обеспечена.
+hud.selection.resident.food.hungry_duration	{0} for {1} days.	{0} уже {1} дн.
+hud.selection.resident.family_detail	Parents: {0} · Children: {1}	Родители: {0} · Дети: {1}
+hud.selection.upgrade.garden_beds	Garden Beds	Грядки
+hud.selection.upgrade.chicken_coop	Chicken Coop	Курятник
+hud.selection.upgrade.crop	Crop: {0}	Культура: {0}
+hud.selection.upgrade.cost	Cost: {0}	Стоимость: {0}
+hud.selection.upgrade.missing	Missing: {0}	Не хватает: {0}
+hud.selection.upgrade.already_installed	Upgrade already installed.	Улучшение уже установлено.
+hud.selection.upgrade.system_not_ready	Upgrade system is not ready.	Система улучшений ещё не готова.
+hud.selection.upgrade.installed_near_house	{0} installed near the house.	Улучшение «{0}» установлено рядом с домом.
+hud.selection.upgrade.not_enough_resources	Not enough resources: {0}.	Не хватает ресурсов: {0}.
+hud.selection.upgrade.no_free_space	No suitable free space near the house.	Рядом с домом нет подходящего свободного места.
+hud.selection.upgrade.installed	{0} installed.	Улучшение «{0}» установлено.
+hud.selection.upgrade.workers_use	Workers will use this upgrade automatically.	Работники будут использовать это улучшение автоматически.
+hud.selection.upgrade.stock_ready	Required materials are in storage.	Необходимые материалы есть на складе.
+hud.selection.upgrade.missing_storage	Required materials are missing from storage.	На складе не хватает необходимых материалов.
+hud.selection.upgrade.not_enough_storage	Not enough resources in storage.	На складе не хватает ресурсов.
+hud.selection.upgrade.invalid_target	This upgrade cannot be installed here.	Это улучшение нельзя установить здесь.
+hud.selection.upgrade.failed	Upgrade installation failed.	Не удалось установить улучшение.
+hud.selection.trade.available_now	Available now	Доступно сейчас
+hud.selection.trade.available_when_trading	Available when a caravan is trading	Доступно во время торговли с караваном
+hud.selection.trade.no_caravan_here	No caravan offers are available here.	Сейчас здесь нет предложений каравана.
+hud.selection.trade.offer_title	{0} {1} {2}	{0}: {1} ед. — {2}
+hud.selection.trade.offer_detail	Coins {0} · Available {1}	Монеты: {0} · Доступно: {1}
+hud.selection.trade.sold	Sold {0} {1}.	Продано: {0} ед. — {1}.
+hud.selection.trade.bought	Bought {0} {1}.	Куплено: {0} ед. — {1}.
+hud.selection.scout.needed_title	Scout needed	Нужен разведчик
+hud.selection.scout.needed_body	Assign a Scout here; ordinary professions remain managed separately.	Назначьте сюда разведчика; остальные профессии управляются отдельно.
+hud.selection.scout.ready_title	Exploration ready	Разведка готова
+hud.selection.scout.ready_body	Use the Scout action above to send, recall or review the expedition.	Используйте действие разведчика, чтобы отправить, отозвать или проверить экспедицию.
+hud.selection.scout.free_adult	Free adult available	Есть свободный взрослый
+hud.selection.scout.no_free_adult	No free adult available	Нет свободных взрослых
+hud.selection.scout.ready_for_expedition	Ready for expedition	Готов к экспедиции
+hud.selection.scout.finishing_duty	Finishing current duty	Завершает текущее дело
+hud.selection.scout.returning_to_lodge	Returning to Lodge	Возвращается на пост
+hud.selection.scout.exploring_progress	Returns in {0} · Field rations {1}	Вернётся через {0} · Походные припасы: {1}
+hud.selection.inspect.rabbit	Rabbit	Кролик
+hud.selection.inspect.rabbit_carcass	Rabbit Carcass	Тушка кролика
+hud.selection.inspect.wildlife	Wildlife	Дикое животное
+hud.selection.inspect.stag	Stag	Олень
+hud.selection.inspect.doe	Doe	Олениха
+hud.selection.inspect.river_wildlife	River wildlife	Речная живность
+hud.selection.inspect.lake_wildlife	Lake wildlife	Озёрная живность
+hud.selection.inspect.decorative_wildlife	Wildlife	Дикая птица
+hud.selection.inspect.wolf	Wolf	Волк
+hud.selection.inspect.predator_wildlife	Predator	Хищник
+hud.selection.inspect.chicken	Chicken	Курица
+hud.selection.inspect.household_animal	Household animal	Домашнее животное
+hud.selection.inspect.stone_deposit	Stone deposit	Месторождение камня
+hud.selection.inspect.iron_vein	Iron Vein	Железная жила
+hud.selection.inspect.iron_stained_ground	Iron-stained Ground	Железистая земля
+hud.selection.inspect.iron_deposit	Iron deposit	Месторождение железа
+hud.selection.inspect.coal_seam	Coal Seam	Угольный пласт
+hud.selection.inspect.coal_dust_ground	Coal Dust Ground	Угленосная земля
+hud.selection.inspect.coal_deposit	Coal deposit	Месторождение угля
+hud.selection.inspect.clay_bank	Clay Bank	Глиняный берег
+hud.selection.inspect.clay_patch	Clay Patch	Залежь глины
+hud.selection.inspect.clay_deposit	Clay deposit	Месторождение глины
+hud.selection.inspect.tree	Tree	Дерево
+hud.selection.inspect.young_tree	Young Tree	Молодое дерево
+hud.selection.inspect.forest_resource	Forest resource	Лесной ресурс
+hud.selection.inspect.forage_node	Forage node	Место сбора
+hud.selection.inspect.loose_resource	Loose resource	Брошенный ресурс
+hud.selection.inspect.loose_building_materials	Loose Building Materials	Брошенные стройматериалы
+hud.selection.inspect.construction_resource_pile	Construction resource pile	Куча стройматериалов
+hud.selection.inspect.rock_cluster	Rock Cluster	Каменная россыпь
+hud.selection.inspect.stone_cliff	Stone Cliff	Каменный утёс
+hud.selection.inspect.boulder	Boulder	Валун
+hud.selection.inspect.forest_thicket	Forest Thicket	Лесная чаща
+hud.selection.inspect.bush	Bush	Куст
+hud.selection.inspect.nature	Nature	Природа
+hud.selection.inspect.nature_body	Nature prop\nBlocks movement: {0}\nCell terrain: {1}	Природный объект\nБлокирует движение: {0}\nТип местности: {1}
+hud.selection.grave.subtitle	Grave	Могила
+hud.selection.grave.epitaph	EPITAPH	ЭПИТАФИЯ
+hud.selection.grave.life	LIFE	ЖИЗНЬ
+hud.selection.grave.memory	MEMORY	ПАМЯТЬ
+hud.selection.grave.age_unknown	Age unknown	Возраст неизвестен
+hud.selection.grave.age	Age {0}	Возраст: {0}
+hud.selection.grave.life_text	{0}\nKnown as {1}\nFamily role: {2}	{0}\nРемесло: {1}\nРоль в семье: {2}
+hud.selection.grave.memory.child	A child of House {0}.	Ребёнок из дома {0}.
+hud.selection.grave.memory.parent	Remembered as {0}; children: {1}.	В памяти семьи — {0}; детей: {1}.
+hud.selection.grave.memory.household	Remembered by the household of House {0}.	Дом {0} хранит память об этом человеке.
+hud.selection.grave.memory.settlement	Remembered by the settlement.	Поселение хранит память об этом человеке.
+hud.selection.grave.inspect_body	{0}\n{1}	{0}\n{1}
+hud.selection.grave.unknown_settler	Unknown Settler	Неизвестный поселенец
+hud.selection.grave.unknown_family	Unknown	Неизвестный род
+hud.selection.grave.epitaph.child_0	Here rests {0}, child of House {1}.	Здесь покоится {0}, ребёнок из дома {1}.
+hud.selection.grave.epitaph.child_1	{0} sleeps beneath this stone, held in the memory of kin.	Под этим камнем покоится {0}; родные хранят память.
+hud.selection.grave.epitaph.child_2	Here rests young {0}, whose name remains with House {1}.	Здесь покоится {0}; дом {1} сохранит это имя.
+hud.selection.grave.epitaph.parent_0	Here rests {0}, beloved {1} and {2}.	Здесь покоится {0}. Семейная роль: {1}; ремесло: {2}.
+hud.selection.grave.epitaph.parent_1	In memory of {0}: {1}, {2}, and keeper of the family name.	В память о {0}: {1}, {2}, хранитель семейного имени.
+hud.selection.grave.epitaph.parent_2	{0} rests here, a {1} remembered by children and hearth.	Здесь покоится {0}; дети и родной очаг помнят: {1}.
+hud.selection.grave.epitaph.householder_0	Here rests {0}, keeper of hearth and home.	Здесь покоится {0}, хранитель дома и очага.
+hud.selection.grave.epitaph.householder_1	In memory of {0}, who tended the household with steady hands.	В память о {0}, чьими заботливыми руками держался дом.
+hud.selection.grave.epitaph.householder_2	{0} sleeps here, remembered at the hearth.	Здесь покоится {0}; у домашнего очага память жива.
+hud.selection.grave.epitaph.general_0	Here rests {0}.	Здесь покоится {0}.
+hud.selection.grave.epitaph.general_1	In memory of {0}, {1} of the settlement.	В память о {0}. Ремесло в поселении: {1}.
+hud.selection.grave.epitaph.general_2	{0} sleeps beneath this stone.	Под этим камнем покоится {0}.
+hud.selection.grave.epitaph.general_3	Here rests {0}, remembered by the settlement.	Здесь покоится {0}; поселение хранит память.

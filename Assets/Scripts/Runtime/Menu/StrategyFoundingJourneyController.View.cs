@@ -93,13 +93,13 @@ namespace ProjectUnknown.Strategy
             BuildSummaryPanel(panel);
             BuildLoadingPanel(panel);
 
-            backButton = CreateButton("BackButton", panel, "Back", 15, JourneyButtonColor, out _);
+            backButton = CreateButton("BackButton", panel, "founding.back", 15, JourneyButtonColor, out _);
             SetRect(backButton.GetComponent<RectTransform>(), Vector2.zero, Vector2.zero, new Vector2(54f, 54f), new Vector2(142f, 48f));
 
             preparationText = CreateText(
                 "PreparationStatus",
                 canvasObject.transform,
-                "Preparing the valley",
+                StrategyLocalization.Get(StrategyLocalizationTables.Founding, "founding.preparing_valley"),
                 12,
                 TextAnchor.UpperRight,
                 new Color(0.82f, 0.88f, 0.84f, 0.78f));
@@ -153,9 +153,9 @@ namespace ProjectUnknown.Strategy
             storyProgressText = CreateText("StoryProgress", storyRoot.transform, string.Empty, 13, TextAnchor.MiddleRight, JourneyMutedColor);
             SetRect(storyProgressText.rectTransform, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(558f, 166f), new Vector2(80f, 26f));
 
-            nextButton = CreateButton("StoryNextButton", storyRoot.transform, "Continue", 17, JourneyButtonColor, out nextButtonLabel);
+            nextButton = CreateButton("StoryNextButton", storyRoot.transform, string.Empty, 17, JourneyButtonColor, out nextButtonLabel, false);
             SetRect(nextButton.GetComponent<RectTransform>(), Vector2.zero, Vector2.zero, new Vector2(64f, 102f), new Vector2(310f, 58f));
-            skipStoryButton = CreateButton("SkipStoryButton", storyRoot.transform, "Skip story", 14, new Color(0.08f, 0.11f, 0.11f, 0.96f), out _);
+            skipStoryButton = CreateButton("SkipStoryButton", storyRoot.transform, "founding.skip_story", 14, new Color(0.08f, 0.11f, 0.11f, 0.96f), out _);
             SetRect(skipStoryButton.GetComponent<RectTransform>(), Vector2.zero, Vector2.zero, new Vector2(392f, 102f), new Vector2(180f, 58f));
         }
 
@@ -176,7 +176,7 @@ namespace ProjectUnknown.Strategy
                 CreateOptionCard(questionRoot.transform, i, -270f - i * 118f);
             }
 
-            balancedDefaultsButton = CreateButton("BalancedDefaultsButton", questionRoot.transform, "Use balanced defaults", 14, new Color(0.08f, 0.11f, 0.11f, 0.96f), out _);
+            balancedDefaultsButton = CreateButton("BalancedDefaultsButton", questionRoot.transform, "founding.use_balanced_defaults", 14, new Color(0.08f, 0.11f, 0.11f, 0.96f), out _);
             SetRect(balancedDefaultsButton.GetComponent<RectTransform>(), Vector2.zero, Vector2.zero, new Vector2(392f, 42f), new Vector2(230f, 48f));
             questionRoot.SetActive(false);
         }
@@ -185,10 +185,10 @@ namespace ProjectUnknown.Strategy
         {
             summaryRoot = CreateRect("SummaryPanel", panel).gameObject;
             Stretch(summaryRoot.GetComponent<RectTransform>());
-            Text chapter = CreateText("SummaryChapter", summaryRoot.transform, "OUR REFUGE", 14, TextAnchor.UpperLeft, JourneyGoldColor);
+            Text chapter = CreateLocalizedText("SummaryChapter", summaryRoot.transform, "founding.summary.chapter", 14, TextAnchor.UpperLeft, JourneyGoldColor);
             chapter.fontStyle = FontStyle.Bold;
             SetRect(chapter.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(64f, -70f), new Vector2(560f, 26f));
-            Text title = CreateText("SummaryTitle", summaryRoot.transform, "Here we begin again.", 33, TextAnchor.UpperLeft, Color.white);
+            Text title = CreateLocalizedText("SummaryTitle", summaryRoot.transform, "founding.summary.title", 33, TextAnchor.UpperLeft, Color.white);
             title.fontStyle = FontStyle.Bold;
             SetRect(title.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(64f, -112f), new Vector2(580f, 60f));
             summaryBodyText = CreateText("SummaryBody", summaryRoot.transform, string.Empty, 15, TextAnchor.UpperLeft, Color.white);
@@ -197,9 +197,9 @@ namespace ProjectUnknown.Strategy
             SetRect(summaryBodyText.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(64f, -190f), new Vector2(560f, 370f));
             summaryNoteText = CreateText("SummaryNote", summaryRoot.transform, string.Empty, 13, TextAnchor.UpperLeft, JourneyMutedColor);
             SetRect(summaryNoteText.rectTransform, Vector2.zero, Vector2.zero, new Vector2(64f, 212f), new Vector2(550f, 52f));
-            beginButton = CreateButton("BeginButton", summaryRoot.transform, "Begin the settlement", 17, new Color(0.20f, 0.34f, 0.25f, 1f), out _);
+            beginButton = CreateButton("BeginButton", summaryRoot.transform, "founding.begin_settlement", 17, new Color(0.20f, 0.34f, 0.25f, 1f), out _);
             SetRect(beginButton.GetComponent<RectTransform>(), Vector2.zero, Vector2.zero, new Vector2(64f, 102f), new Vector2(310f, 58f));
-            changeAnswersButton = CreateButton("ChangeAnswersButton", summaryRoot.transform, "Change answers", 14, JourneyButtonColor, out _);
+            changeAnswersButton = CreateButton("ChangeAnswersButton", summaryRoot.transform, "founding.change_answers", 14, JourneyButtonColor, out _);
             SetRect(changeAnswersButton.GetComponent<RectTransform>(), Vector2.zero, Vector2.zero, new Vector2(392f, 102f), new Vector2(190f, 58f));
             summaryRoot.SetActive(false);
         }
@@ -208,7 +208,7 @@ namespace ProjectUnknown.Strategy
         {
             loadingRoot = CreateRect("LoadingPanel", panel).gameObject;
             Stretch(loadingRoot.GetComponent<RectTransform>());
-            loadingTitleText = CreateText("LoadingTitle", loadingRoot.transform, "Preparing the valley", 31, TextAnchor.UpperLeft, Color.white);
+            loadingTitleText = CreateText("LoadingTitle", loadingRoot.transform, StrategyLocalization.Get(StrategyLocalizationTables.Founding, "founding.preparing_valley"), 31, TextAnchor.UpperLeft, Color.white);
             loadingTitleText.fontStyle = FontStyle.Bold;
             SetRect(loadingTitleText.rectTransform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(64f, 92f), new Vector2(560f, 54f));
             loadingDetailText = CreateText("LoadingDetail", loadingRoot.transform, string.Empty, 15, TextAnchor.UpperLeft, JourneyMutedColor);
@@ -283,7 +283,8 @@ namespace ProjectUnknown.Strategy
             string label,
             int fontSize,
             Color color,
-            out Text labelText)
+            out Text labelText,
+            bool localized = true)
         {
             RectTransform root = CreateRect(name, parent);
             Image image = root.gameObject.AddComponent<Image>();
@@ -293,10 +294,17 @@ namespace ProjectUnknown.Strategy
             Button button = root.gameObject.AddComponent<Button>();
             button.targetGraphic = image;
             button.colors = BuildButtonColors(color);
-            labelText = CreateText("Label", root, label, fontSize, TextAnchor.MiddleCenter, Color.white);
+            string value = localized
+                ? StrategyLocalization.Get(StrategyLocalizationTables.Founding, label)
+                : label;
+            labelText = CreateText("Label", root, value, fontSize, TextAnchor.MiddleCenter, Color.white);
             labelText.fontStyle = FontStyle.Bold;
             labelText.raycastTarget = false;
             Stretch(labelText.rectTransform, new Vector2(12f, 0f), new Vector2(-12f, 0f));
+            if (localized)
+            {
+                StrategyLocalizedTextBinding.Bind(labelText, StrategyLocalizationTables.Founding, label);
+            }
             return button;
         }
 
@@ -328,7 +336,7 @@ namespace ProjectUnknown.Strategy
             Stretch(mark, new Vector2(5f, 5f), new Vector2(-5f, -5f));
             Image markImage = mark.gameObject.AddComponent<Image>();
             markImage.color = JourneyGoldColor;
-            Text label = CreateText("Label", root, "Reduce motion", 12, TextAnchor.MiddleLeft, JourneyMutedColor);
+            Text label = CreateLocalizedText("Label", root, "founding.reduce_motion", 12, TextAnchor.MiddleLeft, JourneyMutedColor);
             Stretch(label.rectTransform, new Vector2(36f, 0f), Vector2.zero);
             toggle.targetGraphic = boxImage;
             toggle.graphic = markImage;
@@ -352,6 +360,25 @@ namespace ProjectUnknown.Strategy
             text.color = color;
             text.horizontalOverflow = HorizontalWrapMode.Wrap;
             text.verticalOverflow = VerticalWrapMode.Truncate;
+            return text;
+        }
+
+        private static Text CreateLocalizedText(
+            string name,
+            Transform parent,
+            string key,
+            int size,
+            TextAnchor anchor,
+            Color color)
+        {
+            Text text = CreateText(
+                name,
+                parent,
+                StrategyLocalization.Get(StrategyLocalizationTables.Founding, key),
+                size,
+                anchor,
+                color);
+            StrategyLocalizedTextBinding.Bind(text, StrategyLocalizationTables.Founding, key);
             return text;
         }
 
@@ -401,13 +428,13 @@ namespace ProjectUnknown.Strategy
         {
             float progress = Mathf.Clamp01(PreparationProgress);
             preparationText.text = IsMapReady
-                ? "VALLEY READY"
-                : PreparationStage.ToUpperInvariant() + "  " + Mathf.RoundToInt(progress * 100f) + "%";
+                ? StrategyLocalization.Get(StrategyLocalizationTables.Founding, "founding.valley_ready")
+                : StrategyLocalization.Get(StrategyLocalizationTables.Founding, "founding.preparation_progress", PreparationStage, Mathf.RoundToInt(progress * 100f));
             loadingPercentText.text = Mathf.RoundToInt(progress * 100f) + "%";
             loadingProgressFill.rectTransform.anchorMax = new Vector2(progress, 1f);
             if (page == JourneyPage.Launching && !IsMapReady)
             {
-                loadingTitleText.text = "Preparing the valley";
+                loadingTitleText.text = StrategyLocalization.Get(StrategyLocalizationTables.Founding, "founding.preparing_valley");
                 loadingDetailText.text = PreparationStage;
             }
         }

@@ -1,0 +1,48 @@
+Key	English	Russian
+build.category.housing	Housing	Жильё
+build.category.extraction	Extraction	Добыча
+build.category.production	Production	Производство
+build.category.storage	Storage	Склады
+build.category.trade	Trade	Торговля
+build.category.infrastructure	Infrastructure	Инфраструктура
+build.subcategory.camps	Camps	Лагеря
+build.subcategory.deposits	Deposits	Месторождения
+build.subcategory.food	Food	Продовольствие
+building.house.name	House	Дом
+building.lumberjack_camp.name	Lumberjack Camp	Лагерь лесорубов
+building.stonecutter_camp.name	Stonecutter Camp	Лагерь каменотёсов
+building.mine.name	Mine	Шахта
+building.coal_pit.name	Coal Pit	Угольный разрез
+building.clay_pit.name	Clay Pit	Глиняный карьер
+building.hunter_camp.name	Hunter Camp	Охотничий лагерь
+building.fisher_hut.name	Fisher Hut	Хижина рыбака
+building.forager_camp.name	Forager Camp	Лагерь собирателей
+building.chicken_coop.name	Chicken Coop	Курятник
+building.sawmill.name	Sawmill	Лесопилка
+building.kiln.name	Kiln	Обжиговая печь
+building.forge.name	Forge	Кузница
+building.storage_yard.name	Storage Yard	Складской двор
+building.granary.name	Granary	Амбар
+building.trading_post.name	Trading Post	Торговый пост
+building.scout_lodge.name	Scout Lodge	Пост разведчиков
+building.bridge.name	Bridge	Мост
+upgrade.iron_axes.title	Iron Axes	Железные топоры
+upgrade.iron_axes.effect	Faster chopping and bucking.	Ускоряют рубку деревьев и разделку стволов.
+upgrade.iron_pickaxes.title	Iron Pickaxes	Железные кирки
+upgrade.iron_pickaxes.effect	Faster stonecutting.	Ускоряют добычу камня.
+upgrade.reinforced_mining_tools.title	Reinforced Mining Tools	Усиленные шахтёрские инструменты
+upgrade.reinforced_mining_tools.effect	Faster underground iron mining.	Ускоряют подземную добычу железа.
+upgrade.pit_tool_rack.title	Pit Tool Rack	Стойка с инструментами
+upgrade.pit_tool_rack.effect	Faster coal extraction.	Ускоряет добычу угля.
+upgrade.iron_shovels.title	Iron Shovels	Железные лопаты
+upgrade.iron_shovels.effect	Faster clay digging.	Ускоряют добычу глины.
+upgrade.saw_blade_set.title	Saw Blade Set	Комплект пильных полотен
+upgrade.saw_blade_set.effect	Faster plank sawing.	Ускоряет распил брёвен на доски.
+upgrade.kiln_tool_set.title	Kiln Tool Set	Инструменты для обжиговой печи
+upgrade.kiln_tool_set.effect	Faster pottery firing.	Ускоряют обжиг керамики.
+upgrade.better_anvil_tools.title	Better Anvil Tools	Улучшенные кузнечные инструменты
+upgrade.better_anvil_tools.effect	Faster tool forging.	Ускоряют ковку инструментов.
+upgrade.deer_hunting_kit.title	Deer Hunting Kit	Снаряжение для охоты на оленей
+upgrade.deer_hunting_kit.effect	Unlocks adult deer hunting.	Позволяет охотиться на взрослых оленей.
+upgrade.hooks_and_line_kit.title	Hooks and Line Kit	Крючки и леска
+upgrade.hooks_and_line_kit.effect	Faster fishing cycle.	Ускоряют рыбную ловлю.

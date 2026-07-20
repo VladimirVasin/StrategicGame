@@ -5,6 +5,32 @@ namespace ProjectUnknown.Strategy
 {
     public sealed partial class StrategyFamilyTreeHudController
     {
+        private void OnEnable()
+        {
+            StrategyLocalization.LanguageChanged += HandleFamilyTreeLanguageChanged;
+        }
+
+        private void OnDestroy()
+        {
+            StrategyLocalization.LanguageChanged -= HandleFamilyTreeLanguageChanged;
+        }
+
+        private void HandleFamilyTreeLanguageChanged()
+        {
+            if (initialized && isOpen)
+            {
+                RefreshTrees();
+            }
+        }
+
+        private static string FamilyText(string key, params object[] arguments)
+        {
+            return StrategyLocalization.Get(
+                StrategyLocalizationTables.Residents,
+                key,
+                arguments);
+        }
+
         private void ClearContent()
         {
             relationshipLabelsById.Clear();

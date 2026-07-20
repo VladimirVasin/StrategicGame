@@ -57,7 +57,9 @@ namespace ProjectUnknown.Strategy
             acknowledgedCallback = onAcknowledged;
             ClearChoiceCallbacks();
             SetChoiceMode(false);
-            titleText.text = string.IsNullOrWhiteSpace(title) ? "Point of Interest" : title;
+            titleText.text = string.IsNullOrWhiteSpace(title)
+                ? PointOfInterestText("story.poi.fallback_title")
+                : title;
             bodyText.text = body ?? string.Empty;
             panelTransition.SetVisible(true);
             RefreshInputContext(true);
@@ -197,7 +199,7 @@ namespace ProjectUnknown.Strategy
             titleText = CreateText(
                 "Title",
                 panel,
-                "Point of Interest",
+                string.Empty,
                 26,
                 TextAnchor.UpperLeft,
                 Color.white);
@@ -207,12 +209,16 @@ namespace ProjectUnknown.Strategy
             Text subtitle = CreateText(
                 "Subtitle",
                 panel,
-                "SCOUT REPORT",
+                string.Empty,
                 13,
                 TextAnchor.UpperLeft,
                 new Color(0.86f, 0.70f, 0.42f));
             subtitle.fontStyle = FontStyle.Bold;
             SetTopStretch(subtitle.rectTransform, 28f, 61f, 28f, 18f);
+            StrategyLocalizedTextBinding.Bind(
+                subtitle,
+                StrategyLocalizationTables.Stories,
+                "story.poi.subtitle");
 
             RectTransform line = CreateUiObject("Line", panel).GetComponent<RectTransform>();
             SetTopStretch(line, 28f, 91f, 28f, 2f);
@@ -265,10 +271,22 @@ namespace ProjectUnknown.Strategy
             button.colors = colors;
             StrategyUiButtonFeedback.Attach(button, StrategyUiButtonFeedbackProfile.Standard, null);
 
-            Text label = CreateText("Label", root, "OK", 16, TextAnchor.MiddleCenter, Color.white);
+            Text label = CreateText("Label", root, string.Empty, 16, TextAnchor.MiddleCenter, Color.white);
             label.fontStyle = FontStyle.Bold;
             Stretch(label.rectTransform, 0f, 0f, 0f, 1f);
+            StrategyLocalizedTextBinding.Bind(
+                label,
+                StrategyLocalizationTables.Stories,
+                "story.poi.ok");
             return root.gameObject;
+        }
+
+        private static string PointOfInterestText(string key, params object[] arguments)
+        {
+            return StrategyLocalization.Get(
+                StrategyLocalizationTables.Stories,
+                key,
+                arguments);
         }
 
         private static GameObject CreateUiObject(string name, Transform parent)

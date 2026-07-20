@@ -295,10 +295,16 @@ namespace ProjectUnknown.Strategy
                 return info.Subtitle;
             }
 
-            string cellText = "Cell " + info.Cell.x + ", " + info.Cell.y;
+            string cellText = StrategySelectionLocalization.Text(
+                "format.cell",
+                info.Cell.x,
+                info.Cell.y);
             return string.IsNullOrWhiteSpace(info.Subtitle)
                 ? cellText
-                : info.Subtitle + " / " + cellText;
+                : StrategySelectionLocalization.Text(
+                    "format.subtitle_cell",
+                    info.Subtitle,
+                    cellText);
         }
 
         private void ApplyPosition()

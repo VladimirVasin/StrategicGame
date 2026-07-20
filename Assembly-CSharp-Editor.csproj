@@ -10,6 +10,10 @@
   <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
   <ItemGroup>
     <Compile Include="Assets\Tests\EditMode\StrategyResidentPersonalInventoryTests.cs" />
+    <Compile Include="Assets\Editor\Localization\StrategyLocalizationAssetGenerator.cs" />
+    <Compile Include="Assets\Editor\Localization\StrategyLocalizationTsvCatalog.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyLocalizationFoundationTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyLocalizationTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyResidentPersonalInventorySaveTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyResidentPersonalInventoryHudTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyCityInventoryTests.cs" />
@@ -1417,6 +1421,18 @@
     </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>Library\ScriptAssemblies\UnityEngine.UI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.Localization">
+      <HintPath>Library\ScriptAssemblies\Unity.Localization.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.Localization.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.Localization.Editor.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.ResourceManager">
+      <HintPath>Library\ScriptAssemblies\Unity.ResourceManager.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.Burst">

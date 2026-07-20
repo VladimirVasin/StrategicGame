@@ -81,6 +81,32 @@ namespace ProjectUnknown.Strategy
             StrategyDebugLogger.Info("Goals", "GoalsCleared");
         }
 
+        public void ReplaceGoalText(params StrategyGoalDefinition[] goals)
+        {
+            if (goals == null || goals.Length != activeGoals.Count)
+            {
+                SetGoals(goals);
+                return;
+            }
+
+            for (int i = 0; i < goals.Length; i++)
+            {
+                if (goals[i].Kind != activeGoals[i].Kind
+                    || string.IsNullOrWhiteSpace(goals[i].Title))
+                {
+                    SetGoals(goals);
+                    return;
+                }
+            }
+
+            for (int i = 0; i < goals.Length; i++)
+            {
+                activeGoals[i] = goals[i];
+            }
+
+            RefreshHud();
+        }
+
         public bool CompleteGoal(StrategyGoalKind kind)
         {
             if (kind == StrategyGoalKind.None || !ContainsGoalKind(kind))

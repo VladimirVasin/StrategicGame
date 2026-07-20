@@ -1,4 +1,3 @@
-using System.Globalization;
 using UnityEngine;
 
 namespace ProjectUnknown.Strategy
@@ -54,7 +53,7 @@ namespace ProjectUnknown.Strategy
 
                 if (workerNameTexts[i] != null)
                 {
-                    workerNameTexts[i].text = hasWorker ? worker.FullName : "Scout: open";
+                    workerNameTexts[i].text = hasWorker ? worker.FullName : L("workers.scout_open");
                     workerNameTexts[i].color = hasWorker
                         ? Color.white
                         : new Color(0.72f, 0.80f, 0.76f);
@@ -65,8 +64,8 @@ namespace ProjectUnknown.Strategy
                     workerStatusTexts[i].text = hasWorker
                         ? GetScoutWorkerStatus(lodge, worker)
                         : canAssign
-                            ? "free adult available"
-                            : "no free adult available";
+                            ? L("scout.free_adult")
+                            : L("scout.no_free_adult");
                 }
 
                 bool buttonEnabled = hasWorker
@@ -84,12 +83,12 @@ namespace ProjectUnknown.Strategy
                     workerActionTexts[i].text = hasWorker
                         ? lodge.ExpeditionState switch
                         {
-                            StrategyScoutExpeditionState.Ready => "Send",
-                            StrategyScoutExpeditionState.Exploring => "Recall",
-                            StrategyScoutExpeditionState.Returning => "Returning",
-                            _ => "Unavailable"
+                            StrategyScoutExpeditionState.Ready => L("action.send"),
+                            StrategyScoutExpeditionState.Exploring => L("action.recall"),
+                            StrategyScoutExpeditionState.Returning => LocalizedValue("Returning"),
+                            _ => LocalizedValue("Unavailable")
                         }
-                        : "Assign";
+                        : L("action.assign");
                     workerActionTexts[i].color = buttonEnabled
                         ? Color.white
                         : new Color(0.55f, 0.61f, 0.59f);
@@ -174,15 +173,15 @@ namespace ProjectUnknown.Strategy
         {
             if (lodge == null || worker == null)
             {
-                return "unavailable";
+                return LocalizedValue("unavailable");
             }
 
             return lodge.ExpeditionState switch
             {
                 StrategyScoutExpeditionState.Ready => lodge.CanDispatchScout(worker)
-                    ? "ready for an expedition"
-                    : "finishing another duty",
-                StrategyScoutExpeditionState.Returning => "returning to the Lodge",
+                    ? L("scout.ready_for_expedition")
+                    : L("scout.finishing_duty"),
+                StrategyScoutExpeditionState.Returning => L("scout.returning_to_lodge"),
                 StrategyScoutExpeditionState.Exploring => FormatScoutExpeditionProgress(lodge),
                 _ => GetResidentStatus(worker)
             };
@@ -201,11 +200,12 @@ namespace ProjectUnknown.Strategy
             }
 
             string time = days > 0
-                ? days + "d " + hours + "h"
-                : Mathf.Max(1, hours) + "h";
-            return "exploring  /  " + time + " left  /  "
-                + lodge.RemainingFieldRations.ToString("0.#", CultureInfo.InvariantCulture)
-                + " rations";
+                ? L("format.days_hours_short", days, hours)
+                : L("format.hours_short", Mathf.Max(1, hours));
+            return L(
+                "scout.exploring_progress",
+                time,
+                StrategySelectionLocalization.Rations(lodge.RemainingFieldRations));
         }
 
         private bool HasAppointableScoutCandidate(StrategyScoutLodge lodge)

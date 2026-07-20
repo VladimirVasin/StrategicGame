@@ -18,8 +18,8 @@ namespace ProjectUnknown.Strategy
             {
                 workersEmptyText.gameObject.SetActive(workerCount <= 0);
                 workersEmptyText.text = canAssign
-                    ? "assign fishers"
-                    : "no free residents";
+                    ? L("workers.assign_fishers")
+                    : L("workers.no_free_residents");
             }
 
             for (int i = 0; i < workerRows.Length; i++)
@@ -50,7 +50,7 @@ namespace ProjectUnknown.Strategy
                 {
                     workerNameTexts[i].text = hasWorker
                         ? worker.FullName
-                        : "Fisher: open";
+                        : L("workers.fisher_open");
                     workerNameTexts[i].color = hasWorker ? Color.white : new Color(0.72f, 0.80f, 0.76f);
                 }
 
@@ -58,7 +58,7 @@ namespace ProjectUnknown.Strategy
                 {
                     workerStatusTexts[i].text = hasWorker
                         ? GetResidentStatus(worker)
-                        : "catches fish near water";
+                        : L("workers.catches_fish");
                 }
 
                 bool buttonEnabled = hasWorker || (i == workerCount && canAssign);
@@ -70,8 +70,8 @@ namespace ProjectUnknown.Strategy
                 if (workerActionTexts[i] != null)
                 {
                     workerActionTexts[i].text = hasWorker
-                        ? "Remove"
-                        : "Assign";
+                        ? L("action.remove")
+                        : L("action.assign");
                     workerActionTexts[i].color = buttonEnabled ? Color.white : new Color(0.55f, 0.61f, 0.59f);
                 }
             }
@@ -88,8 +88,8 @@ namespace ProjectUnknown.Strategy
             {
                 workersEmptyText.gameObject.SetActive(workerCount + builderCount <= 0);
                 workersEmptyText.text = canAssignWorker || canAssignBuilder
-                    ? "hire haulers and builders"
-                    : "no free residents";
+                    ? L("workers.hire_haulers_builders")
+                    : L("workers.no_free_residents");
             }
 
             for (int i = 0; i < workerRows.Length; i++)
@@ -119,8 +119,8 @@ namespace ProjectUnknown.Strategy
                     workerNameTexts[i].text = hasWorker
                         ? worker.FullName
                         : isBuilderSlot
-                            ? "Builder: open"
-                            : "Hauler: open";
+                            ? L("workers.builder_open")
+                            : L("workers.hauler_open");
                     workerNameTexts[i].color = hasWorker ? Color.white : new Color(0.72f, 0.80f, 0.76f);
                 }
 
@@ -129,8 +129,8 @@ namespace ProjectUnknown.Strategy
                     workerStatusTexts[i].text = hasWorker
                         ? GetResidentStatus(worker)
                         : isBuilderSlot
-                            ? "builds structures"
-                            : "hauls resources and food";
+                            ? L("workers.builds_structures")
+                            : L("workers.hauls_resources_food");
                 }
 
                 bool buttonEnabled = hasWorker
@@ -145,8 +145,8 @@ namespace ProjectUnknown.Strategy
                 if (workerActionTexts[i] != null)
                 {
                     workerActionTexts[i].text = hasWorker
-                        ? "Remove"
-                        : "Assign";
+                        ? L("action.remove")
+                        : L("action.assign");
                     workerActionTexts[i].color = buttonEnabled ? Color.white : new Color(0.55f, 0.61f, 0.59f);
                 }
             }
@@ -161,8 +161,8 @@ namespace ProjectUnknown.Strategy
             {
                 workersEmptyText.gameObject.SetActive(workerCount <= 0);
                 workersEmptyText.text = canAssign
-                    ? "assign residents"
-                    : "no free residents";
+                    ? L("workers.assign_residents")
+                    : L("workers.no_free_residents");
             }
 
             for (int i = 0; i < workerRows.Length; i++)
@@ -193,7 +193,7 @@ namespace ProjectUnknown.Strategy
                 {
                     workerNameTexts[i].text = hasWorker
                         ? worker.FullName
-                        : "Open slot";
+                        : L("workers.open_slot");
                     workerNameTexts[i].color = hasWorker ? Color.white : new Color(0.72f, 0.80f, 0.76f);
                 }
 
@@ -201,7 +201,7 @@ namespace ProjectUnknown.Strategy
                 {
                     workerStatusTexts[i].text = hasWorker
                         ? GetResidentStatus(worker)
-                        : "up to 2 workers";
+                        : L("workers.up_to_two");
                 }
 
                 bool buttonEnabled = hasWorker || (i == workerCount && canAssign);
@@ -213,8 +213,8 @@ namespace ProjectUnknown.Strategy
                 if (workerActionTexts[i] != null)
                 {
                     workerActionTexts[i].text = hasWorker
-                        ? "Remove"
-                        : "Assign";
+                        ? L("action.remove")
+                        : L("action.assign");
                     workerActionTexts[i].color = buttonEnabled ? Color.white : new Color(0.55f, 0.61f, 0.59f);
                 }
             }

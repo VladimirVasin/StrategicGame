@@ -40,6 +40,7 @@ namespace ProjectUnknown.Strategy
         private Text freeWorkersText;
         private Text actionStatusText;
         private Text buttonText;
+        private StrategyHudTooltip professionTooltip;
         private bool initialized;
         private bool isOpen;
         private bool isDirty = true;
@@ -165,6 +166,10 @@ namespace ProjectUnknown.Strategy
             iconImage.raycastTarget = false;
 
             buttonText = CreateText("Label", root, "Professions", 14, TextAnchor.MiddleLeft, new Color(0.95f, 0.88f, 0.62f));
+            StrategyLocalizedTextBinding.Bind(
+                buttonText,
+                StrategyLocalizationTables.Hud,
+                "hud.professions.title");
             buttonText.fontStyle = FontStyle.Bold;
             buttonText.horizontalOverflow = HorizontalWrapMode.Overflow;
             buttonText.verticalOverflow = VerticalWrapMode.Truncate;
@@ -178,7 +183,11 @@ namespace ProjectUnknown.Strategy
             button.onClick.AddListener(ToggleOpen);
             ConfigureButtonColors(button, background.color);
             StrategyUiButtonFeedback.Attach(button);
-            StrategyHudTooltip.Attach(root.gameObject, "Assign residents to professions and configure automatic workforce priorities.");
+            professionTooltip = StrategyHudTooltip.Attach(
+                root.gameObject,
+                StrategyLocalization.Get(
+                    StrategyLocalizationTables.Hud,
+                    "hud.professions.tooltip"));
         }
 
         private void CreatePanel(Transform parent)
@@ -210,10 +219,18 @@ namespace ProjectUnknown.Strategy
             accentImage.raycastTarget = false;
 
             Text title = CreateText("Title", panelRoot, "Professions", 25, TextAnchor.UpperLeft, Color.white);
+            StrategyLocalizedTextBinding.Bind(
+                title,
+                StrategyLocalizationTables.Hud,
+                "hud.professions.title");
             title.fontStyle = FontStyle.Bold;
             SetTopStretch(title.rectTransform, 40f, 28f, 84f, 34f);
 
             Text subtitle = CreateText("Subtitle", panelRoot, "settlement workers", 13, TextAnchor.UpperLeft, new Color(0.86f, 0.70f, 0.42f));
+            StrategyLocalizedTextBinding.Bind(
+                subtitle,
+                StrategyLocalizationTables.Hud,
+                "hud.professions.subtitle");
             subtitle.fontStyle = FontStyle.Bold;
             SetTopStretch(subtitle.rectTransform, 40f, 62f, 84f, 20f);
 
@@ -414,6 +431,9 @@ namespace ProjectUnknown.Strategy
             }
 
             isDirty = false;
+            professionTooltip?.SetText(StrategyLocalization.Get(
+                StrategyLocalizationTables.Hud,
+                "hud.professions.tooltip"));
             population ??= UnityEngine.Object.FindAnyObjectByType<StrategyPopulationController>();
             EnsureProfessionRows();
             int freeWorkers = CountFreeWorkers();
@@ -451,36 +471,26 @@ namespace ProjectUnknown.Strategy
 
             if (freeWorkersText != null)
             {
-                freeWorkersText.text = "Free adults: " + freeWorkers;
+                freeWorkersText.text = StrategyLocalization.Get(
+                    StrategyLocalizationTables.Hud,
+                    "hud.professions.free_adults",
+                    freeWorkers);
             }
 
             if (actionStatusText != null && string.IsNullOrEmpty(actionStatusText.text))
             {
                 actionStatusText.text = visibleRows > 0
-                    ? "Available: " + visibleRows
-                    : "No workplaces";
+                    ? StrategyLocalization.Get(
+                        StrategyLocalizationTables.Hud,
+                        "hud.professions.available",
+                        visibleRows)
+                    : StrategyLocalization.Get(
+                        StrategyLocalizationTables.Hud,
+                        "hud.professions.no_workplaces");
             }
 
             RefreshAutoControls(freeWorkers);
         }
 
-        private void ApplySnapshot(ProfessionRow row, ProfessionSnapshot snapshot)
-        {
-            row.Title.text = snapshot.Title;
-            row.Subtitle.text = snapshot.Subtitle;
-            row.Count.text = snapshot.IsUnlimited
-                ? snapshot.Assigned + "/\u221e"
-                : snapshot.Assigned + "/" + snapshot.Capacity;
-            row.Count.color = !snapshot.IsUnlimited && snapshot.Assigned >= snapshot.Capacity
-                ? new Color(0.95f, 0.72f, 0.32f)
-                : new Color(0.95f, 0.88f, 0.62f);
-            row.Background.color = snapshot.Assigned > 0
-                ? new Color(snapshot.Accent.r, snapshot.Accent.g, snapshot.Accent.b, 0.18f)
-                : new Color(1f, 1f, 1f, 0.055f);
-            row.MinusButton.interactable = snapshot.Assigned > 0
-                && (snapshot.Type != StrategyProfessionType.Scout || HasReadyScout());
-            row.PlusButton.interactable = (snapshot.IsUnlimited || snapshot.Assigned < snapshot.Capacity)
-                && snapshot.FreeWorkers > 0;
-        }
     }
 }

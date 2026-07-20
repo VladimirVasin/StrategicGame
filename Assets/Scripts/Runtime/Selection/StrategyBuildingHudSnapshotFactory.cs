@@ -69,7 +69,7 @@ namespace ProjectUnknown.Strategy
             int total = site.Cost.Total;
             snapshot.AddChip(
                 "builders",
-                "Builders",
+                L("label.builders"),
                 site.BuilderCount.ToString(),
                 StrategyProfessionIconFactory.GetIcon(StrategyProfessionType.Builder),
                 site.BuilderCount > 0
@@ -77,7 +77,7 @@ namespace ProjectUnknown.Strategy
                     : StrategyBuildingHudTone.Warning);
             snapshot.AddChip(
                 "materials",
-                "Materials",
+                L("label.materials"),
                 delivered + "/" + total,
                 StrategyResourceIconFactory.GetSprite(StrategyResourceType.Logs),
                 site.ResourcesComplete
@@ -85,7 +85,7 @@ namespace ProjectUnknown.Strategy
                     : StrategyBuildingHudTone.Info);
             snapshot.AddChip(
                 "progress",
-                "Progress",
+                L("label.progress"),
                 Mathf.RoundToInt(site.Progress * 100f) + "%",
                 GetBuildingIcon(site.Tool),
                 site.Progress >= 1f
@@ -94,7 +94,7 @@ namespace ProjectUnknown.Strategy
 
             StrategyBuildingHudSection materials = snapshot.AddSection(
                 "materials",
-                "Delivered Materials");
+                L("section.delivered_materials"));
             AddConstructionResourceRow(
                 materials,
                 StrategyResourceType.Logs,
@@ -115,7 +115,7 @@ namespace ProjectUnknown.Strategy
             {
                 StrategyBuildingHudSection builders = snapshot.AddSection(
                     "builders",
-                    "Assigned Builders");
+                    L("section.assigned_builders"));
                 int count = Mathf.Min(site.BuilderCount, StrategyBuildingHudSection.MaxRows);
                 for (int i = 0; i < count; i++)
                 {
@@ -139,11 +139,13 @@ namespace ProjectUnknown.Strategy
 
             string statusBody = site.ResourcesComplete
                 ? site.BuilderCount > 0
-                    ? "Materials are ready and builders can finish the structure."
-                    : "Materials are ready. Assign Builders in the Professions HUD."
+                    ? L("construction.ready_with_builders")
+                    : L("construction.ready_needs_builders")
                 : BuildMissingMaterialsText(site);
             snapshot.SetStatus(
-                site.ResourcesComplete ? "Ready to build" : "Waiting for materials",
+                site.ResourcesComplete
+                    ? L("construction.ready_title")
+                    : L("construction.waiting_title"),
                 statusBody,
                 site.ResourcesComplete
                     ? StrategyBuildingHudTone.Positive
@@ -158,7 +160,7 @@ namespace ProjectUnknown.Strategy
             Sprite homeIcon = GetBuildingIcon(StrategyBuildTool.House);
             snapshot.AddChip(
                 "residents",
-                "Residents",
+                L("label.residents"),
                 building.ResidentCount + "/" + building.ResidentCapacity,
                 homeIcon,
                 building.ResidentCount > 0
@@ -166,13 +168,18 @@ namespace ProjectUnknown.Strategy
                     : StrategyBuildingHudTone.Info);
             snapshot.AddChip(
                 "home",
-                "Home",
-                building.ResidentCount > 0 ? "Occupied" : "Available",
+                L("label.home"),
+                LocalizedValue(building.ResidentCount > 0 ? "Occupied" : "Available"),
                 homeIcon,
                 StrategyBuildingHudTone.Neutral);
 
             StrategyHouseWarmthState warmth = building.Warmth;
-            string warmthValue = warmth != null ? warmth.StatusText : "Sheltered";
+            string warmthValue = warmth != null
+                ? L(
+                    "warmth.status",
+                    LocalizedValue(warmth.WarmthLevel.ToString()),
+                    StrategyTemperatureModel.FormatCelsius(warmth.IndoorCelsius))
+                : LocalizedValue("Sheltered");
             StrategyBuildingHudTone warmthTone = warmth == null
                 ? StrategyBuildingHudTone.Neutral
                 : warmth.WarmthLevel switch
@@ -185,7 +192,7 @@ namespace ProjectUnknown.Strategy
                 };
             snapshot.AddChip(
                 "warmth",
-                "Warmth",
+                L("label.warmth"),
                 warmthValue,
                 StrategyResourceIconFactory.GetSprite(StrategyResourceType.Logs),
                 warmthTone);
@@ -193,8 +200,8 @@ namespace ProjectUnknown.Strategy
             if (building.IsDemolishing)
             {
                 snapshot.SetStatus(
-                    "Demolition queued",
-                    "Residents and household stock will be detached safely.",
+                    L("demolition.queued_title"),
+                    L("demolition.house_body"),
                     StrategyBuildingHudTone.Warning);
             }
         }
@@ -206,59 +213,59 @@ namespace ProjectUnknown.Strategy
             bool hasScout = lodge.WorkerCount > 0;
             snapshot.AddChip(
                 "scouts",
-                "Scouts",
+                L("label.scouts"),
                 lodge.WorkerCount + "/" + StrategyScoutLodge.MaxWorkers,
                 StrategyProfessionIconFactory.GetIcon(StrategyProfessionType.Scout),
                 hasScout ? StrategyBuildingHudTone.Positive : StrategyBuildingHudTone.Warning);
             snapshot.AddChip(
                 "mission",
-                "Mission",
-                hasScout ? lodge.ExpeditionState.ToString() : "Unassigned",
+                L("label.mission"),
+                LocalizedValue(hasScout ? lodge.ExpeditionState.ToString() : "Unassigned"),
                 GetBuildingIcon(StrategyBuildTool.ScoutLodge),
                 lodge.IsExploring
                     ? StrategyBuildingHudTone.Positive
                     : hasScout ? StrategyBuildingHudTone.Info : StrategyBuildingHudTone.Warning);
             snapshot.AddChip(
                 "provisions",
-                "Provisions",
-                lodge.GetAvailableExpeditionRations().ToString("0.#") + "r",
+                L("label.provisions"),
+                StrategySelectionLocalization.Rations(lodge.GetAvailableExpeditionRations()),
                 StrategyResourceIconFactory.GetSprite(StrategyResourceType.Game),
                 lodge.GetAvailableExpeditionRations() > 0f
                     ? StrategyBuildingHudTone.Neutral
                     : StrategyBuildingHudTone.Warning);
 
-            StrategyBuildingHudSection mission = snapshot.AddSection("mission", "Expedition");
+            StrategyBuildingHudSection mission = snapshot.AddSection("mission", L("section.expedition"));
             mission.AddRow(
                 "state",
-                "Current state",
-                lodge.HudMissionStatus,
+                L("label.current_state"),
+                LocalizedValue(lodge.HudMissionStatus),
                 GetBuildingIcon(StrategyBuildTool.ScoutLodge),
                 StrategyBuildingHudTone.Info);
             if (lodge.IsExploring)
             {
                 mission.AddRow(
                     "duration",
-                    "Planned duration",
-                    lodge.PlannedExpeditionDays + "d",
+                    L("label.planned_duration"),
+                    L("format.days_short", lodge.PlannedExpeditionDays),
                     null);
                 mission.AddRow(
                     "return",
-                    "Returns in",
+                    L("label.returns_in"),
                     FormatExpeditionTime(lodge.RemainingExpeditionSeconds),
                     null,
                     StrategyBuildingHudTone.Info);
                 mission.AddRow(
                     "field_rations",
-                    "Field rations",
-                    lodge.RemainingFieldRations.ToString("0.#") + "r",
+                    L("label.field_rations"),
+                    StrategySelectionLocalization.Rations(lodge.RemainingFieldRations),
                     StrategyResourceIconFactory.GetSprite(StrategyResourceType.Game));
             }
 
             snapshot.SetStatus(
-                hasScout ? "Exploration ready" : "Scout needed",
+                hasScout ? L("scout.ready_title") : L("scout.needed_title"),
                 hasScout
-                    ? "Use the Scout action above to send, recall or review the expedition."
-                    : "Assign a Scout here; ordinary professions remain managed separately.",
+                    ? L("scout.ready_body")
+                    : L("scout.needed_body"),
                 hasScout ? StrategyBuildingHudTone.Info : StrategyBuildingHudTone.Warning);
         }
 
@@ -293,14 +300,14 @@ namespace ProjectUnknown.Strategy
                     true);
             snapshot.AddChip(
                 "coins",
-                "Coins",
+                L("label.coins"),
                 coins.ToString(),
                 GetBuildingIcon(StrategyBuildTool.TradingPost),
                 StrategyBuildingHudTone.Neutral);
             snapshot.AddChip(
                 "caravan",
-                "Caravan",
-                trade.State,
+                L("label.caravan"),
+                LocalizedValue(trade.State),
                 GetBuildingIcon(StrategyBuildTool.StarterCaravanCart),
                 trade.IsTrading
                     ? StrategyBuildingHudTone.Positive
@@ -309,24 +316,26 @@ namespace ProjectUnknown.Strategy
                         : StrategyBuildingHudTone.Info);
             snapshot.AddChip(
                 "timing",
-                trade.TimingLabel,
-                trade.TimingValue,
+                LocalizedValue(trade.TimingLabel),
+                StrategySelectionLocalization.LocalizeTradeTiming(trade.TimingValue),
                 GetBuildingIcon(StrategyBuildTool.TradingPost),
                 StrategyBuildingHudTone.Info);
 
-            StrategyBuildingHudSection market = snapshot.AddSection("market", "Market");
+            StrategyBuildingHudSection market = snapshot.AddSection("market", L("section.market"));
             market.AddRow(
                 "offers",
-                "Active offers",
+                L("label.active_offers"),
                 validOffers.ToString(),
                 GetBuildingIcon(StrategyBuildTool.TradingPost),
                 validOffers > 0
                     ? StrategyBuildingHudTone.Positive
                     : StrategyBuildingHudTone.Neutral,
-                trade.IsTrading ? "Available now" : "Available when a caravan is trading");
+                trade.IsTrading
+                    ? L("trade.available_now")
+                    : L("trade.available_when_trading"));
             snapshot.SetStatus(
-                trade.State,
-                trade.Detail,
+                LocalizedValue(trade.State),
+                StrategySelectionLocalization.LocalizeTradeDetail(trade.Detail),
                 trade.IsTrading
                     ? StrategyBuildingHudTone.Positive
                     : trade.IsWarning
@@ -354,19 +363,21 @@ namespace ProjectUnknown.Strategy
                 delivered >= required
                     ? StrategyBuildingHudTone.Positive
                     : StrategyBuildingHudTone.Info,
-                required > delivered ? required - delivered + " still needed" : "Delivered",
+                required > delivered
+                    ? L("format.still_needed", required - delivered)
+                    : LocalizedValue("Delivered"),
                 Mathf.Clamp01(progress));
         }
 
         private static string BuildMissingMaterialsText(StrategyConstructionSite site)
         {
             string text = string.Empty;
-            AppendNeed(ref text, "Logs", site.NeededLogs);
-            AppendNeed(ref text, "Stone", site.NeededStone);
-            AppendNeed(ref text, "Planks", site.NeededPlanks);
+            AppendNeed(ref text, GetResourceTitle(StrategyResourceType.Logs), site.NeededLogs);
+            AppendNeed(ref text, GetResourceTitle(StrategyResourceType.Stone), site.NeededStone);
+            AppendNeed(ref text, GetResourceTitle(StrategyResourceType.Planks), site.NeededPlanks);
             return string.IsNullOrEmpty(text)
-                ? "Builders can continue with the delivered materials."
-                : "Still needed: " + text + ".";
+                ? L("construction.builders_continue")
+                : L("construction.still_needed", text);
         }
 
         private static void AppendNeed(ref string text, string label, int amount)
@@ -381,7 +392,7 @@ namespace ProjectUnknown.Strategy
                 text += " · ";
             }
 
-            text += label + " " + amount;
+            text += L("format.resource_amount", label, amount);
         }
 
         private static string FormatExpeditionTime(float seconds)
@@ -396,7 +407,9 @@ namespace ProjectUnknown.Strategy
                 hours = 0;
             }
 
-            return days > 0 ? days + "d " + hours + "h" : Mathf.Max(1, hours) + "h";
+            return days > 0
+                ? L("format.days_hours_short", days, hours)
+                : L("format.hours_short", Mathf.Max(1, hours));
         }
 
         private static string FormatCell(Vector2Int cell) => cell.x + ", " + cell.y;
@@ -407,23 +420,6 @@ namespace ProjectUnknown.Strategy
                 : null;
 
         private static string GetResourceTitle(StrategyResourceType type) =>
-            type switch
-            {
-                StrategyResourceType.Game => "Game",
-                StrategyResourceType.Fish => "Fish",
-                StrategyResourceType.Eggs => "Eggs",
-                StrategyResourceType.Berries => "Berries",
-                StrategyResourceType.Roots => "Roots",
-                StrategyResourceType.Mushrooms => "Mushrooms",
-                StrategyResourceType.Logs => "Logs",
-                StrategyResourceType.Stone => "Stone",
-                StrategyResourceType.Planks => "Planks",
-                StrategyResourceType.Iron => "Iron",
-                StrategyResourceType.Coal => "Coal",
-                StrategyResourceType.Clay => "Clay",
-                StrategyResourceType.Pottery => "Pottery",
-                StrategyResourceType.Tools => "Tools",
-                _ => type.ToString()
-            };
+            StrategySelectionLocalization.Resource(type);
     }
 }

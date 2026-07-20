@@ -48,11 +48,14 @@ namespace ProjectUnknown.Strategy
             {
                 new StrategyResidentItemDefinition(
                     HoleySpoonId,
-                    "Дырявая ложка",
+                    "Holey Spoon",
                     1,
-                    "Есть ею суп не очень-то почётно: половина успевает вытечь обратно в миску.",
+                    "Not the most dignified spoon for soup: half of it escapes back into the bowl.",
                     "Visual/ResidentItems/HoleySpoon",
-                    0)
+                    0,
+                    StrategyLocalizationTables.Residents,
+                    "resident_item.holey_spoon.title",
+                    "resident_item.holey_spoon.description")
             });
 
         public IReadOnlyList<StrategyResidentItemDefinition> Definitions => definitions;

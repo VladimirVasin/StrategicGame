@@ -1,0 +1,362 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Founding_en
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: en
+  m_SharedData: {fileID: 11400000, guid: feb330b9f2ce63c479b452f508e723ff, type: 2}
+  m_Metadata:
+    m_Items:
+    - rid: 465534772507312167
+  m_TableData:
+  - m_Id: 183706273861632
+    m_Localized: THE LAST NIGHT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193280
+    m_Localized: We left before dawn.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193281
+    m_Localized: War had reached every road behind us. We took only what the cart
+      could carry and promised the children we would find a place beyond its reach.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193282
+    m_Localized: THE LONG ROAD
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193283
+    m_Localized: The road asked everything of us.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193284
+    m_Localized: Weeks passed beneath rain and cold stone. We crossed the high paths
+      together, following no banner and serving no lord.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193285
+    m_Localized: A QUIET VALLEY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193286
+    m_Localized: At last, the horizon was silent.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193287
+    m_Localized: No smoke. No marching columns. Only water, forest and open land.
+      For the first time, the road ahead belonged to us.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193288
+    m_Localized: THE FIRST DECISION
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193289
+    m_Localized: Safety was only the beginning.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193290
+    m_Localized: Before unloading the cart, the families gathered around the map.
+      Where we stop tonight will shape every winter that follows.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193291
+    m_Localized: What landmark did the scouts follow?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193292
+    m_Localized: Water shapes travel, food and the first routes through the valley.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193293
+    m_Localized: A running river
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193294
+    m_Localized: Safe ground within reach of a river.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193295
+    m_Localized: A quiet lake
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193296
+    m_Localized: Sheltered water and reliable fishing access.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193297
+    m_Localized: High, dry ground
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193298
+    m_Localized: More distance from shore and floodwater.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193299
+    m_Localized: What kind of shelter did they seek?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193300
+    m_Localized: The land around camp determines visibility and room to grow.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193301
+    m_Localized: The forest edge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193302
+    m_Localized: Timber and cover beside open ground.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193303
+    m_Localized: An open meadow
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193304
+    m_Localized: Clear sightlines and easier construction.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193305
+    m_Localized: A little of both
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193306
+    m_Localized: A varied landscape without one strong bias.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193307
+    m_Localized: What should feed the first winter?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193308
+    m_Localized: The scouts marked the places most suited to an early livelihood.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193309
+    m_Localized: Game trails
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193310
+    m_Localized: Meadow and forest-edge habitat for hunting.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193311
+    m_Localized: Fishing water
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193312
+    m_Localized: Reachable water with better fishing potential.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193313
+    m_Localized: Wild harvest
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193314
+    m_Localized: Mixed forest and meadow for gathering.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193315
+    m_Localized: What matters most when the cart stops?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193316
+    m_Localized: Every site remains playable; this choice breaks close decisions.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193317
+    m_Localized: Room to build
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193318
+    m_Localized: Favor open, buildable ground.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193319
+    m_Localized: Nearby resources
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193320
+    m_Localized: Favor varied terrain and resource opportunity.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193321
+    m_Localized: A balanced beginning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193322
+    m_Localized: Keep construction and resources in balance.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193323
+    m_Localized: Back
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193324
+    m_Localized: Preparing settlement
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193325
+    m_Localized: Preparing the valley
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193326
+    m_Localized: Skip story
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193327
+    m_Localized: Use balanced defaults
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193328
+    m_Localized: OUR REFUGE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193329
+    m_Localized: Here we begin again.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193330
+    m_Localized: Begin the settlement
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193331
+    m_Localized: Change answers
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193332
+    m_Localized: Reduce motion
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193333
+    m_Localized: Continue
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193334
+    m_Localized: Choose our refuge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193335
+    m_Localized: '{0} / {1}'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312167
+  - m_Id: 183706324193336
+    m_Localized: FOUNDING CHOICE  {0} / {1}
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312167
+  - m_Id: 183706324193337
+    m_Localized: 'WATER
+
+      {0}
+
+
+      LANDSCAPE
+
+      {1}
+
+
+      FIRST LIVELIHOOD
+
+      {2}
+
+
+      PRIORITY
+
+      {3}'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312167
+  - m_Id: 183706324193338
+    m_Localized: The scouts will compromise between dry ground and reachable fishing
+      water.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193339
+    m_Localized: Safety remains the first rule. Preferences guide the best playable
+      site.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193340
+    m_Localized: No strong preference
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193341
+    m_Localized: Balanced
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193342
+    m_Localized: VALLEY READY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193343
+    m_Localized: '{0}  {1}%'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312167
+  - m_Id: 183706324193344
+    m_Localized: Finding a safe place
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193345
+    m_Localized: Comparing water, shelter and room to build
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193346
+    m_Localized: Here we begin again
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193347
+    m_Localized: Opening the valley
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193348
+    m_Localized: The prepared valley was lost. Return to the main menu and try again.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193349
+    m_Localized: Preparing the valley took too long. Return to the main menu and
+      try again.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193350
+    m_Localized: No safe starting site could be resolved.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193351
+    m_Localized: The settlement could not be opened.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183706324193352
+    m_Localized: The scouts could not resolve a safe site. Return to the main menu
+      and try again.
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 465534772507312167
+      type: {class: SmartFormatTag, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_Entries: 
+        m_SharedEntries:
+        - id: 808603703
+        - id: 808603704
+        - id: 808603705
+        - id: 808603711
+        - id: 183706324193335
+        - id: 183706324193336
+        - id: 183706324193337
+        - id: 183706324193343

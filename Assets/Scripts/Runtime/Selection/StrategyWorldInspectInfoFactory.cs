@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace ProjectUnknown.Strategy
@@ -16,9 +17,10 @@ namespace ProjectUnknown.Strategy
         public static StrategyWorldInspectInfo CreateRabbit(StrategyRabbitAgent rabbit, Sprite icon, Vector2Int cell, bool hasCell)
         {
             bool carcass = rabbit.IsCarcass;
+            string state = rabbit.State.ToString();
             return Create(
-                carcass ? "Rabbit Carcass" : "Rabbit",
-                "Wildlife",
+                L(carcass ? "inspect.rabbit_carcass" : "inspect.rabbit"),
+                L("inspect.wildlife"),
                 icon,
                 cell,
                 hasCell,
@@ -26,24 +28,25 @@ namespace ProjectUnknown.Strategy
                 WildlifeAccent,
                 new[]
                 {
-                    Chip(rabbit.LifeStage.ToString(), null, Neutral),
-                    Chip(rabbit.Sex.ToString(), null, Neutral),
-                    Chip(rabbit.CanBeHunted ? "Huntable" : "Protected", null, rabbit.CanBeHunted ? Good : Warn)
+                    Chip(V(rabbit.LifeStage), null, Neutral),
+                    Chip(V(rabbit.Sex), null, Neutral),
+                    Chip(V(rabbit.CanBeHunted ? "Huntable" : "Protected"), null, rabbit.CanBeHunted ? Good : Warn)
                 },
                 new[]
                 {
-                    Row("State", rabbit.State.ToString(), null, StateColor(rabbit.State.ToString())),
-                    Row("Group", rabbit.GroupId.ToString(), null, Neutral),
-                    Row("Home", FormatCell(rabbit.HomeCell), null, Neutral),
-                    Row("Radius", rabbit.HomeRadius.ToString(), null, Neutral)
+                    Row(L("label.state"), V(state), null, StateColor(state)),
+                    Row(L("label.group"), rabbit.GroupId.ToString(), null, Neutral),
+                    Row(L("label.home"), FormatCell(rabbit.HomeCell), null, Neutral),
+                    Row(L("label.radius"), rabbit.HomeRadius.ToString(), null, Neutral)
                 });
         }
 
         public static StrategyWorldInspectInfo CreateDeer(StrategyDeerAgent deer, Sprite icon, Vector2Int cell, bool hasCell)
         {
+            string state = deer.State.ToString();
             return Create(
-                deer.Sex == StrategyDeerSex.Male ? "Stag" : "Doe",
-                "Wildlife",
+                L(deer.Sex == StrategyDeerSex.Male ? "inspect.stag" : "inspect.doe"),
+                L("inspect.wildlife"),
                 icon,
                 cell,
                 hasCell,
@@ -51,24 +54,25 @@ namespace ProjectUnknown.Strategy
                 WildlifeAccent,
                 new[]
                 {
-                    Chip(deer.LifeStage.ToString(), null, Neutral),
-                    Chip(deer.Sex.ToString(), null, Neutral),
-                    Chip(deer.CanBeWolfPrey ? "Wolf prey" : "Safe", null, deer.CanBeWolfPrey ? Warn : Good)
+                    Chip(V(deer.LifeStage), null, Neutral),
+                    Chip(V(deer.Sex), null, Neutral),
+                    Chip(V(deer.CanBeWolfPrey ? "Wolf prey" : "Safe"), null, deer.CanBeWolfPrey ? Warn : Good)
                 },
                 new[]
                 {
-                    Row("State", deer.State.ToString(), null, StateColor(deer.State.ToString())),
-                    Row("Herd", deer.HerdId.ToString(), null, Neutral),
-                    Row("Home", FormatCell(deer.HomeCell), null, Neutral),
-                    Row("Radius", deer.HomeRadius.ToString(), null, Neutral)
+                    Row(L("label.state"), V(state), null, StateColor(state)),
+                    Row(L("label.herd"), deer.HerdId.ToString(), null, Neutral),
+                    Row(L("label.home"), FormatCell(deer.HomeCell), null, Neutral),
+                    Row(L("label.radius"), deer.HomeRadius.ToString(), null, Neutral)
                 });
         }
 
         public static StrategyWorldInspectInfo CreateFish(StrategyFishAgent fish, Sprite icon, Vector2Int cell, bool hasCell)
         {
+            string state = fish.State.ToString();
             return Create(
-                "Fish",
-                fish.HabitatKind == StrategyFishHabitatKind.River ? "River wildlife" : "Lake wildlife",
+                StrategySelectionLocalization.Resource(StrategyResourceType.Fish),
+                L(fish.HabitatKind == StrategyFishHabitatKind.River ? "inspect.river_wildlife" : "inspect.lake_wildlife"),
                 icon,
                 cell,
                 hasCell,
@@ -76,24 +80,25 @@ namespace ProjectUnknown.Strategy
                 new Color(0.38f, 0.62f, 0.70f, 1f),
                 new[]
                 {
-                    Chip(fish.Species.ToString(), null, Neutral),
-                    Chip(fish.HabitatKind.ToString(), null, Neutral),
-                    Chip(fish.CanBeFished ? "Fishable" : "Unavailable", null, fish.CanBeFished ? Good : Warn)
+                    Chip(V(fish.Species), null, Neutral),
+                    Chip(V(fish.HabitatKind), null, Neutral),
+                    Chip(V(fish.CanBeFished ? "Fishable" : "Unavailable"), null, fish.CanBeFished ? Good : Warn)
                 },
                 new[]
                 {
-                    Row("Stage", fish.LifeStage.ToString(), null, Neutral),
-                    Row("State", fish.State.ToString(), null, StateColor(fish.State.ToString())),
-                    Row("Shoal", fish.ShoalId.ToString(), null, Neutral),
-                    Row("Region", fish.WaterRegionId >= 0 ? fish.WaterRegionId.ToString() : "none", null, Neutral)
+                    Row(L("label.stage"), V(fish.LifeStage), null, Neutral),
+                    Row(L("label.state"), V(state), null, StateColor(state)),
+                    Row(L("label.shoal"), fish.ShoalId.ToString(), null, Neutral),
+                    Row(L("label.region"), fish.WaterRegionId >= 0 ? fish.WaterRegionId.ToString() : V("none"), null, Neutral)
                 });
         }
 
         public static StrategyWorldInspectInfo CreateBird(StrategyBirdAgent bird, Sprite icon, Vector2Int cell, bool hasCell)
         {
+            string state = bird.State.ToString();
             return Create(
-                bird.Species.ToString(),
-                "Decorative wildlife",
+                V(bird.Species),
+                L("inspect.decorative_wildlife"),
                 icon,
                 cell,
                 hasCell,
@@ -101,24 +106,25 @@ namespace ProjectUnknown.Strategy
                 WildlifeAccent,
                 new[]
                 {
-                    Chip(bird.Species.ToString(), null, Neutral),
-                    Chip(bird.State.ToString(), null, StateColor(bird.State.ToString())),
-                    Chip("Home " + bird.HomeRadius, null, Neutral)
+                    Chip(V(bird.Species), null, Neutral),
+                    Chip(V(state), null, StateColor(state)),
+                    Chip(L("format.home_radius", bird.HomeRadius), null, Neutral)
                 },
                 new[]
                 {
-                    Row("State", bird.State.ToString(), null, StateColor(bird.State.ToString())),
-                    Row("Home", FormatCell(bird.HomeCell), null, Neutral),
-                    Row("Radius", bird.HomeRadius.ToString(), null, Neutral),
-                    Row("Id", bird.BirdId.ToString(), null, Neutral)
+                    Row(L("label.state"), V(state), null, StateColor(state)),
+                    Row(L("label.home"), FormatCell(bird.HomeCell), null, Neutral),
+                    Row(L("label.radius"), bird.HomeRadius.ToString(), null, Neutral),
+                    Row(L("label.id"), bird.BirdId.ToString(), null, Neutral)
                 });
         }
 
         public static StrategyWorldInspectInfo CreateWolf(StrategyWolfAgent wolf, Sprite icon, Vector2Int cell, bool hasCell)
         {
+            string state = wolf.State.ToString();
             return Create(
-                "Wolf",
-                "Predator wildlife",
+                L("inspect.wolf"),
+                L("inspect.predator_wildlife"),
                 icon,
                 cell,
                 hasCell,
@@ -126,38 +132,38 @@ namespace ProjectUnknown.Strategy
                 PredatorAccent,
                 new[]
                 {
-                    Chip("Pack " + wolf.PackId, null, Neutral),
-                    Chip("Size " + wolf.PackMemberCount, null, Neutral),
-                    Chip(wolf.State.ToString(), null, StateColor(wolf.State.ToString()))
+                    Chip(L("format.pack", wolf.PackId), null, Neutral),
+                    Chip(L("format.size", wolf.PackMemberCount), null, Neutral),
+                    Chip(V(state), null, StateColor(state))
                 },
                 new[]
                 {
-                    Row("State", wolf.State.ToString(), null, StateColor(wolf.State.ToString())),
-                    Row("Pack", wolf.PackId.ToString(), null, Neutral),
-                    Row("Home", FormatCell(wolf.HomeCell), null, Neutral),
-                    Row("Radius", wolf.HomeRadius.ToString(), null, Neutral)
+                    Row(L("label.state"), V(state), null, StateColor(state)),
+                    Row(L("label.pack"), wolf.PackId.ToString(), null, Neutral),
+                    Row(L("label.home"), FormatCell(wolf.HomeCell), null, Neutral),
+                    Row(L("label.radius"), wolf.HomeRadius.ToString(), null, Neutral)
                 });
         }
 
         public static StrategyWorldInspectInfo CreateChicken(string state, string coop, Sprite icon, Vector2Int cell, bool hasCell)
         {
             return Create(
-                "Chicken",
-                "Household animal",
+                L("inspect.chicken"),
+                L("inspect.household_animal"),
                 icon,
                 cell,
                 hasCell,
                 StrategyWorldInspectKind.Wildlife,
                 WildlifeAccent,
-                new[] { Chip(state, null, StateColor(state)), Chip("Coop", null, Neutral) },
-                new[] { Row("State", state, null, StateColor(state)), Row("Coop", coop, null, Neutral) });
+                new[] { Chip(V(state), null, StateColor(state)), Chip(L("label.coop"), null, Neutral) },
+                new[] { Row(L("label.state"), V(state), null, StateColor(state)), Row(L("label.coop"), coop == "none" ? V(coop) : coop, null, Neutral) });
         }
 
         public static StrategyWorldInspectInfo CreateStoneDeposit(StrategyStoneDeposit deposit, Sprite icon)
         {
             return CreateDeposit(
                 GetStoneTitle(deposit.Kind),
-                "Stone deposit",
+                L("inspect.stone_deposit"),
                 icon,
                 StrategyResourceType.Stone,
                 deposit.StoneAmount,
@@ -171,8 +177,8 @@ namespace ProjectUnknown.Strategy
         public static StrategyWorldInspectInfo CreateIronDeposit(StrategyIronDeposit deposit, Sprite icon)
         {
             return CreateDeposit(
-                deposit.Kind == StrategyIronDepositKind.IronVein ? "Iron Vein" : "Iron-stained Ground",
-                "Iron deposit",
+                L(deposit.Kind == StrategyIronDepositKind.IronVein ? "inspect.iron_vein" : "inspect.iron_stained_ground"),
+                L("inspect.iron_deposit"),
                 icon,
                 StrategyResourceType.Iron,
                 deposit.IronAmount,
@@ -186,8 +192,8 @@ namespace ProjectUnknown.Strategy
         public static StrategyWorldInspectInfo CreateCoalDeposit(StrategyCoalDeposit deposit, Sprite icon)
         {
             return CreateDeposit(
-                deposit.Kind == StrategyCoalDepositKind.CoalSeam ? "Coal Seam" : "Coal Dust Ground",
-                "Coal deposit",
+                L(deposit.Kind == StrategyCoalDepositKind.CoalSeam ? "inspect.coal_seam" : "inspect.coal_dust_ground"),
+                L("inspect.coal_deposit"),
                 icon,
                 StrategyResourceType.Coal,
                 deposit.CoalAmount,
@@ -201,8 +207,8 @@ namespace ProjectUnknown.Strategy
         public static StrategyWorldInspectInfo CreateClayDeposit(StrategyClayDeposit deposit, Sprite icon)
         {
             return CreateDeposit(
-                deposit.Kind == StrategyClayDepositKind.ClayBank ? "Clay Bank" : "Clay Patch",
-                "Clay deposit",
+                L(deposit.Kind == StrategyClayDepositKind.ClayBank ? "inspect.clay_bank" : "inspect.clay_patch"),
+                L("inspect.clay_deposit"),
                 icon,
                 StrategyResourceType.Clay,
                 deposit.ClayAmount,
@@ -217,8 +223,8 @@ namespace ProjectUnknown.Strategy
         {
             string state = tree.HasLogsReady ? "logs ready" : tree.IsFalling ? "falling" : tree.IsFelled ? "felled" : tree.CanBeChopped ? "standing" : "growing";
             return Create(
-                tree.IsMature ? "Tree" : "Young Tree",
-                "Forest resource",
+                L(tree.IsMature ? "inspect.tree" : "inspect.young_tree"),
+                L("inspect.forest_resource"),
                 icon,
                 tree.Cell,
                 true,
@@ -227,36 +233,37 @@ namespace ProjectUnknown.Strategy
                 new[]
                 {
                     Chip(GetTreeStage(tree.Stage), null, Neutral),
-                    Chip(state, null, StateColor(state)),
-                    Chip(tree.IsReserved ? "Reserved" : "Available", null, tree.IsReserved ? Warn : Good)
+                    Chip(V(state), null, StateColor(state)),
+                    Chip(V(tree.IsReserved ? "Reserved" : "Available"), null, tree.IsReserved ? Warn : Good)
                 },
                 new[]
                 {
-                    Row("Stage", GetTreeStage(tree.Stage), null, Neutral),
-                    Row("State", state, null, StateColor(state)),
-                    Row("Logs", tree.HasLogsReady ? tree.LogYield.ToString() : "not ready", StrategyResourceIconFactory.GetSprite(StrategyResourceType.Logs), Neutral),
-                    Row("Reserved", YesNo(tree.IsReserved), null, tree.IsReserved ? Warn : Good)
+                    Row(L("label.stage"), GetTreeStage(tree.Stage), null, Neutral),
+                    Row(L("label.state"), V(state), null, StateColor(state)),
+                    Row(StrategySelectionLocalization.Resource(StrategyResourceType.Logs), tree.HasLogsReady ? tree.LogYield.ToString() : V("not ready"), StrategyResourceIconFactory.GetSprite(StrategyResourceType.Logs), Neutral),
+                    Row(L("label.reserved"), YesNo(tree.IsReserved), null, tree.IsReserved ? Warn : Good)
                 });
         }
 
         public static StrategyWorldInspectInfo CreateForage(string title, StrategyResourceType type, int yield, bool depleted, bool reserved, Sprite icon, Vector2Int cell)
         {
             string state = depleted ? "regrowing" : reserved ? "reserved" : "ready";
+            string resourceTitle = StrategySelectionLocalization.Resource(type);
             return Create(
-                title,
-                "Forage node",
+                resourceTitle,
+                L("inspect.forage_node"),
                 icon,
                 cell,
                 true,
                 StrategyWorldInspectKind.Resource,
                 ResourceAccent,
-                new[] { Chip(state, null, StateColor(state)), Chip("Yield " + yield, StrategyResourceIconFactory.GetSprite(type), Neutral) },
+                new[] { Chip(V(state), null, StateColor(state)), Chip(L("format.yield", yield), StrategyResourceIconFactory.GetSprite(type), Neutral) },
                 new[]
                 {
-                    Row("Resource", title, StrategyResourceIconFactory.GetSprite(type), Neutral),
-                    Row("Yield", yield.ToString(), StrategyResourceIconFactory.GetSprite(type), Neutral),
-                    Row("State", state, null, StateColor(state)),
-                    Row("Use", "household food", null, Neutral)
+                    Row(L("label.resource"), resourceTitle, StrategyResourceIconFactory.GetSprite(type), Neutral),
+                    Row(L("label.yield"), yield.ToString(), StrategyResourceIconFactory.GetSprite(type), Neutral),
+                    Row(L("label.state"), V(state), null, StateColor(state)),
+                    Row(L("label.use"), V("household food"), null, Neutral)
                 });
         }
 
@@ -264,38 +271,38 @@ namespace ProjectUnknown.Strategy
         {
             string title = GetResourceTitle(type);
             return Create(
-                "Dropped " + title,
-                "Loose resource",
+                L("format.dropped_resource", title),
+                L("inspect.loose_resource"),
                 icon != null ? icon : StrategyResourceIconFactory.GetSprite(type),
                 cell,
                 true,
                 StrategyWorldInspectKind.LoosePile,
                 ResourceAccent,
-                new[] { Chip(title, StrategyResourceIconFactory.GetSprite(type), Neutral), Chip(reserved ? "Reserved" : "Available", null, reserved ? Warn : Good) },
+                new[] { Chip(title, StrategyResourceIconFactory.GetSprite(type), Neutral), Chip(V(reserved ? "Reserved" : "Available"), null, reserved ? Warn : Good) },
                 new[]
                 {
-                    Row("Resource", title, StrategyResourceIconFactory.GetSprite(type), Neutral),
-                    Row("Amount", amount.ToString(), StrategyResourceIconFactory.GetSprite(type), Neutral),
-                    Row("State", reserved ? "reserved" : "available", null, reserved ? Warn : Good)
+                    Row(L("label.resource"), title, StrategyResourceIconFactory.GetSprite(type), Neutral),
+                    Row(L("label.amount"), amount.ToString(), StrategyResourceIconFactory.GetSprite(type), Neutral),
+                    Row(L("label.state"), V(reserved ? "reserved" : "available"), null, reserved ? Warn : Good)
                 });
         }
 
         public static StrategyWorldInspectInfo CreateLooseConstructionPile(int logs, int stone, int planks, int availableLogs, int availableStone, int availablePlanks, Sprite icon, Vector2Int cell)
         {
             return Create(
-                "Loose Building Materials",
-                "Construction resource pile",
+                L("inspect.loose_building_materials"),
+                L("inspect.construction_resource_pile"),
                 icon,
                 cell,
                 true,
                 StrategyWorldInspectKind.LoosePile,
                 ResourceAccent,
-                new[] { Chip("Logs " + logs, StrategyResourceIconFactory.GetSprite(StrategyResourceType.Logs), Neutral), Chip("Stone " + stone, StrategyResourceIconFactory.GetSprite(StrategyResourceType.Stone), Neutral), Chip("Planks " + planks, StrategyResourceIconFactory.GetSprite(StrategyResourceType.Planks), Neutral) },
+                new[] { Chip(L("format.resource_amount", GetResourceTitle(StrategyResourceType.Logs), logs), StrategyResourceIconFactory.GetSprite(StrategyResourceType.Logs), Neutral), Chip(L("format.resource_amount", GetResourceTitle(StrategyResourceType.Stone), stone), StrategyResourceIconFactory.GetSprite(StrategyResourceType.Stone), Neutral), Chip(L("format.resource_amount", GetResourceTitle(StrategyResourceType.Planks), planks), StrategyResourceIconFactory.GetSprite(StrategyResourceType.Planks), Neutral) },
                 new[]
                 {
-                    Row("Logs", logs + " / " + availableLogs + " free", StrategyResourceIconFactory.GetSprite(StrategyResourceType.Logs), logs > 0 ? Good : Neutral),
-                    Row("Stone", stone + " / " + availableStone + " free", StrategyResourceIconFactory.GetSprite(StrategyResourceType.Stone), stone > 0 ? Good : Neutral),
-                    Row("Planks", planks + " / " + availablePlanks + " free", StrategyResourceIconFactory.GetSprite(StrategyResourceType.Planks), planks > 0 ? Good : Neutral)
+                    Row(GetResourceTitle(StrategyResourceType.Logs), L("format.amount_free", logs, availableLogs), StrategyResourceIconFactory.GetSprite(StrategyResourceType.Logs), logs > 0 ? Good : Neutral),
+                    Row(GetResourceTitle(StrategyResourceType.Stone), L("format.amount_free", stone, availableStone), StrategyResourceIconFactory.GetSprite(StrategyResourceType.Stone), stone > 0 ? Good : Neutral),
+                    Row(GetResourceTitle(StrategyResourceType.Planks), L("format.amount_free", planks, availablePlanks), StrategyResourceIconFactory.GetSprite(StrategyResourceType.Planks), planks > 0 ? Good : Neutral)
                 });
         }
 
@@ -310,13 +317,18 @@ namespace ProjectUnknown.Strategy
                 true,
                 StrategyWorldInspectKind.Deposit,
                 DepositAccent,
-                new[] { Chip(GetResourceTitle(resource) + " " + amount, resourceIcon, Neutral), Chip(state, null, StateColor(state)), Chip("Build " + build, null, Warn) },
                 new[]
                 {
-                    Row("Amount", amount.ToString(), resourceIcon, amount > 0 ? Good : Neutral),
-                    Row("Footprint", footprint.x + "x" + footprint.y, null, Neutral),
-                    Row("State", state, null, StateColor(state)),
-                    Row("Walk/Build", walk + " / " + build, null, build == "blocked" ? Danger : Warn)
+                    Chip(L("format.resource_amount", GetResourceTitle(resource), amount), resourceIcon, Neutral),
+                    Chip(V(state), null, StateColor(state)),
+                    Chip(L("format.build_rule", V(build)), null, Warn)
+                },
+                new[]
+                {
+                    Row(L("label.amount"), amount.ToString(), resourceIcon, amount > 0 ? Good : Neutral),
+                    Row(L("label.footprint"), footprint.x + "x" + footprint.y, null, Neutral),
+                    Row(L("label.state"), V(state), null, StateColor(state)),
+                    Row(L("label.walk_build"), L("format.walk_build", V(walk), V(build)), null, build == "blocked" ? Danger : Warn)
                 });
         }
 
@@ -328,7 +340,7 @@ namespace ProjectUnknown.Strategy
         private static StrategyWorldInspectChip Chip(string label, Sprite icon, Color color) => new(label, icon, color);
         private static StrategyWorldInspectRow Row(string label, string value, Sprite icon, Color color) => new(label, value, icon, color);
         private static string FormatCell(Vector2Int cell) => cell.x + ", " + cell.y;
-        private static string YesNo(bool value) => value ? "yes" : "no";
+        private static string YesNo(bool value) => V(value ? "yes" : "no");
 
         private static Color StateColor(string state)
         {
@@ -373,43 +385,26 @@ namespace ProjectUnknown.Strategy
             return body;
         }
 
-        private static string GetTreeStage(int stage) => stage <= 0 ? "Sapling" : stage == 1 ? "Young" : "Mature";
+        private static string GetTreeStage(int stage) =>
+            V(stage <= 0 ? "Sapling" : stage == 1 ? "Young" : "Mature");
 
         private static string GetStoneTitle(StrategyStoneDepositKind kind)
         {
             return kind switch
             {
-                StrategyStoneDepositKind.RockCluster => "Rock Cluster",
-                StrategyStoneDepositKind.Cliff => "Stone Cliff",
-                _ => "Boulder"
+                StrategyStoneDepositKind.RockCluster => L("inspect.rock_cluster"),
+                StrategyStoneDepositKind.Cliff => L("inspect.stone_cliff"),
+                _ => L("inspect.boulder")
             };
         }
 
-        private static string GetResourceTitle(StrategyResourceType type)
-        {
-            return type switch
-            {
-                StrategyResourceType.Eggs => "Eggs",
-                StrategyResourceType.Turnip => "Turnip",
-                StrategyResourceType.Cabbage => "Cabbage",
-                StrategyResourceType.Onion => "Onion",
-                StrategyResourceType.Carrot => "Carrot",
-                StrategyResourceType.Potato => "Potato",
-                StrategyResourceType.Berries => "Berries",
-                StrategyResourceType.Roots => "Roots",
-                StrategyResourceType.Mushrooms => "Mushrooms",
-                StrategyResourceType.Game => "Game",
-                StrategyResourceType.Fish => "Fish",
-                StrategyResourceType.Logs => "Logs",
-                StrategyResourceType.Stone => "Stone",
-                StrategyResourceType.Iron => "Iron",
-                StrategyResourceType.Coal => "Coal",
-                StrategyResourceType.Clay => "Clay",
-                StrategyResourceType.Pottery => "Pottery",
-                StrategyResourceType.Tools => "Tools",
-                StrategyResourceType.Planks => "Planks",
-                _ => type.ToString()
-            };
-        }
+        private static string GetResourceTitle(StrategyResourceType type) =>
+            StrategySelectionLocalization.Resource(type);
+
+        private static string L(string key, params object[] arguments) =>
+            StrategySelectionLocalization.Text(key, arguments);
+
+        private static string V(Enum value) => StrategySelectionLocalization.Value(value);
+        private static string V(string value) => StrategySelectionLocalization.Value(value);
     }
 }

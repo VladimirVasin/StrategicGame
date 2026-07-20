@@ -12,7 +12,9 @@ namespace ProjectUnknown.Strategy
         public bool IsConfigured => preloader != null;
         public bool IsMapReady => preloader != null && preloader.IsMapReady;
         public float PreparationProgress => preloader != null ? preloader.Progress : 0f;
-        public string PreparationStage => preloader != null ? preloader.Stage : "Preparing settlement";
+        public string PreparationStage => preloader != null
+            ? preloader.Stage
+            : StrategyLocalization.Get(StrategyLocalizationTables.Founding, "founding.preparing_settlement");
         public StrategyPreloadPhase PreloadPhase => preloader != null
             ? preloader.Phase
             : StrategyPreloadPhase.PreparingCandidate;
@@ -27,7 +29,33 @@ namespace ProjectUnknown.Strategy
             preloader = preloadCoordinator;
             journeyCamera = camera;
             inputRouter = router;
+            StrategyLocalization.LanguageChanged -= RefreshLocalizedJourney;
+            StrategyLocalization.LanguageChanged += RefreshLocalizedJourney;
             ConfigureJourney();
+        }
+
+        private void RefreshLocalizedJourney()
+        {
+            if (!journeyViewConfigured)
+            {
+                return;
+            }
+
+            switch (page)
+            {
+                case JourneyPage.Story:
+                    ShowStory(storyIndex, true);
+                    break;
+                case JourneyPage.Question:
+                    ShowQuestion(questionIndex);
+                    break;
+                case JourneyPage.Summary:
+                    ShowSummary();
+                    break;
+                case JourneyPage.Launching:
+                    RefreshPreparationStatus();
+                    break;
+            }
         }
 
         public bool TryGetPreparedMap(out CityMapController map)
@@ -44,6 +72,11 @@ namespace ProjectUnknown.Strategy
         public bool ReturnToMainMenu()
         {
             return preloader != null && preloader.CancelFoundingJourney();
+        }
+
+        private void OnDestroy()
+        {
+            StrategyLocalization.LanguageChanged -= RefreshLocalizedJourney;
         }
     }
 }

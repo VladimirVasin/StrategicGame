@@ -1,0 +1,15 @@
+Key	English	Russian
+first_night.frame.rustle.chapter	THE FIRST DUSK	ПЕРВЫЕ СУМЕРКИ
+first_night.frame.rustle.title	A rustle beneath the grain.	Шорох под мешками с зерном.
+first_night.frame.rustle.body	At first it was only a whisper under the sacks. Then a grey shape slipped between the crates, and another followed it into the dark.	Сначала под мешками слышался лишь тихий шорох. Затем между ящиками скользнула серая тень, а следом в темноте исчезла ещё одна.
+first_night.frame.mouse_feast.chapter	THE MIDNIGHT FEAST	ПОЛУНОЧНЫЙ ПИР
+first_night.frame.mouse_feast.title	Tiny teeth found our stores.	Маленькие зубы добрались до припасов.
+first_night.frame.mouse_feast.body	By moonrise the mice were everywhere. They gnawed at grain, rooted through baskets, and celebrated our first harvest as if we had gathered it for them.	К восходу луны мыши были повсюду. Они грызли зерно, рылись в корзинах и пировали нашим первым урожаем, будто мы собрали его специально для них.
+first_night.frame.quiet_hunters.chapter	QUIET HUNTERS	ТИХИЕ ОХОТНИКИ
+first_night.frame.quiet_hunters.title	Then green eyes opened by the fire.	И тут у огня открылись зелёные глаза.
+first_night.frame.quiet_hunters.body	A lean cat stepped from the firelight, silent and entirely at home. The mice had found our stores, but their hunters had found us too. We would be all right.	Из света костра бесшумно вышла худая кошка, словно всегда здесь жила. Мыши нашли наши запасы, но их охотники тоже нашли нас. Теперь всё будет хорошо.
+trash_heap.title	Trash Heap	Гора мусора
+trash_heap.body	The Scout stumbled upon an enormous heap of rubbish. Search it?	Разведчик набрёл на огромную гору мусора. Обыскать её?
+trash_heap.choice.search	Yes, search it	Да, обыскать
+trash_heap.choice.decline	No	Нет
+trash_heap.reward.headline	You found a Holey Spoon	Вы нашли дырявую ложку

@@ -1,0 +1,90 @@
+Key	English	Russian
+city_item.cats.title	Cats	Кошки
+city_item.cats.description	They followed the caravan unseen, then chose the settlement for their own.	Они незаметно шли за караваном, а затем сами выбрали это поселение своим домом.
+city_item.cats.effect	Cats hunt mice around the settlement, keeping their numbers down.	Кошки охотятся на мышей в поселении и сдерживают их численность.
+resident_item.holey_spoon.title	Holey Spoon	Дырявая ложка
+resident_item.holey_spoon.description	Not the most dignified spoon for soup: half of it escapes back into the bowl.	Есть ею суп не очень-то почётно: половина успевает вытечь обратно в миску.
+resident.age.short	{0}y	{0} л.
+resident.role.settler	Settler	Поселенец
+resident.role.child	Child	Ребёнок
+resident.role.householder	Householder	Домохозяин
+resident.role.builder	Builder	Строитель
+resident.role.lumberjack	Lumberjack	Лесоруб
+resident.role.stonecutter	Stonecutter	Каменотёс
+resident.role.miner	Miner	Шахтёр
+resident.role.coal_miner	Coal Miner	Угольщик
+resident.role.clay_digger	Clay Digger	Глинокоп
+resident.role.sawyer	Sawyer	Пильщик
+resident.role.potter	Potter	Гончар
+resident.role.blacksmith	Blacksmith	Кузнец
+resident.role.hunter	Hunter	Охотник
+resident.role.fisher	Fisher	Рыбак
+resident.role.forager	Forager	Собиратель
+resident.role.scout	Scout	Разведчик
+resident.role.hauler	Hauler	Носильщик
+resident.home.unknown	Unknown	Неизвестно
+resident.home.house	House	Дом
+resident.home.future_house	Future House	Будущий дом
+resident.home.refugee_camp	Refugee Camp	Лагерь беженцев
+resident.home.camp	Camp	Лагерь
+resident.common.unknown	unknown	неизвестно
+resident.food.hungry_days	{0} {1}d	{0}, {1} д.
+resident.gender.male	male	муж.
+resident.gender.female	female	жен.
+resident.life_stage.child	child	ребёнок
+resident.life_stage.adult	adult	взрослый
+resident.status.hungry_suffix	{0} | {1} {2}d	{0} | {1}, {2} д.
+resident.status.cold_suffix	{0} | {1}	{0} | {1}
+resident.status.returning_to_scout_lodge	Returning to the Scout Lodge	Возвращается на пост разведчиков
+resident.status.ready_for_expedition	Ready for an expedition	Готов к экспедиции
+resident.time.days_hours	{0}d {1}h	{0} д. {1} ч.
+resident.time.hours	{0}h	{0} ч.
+resident.status.expedition_remaining	{0} | expedition {1} left	{0} | до конца экспедиции: {1}
+profession.lumberjack.title	Lumberjacks	Лесорубы
+profession.lumberjack.subtitle	chop trees and stockpile Logs	рубят деревья и складывают брёвна
+profession.stonecutter.title	Stonecutters	Каменотёсы
+profession.stonecutter.subtitle	mine Stone with pickaxes	добывают камень кирками
+profession.miner.title	Miners	Шахтёры
+profession.miner.subtitle	work underground for Iron	добывают железо под землёй
+profession.coalminer.title	Coal Miners	Угольщики
+profession.coalminer.subtitle	dig Coal inside pits	добывают уголь в разрезах
+profession.claydigger.title	Clay Diggers	Глинокопы
+profession.claydigger.subtitle	dig wet Clay near water	добывают глину у воды
+profession.sawyer.title	Sawyers	Пильщики
+profession.sawyer.subtitle	saw Logs into Planks	распиливают брёвна на доски
+profession.potter.title	Potters	Гончары
+profession.potter.subtitle	fire Clay and Coal into Pottery	обжигают глину с углём в керамику
+profession.blacksmith.title	Blacksmiths	Кузнецы
+profession.blacksmith.subtitle	forge Iron, Coal and Logs into Tools	куют инструменты из железа, угля и брёвен
+profession.hunter.title	Hunters	Охотники
+profession.hunter.subtitle	hunt rabbits	охотятся на кроликов
+profession.fisher.title	Fishers	Рыбаки
+profession.fisher.subtitle	catch fish near water	ловят рыбу у воды
+profession.forager.title	Foragers	Собиратели
+profession.forager.subtitle	gather wild food	собирают дикорастущую еду
+profession.scout.title	Scouts	Разведчики
+profession.scout.subtitle	explore and chart unknown land	исследуют и наносят на карту неизвестные земли
+profession.storageworker.title	Haulers	Носильщики
+profession.storageworker.subtitle	haul all resources and food	переносят ресурсы и еду
+profession.builder.title	Builders	Строители
+profession.builder.subtitle	build structures	строят здания
+profession.priority.construction	Construction	Строительство
+profession.priority.food	Food	Еда
+profession.priority.logistics	Logistics	Логистика
+profession.priority.wood	Wood	Древесина
+profession.priority.stone	Stone	Камень
+profession.priority.planks	Planks	Доски
+profession.priority.iron	Iron	Железо
+profession.priority.coal	Coal	Уголь
+profession.priority.clay	Clay	Глина
+profession.priority.pottery	Pottery	Керамика
+profession.priority.tools	Tools	Инструменты
+resident.auto_workforce.ready	Auto workforce ready	Автораспределение готово
+resident.auto_workforce.enabled	Auto assign enabled	Автоназначение включено
+resident.auto_workforce.disabled	Auto assign disabled	Автоназначение выключено
+resident.auto_workforce.no_free_adults	No free adults	Нет свободных взрослых
+resident.auto_workforce.assigned	Assigned workers: {0}	Назначено работников: {0}
+resident.auto_workforce.released_for_demand	Workers released for demand: {0}	Освобождено работников для срочных задач: {0}
+resident.auto_workforce.released_disabled	Disabled workers released: {0}	Освобождено отключённых работников: {0}
+resident.auto_workforce.released_surplus	Surplus workers released: {0}	Освобождено лишних работников: {0}
+resident.auto_workforce.no_enabled_slot	No enabled workforce slot	Нет доступных рабочих мест

@@ -96,23 +96,30 @@ namespace ProjectUnknown.Strategy
 
         private ProfessionSnapshot CreateBaseSnapshot(StrategyProfessionType type)
         {
+            string key = type.ToString().ToLowerInvariant();
+            string title = StrategyLocalization.Get(
+                StrategyLocalizationTables.Residents,
+                "profession." + key + ".title");
+            string subtitle = StrategyLocalization.Get(
+                StrategyLocalizationTables.Residents,
+                "profession." + key + ".subtitle");
             return type switch
             {
-                StrategyProfessionType.Lumberjack => new ProfessionSnapshot(type, "Lumberjacks", "chop trees and stockpile Logs", new Color(0.45f, 0.62f, 0.32f)),
-                StrategyProfessionType.Stonecutter => new ProfessionSnapshot(type, "Stonecutters", "mine Stone with pickaxes", new Color(0.47f, 0.53f, 0.55f)),
-                StrategyProfessionType.Miner => new ProfessionSnapshot(type, "Miners", "work underground for Iron", new Color(0.61f, 0.42f, 0.30f)),
-                StrategyProfessionType.CoalMiner => new ProfessionSnapshot(type, "Coal Miners", "dig Coal inside pits", new Color(0.33f, 0.37f, 0.38f)),
-                StrategyProfessionType.ClayDigger => new ProfessionSnapshot(type, "Clay Diggers", "dig wet Clay near water", new Color(0.66f, 0.40f, 0.27f)),
-                StrategyProfessionType.Sawyer => new ProfessionSnapshot(type, "Sawyers", "saw Logs into Planks", new Color(0.63f, 0.43f, 0.25f)),
-                StrategyProfessionType.Potter => new ProfessionSnapshot(type, "Potters", "fire Clay and Coal into Pottery", new Color(0.74f, 0.36f, 0.22f)),
-                StrategyProfessionType.Blacksmith => new ProfessionSnapshot(type, "Blacksmiths", "forge Iron, Coal and Logs into Tools", new Color(0.72f, 0.31f, 0.20f)),
-                StrategyProfessionType.Hunter => new ProfessionSnapshot(type, "Hunters", "hunt rabbits", new Color(0.56f, 0.43f, 0.26f)),
-                StrategyProfessionType.Fisher => new ProfessionSnapshot(type, "Fishers", "catch fish near water", new Color(0.32f, 0.54f, 0.63f)),
-                StrategyProfessionType.Forager => new ProfessionSnapshot(type, "Foragers", "gather wild food", new Color(0.41f, 0.55f, 0.30f)),
-                StrategyProfessionType.Scout => new ProfessionSnapshot(type, "Scouts", "explore and chart unknown land", new Color(0.31f, 0.57f, 0.61f)),
-                StrategyProfessionType.StorageWorker => new ProfessionSnapshot(type, "Haulers", "haul all resources and food", new Color(0.58f, 0.49f, 0.37f)),
-                StrategyProfessionType.Builder => new ProfessionSnapshot(type, "Builders", "build structures", new Color(0.75f, 0.55f, 0.27f)),
-                _ => new ProfessionSnapshot(type, "Profession", string.Empty, Color.white)
+                StrategyProfessionType.Lumberjack => new ProfessionSnapshot(type, title, subtitle, new Color(0.45f, 0.62f, 0.32f)),
+                StrategyProfessionType.Stonecutter => new ProfessionSnapshot(type, title, subtitle, new Color(0.47f, 0.53f, 0.55f)),
+                StrategyProfessionType.Miner => new ProfessionSnapshot(type, title, subtitle, new Color(0.61f, 0.42f, 0.30f)),
+                StrategyProfessionType.CoalMiner => new ProfessionSnapshot(type, title, subtitle, new Color(0.33f, 0.37f, 0.38f)),
+                StrategyProfessionType.ClayDigger => new ProfessionSnapshot(type, title, subtitle, new Color(0.66f, 0.40f, 0.27f)),
+                StrategyProfessionType.Sawyer => new ProfessionSnapshot(type, title, subtitle, new Color(0.63f, 0.43f, 0.25f)),
+                StrategyProfessionType.Potter => new ProfessionSnapshot(type, title, subtitle, new Color(0.74f, 0.36f, 0.22f)),
+                StrategyProfessionType.Blacksmith => new ProfessionSnapshot(type, title, subtitle, new Color(0.72f, 0.31f, 0.20f)),
+                StrategyProfessionType.Hunter => new ProfessionSnapshot(type, title, subtitle, new Color(0.56f, 0.43f, 0.26f)),
+                StrategyProfessionType.Fisher => new ProfessionSnapshot(type, title, subtitle, new Color(0.32f, 0.54f, 0.63f)),
+                StrategyProfessionType.Forager => new ProfessionSnapshot(type, title, subtitle, new Color(0.41f, 0.55f, 0.30f)),
+                StrategyProfessionType.Scout => new ProfessionSnapshot(type, title, subtitle, new Color(0.31f, 0.57f, 0.61f)),
+                StrategyProfessionType.StorageWorker => new ProfessionSnapshot(type, title, subtitle, new Color(0.58f, 0.49f, 0.37f)),
+                StrategyProfessionType.Builder => new ProfessionSnapshot(type, title, subtitle, new Color(0.75f, 0.55f, 0.27f)),
+                _ => new ProfessionSnapshot(type, title, subtitle, Color.white)
             };
         }
 
@@ -164,7 +171,9 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            actionStatusText.text = "An empty Scout Lodge is required before appointing a Scout.";
+            actionStatusText.text = StrategyLocalization.Get(
+                StrategyLocalizationTables.Hud,
+                "hud.professions.scout_lodge_required");
             StrategyHudSfxAudio.Play(StrategyHudSfxKind.Deny);
             StrategyDebugLogger.Info("ProfessionHud", "ScoutPickerUnavailable");
             isDirty = true;
@@ -468,23 +477,12 @@ namespace ProjectUnknown.Strategy
             }
 
             int ready = Mathf.Max(0, assigned - exploring - returning);
-            return ready + " ready  /  " + exploring + " exploring  /  " + returning + " returning";
-        }
-
-        private static bool HasReadyScout()
-        {
-            StrategyScoutLodge[] lodges = FindSorted<StrategyScoutLodge>();
-            for (int i = 0; i < lodges.Length; i++)
-            {
-                if (lodges[i] != null
-                    && lodges[i].WorkerCount > 0
-                    && lodges[i].ExpeditionState == StrategyScoutExpeditionState.Ready)
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            return StrategyLocalization.Get(
+                StrategyLocalizationTables.Hud,
+                "hud.professions.scout_summary",
+                ready,
+                exploring,
+                returning);
         }
 
     }

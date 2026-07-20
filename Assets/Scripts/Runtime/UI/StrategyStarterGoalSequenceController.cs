@@ -17,6 +17,7 @@ namespace ProjectUnknown.Strategy
         private bool scoutLodgeCompleted;
         private bool storageYardCompleted;
         private bool granaryCompleted;
+        private bool languageSubscribed;
 
         public bool IsComplete => phase == StrategyStarterGoalPhase.Complete;
 
@@ -39,6 +40,12 @@ namespace ProjectUnknown.Strategy
             goals = goalsController;
             buildMenu = buildMenuController;
             placement = placementController;
+
+            if (!languageSubscribed)
+            {
+                StrategyLocalization.LanguageChanged += HandleLanguageChanged;
+                languageSubscribed = true;
+            }
 
             if (placement != null)
             {
@@ -64,6 +71,12 @@ namespace ProjectUnknown.Strategy
             if (placement != null)
             {
                 placement.BuildingCompleted -= HandleBuildingCompleted;
+            }
+
+            if (languageSubscribed)
+            {
+                StrategyLocalization.LanguageChanged -= HandleLanguageChanged;
+                languageSubscribed = false;
             }
         }
 
@@ -167,10 +180,7 @@ namespace ProjectUnknown.Strategy
         {
             phase = StrategyStarterGoalPhase.Houses;
             ApplyBaseToolLock();
-            goals.SetGoals(new StrategyGoalDefinition(
-                StrategyGoalKind.BuildThreeHouses,
-                "Build 3 Houses (" + completedHouses + "/" + StrategyStarterBuildProgression.TargetHouseCount + ")",
-                "Secure shelter before expanding production."));
+            goals.SetGoals(CreateHouseGoal());
             StrategyDebugLogger.Info("StarterGoals", "HousePhaseReady", StrategyDebugLogger.F("houses", completedHouses));
         }
 
@@ -178,10 +188,7 @@ namespace ProjectUnknown.Strategy
         {
             phase = StrategyStarterGoalPhase.ForagerCamp;
             ApplyBaseToolLock();
-            goals.SetGoals(new StrategyGoalDefinition(
-                StrategyGoalKind.BuildForagerCamp,
-                "Build Forager Camp",
-                "Move forage food production outside homes."));
+            goals.SetGoals(CreateForagerCampGoal());
             StrategyDebugLogger.Info(
                 "StarterGoals",
                 "ForagerCampPhaseReady",
@@ -193,8 +200,8 @@ namespace ProjectUnknown.Strategy
             phase = StrategyStarterGoalPhase.ProductionCamps;
             ApplyBaseToolLock();
             goals.SetGoals(
-                new StrategyGoalDefinition(StrategyGoalKind.BuildLumberjackCamp, "Build Lumberjack Camp"),
-                new StrategyGoalDefinition(StrategyGoalKind.BuildStonecutterCamp, "Build Stonecutter Camp"));
+                CreateLumberjackCampGoal(),
+                CreateStonecutterCampGoal());
 
             if (lumberjackCampCompleted)
             {
@@ -217,10 +224,7 @@ namespace ProjectUnknown.Strategy
         {
             phase = StrategyStarterGoalPhase.ScoutLodge;
             ApplyBaseToolLock();
-            goals.SetGoals(new StrategyGoalDefinition(
-                StrategyGoalKind.BuildScoutLodge,
-                "Build Scout Lodge",
-                "Raise an expedition base for the settlement's first Scout."));
+            goals.SetGoals(CreateScoutLodgeGoal());
             StrategyDebugLogger.Info(
                 "StarterGoals",
                 "ScoutLodgePhaseReady",
@@ -232,14 +236,8 @@ namespace ProjectUnknown.Strategy
             phase = StrategyStarterGoalPhase.Storage;
             ApplyBaseToolLock();
             goals.SetGoals(
-                new StrategyGoalDefinition(
-                    StrategyGoalKind.BuildStorageYard,
-                    "Build Storage Yard",
-                    "Move construction supplies out of the temporary caravan cart."),
-                new StrategyGoalDefinition(
-                    StrategyGoalKind.BuildGranary,
-                    "Build Granary",
-                    "Centralize food reserves before the first winter."));
+                CreateStorageYardGoal(),
+                CreateGranaryGoal());
 
             if (storageYardCompleted)
             {
@@ -374,6 +372,90 @@ namespace ProjectUnknown.Strategy
             {
                 goals.CompleteGoal(kind);
             }
+        }
+
+        private void HandleLanguageChanged()
+        {
+            switch (phase)
+            {
+                case StrategyStarterGoalPhase.Houses:
+                    goals?.ReplaceGoalText(CreateHouseGoal());
+                    break;
+                case StrategyStarterGoalPhase.ForagerCamp:
+                    goals?.ReplaceGoalText(CreateForagerCampGoal());
+                    break;
+                case StrategyStarterGoalPhase.ProductionCamps:
+                    goals?.ReplaceGoalText(CreateLumberjackCampGoal(), CreateStonecutterCampGoal());
+                    break;
+                case StrategyStarterGoalPhase.ScoutLodge:
+                    goals?.ReplaceGoalText(CreateScoutLodgeGoal());
+                    break;
+                case StrategyStarterGoalPhase.Storage:
+                    goals?.ReplaceGoalText(CreateStorageYardGoal(), CreateGranaryGoal());
+                    break;
+            }
+        }
+
+        private StrategyGoalDefinition CreateHouseGoal()
+        {
+            return new StrategyGoalDefinition(
+                StrategyGoalKind.BuildThreeHouses,
+                H(
+                    "goals.starter.houses.title",
+                    completedHouses,
+                    StrategyStarterBuildProgression.TargetHouseCount),
+                H("goals.starter.houses.description"));
+        }
+
+        private static StrategyGoalDefinition CreateForagerCampGoal()
+        {
+            return new StrategyGoalDefinition(
+                StrategyGoalKind.BuildForagerCamp,
+                H("goals.starter.forager_camp.title"),
+                H("goals.starter.forager_camp.description"));
+        }
+
+        private static StrategyGoalDefinition CreateLumberjackCampGoal()
+        {
+            return new StrategyGoalDefinition(
+                StrategyGoalKind.BuildLumberjackCamp,
+                H("goals.starter.lumberjack_camp.title"));
+        }
+
+        private static StrategyGoalDefinition CreateStonecutterCampGoal()
+        {
+            return new StrategyGoalDefinition(
+                StrategyGoalKind.BuildStonecutterCamp,
+                H("goals.starter.stonecutter_camp.title"));
+        }
+
+        private static StrategyGoalDefinition CreateScoutLodgeGoal()
+        {
+            return new StrategyGoalDefinition(
+                StrategyGoalKind.BuildScoutLodge,
+                H("goals.starter.scout_lodge.title"),
+                H("goals.starter.scout_lodge.description"));
+        }
+
+        private static StrategyGoalDefinition CreateStorageYardGoal()
+        {
+            return new StrategyGoalDefinition(
+                StrategyGoalKind.BuildStorageYard,
+                H("goals.starter.storage_yard.title"),
+                H("goals.starter.storage_yard.description"));
+        }
+
+        private static StrategyGoalDefinition CreateGranaryGoal()
+        {
+            return new StrategyGoalDefinition(
+                StrategyGoalKind.BuildGranary,
+                H("goals.starter.granary.title"),
+                H("goals.starter.granary.description"));
+        }
+
+        private static string H(string key, params object[] arguments)
+        {
+            return StrategyLocalization.Get(StrategyLocalizationTables.Hud, key, arguments);
         }
 
     }

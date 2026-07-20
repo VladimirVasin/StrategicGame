@@ -59,6 +59,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            hasLastInspectWorld = false;
             inspectHud?.Hide();
             Select(building.transform, building.SelectionBounds);
         }
@@ -70,6 +71,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            hasLastInspectWorld = false;
             inspectHud?.Hide();
             Select(resident.transform, resident.SelectionBounds);
         }
@@ -118,6 +120,7 @@ namespace ProjectUnknown.Strategy
         public void DismissForBuildMode()
         {
             ClearSelection();
+            hasLastInspectWorld = false;
             inspectHud?.Hide();
         }
 
@@ -260,13 +263,13 @@ namespace ProjectUnknown.Strategy
                 LayoutStatusSection(272f, 102f);
                 LayoutContextSection(392f, 122f);
                 hudTitleText.text = grave.DeceasedName;
-                hudSubtitleText.text = "Grave";
+                hudSubtitleText.text = L("grave.subtitle");
                 SetPreviewSprite(grave.PreviewSprite);
-                hudSummaryTitleText.text = "Epitaph";
+                hudSummaryTitleText.text = L("grave.epitaph");
                 hudBodyText.text = grave.Epitaph;
-                hudStatusTitleText.text = "Life";
+                hudStatusTitleText.text = L("grave.life");
                 hudStatusBodyText.text = grave.GetLifeText();
-                hudContextTitleText.text = "Memory";
+                hudContextTitleText.text = L("grave.memory");
                 hudContextBodyText.text = grave.GetMemoryText();
                 SetProfileSectionVisible(true);
                 SetStatusSectionVisible(true);

@@ -16,6 +16,10 @@ namespace ProjectUnknown.Strategy
 
     public sealed class StrategyDishRecipe
     {
+        private readonly string displayName;
+        private readonly string localizationTable;
+        private readonly string displayNameKey;
+
         public StrategyDishRecipe(
             string id,
             string displayName,
@@ -24,7 +28,9 @@ namespace ProjectUnknown.Strategy
             params StrategyDishIngredient[] ingredients)
         {
             Id = id ?? string.Empty;
-            DisplayName = displayName ?? string.Empty;
+            this.displayName = displayName ?? string.Empty;
+            localizationTable = string.Empty;
+            displayNameKey = string.Empty;
             Quality = quality;
             RationValue = Math.Max(0f, rationValue);
             Ingredients = ingredients ?? Array.Empty<StrategyDishIngredient>();
@@ -32,8 +38,34 @@ namespace ProjectUnknown.Strategy
             IngredientRationValue = CalculateIngredientRationValue(Ingredients);
         }
 
+        internal StrategyDishRecipe(
+            string id,
+            string displayName,
+            StrategyDishQuality quality,
+            float rationValue,
+            string localizationTable,
+            string displayNameKey,
+            params StrategyDishIngredient[] ingredients)
+            : this(id, displayName, quality, rationValue, ingredients)
+        {
+            this.localizationTable = localizationTable ?? string.Empty;
+            this.displayNameKey = displayNameKey ?? string.Empty;
+        }
+
         public string Id { get; }
-        public string DisplayName { get; }
+        public string DisplayName
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(localizationTable) || string.IsNullOrEmpty(displayNameKey))
+                {
+                    return displayName;
+                }
+
+                string localized = StrategyLocalization.Get(localizationTable, displayNameKey);
+                return localized == displayNameKey ? displayName : localized;
+            }
+        }
         public StrategyDishQuality Quality { get; }
         public float RationValue { get; }
         public StrategyDishIngredient[] Ingredients { get; }

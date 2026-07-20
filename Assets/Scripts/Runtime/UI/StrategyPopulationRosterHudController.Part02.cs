@@ -77,7 +77,9 @@ namespace ProjectUnknown.Strategy
 
         private string GetHeaderLabel(RosterSortColumn column)
         {
-            string label = column.ToString();
+            string label = StrategyLocalization.Get(
+                StrategyLocalizationTables.Hud,
+                "hud.roster.column." + column.ToString().ToLowerInvariant());
             return sortColumn == column
                 ? label + (sortAscending ? " ^" : " v")
                 : label;

@@ -37,7 +37,13 @@ namespace ProjectUnknown.Strategy
             header.resizeTextMaxSize = 19;
             SetTopLeft(header.rectTransform, 24f, 14f, sectionWidth - 48f, 28f);
 
-            Text count = CreateText("Count", section, records.Count + " members", 12, TextAnchor.MiddleLeft, new Color(0.78f, 0.86f, 0.82f));
+            Text count = CreateText(
+                "Count",
+                section,
+                FamilyText("resident.family_tree.member_count", records.Count),
+                12,
+                TextAnchor.MiddleLeft,
+                new Color(0.78f, 0.86f, 0.82f));
             SetTopLeft(count.rectTransform, 24f, 41f, sectionWidth - 48f, 20f);
 
             PositionCards(sectionWidth);
@@ -306,10 +312,17 @@ namespace ProjectUnknown.Strategy
         {
             if (record.IsAlive && population != null && population.TryGetResidentById(record.ResidentId, out StrategyResidentAgent resident))
             {
-                return StrategyResidentHudText.GetRoleTitle(resident) + ", " + resident.DisplayAgeYears + "y";
+                return FamilyText(
+                    "resident.family_tree.member_status",
+                    StrategyResidentHudText.GetRoleTitle(resident),
+                    resident.DisplayAgeYears);
             }
 
-            return "deceased, " + record.DisplayAgeYears + "y";
+            return FamilyText(
+                record.Gender == StrategyResidentGender.Male
+                    ? "resident.family_tree.deceased_male"
+                    : "resident.family_tree.deceased_female",
+                record.DisplayAgeYears);
         }
     }
 }

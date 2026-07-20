@@ -1,0 +1,2902 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Hud_en
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: en
+  m_SharedData: {fileID: 11400000, guid: b60bc17498d26ad4eb87183ff60b1749, type: 2}
+  m_Metadata:
+    m_Items:
+    - rid: 465534772507312166
+  m_TableData:
+  - m_Id: 183705019764736
+    m_Localized: CURRENT GOALS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290688
+    m_Localized: Build 3 Houses ({0}/{1})
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705074290689
+    m_Localized: Secure shelter before expanding production.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290690
+    m_Localized: Build Forager Camp
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290691
+    m_Localized: Move forage food production outside homes.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290692
+    m_Localized: Build Lumberjack Camp
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290693
+    m_Localized: Build Stonecutter Camp
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290694
+    m_Localized: Build Scout Lodge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290695
+    m_Localized: Raise an expedition base for the settlement's first Scout.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290696
+    m_Localized: Build Storage Yard
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290697
+    m_Localized: Move construction supplies out of the temporary caravan cart.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290698
+    m_Localized: Build Granary
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290699
+    m_Localized: Centralize food reserves before the first winter.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290700
+    m_Localized: Store {0} days of food
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705074290701
+    m_Localized: Households need enough rations to cross the first winter.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290702
+    m_Localized: Store {0} days of firewood
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705074290703
+    m_Localized: Occupied houses consume firewood during winter nights.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290704
+    m_Localized: Prepare for the first winter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290705
+    m_Localized: '{0:0.#} / {1:0} days'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705074290706
+    m_Localized: Endure the first winter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290707
+    m_Localized: Manage food, firewood, and shelter until summer returns.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290708
+    m_Localized: The first winter has begun. The settlement is prepared.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290709
+    m_Localized: The first winter has begun. Supplies are short.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290710
+    m_Localized: The first winter has ended
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290711
+    m_Localized: Open the resident roster and review adults, children, families,
+      and current work.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290712
+    m_Localized: "Population {0}\n{1} adults  \xB7  {2} children"
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705074290713
+    m_Localized: Day {0}   {1}
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705074290714
+    m_Localized: '{0} {1}/{2} - {3}'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705074290715
+    m_Localized: Spring
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290716
+    m_Localized: Summer
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078484992
+    m_Localized: Autumn
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078484993
+    m_Localized: Winter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078484994
+    m_Localized: Dawn
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078484995
+    m_Localized: Morning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078484996
+    m_Localized: Noon
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078484997
+    m_Localized: Afternoon
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078484998
+    m_Localized: Dusk
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078484999
+    m_Localized: Night
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485000
+    m_Localized: SETTLEMENT STORES
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485001
+    m_Localized: ALL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485002
+    m_Localized: Logs {0}  |  Stone {1}
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705078485003
+    m_Localized: Logs and Stone show construction-ready stock. Open all resources
+      stored across the settlement.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485004
+    m_Localized: ALL RESOURCES
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485005
+    m_Localized: STORED ACROSS THE SETTLEMENT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485006
+    m_Localized: CONSTRUCTION
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485007
+    m_Localized: MATERIALS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485008
+    m_Localized: FOOD
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485009
+    m_Localized: '{0}
+
+      Stored: {1}
+
+      Available: {2}'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705078485010
+    m_Localized: '{0}
+
+      Stored: {1}
+
+      Available: {2}
+
+      Reserved: {3}'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705078485011
+    m_Localized: No residents
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485012
+    m_Localized: Residents {0}
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705078485013
+    m_Localized: Adults {0} / Children {1}   Housed {2} / Camp {3}   Workers {4}
+      / Free adults {5}   Hungry {6} / Starving {7}
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705078485014
+    m_Localized: All
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485015
+    m_Localized: Adults
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485016
+    m_Localized: Children
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485017
+    m_Localized: Workers
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485018
+    m_Localized: Hungry
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485019
+    m_Localized: Homeless
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485020
+    m_Localized: Family Trees
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485021
+    m_Localized: Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485022
+    m_Localized: Age
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485023
+    m_Localized: Home
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485024
+    m_Localized: Role
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485025
+    m_Localized: Status
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485026
+    m_Localized: Food
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485027
+    m_Localized: Professions
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485028
+    m_Localized: settlement workers
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485029
+    m_Localized: Assign residents to professions and configure automatic workforce
+      priorities.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485030
+    m_Localized: 'Free adults: {0}'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705078485031
+    m_Localized: 'Available: {0}'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705078485032
+    m_Localized: No workplaces
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485033
+    m_Localized: An empty Scout Lodge is required before appointing a Scout.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485034
+    m_Localized: '{0}: no free residents or workplaces'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705078485035
+    m_Localized: '{0}: nobody to remove'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705078485036
+    m_Localized: '{0}: assigned'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705078485037
+    m_Localized: '{0}: removed'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705078485038
+    m_Localized: '{0} ready / {1} exploring / {2} returning'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705078485039
+    m_Localized: '{0}: {1}'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705078485040
+    m_Localized: 'Auto Assign: On'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485041
+    m_Localized: 'Auto Assign: Off'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485042
+    m_Localized: '{0} / free adults {1}'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705078485043
+    m_Localized: Auto workforce unavailable
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485044
+    m_Localized: Inventory
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485045
+    m_Localized: Open the settlement chest for unique story and city items.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485046
+    m_Localized: CITY INVENTORY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485047
+    m_Localized: THE SETTLEMENT CHEST / SPECIAL ITEMS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485048
+    m_Localized: STORY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485049
+    m_Localized: EFFECT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485050
+    m_Localized: Stored safely for the whole city
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485051
+    m_Localized: The city chest is empty
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485052
+    m_Localized: Special finds and keepsakes will appear here as the settlement's
+      story unfolds.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485053
+    m_Localized: Unknown Item
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485054
+    m_Localized: UNIQUE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485055
+    m_Localized: UNIQUE CITY ITEM
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485056
+    m_Localized: '{0} / {1} STORED'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705078485057
+    m_Localized: '{0} STORED'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705078485058
+    m_Localized: This item's story has not been recorded yet.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485059
+    m_Localized: No active effect is recorded.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485060
+    m_Localized: No record is available for this item.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485061
+    m_Localized: No effect is recorded.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485062
+    m_Localized: A caravan is travelling to this post.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485063
+    m_Localized: Adult
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485064
+    m_Localized: after departure
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485065
+    m_Localized: Alert
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485066
+    m_Localized: Approaching discovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485067
+    m_Localized: Arrives in
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485068
+    m_Localized: Arriving
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485069
+    m_Localized: Attacking
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485070
+    m_Localized: Autonomous
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485071
+    m_Localized: Available
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485072
+    m_Localized: Avoiding settlement
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485073
+    m_Localized: Awaiting assignment
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485074
+    m_Localized: Blacksmith
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485075
+    m_Localized: Blocked
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485076
+    m_Localized: Builder
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485077
+    m_Localized: Camp
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485078
+    m_Localized: Caravan
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485079
+    m_Localized: Caravan offers are open.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485080
+    m_Localized: Carcass
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485081
+    m_Localized: Carp
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485082
+    m_Localized: Caught
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485083
+    m_Localized: Chasing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485084
+    m_Localized: Charting frontier
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485085
+    m_Localized: Child
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485086
+    m_Localized: Clay digger
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485087
+    m_Localized: Coal miner
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485088
+    m_Localized: Coal Pit only
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485089
+    m_Localized: Cold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485090
+    m_Localized: Completing discovery before return
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485091
+    m_Localized: Cooling
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485092
+    m_Localized: Crow
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485093
+    m_Localized: Dead
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485094
+    m_Localized: Delivered
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485095
+    m_Localized: Departing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485096
+    m_Localized: Depleted
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485097
+    m_Localized: Dirt
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485098
+    m_Localized: Discovery complete - returning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485099
+    m_Localized: Duck
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485100
+    m_Localized: ETA
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485101
+    m_Localized: Expedition complete - returning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485102
+    m_Localized: Exploring
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485103
+    m_Localized: Falling
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485104
+    m_Localized: Father
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485105
+    m_Localized: Fawn
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485106
+    m_Localized: Fed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485107
+    m_Localized: Feeding
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485108
+    m_Localized: Felled
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485109
+    m_Localized: Female
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485110
+    m_Localized: Fishable
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485111
+    m_Localized: Fisher
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485112
+    m_Localized: Fleeing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485113
+    m_Localized: Flying
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485114
+    m_Localized: Forager
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485115
+    m_Localized: Forest
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485116
+    m_Localized: Free
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485117
+    m_Localized: Freezing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485118
+    m_Localized: Frozen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485119
+    m_Localized: Fry
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485120
+    m_Localized: Gathering
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485121
+    m_Localized: Granary worker
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485122
+    m_Localized: Grass
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485123
+    m_Localized: Grazing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485124
+    m_Localized: Grooming
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485125
+    m_Localized: Growing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485126
+    m_Localized: Hit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485127
+    m_Localized: Hooked
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485128
+    m_Localized: Hopping
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485129
+    m_Localized: Housed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485130
+    m_Localized: Household food
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485131
+    m_Localized: Householder
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485132
+    m_Localized: Howling
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485133
+    m_Localized: Hungry
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485134
+    m_Localized: Huntable
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485135
+    m_Localized: Hunted
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485136
+    m_Localized: Hunter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485137
+    m_Localized: Husband
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485138
+    m_Localized: Idle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485139
+    m_Localized: Inside coop
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485140
+    m_Localized: Installed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485141
+    m_Localized: Invalid offer.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485142
+    m_Localized: Investigating discovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485143
+    m_Localized: Investigating point of interest
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485144
+    m_Localized: Kit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485145
+    m_Localized: Lake
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485146
+    m_Localized: Landing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485147
+    m_Localized: Leaves in
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485148
+    m_Localized: Locked
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485149
+    m_Localized: Logs ready
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485150
+    m_Localized: Lumberjack
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485151
+    m_Localized: Male
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485152
+    m_Localized: Mature
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485153
+    m_Localized: Meadow
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485154
+    m_Localized: Mine only
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485155
+    m_Localized: Mineable
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485156
+    m_Localized: Miner
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485157
+    m_Localized: Minnow
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485158
+    m_Localized: Mother
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485159
+    m_Localized: Needs food
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485160
+    m_Localized: Needs input
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485161
+    m_Localized: Next visit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485162
+    m_Localized: Nibbling
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485163
+    m_Localized: No
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485164
+    m_Localized: No active trade.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485165
+    m_Localized: No Granary can receive this.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485166
+    m_Localized: No reachable frontier
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485167
+    m_Localized: No sources
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485168
+    m_Localized: No Storage Yard can receive this.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485169
+    m_Localized: None
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485170
+    m_Localized: Not enough coins.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485171
+    m_Localized: Not enough stock.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485172
+    m_Localized: Not ready
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485173
+    m_Localized: now
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485174
+    m_Localized: Occupied
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485175
+    m_Localized: Open
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485176
+    m_Localized: Operational
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485177
+    m_Localized: Output full
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485178
+    m_Localized: Pecking
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485179
+    m_Localized: Pending
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485180
+    m_Localized: Perch
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485181
+    m_Localized: Planning route
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485182
+    m_Localized: Potter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485183
+    m_Localized: Preparing the first route
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485184
+    m_Localized: Producing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485185
+    m_Localized: Protected
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485186
+    m_Localized: Queued
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485187
+    m_Localized: Ready
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485188
+    m_Localized: Ready for expedition
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485189
+    m_Localized: Recalled to Lodge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485190
+    m_Localized: Regrowing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485191
+    m_Localized: Reserved
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485192
+    m_Localized: Resting
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485193
+    m_Localized: Resuming expedition
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485194
+    m_Localized: Return route blocked - retrying
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485195
+    m_Localized: Returning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485196
+    m_Localized: Returning to Lodge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485197
+    m_Localized: River
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485198
+    m_Localized: Roaming
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485199
+    m_Localized: Safe
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485200
+    m_Localized: Sapling
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485201
+    m_Localized: Sawyer
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485202
+    m_Localized: Scout
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485203
+    m_Localized: Settler
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485204
+    m_Localized: Sheltered
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485205
+    m_Localized: Shore
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485206
+    m_Localized: Sparrow
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485207
+    m_Localized: Stalking
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485208
+    m_Localized: Standing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485209
+    m_Localized: Starving
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485210
+    m_Localized: Stock full
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485211
+    m_Localized: Stonecutter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485212
+    m_Localized: Storage worker
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485213
+    m_Localized: Storekeeper
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485214
+    m_Localized: Swimming
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485215
+    m_Localized: Temporary
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485216
+    m_Localized: The current caravan is leaving the settlement.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485217
+    m_Localized: The post is ready for the next caravan.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485218
+    m_Localized: Trade controller is unavailable.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485219
+    m_Localized: Trade goods while the caravan waits.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485220
+    m_Localized: Trading
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485221
+    m_Localized: Trading post data is unavailable.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485222
+    m_Localized: Travelling to point of interest
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485223
+    m_Localized: Turning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485224
+    m_Localized: Unassigned
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485225
+    m_Localized: Unavailable
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485226
+    m_Localized: Unknown
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485227
+    m_Localized: Waiting
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485228
+    m_Localized: Walking
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485229
+    m_Localized: Warm
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485230
+    m_Localized: Water
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485231
+    m_Localized: Wife
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485232
+    m_Localized: Wolf prey
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485233
+    m_Localized: Working
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485234
+    m_Localized: Yes
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485235
+    m_Localized: Young
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485236
+    m_Localized: Add
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485237
+    m_Localized: Assign
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485238
+    m_Localized: Buy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485239
+    m_Localized: Done
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485240
+    m_Localized: Install
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485241
+    m_Localized: Unavailable
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485242
+    m_Localized: Recall
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485243
+    m_Localized: Remove
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485244
+    m_Localized: Sell
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485245
+    m_Localized: Send
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705082679296
+    m_Localized: ACTIVE OFFERS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705082679297
+    m_Localized: Amount
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705082679298
+    m_Localized: Building materials
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705082679299
+    m_Localized: Builders
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705082679300
+    m_Localized: Caravan
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705082679301
+    m_Localized: Coins
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705082679302
+    m_Localized: Coop
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705082679303
+    m_Localized: Current state
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705082679304
+    m_Localized: Deer
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705082679305
+    m_Localized: Deposits
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705082679306
+    m_Localized: End cell
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705082679307
+    m_Localized: Family
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705082679308
+    m_Localized: Field rations
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705082679309
+    m_Localized: Fish nearby
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705082679310
+    m_Localized: Food
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705082679311
+    m_Localized: Footprint
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705082679312
+    m_Localized: Group
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705082679313
+    m_Localized: Haulers
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705082679314
+    m_Localized: Herd
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873600
+    m_Localized: Home
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873601
+    m_Localized: ID
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873602
+    m_Localized: Labor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873603
+    m_Localized: Materials
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873604
+    m_Localized: Mature trees
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873605
+    m_Localized: Mission
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873606
+    m_Localized: Next egg
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873607
+    m_Localized: Output
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873608
+    m_Localized: Pack
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873609
+    m_Localized: Planned duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873610
+    m_Localized: Progress
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873611
+    m_Localized: Provisions
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873612
+    m_Localized: Rabbits
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873613
+    m_Localized: Radius
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873614
+    m_Localized: Ration value
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873615
+    m_Localized: Rations
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873616
+    m_Localized: Region
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873617
+    m_Localized: Reserved
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873618
+    m_Localized: Residents
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873619
+    m_Localized: Resource
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873620
+    m_Localized: Returns in
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873621
+    m_Localized: Saplings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873622
+    m_Localized: Scouts
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873623
+    m_Localized: Shoal
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873624
+    m_Localized: Sources
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873625
+    m_Localized: Span
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873626
+    m_Localized: Stage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873627
+    m_Localized: Start cell
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873628
+    m_Localized: State
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873629
+    m_Localized: Stock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873630
+    m_Localized: Trunks
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873631
+    m_Localized: Use
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873632
+    m_Localized: Walk / Build
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873633
+    m_Localized: Warmth
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873634
+    m_Localized: Water
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873635
+    m_Localized: Workers
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873636
+    m_Localized: Yield
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873637
+    m_Localized: Assigned Builders
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873638
+    m_Localized: Construction Stock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873639
+    m_Localized: Delivered Materials
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873640
+    m_Localized: Demolition
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873641
+    m_Localized: Expedition
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873642
+    m_Localized: Fishing Water
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873643
+    m_Localized: Food Stock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873644
+    m_Localized: Forage Stock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873645
+    m_Localized: Hunting Grounds
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873646
+    m_Localized: Infrastructure
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873647
+    m_Localized: Input
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873648
+    m_Localized: Local Stock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873649
+    m_Localized: Market
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873650
+    m_Localized: Materials
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873651
+    m_Localized: Output
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873652
+    m_Localized: Overview
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873653
+    m_Localized: Production
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873654
+    m_Localized: Work Area
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873655
+    m_Localized: '{0} / {1} free'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705086873656
+    m_Localized: 'Build: {0}'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705086873657
+    m_Localized: Cell {0}, {1}
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705086873658
+    m_Localized: '{0} cells'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705086873659
+    m_Localized: "{0} \xB7 {1}"
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705086873660
+    m_Localized: '{0}d {1}h'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705086873661
+    m_Localized: '{0}d'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705086873662
+    m_Localized: Dropped {0}
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705086873663
+    m_Localized: Home radius {0}
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705086873664
+    m_Localized: '{0}h'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705086873665
+    m_Localized: '{0} incoming'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705086873666
+    m_Localized: "{0} \xB7 {1}"
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705086873667
+    m_Localized: '{0}m {1}s'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705086873668
+    m_Localized: Pack {0}
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705086873669
+    m_Localized: '{0} pending'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705086873670
+    m_Localized: '{0}r'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705086873671
+    m_Localized: '{0} reserved'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705086873672
+    m_Localized: "{0} \u2014 {1}"
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705086873673
+    m_Localized: '{0} {1}'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705086873674
+    m_Localized: '{0}: {1}'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705086873675
+    m_Localized: '{0}s'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705086873676
+    m_Localized: Size {0}
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705086873677
+    m_Localized: '{0} still needed'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705086873678
+    m_Localized: "{0} \xB7 {1}"
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705086873679
+    m_Localized: '{0} / {1}'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705086873680
+    m_Localized: Yield {0}
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705086873681
+    m_Localized: Finished output
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873682
+    m_Localized: Input material
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873683
+    m_Localized: Free
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873684
+    m_Localized: Clear space in the local stock.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873685
+    m_Localized: No usable sources are in range.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873686
+    m_Localized: Worker needed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873687
+    m_Localized: Assign a worker to start production.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873688
+    m_Localized: Output full
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873689
+    m_Localized: Move finished goods to free output space.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873690
+    m_Localized: Production active
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873691
+    m_Localized: Workers have materials and output space.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873692
+    m_Localized: Sources and storage space are available.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873693
+    m_Localized: Waiting for inputs
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873694
+    m_Localized: Deliver the required input materials.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873695
+    m_Localized: Settlement building
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873696
+    m_Localized: Settlement building
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873697
+    m_Localized: "Housing \xB7 Unoccupied"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873698
+    m_Localized: "Housing \xB7 {0} family"
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705086873699
+    m_Localized: "Extraction \xB7 Timber"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873700
+    m_Localized: "Extraction \xB7 Stone"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873701
+    m_Localized: "Extraction \xB7 Iron"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873702
+    m_Localized: "Extraction \xB7 Coal"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873703
+    m_Localized: "Extraction \xB7 Clay"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873704
+    m_Localized: "Food \xB7 Game"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873705
+    m_Localized: "Food \xB7 Fish"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873706
+    m_Localized: "Food \xB7 Foraging"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873707
+    m_Localized: "Food \xB7 Eggs"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873708
+    m_Localized: "Production \xB7 Planks"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873709
+    m_Localized: "Production \xB7 Pottery"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873710
+    m_Localized: "Production \xB7 Tools"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873711
+    m_Localized: "Settlement \xB7 Supplies"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873712
+    m_Localized: "Storage \xB7 Materials"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873713
+    m_Localized: "Storage \xB7 Food"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873714
+    m_Localized: "Trade \xB7 Caravan market"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873715
+    m_Localized: "Exploration \xB7 Expeditions"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873716
+    m_Localized: "Infrastructure \xB7 Crossing"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873717
+    m_Localized: Construction Site
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873718
+    m_Localized: Future {0}
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705086873719
+    m_Localized: No builders assigned.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873720
+    m_Localized: Ready to build
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873721
+    m_Localized: Waiting for materials
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873722
+    m_Localized: Materials are ready and builders can finish the structure.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873723
+    m_Localized: Materials are ready. Assign Builders in the Professions HUD.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873724
+    m_Localized: Builders can continue with the delivered materials.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873725
+    m_Localized: 'Still needed: {0}.'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705086873726
+    m_Localized: Cancel construction?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873727
+    m_Localized: Cancel construction of {0}? Delivered materials will be returned.
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705086873728
+    m_Localized: Cancel construction
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873729
+    m_Localized: Demolish building?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873730
+    m_Localized: Demolish {0}? This cannot be undone.
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705086873731
+    m_Localized: '{0}
+
+      Residents and household stock will be detached safely.'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705086873732
+    m_Localized: Demolish
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873733
+    m_Localized: Keep
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873734
+    m_Localized: Demolition queued
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873735
+    m_Localized: Residents and household stock will be detached safely.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873736
+    m_Localized: The structure remains visible until demolition is complete.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873737
+    m_Localized: Building actions are unavailable while demolition is queued.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873738
+    m_Localized: Crossing open
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873739
+    m_Localized: Residents can cross this bridge.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873740
+    m_Localized: Assign residents to this workplace.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067904
+    m_Localized: Assign hunters to this camp.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067905
+    m_Localized: Assign fishers to this hut.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067906
+    m_Localized: Assign haulers or builders here.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067907
+    m_Localized: No free adult residents are available.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067908
+    m_Localized: Open worker slot
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067909
+    m_Localized: Up to two workers can be assigned.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067910
+    m_Localized: Open hunter slot
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067911
+    m_Localized: Hunts rabbits.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067912
+    m_Localized: Hunts rabbits and deer.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067913
+    m_Localized: Open fisher slot
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067914
+    m_Localized: Catches fish in nearby water.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067915
+    m_Localized: Open builder slot
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067916
+    m_Localized: Open hauler slot
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067917
+    m_Localized: Builds settlement structures.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067918
+    m_Localized: Hauls resources and food.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067919
+    m_Localized: Open scout slot
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067920
+    m_Localized: Requires deer hunting equipment.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067921
+    m_Localized: The fishing water is frozen.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067922
+    m_Localized: Assign foragers to gather food.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067923
+    m_Localized: Workers are gathering edible plants.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067924
+    m_Localized: Automatic production cycle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067925
+    m_Localized: Waiting for storage space
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067926
+    m_Localized: Egg production active
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067927
+    m_Localized: Egg stock full
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067928
+    m_Localized: The chickens produce eggs automatically.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067929
+    m_Localized: Move eggs to free local storage space.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067930
+    m_Localized: 'Haulers: {0}'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705091067931
+    m_Localized: 'Builders: {0}'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705091067932
+    m_Localized: 'Sources: {0}'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705091067933
+    m_Localized: No stock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067934
+    m_Localized: '{0} available'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705095262208
+    m_Localized: Stored
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262209
+    m_Localized: Haulers needed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262210
+    m_Localized: Hauling ready
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262211
+    m_Localized: No pickup sources
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262212
+    m_Localized: Storage data is unavailable.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262213
+    m_Localized: Assign Haulers in the Professions HUD.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262214
+    m_Localized: '{0} sources are waiting for pickup.'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705095262215
+    m_Localized: No sources are currently waiting.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262216
+    m_Localized: '{0} sources are waiting for pickup.'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705095262217
+    m_Localized: Builders are also assigned here.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262218
+    m_Localized: Builders are managed separately.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262219
+    m_Localized: Food hauling ready
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262220
+    m_Localized: Food sources are waiting for pickup.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262221
+    m_Localized: The granary is ready for food deliveries.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262222
+    m_Localized: Founding supplies
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262223
+    m_Localized: Temporary construction materials and food for the new settlement.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262224
+    m_Localized: "{0} \xB7 {1}"
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705095262225
+    m_Localized: "Householder \xB7 {0}, age {1}"
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705095262226
+    m_Localized: "Householder \xB7 {0}, age {1} \xB7 {2}"
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705095262227
+    m_Localized: "Resident \xB7 {0}, age {1}"
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705095262228
+    m_Localized: "Resident \xB7 {0}, age {1} \xB7 {2}"
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705095262229
+    m_Localized: 'DINNER NEED
+
+      AVAILABLE
+
+      NEXT CHECK
+
+      WARMTH'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262230
+    m_Localized: '{0}
+
+      {1}
+
+      {2}
+
+      {3}'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705095262231
+    m_Localized: HOUSEHOLD DINNER
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262232
+    m_Localized: 'Logs: {0}'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705095262233
+    m_Localized: "{0} \xB7 Logs: {1}"
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705095262234
+    m_Localized: 'Family home: {0}/{1}'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705095262235
+    m_Localized: 'Next: {0}'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705095262236
+    m_Localized: Dinner in {0}
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705095262237
+    m_Localized: No prepared dishes
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262238
+    m_Localized: No household food
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262239
+    m_Localized: Leftovers
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262240
+    m_Localized: Fuel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262241
+    m_Localized: 'Missing: {0}'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705095262242
+    m_Localized: Raw-food fallback
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262243
+    m_Localized: Short by {0}
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705095262244
+    m_Localized: No dinner stock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262245
+    m_Localized: "Dishes {0} \xB7 Leftovers {1} \xB7 Pottery {2} \xB7 Ingredients
+      {3}"
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705095262246
+    m_Localized: "Age {0} \xB7 {1} \xB7 {2}"
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705095262247
+    m_Localized: Current task
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262248
+    m_Localized: Family not recorded
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262249
+    m_Localized: House {0}
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705095262250
+    m_Localized: Awaiting your decision.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262251
+    m_Localized: Too young for a profession.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262252
+    m_Localized: Assigned as {0}.
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705095262253
+    m_Localized: Available for assignment.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262254
+    m_Localized: Assigned to a completed home.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262255
+    m_Localized: Future home is under construction.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262256
+    m_Localized: Staying at the refugee camp.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262257
+    m_Localized: Waiting for housing.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262258
+    m_Localized: Food needs are covered.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262259
+    m_Localized: '{0} for {1} days.'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705095262260
+    m_Localized: "Parents: {0} \xB7 Children: {1}"
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705095262261
+    m_Localized: Garden Beds
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262262
+    m_Localized: Chicken Coop
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262263
+    m_Localized: 'Crop: {0}'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705095262264
+    m_Localized: 'Cost: {0}'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705095262265
+    m_Localized: 'Missing: {0}'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705095262266
+    m_Localized: Upgrade already installed.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262267
+    m_Localized: Upgrade system is not ready.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262268
+    m_Localized: '{0} installed near the house.'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705095262269
+    m_Localized: 'Not enough resources: {0}.'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705095262270
+    m_Localized: No suitable free space near the house.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262271
+    m_Localized: '{0} installed.'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705095262272
+    m_Localized: Workers will use this upgrade automatically.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262273
+    m_Localized: Required materials are in storage.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262274
+    m_Localized: Required materials are missing from storage.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262275
+    m_Localized: Not enough resources in storage.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262276
+    m_Localized: This upgrade cannot be installed here.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262277
+    m_Localized: Upgrade installation failed.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262278
+    m_Localized: Available now
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262279
+    m_Localized: Available when a caravan is trading
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262280
+    m_Localized: No caravan offers are available here.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262281
+    m_Localized: '{0} {1} {2}'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705095262282
+    m_Localized: "Coins {0} \xB7 Available {1}"
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705095262283
+    m_Localized: Sold {0} {1}.
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705095262284
+    m_Localized: Bought {0} {1}.
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705095262285
+    m_Localized: Scout needed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262286
+    m_Localized: Assign a Scout here; ordinary professions remain managed separately.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262287
+    m_Localized: Exploration ready
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262288
+    m_Localized: Use the Scout action above to send, recall or review the expedition.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262289
+    m_Localized: Free adult available
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262290
+    m_Localized: No free adult available
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262291
+    m_Localized: Ready for expedition
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262292
+    m_Localized: Finishing current duty
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262293
+    m_Localized: Returning to Lodge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262294
+    m_Localized: "Returns in {0} \xB7 Field rations {1}"
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705095262295
+    m_Localized: Rabbit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262296
+    m_Localized: Rabbit Carcass
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262297
+    m_Localized: Wildlife
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262298
+    m_Localized: Stag
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262299
+    m_Localized: Doe
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262300
+    m_Localized: River wildlife
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262301
+    m_Localized: Lake wildlife
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262302
+    m_Localized: Wildlife
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262303
+    m_Localized: Wolf
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262304
+    m_Localized: Predator
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262305
+    m_Localized: Chicken
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262306
+    m_Localized: Household animal
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262307
+    m_Localized: Stone deposit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262308
+    m_Localized: Iron Vein
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262309
+    m_Localized: Iron-stained Ground
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262310
+    m_Localized: Iron deposit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262311
+    m_Localized: Coal Seam
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262312
+    m_Localized: Coal Dust Ground
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262313
+    m_Localized: Coal deposit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262314
+    m_Localized: Clay Bank
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262315
+    m_Localized: Clay Patch
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262316
+    m_Localized: Clay deposit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262317
+    m_Localized: Tree
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262318
+    m_Localized: Young Tree
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262319
+    m_Localized: Forest resource
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262320
+    m_Localized: Forage node
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262321
+    m_Localized: Loose resource
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262322
+    m_Localized: Loose Building Materials
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262323
+    m_Localized: Construction resource pile
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262324
+    m_Localized: Rock Cluster
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262325
+    m_Localized: Stone Cliff
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262326
+    m_Localized: Boulder
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262327
+    m_Localized: Forest Thicket
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262328
+    m_Localized: Bush
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262329
+    m_Localized: Nature
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262330
+    m_Localized: 'Nature prop
+
+      Blocks movement: {0}
+
+      Cell terrain: {1}'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705095262331
+    m_Localized: Grave
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262332
+    m_Localized: EPITAPH
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262333
+    m_Localized: LIFE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262334
+    m_Localized: MEMORY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262335
+    m_Localized: Age unknown
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262336
+    m_Localized: Age {0}
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705095262337
+    m_Localized: '{0}
+
+      Known as {1}
+
+      Family role: {2}'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705095262338
+    m_Localized: A child of House {0}.
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705095262339
+    m_Localized: 'Remembered as {0}; children: {1}.'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705095262340
+    m_Localized: Remembered by the household of House {0}.
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705095262341
+    m_Localized: Remembered by the settlement.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262342
+    m_Localized: '{0}
+
+      {1}'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705095262343
+    m_Localized: Unknown Settler
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262344
+    m_Localized: Unknown
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262345
+    m_Localized: Here rests {0}, child of House {1}.
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705095262346
+    m_Localized: '{0} sleeps beneath this stone, held in the memory of kin.'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705095262347
+    m_Localized: Here rests young {0}, whose name remains with House {1}.
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705095262348
+    m_Localized: Here rests {0}, beloved {1} and {2}.
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705099456512
+    m_Localized: 'In memory of {0}: {1}, {2}, and keeper of the family name.'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705099456513
+    m_Localized: '{0} rests here, a {1} remembered by children and hearth.'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705099456514
+    m_Localized: Here rests {0}, keeper of hearth and home.
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705099456515
+    m_Localized: In memory of {0}, who tended the household with steady hands.
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705099456516
+    m_Localized: '{0} sleeps here, remembered at the hearth.'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705099456517
+    m_Localized: Here rests {0}.
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705099456518
+    m_Localized: In memory of {0}, {1} of the settlement.
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705099456519
+    m_Localized: '{0} sleeps beneath this stone.'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 183705099456520
+    m_Localized: Here rests {0}, remembered by the settlement.
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  references:
+    version: 2
+    RefIds:
+    - rid: 465534772507312166
+      type: {class: SmartFormatTag, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_Entries: 
+        m_SharedEntries:
+        - id: 556945408
+        - id: 556945420
+        - id: 556945422
+        - id: 556945425
+        - id: 556945432
+        - id: 556945433
+        - id: 556945434
+        - id: 556945447
+        - id: 556945454
+        - id: 556945455
+        - id: 556945457
+        - id: 556945458
+        - id: 561139721
+        - id: 561139722
+        - id: 561139725
+        - id: 561139726
+        - id: 561139727
+        - id: 561139728
+        - id: 561139729
+        - id: 561139730
+        - id: 561139733
+        - id: 561139747
+        - id: 561139748
+        - id: 561140011
+        - id: 561140012
+        - id: 561140013
+        - id: 561140014
+        - id: 561140015
+        - id: 561140016
+        - id: 561140017
+        - id: 561140018
+        - id: 561140019
+        - id: 561140020
+        - id: 561140021
+        - id: 561140022
+        - id: 561140023
+        - id: 561140024
+        - id: 561140025
+        - id: 561140026
+        - id: 561140027
+        - id: 561140028
+        - id: 561140029
+        - id: 561140030
+        - id: 561140031
+        - id: 561140032
+        - id: 561140033
+        - id: 561140034
+        - id: 561140035
+        - id: 561140036
+        - id: 561140054
+        - id: 561140074
+        - id: 561140081
+        - id: 561140083
+        - id: 561140086
+        - id: 561140087
+        - id: 561140123
+        - id: 561140124
+        - id: 561140125
+        - id: 561140127
+        - id: 561140134
+        - id: 561140136
+        - id: 561140144
+        - id: 561140145
+        - id: 561140146
+        - id: 561140147
+        - id: 561140148
+        - id: 561140150
+        - id: 561140152
+        - id: 561140153
+        - id: 561140154
+        - id: 561140155
+        - id: 561140156
+        - id: 561140161
+        - id: 561140163
+        - id: 561140165
+        - id: 561140166
+        - id: 561140169
+        - id: 561140172
+        - id: 561140179
+        - id: 561140180
+        - id: 565334017
+        - id: 565334018
+        - id: 565334019
+        - id: 565334022
+        - id: 565334023
+        - id: 565334025
+        - id: 565334035
+        - id: 565334036
+        - id: 565334037
+        - id: 565334038
+        - id: 565334048
+        - id: 565334084
+        - id: 565334090
+        - id: 565334091
+        - id: 565334092
+        - id: 565334093
+        - id: 565334094
+        - id: 565334096
+        - id: 565334099
+        - id: 565334100
+        - id: 565334101
+        - id: 565334102
+        - id: 565334103
+        - id: 565334104
+        - id: 565334105
+        - id: 565334106
+        - id: 565334107
+        - id: 565334108
+        - id: 565334109
+        - id: 565334110
+        - id: 565334111
+        - id: 183705074290688
+        - id: 183705074290700
+        - id: 183705074290702
+        - id: 183705074290705
+        - id: 183705074290712
+        - id: 183705074290713
+        - id: 183705074290714
+        - id: 183705078485002
+        - id: 183705078485009
+        - id: 183705078485010
+        - id: 183705078485012
+        - id: 183705078485013
+        - id: 183705078485030
+        - id: 183705078485031
+        - id: 183705078485034
+        - id: 183705078485035
+        - id: 183705078485036
+        - id: 183705078485037
+        - id: 183705078485038
+        - id: 183705078485039
+        - id: 183705078485042
+        - id: 183705078485056
+        - id: 183705078485057
+        - id: 183705086873655
+        - id: 183705086873656
+        - id: 183705086873657
+        - id: 183705086873658
+        - id: 183705086873659
+        - id: 183705086873660
+        - id: 183705086873661
+        - id: 183705086873662
+        - id: 183705086873663
+        - id: 183705086873664
+        - id: 183705086873665
+        - id: 183705086873666
+        - id: 183705086873667
+        - id: 183705086873668
+        - id: 183705086873669
+        - id: 183705086873670
+        - id: 183705086873671
+        - id: 183705086873672
+        - id: 183705086873673
+        - id: 183705086873674
+        - id: 183705086873675
+        - id: 183705086873676
+        - id: 183705086873677
+        - id: 183705086873678
+        - id: 183705086873679
+        - id: 183705086873680
+        - id: 183705086873698
+        - id: 183705086873718
+        - id: 183705086873725
+        - id: 183705086873727
+        - id: 183705086873730
+        - id: 183705086873731
+        - id: 183705091067930
+        - id: 183705091067931
+        - id: 183705091067932
+        - id: 183705091067934
+        - id: 183705095262214
+        - id: 183705095262216
+        - id: 183705095262224
+        - id: 183705095262225
+        - id: 183705095262226
+        - id: 183705095262227
+        - id: 183705095262228
+        - id: 183705095262230
+        - id: 183705095262232
+        - id: 183705095262233
+        - id: 183705095262234
+        - id: 183705095262235
+        - id: 183705095262236
+        - id: 183705095262241
+        - id: 183705095262243
+        - id: 183705095262245
+        - id: 183705095262246
+        - id: 183705095262249
+        - id: 183705095262252
+        - id: 183705095262259
+        - id: 183705095262260
+        - id: 183705095262263
+        - id: 183705095262264
+        - id: 183705095262265
+        - id: 183705095262268
+        - id: 183705095262269
+        - id: 183705095262271
+        - id: 183705095262281
+        - id: 183705095262282
+        - id: 183705095262283
+        - id: 183705095262284
+        - id: 183705095262294
+        - id: 183705095262330
+        - id: 183705095262336
+        - id: 183705095262337
+        - id: 183705095262338
+        - id: 183705095262339
+        - id: 183705095262340
+        - id: 183705095262342
+        - id: 183705095262345
+        - id: 183705095262346
+        - id: 183705095262347
+        - id: 183705095262348
+        - id: 183705099456512
+        - id: 183705099456513
+        - id: 183705099456514
+        - id: 183705099456515
+        - id: 183705099456516
+        - id: 183705099456517
+        - id: 183705099456518
+        - id: 183705099456519
+        - id: 183705099456520

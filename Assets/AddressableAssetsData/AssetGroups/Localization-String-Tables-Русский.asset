@@ -1,0 +1,86 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: "Localization-String-Tables-\u0420\u0443\u0441\u0441\u043A\u0438\u0439"
+  m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
+  m_GroupName: "Localization-String-Tables-\u0420\u0443\u0441\u0441\u043A\u0438\u0439"
+  m_GUID: d5114dae6bab1284585e89476b453508
+  m_SerializeEntries:
+  - m_GUID: 1b4a064f1e84e804496071779fff3f08
+    m_Address: Menu_ru
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ru
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 500edede822139f4bb59282478d73a56
+    m_Address: Common_ru
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ru
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 553cde3fdef59e14b877f89f54b8851e
+    m_Address: Founding_ru
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ru
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7f1531255b2e9aa4285ecf7d8b7baf78
+    m_Address: Legacy_ru
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ru
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9efe76f91c90ca24cbad16f4dca4586f
+    m_Address: Hud_ru
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ru
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c0e302375834d9649a51d836f43f0861
+    m_Address: Buildings_ru
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ru
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c3483b8d54e3ba04f9d61fe0a6005e51
+    m_Address: Stories_ru
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ru
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c90b8da99dadc7d45ad8dee38298a42d
+    m_Address: Residents_ru
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ru
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e57328e3447a26a40a4508156434f64c
+    m_Address: Resources_ru
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ru
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 1
+  m_Settings: {fileID: 11400000, guid: 972d79a7547aba14aa029eac66dd0097, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: f812a0dbe4d28dd49a2faff6e72ad2cc, type: 2}
+    - {fileID: 11400000, guid: a7cf4ae6cd65b5f45929ae5a9f6403e7, type: 2}

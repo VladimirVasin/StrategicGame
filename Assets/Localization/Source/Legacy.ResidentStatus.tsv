@@ -1,0 +1,187 @@
+Key	English	Russian
+literal.5dd90efc0e4a53a5	tending household	занимается хозяйством
+literal.8e4a18b0f480e340	sleeping at home	спит дома
+literal.5d5a27881b684a7e	inside home	находится дома
+literal.4f32647aac90e8ca	going home	идёт домой
+literal.82c56288cdaf6dc9	going to campfire	идёт к костру
+literal.835ed90bd283f256	leaving settlement	покидает поселение
+literal.b3c5abb54d58d8f4	lighting campfire	разжигает костёр
+literal.c8c1558522565716	sleeping by campfire	спит у костра
+literal.eddef30bab1ad68f	working garden beds	работает на грядках
+literal.2596929684c4770d	going to garden beds	идёт к грядкам
+literal.6b01015dcad832b8	going foraging	идёт собирать пищу
+literal.3be326b5186360ca	gathering food	собирает пищу
+literal.99494bc34ffb2925	recovering dropped food	идёт за брошенной пищей
+literal.93b9afe08c280933	picking up dropped food	подбирает брошенную пищу
+literal.283c35ff2d35cd40	bringing food home	несёт пищу домой
+literal.d426929851d4b7fe	storing household food	складывает домашние запасы пищи
+literal.7a1fa3fccd5beda9	going to a tree	идёт к дереву
+literal.9d355cb1ebf38827	chopping tree	рубит дерево
+literal.8c34f9b8c173577c	bucking trunk	разделывает ствол
+literal.beca3496d9f28191	going to Logs	идёт к брёвнам
+literal.118a525030f48b11	carrying Logs	несёт брёвна
+literal.2eb0d8aebc39efa2	depositing Logs	складывает брёвна
+literal.69c414b7a6e63221	going for Logs	идёт за брёвнами
+literal.8c03501beead50be	picking up Logs	забирает брёвна
+literal.692df3e7ef6e9e20	hauling Logs to storage	доставляет брёвна на склад
+literal.81304fa6c92a2487	looking for a planting spot	ищет место для посадки
+literal.abbc756ac1a1fbad	planting a tree	сажает дерево
+literal.79271a06207b252e	going to deposit	идёт к месторождению
+literal.02c58c7fa986ad4c	mining Stone	добывает камень
+literal.fa052ac362d1cc9d	carrying Stone	несёт камень
+literal.00453c8ca9940e36	depositing Stone	складывает камень
+literal.76165ede3ab5c189	going to mine	идёт в шахту
+literal.b3df5ea465a1dda9	working underground	работает под землёй
+literal.1cd83ad0ca1f76f2	going to coal pit	идёт в угольный разрез
+literal.aaeb575ae8ac2f41	digging Coal	добывает уголь
+literal.643a632d73110194	going to clay pit	идёт в глиняный карьер
+literal.016d49e306af1047	digging Clay	добывает глину
+literal.c79b8dcc59e6d1bb	going for production input	идёт за сырьём
+literal.c9384e5b63ce5744	picking up production input	забирает сырьё
+literal.fc47e350f43ccdc0	hauling production input	доставляет сырьё
+literal.336178086e5f6688	depositing production input	загружает сырьё
+literal.803b503036d05dbf	going to sawmill	идёт на лесопилку
+literal.0057cb209368ecc4	on duty at sawmill	дежурит на лесопилке
+literal.d0405a126175dd1f	sawing Logs	распиливает брёвна
+literal.87997e4b2de0e89e	going to kiln	идёт к обжиговой печи
+literal.45940f6d80f76d1d	on duty at kiln	дежурит у обжиговой печи
+literal.311760081c9ef381	firing Pottery	обжигает керамику
+literal.426f1d359b1bdd17	going to forge	идёт в кузницу
+literal.7717f33321c4a1bc	on duty at forge	дежурит в кузнице
+literal.bb3b783d5e9387ca	forging Tools	куёт инструменты
+literal.ce16797c66f39a4d	going for Stone	идёт за камнем
+literal.af5d6ec97dd5cfca	picking up Stone	забирает камень
+literal.ffc6c43f1c9e4a34	hauling Stone to storage	доставляет камень на склад
+literal.8a01940fc311a66c	going for Iron	идёт за железом
+literal.38fa2082e559e473	picking up Iron	забирает железо
+literal.4481ecc192d79545	hauling Iron to storage	доставляет железо на склад
+literal.6e9cb4ce01a58f6f	depositing Iron	складывает железо
+literal.6ab0941c4837cb1f	going for Coal	идёт за углём
+literal.1bf0abfb74b04f30	picking up Coal	забирает уголь
+literal.c24f03365b13262e	hauling Coal to storage	доставляет уголь на склад
+literal.af5d4fe2c22f897c	depositing Coal	складывает уголь
+literal.53297f98066b7259	going for Clay	идёт за глиной
+literal.3bd3b613f4c28736	picking up Clay	забирает глину
+literal.77e6a5f187e6b878	hauling Clay to storage	доставляет глину на склад
+literal.cf832c10d10b60fa	depositing Clay	складывает глину
+literal.0669ca5319869fd5	going for Planks	идёт за досками
+literal.4d3a171395f0104a	picking up Planks	забирает доски
+literal.c06e1781b54841d4	hauling Planks to storage	доставляет доски на склад
+literal.0b2abccc0a333386	depositing Planks	складывает доски
+literal.be28779ba3162bd7	going for Pottery	идёт за керамикой
+literal.c2b186f0ccc05410	picking up Pottery	забирает керамику
+literal.0621c46bef8b47ae	hauling Pottery to storage	доставляет керамику на склад
+literal.43452b92d501da5c	depositing Pottery	складывает керамику
+literal.e49f3ac2ba28decd	going for Tools	идёт за инструментами
+literal.18f1b11cfcdca87a	picking up Tools	забирает инструменты
+literal.f8a3da4eebd45c64	hauling Tools to storage	доставляет инструменты на склад
+literal.7ec0def779fc3ff6	depositing Tools	складывает инструменты
+literal.6ddd52f29418ce26	going for materials	идёт за материалами
+literal.11ebb0a1a4768203	picking up construction Logs	забирает брёвна для стройки
+literal.f892c17cbc78b01f	picking up construction Stone	забирает камень для стройки
+literal.1ce1fed364121457	picking up construction Planks	забирает доски для стройки
+literal.8ef24da378622847	carrying Logs to construction	несёт брёвна на стройку
+literal.cb7819aa4836366b	carrying Stone to construction	несёт камень на стройку
+literal.b18519022dfd4793	carrying Planks to construction	несёт доски на стройку
+literal.90befc05af147efd	depositing materials	доставляет материалы
+literal.c74d6543dadeefa8	going to build	идёт строить
+literal.9911f9d7b30d425b	building	строит
+literal.20dce36c6274265a	going hunting	идёт на охоту
+literal.9553b4329b441dda	aiming bow	целится из лука
+literal.a21b39546f61d6b4	watching the arrow	следит за стрелой
+literal.cad304a7ce0cc7d8	going to game	идёт к добыче
+literal.a2fdeed6874fb52c	butchering game	разделывает добычу
+literal.6eeeabca87e64338	carrying Game	несёт дичь
+literal.21ef4bdd5147c71b	depositing Game	складывает дичь
+literal.68d77305f78af64d	going to shore	идёт к берегу
+literal.975e62611e91e016	casting line	забрасывает удочку
+literal.3304f9907e359d9e	waiting for a bite	ждёт поклёвки
+literal.5b54a42ecc12798f	reeling fish	вытаскивает рыбу
+literal.f9c249489b69e0ba	carrying Fish	несёт рыбу
+literal.0123899e6f9affe9	depositing Fish	складывает рыбу
+literal.3631d67a003f5428	going for Game	идёт за дичью
+literal.1fa08ab712202b47	picking up Game	забирает дичь
+literal.9f92ecb4a0da3508	hauling Game to granary	доставляет дичь в амбар
+literal.bd4b12b5a0679784	depositing Game in granary	складывает дичь в амбар
+literal.c5aeecaca4bdf2ca	going for Fish	идёт за рыбой
+literal.333c05c1eb48c6a5	picking up Fish	забирает рыбу
+literal.b364ae665bc65e1a	hauling Fish to granary	доставляет рыбу в амбар
+literal.05099d434430b206	depositing Fish in granary	складывает рыбу в амбар
+literal.597b43a47cfb6966	going for forage	идёт за собранной пищей
+literal.eddfa0c75ecb0b69	picking up forage	забирает собранную пищу
+literal.1ce3bfaba686db56	hauling forage to granary	доставляет собранную пищу в амбар
+literal.ae33c070fd32751a	depositing forage in granary	складывает собранную пищу в амбар
+literal.fef63b1a74b39686	going to granary	идёт в амбар
+literal.9fd84f00e5b50188	picking up household food	забирает пищу для дома
+literal.333f69f9dc8952d4	going for household Pottery	идёт за керамикой для дома
+literal.6d695ba002a47213	picking up household Pottery	забирает керамику для дома
+literal.521d740deb281c0b	bringing Pottery home	несёт керамику домой
+literal.65833339c5abd935	storing household Pottery	складывает домашнюю керамику
+literal.6ccc8e67072e595a	going for household Logs	идёт за брёвнами для дома
+literal.caef9beb91052f85	picking up household Logs	забирает брёвна для дома
+literal.fb09d379e363a275	bringing Logs home	несёт брёвна домой
+literal.89da7b8496f2d1d3	storing household Logs	складывает домашние запасы брёвен
+literal.ea718a49eabefa59	going home to cook	идёт домой готовить
+literal.c346f38580a9e18f	cooking dinner	готовит ужин
+literal.92a6dbc5c0d204ca	going to play	идёт играть
+literal.103023ee93b6850e	playing near home	играет возле дома
+literal.f3f3c5728e752230	drawing in the dirt	рисует на земле
+literal.3abe5d6e1070bfaa	resting near home	отдыхает возле дома
+literal.2af16781d15b5a21	watching the village	наблюдает за поселением
+literal.74859b9365264490	joining other children	идёт к другим детям
+literal.8fd998d9e60c0e6c	talking with another child	разговаривает с другим ребёнком
+literal.bb64e9a21458fe7b	playing tag	играет в догонялки
+literal.413090d0841a6df2	returning Logs to storage	возвращает брёвна на склад
+literal.f1a3f3224123d956	returning Stone to storage	возвращает камень на склад
+literal.506a2e16d4b23297	returning Iron to storage	возвращает железо на склад
+literal.1e9ba06533eb6d1c	returning Coal to storage	возвращает уголь на склад
+literal.ee3a45e6c2cbe88a	returning Clay to storage	возвращает глину на склад
+literal.13f432029e950246	returning Planks to storage	возвращает доски на склад
+literal.655f8585570f66ac	returning Pottery to storage	возвращает керамику на склад
+literal.3cb1ce22a2546da6	returning Tools to storage	возвращает инструменты на склад
+literal.82d3ad881c2b101a	returning Game to granary	возвращает дичь в амбар
+literal.9cae2d0c66b150c8	returning Fish to granary	возвращает рыбу в амбар
+literal.80abb356025b7ac4	returning forage to granary	возвращает собранную пищу в амбар
+literal.5b36970653f44f29	going to light a lamp	идёт зажечь лампу
+literal.3893259e49834c42	lighting a lamp	зажигает лампу
+literal.090258dc09518ad1	going to funeral	идёт на похороны
+literal.7cd94450be397d96	mourning	скорбит
+literal.f0f620984bd4a6f3	carrying the dead	несёт тело умершего
+literal.5a5d0f45c57922a7	going to burial	идёт к месту захоронения
+literal.efd70064c9c0c2cc	burying the dead	хоронит умершего
+literal.98bf23f6f3efa34c	attending funeral	присутствует на похоронах
+literal.e3327d48c8030486	exploring unknown land	исследует неизвестные земли
+literal.c18e7c3f91e5b78c	surveying terrain	изучает местность
+literal.ce2b0c5db11d2379	approaching a point of interest	приближается к интересному месту
+literal.602b17bae32d9bcf	investigating a point of interest	исследует интересное место
+literal.772e17b4ed0e497f	returning to Scout Lodge	возвращается на пост разведчиков
+literal.00c12123d55c7d09	idle	бездействует
+literal.7de57c93182b6a4e	refugee	беженец
+literal.8754fec2e2b999b8	off duty for the night	отдыхает ночью
+literal.84baf077b8ab78d8	waiting for construction	ждёт начала строительства
+literal.ca4c420949697fd3	waiting for prey	ждёт добычу
+literal.efa5c49ca6112a45	waiting for forage	ждёт собранную пищу
+literal.6e6d170b224b8dac	waiting for unexplored frontier	ждёт открытия новых земель
+literal.1dd39e4291a98c2f	waiting for Iron	ждёт железа
+literal.fdb263ef1120573c	waiting for Coal	ждёт угля
+literal.1a72401d1d1905ba	waiting for Clay	ждёт глины
+literal.744bf5113e042562	waiting for Logs	ждёт брёвен
+literal.960084d9d26a6d28	waiting for Clay and Coal	ждёт глины и угля
+literal.17dd1a3d142fbd96	waiting for Iron, Coal and Logs	ждёт железа, угля и брёвен
+literal.34e87018a5b39795	waiting for hauling	ждёт перевозки
+literal.e0fe010a60371087	waiting for food hauling	ждёт доставки пищи
+literal.d9ea445e0b4a5e16	at the campfire	у костра
+literal.9202e815d655167a	fed	питается нормально
+literal.525d18159f383be3	short rations	скудный рацион
+literal.52f0cd6c973b43e2	hungry	голодает
+literal.d542d131f228a327	starving	сильно голодает
+literal.6db65d5e764ed7e8	severe starvation	крайнее истощение
+literal.b85e7c19a2a2777e	chilled	озноб
+literal.49b4b8a2d66e52b5	sick from cold	простуда
+literal.de4daa0663835afe	critical hypothermia	критическое переохлаждение
+literal.4a8769ce77c146bc	warm	в тепле
+literal.3d48fa292ff3bc7d	Auto workforce ready	Автоназначение работников готово
+literal.f53cad14abb99aee	Auto assign enabled	Автоназначение включено
+literal.251a24d7f1ae9063	Auto assign disabled	Автоназначение выключено
+literal.787f04f9f0965c73	No free adults	Нет свободных взрослых
+literal.d502192d199b7f19	No enabled workforce slot	Нет доступных рабочих мест

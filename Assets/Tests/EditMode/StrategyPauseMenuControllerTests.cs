@@ -4,6 +4,9 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
+using UnityEngine.UI;
 
 namespace ProjectUnknown.Strategy.EditorTests
 {
@@ -137,6 +140,91 @@ namespace ProjectUnknown.Strategy.EditorTests
             Assert.That(inputRouter.ActiveContextCount, Is.Zero);
             Assert.That(timeScale.IsPausedByLock, Is.False);
             Assert.That(Time.timeScale, Is.EqualTo(3f));
+        }
+
+        [Test]
+        public void SettingsLanguageButtonSwitchesTheOpenMenuBetweenRussianAndEnglish()
+        {
+            Locale previousLocale = LocalizationSettings.SelectedLocale;
+            bool hadPreference = PlayerPrefs.HasKey(StrategyLocalization.LanguagePreferenceKey);
+            string previousPreference = PlayerPrefs.GetString(
+                StrategyLocalization.LanguagePreferenceKey,
+                StrategyLocalization.RussianLocaleCode);
+            Locale russian = LocalizationSettings.AvailableLocales.GetLocale("ru");
+            Locale english = LocalizationSettings.AvailableLocales.GetLocale("en");
+            Assert.That(russian, Is.Not.Null);
+            Assert.That(english, Is.Not.Null);
+
+            try
+            {
+                Assert.That(
+                    StrategyLocalization.SetLanguage(StrategyGameLanguage.Russian),
+                    Is.True);
+                Assert.That(pauseMenu.Open(), Is.True);
+                pauseMenu.ShowSettings();
+
+                Text settingsTitle = FindText("SettingsTitle");
+                Button languageButton = FindButton("Language");
+                Text languageLabel = languageButton.GetComponentInChildren<Text>(true);
+                Assert.That(settingsTitle.text, Is.EqualTo("НАСТРОЙКИ"));
+                Assert.That(languageLabel.text, Is.EqualTo("Язык: Русский"));
+
+                languageButton.onClick.Invoke();
+
+                Assert.That(StrategyGameSettings.Language, Is.EqualTo(StrategyGameLanguage.English));
+                Assert.That(settingsTitle.text, Is.EqualTo("SETTINGS"));
+                Assert.That(languageLabel.text, Is.EqualTo("Language: English"));
+            }
+            finally
+            {
+                StrategyGameLanguage restoreLanguage = previousLocale != null
+                    ? StrategyLocalization.FromLocaleCode(previousLocale.Identifier.Code)
+                    : StrategyLocalization.FromLocaleCode(previousPreference);
+                StrategyLocalization.SetLanguage(restoreLanguage);
+                LocalizationSettings.SelectedLocale = previousLocale;
+                if (hadPreference)
+                {
+                    PlayerPrefs.SetString(
+                        StrategyLocalization.LanguagePreferenceKey,
+                        previousPreference);
+                }
+                else
+                {
+                    PlayerPrefs.DeleteKey(StrategyLocalization.LanguagePreferenceKey);
+                }
+
+                PlayerPrefs.Save();
+            }
+        }
+
+        private Text FindText(string objectName)
+        {
+            Text[] texts = pauseMenu.GetComponentsInChildren<Text>(true);
+            for (int index = 0; index < texts.Length; index++)
+            {
+                if (texts[index].name == objectName)
+                {
+                    return texts[index];
+                }
+            }
+
+            Assert.Fail("Missing pause-menu Text: " + objectName);
+            return null;
+        }
+
+        private Button FindButton(string objectName)
+        {
+            Button[] buttons = pauseMenu.GetComponentsInChildren<Button>(true);
+            for (int index = 0; index < buttons.Length; index++)
+            {
+                if (buttons[index].name == objectName)
+                {
+                    return buttons[index];
+                }
+            }
+
+            Assert.Fail("Missing pause-menu Button: " + objectName);
+            return null;
         }
 
     }

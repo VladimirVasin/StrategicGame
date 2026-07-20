@@ -201,37 +201,34 @@ namespace ProjectUnknown.Strategy
 
             if (building.HasUpgrade(type))
             {
-                upgradeStatusMessage = "Already installed.";
+                upgradeStatusMessage = L("upgrade.already_installed");
                 RefreshHud();
                 return;
             }
 
             if (upgradeController == null)
             {
-                upgradeStatusMessage = "Upgrade system is not ready.";
+                upgradeStatusMessage = L("upgrade.system_not_ready");
                 RefreshHud();
                 return;
             }
 
             if (upgradeController.TryInstallUpgrade(building, type, out _, out StrategyBuildingUpgradeInstallFailureReason failureReason))
             {
-                upgradeStatusMessage = GetUpgradeTitle(type)
-                    + " "
-                    + "installed near the house.";
+                upgradeStatusMessage = L("upgrade.installed_near_house", GetUpgradeTitle(type));
             }
             else if (failureReason == StrategyBuildingUpgradeInstallFailureReason.NotEnoughResources)
             {
-                upgradeStatusMessage = "Not enough resources: "
-                    + FormatUpgradeCost(StrategyBuildingUpgradeController.GetUpgradeCost(type))
-                    + ".";
+                upgradeStatusMessage = L("upgrade.not_enough_resources",
+                    FormatUpgradeCost(StrategyBuildingUpgradeController.GetUpgradeCost(type)));
             }
             else if (failureReason == StrategyBuildingUpgradeInstallFailureReason.AlreadyInstalled)
             {
-                upgradeStatusMessage = "Already installed.";
+                upgradeStatusMessage = L("upgrade.already_installed");
             }
             else
             {
-                upgradeStatusMessage = "No free space near the house.";
+                upgradeStatusMessage = L("upgrade.no_free_space");
             }
 
             RefreshHud();
@@ -251,7 +248,7 @@ namespace ProjectUnknown.Strategy
                 gardenBedsActionText,
                 building,
                 StrategyBuildingUpgradeType.GardenBeds,
-                "Garden Beds");
+                GetUpgradeTitle(StrategyBuildingUpgradeType.GardenBeds));
             RefreshUpgradeButton(
                 chickenCoopButton,
                 chickenCoopButtonText,
@@ -259,7 +256,7 @@ namespace ProjectUnknown.Strategy
                 chickenCoopActionText,
                 building,
                 StrategyBuildingUpgradeType.ChickenCoop,
-                "Chicken Coop");
+                GetUpgradeTitle(StrategyBuildingUpgradeType.ChickenCoop));
 
             if (upgradeStatusText != null)
             {
@@ -298,10 +295,10 @@ namespace ProjectUnknown.Strategy
             if (actionText != null)
             {
                 actionText.text = installed
-                    ? "Done"
+                    ? L("action.done")
                     : canAfford
-                        ? "Add"
-                        : "No";
+                        ? L("action.add")
+                        : L("action.no");
                 actionText.color = installed
                     ? new Color(0.70f, 0.88f, 0.74f)
                     : canAfford
@@ -320,15 +317,15 @@ namespace ProjectUnknown.Strategy
             if (installed)
             {
                 return type == StrategyBuildingUpgradeType.GardenBeds
-                    ? "Crop: " + GetGardenCropTitle(building)
-                    : "installed";
+                    ? L("upgrade.crop", GetGardenCropTitle(building))
+                    : LocalizedValue("installed");
             }
 
             return upgradeController != null
                 ? canAfford
-                    ? "Cost: " + FormatUpgradeCost(cost)
-                    : "Missing: " + FormatUpgradeCost(cost)
-                : "not ready";
+                    ? L("upgrade.cost", FormatUpgradeCost(cost))
+                    : L("upgrade.missing", FormatUpgradeCost(cost))
+                : LocalizedValue("not ready");
         }
 
         private static string GetGardenCropTitle(StrategyPlacedBuilding building)
@@ -337,12 +334,12 @@ namespace ProjectUnknown.Strategy
                 && building.TryGetUpgrade(StrategyBuildingUpgradeType.GardenBeds, out StrategyBuildingUpgrade garden)
                 && garden.ProducedResource != StrategyResourceType.None
                     ? GetResourceTitle(garden.ProducedResource)
-                    : "None";
+                    : StrategySelectionLocalization.Resource(StrategyResourceType.None);
         }
 
         private static string FormatUpgradeCost(StrategyConstructionResourceCost cost)
         {
-            return cost.ToDisplayText();
+            return StrategySelectionLocalization.ConstructionCost(cost);
         }
 
         private void SetUpgradeActionsVisible(bool visible)
@@ -378,7 +375,7 @@ namespace ProjectUnknown.Strategy
                     ShowDinnerFoodRow(
                         visibleResourceIndex++,
                         StrategyResourceType.Dish,
-                        stack.Recipe != null ? stack.Recipe.DisplayName : "Dishes",
+                        stack.Recipe != null ? stack.Recipe.DisplayName : GetResourceTitle(StrategyResourceType.Dish),
                         stack.Amount,
                         stack.Rations);
                 }
@@ -388,7 +385,7 @@ namespace ProjectUnknown.Strategy
                     ShowDinnerFoodRow(
                         visibleResourceIndex++,
                         StrategyResourceType.Dish,
-                        "Leftovers",
+                        L("house.food.leftovers"),
                         0,
                         store.LeftoverRations);
                 }
@@ -421,9 +418,9 @@ namespace ProjectUnknown.Strategy
                     ShowHouseStoreRow(
                         visibleResourceIndex++,
                         StrategyResourceType.Logs,
-                        "Logs",
+                        GetResourceTitle(StrategyResourceType.Logs),
                         logs,
-                        "Fuel");
+                        L("house.food.fuel"));
                 }
             }
 
@@ -476,7 +473,7 @@ namespace ProjectUnknown.Strategy
 
             if (resourceNutritionTexts[rowIndex] != null)
             {
-                resourceNutritionTexts[rowIndex].text = FormatRations(rationValue) + "r";
+                resourceNutritionTexts[rowIndex].text = StrategySelectionLocalization.Rations(rationValue);
                 resourceNutritionTexts[rowIndex].color = new Color(0.88f, 0.93f, 0.90f);
             }
         }

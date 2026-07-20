@@ -48,20 +48,33 @@ namespace ProjectUnknown.Strategy
 
         private void CreateResourceSections()
         {
-            CreateResourceSection("CONSTRUCTION", 96f, ConstructionResources);
-            CreateResourceSection("MATERIALS", 164f, MaterialResources);
-            CreateResourceSection("FOOD", 262f, FoodResources);
+            constructionSectionTitleText = CreateResourceSection(
+                "Construction",
+                "hud.resources.section.construction",
+                96f,
+                ConstructionResources);
+            materialsSectionTitleText = CreateResourceSection(
+                "Materials",
+                "hud.resources.section.materials",
+                164f,
+                MaterialResources);
+            foodSectionTitleText = CreateResourceSection(
+                "Food",
+                "hud.resources.section.food",
+                262f,
+                FoodResources);
         }
 
-        private void CreateResourceSection(
-            string title,
+        private Text CreateResourceSection(
+            string objectName,
+            string titleKey,
             float top,
             StrategyResourceType[] resources)
         {
             Text sectionTitle = CreateText(
-                title + "Title",
+                objectName + "Title",
                 panelRoot,
-                title,
+                StrategyLocalization.Get(StrategyLocalizationTables.Hud, titleKey),
                 11,
                 TextAnchor.MiddleLeft,
                 MutedGold);
@@ -86,6 +99,8 @@ namespace ProjectUnknown.Strategy
                     rowTop + (row * ResourceRowStep),
                     rowWidth);
             }
+
+            return sectionTitle;
         }
 
         private void CreateResourceRow(
@@ -144,7 +159,7 @@ namespace ProjectUnknown.Strategy
 
             StrategyHudTooltip tooltip = StrategyHudTooltip.Attach(
                 root.gameObject,
-                GetResourceDisplayName(resource) + "\nStored: 0\nAvailable: 0");
+                GetResourceTooltip(resource, 0, 0, 0));
             ResourceRowView row = new()
             {
                 Resource = resource,
@@ -166,6 +181,7 @@ namespace ProjectUnknown.Strategy
                 ResourceRowView row = resourceRows[index];
                 int stored = snapshot.GetStored(row.Resource);
                 int available = snapshot.GetAvailable(row.Resource);
+                row.Name.text = GetResourceDisplayName(row.Resource);
                 row.StoredValue = stored;
                 row.AvailableValue = available;
                 row.Stored.text = stored.ToString();
@@ -187,26 +203,37 @@ namespace ProjectUnknown.Strategy
                     : new Color(MutedGold.r, MutedGold.g, MutedGold.b, 0.48f);
 
                 int reserved = Mathf.Max(0, stored - available);
-                string tooltip = GetResourceDisplayName(row.Resource)
-                    + "\nStored: " + stored
-                    + "\nAvailable: " + available;
-                if (reserved > 0)
-                {
-                    tooltip += "\nReserved: " + reserved;
-                }
-
-                row.Tooltip?.SetText(tooltip);
+                row.Tooltip?.SetText(GetResourceTooltip(
+                    row.Resource,
+                    stored,
+                    available,
+                    reserved));
             }
         }
 
         private static string GetResourceDisplayName(StrategyResourceType resource)
         {
-            return resource switch
-            {
-                StrategyResourceType.Dish => "Prepared Dishes",
-                StrategyResourceType.Game => "Game Meat",
-                _ => resource.ToString()
-            };
+            return StrategyLocalization.Get(
+                StrategyLocalizationTables.Resources,
+                "resource." + resource.ToString().ToLowerInvariant() + ".name");
+        }
+
+        private static string GetResourceTooltip(
+            StrategyResourceType resource,
+            int stored,
+            int available,
+            int reserved)
+        {
+            string key = reserved > 0
+                ? "hud.resources.row_tooltip_reserved"
+                : "hud.resources.row_tooltip";
+            return StrategyLocalization.Get(
+                StrategyLocalizationTables.Hud,
+                key,
+                GetResourceDisplayName(resource),
+                stored,
+                available,
+                reserved);
         }
     }
 }

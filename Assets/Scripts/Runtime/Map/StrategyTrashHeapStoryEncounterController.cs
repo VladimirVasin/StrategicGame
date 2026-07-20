@@ -8,7 +8,6 @@ namespace ProjectUnknown.Strategy
         IStrategyStoryPointOfInterestEncounter
     {
         private const string PauseReason = "TrashHeapStoryChoice";
-        private const string RewardHeadline = "Вы нашли дырявую ложку";
 
         private StrategyPointOfInterestDialogController dialog;
         private StrategyTimeScaleController timeScale;
@@ -115,8 +114,8 @@ namespace ProjectUnknown.Strategy
                 dialog.ShowChoice(
                     activeDefinition.Title,
                     activeDefinition.Body,
-                    "Да, обыскать",
-                    "Нет",
+                    S("trash_heap.choice.search"),
+                    S("trash_heap.choice.decline"),
                     HandleAccepted,
                     HandleDeclined);
                 state = EncounterState.ChoiceOpen;
@@ -239,7 +238,7 @@ namespace ProjectUnknown.Strategy
                     definition,
                     activeResident,
                     artwork,
-                    RewardHeadline,
+                    S("trash_heap.reward.headline"),
                     () => Complete(StrategyStoryPointOfInterestOutcome.Accepted)))
             {
                 return false;
@@ -272,6 +271,11 @@ namespace ProjectUnknown.Strategy
             }
 
             return Resources.Load<Sprite>(definition.IconResourcePath);
+        }
+
+        private static string S(string key)
+        {
+            return StrategyLocalization.Get(StrategyLocalizationTables.Stories, key);
         }
 
         private void Complete(StrategyStoryPointOfInterestOutcome outcome)

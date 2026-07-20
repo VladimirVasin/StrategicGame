@@ -81,7 +81,9 @@ namespace ProjectUnknown.Strategy
             StrategyWorldInspectChip[] chips,
             StrategyWorldInspectRow[] rows)
         {
-            Title = string.IsNullOrWhiteSpace(title) ? "Unknown" : title;
+            Title = string.IsNullOrWhiteSpace(title)
+                ? StrategySelectionLocalization.Value("Unknown")
+                : title;
             Subtitle = subtitle ?? string.Empty;
             Body = body ?? string.Empty;
             Icon = icon;

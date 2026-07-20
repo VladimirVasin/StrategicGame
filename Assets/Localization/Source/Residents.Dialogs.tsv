@@ -1,0 +1,64 @@
+Key	English	Russian
+resident.dialog.refugee.title	Refugees	Беженцы
+resident.dialog.refugee.subtitle	settlement decision	решение поселения
+resident.dialog.refugee.body	A refugee family has reached the campfire. They are asking for shelter in the settlement.	К костру пришла семья беженцев. Они просят приюта в поселении.
+resident.dialog.refugee.action.accept	Accept	Принять
+resident.dialog.refugee.action.refuse	Refuse	Отказать
+resident.dialog.refugee.family.no_data	Family: no data	Семья: нет данных
+resident.dialog.refugee.family.line.one	{0}  -  {1}, {2} year	{0}  —  {1}, {2} год
+resident.dialog.refugee.family.line.few	{0}  -  {1}, {2} years	{0}  —  {1}, {2} года
+resident.dialog.refugee.family.line.many	{0}  -  {1}, {2} years	{0}  —  {1}, {2} лет
+resident.dialog.refugee.role.family_member	family member	член семьи
+resident.dialog.refugee.role.father	father	отец
+resident.dialog.refugee.role.mother	mother	мать
+resident.dialog.refugee.role.son	son	сын
+resident.dialog.refugee.role.daughter	daughter	дочь
+resident.dialog.scout.compass	N\n+\nS	С\n+\nЮ
+resident.dialog.scout.eyebrow	SCOUT LODGE  /  EXPEDITION BOARD	ПОСТ РАЗВЕДЧИКОВ  /  ЭКСПЕДИЦИИ
+resident.dialog.scout.briefing.label	WHY THE TRAIL MATTERS	ЗАЧЕМ НУЖЕН ЭТОТ ПУТЬ
+resident.dialog.scout.briefing.mechanics	Scouts range by day and night, reveal unexplored land, investigate landmarks, and report distant Iron and Coal deposits - and whatever else waits beyond the fog.	Разведчики идут днём и ночью, открывают неизведанные земли, изучают ориентиры и сообщают о далёких залежах железа и угля — и обо всём прочем, что скрывает туман.
+resident.dialog.scout.briefing.capacity	ONE LODGE  /  ONE SCOUT  /  REASSIGN ANY TIME	ОДИН ПОСТ  /  ОДИН РАЗВЕДЧИК  /  МОЖНО СМЕНИТЬ В ЛЮБОЙ МОМЕНТ
+resident.dialog.scout.mode.introduction.title	THE FIRST EXPEDITION	ПЕРВАЯ ЭКСПЕДИЦИЯ
+resident.dialog.scout.mode.introduction.subtitle	Beyond the Firelight	За пределами света костра
+resident.dialog.scout.mode.introduction.story	The roofs are standing and the camps are working, but beyond the last familiar path the valley is still only rumor. Choose one adult to carry our first map into the unknown.	Крыши возведены, лагеря работают, но за последней знакомой тропой долина остаётся лишь слухом. Выберите взрослого, который понесёт нашу первую карту в неизвестность.
+resident.dialog.scout.mode.appointment.title	APPOINT A SCOUT	НАЗНАЧИТЬ РАЗВЕДЧИКА
+resident.dialog.scout.mode.appointment.subtitle	Choose Who Takes the Trail	Выберите, кто отправится в путь
+resident.dialog.scout.mode.appointment.story	Every map begins with someone willing to leave the familiar road. Choose an adult to carry the Lodge's compass and chart what waits beyond the settlement.	Каждая карта начинается с того, кто готов свернуть со знакомой дороги. Выберите взрослого, который возьмёт компас поста и нанесёт на карту земли за пределами поселения.
+resident.dialog.scout.mode.expedition.title	PLAN AN EXPEDITION	СПЛАНИРОВАТЬ ЭКСПЕДИЦИЮ
+resident.dialog.scout.mode.expedition.subtitle	How Far Beyond the Firelight?	Как далеко уйти от света костра?
+resident.dialog.scout.mode.expedition.story	The Scout is ready and the route is open. Choose how many days of provisions to pack: a longer expedition can chart more ground, but every dawn beyond the Lodge costs another ration.	Разведчик готов, путь открыт. Выберите, на сколько дней собрать провизию: долгая экспедиция нанесёт на карту больше земель, но каждый рассвет вдали от поста потребует ещё один паёк.
+resident.dialog.scout.row.blocked.scout_lodge	Scout or Lodge no longer ready	Разведчик или пост больше не готовы
+resident.dialog.scout.status.selected_unavailable_choose_another	The selected resident is no longer available. Choose another Scout.	Выбранный житель больше недоступен. Выберите другого разведчика.
+resident.dialog.scout.status.resident_unavailable_for_trail	That resident is no longer available for the trail.	Этот житель больше не может отправиться в путь.
+resident.dialog.scout.status.ready_choose_range	Ready to choose the range of this expedition.	Можно выбрать дальность экспедиции.
+resident.dialog.scout.status.ready_first_map	Ready to carry the settlement's first map.	Можно отправляться с первой картой поселения.
+resident.dialog.scout.status.ready_lodge_compass	Ready to take the Lodge's compass beyond the familiar roads.	Можно унести компас поста за пределы знакомых дорог.
+resident.dialog.scout.status.scout_lodge_not_ready	This Scout or Lodge is no longer ready to depart.	Этот разведчик или пост больше не готовы к отправлению.
+resident.dialog.scout.status.chosen_unavailable_choose_another	The chosen resident is no longer available. Choose another Scout.	Выбранный житель больше недоступен. Выберите другого разведчика.
+resident.dialog.scout.status.required_rations_missing	The expedition cannot leave without all required rations.	Экспедиция не может отправиться без всех необходимых пайков.
+resident.dialog.scout.status.departure_failed	Departure could not be completed. Provisions or the Lodge state may have changed.	Не удалось отправить экспедицию. Возможно, изменился запас провизии или состояние поста.
+resident.dialog.scout.status.no_free_adult	No one can leave their duties today. Return when an adult is free.	Сегодня никто не может оставить свои обязанности. Вернитесь, когда освободится взрослый житель.
+resident.dialog.scout.status.first_expedition_needs_rations	The first expedition must wait until enough rations are stored.	Первая экспедиция должна подождать, пока не будет собрано достаточно пайков.
+resident.dialog.scout.status.selected_unavailable_for_trail	The selected resident is no longer available for the trail.	Выбранный житель больше не может отправиться в путь.
+resident.dialog.scout.candidates.expedition_ready	SCOUT ON DUTY  /  READY	РАЗВЕДЧИК НА СЛУЖБЕ  /  ГОТОВ
+resident.dialog.scout.candidates.expedition_blocked	SCOUT ON DUTY  /  DEPARTURE BLOCKED	РАЗВЕДЧИК НА СЛУЖБЕ  /  ОТПРАВЛЕНИЕ НЕДОСТУПНО
+resident.dialog.scout.candidates.ready.one	CHOOSE A RESIDENT  /  {0} READY	ВЫБЕРИТЕ ЖИТЕЛЯ  /  {0} ГОТОВ
+resident.dialog.scout.candidates.ready.many	CHOOSE A RESIDENT  /  {0} READY	ВЫБЕРИТЕ ЖИТЕЛЯ  /  ГОТОВО: {0}
+resident.dialog.scout.candidates.empty	No adult residents are in the settlement yet.	В поселении пока нет взрослых жителей.
+resident.dialog.scout.confirm.choose_resident	Choose a resident to continue	Выберите жителя, чтобы продолжить
+resident.dialog.scout.confirm.send.one	Send {0} for {1} day	Отправить {0} на {1} день
+resident.dialog.scout.confirm.send.few	Send {0} for {1} days	Отправить {0} на {1} дня
+resident.dialog.scout.confirm.send.many	Send {0} for {1} days	Отправить {0} на {1} дней
+resident.dialog.scout.confirm.appoint.one	Appoint {0}  /  {1} day	Назначить: {0}  /  {1} день
+resident.dialog.scout.confirm.appoint.few	Appoint {0}  /  {1} days	Назначить: {0}  /  {1} дня
+resident.dialog.scout.confirm.appoint.many	Appoint {0}  /  {1} days	Назначить: {0}  /  {1} дней
+resident.dialog.scout.action.decide_later	Decide Later	Решить позже
+resident.dialog.scout.action.cancel	Cancel	Отмена
+resident.dialog.scout.expedition.range	EXPEDITION RANGE	ДАЛЬНОСТЬ ЭКСПЕДИЦИИ
+resident.dialog.scout.expedition.duration.one	{0} DAY	{0} ДЕНЬ
+resident.dialog.scout.expedition.duration.few	{0} DAYS	{0} ДНЯ
+resident.dialog.scout.expedition.duration.many	{0} DAYS	{0} ДНЕЙ
+resident.dialog.scout.expedition.ration_summary	RATIONS NEEDED: {0}  /  AVAILABLE: {1}	НУЖНО ПАЙКОВ: {0}  /  В НАЛИЧИИ: {1}
+resident.dialog.scout.expedition.ends	Exploration ends: Day {0}, {1}	Разведка завершится: день {0}, {1}
+resident.dialog.scout.expedition.not_enough_provisions	Rations short by {0}. Store more provisions or shorten the expedition.	Не хватает пайков: {0}. Запасите провизию или сократите экспедицию.
+resident.dialog.scout.expedition.provisions_packed	Provisions are packed before the Scout leaves.	Провизия будет собрана перед отправлением разведчика.

@@ -31,12 +31,16 @@ namespace ProjectUnknown.Strategy
             Text label = CreateText(
                 "DurationLabel",
                 panel,
-                "EXPEDITION RANGE",
+                string.Empty,
                 10,
                 TextAnchor.MiddleLeft,
                 new Color(0.92f, 0.70f, 0.34f, 1f));
             label.fontStyle = FontStyle.Bold;
             SetTopLeft(label.rectTransform, 15f, 7f, 205f, 17f);
+            StrategyLocalizedTextBinding.Bind(
+                label,
+                StrategyLocalizationTables.Residents,
+                "resident.dialog.scout.expedition.range");
 
             durationMinusButton = CreateActionButton(
                 "DurationMinusButton",
@@ -54,7 +58,7 @@ namespace ProjectUnknown.Strategy
             durationDaysText = CreateText(
                 "DurationDays",
                 panel,
-                "1 DAY",
+                string.Empty,
                 14,
                 TextAnchor.MiddleCenter,
                 Color.white);
@@ -144,39 +148,49 @@ namespace ProjectUnknown.Strategy
             float available = GetAvailableExpeditionRations();
             bool affordable = available + RationComparisonEpsilon >= required;
 
-            durationDaysText.text = selectedExpeditionDays == 1
-                ? "1 DAY"
-                : selectedExpeditionDays + " DAYS";
-            rationSummaryText.text = "COST " + FormatRations(required)
-                + " RATIONS  /  AVAILABLE " + FormatAvailableRations(available);
+            SetLocalizedText(
+                durationDaysText,
+                GetDayFormKey(
+                    "resident.dialog.scout.expedition.duration",
+                    selectedExpeditionDays),
+                selectedExpeditionDays);
+            SetLocalizedText(
+                rationSummaryText,
+                "resident.dialog.scout.expedition.ration_summary",
+                FormatRations(required),
+                FormatAvailableRations(available));
             rationSummaryText.color = affordable
                 ? new Color(0.88f, 0.82f, 0.63f, 1f)
                 : new Color(1f, 0.62f, 0.42f, 1f);
 
             StrategyCalendarSnapshot now = StrategyDayNightCycleController.CurrentCalendarSnapshot;
-            expeditionEndText.text = "Exploration ends: Day "
-                + (now.DisplayDay + selectedExpeditionDays)
-                + ", "
-                + now.ClockText;
+            SetLocalizedText(
+                expeditionEndText,
+                "resident.dialog.scout.expedition.ends",
+                now.DisplayDay + selectedExpeditionDays,
+                now.ClockText);
 
-            string staleReason = GetSelectionStaleReason();
-            if (!string.IsNullOrEmpty(staleReason))
+            string staleReasonKey = GetSelectionStaleReasonKey();
+            if (!string.IsNullOrEmpty(staleReasonKey))
             {
-                durationWarningText.text = staleReason;
+                SetLocalizedText(durationWarningText, staleReasonKey);
             }
             else if (!affordable)
             {
-                durationWarningText.text = "Not enough provisions. Store "
-                    + FormatRations(required - available)
-                    + " more rations or shorten the expedition.";
+                SetLocalizedText(
+                    durationWarningText,
+                    "resident.dialog.scout.expedition.not_enough_provisions",
+                    FormatRations(required - available));
             }
             else
             {
-                durationWarningText.text = "Provisions are packed before the Scout leaves.";
+                SetLocalizedText(
+                    durationWarningText,
+                    "resident.dialog.scout.expedition.provisions_packed");
                 durationWarningText.color = new Color(0.66f, 0.78f, 0.70f, 1f);
             }
 
-            if (!affordable || !string.IsNullOrEmpty(staleReason))
+            if (!affordable || !string.IsNullOrEmpty(staleReasonKey))
             {
                 durationWarningText.color = new Color(1f, 0.62f, 0.42f, 1f);
             }
@@ -215,7 +229,7 @@ namespace ProjectUnknown.Strategy
             return lodge != null ? Mathf.Max(0f, lodge.GetAvailableExpeditionRations()) : 0f;
         }
 
-        private string GetSelectionStaleReason()
+        private string GetSelectionStaleReasonKey()
         {
             if (selectedResident == null)
             {
@@ -228,18 +242,25 @@ namespace ProjectUnknown.Strategy
             }
 
             return expeditionOnlyMode
-                ? "This Scout or Lodge is no longer ready to depart."
-                : "The selected resident is no longer available for the trail.";
+                ? "resident.dialog.scout.status.scout_lodge_not_ready"
+                : "resident.dialog.scout.status.selected_unavailable_for_trail";
         }
 
         private static string FormatRations(float value)
         {
-            return Mathf.Max(0f, value).ToString("0.#", CultureInfo.InvariantCulture);
+            return Mathf.Max(0f, value).ToString("0.#", GetNumberCulture());
         }
 
         private static string FormatAvailableRations(float value)
         {
-            return Mathf.Max(0f, value).ToString("0.0", CultureInfo.InvariantCulture);
+            return Mathf.Max(0f, value).ToString("0.0", GetNumberCulture());
+        }
+
+        private static CultureInfo GetNumberCulture()
+        {
+            return StrategyLocalization.CurrentLanguage == StrategyGameLanguage.Russian
+                ? CultureInfo.GetCultureInfo("ru-RU")
+                : CultureInfo.GetCultureInfo("en-US");
         }
     }
 }

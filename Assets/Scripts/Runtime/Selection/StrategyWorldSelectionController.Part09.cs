@@ -56,11 +56,11 @@ namespace ProjectUnknown.Strategy
             SetResidentHudVisible(true);
 
             hudTitleText.text = resident.FullName;
-            hudSubtitleText.text = resident.DisplayAgeYears
-                + "y "
-                + GetResidentLifeStageTitle(resident)
-                + " | "
-                + GetResidentGenderTitle(resident.Gender);
+            hudSubtitleText.text = L(
+                "resident.subtitle",
+                resident.DisplayAgeYears,
+                GetResidentLifeStageTitle(resident),
+                GetResidentGenderTitle(resident.Gender));
             SetPreviewSprite(StrategyResidentSpriteFactory.GetPortraitSprite(
                 resident.Gender,
                 resident.VisualVariant,
@@ -75,20 +75,20 @@ namespace ProjectUnknown.Strategy
                 roleColor);
             SetResidentChip(
                 ResidentChipHome,
-                resident.Home != null ? "Housed" : "Camp",
+                LocalizedValue(resident.Home != null ? "Housed" : "Camp"),
                 GetResidentHomeIcon(resident),
                 GetResidentHomeFallback(resident),
                 GetResidentHomeColor(resident));
             SetResidentChip(
                 ResidentChipFood,
-                resident.IsStarving ? "Starving" : resident.IsHungry ? "Hungry" : "Fed",
+                LocalizedValue(resident.IsStarving ? "Starving" : resident.IsHungry ? "Hungry" : "Fed"),
                 StrategyResourceIconFactory.GetSprite(StrategyResourceType.Game),
                 "F",
                 GetResidentFoodColor(resident));
 
             SetResidentRow(
                 ResidentRowTask,
-                "Current Task",
+                L("resident.current_task"),
                 ToSentenceCase(GetResidentStatus(resident)),
                 GetResidentTaskDetail(resident),
                 GetResidentProfessionIcon(resident),
@@ -96,7 +96,7 @@ namespace ProjectUnknown.Strategy
                 GetResidentTaskColor(resident));
             SetResidentRow(
                 ResidentRowHome,
-                "Home",
+                L("label.home"),
                 StrategyResidentHudText.GetHomeTitle(resident),
                 GetResidentHomeDetail(resident),
                 GetResidentHomeIcon(resident),
@@ -104,16 +104,18 @@ namespace ProjectUnknown.Strategy
                 GetResidentHomeColor(resident));
             SetResidentRow(
                 ResidentRowFood,
-                "Food",
-                resident.IsStarving ? "Starving" : resident.IsHungry ? "Needs food" : "Fed",
+                L("label.food"),
+                LocalizedValue(resident.IsStarving ? "Starving" : resident.IsHungry ? "Needs food" : "Fed"),
                 GetResidentFoodDetail(resident),
                 StrategyResourceIconFactory.GetSprite(StrategyResourceType.Fish),
                 "F",
                 GetResidentFoodColor(resident));
             SetResidentRow(
                 ResidentRowFamily,
-                "Family",
-                string.IsNullOrWhiteSpace(resident.FamilyName) ? "Unrecorded family" : resident.FamilyName + " family",
+                L("label.family"),
+                string.IsNullOrWhiteSpace(resident.FamilyName)
+                    ? L("resident.unrecorded_family")
+                    : L("resident.family_name", resident.FamilyName),
                 GetResidentFamilyDetail(resident),
                 GetResidentPortraitIcon(resident),
                 "R",
@@ -202,7 +204,7 @@ namespace ProjectUnknown.Strategy
         {
             residentRowBackgrounds[index].color = color;
             residentRowAccentImages[index].color = GetAccentColor(color);
-            residentRowTitleTexts[index].text = label + " - " + title;
+            residentRowTitleTexts[index].text = L("format.row_title", label, title);
             residentRowBodyTexts[index].text = body;
             SetResidentIcon(residentRowIconImages[index], residentRowIconTexts[index], icon, fallback);
         }
@@ -345,54 +347,59 @@ namespace ProjectUnknown.Strategy
         {
             if (resident.IsPendingRefugee)
             {
-                return "Awaiting settlement decision";
+                return L("resident.task.awaiting_decision");
             }
 
             if (!resident.IsAdult)
             {
-                return "Too young for assigned work";
+                return L("resident.task.too_young");
             }
 
             if (resident.HasWorkplace || resident.HasConstructionAssignment)
             {
-                return "Assigned as " + GetResidentRoleTitle(resident);
+                return L("resident.task.assigned_as", GetResidentRoleTitle(resident));
             }
 
-            return "Available for assignment";
+            return L("resident.task.available");
         }
 
         private static string GetResidentHomeDetail(StrategyResidentAgent resident)
         {
             if (resident.Home != null)
             {
-                return "Assigned to this home";
+                return L("resident.home.assigned");
             }
 
             if (resident.ConstructionWillBecomeHome)
             {
-                return "House is under construction";
+                return L("resident.home.under_construction");
             }
 
-            return resident.IsPendingRefugee ? "Temporary refugee camp" : "Waiting for a home";
+            return resident.IsPendingRefugee
+                ? L("resident.home.refugee_camp")
+                : L("resident.home.waiting");
         }
 
         private static string GetResidentFoodDetail(StrategyResidentAgent resident)
         {
             if (!resident.IsHungry)
             {
-                return "Rations are currently covered";
+                return L("resident.food.covered");
             }
 
-            return resident.NutritionStatusText + " for " + resident.DaysHungry + "d";
+            return L(
+                "resident.food.hungry_duration",
+                LocalizedValue(resident.IsStarving ? "Starving" : "Hungry"),
+                resident.DaysHungry);
         }
 
         private static string GetResidentFamilyDetail(StrategyResidentAgent resident)
         {
             int parentCount = (resident.FatherId > 0 ? 1 : 0) + (resident.MotherId > 0 ? 1 : 0);
-            return "Parents recorded: "
-                + parentCount
-                + " | Children: "
-                + resident.ChildIds.Count;
+            return L(
+                "resident.family_detail",
+                parentCount,
+                resident.ChildIds.Count);
         }
 
         private static Color GetResidentTaskColor(StrategyResidentAgent resident)

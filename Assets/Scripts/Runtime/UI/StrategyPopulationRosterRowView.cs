@@ -17,7 +17,10 @@ namespace ProjectUnknown.Strategy
         public void Set(StrategyResidentAgent resident, int index)
         {
             Name.text = resident.FullName;
-            Age.text = resident.DisplayAgeYears + "y";
+            Age.text = StrategyLocalization.Get(
+                StrategyLocalizationTables.Residents,
+                "resident.age.short",
+                resident.DisplayAgeYears);
             Home.text = StrategyResidentHudText.GetHomeTitle(resident);
             Role.text = StrategyResidentHudText.GetRoleTitle(resident);
             Status.text = StrategyResidentHudText.GetStatusText(resident);

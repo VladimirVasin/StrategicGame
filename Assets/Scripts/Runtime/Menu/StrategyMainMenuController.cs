@@ -14,6 +14,7 @@ namespace ProjectUnknown.Strategy
         private Button settingsButton;
         private Button quitButton;
         private Button settingsBackButton;
+        private Button languageButton;
         private GameObject actionsRoot;
         private GameObject settingsRoot;
         private GameObject loadingRoot;
@@ -21,6 +22,7 @@ namespace ProjectUnknown.Strategy
         private Text preloadStatusText;
         private Text loadingStatusText;
         private Text loadingPercentText;
+        private Text languageButtonLabel;
         private Image progressFill;
         private Slider masterSlider;
         private Slider musicSlider;
@@ -55,6 +57,7 @@ namespace ProjectUnknown.Strategy
             configured = preloader != null;
             BuildView();
             BindActions();
+            StrategyLocalization.LanguageChanged += RefreshLocalizedView;
             RefreshSettingsControls();
             RefreshView();
             StartCoroutine(StartMenuSfxAfterFirstFrame());
@@ -89,6 +92,7 @@ namespace ProjectUnknown.Strategy
             uiScaleSlider.onValueChanged.AddListener(ChangeUiScale);
             fullscreenToggle.onValueChanged.AddListener(ChangeFullscreen);
             reducedMotionToggle.onValueChanged.AddListener(ChangeReducedMotion);
+            languageButton.onClick.AddListener(ChangeLanguage);
         }
 
         private void RefreshView()
@@ -98,7 +102,9 @@ namespace ProjectUnknown.Strategy
             newButton.interactable = !launching;
             settingsButton.interactable = !launching;
             quitButton.interactable = !launching;
-            continueDetailText.text = preloader != null ? preloader.SaveSummary : "No saved settlement";
+            continueDetailText.text = preloader != null
+                ? preloader.SaveSummary
+                : StrategyLocalization.Get(StrategyLocalizationTables.Menu, "menu.save.none");
 
             if (!launching)
             {
@@ -107,7 +113,11 @@ namespace ProjectUnknown.Strategy
                 settingsRoot.SetActive(settingsOpen);
                 if (preloader != null)
                 {
-                    preloadStatusText.text = preloader.Stage + "  " + Mathf.RoundToInt(preloader.Progress * 100f) + "%";
+                    preloadStatusText.text = StrategyLocalization.Get(
+                        StrategyLocalizationTables.Menu,
+                        "menu.preload.progress",
+                        preloader.Stage,
+                        Mathf.RoundToInt(preloader.Progress * 100f));
                 }
 
                 return;
@@ -117,7 +127,9 @@ namespace ProjectUnknown.Strategy
             settingsRoot.SetActive(false);
             loadingRoot.SetActive(true);
             float progress = preloader != null ? preloader.Progress : 0f;
-            loadingStatusText.text = preloader != null ? preloader.Stage : "Preparing settlement";
+            loadingStatusText.text = preloader != null
+                ? preloader.Stage
+                : StrategyLocalization.Get(StrategyLocalizationTables.Menu, "menu.preload.preparing_settlement");
             loadingPercentText.text = Mathf.RoundToInt(progress * 100f) + "%";
             RectTransform fillRect = progressFill.rectTransform;
             fillRect.anchorMax = new Vector2(Mathf.Clamp01(progress), 1f);
@@ -202,6 +214,7 @@ namespace ProjectUnknown.Strategy
             uiScaleSlider.SetValueWithoutNotify(StrategyGameSettings.UiScale);
             fullscreenToggle.SetIsOnWithoutNotify(StrategyGameSettings.Fullscreen);
             reducedMotionToggle.SetIsOnWithoutNotify(StrategyGameSettings.ReducedMotion);
+            RefreshLanguageLabel();
         }
 
         private static void ChangeMasterVolume(float value)
@@ -234,6 +247,52 @@ namespace ProjectUnknown.Strategy
         {
             StrategyGameSettings.SetReducedMotion(value);
             StrategyHudSfxAudio.Play(StrategyHudSfxKind.Step);
+        }
+
+        private void ChangeLanguage()
+        {
+            StrategyGameLanguage next = StrategyGameSettings.Language == StrategyGameLanguage.Russian
+                ? StrategyGameLanguage.English
+                : StrategyGameLanguage.Russian;
+            StrategyGameSettings.SetLanguage(next);
+            RefreshLocalizedView();
+            StrategyHudSfxAudio.Play(StrategyHudSfxKind.Step);
+        }
+
+        private void RefreshLocalizedView()
+        {
+            if (this == null)
+            {
+                StrategyLocalization.LanguageChanged -= RefreshLocalizedView;
+                return;
+            }
+
+            StrategyLocalizedTextBinding[] bindings =
+                GetComponentsInChildren<StrategyLocalizedTextBinding>(true);
+            for (int index = 0; index < bindings.Length; index++)
+            {
+                bindings[index].Refresh();
+            }
+
+            RefreshLanguageLabel();
+        }
+
+        private void RefreshLanguageLabel()
+        {
+            if (languageButtonLabel == null)
+            {
+                return;
+            }
+
+            string key = StrategyGameSettings.Language == StrategyGameLanguage.English
+                ? "settings.language.english"
+                : "settings.language.russian";
+            languageButtonLabel.text = StrategyLocalization.Get(StrategyLocalizationTables.Common, key);
+        }
+
+        private void OnDestroy()
+        {
+            StrategyLocalization.LanguageChanged -= RefreshLocalizedView;
         }
 
         private IEnumerator StartMenuSfxAfterFirstFrame()

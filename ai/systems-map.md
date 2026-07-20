@@ -34,6 +34,36 @@ Impact hints:
 - Package and Unity version changes can affect rendering, input, tests, generated project files, and serialization.
 - Update `project-overview.md`, `system-tree.md`, and this owner map when major dependencies or project structure change.
 
+### Localization Foundation
+
+Responsibilities:
+
+- Own the supported Russian and English locales, Russian first-launch default, saved language preference, and live language-change signal.
+- Resolve semantic String Table keys and Smart String arguments for runtime UI and content definitions.
+- Generate deterministic Unity Localization assets from bilingual UTF-8 TSV sources and reject incomplete or structurally inconsistent catalogs.
+- Provide a bounded exact-match bridge for remaining legacy `UnityEngine.UI.Text` strings while those surfaces migrate to semantic keys.
+
+Primary files/assets:
+
+- `Assets/Scripts/Runtime/Localization/`
+- `Assets/Editor/Localization/`
+- `Assets/Localization/README.md`
+- `Assets/Localization/Source/`
+- `Assets/Localization/Generated/`
+- `Assets/Localization/Locales/`
+- `Assets/Localization/LocalizationSettings.asset`
+- `Assets/Scripts/Runtime/Menu/StrategyGameSettings.cs`
+- `Assets/Tests/EditMode/StrategyLocalizationFoundationTests.cs`
+- `Assets/Tests/EditMode/StrategyLocalizationTests.cs`
+- `Packages/manifest.json`
+
+Impact hints:
+
+- Treat TSV sources as authoritative; regenerate assets after catalog changes instead of editing generated String Tables by hand.
+- Every new player-facing string must add both English and Russian values in the same change. Prefer stable semantic keys; use Legacy only as a migration seam.
+- Keep gameplay/save identifiers, debug and event-log diagnostic labels, comments, and technical documentation in English.
+- Language changes are presentation-only and must refresh open UI without rebuilding or mutating gameplay state.
+
 ### Rendering Foundation
 
 Responsibilities:

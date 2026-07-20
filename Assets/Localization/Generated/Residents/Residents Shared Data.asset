@@ -1,0 +1,852 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: Residents Shared Data
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.SharedTableData
+  m_TableCollectionName: Residents
+  m_TableCollectionNameGuidString: a37ab75b86fc9ff49a2fe288f8edc06f
+  m_Entries:
+  - m_Id: 183701882425344
+    m_Key: city_item.cats.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951296
+    m_Key: city_item.cats.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951297
+    m_Key: city_item.cats.effect
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951298
+    m_Key: resident_item.holey_spoon.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951299
+    m_Key: resident_item.holey_spoon.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951300
+    m_Key: resident.age.short
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951301
+    m_Key: resident.role.settler
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951302
+    m_Key: resident.role.child
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951303
+    m_Key: resident.role.householder
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951304
+    m_Key: resident.role.builder
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951305
+    m_Key: resident.role.lumberjack
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951306
+    m_Key: resident.role.stonecutter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951307
+    m_Key: resident.role.miner
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951308
+    m_Key: resident.role.coal_miner
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951309
+    m_Key: resident.role.clay_digger
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951310
+    m_Key: resident.role.sawyer
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951311
+    m_Key: resident.role.potter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951312
+    m_Key: resident.role.blacksmith
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951313
+    m_Key: resident.role.hunter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951314
+    m_Key: resident.role.fisher
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951315
+    m_Key: resident.role.forager
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951316
+    m_Key: resident.role.scout
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951317
+    m_Key: resident.role.hauler
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951318
+    m_Key: resident.home.unknown
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951319
+    m_Key: resident.home.house
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951320
+    m_Key: resident.home.future_house
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951321
+    m_Key: resident.home.refugee_camp
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951322
+    m_Key: resident.home.camp
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951323
+    m_Key: resident.common.unknown
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951324
+    m_Key: resident.food.hungry_days
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951325
+    m_Key: resident.gender.male
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951326
+    m_Key: resident.gender.female
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951327
+    m_Key: resident.life_stage.child
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951328
+    m_Key: resident.life_stage.adult
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951329
+    m_Key: resident.status.hungry_suffix
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951330
+    m_Key: resident.status.cold_suffix
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951331
+    m_Key: resident.status.returning_to_scout_lodge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951332
+    m_Key: resident.status.ready_for_expedition
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951333
+    m_Key: resident.time.days_hours
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951334
+    m_Key: resident.time.hours
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951335
+    m_Key: resident.status.expedition_remaining
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951336
+    m_Key: profession.lumberjack.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951337
+    m_Key: profession.lumberjack.subtitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951338
+    m_Key: profession.stonecutter.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951339
+    m_Key: profession.stonecutter.subtitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951340
+    m_Key: profession.miner.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951341
+    m_Key: profession.miner.subtitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951342
+    m_Key: profession.coalminer.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951343
+    m_Key: profession.coalminer.subtitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951344
+    m_Key: profession.claydigger.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951345
+    m_Key: profession.claydigger.subtitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951346
+    m_Key: profession.sawyer.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951347
+    m_Key: profession.sawyer.subtitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951348
+    m_Key: profession.potter.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951349
+    m_Key: profession.potter.subtitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951350
+    m_Key: profession.blacksmith.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951351
+    m_Key: profession.blacksmith.subtitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951352
+    m_Key: profession.hunter.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951353
+    m_Key: profession.hunter.subtitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951354
+    m_Key: profession.fisher.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951355
+    m_Key: profession.fisher.subtitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951356
+    m_Key: profession.forager.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951357
+    m_Key: profession.forager.subtitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951358
+    m_Key: profession.scout.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951359
+    m_Key: profession.scout.subtitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951360
+    m_Key: profession.storageworker.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951361
+    m_Key: profession.storageworker.subtitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951362
+    m_Key: profession.builder.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951363
+    m_Key: profession.builder.subtitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951364
+    m_Key: profession.priority.construction
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951365
+    m_Key: profession.priority.food
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951366
+    m_Key: profession.priority.logistics
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951367
+    m_Key: profession.priority.wood
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951368
+    m_Key: profession.priority.stone
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951369
+    m_Key: profession.priority.planks
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951370
+    m_Key: profession.priority.iron
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951371
+    m_Key: profession.priority.coal
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951372
+    m_Key: profession.priority.clay
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951373
+    m_Key: profession.priority.pottery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951374
+    m_Key: profession.priority.tools
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951375
+    m_Key: resident.auto_workforce.ready
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951376
+    m_Key: resident.auto_workforce.enabled
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951377
+    m_Key: resident.auto_workforce.disabled
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951378
+    m_Key: resident.auto_workforce.no_free_adults
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951379
+    m_Key: resident.auto_workforce.assigned
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951380
+    m_Key: resident.auto_workforce.released_for_demand
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951381
+    m_Key: resident.auto_workforce.released_disabled
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951382
+    m_Key: resident.auto_workforce.released_surplus
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951383
+    m_Key: resident.auto_workforce.no_enabled_slot
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951384
+    m_Key: resident.dialog.refugee.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951385
+    m_Key: resident.dialog.refugee.subtitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951386
+    m_Key: resident.dialog.refugee.body
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951387
+    m_Key: resident.dialog.refugee.action.accept
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951388
+    m_Key: resident.dialog.refugee.action.refuse
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951389
+    m_Key: resident.dialog.refugee.family.no_data
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951390
+    m_Key: resident.dialog.refugee.family.line.one
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951391
+    m_Key: resident.dialog.refugee.family.line.few
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951392
+    m_Key: resident.dialog.refugee.family.line.many
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951393
+    m_Key: resident.dialog.refugee.role.family_member
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951394
+    m_Key: resident.dialog.refugee.role.father
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951395
+    m_Key: resident.dialog.refugee.role.mother
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951396
+    m_Key: resident.dialog.refugee.role.son
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951397
+    m_Key: resident.dialog.refugee.role.daughter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951398
+    m_Key: resident.dialog.scout.compass
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951399
+    m_Key: resident.dialog.scout.eyebrow
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951400
+    m_Key: resident.dialog.scout.briefing.label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951401
+    m_Key: resident.dialog.scout.briefing.mechanics
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951402
+    m_Key: resident.dialog.scout.briefing.capacity
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951403
+    m_Key: resident.dialog.scout.mode.introduction.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951404
+    m_Key: resident.dialog.scout.mode.introduction.subtitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951405
+    m_Key: resident.dialog.scout.mode.introduction.story
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951406
+    m_Key: resident.dialog.scout.mode.appointment.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951407
+    m_Key: resident.dialog.scout.mode.appointment.subtitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951408
+    m_Key: resident.dialog.scout.mode.appointment.story
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951409
+    m_Key: resident.dialog.scout.mode.expedition.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951410
+    m_Key: resident.dialog.scout.mode.expedition.subtitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951411
+    m_Key: resident.dialog.scout.mode.expedition.story
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951412
+    m_Key: resident.dialog.scout.row.blocked.scout_lodge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951413
+    m_Key: resident.dialog.scout.status.selected_unavailable_choose_another
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951414
+    m_Key: resident.dialog.scout.status.resident_unavailable_for_trail
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951415
+    m_Key: resident.dialog.scout.status.ready_choose_range
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951416
+    m_Key: resident.dialog.scout.status.ready_first_map
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951417
+    m_Key: resident.dialog.scout.status.ready_lodge_compass
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951418
+    m_Key: resident.dialog.scout.status.scout_lodge_not_ready
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951419
+    m_Key: resident.dialog.scout.status.chosen_unavailable_choose_another
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951420
+    m_Key: resident.dialog.scout.status.required_rations_missing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951421
+    m_Key: resident.dialog.scout.status.departure_failed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951422
+    m_Key: resident.dialog.scout.status.no_free_adult
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951423
+    m_Key: resident.dialog.scout.status.first_expedition_needs_rations
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951424
+    m_Key: resident.dialog.scout.status.selected_unavailable_for_trail
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951425
+    m_Key: resident.dialog.scout.candidates.expedition_ready
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951426
+    m_Key: resident.dialog.scout.candidates.expedition_blocked
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951427
+    m_Key: resident.dialog.scout.candidates.ready.one
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951428
+    m_Key: resident.dialog.scout.candidates.ready.many
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951429
+    m_Key: resident.dialog.scout.candidates.empty
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951430
+    m_Key: resident.dialog.scout.confirm.choose_resident
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951431
+    m_Key: resident.dialog.scout.confirm.send.one
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951432
+    m_Key: resident.dialog.scout.confirm.send.few
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951433
+    m_Key: resident.dialog.scout.confirm.send.many
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951434
+    m_Key: resident.dialog.scout.confirm.appoint.one
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951435
+    m_Key: resident.dialog.scout.confirm.appoint.few
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951436
+    m_Key: resident.dialog.scout.confirm.appoint.many
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951437
+    m_Key: resident.dialog.scout.action.decide_later
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951438
+    m_Key: resident.dialog.scout.action.cancel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951439
+    m_Key: resident.dialog.scout.expedition.range
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951440
+    m_Key: resident.dialog.scout.expedition.duration.one
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951441
+    m_Key: resident.dialog.scout.expedition.duration.few
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951442
+    m_Key: resident.dialog.scout.expedition.duration.many
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951443
+    m_Key: resident.dialog.scout.expedition.ration_summary
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951444
+    m_Key: resident.dialog.scout.expedition.ends
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951445
+    m_Key: resident.dialog.scout.expedition.not_enough_provisions
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951446
+    m_Key: resident.dialog.scout.expedition.provisions_packed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951447
+    m_Key: resident.family_tree.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951448
+    m_Key: resident.family_tree.back
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951449
+    m_Key: resident.family_tree.empty
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951450
+    m_Key: resident.family_tree.no_residents
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951451
+    m_Key: resident.family_tree.summary
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951452
+    m_Key: resident.family_tree.unknown_family
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951453
+    m_Key: resident.family_tree.family_header
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951454
+    m_Key: resident.family_tree.family_header_index
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951455
+    m_Key: resident.family_tree.member_count
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951456
+    m_Key: resident.family_tree.member_status
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951457
+    m_Key: resident.family_tree.deceased_male
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951458
+    m_Key: resident.family_tree.deceased_female
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951459
+    m_Key: resident.family_tree.relationship.father
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951460
+    m_Key: resident.family_tree.relationship.mother
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951461
+    m_Key: resident.family_tree.relationship.son
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951462
+    m_Key: resident.family_tree.relationship.daughter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951463
+    m_Key: resident.family_tree.relationship.husband
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951464
+    m_Key: resident.family_tree.relationship.wife
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951465
+    m_Key: resident.family_tree.relationship.brother
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951466
+    m_Key: resident.family_tree.relationship.sister
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951467
+    m_Key: resident.family_tree.relationship.grandfather
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951468
+    m_Key: resident.family_tree.relationship.grandmother
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951469
+    m_Key: resident.family_tree.relationship.grandson
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951470
+    m_Key: resident.family_tree.relationship.granddaughter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951471
+    m_Key: resident.family_tree.relationship.uncle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951472
+    m_Key: resident.family_tree.relationship.aunt
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951473
+    m_Key: resident.family_tree.relationship.nephew
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951474
+    m_Key: resident.family_tree.relationship.niece
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951475
+    m_Key: resident.family_tree.relationship.cousin
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951476
+    m_Key: resident.family_tree.relationship.kin
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951477
+    m_Key: resident.scout_assignment.unknown_resident
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951478
+    m_Key: resident.scout_assignment.unavailable
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951479
+    m_Key: resident.scout_assignment.age_role
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951480
+    m_Key: resident.scout_assignment.selected
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951481
+    m_Key: resident.scout_assignment.reassign_from
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951482
+    m_Key: resident.scout_assignment.ready_for_trail
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951483
+    m_Key: resident.scout_assignment.unavailable_for_duty
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951484
+    m_Key: resident.scout_assignment.block.resident_unavailable
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951485
+    m_Key: resident.scout_assignment.block.already_assigned
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701941145600
+    m_Key: resident.scout_assignment.block.slot_filled
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701941145601
+    m_Key: resident.scout_assignment.block.adults_only
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701941145602
+    m_Key: resident.scout_assignment.block.not_joined
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701941145603
+    m_Key: resident.scout_assignment.block.construction
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701941145604
+    m_Key: resident.scout_assignment.block.householder
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701941145605
+    m_Key: resident.scout_assignment.block.currently
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701941145606
+    m_Key: resident.reward.city.heading
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701941145607
+    m_Key: resident.reward.city.collection
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701941145608
+    m_Key: resident.reward.city.type_unique
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701941145609
+    m_Key: resident.reward.city.type_regular
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701941145610
+    m_Key: resident.reward.city.footer
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701941145611
+    m_Key: resident.reward.city.confirm
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701941145612
+    m_Key: resident.reward.personal.category
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701941145613
+    m_Key: resident.reward.personal.owner
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701941145614
+    m_Key: resident.reward.personal.confirm
+    m_Metadata:
+      m_Items: []
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 465534772507312162
+  references:
+    version: 2
+    RefIds:
+    - rid: 465534772507312162
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1784493438870

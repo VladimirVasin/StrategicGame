@@ -132,12 +132,12 @@ namespace ProjectUnknown.Strategy
         {
             return quality switch
             {
-                StrategyDishQuality.Poor => "Poor",
-                StrategyDishQuality.Common => "Common",
-                StrategyDishQuality.Hearty => "Hearty",
-                StrategyDishQuality.Fine => "Fine",
-                StrategyDishQuality.Feast => "Feast",
-                _ => "Unknown"
+                StrategyDishQuality.Poor => R("dish.quality.poor", "Poor"),
+                StrategyDishQuality.Common => R("dish.quality.common", "Common"),
+                StrategyDishQuality.Hearty => R("dish.quality.hearty", "Hearty"),
+                StrategyDishQuality.Fine => R("dish.quality.fine", "Fine"),
+                StrategyDishQuality.Feast => R("dish.quality.feast", "Feast"),
+                _ => R("dish.quality.unknown", "Unknown")
             };
         }
 
@@ -183,7 +183,20 @@ namespace ProjectUnknown.Strategy
             float rationValue,
             params StrategyDishIngredient[] ingredients)
         {
-            return new StrategyDishRecipe(id, displayName, quality, rationValue, ingredients);
+            return new StrategyDishRecipe(
+                id,
+                displayName,
+                quality,
+                rationValue,
+                StrategyLocalizationTables.Resources,
+                "dish." + id + ".name",
+                ingredients);
+        }
+
+        private static string R(string key, string fallback)
+        {
+            string localized = StrategyLocalization.Get(StrategyLocalizationTables.Resources, key);
+            return localized == key ? fallback : localized;
         }
 
         private static StrategyDishIngredient I(StrategyResourceType resource, int amount)

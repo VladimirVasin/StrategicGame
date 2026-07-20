@@ -61,12 +61,16 @@ namespace ProjectUnknown.Strategy
             Text category = CreateText(
                 "Category",
                 cardRoot,
-                "ЛИЧНАЯ НАХОДКА СКАУТА",
+                string.Empty,
                 13,
                 TextAnchor.MiddleCenter,
                 new Color(0.95f, 0.72f, 0.32f));
             category.fontStyle = FontStyle.Bold;
             SetTopStretch(category.rectTransform, 28f, 20f, 28f, 24f);
+            StrategyLocalizedTextBinding.Bind(
+                category,
+                StrategyLocalizationTables.Residents,
+                "resident.reward.personal.category");
 
             titleText = CreateText(
                 "Title",
@@ -130,12 +134,16 @@ namespace ProjectUnknown.Strategy
             Text buttonLabel = CreateText(
                 "Label",
                 buttonRoot,
-                "ЗАБРАТЬ",
+                string.Empty,
                 16,
                 TextAnchor.MiddleCenter,
                 Color.white);
             buttonLabel.fontStyle = FontStyle.Bold;
             Stretch(buttonLabel.rectTransform);
+            StrategyLocalizedTextBinding.Bind(
+                buttonLabel,
+                StrategyLocalizationTables.Residents,
+                "resident.reward.personal.confirm");
             root.SetActive(false);
         }
 
@@ -148,7 +156,10 @@ namespace ProjectUnknown.Strategy
             titleText.text = string.IsNullOrWhiteSpace(headline)
                 ? definition.Title
                 : headline;
-            ownerText.text = "Теперь у " + resident.FullName;
+            ownerText.text = StrategyLocalization.Get(
+                StrategyLocalizationTables.Residents,
+                "resident.reward.personal.owner",
+                resident.FullName);
             descriptionText.text = definition.Description;
             artworkImage.sprite = artwork;
             artworkImage.enabled = artwork != null;

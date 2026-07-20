@@ -31,6 +31,8 @@ namespace ProjectUnknown.Strategy
         private Button mainMenuButton;
         private Button quitButton;
         private Button settingsBackButton;
+        private Button languageButton;
+        private Text languageButtonLabel;
         private Text statusText;
         private Slider masterSlider;
         private Slider musicSlider;
@@ -38,6 +40,7 @@ namespace ProjectUnknown.Strategy
         private Slider uiScaleSlider;
         private Toggle fullscreenToggle;
         private Toggle reducedMotionToggle;
+        private string statusLocalizationKey = string.Empty;
         private bool configured;
         private bool isOpen;
         private bool pauseLockHeld;
@@ -81,6 +84,7 @@ namespace ProjectUnknown.Strategy
 
             BuildView();
             BindActions();
+            StrategyLocalization.LanguageChanged += RefreshLocalizedView;
             panelTransition.SetVisible(false, true);
             page = StrategyPauseMenuPage.Actions;
             StrategyDebugLogger.Info("PauseMenu", "Configured");
@@ -123,6 +127,7 @@ namespace ProjectUnknown.Strategy
 
             isOpen = true;
             page = StrategyPauseMenuPage.Actions;
+            statusLocalizationKey = string.Empty;
             statusText.text = string.Empty;
             RefreshPage();
             RefreshInputContext();
@@ -210,7 +215,7 @@ namespace ProjectUnknown.Strategy
 
             bool saved = saveSystem.SaveNow();
             SetStatus(
-                saved ? "Settlement saved." : "Save failed. Check the event log for details.",
+                saved ? "pause.saved" : "pause.save_failed",
                 saved ? new Color(0.58f, 0.86f, 0.66f) : new Color(0.94f, 0.48f, 0.42f));
             PlaySfx(saved ? StrategyHudSfxKind.Confirm : StrategyHudSfxKind.Deny);
         }
@@ -218,20 +223,20 @@ namespace ProjectUnknown.Strategy
         private void ConfirmReturnToMainMenu()
         {
             confirmationDialog.Show(
-                "Return to main menu?",
-                "Unsaved settlement progress will be lost.",
-                "Return",
-                "Stay",
+                StrategyLocalization.Get(StrategyLocalizationTables.Menu, "pause.confirm.return.title"),
+                StrategyLocalization.Get(StrategyLocalizationTables.Menu, "pause.confirm.unsaved_body"),
+                StrategyLocalization.Get(StrategyLocalizationTables.Menu, "pause.confirm.return.accept"),
+                StrategyLocalization.Get(StrategyLocalizationTables.Menu, "pause.confirm.stay"),
                 BeginReturnToMainMenu);
         }
 
         private void ConfirmQuit()
         {
             confirmationDialog.Show(
-                "Quit the game?",
-                "Unsaved settlement progress will be lost.",
-                "Quit",
-                "Stay",
+                StrategyLocalization.Get(StrategyLocalizationTables.Menu, "pause.confirm.quit.title"),
+                StrategyLocalization.Get(StrategyLocalizationTables.Menu, "pause.confirm.unsaved_body"),
+                StrategyLocalization.Get(StrategyLocalizationTables.Menu, "pause.confirm.quit.accept"),
+                StrategyLocalization.Get(StrategyLocalizationTables.Menu, "pause.confirm.stay"),
                 QuitGame);
         }
 
@@ -244,7 +249,7 @@ namespace ProjectUnknown.Strategy
 
             transitioning = true;
             SetButtonsInteractable(false);
-            SetStatus("Returning to main menu...", new Color(0.88f, 0.70f, 0.35f));
+            SetStatus("pause.returning_to_main_menu", new Color(0.88f, 0.70f, 0.35f));
             try
             {
                 AsyncOperation operation = SceneManager.LoadSceneAsync(
@@ -266,7 +271,7 @@ namespace ProjectUnknown.Strategy
 
             transitioning = false;
             SetButtonsInteractable(true);
-            SetStatus("The main menu could not be opened.", new Color(0.94f, 0.48f, 0.42f));
+            SetStatus("pause.main_menu_open_failed", new Color(0.94f, 0.48f, 0.42f));
             Select(mainMenuButton);
             PlaySfx(StrategyHudSfxKind.Deny);
         }
@@ -275,7 +280,7 @@ namespace ProjectUnknown.Strategy
         {
             StrategyDebugLogger.Info("PauseMenu", "QuitRequested");
 #if UNITY_EDITOR
-            SetStatus("Quit is available in a standalone build.", new Color(0.88f, 0.70f, 0.35f));
+            SetStatus("pause.quit_standalone_only", new Color(0.88f, 0.70f, 0.35f));
             Select(quitButton);
 #else
             transitioning = true;
@@ -298,6 +303,7 @@ namespace ProjectUnknown.Strategy
             uiScaleSlider.onValueChanged.AddListener(StrategyGameSettings.SetUiScale);
             fullscreenToggle.onValueChanged.AddListener(ChangeFullscreen);
             reducedMotionToggle.onValueChanged.AddListener(ChangeReducedMotion);
+            languageButton.onClick.AddListener(ChangeLanguage);
         }
 
         private void RefreshInputContext()
@@ -363,6 +369,7 @@ namespace ProjectUnknown.Strategy
             uiScaleSlider.SetValueWithoutNotify(StrategyGameSettings.UiScale);
             fullscreenToggle.SetIsOnWithoutNotify(StrategyGameSettings.Fullscreen);
             reducedMotionToggle.SetIsOnWithoutNotify(StrategyGameSettings.ReducedMotion);
+            RefreshLanguageLabel();
         }
 
         private static void ChangeFullscreen(bool value)
@@ -377,6 +384,51 @@ namespace ProjectUnknown.Strategy
             PlaySfx(StrategyHudSfxKind.Step);
         }
 
+        private void ChangeLanguage()
+        {
+            StrategyGameLanguage next = StrategyGameSettings.Language == StrategyGameLanguage.Russian
+                ? StrategyGameLanguage.English
+                : StrategyGameLanguage.Russian;
+            StrategyGameSettings.SetLanguage(next);
+            RefreshLocalizedView();
+            PlaySfx(StrategyHudSfxKind.Step);
+        }
+
+        private void RefreshLocalizedView()
+        {
+            if (this == null)
+            {
+                StrategyLocalization.LanguageChanged -= RefreshLocalizedView;
+                return;
+            }
+
+            StrategyLocalizedTextBinding[] bindings =
+                GetComponentsInChildren<StrategyLocalizedTextBinding>(true);
+            for (int index = 0; index < bindings.Length; index++)
+            {
+                bindings[index].Refresh();
+            }
+
+            RefreshLanguageLabel();
+        }
+
+        private void RefreshLanguageLabel()
+        {
+            if (languageButtonLabel == null)
+            {
+                return;
+            }
+
+            string key = StrategyGameSettings.Language == StrategyGameLanguage.English
+                ? "settings.language.english"
+                : "settings.language.russian";
+            languageButtonLabel.text = StrategyLocalization.Get(StrategyLocalizationTables.Common, key);
+            if (!string.IsNullOrEmpty(statusLocalizationKey))
+            {
+                statusText.text = StrategyLocalization.Get(StrategyLocalizationTables.Menu, statusLocalizationKey);
+            }
+        }
+
         private void SetButtonsInteractable(bool interactable)
         {
             resumeButton.interactable = interactable;
@@ -387,9 +439,10 @@ namespace ProjectUnknown.Strategy
             settingsBackButton.interactable = interactable;
         }
 
-        private void SetStatus(string value, Color color)
+        private void SetStatus(string key, Color color)
         {
-            statusText.text = value;
+            statusLocalizationKey = key;
+            statusText.text = StrategyLocalization.Get(StrategyLocalizationTables.Menu, key);
             statusText.color = color;
         }
 
@@ -425,6 +478,11 @@ namespace ProjectUnknown.Strategy
             ReleaseInputContext();
             ReleasePauseLock();
             panelTransition?.SetVisible(false, true);
+        }
+
+        private void OnDestroy()
+        {
+            StrategyLocalization.LanguageChanged -= RefreshLocalizedView;
         }
     }
 }

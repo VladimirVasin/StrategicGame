@@ -1,0 +1,348 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: Buildings Shared Data
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.SharedTableData
+  m_TableCollectionName: Buildings
+  m_TableCollectionNameGuidString: daf391106076a1a4391b2e2cd0ecefab
+  m_Entries:
+  - m_Id: 183703899885568
+    m_Key: build.category.housing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703946022912
+    m_Key: build.category.extraction
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703946022913
+    m_Key: build.category.production
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703946022914
+    m_Key: build.category.storage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703946022915
+    m_Key: build.category.trade
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703946022916
+    m_Key: build.category.infrastructure
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703946022917
+    m_Key: build.subcategory.camps
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703946022918
+    m_Key: build.subcategory.deposits
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703946022919
+    m_Key: build.subcategory.food
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217216
+    m_Key: building.house.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217217
+    m_Key: building.lumberjack_camp.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217218
+    m_Key: building.stonecutter_camp.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217219
+    m_Key: building.mine.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217220
+    m_Key: building.coal_pit.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217221
+    m_Key: building.clay_pit.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217222
+    m_Key: building.hunter_camp.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217223
+    m_Key: building.fisher_hut.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217224
+    m_Key: building.forager_camp.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217225
+    m_Key: building.chicken_coop.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217226
+    m_Key: building.sawmill.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217227
+    m_Key: building.kiln.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217228
+    m_Key: building.forge.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217229
+    m_Key: building.storage_yard.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217230
+    m_Key: building.granary.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217231
+    m_Key: building.trading_post.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217232
+    m_Key: building.scout_lodge.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217233
+    m_Key: building.bridge.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217234
+    m_Key: upgrade.iron_axes.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217235
+    m_Key: upgrade.iron_axes.effect
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217236
+    m_Key: upgrade.iron_pickaxes.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217237
+    m_Key: upgrade.iron_pickaxes.effect
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217238
+    m_Key: upgrade.reinforced_mining_tools.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217239
+    m_Key: upgrade.reinforced_mining_tools.effect
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217240
+    m_Key: upgrade.pit_tool_rack.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217241
+    m_Key: upgrade.pit_tool_rack.effect
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217242
+    m_Key: upgrade.iron_shovels.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217243
+    m_Key: upgrade.iron_shovels.effect
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217244
+    m_Key: upgrade.saw_blade_set.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217245
+    m_Key: upgrade.saw_blade_set.effect
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217246
+    m_Key: upgrade.kiln_tool_set.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217247
+    m_Key: upgrade.kiln_tool_set.effect
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217248
+    m_Key: upgrade.better_anvil_tools.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217249
+    m_Key: upgrade.better_anvil_tools.effect
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217250
+    m_Key: upgrade.deer_hunting_kit.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217251
+    m_Key: upgrade.deer_hunting_kit.effect
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217252
+    m_Key: upgrade.hooks_and_line_kit.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217253
+    m_Key: upgrade.hooks_and_line_kit.effect
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217254
+    m_Key: build.speed.tooltip
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217255
+    m_Key: build.tooltip.footprint
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217256
+    m_Key: build.placement.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217257
+    m_Key: build.placement.status
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217258
+    m_Key: build.placement.choose_location
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217259
+    m_Key: build.placement.move_pointer
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217260
+    m_Key: build.placement.explore_area
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217261
+    m_Key: build.placement.occupied
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217262
+    m_Key: build.placement.inside_map
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217263
+    m_Key: build.placement.land_or_water
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217264
+    m_Key: build.placement.not_affordable
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217265
+    m_Key: build.placement.no_builder_access
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217266
+    m_Key: build.placement.resident_in_footprint
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217267
+    m_Key: build.placement.no_water_access
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217268
+    m_Key: build.placement.iron_deposit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217269
+    m_Key: build.placement.coal_deposit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217270
+    m_Key: build.placement.clay_field
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217271
+    m_Key: build.placement.bridge_bank_walkable
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217272
+    m_Key: build.placement.bridge_bank_buildable
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217273
+    m_Key: build.placement.bridge_banks_explored
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217274
+    m_Key: build.placement.bridge_beside_river
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217275
+    m_Key: build.placement.bridge_span_blocked
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217276
+    m_Key: build.placement.bridge_span_explored
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217277
+    m_Key: build.placement.bridge_cross_river
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217278
+    m_Key: build.placement.bridge_no_opposite_bank
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217279
+    m_Key: build.placement.bridge_choose_bank
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217280
+    m_Key: build.placement.terrain_blocked
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217281
+    m_Key: build.placement.valid_reachable
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217282
+    m_Key: build.placement.valid_first_bank
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217283
+    m_Key: build.placement.valid_span
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217284
+    m_Key: build.placement.valid_site
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217285
+    m_Key: build.cost.free
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183703950217286
+    m_Key: building.caravan_cart.name
+    m_Metadata:
+      m_Items: []
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 465534772507312160
+  references:
+    version: 2
+    RefIds:
+    - rid: 465534772507312160
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1784493438343

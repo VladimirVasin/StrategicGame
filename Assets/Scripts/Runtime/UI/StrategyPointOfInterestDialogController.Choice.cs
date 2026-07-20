@@ -26,10 +26,16 @@ namespace ProjectUnknown.Strategy
             acknowledgedCallback = null;
             yesCallback = onYes;
             noCallback = onNo;
-            titleText.text = string.IsNullOrWhiteSpace(title) ? "Point of Interest" : title;
+            titleText.text = string.IsNullOrWhiteSpace(title)
+                ? PointOfInterestText("story.poi.fallback_title")
+                : title;
             bodyText.text = body ?? string.Empty;
-            yesButtonLabel.text = string.IsNullOrWhiteSpace(yesLabel) ? "Да" : yesLabel;
-            noButtonLabel.text = string.IsNullOrWhiteSpace(noLabel) ? "Нет" : noLabel;
+            yesButtonLabel.text = string.IsNullOrWhiteSpace(yesLabel)
+                ? PointOfInterestText("story.poi.choice.yes")
+                : yesLabel;
+            noButtonLabel.text = string.IsNullOrWhiteSpace(noLabel)
+                ? PointOfInterestText("story.poi.choice.no")
+                : noLabel;
             SetChoiceMode(true);
             panelTransition.SetVisible(true);
             RefreshInputContext(true);

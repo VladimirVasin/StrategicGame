@@ -8,6 +8,10 @@ namespace ProjectUnknown.Strategy
         private void BuildFamilyTreeButton()
         {
             Button button = CreateButton("FamilyTreesButton", panel, "Family Trees", 13, new Color(0.16f, 0.18f, 0.20f, 1f));
+            StrategyLocalizedTextBinding.Bind(
+                button.GetComponentInChildren<Text>(),
+                StrategyLocalizationTables.Hud,
+                "hud.roster.family_trees");
             button.onClick.AddListener(OpenFamilyTrees);
             SetTopRight(button.GetComponent<RectTransform>(), 70f, 18f, 128f, 34f);
             StrategyUiButtonFeedback.Attach(button, StrategyUiButtonFeedbackProfile.Compact, null);

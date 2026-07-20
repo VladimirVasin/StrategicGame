@@ -33,39 +33,21 @@ namespace ProjectUnknown.Strategy
         {
             if (building == null)
             {
-                return "Building";
+                return L("building.generic");
             }
 
             if (building.Tool == StrategyBuildTool.House)
             {
                 string familyName = GetHouseFamilyName(building);
                 return string.IsNullOrWhiteSpace(familyName)
-                    ? "Housing  ·  Unoccupied"
-                    : "Housing  ·  " + familyName + " family";
+                    ? L("building.subtitle.house_unoccupied")
+                    : L("building.subtitle.house_family", familyName);
             }
 
-            return building.Tool switch
-            {
-                StrategyBuildTool.LumberjackCamp => "Extraction  ·  Timber",
-                StrategyBuildTool.StonecutterCamp => "Extraction  ·  Stone",
-                StrategyBuildTool.Mine => "Extraction  ·  Iron",
-                StrategyBuildTool.CoalPit => "Extraction  ·  Coal",
-                StrategyBuildTool.ClayPit => "Extraction  ·  Clay",
-                StrategyBuildTool.HunterCamp => "Food  ·  Game",
-                StrategyBuildTool.FisherHut => "Food  ·  Fish",
-                StrategyBuildTool.ForagerCamp => "Food  ·  Foraging",
-                StrategyBuildTool.ChickenCoop => "Food  ·  Eggs",
-                StrategyBuildTool.Sawmill => "Production  ·  Planks",
-                StrategyBuildTool.Kiln => "Production  ·  Pottery",
-                StrategyBuildTool.Forge => "Production  ·  Tools",
-                StrategyBuildTool.StarterCaravanCart => "Settlement  ·  Supplies",
-                StrategyBuildTool.StorageYard => "Storage  ·  Materials",
-                StrategyBuildTool.Granary => "Storage  ·  Food",
-                StrategyBuildTool.TradingPost => "Trade  ·  Caravan market",
-                StrategyBuildTool.ScoutLodge => "Exploration  ·  Expeditions",
-                StrategyBuildTool.Bridge => "Infrastructure  ·  Crossing",
-                _ => "Settlement building"
-            };
+            return StrategySelectionLocalization.TextOrLiteral(
+                "building.subtitle." + StrategySelectionLocalization.ToKeyToken(
+                    building.Tool.ToString()),
+                L("building.generic"));
         }
 
         private static string GetHouseFamilyName(StrategyPlacedBuilding building)
@@ -93,36 +75,13 @@ namespace ProjectUnknown.Strategy
         private static string GetUpgradeTitle(StrategyBuildingUpgradeType type)
         {
             return type == StrategyBuildingUpgradeType.GardenBeds
-                ? "Garden Beds"
-                : "Chicken Coop";
+                ? L("upgrade.garden_beds")
+                : L("upgrade.chicken_coop");
         }
 
         private static string GetResourceTitle(StrategyResourceType type)
         {
-            return type switch
-            {
-                StrategyResourceType.Dish => "Dishes",
-                StrategyResourceType.Eggs => "Eggs",
-                StrategyResourceType.Turnip => "Turnip",
-                StrategyResourceType.Cabbage => "Cabbage",
-                StrategyResourceType.Onion => "Onion",
-                StrategyResourceType.Carrot => "Carrot",
-                StrategyResourceType.Potato => "Potato",
-                StrategyResourceType.Berries => "Berries",
-                StrategyResourceType.Roots => "Roots",
-                StrategyResourceType.Mushrooms => "Mushrooms",
-                StrategyResourceType.Game => "Game",
-                StrategyResourceType.Fish => "Fish",
-                StrategyResourceType.Logs => "Logs",
-                StrategyResourceType.Stone => "Stone",
-                StrategyResourceType.Iron => "Iron",
-                StrategyResourceType.Coal => "Coal",
-                StrategyResourceType.Clay => "Clay",
-                StrategyResourceType.Pottery => "Pottery",
-                StrategyResourceType.Tools => "Tools",
-                StrategyResourceType.Planks => "Planks",
-                _ => "none"
-            };
+            return StrategySelectionLocalization.Resource(type);
         }
 
         private static string GetResidentStatus(StrategyResidentAgent resident)
@@ -130,11 +89,25 @@ namespace ProjectUnknown.Strategy
             return StrategyResidentHudText.GetStatusText(resident);
         }
 
+        private static string GetHouseResidentStatus(
+            StrategyPlacedBuilding building,
+            StrategyResidentAgent resident)
+        {
+            bool householder = resident == building.Householder;
+            string key = householder
+                ? resident.IsHungry ? "house.householder_status_hungry" : "house.householder_status"
+                : resident.IsHungry ? "house.resident_status_hungry" : "house.resident_status";
+            return resident.IsHungry
+                ? L(key, GetResidentLifeStageTitle(resident), resident.DisplayAgeYears,
+                    StrategyResidentHudText.GetFoodTitle(resident))
+                : L(key, GetResidentLifeStageTitle(resident), resident.DisplayAgeYears);
+        }
+
         private static string GetConstructionBuildersText(StrategyConstructionSite site)
         {
             if (site == null || site.BuilderCount <= 0)
             {
-                return "no builders assigned";
+                return L("construction.no_builders");
             }
 
             string text = string.Empty;
@@ -150,10 +123,13 @@ namespace ProjectUnknown.Strategy
                     text += "\n";
                 }
 
-                text += builder.FullName + " - " + GetResidentStatus(builder);
+                text += L(
+                    "format.resident_status",
+                    builder.FullName,
+                    GetResidentStatus(builder));
             }
 
-            return string.IsNullOrEmpty(text) ? "no builders assigned" : text;
+            return string.IsNullOrEmpty(text) ? L("construction.no_builders") : text;
         }
 
         private static string GetResidentGenderTitle(StrategyResidentGender gender)

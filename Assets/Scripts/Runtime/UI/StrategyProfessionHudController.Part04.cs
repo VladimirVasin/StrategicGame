@@ -73,7 +73,13 @@ namespace ProjectUnknown.Strategy
 
         private AutoPriorityRow CreatePriorityRow(RectTransform root, StrategyAutoWorkforceCategory category)
         {
-            Text label = CreateText("Label", root, StrategyAutoWorkforceSettings.GetLabel(category), 10, TextAnchor.MiddleLeft, Color.white);
+            Text label = CreateText(
+                "Label",
+                root,
+                GetPriorityLabel(category),
+                10,
+                TextAnchor.MiddleLeft,
+                Color.white);
             SetOffsets(label.rectTransform, 0f, 0f, 60f, 0f);
 
             Button minus = CreateMiniPriorityButton("Minus", root, 48f, "-");
@@ -126,7 +132,7 @@ namespace ProjectUnknown.Strategy
             }
 
             autoWorkforce.SetAutoAssignEnabled(!autoWorkforce.IsAutoAssignEnabled);
-            actionStatusText.text = autoWorkforce.LastStatus;
+            actionStatusText.text = autoWorkforce.LocalizedStatus;
             StrategyHudSfxAudio.Play(StrategyHudSfxKind.Select);
             isDirty = true;
             RefreshAutoControls(CountFreeWorkers());
@@ -142,7 +148,11 @@ namespace ProjectUnknown.Strategy
             }
 
             int value = autoWorkforce.AdjustPriority(category, delta);
-            actionStatusText.text = StrategyAutoWorkforceSettings.GetLabel(category) + ": " + value;
+            actionStatusText.text = StrategyLocalization.Get(
+                StrategyLocalizationTables.Hud,
+                "hud.professions.priority_changed",
+                GetPriorityLabel(category),
+                value);
             StrategyHudSfxAudio.Play(StrategyHudSfxKind.Step);
             isDirty = true;
             RefreshAutoControls(CountFreeWorkers());
@@ -171,15 +181,25 @@ namespace ProjectUnknown.Strategy
             if (autoToggleText != null)
             {
                 autoToggleText.text = available && autoWorkforce.IsAutoAssignEnabled
-                    ? "Auto Assign: On"
-                    : "Auto Assign: Off";
+                    ? StrategyLocalization.Get(
+                        StrategyLocalizationTables.Hud,
+                        "hud.professions.auto_on")
+                    : StrategyLocalization.Get(
+                        StrategyLocalizationTables.Hud,
+                        "hud.professions.auto_off");
             }
 
             if (autoStatusText != null)
             {
                 autoStatusText.text = available
-                    ? autoWorkforce.LastStatus + " / free adults " + freeWorkers
-                    : "Auto workforce unavailable";
+                    ? StrategyLocalization.Get(
+                        StrategyLocalizationTables.Hud,
+                        "hud.professions.auto_status",
+                        autoWorkforce.LocalizedStatus,
+                        freeWorkers)
+                    : StrategyLocalization.Get(
+                        StrategyLocalizationTables.Hud,
+                        "hud.professions.auto_unavailable");
             }
 
             for (int i = 0; i < autoPriorityRows.Length; i++)
@@ -191,11 +211,19 @@ namespace ProjectUnknown.Strategy
                 }
 
                 int priority = available ? autoWorkforce.Settings.GetPriority(row.Category) : 0;
+                row.Label.text = GetPriorityLabel(row.Category);
                 row.Value.text = priority.ToString();
                 row.Minus.interactable = available && priority > StrategyAutoWorkforceSettings.MinPriority;
                 row.Plus.interactable = available && priority < StrategyAutoWorkforceSettings.MaxPriority;
                 row.Label.color = priority > 0 ? Color.white : new Color(0.55f, 0.60f, 0.58f);
             }
+        }
+
+        private static string GetPriorityLabel(StrategyAutoWorkforceCategory category)
+        {
+            return StrategyLocalization.Get(
+                StrategyLocalizationTables.Residents,
+                "profession.priority." + category.ToString().ToLowerInvariant());
         }
 
         private sealed class AutoPriorityRow

@@ -7,11 +7,11 @@ namespace ProjectUnknown.Strategy
     {
         private StrategyResidentDeathSnapshot snapshot;
         private SpriteRenderer spriteRenderer;
-        private string epitaph;
+        private int epitaphVariant;
 
         public StrategyResidentDeathSnapshot Snapshot => snapshot;
-        public string DeceasedName => snapshot.FullName;
-        public string Epitaph => epitaph;
+        public string DeceasedName => DisplayName(snapshot.FullName);
+        public string Epitaph => BuildEpitaph(snapshot, epitaphVariant);
         public string FinalProfession => snapshot.FinalProfession;
         public string FamilyRole => snapshot.FamilyRole;
         public int AgeYears => snapshot.AgeYears;
@@ -24,97 +24,94 @@ namespace ProjectUnknown.Strategy
         {
             snapshot = deathSnapshot;
             spriteRenderer = renderer;
-            epitaph = BuildEpitaph(deathSnapshot, graveIndex);
+            epitaphVariant = Mathf.Abs(graveIndex);
             EnsureClickCollider();
         }
 
         public string GetLifeText()
         {
             string ageText = AgeYears <= 0
-                ? "Age unknown"
-                : "Age " + AgeYears;
-            return ageText
-                + "\n"
-                + "Known as " + FinalProfession
-                + "\n"
-                + "Family role: " + FamilyRole;
+                ? L("grave.age_unknown")
+                : L("grave.age", AgeYears);
+            return L(
+                "grave.life_text",
+                ageText,
+                V(FinalProfession),
+                V(FamilyRole));
         }
 
         public string GetMemoryText()
         {
             if (snapshot.LifeStage == StrategyResidentLifeStage.Child)
             {
-                return "A child of House " + snapshot.FamilyName + ".";
+                return L("grave.memory.child", DisplayFamilyName(snapshot.FamilyName));
             }
 
             if (snapshot.ChildIds != null && snapshot.ChildIds.Length > 0)
             {
-                string parentTitle = snapshot.Gender == StrategyResidentGender.Male ? "father" : "mother";
-                return "Remembered as " + parentTitle + " to "
-                    + snapshot.ChildIds.Length
-                    + " child"
-                    + (snapshot.ChildIds.Length == 1 ? "." : "ren.");
+                string parentTitle = V(
+                    snapshot.Gender == StrategyResidentGender.Male ? "father" : "mother");
+                return L("grave.memory.parent", parentTitle, snapshot.ChildIds.Length);
             }
 
             if (snapshot.HouseholdResidentIds != null && snapshot.HouseholdResidentIds.Length > 0)
             {
-                return "Remembered by the household of House " + snapshot.FamilyName + ".";
+                return L("grave.memory.household", DisplayFamilyName(snapshot.FamilyName));
             }
 
-            return "Remembered by the settlement.";
+            return L("grave.memory.settlement");
         }
 
         private static string BuildEpitaph(StrategyResidentDeathSnapshot deathSnapshot, int graveIndex)
         {
             bool wasChild = deathSnapshot.LifeStage == StrategyResidentLifeStage.Child;
             bool hadChildren = deathSnapshot.ChildIds != null && deathSnapshot.ChildIds.Length > 0;
-            string name = deathSnapshot.FullName;
+            string name = DisplayName(deathSnapshot.FullName);
             string profession = deathSnapshot.FinalProfession;
-            string familyName = deathSnapshot.FamilyName;
+            string familyName = DisplayFamilyName(deathSnapshot.FamilyName);
 
             if (wasChild)
             {
-                string[] childLines =
-                {
-                    "Here rests " + name + ", child of House " + familyName + ".",
-                    name + " sleeps beneath this stone, held in the memory of kin.",
-                    "Here rests young " + name + ", whose name remains with House " + familyName + "."
-                };
-                return childLines[Mathf.Abs(graveIndex) % childLines.Length];
+                int variant = Mathf.Abs(graveIndex) % 3;
+                return L("grave.epitaph.child_" + variant, name, familyName);
             }
 
             if (hadChildren)
             {
-                string parentTitle = deathSnapshot.Gender == StrategyResidentGender.Male ? "father" : "mother";
-                string[] parentLines =
-                {
-                    "Here rests " + name + ", beloved " + parentTitle + " and " + profession + ".",
-                    "In memory of " + name + ", " + parentTitle + ", " + profession + ", and keeper of the family name.",
-                    name + " rests here, a " + parentTitle + " remembered by children and hearth."
-                };
-                return parentLines[Mathf.Abs(graveIndex) % parentLines.Length];
+                string parentTitle = V(
+                    deathSnapshot.Gender == StrategyResidentGender.Male ? "father" : "mother");
+                int variant = Mathf.Abs(graveIndex) % 3;
+                return L(
+                    "grave.epitaph.parent_" + variant,
+                    name,
+                    parentTitle,
+                    V(profession));
             }
 
             if (profession == "householder")
             {
-                string[] householdLines =
-                {
-                    "Here rests " + name + ", keeper of hearth and home.",
-                    "In memory of " + name + ", who tended the household with steady hands.",
-                    name + " sleeps here, remembered at the hearth."
-                };
-                return householdLines[Mathf.Abs(graveIndex) % householdLines.Length];
+                int variant = Mathf.Abs(graveIndex) % 3;
+                return L("grave.epitaph.householder_" + variant, name);
             }
 
-            string[] generalLines =
-            {
-                "Here rests " + name + ".",
-                "In memory of " + name + ", " + profession + " of the settlement.",
-                name + " sleeps beneath this stone.",
-                "Here rests " + name + ", remembered by the settlement."
-            };
-            return generalLines[Mathf.Abs(graveIndex) % generalLines.Length];
+            int generalVariant = Mathf.Abs(graveIndex) % 4;
+            return L(
+                "grave.epitaph.general_" + generalVariant,
+                name,
+                V(profession));
         }
+
+        private static string L(string key, params object[] arguments) =>
+            StrategySelectionLocalization.Text(key, arguments);
+
+        private static string V(string value) =>
+            StrategySelectionLocalization.Value(value);
+
+        private static string DisplayName(string value) =>
+            value == "Unknown Settler" ? L("grave.unknown_settler") : value;
+
+        private static string DisplayFamilyName(string value) =>
+            value == "Unknown" ? L("grave.unknown_family") : value;
 
         private void EnsureClickCollider()
         {

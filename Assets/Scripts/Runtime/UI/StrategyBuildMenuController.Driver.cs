@@ -178,6 +178,13 @@ namespace ProjectUnknown.Strategy
             EnsureEventSystem();
             BuildUi();
             RefreshUi();
+            StrategyLocalization.LanguageChanged += HandleLanguageChanged;
+        }
+
+        public void Dispose()
+        {
+            StrategyLocalization.LanguageChanged -= HandleLanguageChanged;
+            ReleaseInputContext();
         }
 
         public void Tick()
@@ -441,6 +448,42 @@ namespace ProjectUnknown.Strategy
             }
 
             return false;
+        }
+
+        private void HandleLanguageChanged()
+        {
+            categories = StrategyBuildMenuCatalog.CreateCatalog();
+            int categoryCount = Mathf.Min(categories.Length, categoryUis.Count);
+            for (int categoryIndex = 0; categoryIndex < categoryCount; categoryIndex++)
+            {
+                BuildCategoryData categoryData = categories[categoryIndex];
+                CategoryUi categoryUi = categoryUis[categoryIndex];
+                categoryUi.Data = categoryData;
+                categoryUi.Label.text = categoryData.Label;
+
+                int subcategoryCount = Mathf.Min(
+                    categoryData.Subcategories.Length,
+                    categoryUi.Subcategories.Length);
+                for (int subcategoryIndex = 0; subcategoryIndex < subcategoryCount; subcategoryIndex++)
+                {
+                    BuildSubcategoryData subcategoryData = categoryData.Subcategories[subcategoryIndex];
+                    BuildSubcategoryUi subcategoryUi = categoryUi.Subcategories[subcategoryIndex];
+                    subcategoryUi.Data = subcategoryData;
+                    subcategoryUi.Label.text = subcategoryData.Label;
+                }
+
+                int itemCount = Mathf.Min(categoryData.Items.Length, categoryUi.Items.Length);
+                for (int itemIndex = 0; itemIndex < itemCount; itemIndex++)
+                {
+                    BuildItemData itemData = categoryData.Items[itemIndex];
+                    BuildItemUi itemUi = categoryUi.Items[itemIndex];
+                    itemUi.Data = itemData;
+                    itemUi.Title.text = itemData.Title;
+                }
+            }
+
+            isDirty = true;
+            RefreshPlacementFeedback();
         }
 
     }

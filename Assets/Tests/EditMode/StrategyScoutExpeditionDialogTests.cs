@@ -3,6 +3,8 @@ using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
 
 namespace ProjectUnknown.Strategy.EditorTests
@@ -11,11 +13,23 @@ namespace ProjectUnknown.Strategy.EditorTests
     {
         private readonly List<GameObject> roots = new();
         private EventSystem preExistingEventSystem;
+        private Locale previousLocale;
+        private bool hadLanguagePreference;
+        private string previousLanguagePreference;
 
         [SetUp]
         public void SetUp()
         {
             preExistingEventSystem = Object.FindAnyObjectByType<EventSystem>();
+            previousLocale = LocalizationSettings.SelectedLocale;
+            hadLanguagePreference = PlayerPrefs.HasKey(
+                StrategyLocalization.LanguagePreferenceKey);
+            previousLanguagePreference = PlayerPrefs.GetString(
+                StrategyLocalization.LanguagePreferenceKey,
+                StrategyLocalization.RussianLocaleCode);
+            Assert.That(
+                StrategyLocalization.SetLanguage(StrategyGameLanguage.English),
+                Is.True);
             StrategyScoutProvisionService.GetAvailableRations();
         }
 
@@ -39,6 +53,22 @@ namespace ProjectUnknown.Strategy.EditorTests
                 {
                     Object.DestroyImmediate(created.gameObject);
                 }
+            }
+
+            StrategyGameLanguage restoreLanguage = previousLocale != null
+                ? StrategyLocalization.FromLocaleCode(previousLocale.Identifier.Code)
+                : StrategyLocalization.FromLocaleCode(previousLanguagePreference);
+            StrategyLocalization.SetLanguage(restoreLanguage);
+            LocalizationSettings.SelectedLocale = previousLocale;
+            if (hadLanguagePreference)
+            {
+                PlayerPrefs.SetString(
+                    StrategyLocalization.LanguagePreferenceKey,
+                    previousLanguagePreference);
+            }
+            else
+            {
+                PlayerPrefs.DeleteKey(StrategyLocalization.LanguagePreferenceKey);
             }
         }
 
@@ -71,7 +101,9 @@ namespace ProjectUnknown.Strategy.EditorTests
             }
 
             Assert.That(FindText(dialog, "DurationDays").text, Is.EqualTo("7 DAYS"));
-            Assert.That(FindText(dialog, "RationSummary").text, Does.Contain("COST 7 RATIONS"));
+            Assert.That(
+                FindText(dialog, "RationSummary").text,
+                Does.Contain("RATIONS NEEDED: 7"));
             Button confirm = FindButton(dialog, "ConfirmButton");
             Assert.That(confirm.interactable, Is.True);
             confirm.onClick.Invoke();
@@ -103,7 +135,7 @@ namespace ProjectUnknown.Strategy.EditorTests
 
             Assert.That(FindButton(dialog, "ConfirmButton").interactable, Is.False);
             Assert.That(FindButton(dialog, "DeferButton").gameObject.activeSelf, Is.True);
-            Assert.That(FindText(dialog, "DurationWarning").text, Does.Contain("Not enough"));
+            Assert.That(FindText(dialog, "DurationWarning").text, Does.Contain("short by 1"));
             Assert.That(confirmations, Is.Zero);
         }
 
@@ -181,7 +213,7 @@ namespace ProjectUnknown.Strategy.EditorTests
 
             Assert.That(
                 (string)formatter.Invoke(null, new object[] { lodge, resident }),
-                Does.Contain("ready"));
+                Does.Contain("ready").IgnoreCase);
             float originalElapsed = StrategyDayNightCycleController.CurrentElapsedSeconds;
             try
             {
@@ -190,20 +222,20 @@ namespace ProjectUnknown.Strategy.EditorTests
                 string initialCountdown = (string)formatter.Invoke(
                     null,
                     new object[] { lodge, resident });
-                Assert.That(initialCountdown, Does.Contain("exploring"));
+                Assert.That(initialCountdown, Does.Contain("Returns in"));
                 StrategyDayNightCycleController.RestoreElapsedSeconds(
                     originalElapsed + StrategyDayNightCycleController.DayLengthSeconds * 0.5f);
                 string advancedCountdown = (string)formatter.Invoke(
                     null,
                     new object[] { lodge, resident });
                 Assert.That(advancedCountdown, Is.Not.EqualTo(initialCountdown));
-                Assert.That(advancedCountdown, Does.Contain("left"));
+                Assert.That(advancedCountdown, Does.Contain("Returns in"));
 
                 Assert.That(lodge.RequestRecall(), Is.True);
                 Assert.That(lodge.ExpeditionState, Is.EqualTo(StrategyScoutExpeditionState.Returning));
                 Assert.That(
                     (string)formatter.Invoke(null, new object[] { lodge, resident }),
-                    Does.Contain("returning"));
+                    Does.Contain("returning").IgnoreCase);
             }
             finally
             {

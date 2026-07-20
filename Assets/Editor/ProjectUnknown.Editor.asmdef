@@ -4,7 +4,9 @@
   "references": [
     "ProjectUnknown.Runtime",
     "Unity.InputSystem",
-    "UnityEngine.UI"
+    "UnityEngine.UI",
+    "Unity.Localization",
+    "Unity.Localization.Editor"
   ],
   "includePlatforms": [
     "Editor"

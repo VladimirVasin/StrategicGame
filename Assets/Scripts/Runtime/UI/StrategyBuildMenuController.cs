@@ -54,5 +54,10 @@ namespace ProjectUnknown.Strategy
         {
             driver?.ReleaseInputContext();
         }
+
+        private void OnDestroy()
+        {
+            driver?.Dispose();
+        }
     }
 }

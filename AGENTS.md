@@ -89,9 +89,11 @@ the agent must:
 
 ## Language Standard
 
-- Use English for runtime UI text, debug/log event labels, code comments, AI memory, documentation, commit messages, and future development notes.
+- Develop every player-facing runtime UI string in Russian and English together through the localization catalogs; Russian is the default language.
+- Use stable semantic localization keys for new UI. Keep English and Russian values in the same change, and do not hardcode translated copy in C#.
+- Use English for debug/log event labels, code comments, AI memory, documentation, commit messages, and future development notes.
 - Keep third-party asset filenames as-is unless a rename is explicitly required.
-- Only add non-English project-facing text when the user explicitly asks for it.
+- Only add other non-English project-facing text when the user explicitly asks for it.
 
 ## System Tree Rules
 

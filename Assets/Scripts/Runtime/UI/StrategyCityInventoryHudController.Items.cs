@@ -184,10 +184,12 @@ namespace ProjectUnknown.Strategy
             StrategyCityInventoryEntry entry = ownedItems[index];
             StrategyCityItemDefinition definition = ResolveDefinition(entry.ItemId);
             row.Index = index;
-            row.Name.text = definition != null ? definition.Title : "Unknown Item";
+            row.Name.text = definition != null
+                ? definition.Title
+                : H("hud.inventory.unknown_item");
             row.Summary.text = GetItemRowSummary(definition);
             row.Quantity.text = definition != null && definition.MaxStack == 1
-                ? "UNIQUE"
+                ? H("hud.inventory.unique")
                 : "x" + entry.Quantity;
             row.Icon.sprite = ResolveItemIcon(definition);
             bool selected = index == selectedItemIndex;
@@ -241,27 +243,29 @@ namespace ProjectUnknown.Strategy
             StrategyCityInventoryEntry entry = ownedItems[selectedItemIndex];
             StrategyCityItemDefinition definition = ResolveDefinition(entry.ItemId);
             detailIcon.sprite = ResolveItemIcon(definition);
-            detailName.text = definition != null ? definition.Title : "Unknown Item";
+            detailName.text = definition != null
+                ? definition.Title
+                : H("hud.inventory.unknown_item");
             detailQuantity.text = definition != null && definition.MaxStack == 1
-                ? "UNIQUE CITY ITEM"
+                ? H("hud.inventory.unique_city_item")
                 : definition != null
-                    ? entry.Quantity + " / " + definition.MaxStack + " STORED"
-                : entry.Quantity + " STORED";
+                    ? H("hud.inventory.stored_capacity", entry.Quantity, definition.MaxStack)
+                    : H("hud.inventory.stored", entry.Quantity);
             detailDescription.text = definition != null
                 && !string.IsNullOrWhiteSpace(definition.Description)
                     ? definition.Description
-                    : "This item's story has not been recorded yet.";
+                    : H("hud.inventory.story_missing");
             detailEffect.text = definition != null
                 && !string.IsNullOrWhiteSpace(definition.EffectText)
                     ? definition.EffectText
-                    : "No active effect is recorded.";
+                    : H("hud.inventory.effect_missing");
         }
 
         private static string GetItemRowSummary(StrategyCityItemDefinition definition)
         {
             if (definition == null)
             {
-                return "No record is available for this item.";
+                return H("hud.inventory.record_missing");
             }
 
             if (!string.IsNullOrWhiteSpace(definition.EffectText))
@@ -271,7 +275,15 @@ namespace ProjectUnknown.Strategy
 
             return !string.IsNullOrWhiteSpace(definition.Description)
                 ? definition.Description
-                : "No effect is recorded.";
+                : H("hud.inventory.effect_none");
+        }
+
+        private static string H(string key, params object[] arguments)
+        {
+            return StrategyLocalization.Get(
+                StrategyLocalizationTables.Hud,
+                key,
+                arguments);
         }
 
         private StrategyCityItemDefinition ResolveDefinition(string itemId)

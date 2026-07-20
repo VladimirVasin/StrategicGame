@@ -42,15 +42,15 @@ namespace ProjectUnknown.Strategy
             StrategyHudStyle.StyleRailModule(background, true);
             StrategyHudStyle.AddShadow(launcherRoot.gameObject, 0.40f);
 
-            Text title = CreateText(
+            launcherTitleText = CreateText(
                 "Title",
                 launcherRoot,
-                "SETTLEMENT STORES",
+                string.Empty,
                 11,
                 TextAnchor.UpperLeft,
                 StrategyHudStyle.Primary);
-            title.fontStyle = FontStyle.Bold;
-            SetTopStretch(title.rectTransform, 10f, 5f, 48f, 17f);
+            launcherTitleText.fontStyle = FontStyle.Bold;
+            SetTopStretch(launcherTitleText.rectTransform, 10f, 5f, 48f, 17f);
 
             launcherSummary = CreateText(
                 "ConstructionSummary",
@@ -74,15 +74,15 @@ namespace ProjectUnknown.Strategy
                 badgeBackground,
                 new Color(1f, 1f, 1f, 0.08f));
             badgeBackground.raycastTarget = false;
-            Text badge = CreateText(
+            launcherAllText = CreateText(
                 "Label",
                 allBadge,
-                "ALL",
+                string.Empty,
                 9,
                 TextAnchor.MiddleCenter,
                 MutedGold);
-            badge.fontStyle = FontStyle.Bold;
-            Stretch(badge.rectTransform, 0f, 0f, 0f, 1f);
+            launcherAllText.fontStyle = FontStyle.Bold;
+            Stretch(launcherAllText.rectTransform, 0f, 0f, 0f, 1f);
 
             Button button = launcherRoot.gameObject.AddComponent<Button>();
             button.targetGraphic = background;
@@ -93,7 +93,9 @@ namespace ProjectUnknown.Strategy
                 StrategyUiButtonFeedbackProfile.Compact);
             StrategyHudTooltip.Attach(
                 launcherRoot.gameObject,
-                "Logs and Stone show construction-ready stock. Open all resources stored across the settlement.",
+                StrategyLocalization.Get(
+                    StrategyLocalizationTables.Hud,
+                    "hud.resources.launcher_tooltip"),
                 StrategyHudTooltipPlacement.Below);
         }
 
@@ -148,25 +150,25 @@ namespace ProjectUnknown.Strategy
             accentImage.color = Gold;
             accentImage.raycastTarget = false;
 
-            Text title = CreateText(
+            panelTitleText = CreateText(
                 "Title",
                 panelRoot,
-                "ALL RESOURCES",
+                string.Empty,
                 21,
                 TextAnchor.UpperLeft,
                 Color.white);
-            title.fontStyle = FontStyle.Bold;
-            SetTopStretch(title.rectTransform, 24f, 18f, 72f, 28f);
+            panelTitleText.fontStyle = FontStyle.Bold;
+            SetTopStretch(panelTitleText.rectTransform, 24f, 18f, 72f, 28f);
 
-            Text subtitle = CreateText(
+            panelSubtitleText = CreateText(
                 "Subtitle",
                 panelRoot,
-                "STORED ACROSS THE SETTLEMENT",
+                string.Empty,
                 11,
                 TextAnchor.UpperLeft,
                 MutedGold);
-            subtitle.fontStyle = FontStyle.Bold;
-            SetTopStretch(subtitle.rectTransform, 24f, 49f, 72f, 18f);
+            panelSubtitleText.fontStyle = FontStyle.Bold;
+            SetTopStretch(panelSubtitleText.rectTransform, 24f, 49f, 72f, 18f);
 
             RectTransform closeRoot = CreateUiObject("Close", panelRoot)
                 .GetComponent<RectTransform>();
@@ -211,8 +213,39 @@ namespace ProjectUnknown.Strategy
 
             StrategyConstructionResourceCost resources =
                 StrategyResourceQueryService.GetConstructionResources();
-            launcherSummary.text = "Logs " + resources.Logs
-                + "  |  Stone " + resources.Stone;
+            launcherSummary.text = StrategyLocalization.Get(
+                StrategyLocalizationTables.Hud,
+                "hud.resources.launcher_summary",
+                resources.Logs,
+                resources.Stone);
+        }
+
+        private void RefreshLocalizedLabels()
+        {
+            SetLocalized(launcherTitleText, "hud.resources.launcher_title");
+            SetLocalized(launcherAllText, "hud.resources.all_badge");
+            SetLocalized(panelTitleText, "hud.resources.title");
+            SetLocalized(panelSubtitleText, "hud.resources.subtitle");
+            SetLocalized(constructionSectionTitleText, "hud.resources.section.construction");
+            SetLocalized(materialsSectionTitleText, "hud.resources.section.materials");
+            SetLocalized(foodSectionTitleText, "hud.resources.section.food");
+
+            StrategyHudTooltip tooltip = launcherRoot != null
+                ? launcherRoot.GetComponent<StrategyHudTooltip>()
+                : null;
+            tooltip?.SetText(StrategyLocalization.Get(
+                StrategyLocalizationTables.Hud,
+                "hud.resources.launcher_tooltip"));
+        }
+
+        private static void SetLocalized(Text text, string key)
+        {
+            if (text != null)
+            {
+                text.text = StrategyLocalization.Get(
+                    StrategyLocalizationTables.Hud,
+                    key);
+            }
         }
 
         private static GameObject CreateUiObject(string name, Transform parent)

@@ -1,9 +1,11 @@
 # Release Notes
 
-Last updated: 2026-07-17
+Last updated: 2026-07-19
 
 ## Unreleased
 
+- The complete interface now supports Russian and English, with Russian selected by default on first launch.
+- Language can be switched live from both the main-menu and in-game Settings pages; the choice persists for later sessions.
 - New Settlement now opens a separate pixel-art Founding Journey about families fleeing war and searching for a quiet valley.
 - Four founding choices guide the settlement toward preferred water, landscape, first livelihood, and construction/resource conditions while preserving safe playable starts.
 - The chosen camp and Caravan Cart location now persist with the save; Continue remains direct and does not replay the founding story.

@@ -112,6 +112,7 @@ namespace ProjectUnknown.Strategy
 
         private void OnDisable()
         {
+            StrategyLocalization.LanguageChanged -= HandleFamilyTreeLanguageChanged;
             inputContext?.Dispose();
             inputContext = null;
             ReleasePause();
@@ -190,14 +191,16 @@ namespace ProjectUnknown.Strategy
             Image background = panel.gameObject.AddComponent<Image>();
             background.color = new Color(0.035f, 0.045f, 0.05f, 1f);
 
-            Text title = CreateText("Title", panel, "Family Trees", 28, TextAnchor.MiddleLeft, Color.white);
+            Text title = CreateText("Title", panel, string.Empty, 28, TextAnchor.MiddleLeft, Color.white);
             title.fontStyle = FontStyle.Bold;
             SetTopLeft(title.rectTransform, 30f, 20f, 420f, 42f);
+            StrategyLocalizedTextBinding.Bind(title, StrategyLocalizationTables.Residents, "resident.family_tree.title");
 
-            Button close = CreateButton("BackButton", panel, "Back", 15, new Color(0.18f, 0.20f, 0.22f, 1f));
+            Button close = CreateButton("BackButton", panel, string.Empty, 15, new Color(0.18f, 0.20f, 0.22f, 1f));
             close.onClick.AddListener(() => SetOpen(false));
             SetTopRight(close.GetComponent<RectTransform>(), 30f, 24f, 86f, 36f);
             StrategyUiButtonFeedback.Attach(close, StrategyUiButtonFeedbackProfile.Standard, null);
+            StrategyLocalizedTextBinding.Bind(close.GetComponentInChildren<Text>(), StrategyLocalizationTables.Residents, "resident.family_tree.back");
 
             summaryText = CreateText("Summary", panel, string.Empty, 13, TextAnchor.MiddleLeft, new Color(0.78f, 0.86f, 0.82f));
             SetTopLeft(summaryText.rectTransform, 30f, 66f, 1080f, 24f);
@@ -235,8 +238,9 @@ namespace ProjectUnknown.Strategy
             scroll.horizontalScrollbar = CreateHorizontalScrollbar(panel);
             scroll.horizontalScrollbarVisibility = ScrollRect.ScrollbarVisibility.Permanent;
 
-            emptyText = CreateText("Empty", panel, "No family records", 17, TextAnchor.MiddleCenter, new Color(0.72f, 0.80f, 0.76f));
+            emptyText = CreateText("Empty", panel, string.Empty, 17, TextAnchor.MiddleCenter, new Color(0.72f, 0.80f, 0.76f));
             Stretch(emptyText.rectTransform, 30f, 320f, 30f, 320f);
+            StrategyLocalizedTextBinding.Bind(emptyText, StrategyLocalizationTables.Residents, "resident.family_tree.empty");
         }
 
         private void RefreshTrees()
@@ -248,7 +252,7 @@ namespace ProjectUnknown.Strategy
             emptyText.gameObject.SetActive(!hasRecords);
             if (!hasRecords)
             {
-                summaryText.text = "No accepted residents yet.";
+                summaryText.text = FamilyText("resident.family_tree.no_residents");
                 contentRoot.sizeDelta = new Vector2(MinimumContentWidth, 1f);
                 return;
             }
@@ -278,7 +282,10 @@ namespace ProjectUnknown.Strategy
 
             DrawCrossFamilyConnections();
             contentRoot.sizeDelta = new Vector2(contentWidth, contentHeight + 24f);
-            summaryText.text = familyGroups.Count + " families / " + allRecords.Count + " recorded members";
+            summaryText.text = FamilyText(
+                "resident.family_tree.summary",
+                familyGroups.Count,
+                allRecords.Count);
         }
 
         private void BuildAllRecords()
@@ -421,18 +428,22 @@ namespace ProjectUnknown.Strategy
         {
             if (group == null)
             {
-                return "Unknown family";
+                return FamilyText("resident.family_tree.unknown_family");
             }
 
-            string header = group.FamilyName + " family";
-            return group.DuplicateCount > 1 ? header + " " + group.DuplicateIndex : header;
+            return group.DuplicateCount > 1
+                ? FamilyText(
+                    "resident.family_tree.family_header_index",
+                    group.FamilyName,
+                    group.DuplicateIndex)
+                : FamilyText("resident.family_tree.family_header", group.FamilyName);
         }
 
         private static string GetPrimaryFamilyName(List<StrategyResidentFamilyRecord> records)
         {
             if (records == null || records.Count <= 0)
             {
-                return "Unknown";
+                return FamilyText("resident.common.unknown");
             }
 
             Dictionary<string, int> counts = new();
@@ -470,7 +481,7 @@ namespace ProjectUnknown.Strategy
         {
             return record != null && !string.IsNullOrWhiteSpace(record.FamilyName)
                 ? record.FamilyName
-                : "Unknown";
+                : FamilyText("resident.common.unknown");
         }
 
         private static bool HasSameFamilyName(StrategyResidentFamilyRecord record, string familyName)

@@ -62,55 +62,71 @@ namespace ProjectUnknown.Strategy
 
             if (target.ResidentId == focus.FatherId)
             {
-                return "Father";
+                return FamilyText("resident.family_tree.relationship.father");
             }
 
             if (target.ResidentId == focus.MotherId)
             {
-                return "Mother";
+                return FamilyText("resident.family_tree.relationship.mother");
             }
 
             if (IsParentOf(focus, target))
             {
-                return target.Gender == StrategyResidentGender.Male ? "Son" : "Daughter";
+                return FamilyText(target.Gender == StrategyResidentGender.Male
+                    ? "resident.family_tree.relationship.son"
+                    : "resident.family_tree.relationship.daughter");
             }
 
             if (AreCoParents(focus, target))
             {
-                return target.Gender == StrategyResidentGender.Male ? "Husband" : "Wife";
+                return FamilyText(target.Gender == StrategyResidentGender.Male
+                    ? "resident.family_tree.relationship.husband"
+                    : "resident.family_tree.relationship.wife");
             }
 
             if (ShareKnownParent(focus, target))
             {
-                return target.Gender == StrategyResidentGender.Male ? "Brother" : "Sister";
+                return FamilyText(target.Gender == StrategyResidentGender.Male
+                    ? "resident.family_tree.relationship.brother"
+                    : "resident.family_tree.relationship.sister");
             }
 
             if (IsGrandparentOf(target, focus))
             {
-                return target.Gender == StrategyResidentGender.Male ? "Grandfather" : "Grandmother";
+                return FamilyText(target.Gender == StrategyResidentGender.Male
+                    ? "resident.family_tree.relationship.grandfather"
+                    : "resident.family_tree.relationship.grandmother");
             }
 
             if (IsGrandparentOf(focus, target))
             {
-                return target.Gender == StrategyResidentGender.Male ? "Grandson" : "Granddaughter";
+                return FamilyText(target.Gender == StrategyResidentGender.Male
+                    ? "resident.family_tree.relationship.grandson"
+                    : "resident.family_tree.relationship.granddaughter");
             }
 
             if (IsAuntOrUncleOf(target, focus))
             {
-                return target.Gender == StrategyResidentGender.Male ? "Uncle" : "Aunt";
+                return FamilyText(target.Gender == StrategyResidentGender.Male
+                    ? "resident.family_tree.relationship.uncle"
+                    : "resident.family_tree.relationship.aunt");
             }
 
             if (IsAuntOrUncleOf(focus, target))
             {
-                return target.Gender == StrategyResidentGender.Male ? "Nephew" : "Niece";
+                return FamilyText(target.Gender == StrategyResidentGender.Male
+                    ? "resident.family_tree.relationship.nephew"
+                    : "resident.family_tree.relationship.niece");
             }
 
             if (AreCousins(focus, target))
             {
-                return "Cousin";
+                return FamilyText("resident.family_tree.relationship.cousin");
             }
 
-            return AreConnectedKin(focus.ResidentId, target.ResidentId) ? "Kin" : string.Empty;
+            return AreConnectedKin(focus.ResidentId, target.ResidentId)
+                ? FamilyText("resident.family_tree.relationship.kin")
+                : string.Empty;
         }
 
         private bool IsParentOf(

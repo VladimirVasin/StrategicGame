@@ -71,6 +71,10 @@ namespace ProjectUnknown.Strategy
                 14,
                 TextAnchor.MiddleLeft,
                 new Color(0.95f, 0.88f, 0.62f));
+            StrategyLocalizedTextBinding.Bind(
+                label,
+                StrategyLocalizationTables.Hud,
+                "hud.inventory.launcher");
             label.fontStyle = FontStyle.Bold;
             SetOffsets(label.rectTransform, 46f, 0f, 34f, 0f);
 
@@ -100,7 +104,11 @@ namespace ProjectUnknown.Strategy
             button.onClick.AddListener(Toggle);
             ConfigureButtonColors(button, background.color);
             StrategyUiButtonFeedback.Attach(button);
-            StrategyHudTooltip.Attach(launcherRoot.gameObject, "Open the settlement chest for unique story and city items.");
+            launcherTooltip = StrategyHudTooltip.Attach(
+                launcherRoot.gameObject,
+                StrategyLocalization.Get(
+                    StrategyLocalizationTables.Hud,
+                    "hud.inventory.tooltip"));
         }
 
         private void CreateOverlay(Transform parent)
@@ -156,6 +164,10 @@ namespace ProjectUnknown.Strategy
             accentImage.raycastTarget = false;
 
             Text title = CreateText("Title", panelRoot, "CITY INVENTORY", 25, TextAnchor.UpperLeft, Color.white);
+            StrategyLocalizedTextBinding.Bind(
+                title,
+                StrategyLocalizationTables.Hud,
+                "hud.inventory.title");
             title.fontStyle = FontStyle.Bold;
             SetTopStretch(title.rectTransform, 30f, 24f, 90f, 32f);
             Text subtitle = CreateText(
@@ -165,6 +177,10 @@ namespace ProjectUnknown.Strategy
                 12,
                 TextAnchor.UpperLeft,
                 MutedGold);
+            StrategyLocalizedTextBinding.Bind(
+                subtitle,
+                StrategyLocalizationTables.Hud,
+                "hud.inventory.subtitle");
             subtitle.fontStyle = FontStyle.Bold;
             SetTopStretch(subtitle.rectTransform, 30f, 58f, 90f, 18f);
 
@@ -260,6 +276,10 @@ namespace ProjectUnknown.Strategy
             SetTopLeft(detailQuantity.rectTransform, 112f, 70f, 174f, 22f);
 
             Text storyLabel = CreateText("StoryLabel", detail, "STORY", 11, TextAnchor.UpperLeft, MutedGold);
+            StrategyLocalizedTextBinding.Bind(
+                storyLabel,
+                StrategyLocalizationTables.Hud,
+                "hud.inventory.story");
             storyLabel.fontStyle = FontStyle.Bold;
             SetTopStretch(storyLabel.rectTransform, 20f, 120f, 20f, 18f);
             detailDescription = CreateText("Description", detail, string.Empty, 13, TextAnchor.UpperLeft, new Color(0.84f, 0.88f, 0.84f));
@@ -267,6 +287,10 @@ namespace ProjectUnknown.Strategy
             SetTopStretch(detailDescription.rectTransform, 20f, 144f, 20f, 126f);
 
             Text effectLabel = CreateText("EffectLabel", detail, "EFFECT", 11, TextAnchor.UpperLeft, MutedGold);
+            StrategyLocalizedTextBinding.Bind(
+                effectLabel,
+                StrategyLocalizationTables.Hud,
+                "hud.inventory.effect");
             effectLabel.fontStyle = FontStyle.Bold;
             SetTopStretch(effectLabel.rectTransform, 20f, 292f, 20f, 18f);
             detailEffect = CreateText("Effect", detail, string.Empty, 13, TextAnchor.UpperLeft, new Color(0.76f, 0.86f, 0.80f));
@@ -280,6 +304,10 @@ namespace ProjectUnknown.Strategy
                 11,
                 TextAnchor.LowerCenter,
                 new Color(0.60f, 0.68f, 0.65f));
+            StrategyLocalizedTextBinding.Bind(
+                readOnly,
+                StrategyLocalizationTables.Hud,
+                "hud.inventory.read_only");
             SetBottomStretch(readOnly.rectTransform, 18f, 16f, 18f, 24f);
         }
 
@@ -311,6 +339,10 @@ namespace ProjectUnknown.Strategy
                 21,
                 TextAnchor.MiddleCenter,
                 Color.white);
+            StrategyLocalizedTextBinding.Bind(
+                emptyStateTitle,
+                StrategyLocalizationTables.Hud,
+                "hud.inventory.empty_title");
             emptyStateTitle.fontStyle = FontStyle.Bold;
             SetCenter(emptyStateTitle.rectTransform, 0f, -16f, 620f, 34f);
             emptyStateBody = CreateText(
@@ -320,6 +352,10 @@ namespace ProjectUnknown.Strategy
                 14,
                 TextAnchor.UpperCenter,
                 new Color(0.70f, 0.78f, 0.74f));
+            StrategyLocalizedTextBinding.Bind(
+                emptyStateBody,
+                StrategyLocalizationTables.Hud,
+                "hud.inventory.empty_body");
             SetCenter(emptyStateBody.rectTransform, 0f, -62f, 600f, 58f);
         }
 
@@ -353,56 +389,6 @@ namespace ProjectUnknown.Strategy
             if (launcherChestIcon != null)
             {
                 launcherChestIcon.localScale = launcherChestIconRestScale;
-            }
-        }
-
-        private static Sprite GetChestSprite()
-        {
-            if (chestSprite != null)
-            {
-                return chestSprite;
-            }
-
-            Texture2D texture = new(24, 20, TextureFormat.RGBA32, false)
-            {
-                name = "City Inventory Chest Icon",
-                filterMode = FilterMode.Point,
-                wrapMode = TextureWrapMode.Clamp
-            };
-            texture.SetPixels(new Color[24 * 20]);
-            Color dark = new Color32(62, 39, 25, 255);
-            Color wood = new Color32(142, 89, 42, 255);
-            Color light = new Color32(204, 142, 63, 255);
-            Color metal = new Color32(218, 174, 77, 255);
-            FillPixels(texture, 3, 3, 18, 10, dark);
-            FillPixels(texture, 4, 4, 16, 8, wood);
-            FillPixels(texture, 3, 12, 18, 4, dark);
-            FillPixels(texture, 5, 13, 14, 3, light);
-            FillPixels(texture, 10, 4, 4, 12, metal);
-            FillPixels(texture, 11, 7, 2, 3, dark);
-            texture.Apply(false, false);
-            chestSprite = Sprite.Create(
-                texture,
-                new Rect(0f, 0f, 24f, 20f),
-                new Vector2(0.5f, 0.5f),
-                24f);
-            return chestSprite;
-        }
-
-        private static void FillPixels(
-            Texture2D texture,
-            int x,
-            int y,
-            int width,
-            int height,
-            Color color)
-        {
-            for (int py = y; py < y + height; py++)
-            {
-                for (int px = x; px < x + width; px++)
-                {
-                    texture.SetPixel(px, py, color);
-                }
             }
         }
 

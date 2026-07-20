@@ -345,13 +345,7 @@ namespace ProjectUnknown.Strategy
 
                 if (residentStatusTexts[i] != null)
                 {
-                    string householdRole = resident == building.Householder ? "Householder, " : string.Empty;
-                    residentStatusTexts[i].text = householdRole
-                        + GetResidentLifeStageTitle(resident)
-                        + ", "
-                        + resident.DisplayAgeYears
-                        + " years"
-                        + (resident.IsHungry ? ", " + resident.NutritionStatusText : string.Empty);
+                    residentStatusTexts[i].text = GetHouseResidentStatus(building, resident);
                 }
             }
         }
@@ -365,8 +359,8 @@ namespace ProjectUnknown.Strategy
             {
                 workersEmptyText.gameObject.SetActive(workerCount <= 0);
                 workersEmptyText.text = canAssign
-                    ? "assign residents"
-                    : "no free residents";
+                    ? L("workers.assign_residents")
+                    : L("workers.no_free_residents");
             }
 
             for (int i = 0; i < workerRows.Length; i++)
@@ -397,7 +391,7 @@ namespace ProjectUnknown.Strategy
                 {
                     workerNameTexts[i].text = hasWorker
                         ? worker.FullName
-                        : "Open slot";
+                        : L("workers.open_slot");
                     workerNameTexts[i].color = hasWorker ? Color.white : new Color(0.72f, 0.80f, 0.76f);
                 }
 
@@ -405,7 +399,7 @@ namespace ProjectUnknown.Strategy
                 {
                     workerStatusTexts[i].text = hasWorker
                         ? GetResidentStatus(worker)
-                        : "up to 2 workers";
+                        : L("workers.up_to_two");
                 }
 
                 bool buttonEnabled = hasWorker || (i == workerCount && canAssign);
@@ -417,8 +411,8 @@ namespace ProjectUnknown.Strategy
                 if (workerActionTexts[i] != null)
                 {
                     workerActionTexts[i].text = hasWorker
-                        ? "Remove"
-                        : "Assign";
+                        ? L("action.remove")
+                        : L("action.assign");
                     workerActionTexts[i].color = buttonEnabled ? Color.white : new Color(0.55f, 0.61f, 0.59f);
                 }
             }
@@ -433,8 +427,8 @@ namespace ProjectUnknown.Strategy
             {
                 workersEmptyText.gameObject.SetActive(workerCount <= 0);
                 workersEmptyText.text = canAssign
-                    ? "assign hunters"
-                    : "no free residents";
+                    ? L("workers.assign_hunters")
+                    : L("workers.no_free_residents");
             }
 
             for (int i = 0; i < workerRows.Length; i++)
@@ -465,7 +459,7 @@ namespace ProjectUnknown.Strategy
                 {
                     workerNameTexts[i].text = hasWorker
                         ? worker.FullName
-                        : "Hunter: open";
+                        : L("workers.hunter_open");
                     workerNameTexts[i].color = hasWorker ? Color.white : new Color(0.72f, 0.80f, 0.76f);
                 }
 
@@ -473,7 +467,9 @@ namespace ProjectUnknown.Strategy
                 {
                     workerStatusTexts[i].text = hasWorker
                         ? GetResidentStatus(worker)
-                        : camp != null && camp.CanHuntDeer ? "hunts rabbits/deer" : "hunts rabbits";
+                        : camp != null && camp.CanHuntDeer
+                            ? L("workers.hunts_rabbits_deer")
+                            : L("workers.hunts_rabbits");
                 }
 
                 bool buttonEnabled = hasWorker || (i == workerCount && canAssign);
@@ -485,8 +481,8 @@ namespace ProjectUnknown.Strategy
                 if (workerActionTexts[i] != null)
                 {
                     workerActionTexts[i].text = hasWorker
-                        ? "Remove"
-                        : "Assign";
+                        ? L("action.remove")
+                        : L("action.assign");
                     workerActionTexts[i].color = buttonEnabled ? Color.white : new Color(0.55f, 0.61f, 0.59f);
                 }
             }

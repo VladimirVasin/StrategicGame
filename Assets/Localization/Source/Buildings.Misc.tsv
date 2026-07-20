@@ -1,0 +1,33 @@
+Key	English	Russian
+build.speed.tooltip	Set simulation speed to x{0}. Keyboard shortcut: F{0}.	Установить скорость симуляции x{0}. Горячая клавиша: F{0}.
+build.tooltip.footprint	Footprint {0} × {1}	Размер: {0} × {1}
+build.placement.title	{0} · {1}×{2}	{0} · {1}×{2}
+build.placement.status	{0} · LMB place · RMB/Esc cancel	{0} · ЛКМ — разместить · ПКМ/Esc — отменить
+build.placement.choose_location	Choose a buildable location.	Выберите подходящее место для строительства.
+build.placement.move_pointer	Move the pointer over the map.	Наведите указатель на карту.
+build.placement.explore_area	Explore this area before building here.	Сначала исследуйте эту область.
+build.placement.occupied	Another structure already occupies this space.	Это место уже занято другим строением.
+build.placement.inside_map	Move the whole footprint inside the map.	Переместите всю площадку в границы карты.
+build.placement.land_or_water	This building needs suitable land or water access.	Этому зданию нужна подходящая суша или доступ к воде.
+build.placement.not_affordable	Not enough construction materials.	Недостаточно строительных материалов.
+build.placement.no_builder_access	Builders cannot reach this site.	Строители не могут добраться до этого места.
+build.placement.resident_in_footprint	A resident is standing in the footprint.	На строительной площадке стоит житель.
+build.placement.no_water_access	The Fisher Hut needs accessible fishing water.	Рыбацкой хижине нужен доступ к воде для ловли.
+build.placement.iron_deposit	Place the Mine over a discovered Iron deposit.	Разместите шахту над разведанным месторождением железа.
+build.placement.coal_deposit	Place the Coal Pit over a discovered Coal deposit.	Разместите угольный разрез над разведанным месторождением угля.
+build.placement.clay_field	Place the Clay Pit over a Clay field.	Разместите глиняный карьер на залежах глины.
+build.placement.bridge_bank_walkable	The bridge bank must be walkable.	Берег у моста должен быть проходимым.
+build.placement.bridge_bank_buildable	The bridge bank is not buildable.	На этом берегу нельзя строить.
+build.placement.bridge_banks_explored	Explore both bridge banks first.	Сначала исследуйте оба берега.
+build.placement.bridge_beside_river	Start the bridge beside a river.	Начните мост у реки.
+build.placement.bridge_span_blocked	The bridge span is blocked.	Пролёт моста заблокирован.
+build.placement.bridge_span_explored	Explore the whole bridge span first.	Сначала исследуйте весь пролёт моста.
+build.placement.bridge_cross_river	The bridge must cross at least one river cell.	Мост должен пересекать хотя бы одну клетку реки.
+build.placement.bridge_no_opposite_bank	No valid opposite bank is in range.	В пределах досягаемости нет подходящего противоположного берега.
+build.placement.bridge_choose_bank	Choose one of the highlighted opposite banks.	Выберите один из подсвеченных противоположных берегов.
+build.placement.terrain_blocked	Terrain blocks construction here.	Рельеф не позволяет строить здесь.
+build.placement.valid_reachable	Choose a valid, reachable location.	Выберите подходящее доступное место.
+build.placement.valid_first_bank	Valid first bank. Click to choose the bridge start.	Подходящий первый берег. Щёлкните, чтобы выбрать начало моста.
+build.placement.valid_span	Valid span. Click the highlighted opposite bank to place.	Подходящий пролёт. Щёлкните по подсвеченному противоположному берегу.
+build.placement.valid_site	Valid site. Click to place the construction plan.	Подходящее место. Щёлкните, чтобы разместить план строительства.
+build.cost.free	Free	Бесплатно

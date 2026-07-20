@@ -2,29 +2,35 @@ namespace ProjectUnknown.Strategy
 {
     internal static class StrategyFirstNightFaunaStoryCatalog
     {
-        public static readonly StrategyFoundingStoryPanel[] Frames =
+        public static StrategyFoundingStoryPanel[] Frames =>
+            new StrategyFoundingStoryPanel[]
         {
             new(
                 "Visual/FirstNightFauna/01_Rustle",
-                "THE FIRST DUSK",
-                "A rustle beneath the grain.",
-                "At first it was only a whisper under the sacks. Then a grey shape slipped between the crates, and another followed it into the dark.",
+                S("first_night.frame.rustle.chapter"),
+                S("first_night.frame.rustle.title"),
+                S("first_night.frame.rustle.body"),
                 StrategyFoundingAtmosphere.Mist,
                 StrategyFoundingShot.LongRoad),
             new(
                 "Visual/FirstNightFauna/02_MouseFeast",
-                "THE MIDNIGHT FEAST",
-                "Tiny teeth found our stores.",
-                "By moonrise the mice were everywhere. They gnawed at grain, rooted through baskets, and celebrated our first harvest as if we had gathered it for them.",
+                S("first_night.frame.mouse_feast.chapter"),
+                S("first_night.frame.mouse_feast.title"),
+                S("first_night.frame.mouse_feast.body"),
                 StrategyFoundingAtmosphere.Embers,
                 StrategyFoundingShot.Departure),
             new(
                 "Visual/FirstNightFauna/03_QuietHunters",
-                "QUIET HUNTERS",
-                "Then green eyes opened by the fire.",
-                "A lean cat stepped from the firelight, silent and entirely at home. The mice had found our stores, but their hunters had found us too. We would be all right.",
+                S("first_night.frame.quiet_hunters.chapter"),
+                S("first_night.frame.quiet_hunters.title"),
+                S("first_night.frame.quiet_hunters.body"),
                 StrategyFoundingAtmosphere.Fireflies,
                 StrategyFoundingShot.Council)
         };
+
+        private static string S(string key)
+        {
+            return StrategyLocalization.Get(StrategyLocalizationTables.Stories, key);
+        }
     }
 }

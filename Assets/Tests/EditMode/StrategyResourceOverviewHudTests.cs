@@ -5,6 +5,8 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
 
 namespace ProjectUnknown.Strategy.EditorTests
@@ -15,11 +17,23 @@ namespace ProjectUnknown.Strategy.EditorTests
         private StrategyInputRouter inputRouter;
         private StrategyResourceOverviewHudController hud;
         private float previousTimeScale;
+        private Locale previousLocale;
+        private bool hadLanguagePreference;
+        private string previousLanguagePreference;
 
         [SetUp]
         public void SetUp()
         {
             previousTimeScale = Time.timeScale;
+            previousLocale = LocalizationSettings.SelectedLocale;
+            hadLanguagePreference = PlayerPrefs.HasKey(
+                StrategyLocalization.LanguagePreferenceKey);
+            previousLanguagePreference = PlayerPrefs.GetString(
+                StrategyLocalization.LanguagePreferenceKey,
+                StrategyLocalization.RussianLocaleCode);
+            Assert.That(
+                StrategyLocalization.SetLanguage(StrategyGameLanguage.English),
+                Is.True);
             root = new GameObject("Resource Overview HUD Test Root");
 
             GameObject eventSystemObject = new("EventSystem", typeof(EventSystem));
@@ -46,6 +60,22 @@ namespace ProjectUnknown.Strategy.EditorTests
             if (root != null)
             {
                 UnityEngine.Object.DestroyImmediate(root);
+            }
+
+            StrategyGameLanguage restoreLanguage = previousLocale != null
+                ? StrategyLocalization.FromLocaleCode(previousLocale.Identifier.Code)
+                : StrategyLocalization.FromLocaleCode(previousLanguagePreference);
+            StrategyLocalization.SetLanguage(restoreLanguage);
+            LocalizationSettings.SelectedLocale = previousLocale;
+            if (hadLanguagePreference)
+            {
+                PlayerPrefs.SetString(
+                    StrategyLocalization.LanguagePreferenceKey,
+                    previousLanguagePreference);
+            }
+            else
+            {
+                PlayerPrefs.DeleteKey(StrategyLocalization.LanguagePreferenceKey);
             }
         }
 

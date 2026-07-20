@@ -1,0 +1,986 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Residents_en
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: en
+  m_SharedData: {fileID: 11400000, guid: a37ab75b86fc9ff49a2fe288f8edc06f, type: 2}
+  m_Metadata:
+    m_Items:
+    - rid: 465534772507312165
+  m_TableData:
+  - m_Id: 183701882425344
+    m_Localized: Cats
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951296
+    m_Localized: They followed the caravan unseen, then chose the settlement for
+      their own.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951297
+    m_Localized: Cats hunt mice around the settlement, keeping their numbers down.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951298
+    m_Localized: Holey Spoon
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951299
+    m_Localized: 'Not the most dignified spoon for soup: half of it escapes back
+      into the bowl.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951300
+    m_Localized: '{0}y'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312165
+  - m_Id: 183701936951301
+    m_Localized: Settler
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951302
+    m_Localized: Child
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951303
+    m_Localized: Householder
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951304
+    m_Localized: Builder
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951305
+    m_Localized: Lumberjack
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951306
+    m_Localized: Stonecutter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951307
+    m_Localized: Miner
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951308
+    m_Localized: Coal Miner
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951309
+    m_Localized: Clay Digger
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951310
+    m_Localized: Sawyer
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951311
+    m_Localized: Potter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951312
+    m_Localized: Blacksmith
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951313
+    m_Localized: Hunter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951314
+    m_Localized: Fisher
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951315
+    m_Localized: Forager
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951316
+    m_Localized: Scout
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951317
+    m_Localized: Hauler
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951318
+    m_Localized: Unknown
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951319
+    m_Localized: House
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951320
+    m_Localized: Future House
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951321
+    m_Localized: Refugee Camp
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951322
+    m_Localized: Camp
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951323
+    m_Localized: unknown
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951324
+    m_Localized: '{0} {1}d'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312165
+  - m_Id: 183701936951325
+    m_Localized: male
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951326
+    m_Localized: female
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951327
+    m_Localized: child
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951328
+    m_Localized: adult
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951329
+    m_Localized: '{0} | {1} {2}d'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312165
+  - m_Id: 183701936951330
+    m_Localized: '{0} | {1}'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312165
+  - m_Id: 183701936951331
+    m_Localized: Returning to the Scout Lodge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951332
+    m_Localized: Ready for an expedition
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951333
+    m_Localized: '{0}d {1}h'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312165
+  - m_Id: 183701936951334
+    m_Localized: '{0}h'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312165
+  - m_Id: 183701936951335
+    m_Localized: '{0} | expedition {1} left'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312165
+  - m_Id: 183701936951336
+    m_Localized: Lumberjacks
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951337
+    m_Localized: chop trees and stockpile Logs
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951338
+    m_Localized: Stonecutters
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951339
+    m_Localized: mine Stone with pickaxes
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951340
+    m_Localized: Miners
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951341
+    m_Localized: work underground for Iron
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951342
+    m_Localized: Coal Miners
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951343
+    m_Localized: dig Coal inside pits
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951344
+    m_Localized: Clay Diggers
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951345
+    m_Localized: dig wet Clay near water
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951346
+    m_Localized: Sawyers
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951347
+    m_Localized: saw Logs into Planks
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951348
+    m_Localized: Potters
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951349
+    m_Localized: fire Clay and Coal into Pottery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951350
+    m_Localized: Blacksmiths
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951351
+    m_Localized: forge Iron, Coal and Logs into Tools
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951352
+    m_Localized: Hunters
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951353
+    m_Localized: hunt rabbits
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951354
+    m_Localized: Fishers
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951355
+    m_Localized: catch fish near water
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951356
+    m_Localized: Foragers
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951357
+    m_Localized: gather wild food
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951358
+    m_Localized: Scouts
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951359
+    m_Localized: explore and chart unknown land
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951360
+    m_Localized: Haulers
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951361
+    m_Localized: haul all resources and food
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951362
+    m_Localized: Builders
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951363
+    m_Localized: build structures
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951364
+    m_Localized: Construction
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951365
+    m_Localized: Food
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951366
+    m_Localized: Logistics
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951367
+    m_Localized: Wood
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951368
+    m_Localized: Stone
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951369
+    m_Localized: Planks
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951370
+    m_Localized: Iron
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951371
+    m_Localized: Coal
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951372
+    m_Localized: Clay
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951373
+    m_Localized: Pottery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951374
+    m_Localized: Tools
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951375
+    m_Localized: Auto workforce ready
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951376
+    m_Localized: Auto assign enabled
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951377
+    m_Localized: Auto assign disabled
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951378
+    m_Localized: No free adults
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951379
+    m_Localized: 'Assigned workers: {0}'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312165
+  - m_Id: 183701936951380
+    m_Localized: 'Workers released for demand: {0}'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312165
+  - m_Id: 183701936951381
+    m_Localized: 'Disabled workers released: {0}'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312165
+  - m_Id: 183701936951382
+    m_Localized: 'Surplus workers released: {0}'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312165
+  - m_Id: 183701936951383
+    m_Localized: No enabled workforce slot
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951384
+    m_Localized: Refugees
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951385
+    m_Localized: settlement decision
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951386
+    m_Localized: A refugee family has reached the campfire. They are asking for shelter
+      in the settlement.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951387
+    m_Localized: Accept
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951388
+    m_Localized: Refuse
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951389
+    m_Localized: 'Family: no data'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951390
+    m_Localized: '{0}  -  {1}, {2} year'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312165
+  - m_Id: 183701936951391
+    m_Localized: '{0}  -  {1}, {2} years'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312165
+  - m_Id: 183701936951392
+    m_Localized: '{0}  -  {1}, {2} years'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312165
+  - m_Id: 183701936951393
+    m_Localized: family member
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951394
+    m_Localized: father
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951395
+    m_Localized: mother
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951396
+    m_Localized: son
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951397
+    m_Localized: daughter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951398
+    m_Localized: 'N
+
+      +
+
+      S'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951399
+    m_Localized: SCOUT LODGE  /  EXPEDITION BOARD
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951400
+    m_Localized: WHY THE TRAIL MATTERS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951401
+    m_Localized: Scouts range by day and night, reveal unexplored land, investigate
+      landmarks, and report distant Iron and Coal deposits - and whatever else waits
+      beyond the fog.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951402
+    m_Localized: ONE LODGE  /  ONE SCOUT  /  REASSIGN ANY TIME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951403
+    m_Localized: THE FIRST EXPEDITION
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951404
+    m_Localized: Beyond the Firelight
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951405
+    m_Localized: The roofs are standing and the camps are working, but beyond the
+      last familiar path the valley is still only rumor. Choose one adult to carry
+      our first map into the unknown.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951406
+    m_Localized: APPOINT A SCOUT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951407
+    m_Localized: Choose Who Takes the Trail
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951408
+    m_Localized: Every map begins with someone willing to leave the familiar road.
+      Choose an adult to carry the Lodge's compass and chart what waits beyond the
+      settlement.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951409
+    m_Localized: PLAN AN EXPEDITION
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951410
+    m_Localized: How Far Beyond the Firelight?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951411
+    m_Localized: 'The Scout is ready and the route is open. Choose how many days
+      of provisions to pack: a longer expedition can chart more ground, but every
+      dawn beyond the Lodge costs another ration.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951412
+    m_Localized: Scout or Lodge no longer ready
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951413
+    m_Localized: The selected resident is no longer available. Choose another Scout.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951414
+    m_Localized: That resident is no longer available for the trail.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951415
+    m_Localized: Ready to choose the range of this expedition.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951416
+    m_Localized: Ready to carry the settlement's first map.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951417
+    m_Localized: Ready to take the Lodge's compass beyond the familiar roads.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951418
+    m_Localized: This Scout or Lodge is no longer ready to depart.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951419
+    m_Localized: The chosen resident is no longer available. Choose another Scout.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951420
+    m_Localized: The expedition cannot leave without all required rations.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951421
+    m_Localized: Departure could not be completed. Provisions or the Lodge state
+      may have changed.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951422
+    m_Localized: No one can leave their duties today. Return when an adult is free.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951423
+    m_Localized: The first expedition must wait until enough rations are stored.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951424
+    m_Localized: The selected resident is no longer available for the trail.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951425
+    m_Localized: SCOUT ON DUTY  /  READY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951426
+    m_Localized: SCOUT ON DUTY  /  DEPARTURE BLOCKED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951427
+    m_Localized: CHOOSE A RESIDENT  /  {0} READY
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312165
+  - m_Id: 183701936951428
+    m_Localized: CHOOSE A RESIDENT  /  {0} READY
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312165
+  - m_Id: 183701936951429
+    m_Localized: No adult residents are in the settlement yet.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951430
+    m_Localized: Choose a resident to continue
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951431
+    m_Localized: Send {0} for {1} day
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312165
+  - m_Id: 183701936951432
+    m_Localized: Send {0} for {1} days
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312165
+  - m_Id: 183701936951433
+    m_Localized: Send {0} for {1} days
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312165
+  - m_Id: 183701936951434
+    m_Localized: Appoint {0}  /  {1} day
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312165
+  - m_Id: 183701936951435
+    m_Localized: Appoint {0}  /  {1} days
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312165
+  - m_Id: 183701936951436
+    m_Localized: Appoint {0}  /  {1} days
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312165
+  - m_Id: 183701936951437
+    m_Localized: Decide Later
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951438
+    m_Localized: Cancel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951439
+    m_Localized: EXPEDITION RANGE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951440
+    m_Localized: '{0} DAY'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312165
+  - m_Id: 183701936951441
+    m_Localized: '{0} DAYS'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312165
+  - m_Id: 183701936951442
+    m_Localized: '{0} DAYS'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312165
+  - m_Id: 183701936951443
+    m_Localized: 'RATIONS NEEDED: {0}  /  AVAILABLE: {1}'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312165
+  - m_Id: 183701936951444
+    m_Localized: 'Exploration ends: Day {0}, {1}'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312165
+  - m_Id: 183701936951445
+    m_Localized: Rations short by {0}. Store more provisions or shorten the expedition.
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312165
+  - m_Id: 183701936951446
+    m_Localized: Provisions are packed before the Scout leaves.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951447
+    m_Localized: Family Trees
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951448
+    m_Localized: Back
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951449
+    m_Localized: No family records
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951450
+    m_Localized: No accepted residents yet.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951451
+    m_Localized: '{0} families / {1} recorded members'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312165
+  - m_Id: 183701936951452
+    m_Localized: Unknown family
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951453
+    m_Localized: '{0} family'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312165
+  - m_Id: 183701936951454
+    m_Localized: '{0} family {1}'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312165
+  - m_Id: 183701936951455
+    m_Localized: '{0} members'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312165
+  - m_Id: 183701936951456
+    m_Localized: '{0}, {1}y'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312165
+  - m_Id: 183701936951457
+    m_Localized: deceased, {0}y
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312165
+  - m_Id: 183701936951458
+    m_Localized: deceased, {0}y
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312165
+  - m_Id: 183701936951459
+    m_Localized: Father
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951460
+    m_Localized: Mother
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951461
+    m_Localized: Son
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951462
+    m_Localized: Daughter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951463
+    m_Localized: Husband
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951464
+    m_Localized: Wife
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951465
+    m_Localized: Brother
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951466
+    m_Localized: Sister
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951467
+    m_Localized: Grandfather
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951468
+    m_Localized: Grandmother
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951469
+    m_Localized: Grandson
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951470
+    m_Localized: Granddaughter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951471
+    m_Localized: Uncle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951472
+    m_Localized: Aunt
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951473
+    m_Localized: Nephew
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951474
+    m_Localized: Niece
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951475
+    m_Localized: Cousin
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951476
+    m_Localized: Kin
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951477
+    m_Localized: Unknown resident
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951478
+    m_Localized: Unavailable
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951479
+    m_Localized: '{0} years / {1}'
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312165
+  - m_Id: 183701936951480
+    m_Localized: SELECTED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951481
+    m_Localized: REASSIGN FROM {0}
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312165
+  - m_Id: 183701936951482
+    m_Localized: READY FOR THE TRAIL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951483
+    m_Localized: Unavailable for scouting duty
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951484
+    m_Localized: Resident unavailable
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701936951485
+    m_Localized: Already assigned to this Lodge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701941145600
+    m_Localized: Scout slot already filled
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701941145601
+    m_Localized: Only adults can become Scouts
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701941145602
+    m_Localized: Has not joined the settlement
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701941145603
+    m_Localized: Assigned to construction
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701941145604
+    m_Localized: Responsible for a household
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701941145605
+    m_Localized: Currently {0}
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312165
+  - m_Id: 183701941145606
+    m_Localized: THE CITY REMEMBERS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701941145607
+    m_Localized: NEW CITY ITEM
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701941145608
+    m_Localized: UNIQUE CITY BOON
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701941145609
+    m_Localized: CITY ITEM
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701941145610
+    m_Localized: CITY CHEST / PERMANENT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701941145611
+    m_Localized: SEND TO CITY CHEST
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701941145612
+    m_Localized: PERSONAL SCOUT FIND
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183701941145613
+    m_Localized: Now carried by {0}
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312165
+  - m_Id: 183701941145614
+    m_Localized: TAKE ITEM
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 465534772507312165
+      type: {class: SmartFormatTag, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_Entries: 
+        m_SharedEntries:
+        - id: 628248580
+        - id: 628248604
+        - id: 628248609
+        - id: 628248610
+        - id: 628248613
+        - id: 628248614
+        - id: 628248615
+        - id: 628248659
+        - id: 628248660
+        - id: 628248661
+        - id: 628248662
+        - id: 628248670
+        - id: 628248671
+        - id: 628248672
+        - id: 628248707
+        - id: 628248708
+        - id: 628248711
+        - id: 628248712
+        - id: 628248713
+        - id: 628248714
+        - id: 628248715
+        - id: 628248716
+        - id: 628248720
+        - id: 628248721
+        - id: 628248722
+        - id: 628248723
+        - id: 628248724
+        - id: 628248725
+        - id: 628248731
+        - id: 628248733
+        - id: 628248734
+        - id: 628248735
+        - id: 628248736
+        - id: 628248737
+        - id: 628248738
+        - id: 628248759
+        - id: 628248761
+        - id: 628248771
+        - id: 628248779
+        - id: 183701936951300
+        - id: 183701936951324
+        - id: 183701936951329
+        - id: 183701936951330
+        - id: 183701936951333
+        - id: 183701936951334
+        - id: 183701936951335
+        - id: 183701936951379
+        - id: 183701936951380
+        - id: 183701936951381
+        - id: 183701936951382
+        - id: 183701936951390
+        - id: 183701936951391
+        - id: 183701936951392
+        - id: 183701936951427
+        - id: 183701936951428
+        - id: 183701936951431
+        - id: 183701936951432
+        - id: 183701936951433
+        - id: 183701936951434
+        - id: 183701936951435
+        - id: 183701936951436
+        - id: 183701936951440
+        - id: 183701936951441
+        - id: 183701936951442
+        - id: 183701936951443
+        - id: 183701936951444
+        - id: 183701936951445
+        - id: 183701936951451
+        - id: 183701936951453
+        - id: 183701936951454
+        - id: 183701936951455
+        - id: 183701936951456
+        - id: 183701936951457
+        - id: 183701936951458
+        - id: 183701936951479
+        - id: 183701936951481
+        - id: 183701941145605
+        - id: 183701941145613

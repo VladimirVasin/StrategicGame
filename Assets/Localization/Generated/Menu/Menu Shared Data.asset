@@ -1,0 +1,272 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: Menu Shared Data
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.SharedTableData
+  m_TableCollectionName: Menu
+  m_TableCollectionNameGuidString: 669cd690a2f4d624ba7727f34256ed91
+  m_Entries:
+  - m_Id: 183707339214848
+    m_Key: menu.brand.subtitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707385352192
+    m_Key: menu.continue
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707385352193
+    m_Key: menu.new_settlement
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707385352194
+    m_Key: menu.quit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707385352195
+    m_Key: menu.back
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707385352196
+    m_Key: menu.loading.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707385352197
+    m_Key: settings.open
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707385352198
+    m_Key: settings.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707385352199
+    m_Key: settings.subtitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707385352200
+    m_Key: settings.master_volume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707385352201
+    m_Key: settings.music
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707385352202
+    m_Key: settings.effects
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707385352203
+    m_Key: settings.interface_scale
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707385352204
+    m_Key: settings.fullscreen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707385352205
+    m_Key: settings.reduced_motion
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707389546496
+    m_Key: menu.preload.preparing_settlement
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707389546497
+    m_Key: menu.preload.progress
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707393740800
+    m_Key: menu.preload.preparing_content
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707393740801
+    m_Key: menu.preload.preparing_buildings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707393740802
+    m_Key: menu.preload.preparing_residents
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707393740803
+    m_Key: menu.preload.preparing_landscape
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707393740804
+    m_Key: menu.preload.preparing_interface_audio
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707393740805
+    m_Key: menu.preload.content_ready
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707393740806
+    m_Key: menu.preload.opening_founding_journey
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707393740807
+    m_Key: menu.preload.returning_to_main_menu
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707393740808
+    m_Key: menu.preload.opening_settlement
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707393740809
+    m_Key: menu.save.none
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707393740810
+    m_Key: menu.save.summary
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707393740811
+    m_Key: menu.error.main_menu_open_failed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707393740812
+    m_Key: menu.error.gameplay_open_failed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707393740813
+    m_Key: menu.error.founding_journey_open_failed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707393740814
+    m_Key: map.generation.waiting
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707393740815
+    m_Key: map.generation.cancelled
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707393740816
+    m_Key: map.generation.generating_terrain
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707393740817
+    m_Key: map.generation.shaping_terrain
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707393740818
+    m_Key: map.generation.raising_terrain
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707393740819
+    m_Key: map.generation.smoothing_terrain
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707393740820
+    m_Key: map.generation.painting_terrain
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707393740821
+    m_Key: map.generation.preload_failed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707393740822
+    m_Key: map.generation.uploading_terrain
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707393740823
+    m_Key: map.generation.ready
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707393740824
+    m_Key: map.generation.starting
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707393740825
+    m_Key: pause.escape_hint
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707393740826
+    m_Key: pause.kicker
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707393740827
+    m_Key: pause.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707393740828
+    m_Key: pause.subtitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707393740829
+    m_Key: pause.resume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707393740830
+    m_Key: pause.save_game
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707393740831
+    m_Key: pause.main_menu
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707393740832
+    m_Key: pause.quit_game
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707393740833
+    m_Key: pause.saved
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707393740834
+    m_Key: pause.save_failed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707393740835
+    m_Key: pause.confirm.return.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707393740836
+    m_Key: pause.confirm.unsaved_body
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707393740837
+    m_Key: pause.confirm.return.accept
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707393740838
+    m_Key: pause.confirm.stay
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707393740839
+    m_Key: pause.confirm.quit.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707393740840
+    m_Key: pause.confirm.quit.accept
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707393740841
+    m_Key: pause.returning_to_main_menu
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707393740842
+    m_Key: pause.main_menu_open_failed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183707393740843
+    m_Key: pause.quit_standalone_only
+    m_Metadata:
+      m_Items: []
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 465534772507312157
+  references:
+    version: 2
+    RefIds:
+    - rid: 465534772507312157
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1784493437441

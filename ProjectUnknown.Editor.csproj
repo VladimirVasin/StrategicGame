@@ -53,15 +53,22 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Editor\StrategyVerificationRunner.Minerals.cs" />
-    <Compile Include="Assets\Editor\StrategyEditorAssemblyInfo.cs" />
-    <Compile Include="Assets\Editor\StrategyVerificationRunner.AuthoredVisuals.Construction.cs" />
     <Compile Include="Assets\Editor\StrategyVisualCatalogBaker.Residents.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.Input.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.HouseVisual.cs" />
-    <Compile Include="Assets\Editor\StrategyVerificationRunner.Soak.FirstNightCatHunt.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.Watchdog.cs" />
-    <Compile Include="Assets\Editor\StrategyVerificationRunner.AuthoredVisuals.Models.cs" />
     <Compile Include="Assets\Editor\StrategyAudioMixerBuilder.cs" />
+    <Compile Include="Assets\Editor\Localization\StrategyLocalizationAssetGenerator.cs" />
+    <Compile Include="Assets\Editor\StrategyVisualCatalogBaker.Layers.cs" />
+    <Compile Include="Assets\Editor\StrategyVerificationRunner.Soak.cs" />
+    <Compile Include="Assets\Editor\StrategyVerificationRunner.FoundingJourney.cs" />
+    <Compile Include="Assets\Editor\StrategyVerificationRunner.AuthoredVisuals.Bridge.Catalog.cs" />
+    <Compile Include="Assets\Editor\StrategyVisualCatalogBaker.Bridge.cs" />
+    <Compile Include="Assets\Editor\StrategyEditorAssemblyInfo.cs" />
+    <Compile Include="Assets\Editor\StrategyVerificationRunner.AuthoredVisuals.Construction.cs" />
+    <Compile Include="Assets\Editor\Localization\StrategyLocalizationTsvCatalog.cs" />
+    <Compile Include="Assets\Editor\StrategyVerificationRunner.Soak.FirstNightCatHunt.cs" />
+    <Compile Include="Assets\Editor\StrategyVerificationRunner.AuthoredVisuals.Models.cs" />
     <Compile Include="Assets\Editor\StrategyVisualCatalogBaker.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.BuildingHudCapture.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.AuthoredVisuals.cs" />
@@ -72,13 +79,8 @@
     <Compile Include="Assets\Editor\StrategyVerificationRunner.Map.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.ForagerCampVisual.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.cs" />
-    <Compile Include="Assets\Editor\StrategyVisualCatalogBaker.Layers.cs" />
-    <Compile Include="Assets\Editor\StrategyVerificationRunner.Soak.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.AuthoredVisuals.IO.cs" />
-    <Compile Include="Assets\Editor\StrategyVerificationRunner.FoundingJourney.cs" />
-    <Compile Include="Assets\Editor\StrategyVerificationRunner.AuthoredVisuals.Bridge.Catalog.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.Visual.cs" />
-    <Compile Include="Assets\Editor\StrategyVisualCatalogBaker.Bridge.cs" />
     <Compile Include="Assets\Editor\StrategyVisualCatalogBaker.IO.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.Quality.cs" />
     <Compile Include="Assets\Editor\StrategyVerificationRunner.AuthoredVisuals.Bridge.cs" />
@@ -695,6 +697,10 @@
       <HintPath>Library\PackageCache\com.unity.ext.nunit@44f7d31723bd\net472\unity-custom\nunit.framework.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>Library\PackageCache\com.unity.nuget.newtonsoft-json@4dfd81071c64\Runtime\Newtonsoft.Json.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="Mono.Cecil">
       <HintPath>Library\PackageCache\com.unity.nuget.mono-cecil@ecb9724e46ff\Mono.Cecil.dll</HintPath>
       <Private>False</Private>
@@ -1245,6 +1251,14 @@
     </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>Library\ScriptAssemblies\UnityEngine.UI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.Localization">
+      <HintPath>Library\ScriptAssemblies\Unity.Localization.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.Localization.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.Localization.Editor.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEditor.UI">

@@ -47,12 +47,18 @@ namespace ProjectUnknown.Strategy
         private int cachedConstructionSiteCount = -1;
         private int lastWorksiteCacheRefreshMs;
         private string lastStatus = "Auto workforce ready";
+        private string lastStatusLocalizationKey = "resident.auto_workforce.ready";
+        private int lastStatusCount;
         private string lastLoggedTickStatus = string.Empty;
         private string lastLoggedTickReason = string.Empty;
 
         public StrategyAutoWorkforceSettings Settings => settings;
         public bool IsAutoAssignEnabled => settings.Enabled;
         public string LastStatus => lastStatus;
+        public string LocalizedStatus => StrategyLocalization.Get(
+            StrategyLocalizationTables.Residents,
+            lastStatusLocalizationKey,
+            lastStatusCount);
 
         public void Configure(StrategyPopulationController populationController)
         {
@@ -111,7 +117,11 @@ namespace ProjectUnknown.Strategy
             nextWorksiteCacheRefreshTime = 0f;
             ResetNoDonorSearchCooldown();
             ResetNoFreeAdultFullScanCooldown();
-            lastStatus = enabled ? "Auto assign enabled" : "Auto assign disabled";
+            SetStatus(
+                enabled
+                    ? "resident.auto_workforce.enabled"
+                    : "resident.auto_workforce.disabled",
+                enabled ? "Auto assign enabled" : "Auto assign disabled");
             StrategyDebugLogger.Info(
                 "AutoWorkforce",
                 "AutoAssignToggled",
@@ -164,7 +174,9 @@ namespace ProjectUnknown.Strategy
                 string reason = IsNoDonorSearchCooldownActive()
                     ? "donor_retry_cooldown"
                     : "no_free_adult_full_scan_cooldown";
-                lastStatus = "No free adults";
+                SetStatus(
+                    "resident.auto_workforce.no_free_adults",
+                    "No free adults");
                 LogAssignmentTick(tickStartedAt, demands.Count, candidates.Count, 0, 0, 0, 0, reason);
                 return;
             }
@@ -185,21 +197,58 @@ namespace ProjectUnknown.Strategy
                 : 0;
             assigned += fallbackAssigned;
 
-            lastStatus = assigned > 0
-                ? "Assigned " + assigned + " worker" + (assigned == 1 ? string.Empty : "s")
-                : demandReleased > 0
-                    ? "Released " + demandReleased + " worker" + (demandReleased == 1 ? string.Empty : "s") + " for demand"
-                    : disabledReleased > 0
-                    ? "Released " + disabledReleased + " disabled worker" + (disabledReleased == 1 ? string.Empty : "s")
-                    : surplusReleased > 0
-                    ? "Released " + surplusReleased + " surplus worker" + (surplusReleased == 1 ? string.Empty : "s")
-                    : candidates.Count > 0 ? "No enabled workforce slot" : "No free adults";
+            if (assigned > 0)
+            {
+                SetStatus(
+                    "resident.auto_workforce.assigned",
+                    "Assigned " + assigned + " worker" + (assigned == 1 ? string.Empty : "s"),
+                    assigned);
+            }
+            else if (demandReleased > 0)
+            {
+                SetStatus(
+                    "resident.auto_workforce.released_for_demand",
+                    "Released " + demandReleased + " worker"
+                        + (demandReleased == 1 ? string.Empty : "s") + " for demand",
+                    demandReleased);
+            }
+            else if (disabledReleased > 0)
+            {
+                SetStatus(
+                    "resident.auto_workforce.released_disabled",
+                    "Released " + disabledReleased + " disabled worker"
+                        + (disabledReleased == 1 ? string.Empty : "s"),
+                    disabledReleased);
+            }
+            else if (surplusReleased > 0)
+            {
+                SetStatus(
+                    "resident.auto_workforce.released_surplus",
+                    "Released " + surplusReleased + " surplus worker"
+                        + (surplusReleased == 1 ? string.Empty : "s"),
+                    surplusReleased);
+            }
+            else
+            {
+                SetStatus(
+                    candidates.Count > 0
+                        ? "resident.auto_workforce.no_enabled_slot"
+                        : "resident.auto_workforce.no_free_adults",
+                    candidates.Count > 0 ? "No enabled workforce slot" : "No free adults");
+            }
             if (candidates.Count <= 0 && released <= 0 && assigned <= 0)
             {
                 RegisterNoFreeAdultFullScanCooldown();
             }
 
             LogAssignmentTick(tickStartedAt, demands.Count, candidates.Count, released, demandReleased, fallbackAssigned, assigned, string.Empty);
+        }
+
+        private void SetStatus(string localizationKey, string english, int count = 0)
+        {
+            lastStatusLocalizationKey = localizationKey;
+            lastStatus = english;
+            lastStatusCount = count;
         }
 
         private void LogAssignmentTick(

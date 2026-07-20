@@ -16,6 +16,7 @@ namespace ProjectUnknown.Strategy
         private Text timeText;
         private Text temperatureText;
         private Text phaseText;
+        private StrategyHudTooltip populationTooltip;
         private Image phaseSwatch;
         private Image dayProgressImage;
         private RectTransform dayProgressFill;
@@ -107,7 +108,11 @@ namespace ProjectUnknown.Strategy
             button.targetGraphic = background;
             button.onClick.AddListener(TogglePopulationRoster);
             StrategyUiButtonFeedback.Attach(button);
-            StrategyHudTooltip.Attach(panel.gameObject, "Open the resident roster and review adults, children, families, and current work.");
+            populationTooltip = StrategyHudTooltip.Attach(
+                panel.gameObject,
+                StrategyLocalization.Get(
+                    StrategyLocalizationTables.Hud,
+                    "hud.population.tooltip"));
 
             populationText = CreateText("PopulationText", panel, string.Empty, 13, TextAnchor.MiddleCenter, StrategyHudStyle.TextPrimary);
             populationText.fontStyle = FontStyle.Bold;
@@ -208,8 +213,15 @@ namespace ProjectUnknown.Strategy
             int adults = population != null ? population.AdultResidentCount : 0;
             int children = population != null ? population.ChildResidentCount : 0;
             int total = adults + children;
-            populationText.text = "Population " + total
-                + "\n" + adults + " adults  ·  " + children + " children";
+            populationText.text = StrategyLocalization.Get(
+                StrategyLocalizationTables.Hud,
+                "hud.population.summary",
+                total,
+                adults,
+                children);
+            populationTooltip?.SetText(StrategyLocalization.Get(
+                StrategyLocalizationTables.Hud,
+                "hud.population.tooltip"));
         }
 
         private void RefreshTimeText()
@@ -228,16 +240,30 @@ namespace ProjectUnknown.Strategy
             StrategyTemperatureSnapshot temperature =
                 StrategyTemperatureModel.Evaluate(snapshot, StrategyWeatherController.Active);
 
-            timeText.text = "Day " + snapshot.DisplayDay + "   " + snapshot.ClockText;
+            timeText.text = StrategyLocalization.Get(
+                StrategyLocalizationTables.Hud,
+                "hud.calendar.day_time",
+                snapshot.DisplayDay,
+                snapshot.ClockText);
             if (temperatureText != null)
             {
                 temperatureText.text = temperature.CelsiusText;
                 temperatureText.color = StrategyTemperatureModel.GetTemperatureColor(temperature.Celsius);
             }
 
-            phaseText.text = snapshot.SeasonLabel
-                + " " + snapshot.SeasonDay + "/" + StrategySeasonCalendar.DaysPerSeason
-                + " - " + snapshot.PhaseLabel;
+            string season = StrategyLocalization.Get(
+                StrategyLocalizationTables.Hud,
+                "hud.season." + snapshot.Season.ToString().ToLowerInvariant());
+            string phase = StrategyLocalization.Get(
+                StrategyLocalizationTables.Hud,
+                "hud.phase." + snapshot.Phase.ToString().ToLowerInvariant());
+            phaseText.text = StrategyLocalization.Get(
+                StrategyLocalizationTables.Hud,
+                "hud.calendar.season_phase",
+                season,
+                snapshot.SeasonDay,
+                StrategySeasonCalendar.DaysPerSeason,
+                phase);
             phaseText.color = Color.Lerp(seasonAccent, accent, 0.35f);
 
             if (phaseSwatch != null)

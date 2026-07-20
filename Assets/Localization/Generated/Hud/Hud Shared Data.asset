@@ -1,0 +1,2528 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: Hud Shared Data
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.SharedTableData
+  m_TableCollectionName: Hud
+  m_TableCollectionNameGuidString: b60bc17498d26ad4eb87183ff60b1749
+  m_Entries:
+  - m_Id: 183705019764736
+    m_Key: goals.header
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290688
+    m_Key: goals.starter.houses.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290689
+    m_Key: goals.starter.houses.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290690
+    m_Key: goals.starter.forager_camp.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290691
+    m_Key: goals.starter.forager_camp.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290692
+    m_Key: goals.starter.lumberjack_camp.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290693
+    m_Key: goals.starter.stonecutter_camp.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290694
+    m_Key: goals.starter.scout_lodge.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290695
+    m_Key: goals.starter.scout_lodge.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290696
+    m_Key: goals.starter.storage_yard.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290697
+    m_Key: goals.starter.storage_yard.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290698
+    m_Key: goals.starter.granary.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290699
+    m_Key: goals.starter.granary.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290700
+    m_Key: goals.winter.food.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290701
+    m_Key: goals.winter.food.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290702
+    m_Key: goals.winter.fuel.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290703
+    m_Key: goals.winter.fuel.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290704
+    m_Key: goals.winter.preparation.notice
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290705
+    m_Key: goals.winter.progress_days
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290706
+    m_Key: goals.winter.survive.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290707
+    m_Key: goals.winter.survive.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290708
+    m_Key: goals.winter.started_prepared
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290709
+    m_Key: goals.winter.started_short
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290710
+    m_Key: goals.winter.ended
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290711
+    m_Key: hud.population.tooltip
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290712
+    m_Key: hud.population.summary
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290713
+    m_Key: hud.calendar.day_time
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290714
+    m_Key: hud.calendar.season_phase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290715
+    m_Key: hud.season.spring
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705074290716
+    m_Key: hud.season.summer
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078484992
+    m_Key: hud.season.autumn
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078484993
+    m_Key: hud.season.winter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078484994
+    m_Key: hud.phase.dawn
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078484995
+    m_Key: hud.phase.morning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078484996
+    m_Key: hud.phase.noon
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078484997
+    m_Key: hud.phase.afternoon
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078484998
+    m_Key: hud.phase.dusk
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078484999
+    m_Key: hud.phase.night
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485000
+    m_Key: hud.resources.launcher_title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485001
+    m_Key: hud.resources.all_badge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485002
+    m_Key: hud.resources.launcher_summary
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485003
+    m_Key: hud.resources.launcher_tooltip
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485004
+    m_Key: hud.resources.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485005
+    m_Key: hud.resources.subtitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485006
+    m_Key: hud.resources.section.construction
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485007
+    m_Key: hud.resources.section.materials
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485008
+    m_Key: hud.resources.section.food
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485009
+    m_Key: hud.resources.row_tooltip
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485010
+    m_Key: hud.resources.row_tooltip_reserved
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485011
+    m_Key: hud.roster.empty
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485012
+    m_Key: hud.roster.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485013
+    m_Key: hud.roster.stats
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485014
+    m_Key: hud.roster.filter.all
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485015
+    m_Key: hud.roster.filter.adults
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485016
+    m_Key: hud.roster.filter.children
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485017
+    m_Key: hud.roster.filter.workers
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485018
+    m_Key: hud.roster.filter.hungry
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485019
+    m_Key: hud.roster.filter.homeless
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485020
+    m_Key: hud.roster.family_trees
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485021
+    m_Key: hud.roster.column.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485022
+    m_Key: hud.roster.column.age
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485023
+    m_Key: hud.roster.column.home
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485024
+    m_Key: hud.roster.column.role
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485025
+    m_Key: hud.roster.column.status
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485026
+    m_Key: hud.roster.column.food
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485027
+    m_Key: hud.professions.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485028
+    m_Key: hud.professions.subtitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485029
+    m_Key: hud.professions.tooltip
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485030
+    m_Key: hud.professions.free_adults
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485031
+    m_Key: hud.professions.available
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485032
+    m_Key: hud.professions.no_workplaces
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485033
+    m_Key: hud.professions.scout_lodge_required
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485034
+    m_Key: hud.professions.assign_failed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485035
+    m_Key: hud.professions.remove_failed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485036
+    m_Key: hud.professions.assigned
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485037
+    m_Key: hud.professions.removed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485038
+    m_Key: hud.professions.scout_summary
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485039
+    m_Key: hud.professions.priority_changed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485040
+    m_Key: hud.professions.auto_on
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485041
+    m_Key: hud.professions.auto_off
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485042
+    m_Key: hud.professions.auto_status
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485043
+    m_Key: hud.professions.auto_unavailable
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485044
+    m_Key: hud.inventory.launcher
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485045
+    m_Key: hud.inventory.tooltip
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485046
+    m_Key: hud.inventory.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485047
+    m_Key: hud.inventory.subtitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485048
+    m_Key: hud.inventory.story
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485049
+    m_Key: hud.inventory.effect
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485050
+    m_Key: hud.inventory.read_only
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485051
+    m_Key: hud.inventory.empty_title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485052
+    m_Key: hud.inventory.empty_body
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485053
+    m_Key: hud.inventory.unknown_item
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485054
+    m_Key: hud.inventory.unique
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485055
+    m_Key: hud.inventory.unique_city_item
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485056
+    m_Key: hud.inventory.stored_capacity
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485057
+    m_Key: hud.inventory.stored
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485058
+    m_Key: hud.inventory.story_missing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485059
+    m_Key: hud.inventory.effect_missing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485060
+    m_Key: hud.inventory.record_missing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485061
+    m_Key: hud.inventory.effect_none
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485062
+    m_Key: hud.selection.value.a_caravan_is_travelling_to_this_post
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485063
+    m_Key: hud.selection.value.adult
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485064
+    m_Key: hud.selection.value.after_departure
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485065
+    m_Key: hud.selection.value.alert
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485066
+    m_Key: hud.selection.value.approaching_discovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485067
+    m_Key: hud.selection.value.arrives_in
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485068
+    m_Key: hud.selection.value.arriving
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485069
+    m_Key: hud.selection.value.attacking
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485070
+    m_Key: hud.selection.value.autonomous
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485071
+    m_Key: hud.selection.value.available
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485072
+    m_Key: hud.selection.value.avoiding_settlement
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485073
+    m_Key: hud.selection.value.awaiting_assignment
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485074
+    m_Key: hud.selection.value.blacksmith
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485075
+    m_Key: hud.selection.value.blocked
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485076
+    m_Key: hud.selection.value.builder
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485077
+    m_Key: hud.selection.value.camp
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485078
+    m_Key: hud.selection.value.caravan
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485079
+    m_Key: hud.selection.value.caravan_offers_are_open
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485080
+    m_Key: hud.selection.value.carcass
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485081
+    m_Key: hud.selection.value.carp
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485082
+    m_Key: hud.selection.value.caught
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485083
+    m_Key: hud.selection.value.chasing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485084
+    m_Key: hud.selection.value.charting_frontier
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485085
+    m_Key: hud.selection.value.child
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485086
+    m_Key: hud.selection.value.clay_digger
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485087
+    m_Key: hud.selection.value.coal_miner
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485088
+    m_Key: hud.selection.value.coal_pit_only
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485089
+    m_Key: hud.selection.value.cold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485090
+    m_Key: hud.selection.value.completing_discovery_before_return
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485091
+    m_Key: hud.selection.value.cooling
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485092
+    m_Key: hud.selection.value.crow
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485093
+    m_Key: hud.selection.value.dead
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485094
+    m_Key: hud.selection.value.delivered
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485095
+    m_Key: hud.selection.value.departing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485096
+    m_Key: hud.selection.value.depleted
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485097
+    m_Key: hud.selection.value.dirt
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485098
+    m_Key: hud.selection.value.discovery_complete_returning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485099
+    m_Key: hud.selection.value.duck
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485100
+    m_Key: hud.selection.value.eta
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485101
+    m_Key: hud.selection.value.expedition_complete_returning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485102
+    m_Key: hud.selection.value.exploring
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485103
+    m_Key: hud.selection.value.falling
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485104
+    m_Key: hud.selection.value.father
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485105
+    m_Key: hud.selection.value.fawn
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485106
+    m_Key: hud.selection.value.fed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485107
+    m_Key: hud.selection.value.feeding
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485108
+    m_Key: hud.selection.value.felled
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485109
+    m_Key: hud.selection.value.female
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485110
+    m_Key: hud.selection.value.fishable
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485111
+    m_Key: hud.selection.value.fisher
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485112
+    m_Key: hud.selection.value.fleeing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485113
+    m_Key: hud.selection.value.flying
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485114
+    m_Key: hud.selection.value.forager
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485115
+    m_Key: hud.selection.value.forest
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485116
+    m_Key: hud.selection.value.free
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485117
+    m_Key: hud.selection.value.freezing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485118
+    m_Key: hud.selection.value.frozen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485119
+    m_Key: hud.selection.value.fry
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485120
+    m_Key: hud.selection.value.gathering
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485121
+    m_Key: hud.selection.value.granary_worker
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485122
+    m_Key: hud.selection.value.grass
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485123
+    m_Key: hud.selection.value.grazing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485124
+    m_Key: hud.selection.value.grooming
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485125
+    m_Key: hud.selection.value.growing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485126
+    m_Key: hud.selection.value.hit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485127
+    m_Key: hud.selection.value.hooked
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485128
+    m_Key: hud.selection.value.hopping
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485129
+    m_Key: hud.selection.value.housed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485130
+    m_Key: hud.selection.value.household_food
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485131
+    m_Key: hud.selection.value.householder
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485132
+    m_Key: hud.selection.value.howling
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485133
+    m_Key: hud.selection.value.hungry
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485134
+    m_Key: hud.selection.value.huntable
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485135
+    m_Key: hud.selection.value.hunted
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485136
+    m_Key: hud.selection.value.hunter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485137
+    m_Key: hud.selection.value.husband
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485138
+    m_Key: hud.selection.value.idle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485139
+    m_Key: hud.selection.value.inside_coop
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485140
+    m_Key: hud.selection.value.installed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485141
+    m_Key: hud.selection.value.invalid_offer
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485142
+    m_Key: hud.selection.value.investigating_discovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485143
+    m_Key: hud.selection.value.investigating_point_of_interest
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485144
+    m_Key: hud.selection.value.kit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485145
+    m_Key: hud.selection.value.lake
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485146
+    m_Key: hud.selection.value.landing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485147
+    m_Key: hud.selection.value.leaves_in
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485148
+    m_Key: hud.selection.value.locked
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485149
+    m_Key: hud.selection.value.logs_ready
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485150
+    m_Key: hud.selection.value.lumberjack
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485151
+    m_Key: hud.selection.value.male
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485152
+    m_Key: hud.selection.value.mature
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485153
+    m_Key: hud.selection.value.meadow
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485154
+    m_Key: hud.selection.value.mine_only
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485155
+    m_Key: hud.selection.value.mineable
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485156
+    m_Key: hud.selection.value.miner
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485157
+    m_Key: hud.selection.value.minnow
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485158
+    m_Key: hud.selection.value.mother
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485159
+    m_Key: hud.selection.value.needs_food
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485160
+    m_Key: hud.selection.value.needs_input
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485161
+    m_Key: hud.selection.value.next_visit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485162
+    m_Key: hud.selection.value.nibbling
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485163
+    m_Key: hud.selection.value.no
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485164
+    m_Key: hud.selection.value.no_active_trade
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485165
+    m_Key: hud.selection.value.no_granary_can_receive_this
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485166
+    m_Key: hud.selection.value.no_reachable_frontier
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485167
+    m_Key: hud.selection.value.no_sources
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485168
+    m_Key: hud.selection.value.no_storage_yard_can_receive_this
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485169
+    m_Key: hud.selection.value.none
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485170
+    m_Key: hud.selection.value.not_enough_coins
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485171
+    m_Key: hud.selection.value.not_enough_stock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485172
+    m_Key: hud.selection.value.not_ready
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485173
+    m_Key: hud.selection.value.now
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485174
+    m_Key: hud.selection.value.occupied
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485175
+    m_Key: hud.selection.value.open
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485176
+    m_Key: hud.selection.value.operational
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485177
+    m_Key: hud.selection.value.output_full
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485178
+    m_Key: hud.selection.value.pecking
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485179
+    m_Key: hud.selection.value.pending
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485180
+    m_Key: hud.selection.value.perch
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485181
+    m_Key: hud.selection.value.planning_route
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485182
+    m_Key: hud.selection.value.potter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485183
+    m_Key: hud.selection.value.preparing_the_first_route
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485184
+    m_Key: hud.selection.value.producing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485185
+    m_Key: hud.selection.value.protected
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485186
+    m_Key: hud.selection.value.queued
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485187
+    m_Key: hud.selection.value.ready
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485188
+    m_Key: hud.selection.value.ready_for_expedition
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485189
+    m_Key: hud.selection.value.recalled_to_lodge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485190
+    m_Key: hud.selection.value.regrowing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485191
+    m_Key: hud.selection.value.reserved
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485192
+    m_Key: hud.selection.value.resting
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485193
+    m_Key: hud.selection.value.resuming_expedition
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485194
+    m_Key: hud.selection.value.return_route_blocked_retrying
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485195
+    m_Key: hud.selection.value.returning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485196
+    m_Key: hud.selection.value.returning_to_lodge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485197
+    m_Key: hud.selection.value.river
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485198
+    m_Key: hud.selection.value.roaming
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485199
+    m_Key: hud.selection.value.safe
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485200
+    m_Key: hud.selection.value.sapling
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485201
+    m_Key: hud.selection.value.sawyer
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485202
+    m_Key: hud.selection.value.scout
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485203
+    m_Key: hud.selection.value.settler
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485204
+    m_Key: hud.selection.value.sheltered
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485205
+    m_Key: hud.selection.value.shore
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485206
+    m_Key: hud.selection.value.sparrow
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485207
+    m_Key: hud.selection.value.stalking
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485208
+    m_Key: hud.selection.value.standing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485209
+    m_Key: hud.selection.value.starving
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485210
+    m_Key: hud.selection.value.stock_full
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485211
+    m_Key: hud.selection.value.stonecutter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485212
+    m_Key: hud.selection.value.storage_worker
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485213
+    m_Key: hud.selection.value.storekeeper
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485214
+    m_Key: hud.selection.value.swimming
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485215
+    m_Key: hud.selection.value.temporary
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485216
+    m_Key: hud.selection.value.the_current_caravan_is_leaving_the_settlement
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485217
+    m_Key: hud.selection.value.the_post_is_ready_for_the_next_caravan
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485218
+    m_Key: hud.selection.value.trade_controller_is_unavailable
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485219
+    m_Key: hud.selection.value.trade_goods_while_the_caravan_waits
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485220
+    m_Key: hud.selection.value.trading
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485221
+    m_Key: hud.selection.value.trading_post_data_is_unavailable
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485222
+    m_Key: hud.selection.value.travelling_to_point_of_interest
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485223
+    m_Key: hud.selection.value.turning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485224
+    m_Key: hud.selection.value.unassigned
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485225
+    m_Key: hud.selection.value.unavailable
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485226
+    m_Key: hud.selection.value.unknown
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485227
+    m_Key: hud.selection.value.waiting
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485228
+    m_Key: hud.selection.value.walking
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485229
+    m_Key: hud.selection.value.warm
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485230
+    m_Key: hud.selection.value.water
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485231
+    m_Key: hud.selection.value.wife
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485232
+    m_Key: hud.selection.value.wolf_prey
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485233
+    m_Key: hud.selection.value.working
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485234
+    m_Key: hud.selection.value.yes
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485235
+    m_Key: hud.selection.value.young
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485236
+    m_Key: hud.selection.action.add
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485237
+    m_Key: hud.selection.action.assign
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485238
+    m_Key: hud.selection.action.buy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485239
+    m_Key: hud.selection.action.done
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485240
+    m_Key: hud.selection.action.install
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485241
+    m_Key: hud.selection.action.no
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485242
+    m_Key: hud.selection.action.recall
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485243
+    m_Key: hud.selection.action.remove
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485244
+    m_Key: hud.selection.action.sell
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705078485245
+    m_Key: hud.selection.action.send
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705082679296
+    m_Key: hud.selection.label.active_offers
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705082679297
+    m_Key: hud.selection.label.amount
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705082679298
+    m_Key: hud.selection.label.build_stock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705082679299
+    m_Key: hud.selection.label.builders
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705082679300
+    m_Key: hud.selection.label.caravan
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705082679301
+    m_Key: hud.selection.label.coins
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705082679302
+    m_Key: hud.selection.label.coop
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705082679303
+    m_Key: hud.selection.label.current_state
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705082679304
+    m_Key: hud.selection.label.deer
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705082679305
+    m_Key: hud.selection.label.deposits
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705082679306
+    m_Key: hud.selection.label.end_cell
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705082679307
+    m_Key: hud.selection.label.family
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705082679308
+    m_Key: hud.selection.label.field_rations
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705082679309
+    m_Key: hud.selection.label.fish_nearby
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705082679310
+    m_Key: hud.selection.label.food
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705082679311
+    m_Key: hud.selection.label.footprint
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705082679312
+    m_Key: hud.selection.label.group
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705082679313
+    m_Key: hud.selection.label.haulers
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705082679314
+    m_Key: hud.selection.label.herd
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873600
+    m_Key: hud.selection.label.home
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873601
+    m_Key: hud.selection.label.id
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873602
+    m_Key: hud.selection.label.labor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873603
+    m_Key: hud.selection.label.materials
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873604
+    m_Key: hud.selection.label.mature_trees
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873605
+    m_Key: hud.selection.label.mission
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873606
+    m_Key: hud.selection.label.next_egg
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873607
+    m_Key: hud.selection.label.output
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873608
+    m_Key: hud.selection.label.pack
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873609
+    m_Key: hud.selection.label.planned_duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873610
+    m_Key: hud.selection.label.progress
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873611
+    m_Key: hud.selection.label.provisions
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873612
+    m_Key: hud.selection.label.rabbits
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873613
+    m_Key: hud.selection.label.radius
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873614
+    m_Key: hud.selection.label.ration_value
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873615
+    m_Key: hud.selection.label.rations
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873616
+    m_Key: hud.selection.label.region
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873617
+    m_Key: hud.selection.label.reserved
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873618
+    m_Key: hud.selection.label.residents
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873619
+    m_Key: hud.selection.label.resource
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873620
+    m_Key: hud.selection.label.returns_in
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873621
+    m_Key: hud.selection.label.saplings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873622
+    m_Key: hud.selection.label.scouts
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873623
+    m_Key: hud.selection.label.shoal
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873624
+    m_Key: hud.selection.label.sources
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873625
+    m_Key: hud.selection.label.span
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873626
+    m_Key: hud.selection.label.stage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873627
+    m_Key: hud.selection.label.start_cell
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873628
+    m_Key: hud.selection.label.state
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873629
+    m_Key: hud.selection.label.stock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873630
+    m_Key: hud.selection.label.trunks
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873631
+    m_Key: hud.selection.label.use
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873632
+    m_Key: hud.selection.label.walk_build
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873633
+    m_Key: hud.selection.label.warmth
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873634
+    m_Key: hud.selection.label.water
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873635
+    m_Key: hud.selection.label.workers
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873636
+    m_Key: hud.selection.label.yield
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873637
+    m_Key: hud.selection.section.assigned_builders
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873638
+    m_Key: hud.selection.section.construction_stock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873639
+    m_Key: hud.selection.section.delivered_materials
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873640
+    m_Key: hud.selection.section.demolition
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873641
+    m_Key: hud.selection.section.expedition
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873642
+    m_Key: hud.selection.section.fishing_water
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873643
+    m_Key: hud.selection.section.food_stock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873644
+    m_Key: hud.selection.section.forage_stock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873645
+    m_Key: hud.selection.section.hunting_grounds
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873646
+    m_Key: hud.selection.section.infrastructure
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873647
+    m_Key: hud.selection.section.input
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873648
+    m_Key: hud.selection.section.local_stock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873649
+    m_Key: hud.selection.section.market
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873650
+    m_Key: hud.selection.section.materials
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873651
+    m_Key: hud.selection.section.output
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873652
+    m_Key: hud.selection.section.overview
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873653
+    m_Key: hud.selection.section.production
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873654
+    m_Key: hud.selection.section.work_area
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873655
+    m_Key: hud.selection.format.amount_free
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873656
+    m_Key: hud.selection.format.build_rule
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873657
+    m_Key: hud.selection.format.cell
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873658
+    m_Key: hud.selection.format.cells
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873659
+    m_Key: hud.selection.format.cost_join
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873660
+    m_Key: hud.selection.format.days_hours_short
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873661
+    m_Key: hud.selection.format.days_short
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873662
+    m_Key: hud.selection.format.dropped_resource
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873663
+    m_Key: hud.selection.format.home_radius
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873664
+    m_Key: hud.selection.format.hours_short
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873665
+    m_Key: hud.selection.format.incoming
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873666
+    m_Key: hud.selection.format.join_detail
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873667
+    m_Key: hud.selection.format.minutes_seconds_short
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873668
+    m_Key: hud.selection.format.pack
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873669
+    m_Key: hud.selection.format.pending
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873670
+    m_Key: hud.selection.format.rations_short
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873671
+    m_Key: hud.selection.format.reserved
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873672
+    m_Key: hud.selection.format.resident_status
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873673
+    m_Key: hud.selection.format.resource_amount
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873674
+    m_Key: hud.selection.format.row_title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873675
+    m_Key: hud.selection.format.seconds_short
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873676
+    m_Key: hud.selection.format.size
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873677
+    m_Key: hud.selection.format.still_needed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873678
+    m_Key: hud.selection.format.subtitle_cell
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873679
+    m_Key: hud.selection.format.walk_build
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873680
+    m_Key: hud.selection.format.yield
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873681
+    m_Key: hud.selection.detail.finished_output
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873682
+    m_Key: hud.selection.detail.input_material
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873683
+    m_Key: hud.selection.cost.free
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873684
+    m_Key: hud.selection.status.clear_local_stock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873685
+    m_Key: hud.selection.status.no_usable_sources
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873686
+    m_Key: hud.selection.status.no_worker.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873687
+    m_Key: hud.selection.status.no_worker.body
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873688
+    m_Key: hud.selection.status.output_full.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873689
+    m_Key: hud.selection.status.output_full.body
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873690
+    m_Key: hud.selection.status.production_active.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873691
+    m_Key: hud.selection.status.production_active.body
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873692
+    m_Key: hud.selection.status.sources_and_space_ready
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873693
+    m_Key: hud.selection.status.waiting_inputs.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873694
+    m_Key: hud.selection.status.waiting_inputs.body
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873695
+    m_Key: hud.selection.building.generic
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873696
+    m_Key: hud.selection.building.subtitle.none
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873697
+    m_Key: hud.selection.building.subtitle.house_unoccupied
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873698
+    m_Key: hud.selection.building.subtitle.house_family
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873699
+    m_Key: hud.selection.building.subtitle.lumberjack_camp
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873700
+    m_Key: hud.selection.building.subtitle.stonecutter_camp
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873701
+    m_Key: hud.selection.building.subtitle.mine
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873702
+    m_Key: hud.selection.building.subtitle.coal_pit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873703
+    m_Key: hud.selection.building.subtitle.clay_pit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873704
+    m_Key: hud.selection.building.subtitle.hunter_camp
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873705
+    m_Key: hud.selection.building.subtitle.fisher_hut
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873706
+    m_Key: hud.selection.building.subtitle.forager_camp
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873707
+    m_Key: hud.selection.building.subtitle.chicken_coop
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873708
+    m_Key: hud.selection.building.subtitle.sawmill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873709
+    m_Key: hud.selection.building.subtitle.kiln
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873710
+    m_Key: hud.selection.building.subtitle.forge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873711
+    m_Key: hud.selection.building.subtitle.starter_caravan_cart
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873712
+    m_Key: hud.selection.building.subtitle.storage_yard
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873713
+    m_Key: hud.selection.building.subtitle.granary
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873714
+    m_Key: hud.selection.building.subtitle.trading_post
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873715
+    m_Key: hud.selection.building.subtitle.scout_lodge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873716
+    m_Key: hud.selection.building.subtitle.bridge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873717
+    m_Key: hud.selection.construction.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873718
+    m_Key: hud.selection.construction.subtitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873719
+    m_Key: hud.selection.construction.no_builders
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873720
+    m_Key: hud.selection.construction.ready_title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873721
+    m_Key: hud.selection.construction.waiting_title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873722
+    m_Key: hud.selection.construction.ready_with_builders
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873723
+    m_Key: hud.selection.construction.ready_needs_builders
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873724
+    m_Key: hud.selection.construction.builders_continue
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873725
+    m_Key: hud.selection.construction.still_needed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873726
+    m_Key: hud.selection.confirm.cancel_construction.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873727
+    m_Key: hud.selection.confirm.cancel_construction.body
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873728
+    m_Key: hud.selection.confirm.cancel_construction.confirm
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873729
+    m_Key: hud.selection.confirm.demolish.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873730
+    m_Key: hud.selection.confirm.demolish.body
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873731
+    m_Key: hud.selection.confirm.demolish.occupied_house_body
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873732
+    m_Key: hud.selection.confirm.demolish.confirm
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873733
+    m_Key: hud.selection.confirm.keep
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873734
+    m_Key: hud.selection.demolition.queued_title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873735
+    m_Key: hud.selection.demolition.house_body
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873736
+    m_Key: hud.selection.demolition.visible_until_complete
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873737
+    m_Key: hud.selection.demolition.actions_unavailable
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873738
+    m_Key: hud.selection.bridge.open_title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873739
+    m_Key: hud.selection.bridge.open_body
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705086873740
+    m_Key: hud.selection.workers.assign_residents
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067904
+    m_Key: hud.selection.workers.assign_hunters
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067905
+    m_Key: hud.selection.workers.assign_fishers
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067906
+    m_Key: hud.selection.workers.hire_haulers_builders
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067907
+    m_Key: hud.selection.workers.no_free_residents
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067908
+    m_Key: hud.selection.workers.open_slot
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067909
+    m_Key: hud.selection.workers.up_to_two
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067910
+    m_Key: hud.selection.workers.hunter_open
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067911
+    m_Key: hud.selection.workers.hunts_rabbits
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067912
+    m_Key: hud.selection.workers.hunts_rabbits_deer
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067913
+    m_Key: hud.selection.workers.fisher_open
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067914
+    m_Key: hud.selection.workers.catches_fish
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067915
+    m_Key: hud.selection.workers.builder_open
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067916
+    m_Key: hud.selection.workers.hauler_open
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067917
+    m_Key: hud.selection.workers.builds_structures
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067918
+    m_Key: hud.selection.workers.hauls_resources_food
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067919
+    m_Key: hud.selection.workers.scout_open
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067920
+    m_Key: hud.selection.hunter.requires_deer_kit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067921
+    m_Key: hud.selection.fisher.water_frozen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067922
+    m_Key: hud.selection.forager.assign_workers
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067923
+    m_Key: hud.selection.forager.gathering_body
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067924
+    m_Key: hud.selection.coop.automatic_cycle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067925
+    m_Key: hud.selection.coop.waiting_storage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067926
+    m_Key: hud.selection.coop.automatic_title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067927
+    m_Key: hud.selection.coop.stock_full_title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067928
+    m_Key: hud.selection.coop.automatic_body
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067929
+    m_Key: hud.selection.coop.collect_eggs_body
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067930
+    m_Key: hud.selection.storage.haulers_count
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067931
+    m_Key: hud.selection.storage.builders_count
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067932
+    m_Key: hud.selection.storage.sources_count
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067933
+    m_Key: hud.selection.storage.no_stock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705091067934
+    m_Key: hud.selection.storage.available
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262208
+    m_Key: hud.selection.storage.stored
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262209
+    m_Key: hud.selection.storage.no_haulers_title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262210
+    m_Key: hud.selection.storage.ready_title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262211
+    m_Key: hud.selection.storage.idle_title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262212
+    m_Key: hud.selection.storage.data_unavailable
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262213
+    m_Key: hud.selection.storage.assign_haulers
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262214
+    m_Key: hud.selection.storage.sources_waiting
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262215
+    m_Key: hud.selection.storage.no_sources_waiting
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262216
+    m_Key: hud.selection.storage.sources_waiting_pickup
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262217
+    m_Key: hud.selection.storage.builders_ready
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262218
+    m_Key: hud.selection.storage.builders_separate
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262219
+    m_Key: hud.selection.granary.ready_title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262220
+    m_Key: hud.selection.granary.food_waiting
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262221
+    m_Key: hud.selection.granary.food_ready
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262222
+    m_Key: hud.selection.cart.supplies_title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262223
+    m_Key: hud.selection.cart.supplies_body
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262224
+    m_Key: hud.selection.warmth.status
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262225
+    m_Key: hud.selection.house.householder_status
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262226
+    m_Key: hud.selection.house.householder_status_hungry
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262227
+    m_Key: hud.selection.house.resident_status
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262228
+    m_Key: hud.selection.house.resident_status_hungry
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262229
+    m_Key: hud.selection.house.food.summary_labels
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262230
+    m_Key: hud.selection.house.food.summary_values
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262231
+    m_Key: hud.selection.house.food.table_header
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262232
+    m_Key: hud.selection.house.food.logs
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262233
+    m_Key: hud.selection.house.food.warmth_logs
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262234
+    m_Key: hud.selection.house.food.family_home
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262235
+    m_Key: hud.selection.house.food.next
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262236
+    m_Key: hud.selection.house.food.dinner_in
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262237
+    m_Key: hud.selection.house.food.no_dishes
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262238
+    m_Key: hud.selection.house.food.no_food
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262239
+    m_Key: hud.selection.house.food.leftovers
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262240
+    m_Key: hud.selection.house.food.fuel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262241
+    m_Key: hud.selection.house.food.missing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262242
+    m_Key: hud.selection.house.food.raw_fallback
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262243
+    m_Key: hud.selection.house.food.short
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262244
+    m_Key: hud.selection.house.food.stock_none
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262245
+    m_Key: hud.selection.house.food.stock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262246
+    m_Key: hud.selection.resident.subtitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262247
+    m_Key: hud.selection.resident.current_task
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262248
+    m_Key: hud.selection.resident.unrecorded_family
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262249
+    m_Key: hud.selection.resident.family_name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262250
+    m_Key: hud.selection.resident.task.awaiting_decision
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262251
+    m_Key: hud.selection.resident.task.too_young
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262252
+    m_Key: hud.selection.resident.task.assigned_as
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262253
+    m_Key: hud.selection.resident.task.available
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262254
+    m_Key: hud.selection.resident.home.assigned
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262255
+    m_Key: hud.selection.resident.home.under_construction
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262256
+    m_Key: hud.selection.resident.home.refugee_camp
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262257
+    m_Key: hud.selection.resident.home.waiting
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262258
+    m_Key: hud.selection.resident.food.covered
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262259
+    m_Key: hud.selection.resident.food.hungry_duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262260
+    m_Key: hud.selection.resident.family_detail
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262261
+    m_Key: hud.selection.upgrade.garden_beds
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262262
+    m_Key: hud.selection.upgrade.chicken_coop
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262263
+    m_Key: hud.selection.upgrade.crop
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262264
+    m_Key: hud.selection.upgrade.cost
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262265
+    m_Key: hud.selection.upgrade.missing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262266
+    m_Key: hud.selection.upgrade.already_installed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262267
+    m_Key: hud.selection.upgrade.system_not_ready
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262268
+    m_Key: hud.selection.upgrade.installed_near_house
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262269
+    m_Key: hud.selection.upgrade.not_enough_resources
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262270
+    m_Key: hud.selection.upgrade.no_free_space
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262271
+    m_Key: hud.selection.upgrade.installed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262272
+    m_Key: hud.selection.upgrade.workers_use
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262273
+    m_Key: hud.selection.upgrade.stock_ready
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262274
+    m_Key: hud.selection.upgrade.missing_storage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262275
+    m_Key: hud.selection.upgrade.not_enough_storage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262276
+    m_Key: hud.selection.upgrade.invalid_target
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262277
+    m_Key: hud.selection.upgrade.failed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262278
+    m_Key: hud.selection.trade.available_now
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262279
+    m_Key: hud.selection.trade.available_when_trading
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262280
+    m_Key: hud.selection.trade.no_caravan_here
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262281
+    m_Key: hud.selection.trade.offer_title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262282
+    m_Key: hud.selection.trade.offer_detail
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262283
+    m_Key: hud.selection.trade.sold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262284
+    m_Key: hud.selection.trade.bought
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262285
+    m_Key: hud.selection.scout.needed_title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262286
+    m_Key: hud.selection.scout.needed_body
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262287
+    m_Key: hud.selection.scout.ready_title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262288
+    m_Key: hud.selection.scout.ready_body
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262289
+    m_Key: hud.selection.scout.free_adult
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262290
+    m_Key: hud.selection.scout.no_free_adult
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262291
+    m_Key: hud.selection.scout.ready_for_expedition
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262292
+    m_Key: hud.selection.scout.finishing_duty
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262293
+    m_Key: hud.selection.scout.returning_to_lodge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262294
+    m_Key: hud.selection.scout.exploring_progress
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262295
+    m_Key: hud.selection.inspect.rabbit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262296
+    m_Key: hud.selection.inspect.rabbit_carcass
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262297
+    m_Key: hud.selection.inspect.wildlife
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262298
+    m_Key: hud.selection.inspect.stag
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262299
+    m_Key: hud.selection.inspect.doe
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262300
+    m_Key: hud.selection.inspect.river_wildlife
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262301
+    m_Key: hud.selection.inspect.lake_wildlife
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262302
+    m_Key: hud.selection.inspect.decorative_wildlife
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262303
+    m_Key: hud.selection.inspect.wolf
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262304
+    m_Key: hud.selection.inspect.predator_wildlife
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262305
+    m_Key: hud.selection.inspect.chicken
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262306
+    m_Key: hud.selection.inspect.household_animal
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262307
+    m_Key: hud.selection.inspect.stone_deposit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262308
+    m_Key: hud.selection.inspect.iron_vein
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262309
+    m_Key: hud.selection.inspect.iron_stained_ground
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262310
+    m_Key: hud.selection.inspect.iron_deposit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262311
+    m_Key: hud.selection.inspect.coal_seam
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262312
+    m_Key: hud.selection.inspect.coal_dust_ground
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262313
+    m_Key: hud.selection.inspect.coal_deposit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262314
+    m_Key: hud.selection.inspect.clay_bank
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262315
+    m_Key: hud.selection.inspect.clay_patch
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262316
+    m_Key: hud.selection.inspect.clay_deposit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262317
+    m_Key: hud.selection.inspect.tree
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262318
+    m_Key: hud.selection.inspect.young_tree
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262319
+    m_Key: hud.selection.inspect.forest_resource
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262320
+    m_Key: hud.selection.inspect.forage_node
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262321
+    m_Key: hud.selection.inspect.loose_resource
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262322
+    m_Key: hud.selection.inspect.loose_building_materials
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262323
+    m_Key: hud.selection.inspect.construction_resource_pile
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262324
+    m_Key: hud.selection.inspect.rock_cluster
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262325
+    m_Key: hud.selection.inspect.stone_cliff
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262326
+    m_Key: hud.selection.inspect.boulder
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262327
+    m_Key: hud.selection.inspect.forest_thicket
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262328
+    m_Key: hud.selection.inspect.bush
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262329
+    m_Key: hud.selection.inspect.nature
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262330
+    m_Key: hud.selection.inspect.nature_body
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262331
+    m_Key: hud.selection.grave.subtitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262332
+    m_Key: hud.selection.grave.epitaph
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262333
+    m_Key: hud.selection.grave.life
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262334
+    m_Key: hud.selection.grave.memory
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262335
+    m_Key: hud.selection.grave.age_unknown
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262336
+    m_Key: hud.selection.grave.age
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262337
+    m_Key: hud.selection.grave.life_text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262338
+    m_Key: hud.selection.grave.memory.child
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262339
+    m_Key: hud.selection.grave.memory.parent
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262340
+    m_Key: hud.selection.grave.memory.household
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262341
+    m_Key: hud.selection.grave.memory.settlement
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262342
+    m_Key: hud.selection.grave.inspect_body
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262343
+    m_Key: hud.selection.grave.unknown_settler
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262344
+    m_Key: hud.selection.grave.unknown_family
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262345
+    m_Key: hud.selection.grave.epitaph.child_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262346
+    m_Key: hud.selection.grave.epitaph.child_1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262347
+    m_Key: hud.selection.grave.epitaph.child_2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705095262348
+    m_Key: hud.selection.grave.epitaph.parent_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705099456512
+    m_Key: hud.selection.grave.epitaph.parent_1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705099456513
+    m_Key: hud.selection.grave.epitaph.parent_2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705099456514
+    m_Key: hud.selection.grave.epitaph.householder_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705099456515
+    m_Key: hud.selection.grave.epitaph.householder_1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705099456516
+    m_Key: hud.selection.grave.epitaph.householder_2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705099456517
+    m_Key: hud.selection.grave.epitaph.general_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705099456518
+    m_Key: hud.selection.grave.epitaph.general_1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705099456519
+    m_Key: hud.selection.grave.epitaph.general_2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183705099456520
+    m_Key: hud.selection.grave.epitaph.general_3
+    m_Metadata:
+      m_Items: []
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 465534772507312159
+  references:
+    version: 2
+    RefIds:
+    - rid: 465534772507312159
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1784493438048

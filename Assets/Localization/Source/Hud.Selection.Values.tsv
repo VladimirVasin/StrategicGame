@@ -1,0 +1,175 @@
+Key	English	Russian
+hud.selection.value.a_caravan_is_travelling_to_this_post	A caravan is travelling to this post.	Караван направляется к этому торговому посту.
+hud.selection.value.adult	Adult	Взрослая особь
+hud.selection.value.after_departure	after departure	после отбытия
+hud.selection.value.alert	Alert	Настороже
+hud.selection.value.approaching_discovery	Approaching discovery	Приближается к находке
+hud.selection.value.arrives_in	Arrives in	Прибудет через
+hud.selection.value.arriving	Arriving	Прибывает
+hud.selection.value.attacking	Attacking	Атакует
+hud.selection.value.autonomous	Autonomous	Автономно
+hud.selection.value.available	Available	Доступно
+hud.selection.value.avoiding_settlement	Avoiding settlement	Обходит поселение
+hud.selection.value.awaiting_assignment	Awaiting assignment	Ожидает назначения
+hud.selection.value.blacksmith	Blacksmith	Кузнец
+hud.selection.value.blocked	Blocked	Заблокировано
+hud.selection.value.builder	Builder	Строитель
+hud.selection.value.camp	Camp	Лагерь
+hud.selection.value.caravan	Caravan	Караван
+hud.selection.value.caravan_offers_are_open	Caravan offers are open.	Предложения каравана доступны.
+hud.selection.value.carcass	Carcass	Туша
+hud.selection.value.carp	Carp	Карп
+hud.selection.value.caught	Caught	Поймана
+hud.selection.value.chasing	Chasing	Преследует добычу
+hud.selection.value.charting_frontier	Charting frontier	Разведывает границу
+hud.selection.value.child	Child	Ребёнок
+hud.selection.value.clay_digger	Clay digger	Добытчик глины
+hud.selection.value.coal_miner	Coal miner	Шахтёр-угольщик
+hud.selection.value.coal_pit_only	Coal Pit only	Только угольный разрез
+hud.selection.value.cold	Cold	Холодно
+hud.selection.value.completing_discovery_before_return	Completing discovery before return	Завершает исследование перед возвращением
+hud.selection.value.cooling	Cooling	Остывает
+hud.selection.value.crow	Crow	Ворона
+hud.selection.value.dead	Dead	Погибло
+hud.selection.value.delivered	Delivered	Доставлено
+hud.selection.value.departing	Departing	Отбывает
+hud.selection.value.depleted	Depleted	Истощено
+hud.selection.value.dirt	Dirt	Грунт
+hud.selection.value.discovery_complete_returning	Discovery complete - returning	Находка исследована — возвращается
+hud.selection.value.duck	Duck	Утка
+hud.selection.value.eta	ETA	До прибытия
+hud.selection.value.expedition_complete_returning	Expedition complete - returning	Экспедиция завершена — возвращается
+hud.selection.value.exploring	Exploring	В экспедиции
+hud.selection.value.falling	Falling	Падает
+hud.selection.value.father	Father	Отец
+hud.selection.value.fawn	Fawn	Оленёнок
+hud.selection.value.fed	Fed	Сыт
+hud.selection.value.feeding	Feeding	Кормится
+hud.selection.value.felled	Felled	Срублено
+hud.selection.value.female	Female	Самка
+hud.selection.value.fishable	Fishable	Доступна для ловли
+hud.selection.value.fisher	Fisher	Рыбак
+hud.selection.value.fleeing	Fleeing	Убегает
+hud.selection.value.flying	Flying	Летит
+hud.selection.value.forager	Forager	Собиратель
+hud.selection.value.forest	Forest	Лес
+hud.selection.value.free	Free	Свободно
+hud.selection.value.freezing	Freezing	Замерзает
+hud.selection.value.frozen	Frozen	Замёрзло
+hud.selection.value.fry	Fry	Малёк
+hud.selection.value.gathering	Gathering	Собирает
+hud.selection.value.granary_worker	Granary worker	Работник амбара
+hud.selection.value.grass	Grass	Трава
+hud.selection.value.grazing	Grazing	Пасётся
+hud.selection.value.grooming	Grooming	Чистит шерсть
+hud.selection.value.growing	Growing	Растёт
+hud.selection.value.hit	Hit	Ранено
+hud.selection.value.hooked	Hooked	На крючке
+hud.selection.value.hopping	Hopping	Прыгает
+hud.selection.value.housed	Housed	Есть дом
+hud.selection.value.household_food	Household food	Еда для домохозяйств
+hud.selection.value.householder	Householder	Хозяин дома
+hud.selection.value.howling	Howling	Воет
+hud.selection.value.hungry	Hungry	Голодает
+hud.selection.value.huntable	Huntable	Доступно для охоты
+hud.selection.value.hunted	Hunted	Цель охоты
+hud.selection.value.hunter	Hunter	Охотник
+hud.selection.value.husband	Husband	Муж
+hud.selection.value.idle	Idle	Бездействует
+hud.selection.value.inside_coop	Inside coop	В курятнике
+hud.selection.value.installed	Installed	Установлено
+hud.selection.value.invalid_offer	Invalid offer.	Некорректное предложение.
+hud.selection.value.investigating_discovery	Investigating discovery	Исследует находку
+hud.selection.value.investigating_point_of_interest	Investigating point of interest	Исследует интересное место
+hud.selection.value.kit	Kit	Крольчонок
+hud.selection.value.lake	Lake	Озеро
+hud.selection.value.landing	Landing	Приземляется
+hud.selection.value.leaves_in	Leaves in	Отбудет через
+hud.selection.value.locked	Locked	Заблокировано
+hud.selection.value.logs_ready	Logs ready	Брёвна готовы
+hud.selection.value.lumberjack	Lumberjack	Лесоруб
+hud.selection.value.male	Male	Самец
+hud.selection.value.mature	Mature	Зрелое
+hud.selection.value.meadow	Meadow	Луг
+hud.selection.value.mine_only	Mine only	Только шахта
+hud.selection.value.mineable	Mineable	Доступно для добычи
+hud.selection.value.miner	Miner	Шахтёр
+hud.selection.value.minnow	Minnow	Гольян
+hud.selection.value.mother	Mother	Мать
+hud.selection.value.needs_food	Needs food	Нужна еда
+hud.selection.value.needs_input	Needs input	Нужны материалы
+hud.selection.value.next_visit	Next visit	Следующий визит
+hud.selection.value.nibbling	Nibbling	Щиплет траву
+hud.selection.value.no	No	Нет
+hud.selection.value.no_active_trade	No active trade.	Сейчас торговля не ведётся.
+hud.selection.value.no_granary_can_receive_this	No Granary can receive this.	Ни один амбар не может принять товар.
+hud.selection.value.no_reachable_frontier	No reachable frontier	Нет доступной границы для разведки
+hud.selection.value.no_sources	No sources	Нет источников
+hud.selection.value.no_storage_yard_can_receive_this	No Storage Yard can receive this.	Ни один склад не может принять товар.
+hud.selection.value.none	None	Нет
+hud.selection.value.not_enough_coins	Not enough coins.	Недостаточно монет.
+hud.selection.value.not_enough_stock	Not enough stock.	Недостаточно товара на складе.
+hud.selection.value.not_ready	Not ready	Не готово
+hud.selection.value.now	now	сейчас
+hud.selection.value.occupied	Occupied	Заселён
+hud.selection.value.open	Open	Открыто
+hud.selection.value.operational	Operational	Работает
+hud.selection.value.output_full	Output full	Выходной склад заполнен
+hud.selection.value.pecking	Pecking	Клюёт
+hud.selection.value.pending	Pending	Ожидание
+hud.selection.value.perch	Perch	Окунь
+hud.selection.value.planning_route	Planning route	Планирует маршрут
+hud.selection.value.potter	Potter	Гончар
+hud.selection.value.preparing_the_first_route	Preparing the first route	Прокладывает первый маршрут
+hud.selection.value.producing	Producing	Производит
+hud.selection.value.protected	Protected	Под защитой
+hud.selection.value.queued	Queued	В очереди
+hud.selection.value.ready	Ready	Готово
+hud.selection.value.ready_for_expedition	Ready for expedition	Готов к экспедиции
+hud.selection.value.recalled_to_lodge	Recalled to Lodge	Отозван в пост разведчиков
+hud.selection.value.regrowing	Regrowing	Восстанавливается
+hud.selection.value.reserved	Reserved	Зарезервировано
+hud.selection.value.resting	Resting	Отдыхает
+hud.selection.value.resuming_expedition	Resuming expedition	Продолжает экспедицию
+hud.selection.value.return_route_blocked_retrying	Return route blocked - retrying	Обратный путь заблокирован — новая попытка
+hud.selection.value.returning	Returning	Возвращается
+hud.selection.value.returning_to_lodge	Returning to Lodge	Возвращается в пост разведчиков
+hud.selection.value.river	River	Река
+hud.selection.value.roaming	Roaming	Бродит
+hud.selection.value.safe	Safe	В безопасности
+hud.selection.value.sapling	Sapling	Саженец
+hud.selection.value.sawyer	Sawyer	Пильщик
+hud.selection.value.scout	Scout	Разведчик
+hud.selection.value.settler	Settler	Поселенец
+hud.selection.value.sheltered	Sheltered	Под крышей
+hud.selection.value.shore	Shore	Берег
+hud.selection.value.sparrow	Sparrow	Воробей
+hud.selection.value.stalking	Stalking	Крадётся
+hud.selection.value.standing	Standing	Стоит
+hud.selection.value.starving	Starving	Сильно голодает
+hud.selection.value.stock_full	Stock full	Склад заполнен
+hud.selection.value.stonecutter	Stonecutter	Каменотёс
+hud.selection.value.storage_worker	Storage worker	Работник склада
+hud.selection.value.storekeeper	Storekeeper	Кладовщик
+hud.selection.value.swimming	Swimming	Плывёт
+hud.selection.value.temporary	Temporary	Временно
+hud.selection.value.the_current_caravan_is_leaving_the_settlement	The current caravan is leaving the settlement.	Текущий караван покидает поселение.
+hud.selection.value.the_post_is_ready_for_the_next_caravan	The post is ready for the next caravan.	Торговый пост готов принять следующий караван.
+hud.selection.value.trade_controller_is_unavailable	Trade controller is unavailable.	Торговая система недоступна.
+hud.selection.value.trade_goods_while_the_caravan_waits	Trade goods while the caravan waits.	Торгуйте, пока караван находится у поста.
+hud.selection.value.trading	Trading	Торговля
+hud.selection.value.trading_post_data_is_unavailable	Trading post data is unavailable.	Данные торгового поста недоступны.
+hud.selection.value.travelling_to_point_of_interest	Travelling to point of interest	Идёт к интересному месту
+hud.selection.value.turning	Turning	Разворачивается
+hud.selection.value.unassigned	Unassigned	Не назначен
+hud.selection.value.unavailable	Unavailable	Недоступно
+hud.selection.value.unknown	Unknown	Неизвестно
+hud.selection.value.waiting	Waiting	Ожидает
+hud.selection.value.walking	Walking	Идёт
+hud.selection.value.warm	Warm	Тепло
+hud.selection.value.water	Water	Вода
+hud.selection.value.wife	Wife	Жена
+hud.selection.value.wolf_prey	Wolf prey	Добыча волков
+hud.selection.value.working	Working	Работает
+hud.selection.value.yes	Yes	Да
+hud.selection.value.young	Young	Молодое

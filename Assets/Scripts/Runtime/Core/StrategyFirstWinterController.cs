@@ -14,6 +14,7 @@ namespace ProjectUnknown.Strategy
         private float updateTimer;
         private bool foodPrepared;
         private bool fuelPrepared;
+        private bool languageSubscribed;
 
         public bool FoodPrepared => foodPrepared;
         public bool FuelPrepared => fuelPrepared;
@@ -43,6 +44,21 @@ namespace ProjectUnknown.Strategy
             population = populationController;
             phase = FirstWinterPhase.WaitingForOnboarding;
             updateTimer = 0f;
+
+            if (!languageSubscribed)
+            {
+                StrategyLocalization.LanguageChanged += HandleLanguageChanged;
+                languageSubscribed = true;
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (languageSubscribed)
+            {
+                StrategyLocalization.LanguageChanged -= HandleLanguageChanged;
+                languageSubscribed = false;
+            }
         }
 
         private void Update()
@@ -86,33 +102,30 @@ namespace ProjectUnknown.Strategy
             if (phase != FirstWinterPhase.Preparation)
             {
                 phase = FirstWinterPhase.Preparation;
-                goals?.SetGoals(
-                    new StrategyGoalDefinition(
-                        StrategyGoalKind.PrepareWinterFood,
-                        "Store " + StrategyFirstYearBalance.WinterPreparationDays + " days of food",
-                        "Households need enough rations to cross the first winter."),
-                    new StrategyGoalDefinition(
-                        StrategyGoalKind.PrepareWinterFuel,
-                        "Store " + StrategyFirstYearBalance.WinterPreparationDays + " days of firewood",
-                        "Occupied houses consume firewood during winter nights."));
+                goals?.SetGoals(CreateFoodGoal(), CreateFuelGoal());
                 StrategyEventLogHudController.Notify(
-                    "Prepare for the first winter",
+                    H("goals.winter.preparation.notice"),
                     StrategySeasonCalendar.GetSeasonAccentColor(StrategySeason.Autumn));
                 StrategyDebugLogger.Info("FirstWinter", "PreparationStarted", StrategyDebugLogger.F("day", calendar.DisplayDay));
             }
 
+            UpdatePreparationReadiness(calendar);
+        }
+
+        private void UpdatePreparationReadiness(StrategyCalendarSnapshot calendar)
+        {
             StrategySeasonReadinessSnapshot readiness = StrategySeasonReadiness.Evaluate(calendar, population);
             float targetDays = StrategyFirstYearBalance.WinterPreparationDays;
             goals?.SetGoalProgress(
                 StrategyGoalKind.PrepareWinterFood,
                 readiness.FoodDays,
                 targetDays,
-                Mathf.Min(readiness.FoodDays, targetDays).ToString("0.#") + " / " + targetDays.ToString("0") + " days");
+                H("goals.winter.progress_days", Mathf.Min(readiness.FoodDays, targetDays), targetDays));
             goals?.SetGoalProgress(
                 StrategyGoalKind.PrepareWinterFuel,
                 readiness.FuelDays,
                 targetDays,
-                Mathf.Min(readiness.FuelDays, targetDays).ToString("0.#") + " / " + targetDays.ToString("0") + " days");
+                H("goals.winter.progress_days", Mathf.Min(readiness.FuelDays, targetDays), targetDays));
             if (!foodPrepared && readiness.CoversFood)
             {
                 foodPrepared = true;
@@ -137,14 +150,11 @@ namespace ProjectUnknown.Strategy
             foodPrepared |= readiness.CoversFood;
             fuelPrepared |= readiness.CoversFuel;
             phase = FirstWinterPhase.Winter;
-            goals?.SetGoals(new StrategyGoalDefinition(
-                StrategyGoalKind.SurviveFirstWinter,
-                "Endure the first winter",
-                "Manage food, firewood, and shelter until summer returns."));
+            goals?.SetGoals(CreateSurviveWinterGoal());
             StrategyEventLogHudController.Notify(
                 foodPrepared && fuelPrepared
-                    ? "The first winter has begun. The settlement is prepared."
-                    : "The first winter has begun. Supplies are short.",
+                    ? H("goals.winter.started_prepared")
+                    : H("goals.winter.started_short"),
                 StrategySeasonCalendar.GetSeasonAccentColor(StrategySeason.Winter));
             StrategyDebugLogger.Info(
                 "FirstWinter",
@@ -163,8 +173,55 @@ namespace ProjectUnknown.Strategy
 
             phase = FirstWinterPhase.Complete;
             goals?.ClearGoals();
-            StrategyEventLogHudController.Notify("The first winter has ended", new Color(0.62f, 0.82f, 0.68f));
+            StrategyEventLogHudController.Notify(
+                H("goals.winter.ended"),
+                new Color(0.62f, 0.82f, 0.68f));
             StrategyDebugLogger.Info("FirstWinter", "WinterEnded", StrategyDebugLogger.F("residents", population.TotalResidentCount));
+        }
+
+        private void HandleLanguageChanged()
+        {
+            if (phase == FirstWinterPhase.Preparation)
+            {
+                goals?.ReplaceGoalText(CreateFoodGoal(), CreateFuelGoal());
+                if (population != null)
+                {
+                    UpdatePreparationReadiness(StrategyDayNightCycleController.CurrentCalendarSnapshot);
+                }
+            }
+            else if (phase == FirstWinterPhase.Winter)
+            {
+                goals?.ReplaceGoalText(CreateSurviveWinterGoal());
+            }
+        }
+
+        private static StrategyGoalDefinition CreateFoodGoal()
+        {
+            return new StrategyGoalDefinition(
+                StrategyGoalKind.PrepareWinterFood,
+                H("goals.winter.food.title", StrategyFirstYearBalance.WinterPreparationDays),
+                H("goals.winter.food.description"));
+        }
+
+        private static StrategyGoalDefinition CreateFuelGoal()
+        {
+            return new StrategyGoalDefinition(
+                StrategyGoalKind.PrepareWinterFuel,
+                H("goals.winter.fuel.title", StrategyFirstYearBalance.WinterPreparationDays),
+                H("goals.winter.fuel.description"));
+        }
+
+        private static StrategyGoalDefinition CreateSurviveWinterGoal()
+        {
+            return new StrategyGoalDefinition(
+                StrategyGoalKind.SurviveFirstWinter,
+                H("goals.winter.survive.title"),
+                H("goals.winter.survive.description"));
+        }
+
+        private static string H(string key, params object[] arguments)
+        {
+            return StrategyLocalization.Get(StrategyLocalizationTables.Hud, key, arguments);
         }
 
         private enum FirstWinterPhase

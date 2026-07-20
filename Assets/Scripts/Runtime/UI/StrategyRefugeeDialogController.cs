@@ -9,6 +9,8 @@ namespace ProjectUnknown.Strategy
     [DisallowMultipleComponent]
     public sealed class StrategyRefugeeDialogController : MonoBehaviour
     {
+        private readonly List<StrategyResidentAgent> displayedFamily = new();
+
         private CanvasGroup rootGroup;
         private Text bodyText;
         private Text familyText;
@@ -53,6 +55,11 @@ namespace ProjectUnknown.Strategy
             Configure();
         }
 
+        private void OnEnable()
+        {
+            StrategyLocalization.LanguageChanged += HandleLanguageChanged;
+        }
+
         private void Update()
         {
             RefreshInputContext(ShouldHoldInputContext);
@@ -63,15 +70,16 @@ namespace ProjectUnknown.Strategy
             Configure();
             decisionCallback = onDecision;
             decisionLocked = false;
-            if (bodyText != null)
+            displayedFamily.Clear();
+            if (family != null)
             {
-                bodyText.text = "A refugee family has reached the campfire. They are asking for shelter in the settlement.";
+                for (int i = 0; i < family.Count; i++)
+                {
+                    displayedFamily.Add(family[i]);
+                }
             }
 
-            if (familyText != null)
-            {
-                familyText.text = BuildFamilyText(family);
-            }
+            RefreshLocalizedContent();
 
             panelTransition.SetVisible(true);
             RefreshInputContext(true);
@@ -116,9 +124,26 @@ namespace ProjectUnknown.Strategy
 
         private void OnDisable()
         {
+            StrategyLocalization.LanguageChanged -= HandleLanguageChanged;
             inputContext?.Dispose();
             inputContext = null;
             panelTransition?.SetVisible(false, true);
+        }
+
+        private void HandleLanguageChanged()
+        {
+            if (initialized && IsOpen)
+            {
+                RefreshLocalizedContent();
+            }
+        }
+
+        private void RefreshLocalizedContent()
+        {
+            if (familyText != null)
+            {
+                familyText.text = BuildFamilyText(displayedFamily);
+            }
         }
 
         private void Choose(bool accepted)
@@ -179,13 +204,21 @@ namespace ProjectUnknown.Strategy
             accentImage.color = new Color(0.86f, 0.63f, 0.28f, 1f);
             accentImage.raycastTarget = false;
 
-            Text title = CreateText("Title", panel, "Refugees", 27, TextAnchor.UpperLeft, Color.white);
+            Text title = CreateText("Title", panel, string.Empty, 27, TextAnchor.UpperLeft, Color.white);
             title.fontStyle = FontStyle.Bold;
             SetTopStretch(title.rectTransform, 28f, 24f, 28f, 34f);
+            StrategyLocalizedTextBinding.Bind(
+                title,
+                StrategyLocalizationTables.Residents,
+                "resident.dialog.refugee.title");
 
-            Text subtitle = CreateText("Subtitle", panel, "settlement decision", 14, TextAnchor.UpperLeft, new Color(0.86f, 0.70f, 0.42f));
+            Text subtitle = CreateText("Subtitle", panel, string.Empty, 14, TextAnchor.UpperLeft, new Color(0.86f, 0.70f, 0.42f));
             subtitle.fontStyle = FontStyle.Bold;
             SetTopStretch(subtitle.rectTransform, 28f, 60f, 28f, 20f);
+            StrategyLocalizedTextBinding.Bind(
+                subtitle,
+                StrategyLocalizationTables.Residents,
+                "resident.dialog.refugee.subtitle");
 
             RectTransform line = CreateUiObject("Line", panel).GetComponent<RectTransform>();
             SetTopStretch(line, 28f, 92f, 28f, 2f);
@@ -198,6 +231,10 @@ namespace ProjectUnknown.Strategy
             bodyText.resizeTextMinSize = 12;
             bodyText.resizeTextMaxSize = 15;
             SetTopStretch(bodyText.rectTransform, 28f, 112f, 28f, 56f);
+            StrategyLocalizedTextBinding.Bind(
+                bodyText,
+                StrategyLocalizationTables.Residents,
+                "resident.dialog.refugee.body");
 
             RectTransform familyBox = CreateUiObject("FamilyBox", panel).GetComponent<RectTransform>();
             SetTopStretch(familyBox, 28f, 182f, 28f, 106f);
@@ -210,15 +247,15 @@ namespace ProjectUnknown.Strategy
             familyText.resizeTextMaxSize = 14;
             Stretch(familyText.rectTransform, 14f, 10f, 14f, 10f);
 
-            CreateDecisionButton(panel, "Accept", "Accept", new Vector2(-112f, 28f), new Color(0.22f, 0.39f, 0.30f, 0.98f), true);
-            CreateDecisionButton(panel, "Reject", "Refuse", new Vector2(112f, 28f), new Color(0.34f, 0.18f, 0.17f, 0.98f), false);
+            CreateDecisionButton(panel, "Accept", "resident.dialog.refugee.action.accept", new Vector2(-112f, 28f), new Color(0.22f, 0.39f, 0.30f, 0.98f), true);
+            CreateDecisionButton(panel, "Reject", "resident.dialog.refugee.action.refuse", new Vector2(112f, 28f), new Color(0.34f, 0.18f, 0.17f, 0.98f), false);
 
             panelTransition = root.gameObject.AddComponent<StrategyUiPanelTransition>();
             panelTransition.Configure(rootGroup, panel, new Vector2(0f, -18f), 0.96f, 0.20f, 0.14f);
             panelTransition.SetVisible(false, true);
         }
 
-        private void CreateDecisionButton(RectTransform parent, string name, string label, Vector2 anchoredPosition, Color color, bool accepted)
+        private void CreateDecisionButton(RectTransform parent, string name, string labelKey, Vector2 anchoredPosition, Color color, bool accepted)
         {
             RectTransform root = CreateUiObject(name, parent).GetComponent<RectTransform>();
             root.anchorMin = new Vector2(0.5f, 0f);
@@ -242,16 +279,20 @@ namespace ProjectUnknown.Strategy
             button.colors = colors;
             StrategyUiButtonFeedback.Attach(button, StrategyUiButtonFeedbackProfile.Standard, null);
 
-            Text text = CreateText("Label", root, label, 16, TextAnchor.MiddleCenter, Color.white);
+            Text text = CreateText("Label", root, string.Empty, 16, TextAnchor.MiddleCenter, Color.white);
             text.fontStyle = FontStyle.Bold;
             Stretch(text.rectTransform, 0f, 0f, 0f, 1f);
+            StrategyLocalizedTextBinding.Bind(
+                text,
+                StrategyLocalizationTables.Residents,
+                labelKey);
         }
 
         private static string BuildFamilyText(IReadOnlyList<StrategyResidentAgent> family)
         {
             if (family == null || family.Count <= 0)
             {
-                return "Family: no data";
+                return L("resident.dialog.refugee.family.no_data");
             }
 
             StringBuilder builder = new StringBuilder(192);
@@ -268,47 +309,72 @@ namespace ProjectUnknown.Strategy
                     builder.Append('\n');
                 }
 
-                string role = GetFamilyRole(resident);
-                builder.Append(resident.FullName);
-                builder.Append("  -  ");
-                builder.Append(role);
-                builder.Append(", ");
-                builder.Append(resident.DisplayAgeYears);
-                builder.Append(" ");
-                builder.Append(GetAgeSuffix(resident.DisplayAgeYears));
+                string role = L(GetFamilyRoleKey(resident));
+                builder.Append(L(
+                    GetFamilyLineKey(resident.DisplayAgeYears),
+                    resident.FullName,
+                    role,
+                    resident.DisplayAgeYears));
             }
 
-            return builder.ToString();
+            return builder.Length > 0
+                ? builder.ToString()
+                : L("resident.dialog.refugee.family.no_data");
         }
 
-        private static string GetFamilyRole(StrategyResidentAgent resident)
+        private static string GetFamilyRoleKey(StrategyResidentAgent resident)
         {
             if (resident == null)
             {
-                return "family member";
+                return "resident.dialog.refugee.role.family_member";
             }
 
             if (!resident.IsAdult)
             {
-                return resident.Gender == StrategyResidentGender.Male ? "son" : "daughter";
+                return resident.Gender == StrategyResidentGender.Male
+                    ? "resident.dialog.refugee.role.son"
+                    : "resident.dialog.refugee.role.daughter";
             }
 
-            return resident.Gender == StrategyResidentGender.Male ? "father" : "mother";
+            return resident.Gender == StrategyResidentGender.Male
+                ? "resident.dialog.refugee.role.father"
+                : "resident.dialog.refugee.role.mother";
         }
 
-        private static string GetAgeSuffix(int age)
+        private static string GetFamilyLineKey(int age)
         {
-            int mod100 = age % 100;
-            if (mod100 >= 11 && mod100 <= 14)
+            if (StrategyLocalization.CurrentLanguage == StrategyGameLanguage.English)
             {
-                return "years";
+                return age == 1
+                    ? "resident.dialog.refugee.family.line.one"
+                    : "resident.dialog.refugee.family.line.many";
             }
 
-            return age % 10 == 1
-                ? "year"
-                : age % 10 >= 2 && age % 10 <= 4
-                    ? "years"
-                    : "years";
+            int value = Mathf.Abs(age);
+            int mod100 = value % 100;
+            if (mod100 < 11 || mod100 > 14)
+            {
+                int mod10 = value % 10;
+                if (mod10 == 1)
+                {
+                    return "resident.dialog.refugee.family.line.one";
+                }
+
+                if (mod10 >= 2 && mod10 <= 4)
+                {
+                    return "resident.dialog.refugee.family.line.few";
+                }
+            }
+
+            return "resident.dialog.refugee.family.line.many";
+        }
+
+        private static string L(string key, params object[] arguments)
+        {
+            return StrategyLocalization.Get(
+                StrategyLocalizationTables.Residents,
+                key,
+                arguments);
         }
 
         private static GameObject CreateUiObject(string name, Transform parent)

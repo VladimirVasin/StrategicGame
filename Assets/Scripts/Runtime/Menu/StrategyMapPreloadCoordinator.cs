@@ -41,8 +41,8 @@ namespace ProjectUnknown.Strategy
         private bool launchRequested;
         private bool synchronousFallbackStarted;
         private float contentProgress;
-        private string contentStage = "Preparing content";
-        private string launchFailureReason = string.Empty;
+        private string contentStageKey = "menu.preload.preparing_content";
+        private string launchFailureReasonKey = string.Empty;
 
         public static StrategyMapPreloadCoordinator Active { get; private set; }
 
@@ -54,7 +54,9 @@ namespace ProjectUnknown.Strategy
         public StrategyPreloadPhase Phase => phase;
         public string SaveSummary => BuildSaveSummary();
         public int PreparedSeed => candidateSeed;
-        public string LaunchFailureReason => launchFailureReason;
+        public string LaunchFailureReason => string.IsNullOrEmpty(launchFailureReasonKey)
+            ? string.Empty
+            : StrategyLocalization.Get(StrategyLocalizationTables.Menu, launchFailureReasonKey);
 
         public float Progress
         {
@@ -81,9 +83,9 @@ namespace ProjectUnknown.Strategy
                 {
                     return phase switch
                     {
-                        StrategyPreloadPhase.OpeningFoundingJourney => "Opening founding journey",
-                        StrategyPreloadPhase.ReturningToMainMenu => "Returning to main menu",
-                        _ => "Opening settlement"
+                        StrategyPreloadPhase.OpeningFoundingJourney => StrategyLocalization.Get(StrategyLocalizationTables.Menu, "menu.preload.opening_founding_journey"),
+                        StrategyPreloadPhase.ReturningToMainMenu => StrategyLocalization.Get(StrategyLocalizationTables.Menu, "menu.preload.returning_to_main_menu"),
+                        _ => StrategyLocalization.Get(StrategyLocalizationTables.Menu, "menu.preload.opening_settlement")
                     };
                 }
 
@@ -92,7 +94,9 @@ namespace ProjectUnknown.Strategy
                     return preparedMap.GenerationStage;
                 }
 
-                return contentProgress < 1f ? contentStage : "Ready";
+                return contentProgress < 1f
+                    ? StrategyLocalization.Get(StrategyLocalizationTables.Menu, contentStageKey)
+                    : StrategyLocalization.Get(StrategyLocalizationTables.Common, "common.ready");
             }
         }
 
@@ -112,7 +116,7 @@ namespace ProjectUnknown.Strategy
             Active = this;
             configured = true;
             phase = StrategyPreloadPhase.PreparingCandidate;
-            launchFailureReason = string.Empty;
+            launchFailureReasonKey = string.Empty;
             DontDestroyOnLoad(gameObject);
             SceneManager.sceneLoaded += HandleSceneLoaded;
 
@@ -172,7 +176,7 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            launchFailureReason = string.Empty;
+            launchFailureReasonKey = string.Empty;
             phase = StrategyPreloadPhase.PreparingGameplay;
             preparedMap?.SetGenerationFrameBudget(LaunchFrameBudgetMs);
             StrategyDebugLogger.Info(
@@ -207,7 +211,7 @@ namespace ProjectUnknown.Strategy
                 launchRequested = true;
                 requestedMode = StrategyLaunchMode.NewSettlement;
                 phase = StrategyPreloadPhase.AwaitingFoundingDecision;
-                launchFailureReason = "The main menu scene could not be opened.";
+                launchFailureReasonKey = "menu.error.main_menu_open_failed";
                 StrategyDebugLogger.Error("Menu", "MainMenuSceneOpenRejected");
             }
             StrategyDebugLogger.Info("Menu", "FoundingJourneyCancelled");
@@ -241,7 +245,7 @@ namespace ProjectUnknown.Strategy
             sceneLoadOperation = SceneManager.LoadSceneAsync(StrategySceneCatalog.GameplaySceneName, LoadSceneMode.Single);
             if (sceneLoadOperation == null)
             {
-                launchFailureReason = "The gameplay scene could not be opened.";
+                launchFailureReasonKey = "menu.error.gameplay_open_failed";
                 StrategyDebugLogger.Error(
                     "Menu",
                     "GameplaySceneOpenRejected",
@@ -261,7 +265,7 @@ namespace ProjectUnknown.Strategy
 
         private bool BeginFoundingJourney(int seed)
         {
-            launchFailureReason = string.Empty;
+            launchFailureReasonKey = string.Empty;
             bool preloadHit = candidateMode == StrategyLaunchMode.NewSettlement
                 && candidateSeed == seed
                 && preparedMap != null;
@@ -282,7 +286,7 @@ namespace ProjectUnknown.Strategy
                 launchRequested = false;
                 requestedMode = StrategyLaunchMode.None;
                 phase = StrategyPreloadPhase.PreparingCandidate;
-                launchFailureReason = "The founding journey scene could not be opened.";
+                launchFailureReasonKey = "menu.error.founding_journey_open_failed";
                 StrategyDebugLogger.Error("Menu", "FoundingJourneySceneOpenRejected");
             }
             StrategyDebugLogger.Info(
@@ -295,7 +299,7 @@ namespace ProjectUnknown.Strategy
 
         private bool BeginGameplayLaunch(StrategyLaunchMode mode, int seed)
         {
-            launchFailureReason = string.Empty;
+            launchFailureReasonKey = string.Empty;
             bool preloadHit = candidateMode == mode && candidateSeed == seed && preparedMap != null;
             launchRequested = true;
             requestedMode = mode;
@@ -344,12 +348,12 @@ namespace ProjectUnknown.Strategy
         {
             if (!HasValidSave)
             {
-                return "No saved settlement";
+                return StrategyLocalization.Get(StrategyLocalizationTables.Menu, "menu.save.none");
             }
 
             int day = Mathf.Max(1, Mathf.FloorToInt(savedGame.elapsedSeconds / 360f) + 1);
             int residents = savedGame.residents != null ? savedGame.residents.Count : 0;
-            return "Day " + day + "  /  " + residents + " residents";
+            return StrategyLocalization.Get(StrategyLocalizationTables.Menu, "menu.save.summary", day, residents);
         }
 
         private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)

@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 
 namespace ProjectUnknown.Strategy.EditorTests
 {
@@ -33,10 +35,47 @@ namespace ProjectUnknown.Strategy.EditorTests
                     StrategyCityItemIds.Cats,
                     out StrategyCityItemDefinition cats),
                 Is.True);
-            Assert.That(cats.Title, Is.EqualTo("Cats"));
+            Locale previousLocale = LocalizationSettings.SelectedLocale;
+            bool hadPreference = PlayerPrefs.HasKey(StrategyLocalization.LanguagePreferenceKey);
+            string previousPreference = PlayerPrefs.GetString(
+                StrategyLocalization.LanguagePreferenceKey,
+                StrategyLocalization.RussianLocaleCode);
+            try
+            {
+                Assert.That(
+                    StrategyLocalization.SetLanguage(StrategyGameLanguage.English),
+                    Is.True);
+                Assert.That(cats.Title, Is.EqualTo("Cats"));
+                Assert.That(cats.Description, Is.Not.Empty);
+                Assert.That(cats.EffectText, Does.Contain("hunt mice"));
+
+                Assert.That(
+                    StrategyLocalization.SetLanguage(StrategyGameLanguage.Russian),
+                    Is.True);
+                Assert.That(cats.Title, Is.EqualTo("Кошки"));
+                Assert.That(cats.Description, Is.Not.Empty);
+                Assert.That(cats.EffectText, Does.Contain("мыш"));
+            }
+            finally
+            {
+                StrategyGameLanguage restoreLanguage = previousLocale != null
+                    ? StrategyLocalization.FromLocaleCode(previousLocale.Identifier.Code)
+                    : StrategyLocalization.FromLocaleCode(previousPreference);
+                StrategyLocalization.SetLanguage(restoreLanguage);
+                LocalizationSettings.SelectedLocale = previousLocale;
+                if (hadPreference)
+                {
+                    PlayerPrefs.SetString(
+                        StrategyLocalization.LanguagePreferenceKey,
+                        previousPreference);
+                }
+                else
+                {
+                    PlayerPrefs.DeleteKey(StrategyLocalization.LanguagePreferenceKey);
+                }
+            }
+
             Assert.That(cats.MaxStack, Is.EqualTo(1));
-            Assert.That(cats.Description, Is.Not.Empty);
-            Assert.That(cats.EffectText, Does.Contain("hunt mice"));
             Assert.That(cats.IconResourcePath, Is.EqualTo("Visual/CityItems/Cats"));
             Sprite catsArtwork = Resources.Load<Sprite>(cats.IconResourcePath);
             Assert.That(catsArtwork, Is.Not.Null, cats.IconResourcePath);

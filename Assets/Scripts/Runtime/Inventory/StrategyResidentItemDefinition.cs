@@ -7,13 +7,22 @@ namespace ProjectUnknown.Strategy
         public const int MaximumIdLength = 64;
         public const int MaximumQuantity = 1_000_000;
 
+        private readonly string title;
+        private readonly string description;
+        private readonly string localizationTable;
+        private readonly string titleKey;
+        private readonly string descriptionKey;
+
         public StrategyResidentItemDefinition(
             string id,
             string title,
             int maxStack = 1,
             string description = "",
             string iconResourcePath = "",
-            int sortOrder = 0)
+            int sortOrder = 0,
+            string localizationTable = "",
+            string titleKey = "",
+            string descriptionKey = "")
         {
             if (!IsValidId(id))
             {
@@ -35,17 +44,20 @@ namespace ProjectUnknown.Strategy
             }
 
             Id = id;
-            Title = title;
+            this.title = title;
             MaxStack = maxStack;
-            Description = description ?? string.Empty;
+            this.description = description ?? string.Empty;
             IconResourcePath = iconResourcePath ?? string.Empty;
             SortOrder = sortOrder;
+            this.localizationTable = localizationTable ?? string.Empty;
+            this.titleKey = titleKey ?? string.Empty;
+            this.descriptionKey = descriptionKey ?? string.Empty;
         }
 
         public string Id { get; }
-        public string Title { get; }
+        public string Title => Resolve(title, titleKey);
         public int MaxStack { get; }
-        public string Description { get; }
+        public string Description => Resolve(description, descriptionKey);
         public string IconResourcePath { get; }
         public int SortOrder { get; }
 
@@ -80,6 +92,17 @@ namespace ProjectUnknown.Strategy
         {
             return character >= 'a' && character <= 'z'
                 || character >= '0' && character <= '9';
+        }
+
+        private string Resolve(string fallback, string key)
+        {
+            if (string.IsNullOrEmpty(localizationTable) || string.IsNullOrEmpty(key))
+            {
+                return fallback;
+            }
+
+            string localized = StrategyLocalization.Get(localizationTable, key);
+            return localized == key ? fallback : localized;
         }
     }
 }

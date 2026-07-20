@@ -1,0 +1,75 @@
+Key	English	Russian
+story.departure.chapter	THE LAST NIGHT	ПОСЛЕДНЯЯ НОЧЬ
+story.departure.title	We left before dawn.	Мы ушли до рассвета.
+story.departure.body	War had reached every road behind us. We took only what the cart could carry and promised the children we would find a place beyond its reach.	Война настигла все дороги позади нас. Мы взяли лишь то, что поместилось в повозку, и пообещали детям найти место, куда она не доберётся.
+story.long_road.chapter	THE LONG ROAD	ДОЛГИЙ ПУТЬ
+story.long_road.title	The road asked everything of us.	Дорога потребовала от нас всего.
+story.long_road.body	Weeks passed beneath rain and cold stone. We crossed the high paths together, following no banner and serving no lord.	Недели шли под дождём среди холодных скал. Мы вместе пересекали горные тропы, не следуя ни за чьим знаменем и не служа ни одному господину.
+story.quiet_valley.chapter	A QUIET VALLEY	ТИХАЯ ДОЛИНА
+story.quiet_valley.title	At last, the horizon was silent.	Наконец горизонт затих.
+story.quiet_valley.body	No smoke. No marching columns. Only water, forest and open land. For the first time, the road ahead belonged to us.	Ни дыма, ни марширующих колонн. Только вода, лес и простор. Впервые дорога впереди принадлежала нам.
+story.council.chapter	THE FIRST DECISION	ПЕРВОЕ РЕШЕНИЕ
+story.council.title	Safety was only the beginning.	Безопасность была лишь началом.
+story.council.body	Before unloading the cart, the families gathered around the map. Where we stop tonight will shape every winter that follows.	Прежде чем разгружать повозку, семьи собрались над картой. От места нашей сегодняшней стоянки будет зависеть каждая следующая зима.
+question.water.prompt	What landmark did the scouts follow?	К какому ориентиру шли разведчики?
+question.water.context	Water shapes travel, food and the first routes through the valley.	Вода определяет пути, пропитание и первые дороги через долину.
+answer.water.river.label	A running river	Быстрая река
+answer.water.river.description	Safe ground within reach of a river.	Безопасная земля неподалёку от реки.
+answer.water.lake.label	A quiet lake	Тихое озеро
+answer.water.lake.description	Sheltered water and reliable fishing access.	Защищённый водоём и удобное место для рыбной ловли.
+answer.water.inland.label	High, dry ground	Сухая возвышенность
+answer.water.inland.description	More distance from shore and floodwater.	Подальше от берегов и паводков.
+question.landscape.prompt	What kind of shelter did they seek?	Какое укрытие они искали?
+question.landscape.context	The land around camp determines visibility and room to grow.	Земля вокруг лагеря определяет обзор и пространство для роста.
+answer.landscape.forest_edge.label	The forest edge	Опушка леса
+answer.landscape.forest_edge.description	Timber and cover beside open ground.	Древесина и укрытие рядом с открытой землёй.
+answer.landscape.open_meadow.label	An open meadow	Открытый луг
+answer.landscape.open_meadow.description	Clear sightlines and easier construction.	Хороший обзор и удобное строительство.
+answer.landscape.mixed.label	A little of both	Понемногу того и другого
+answer.landscape.mixed.description	A varied landscape without one strong bias.	Разнообразная местность без явного преобладания.
+question.livelihood.prompt	What should feed the first winter?	Что прокормит нас первой зимой?
+question.livelihood.context	The scouts marked the places most suited to an early livelihood.	Разведчики отметили места, лучше всего подходящие для первого промысла.
+answer.livelihood.hunting.label	Game trails	Звериные тропы
+answer.livelihood.hunting.description	Meadow and forest-edge habitat for hunting.	Луга и опушки, подходящие для охоты.
+answer.livelihood.fishing.label	Fishing water	Рыбные места
+answer.livelihood.fishing.description	Reachable water with better fishing potential.	Доступный водоём с хорошими местами для рыбалки.
+answer.livelihood.foraging.label	Wild harvest	Дары природы
+answer.livelihood.foraging.description	Mixed forest and meadow for gathering.	Лес и луга, богатые дикоросами.
+question.priority.prompt	What matters most when the cart stops?	Что важнее всего на месте стоянки?
+question.priority.context	Every site remains playable; this choice breaks close decisions.	Любое место будет пригодно для жизни; этот выбор решит спор между равноценными вариантами.
+answer.priority.construction.label	Room to build	Место для строительства
+answer.priority.construction.description	Favor open, buildable ground.	Предпочесть открытую землю, пригодную для застройки.
+answer.priority.resources.label	Nearby resources	Ресурсы поблизости
+answer.priority.resources.description	Favor varied terrain and resource opportunity.	Предпочесть разнообразную местность с богатыми ресурсами.
+answer.priority.balanced.label	A balanced beginning	Сбалансированное начало
+answer.priority.balanced.description	Keep construction and resources in balance.	Сохранить равновесие между строительством и ресурсами.
+founding.back	Back	Назад
+founding.preparing_settlement	Preparing settlement	Подготовка поселения
+founding.preparing_valley	Preparing the valley	Подготовка долины
+founding.skip_story	Skip story	Пропустить историю
+founding.use_balanced_defaults	Use balanced defaults	Использовать сбалансированный выбор
+founding.summary.chapter	OUR REFUGE	НАШЕ УБЕЖИЩЕ
+founding.summary.title	Here we begin again.	Здесь мы начнём заново.
+founding.begin_settlement	Begin the settlement	Основать поселение
+founding.change_answers	Change answers	Изменить ответы
+founding.reduce_motion	Reduce motion	Уменьшить анимацию
+founding.continue	Continue	Продолжить
+founding.choose_refuge	Choose our refuge	Выбрать наше убежище
+founding.progress	{0} / {1}	{0} / {1}
+founding.choice_progress	FOUNDING CHOICE  {0} / {1}	ВЫБОР ОСНОВАТЕЛЕЙ  {0} / {1}
+founding.summary.body	WATER\n{0}\n\nLANDSCAPE\n{1}\n\nFIRST LIVELIHOOD\n{2}\n\nPRIORITY\n{3}	ВОДА\n{0}\n\nЛАНДШАФТ\n{1}\n\nПЕРВОЕ РЕМЕСЛО\n{2}\n\nПРИОРИТЕТ\n{3}
+founding.summary.compromise	The scouts will compromise between dry ground and reachable fishing water.	Разведчики найдут компромисс между сухой землёй и доступной водой для рыбной ловли.
+founding.summary.safety_note	Safety remains the first rule. Preferences guide the best playable site.	Безопасность остаётся главным правилом. Предпочтения помогут выбрать лучшее подходящее место.
+founding.no_strong_preference	No strong preference	Нет особых предпочтений
+founding.balanced	Balanced	Сбалансировано
+founding.valley_ready	VALLEY READY	ДОЛИНА ГОТОВА
+founding.preparation_progress	{0}  {1}%	{0}  {1}%
+founding.loading.finding_safe_place	Finding a safe place	Ищем безопасное место
+founding.loading.comparing_site	Comparing water, shelter and room to build	Сравниваем доступ к воде, укрытию и месту для строительства
+founding.loading.begin_again	Here we begin again	Здесь мы начнём заново
+founding.loading.opening_valley	Opening the valley	Открываем долину
+founding.error.prepared_valley_lost	The prepared valley was lost. Return to the main menu and try again.	Подготовленная долина потеряна. Вернитесь в главное меню и попробуйте снова.
+founding.error.preparation_timeout	Preparing the valley took too long. Return to the main menu and try again.	Подготовка долины заняла слишком много времени. Вернитесь в главное меню и попробуйте снова.
+founding.error.no_safe_site	No safe starting site could be resolved.	Не удалось найти безопасное место для начала.
+founding.error.settlement_open_failed	The settlement could not be opened.	Не удалось открыть поселение.
+founding.error.scouts_failed	The scouts could not resolve a safe site. Return to the main menu and try again.	Разведчики не смогли найти безопасное место. Вернитесь в главное меню и попробуйте снова.

@@ -87,21 +87,29 @@ namespace ProjectUnknown.Strategy
             compassBackground.sprite = StrategyUiThemeProvider.GetButtonSprite();
             compassBackground.type = Image.Type.Sliced;
             compassBackground.color = new Color(0.18f, 0.16f, 0.11f, 1f);
-            Text compassText = CreateText("Compass", compass, "N\n+\nS", 13, TextAnchor.MiddleCenter, new Color(0.96f, 0.74f, 0.34f, 1f));
+            Text compassText = CreateText("Compass", compass, string.Empty, 13, TextAnchor.MiddleCenter, new Color(0.96f, 0.74f, 0.34f, 1f));
             compassText.fontStyle = FontStyle.Bold;
             Stretch(compassText.rectTransform, 4f, 5f, 4f, 5f);
+            StrategyLocalizedTextBinding.Bind(
+                compassText,
+                StrategyLocalizationTables.Residents,
+                "resident.dialog.scout.compass");
 
             Text eyebrow = CreateText(
                 "Eyebrow",
                 board,
-                "SCOUT LODGE  /  EXPEDITION BOARD",
+                string.Empty,
                 12,
                 TextAnchor.MiddleLeft,
                 new Color(0.86f, 0.66f, 0.31f, 1f));
             eyebrow.fontStyle = FontStyle.Bold;
             SetTopLeft(eyebrow.rectTransform, 136f, 23f, 544f, 22f);
+            StrategyLocalizedTextBinding.Bind(
+                eyebrow,
+                StrategyLocalizationTables.Residents,
+                "resident.dialog.scout.eyebrow");
 
-            titleText = CreateText("Title", board, "THE FIRST EXPEDITION", 28, TextAnchor.MiddleLeft, Color.white);
+            titleText = CreateText("Title", board, string.Empty, 28, TextAnchor.MiddleLeft, Color.white);
             titleText.fontStyle = FontStyle.Bold;
             titleText.resizeTextForBestFit = true;
             titleText.resizeTextMinSize = 21;
@@ -111,7 +119,7 @@ namespace ProjectUnknown.Strategy
             subtitleText = CreateText(
                 "Subtitle",
                 board,
-                "Beyond the Firelight",
+                string.Empty,
                 16,
                 TextAnchor.MiddleLeft,
                 new Color(0.80f, 0.87f, 0.81f, 1f));
@@ -133,17 +141,21 @@ namespace ProjectUnknown.Strategy
             Text label = CreateText(
                 "Label",
                 card,
-                "WHY THE TRAIL MATTERS",
+                string.Empty,
                 11,
                 TextAnchor.UpperLeft,
                 new Color(0.94f, 0.70f, 0.31f, 1f));
             label.fontStyle = FontStyle.Bold;
             SetTopStretch(label.rectTransform, 18f, 13f, 18f, 18f);
+            StrategyLocalizedTextBinding.Bind(
+                label,
+                StrategyLocalizationTables.Residents,
+                "resident.dialog.scout.briefing.label");
 
             storyText = CreateText(
                 "Story",
                 card,
-                "The roofs are standing and the camps are working, but beyond the last familiar path the valley is still only rumor. Choose one adult to carry our first map into the unknown.",
+                string.Empty,
                 13,
                 TextAnchor.UpperLeft,
                 new Color(0.88f, 0.92f, 0.86f, 1f));
@@ -155,7 +167,7 @@ namespace ProjectUnknown.Strategy
             Text mechanics = CreateText(
                 "Mechanics",
                 card,
-                "Scouts range by day and night, reveal unexplored land, investigate landmarks, and report distant Iron and Coal deposits - and whatever else waits beyond the fog.",
+                string.Empty,
                 12,
                 TextAnchor.UpperLeft,
                 new Color(0.75f, 0.84f, 0.78f, 1f));
@@ -163,16 +175,24 @@ namespace ProjectUnknown.Strategy
             mechanics.resizeTextMinSize = 10;
             mechanics.resizeTextMaxSize = 12;
             SetTopStretch(mechanics.rectTransform, 18f, 96f, 18f, 43f);
+            StrategyLocalizedTextBinding.Bind(
+                mechanics,
+                StrategyLocalizationTables.Residents,
+                "resident.dialog.scout.briefing.mechanics");
 
             Text capacity = CreateText(
                 "Capacity",
                 card,
-                "ONE LODGE  /  ONE SCOUT  /  REASSIGN ANY TIME",
+                string.Empty,
                 10,
                 TextAnchor.MiddleLeft,
                 new Color(0.89f, 0.69f, 0.36f, 1f));
             capacity.fontStyle = FontStyle.Bold;
             SetTopStretch(capacity.rectTransform, 18f, 147f, 18f, 18f);
+            StrategyLocalizedTextBinding.Bind(
+                capacity,
+                StrategyLocalizationTables.Residents,
+                "resident.dialog.scout.briefing.capacity");
         }
 
         private void BuildCandidateList()
@@ -180,7 +200,7 @@ namespace ProjectUnknown.Strategy
             candidateHeadingText = CreateText(
                 "CandidateHeading",
                 board,
-                "CHOOSE A RESIDENT",
+                string.Empty,
                 12,
                 TextAnchor.MiddleLeft,
                 new Color(0.92f, 0.72f, 0.37f, 1f));
@@ -229,7 +249,7 @@ namespace ProjectUnknown.Strategy
             emptyText = CreateText(
                 "Empty",
                 board,
-                "No adult residents are in the settlement yet.",
+                string.Empty,
                 14,
                 TextAnchor.MiddleCenter,
                 new Color(0.70f, 0.76f, 0.72f, 1f));

@@ -90,12 +90,16 @@ namespace ProjectUnknown.Strategy
             Text heading = CreateText(
                 "RewardHeading",
                 backdrop,
-                "THE CITY REMEMBERS",
+                string.Empty,
                 14,
                 TextAnchor.MiddleCenter,
                 PaleGold);
             heading.fontStyle = FontStyle.Bold;
             SetCenter(heading.rectTransform, 0f, 374f, 620f, 28f);
+            StrategyLocalizedTextBinding.Bind(
+                heading,
+                StrategyLocalizationTables.Residents,
+                "resident.reward.city.heading");
         }
 
         private void CreateAtmosphere()
@@ -174,17 +178,21 @@ namespace ProjectUnknown.Strategy
             Text collection = CreateText(
                 "Collection",
                 inner,
-                "NEW CITY ITEM",
+                string.Empty,
                 12,
                 TextAnchor.MiddleCenter,
                 Gold);
             collection.fontStyle = FontStyle.Bold;
             SetTopStretch(collection.rectTransform, 24f, 15f, 24f, 20f);
+            StrategyLocalizedTextBinding.Bind(
+                collection,
+                StrategyLocalizationTables.Residents,
+                "resident.reward.city.collection");
 
             rewardTitleText = CreateText(
                 "ItemTitle",
                 inner,
-                "UNKNOWN FIND",
+                string.Empty,
                 31,
                 TextAnchor.MiddleCenter,
                 Color.white);
@@ -202,7 +210,7 @@ namespace ProjectUnknown.Strategy
             rewardTypeText = CreateText(
                 "UniqueLabel",
                 uniqueBacking,
-                "UNIQUE CITY BOON",
+                string.Empty,
                 11,
                 TextAnchor.MiddleCenter,
                 DeepGreen);
@@ -251,9 +259,13 @@ namespace ProjectUnknown.Strategy
             rewardFlavorText.lineSpacing = 1.05f;
             SetTopStretch(rewardFlavorText.rectTransform, 32f, 487f, 32f, 46f);
 
-            Text footer = CreateText("Footer", inner, "CITY CHEST  /  PERMANENT", 10, TextAnchor.MiddleCenter, Gold);
+            Text footer = CreateText("Footer", inner, string.Empty, 10, TextAnchor.MiddleCenter, Gold);
             footer.fontStyle = FontStyle.Bold;
             SetBottomStretch(footer.rectTransform, 30f, 11f, 30f, 18f);
+            StrategyLocalizedTextBinding.Bind(
+                footer,
+                StrategyLocalizationTables.Residents,
+                "resident.reward.city.footer");
         }
 
         private void CreateConfirmationButton()
@@ -273,12 +285,16 @@ namespace ProjectUnknown.Strategy
             Text label = CreateText(
                 "Label",
                 confirmRoot,
-                "SEND TO CITY CHEST",
+                string.Empty,
                 16,
                 TextAnchor.MiddleCenter,
                 Color.white);
             label.fontStyle = FontStyle.Bold;
             Stretch(label.rectTransform);
+            StrategyLocalizedTextBinding.Bind(
+                label,
+                StrategyLocalizationTables.Residents,
+                "resident.reward.city.confirm");
             confirmFeedback = StrategyUiButtonFeedback.Attach(
                 confirmButton,
                 StrategyUiButtonFeedbackProfile.Cinematic);
@@ -288,8 +304,8 @@ namespace ProjectUnknown.Strategy
         {
             rewardTitleText.text = definition.Title.ToUpperInvariant();
             rewardTypeText.text = definition.MaxStack == 1
-                ? "UNIQUE CITY BOON"
-                : "CITY ITEM";
+                ? RewardText("resident.reward.city.type_unique")
+                : RewardText("resident.reward.city.type_regular");
             rewardEffectText.text = string.IsNullOrWhiteSpace(definition.EffectText)
                 ? definition.Description
                 : definition.EffectText;
@@ -304,6 +320,22 @@ namespace ProjectUnknown.Strategy
             artworkImage.color = artwork != null
                 ? Color.white
                 : new Color(0.19f, 0.27f, 0.23f, 1f);
+        }
+
+        private void RefreshLocalizedRewardView()
+        {
+            if (activeDefinition != null)
+            {
+                PopulateRewardView(activeDefinition, activeArtwork);
+            }
+        }
+
+        private static string RewardText(string key, params object[] arguments)
+        {
+            return StrategyLocalization.Get(
+                StrategyLocalizationTables.Residents,
+                key,
+                arguments);
         }
 
         private void ApplyReducedMotionToView()

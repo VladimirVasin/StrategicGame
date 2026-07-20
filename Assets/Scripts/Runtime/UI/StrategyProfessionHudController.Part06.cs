@@ -85,15 +85,27 @@ namespace ProjectUnknown.Strategy
             if (!success)
             {
                 return assign
-                    ? title + ": no free residents or workplaces"
-                    : title + ": nobody to remove";
+                    ? StrategyLocalization.Get(
+                        StrategyLocalizationTables.Hud,
+                        "hud.professions.assign_failed",
+                        title)
+                    : StrategyLocalization.Get(
+                        StrategyLocalizationTables.Hud,
+                        "hud.professions.remove_failed",
+                        title);
             }
 
             return worker != null
                 ? worker.FullName
                 : assign
-                    ? title + ": assigned"
-                    : title + ": removed";
+                    ? StrategyLocalization.Get(
+                        StrategyLocalizationTables.Hud,
+                        "hud.professions.assigned",
+                        title)
+                    : StrategyLocalization.Get(
+                        StrategyLocalizationTables.Hud,
+                        "hud.professions.removed",
+                        title);
         }
 
         private int CountFreeWorkers()

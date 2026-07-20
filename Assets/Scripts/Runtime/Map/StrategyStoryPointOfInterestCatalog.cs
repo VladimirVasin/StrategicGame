@@ -56,11 +56,14 @@ namespace ProjectUnknown.Strategy
                     TrashHeapId,
                     0,
                     StrategyStoryPointOfInterestDistanceTier.Tier1Near,
-                    "Гора мусора",
-                    "Скаут набрёл на огромную гору мусора. Обыскать её?",
+                    "Trash Heap",
+                    "The Scout stumbled upon an enormous heap of rubbish. Search it?",
                     TrashHeapEncounterId,
                     "Visual/StoryPoints/TrashHeap",
-                    "Visual/StoryPoints/TrashHeapSearched")
+                    "Visual/StoryPoints/TrashHeapSearched",
+                    StrategyLocalizationTables.Stories,
+                    "trash_heap.title",
+                    "trash_heap.body")
             });
 
         public IReadOnlyList<StrategyStoryPointOfInterestDefinition> Definitions => ordered;

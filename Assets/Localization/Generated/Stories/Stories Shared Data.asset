@@ -1,0 +1,104 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: Stories Shared Data
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.SharedTableData
+  m_TableCollectionName: Stories
+  m_TableCollectionNameGuidString: 77c5b0dc3ea45b649ab902d976463ab7
+  m_Entries:
+  - m_Id: 183700712214528
+    m_Key: first_night.frame.rustle.chapter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183700779323392
+    m_Key: first_night.frame.rustle.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183700779323393
+    m_Key: first_night.frame.rustle.body
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183700779323394
+    m_Key: first_night.frame.mouse_feast.chapter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183700779323395
+    m_Key: first_night.frame.mouse_feast.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183700779323396
+    m_Key: first_night.frame.mouse_feast.body
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183700779323397
+    m_Key: first_night.frame.quiet_hunters.chapter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183700779323398
+    m_Key: first_night.frame.quiet_hunters.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183700779323399
+    m_Key: first_night.frame.quiet_hunters.body
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183700779323400
+    m_Key: trash_heap.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183700779323401
+    m_Key: trash_heap.body
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183700779323402
+    m_Key: trash_heap.choice.search
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183700779323403
+    m_Key: trash_heap.choice.decline
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183700779323404
+    m_Key: trash_heap.reward.headline
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183700779323405
+    m_Key: story.poi.fallback_title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183700779323406
+    m_Key: story.poi.subtitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183700779323407
+    m_Key: story.poi.ok
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183700779323408
+    m_Key: story.poi.choice.yes
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183700779323409
+    m_Key: story.poi.choice.no
+    m_Metadata:
+      m_Items: []
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 465534772507312163
+  references:
+    version: 2
+    RefIds:
+    - rid: 465534772507312163
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1784493439170
