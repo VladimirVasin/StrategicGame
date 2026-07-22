@@ -11,14 +11,41 @@ namespace ProjectUnknown.Strategy
 
         public bool IsLandWildlifeTravelCell(Vector2Int cell, bool allowStructureBuffer = false)
         {
-            return StrategyWildlifeRiverCrossing.IsLandOrRiverCell(map, cell)
-                && (allowStructureBuffer || !IsLandWildlifeStructureBufferCell(cell));
+            if (!StrategyWildlifeRiverCrossing.IsLandOrRiverCell(map, cell))
+            {
+                return false;
+            }
+
+            return allowStructureBuffer
+                ? IsHardWalkableWildlifeCell(cell, false)
+                : !IsLandWildlifeStructureBufferCell(cell);
         }
 
         public bool IsLandWildlifeTargetCell(Vector2Int cell, bool allowStructureBuffer = false)
         {
-            return StrategyWildlifeRiverCrossing.IsLandCell(map, cell)
-                && (allowStructureBuffer || !IsLandWildlifeStructureBufferCell(cell));
+            if (!StrategyWildlifeRiverCrossing.IsLandCell(map, cell))
+            {
+                return false;
+            }
+
+            return allowStructureBuffer
+                ? IsHardWalkableWildlifeCell(cell, true)
+                : !IsLandWildlifeStructureBufferCell(cell);
+        }
+
+        private bool IsHardWalkableWildlifeCell(Vector2Int cell, bool landOnly)
+        {
+            if (map == null)
+            {
+                return false;
+            }
+
+            if (!landOnly && StrategyWildlifeRiverCrossing.IsRiverCell(map, cell))
+            {
+                return true;
+            }
+
+            return map.IsCellWalkable(cell);
         }
 
         public bool IsLandWildlifeStructureBufferCell(Vector2Int cell)

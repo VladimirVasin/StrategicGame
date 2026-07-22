@@ -6,7 +6,7 @@ namespace ProjectUnknown.Strategy
     public sealed partial class StrategyWildlifeController
     {
 
-        private void SpawnWolf(
+        private StrategyWolfAgent SpawnWolf(
             StrategyWolfPack pack,
             Vector2Int packCenter,
             Vector2Int spawnCell,
@@ -47,6 +47,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("cell", spawnCell),
                 StrategyDebugLogger.F("home", packCenter),
                 StrategyDebugLogger.F("world", spawnWorld));
+            return agent;
         }
 
         private void SpawnFish(

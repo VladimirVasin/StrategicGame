@@ -1,6 +1,6 @@
 # Systems Map
 
-Last updated: 2026-07-19
+Last updated: 2026-07-20
 
 Use this file as the first navigation pass before broad searches. Owner cards are starting points, not hard boundaries.
 
@@ -40,7 +40,7 @@ Responsibilities:
 
 - Own the supported Russian and English locales, Russian first-launch default, saved language preference, and live language-change signal.
 - Resolve semantic String Table keys and Smart String arguments for runtime UI and content definitions.
-- Generate deterministic Unity Localization assets from bilingual UTF-8 TSV sources and reject incomplete or structurally inconsistent catalogs.
+- Generate deterministic Unity Localization assets from bilingual UTF-8 TSV sources, preserve shared entry IDs through value upserts, remove stale source keys safely, and reject incomplete or structurally inconsistent catalogs.
 - Provide a bounded exact-match bridge for remaining legacy `UnityEngine.UI.Text` strings while those surfaces migrate to semantic keys.
 
 Primary files/assets:
@@ -323,6 +323,8 @@ Responsibilities:
 - Configure seasonal surface visuals after weather setup so snow/ice coverage shares weather and temperature state.
 - Configure the central runtime audio mix controller after camera/weather setup and before ambience/music sources.
 - Configure runtime ambience audio after camera setup.
+- Create one scene-global battle lifecycle and inject it into population/funeral and wildlife systems before any encounter can register a threat.
+- Configure the night encounter director after pending persistence applies, so its initial observed calendar phase cannot replay a loaded Night; then inject it and the reusable encounter into F9.
 - Focus the initial camera view on the startup campfire after population creates it.
 - Configure water/shore animation after map generation.
 - Create/configure runtime building-route road capture and road visuals after map generation.
@@ -1239,6 +1241,66 @@ Impact hints:
 - `FishLakeBirthBlocked` debug logging is throttled per lake region; keep cap checks cheap and avoid per-fish spam when a lake is full.
 - Fisher Hut fish reservation can pass a requester reachability filter into wildlife selection; keep this pre-reservation filter so fishers do not reserve fish whose shore stand cell is unreachable.
 - Future deer hunting, leather, broader predator ecology, wolf HUD, or animal saving should extend this subsystem instead of adding animal behavior into population or nature-prop code.
+
+### Combat MVP
+
+Responsibilities:
+
+- Define shared combat factions, damage payload/results, targetability, hostility checks, and deterministic integer health without coupling the core contract to resident or wolf state machines.
+- Own one scene-global battle lifecycle with `Peaceful`, `Active`, and `Securing` phases; aggregate overlapping threats through idempotent leases and require 2.5 scaled seconds without threats before returning to peace.
+- Let eligible adult residents temporarily interrupt ordinary rest/night sleep, move to a reachable bow stand, reuse bow animation/SFX, and repeatedly fire deterministic projectiles at a hostile target.
+- Keep resident combat health and the last Dawn recovery day persistent; derive wound severity and movement penalties from current health.
+- Route fatal resident combat damage through the canonical population death path so every workplace, construction role, reservation, selection, corpse, funeral, and family record is cleaned consistently.
+- Keep death/corpse registration immediate but defer new funerals and synchronously suspend existing funeral duties while the battle is `Active` or `Securing`.
+- Let forced-encounter wolves pursue an exact combatant through the soft settlement/wildlife buffer while respecting hard blockers, bite on animation impact, retreat at low health, and remove themselves from live lists/pack/migration state exactly once.
+- Stage a reusable deterministic resident-versus-wolf encounter with an eligible-Hunter preference, adult fallback, structured health/outcome status, and explicit Reset.
+- Schedule one automatic encounter on each real Night transition from Day 2 onward without deriving battle state from the clock; skip the first-night story and mid-Night load replay, wait through pause/modal/another battle, and retry failed staging during the eligible Night.
+- Keep guaranteed F9 Night requests pending until a safe Night start, including across the first-night story or a failed spawn; never reset a started battle at Dawn.
+- Expose localized F9 `Fight Now`, `Night Attack`, and `Reset`, with a monotonic current-day jump to displayed 21:50 only for the full Night-transition test.
+- Prevent transient battle state from entering a save by rejecting capture throughout `Active` and `Securing`.
+- Keep Guard profession/building, patrol/alarm logic, equipment, incursion variety/scaling, and player-facing combat commands outside this vertical slice.
+
+Primary files/assets:
+
+- `Assets/Scripts/Runtime/Combat/StrategyCombatTypes.cs`
+- `Assets/Scripts/Runtime/Combat/StrategyCombatHealth.cs`
+- `Assets/Scripts/Runtime/Combat/StrategyBattleLifecycleController.cs`
+- `Assets/Scripts/Runtime/Combat/StrategyCombatArrowProjectile.cs`
+- `Assets/Scripts/Runtime/Combat/StrategyCombatEncounterController.cs`
+- `Assets/Scripts/Runtime/Combat/StrategyNightEncounterDirector.cs`
+- `Assets/Scripts/Runtime/Core/StrategyDayNightCycleController.Debug.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.Combat.cs`
+- `Assets/Scripts/Runtime/Population/StrategyResidentAgent.CombatHealth.cs`
+- `Assets/Scripts/Runtime/Population/StrategyPopulationController.Combat.cs`
+- `Assets/Scripts/Runtime/Population/StrategyPopulationController.BattleLifecycle.cs`
+- `Assets/Scripts/Runtime/Population/StrategyPopulationController.DeathAssignments.cs`
+- `Assets/Scripts/Runtime/Population/StrategyFuneralController.BattleLifecycle.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyWolfAgent.Combat.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.WolfCombat.cs`
+- `Assets/Scripts/Runtime/UI/StrategyDebugPanelController.Combat.cs`
+- `Assets/Localization/Source/Hud.Debug.tsv`
+- `Assets/Scripts/Runtime/Persistence/StrategySaveData.cs`
+- `Assets/Scripts/Runtime/Persistence/StrategySaveMigration.cs`
+- `Assets/Tests/EditMode/StrategyCombatHealthTests.cs`
+- `Assets/Tests/EditMode/StrategyCombatPersistenceTests.cs`
+- `Assets/Tests/EditMode/StrategyResidentCharacterizationTests.cs`
+- `Assets/Tests/EditMode/StrategyBattleLifecycleControllerTests.cs`
+- `Assets/Tests/EditMode/StrategyBattleFuneralTests.cs`
+- `Assets/Tests/EditMode/StrategyNightEncounterDirectorTests.cs`
+
+Impact hints:
+
+- `StrategyNightEncounterDirector` owns when the reusable encounter may start; combatants and the global lifecycle must not infer scheduling policy from Night.
+- Automatic scheduling consumes at most one successful/eligible transition per Night and starts from display Day 2. Initializing inside Night intentionally marks that Night observed so load cannot duplicate an attack.
+- F9 `Fight Now` bypasses time and cancels a pending debug request; F9 `Night Attack` uses the same Night/modal/battle gates as normal scheduling and closes the panel before start.
+- Stage the wolf before waking the defender; an unavailable spawn must leave Night rest untouched.
+- An encounter wolf owns its threat lease from successful encounter start through actual removal; beginning retreat, reaching Dawn, or losing a resident target must not release it.
+- New threat producers should acquire/release lifecycle leases at encounter boundaries instead of inferring global battle state from individual resident tasks or target fields.
+- Funeral duty is released synchronously when a battle starts so its central death guard cannot make recalled mourners accidentally immune during combat.
+- Active combat tasks, arrows, live wolves, retreat paths, and forced targets are transient. Resident health/recovery state persists in save version 13 and v12 migration restores full health.
+- Resident death must continue through `StrategyPopulationController.TryKillResidentFromCombat` and the shared death path; do not destroy resident objects directly from combat code.
+- Forced wolf movement may bypass only soft settlement pressure/structure buffers. `CityMapController.IsCellWalkable` and River/Lake travel rules remain hard constraints.
+- Extend future raid composition/scaling above the encounter/combatant contracts without embedding global threat policy inside resident or wolf agents.
 
 ### Stone Resources MVP
 
@@ -2515,6 +2577,8 @@ Responsibilities:
 - Roll annual resident mortality from age 1 using an accelerating age-risk curve.
 - Multiply annual resident mortality by each resident's malnutrition severity when household dinner shortages accumulate.
 - Block resident death attempts while the resident is in active funeral duty, preventing carrier/attendee death from freezing the funeral controller.
+- Register death and create the corpse immediately during battle, but defer family recall and funeral progression through both `Active` and `Securing` phases.
+- Suspend running funerals when a battle starts, release resident duties and transient torch/grave state, ground the corpse in place, and resume from the beginning only after global `Peaceful`.
 - Remove dead residents from homes, work assignments, construction assignments, active reservations, live population counts, and selected-HUD targets.
 - Create resident death snapshots and animated corpses when residents die.
 - Run multiple funeral processes at the same time while keeping each resident in at most one active funeral duty.
@@ -2603,6 +2667,8 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyFuneralController.Part01.cs`
 - `Assets/Scripts/Runtime/Population/StrategyFuneralController.Part02.cs`
 - `Assets/Scripts/Runtime/Population/StrategyFuneralController.Part03.cs`
+- `Assets/Scripts/Runtime/Population/StrategyFuneralController.BattleLifecycle.cs`
+- `Assets/Scripts/Runtime/Population/StrategyPopulationController.BattleLifecycle.cs`
 - `Assets/Scripts/Runtime/Population/StrategyCemeteryController.cs`
 - `Assets/Scripts/Runtime/Population/StrategyCorpse.cs`
 - `Assets/Scripts/Runtime/Population/StrategyFuneralSpriteFactory.cs`
@@ -2706,6 +2772,8 @@ Impact hints:
 - `StrategyPopulationController` owns the live resident ID registry plus persistent family records used by kinship lookup after deaths.
 - Resident death should continue to flow through `StrategyPopulationController` so death snapshots, assignment cleanup, selection cleanup, funeral startup, and family records stay in one path.
 - Active funeral duty is a hard death guard in the central population death path; future funeral recovery work can replace this only after carrier/attendee death is safely handled.
+- Global battle suspension ends funeral duty before combat continues, so the existing funeral-duty death guard does not protect former participants during an active battle.
+- Battle phase, corpse state, and active/deferred funeral progress are transient and are not serialized in save version 13.
 - `StrategyFuneralController` owns the runtime funeral state machines; parallel funeral processes should stay separate from normal workplace AI and should only use public resident funeral hooks.
 - Service burials are selected when a funeral has no living available family/household participants; they use one silent adult carrier chosen from the nearest eligible non-funeral-duty adults and should not start crying/mourning poses.
 - `StrategyFuneralController` keeps only movers with started funeral paths in family/attendee lists, tries nearby corpse/grave stand positions before rejection, skips residents already in other active funeral duties, and builds a carrier reachable-cell set before reserving a grave; funeral resident movement must fail rather than fall back to direct world movement when no walkable path exists.
@@ -3046,8 +3114,8 @@ Responsibilities:
 - Capture and restore versioned runtime settlement snapshots with stable IDs and no raw Unity object references.
 - Materialize resident-carried stock into the save snapshot as loose resources at each resident's current cell because active tasks and carried state are intentionally rebuilt rather than serialized.
 - Write saves atomically and coordinate restoration only after runtime bootstrap has created all required systems.
-- Preserve F5 save and F8 load/restart controls while exposing read/validate/pending-load entry points to the intro menu Continue flow.
-- Preserve the founding profile, stable answer pairs, exact camp cell, current starter-cart origin, first-night fauna stage, deterministic City Inventory stacks, per-resident Personal Items stacks, stable Scout Lodge assignment/mission/timing/provision/deferred-story-return state, resource-point geometry/mineral state, durable story-anchor sequence/commitment state, and exact loose prepared-dish payloads across save version 12; transient story candidates regenerate after world/Fog restore.
+- Preserve F5 save and F8 load/restart controls while exposing read/validate/pending-load entry points to the intro menu Continue flow; reject F5 capture until the global battle lifecycle returns to `Peaceful`.
+- Preserve the founding profile, stable answer pairs, exact camp cell, current starter-cart origin, first-night fauna stage, deterministic City Inventory stacks, per-resident Personal Items and combat-health/recovery state, stable Scout Lodge assignment/mission/timing/provision/deferred-story-return state, resource-point geometry/mineral state, durable story-anchor sequence/commitment state, and exact loose prepared-dish payloads across save version 13; transient story candidates regenerate after world/Fog restore.
 
 Primary files:
 
@@ -3084,13 +3152,15 @@ Primary files:
 - `Assets/Tests/EditMode/StrategyResidentPersonalInventorySaveTests.cs`
 - `Assets/Tests/EditMode/StrategyScoutExpeditionSaveTests.cs`
 - `Assets/Tests/EditMode/StrategyStoryPointOfInterestSaveTests.cs`
+- `Assets/Tests/EditMode/StrategyCombatPersistenceTests.cs`
 
 Impact hints:
 
-- Current persistence is version 12 with explicit migrations through v11-to-v12; completed v8 first-night stories still receive `cats x1` silently, v9 legacy saves initialize an empty Scout Lodge state list, v10 saves initialize every resident with an empty Personal Items list, and v11 saves initialize empty story-point state. Increment the version and add an explicit migration whenever persisted DTO shape or required semantic entitlement changes; validate migrated data and active story catalog compatibility before applying it.
+- Current persistence is version 13 with explicit migrations through v12-to-v13; completed v8 first-night stories still receive `cats x1` silently, v9 legacy saves initialize an empty Scout Lodge state list, v10 saves initialize every resident with an empty Personal Items list, v11 saves initialize empty story-point state, and v12 saves initialize resident combat health/recovery defaults. Increment the version and add an explicit migration whenever persisted DTO shape or required semantic entitlement changes; validate migrated data and active story catalog compatibility before applying it.
 - Keep primary/temp/backup replacement and backup recovery in the file seam so interrupted writes do not destroy the last valid save.
 - Reject save files above 32 MiB before reading and keep top-level plus resident-child/personal-item/prepared-dish/point-of-interest/City Inventory collection limits in validation.
 - Stable IDs are serialization contracts; never replace them with scene-instance IDs or object references.
+- Do not serialize a partial combat encounter. Until battle threats/corpses/funeral progress have durable DTOs, `StrategyBattleLifecycleController.IsBattleInProgress` is a hard save boundary.
 
 ### Verification
 

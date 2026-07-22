@@ -55,6 +55,9 @@ namespace ProjectUnknown.Strategy
                     case 11:
                         MigrateVersion11To12(data);
                         break;
+                    case 12:
+                        MigrateVersion12To13(data);
+                        break;
                     default:
                         reason = "missing_migration_from_version_" + data.version;
                         return false;
@@ -166,6 +169,22 @@ namespace ProjectUnknown.Strategy
             }
 
             data.version = 12;
+        }
+
+        private static void MigrateVersion12To13(StrategySaveData data)
+        {
+            data.residents ??= new List<StrategyResidentSaveData>();
+            for (int i = 0; i < data.residents.Count; i++)
+            {
+                StrategyResidentSaveData resident = data.residents[i];
+                if (resident != null)
+                {
+                    resident.combatHealth = 100;
+                    resident.lastCombatRecoveryDayIndex = -1;
+                }
+            }
+
+            data.version = 13;
         }
 
         private static bool ContainsCityItem(

@@ -9,6 +9,14 @@ namespace ProjectUnknown.Strategy
                 ResidentActivity.LightingNightLight,
                 StrategyResidentTaskExecutionPhase.BeforeHomeSchedule,
                 UpdateLightingNightLight);
+            taskExecution.Register(
+                ResidentActivity.AimingCombatBow,
+                StrategyResidentTaskExecutionPhase.BeforeHomeSchedule,
+                UpdateAimingCombatBow);
+            taskExecution.Register(
+                ResidentActivity.WaitingForCombatHit,
+                StrategyResidentTaskExecutionPhase.BeforeHomeSchedule,
+                UpdateWaitingForCombatHit);
 
             RegisterNormalTask(ResidentActivity.WorkingGarden, UpdateGardenWork);
             RegisterNormalTask(ResidentActivity.LightingCampfire, UpdateLightingCampfire);

@@ -6,7 +6,7 @@ namespace ProjectUnknown.Strategy
     [Serializable]
     public sealed class StrategySaveData
     {
-        public const int CurrentVersion = 12;
+        public const int CurrentVersion = 13;
 
         public int version = CurrentVersion;
         public long savedUtcTicks;
@@ -121,6 +121,8 @@ namespace ProjectUnknown.Strategy
         public int lastNutritionDayIndex;
         public float coldExposure;
         public int lastColdResolutionDayIndex;
+        public int combatHealth = 100;
+        public int lastCombatRecoveryDayIndex = -1;
         public List<StrategyResidentItemSaveData> personalItems = new();
     }
 

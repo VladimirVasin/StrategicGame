@@ -59,6 +59,7 @@
     <Compile Include="Assets\Tests\EditMode\StrategyCityInventoryTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyLogFileRotationTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyLocalizationFoundationTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyBattleFuneralTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyStartSiteSelectorTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyHudFoundationTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyPauseMenuControllerTests.cs" />
@@ -72,6 +73,7 @@
     <Compile Include="Assets\Tests\EditMode\StrategyFirstNightRatCinematicTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyChickenCoopVisualProfileTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyHouseVisualEffectTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyCombatPersistenceTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyCinematicCatTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyScoutExpeditionPolicyTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyInputRouterTests.cs" />
@@ -92,6 +94,7 @@
     <Compile Include="Assets\Tests\EditMode\StrategyResidentPersonalInventoryHudTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyPointOfInterestSaveValidationTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyCityInventorySaveTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyCombatHealthTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyUiButtonFeedbackTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyResidentCharacterizationTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyInGameCinematicInfrastructureTests.cs" />
@@ -106,11 +109,13 @@
     <Compile Include="Assets\Tests\EditMode\StrategyScoutExpeditionStateTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyBuildingSnowSpriteFactoryTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategySaveLooseResourceTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyNightEncounterDirectorTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyStarterBuildProgressionTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyScoutTargetSelectorTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyFirstNightFaunaStorySpeedTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyFirstNightFaunaSaveTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyStoryPointOfInterestSaveTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyBattleLifecycleControllerTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyProcessingStorageTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyInGameCinematicReturnTests.cs" />
   </ItemGroup>

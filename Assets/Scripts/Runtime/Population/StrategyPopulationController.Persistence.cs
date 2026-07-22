@@ -79,6 +79,9 @@ namespace ProjectUnknown.Strategy
                 data.coldExposure,
                 data.lastColdResolutionDayIndex,
                 data.childIds);
+            agent.RestoreCombatState(
+                data.combatHealth,
+                data.lastCombatRecoveryDayIndex);
             if (!StrategySaveSystem.TryRestoreResidentPersonalInventory(
                     agent,
                     data.personalItems,

@@ -2515,6 +2515,74 @@ MonoBehaviour:
     m_Key: hud.selection.grave.epitaph.general_3
     m_Metadata:
       m_Items: []
+  - m_Id: 291986212016128
+    m_Key: hud.debug.combat.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 291986291707904
+    m_Key: hud.debug.combat.action.start_now
+    m_Metadata:
+      m_Items: []
+  - m_Id: 291986291707905
+    m_Key: hud.debug.combat.action.start_night
+    m_Metadata:
+      m_Items: []
+  - m_Id: 291986291707906
+    m_Key: hud.debug.combat.action.reset
+    m_Metadata:
+      m_Items: []
+  - m_Id: 291986291707907
+    m_Key: hud.debug.combat.status.ready
+    m_Metadata:
+      m_Items: []
+  - m_Id: 291986291707908
+    m_Key: hud.debug.combat.status.unavailable
+    m_Metadata:
+      m_Items: []
+  - m_Id: 291986291707909
+    m_Key: hud.debug.combat.status.queued_for_night
+    m_Metadata:
+      m_Items: []
+  - m_Id: 291986291707910
+    m_Key: hud.debug.combat.status.no_resident
+    m_Metadata:
+      m_Items: []
+  - m_Id: 291986291707911
+    m_Key: hud.debug.combat.status.stage_failed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 291986291707912
+    m_Key: hud.debug.combat.status.start_failed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 291986291707913
+    m_Key: hud.debug.combat.status.reset_complete
+    m_Metadata:
+      m_Items: []
+  - m_Id: 291986291707914
+    m_Key: hud.debug.combat.status.resident_lost
+    m_Metadata:
+      m_Items: []
+  - m_Id: 291986291707915
+    m_Key: hud.debug.combat.status.wolf_defeated
+    m_Metadata:
+      m_Items: []
+  - m_Id: 291986295902208
+    m_Key: hud.debug.combat.status.wolf_retreating
+    m_Metadata:
+      m_Items: []
+  - m_Id: 291986295902209
+    m_Key: hud.debug.combat.status.running
+    m_Metadata:
+      m_Items: []
+  - m_Id: 291986295902210
+    m_Key: hud.event.combat.night_attack
+    m_Metadata:
+      m_Items: []
+  - m_Id: 291986295902211
+    m_Key: hud.save.blocked_battle
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -21,6 +21,8 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            UpdateCombatRecovery();
+
             UpdatePersonalNightTorchState();
 
             if (IsHomeboundYoungChild)
@@ -70,7 +72,9 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            if (!IsNightLightActivity(activity) && UpdateNightHomeState())
+            if (!IsNightLightActivity(activity)
+                && !IsCombatActivity(activity)
+                && UpdateNightHomeState())
             {
                 return;
             }

@@ -9,6 +9,22 @@
   </PropertyGroup>
   <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
   <ItemGroup>
+    <Compile Include="Assets\Scripts\Runtime\Combat\StrategyCombatTypes.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Combat\StrategyCombatHealth.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Combat\StrategyCombatArrowProjectile.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Combat\StrategyCombatEncounterController.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Combat\StrategyNightEncounterDirector.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Core\StrategyDayNightCycleController.Debug.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Combat\StrategyBattleLifecycleController.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Population\StrategyPopulationController.Combat.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Population\StrategyPopulationController.BattleLifecycle.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Population\StrategyFuneralController.BattleLifecycle.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Population\StrategyPopulationController.DeathAssignments.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Combat.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.CombatHealth.cs" />
+    <Compile Include="Assets\Scripts\Runtime\UI\StrategyDebugPanelController.Combat.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWolfAgent.Combat.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWildlifeController.WolfCombat.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyHudChromeController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Inventory\StrategyResidentItemDefinition.cs" />
     <Compile Include="Assets\Scripts\Runtime\Inventory\StrategyResidentItemCatalog.cs" />

@@ -205,7 +205,6 @@ namespace ProjectUnknown.Strategy.EditorTools
             Locale english,
             IReadOnlyList<StrategyLocalizationTsvCatalog.Row> rows)
         {
-            collection.ClearAllEntries();
             StringTable englishTable = collection.GetTable(english.Identifier) as StringTable;
             StringTable russianTable = collection.GetTable(russian.Identifier) as StringTable;
             if (englishTable == null || russianTable == null)
@@ -214,11 +213,36 @@ namespace ProjectUnknown.Strategy.EditorTools
                     "Collection is missing RU/EN tables: " + collection.TableCollectionName);
             }
 
+            var sourceKeys = new HashSet<string>(StringComparer.Ordinal);
+            for (int i = 0; i < rows.Count; i++)
+            {
+                sourceKeys.Add(rows[i].Key);
+            }
+
+            var staleKeys = new List<string>();
+            for (int i = 0; i < collection.SharedData.Entries.Count; i++)
+            {
+                string key = collection.SharedData.Entries[i].Key;
+                if (!sourceKeys.Contains(key))
+                {
+                    staleKeys.Add(key);
+                }
+            }
+
+            for (int i = 0; i < staleKeys.Count; i++)
+            {
+                collection.RemoveEntry(staleKeys[i]);
+            }
+
             for (int i = 0; i < rows.Count; i++)
             {
                 StrategyLocalizationTsvCatalog.Row row = rows[i];
-                StringTableEntry englishEntry = englishTable.AddEntry(row.Key, row.English);
-                StringTableEntry russianEntry = russianTable.AddEntry(row.Key, row.Russian);
+                StringTableEntry englishEntry = englishTable.GetEntry(row.Key)
+                    ?? englishTable.AddEntry(row.Key, row.English);
+                StringTableEntry russianEntry = russianTable.GetEntry(row.Key)
+                    ?? russianTable.AddEntry(row.Key, row.Russian);
+                englishEntry.Value = row.English;
+                russianEntry.Value = row.Russian;
                 englishEntry.IsSmart = row.Smart;
                 russianEntry.IsSmart = row.Smart;
             }

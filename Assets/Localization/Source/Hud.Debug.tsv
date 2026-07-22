@@ -1,0 +1,18 @@
+Key	English	Russian
+hud.debug.combat.title	Combat MVP	Боевой MVP
+hud.debug.combat.action.start_now	Fight Now	Бой сейчас
+hud.debug.combat.action.start_night	Night Attack	Ночная атака
+hud.debug.combat.action.reset	Reset	Сбросить
+hud.debug.combat.status.ready	Ready	Готово
+hud.debug.combat.status.unavailable	Combat controllers unavailable	Контроллеры боя недоступны
+hud.debug.combat.status.queued_for_night	Queued for Night — waiting for 22:00	Запланировано на ночь — ждём 22:00
+hud.debug.combat.status.no_resident	No available adult resident	Нет доступного взрослого жителя
+hud.debug.combat.status.stage_failed	Could not stage encounter	Не удалось подготовить столкновение
+hud.debug.combat.status.start_failed	Could not start encounter	Не удалось начать столкновение
+hud.debug.combat.status.reset_complete	Reset complete	Сценарий сброшен
+hud.debug.combat.status.resident_lost	Resident lost	Житель погиб
+hud.debug.combat.status.wolf_defeated	Wolf defeated • Resident {0}/{1} HP	Волк побеждён • Житель {0}/{1} ОЗ
+hud.debug.combat.status.wolf_retreating	Wolf retreating • Resident {0}/{1} HP	Волк отступает • Житель {0}/{1} ОЗ
+hud.debug.combat.status.running	{0} {1}/{2} HP • Wolf {3}/{4} HP	{0} {1}/{2} ОЗ • Волк {3}/{4} ОЗ
+hud.event.combat.night_attack	Night attack — a wolf has entered the settlement!	Ночная атака — волк проник в поселение!
+hud.save.blocked_battle	Cannot save until the battle is over	Нельзя сохраниться до окончания боя

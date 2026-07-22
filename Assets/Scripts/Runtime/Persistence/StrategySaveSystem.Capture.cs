@@ -157,7 +157,9 @@ namespace ProjectUnknown.Strategy
                     daysHungry = resident.DaysHungry,
                     lastNutritionDayIndex = resident.LastNutritionDayIndex,
                     coldExposure = resident.ColdExposure,
-                    lastColdResolutionDayIndex = resident.LastColdResolutionDayIndex
+                    lastColdResolutionDayIndex = resident.LastColdResolutionDayIndex,
+                    combatHealth = resident.CurrentCombatHealth,
+                    lastCombatRecoveryDayIndex = resident.LastCombatRecoveryDayIndex
                 };
                 for (int child = 0; child < resident.ChildIds.Count; child++)
                 {

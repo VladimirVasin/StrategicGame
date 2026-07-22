@@ -313,6 +313,9 @@ namespace ProjectUnknown.Strategy
                 StrategyResidentAgent.ResidentActivity.MovingToPointOfInterest => "approaching a point of interest",
                 StrategyResidentAgent.ResidentActivity.InvestigatingPointOfInterest => "investigating a point of interest",
                 StrategyResidentAgent.ResidentActivity.ReturningToScoutLodge => "returning to Scout Lodge",
+                StrategyResidentAgent.ResidentActivity.MovingToCombatRange => "going hunting",
+                StrategyResidentAgent.ResidentActivity.AimingCombatBow => "aiming bow",
+                StrategyResidentAgent.ResidentActivity.WaitingForCombatHit => "watching the arrow",
                 _ => "idle"
             };
 

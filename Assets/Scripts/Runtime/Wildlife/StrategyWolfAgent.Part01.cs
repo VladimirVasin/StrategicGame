@@ -122,6 +122,7 @@ namespace ProjectUnknown.Strategy
         private void ResolveAttack()
         {
             attackResolved = true;
+            if (TryResolveForcedCombatAttack()) return;
             if (targetRabbit != null)
             {
                 feedingWorld = targetRabbit.transform.position;
@@ -163,6 +164,7 @@ namespace ProjectUnknown.Strategy
         private void ReleaseTargets()
         {
             LogWolfTargetReleased();
+            ClearForcedCombatTarget();
             if (targetRabbit != null)
             {
                 targetRabbit.ReleasePredatorReservation(this);
@@ -186,6 +188,7 @@ namespace ProjectUnknown.Strategy
         {
             world = Vector3.zero;
             cell = default;
+            if (TryGetForcedCombatTargetWorld(out world, out cell)) return true;
             if (targetRabbit != null && targetRabbit.IsAlive && targetRabbit.TryGetCurrentCell(out cell))
             {
                 world = targetRabbit.transform.position;
@@ -213,7 +216,9 @@ namespace ProjectUnknown.Strategy
         private bool ShouldAvoidSettlementNow()
         {
             return Time.realtimeSinceStartup >= NextWolfEscapeAttemptTime
+                && !IsForcedCombatEncounter
                 && state != StrategyWolfBehaviorState.AvoidingSettlement
+                && state != StrategyWolfBehaviorState.Retreating
                 && state != StrategyWolfBehaviorState.Attacking
                 && state != StrategyWolfBehaviorState.Feeding
                 && TryGetCurrentCell(out Vector2Int currentCell)
@@ -228,7 +233,7 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
-            if (TryBuildPathTo(targetCell))
+            if (TryBuildPathTo(targetCell, IsForcedCombatEncounter))
             {
                 MarkWolfTargetPathSuccess();
                 LogWolfPathReady("target_direct", targetCell, targetCell);
@@ -243,7 +248,8 @@ namespace ProjectUnknown.Strategy
             for (int i = 0; i < CardinalDirections.Length; i++)
             {
                 Vector2Int candidate = targetCell + CardinalDirections[i];
-                if (IsWolfTargetCell(candidate) && TryBuildPathTo(candidate))
+                if (IsWolfTargetCell(candidate, IsForcedCombatEncounter)
+                    && TryBuildPathTo(candidate, IsForcedCombatEncounter))
                 {
                     MarkWolfTargetPathSuccess();
                     LogWolfPathReady("target_adjacent", targetCell, candidate);
@@ -294,12 +300,12 @@ namespace ProjectUnknown.Strategy
             return pathIndex >= path.Count;
         }
 
-        private bool TryBuildPathTo(Vector2Int targetCell)
+        private bool TryBuildPathTo(Vector2Int targetCell, bool allowSoftStructureBuffer = false)
         {
             lastPathBuildDeferred = false;
             if (map == null
                 || !TryGetPathStartCell(out Vector2Int startCell)
-                || !IsWolfTargetCell(targetCell))
+                || !IsWolfTargetCell(targetCell, allowSoftStructureBuffer))
             {
                 return LogWolfPathFailed("path_prerequisite_failed", targetCell);
             }
@@ -317,7 +323,8 @@ namespace ProjectUnknown.Strategy
                 return LogWolfPathFailed("navigation_missing", targetCell);
             }
 
-            bool allowStructureBuffer = wildlife != null && wildlife.IsLandWildlifeStructureBufferCell(startCell);
+            bool allowStructureBuffer = allowSoftStructureBuffer
+                || wildlife != null && wildlife.IsLandWildlifeStructureBufferCell(startCell);
             StrategyNavigationStatus status = navigation.TryBuildPath(
                 new StrategyNavigationQuery(
                     startCell,

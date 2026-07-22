@@ -55,6 +55,18 @@ namespace ProjectUnknown.Strategy.EditorTests
             Assert.That(state.IsWork, Is.True);
         }
 
+        [TestCase(StrategyResidentAgent.ResidentActivity.MovingToCombatRange)]
+        [TestCase(StrategyResidentAgent.ResidentActivity.AimingCombatBow)]
+        [TestCase(StrategyResidentAgent.ResidentActivity.WaitingForCombatHit)]
+        public void CombatActivitiesRemainCombatWork(StrategyResidentAgent.ResidentActivity activity)
+        {
+            StrategyResidentTaskState state = new();
+            state.SetActivity(activity);
+
+            Assert.That(state.Kind, Is.EqualTo(StrategyResidentTaskKind.Combat));
+            Assert.That(state.IsWork, Is.True);
+        }
+
         [TestCase(StrategyResidentAgent.ResidentActivity.StandingByAtSawmill, true)]
         [TestCase(StrategyResidentAgent.ResidentActivity.StandingByAtKiln, true)]
         [TestCase(StrategyResidentAgent.ResidentActivity.StandingByAtForge, true)]

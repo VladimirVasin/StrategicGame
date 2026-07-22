@@ -8,6 +8,7 @@ namespace ProjectUnknown.Strategy
 
         private void ClearWildlife()
         {
+            ReleaseAllCombatEncounterThreats();
             deer.Clear();
             breedCooldowns.Clear();
             deerMigrations.Clear();
@@ -25,6 +26,7 @@ namespace ProjectUnknown.Strategy
             birdMigrations.Clear();
             wolfPacks.Clear();
             wolves.Clear();
+            combatEncounterWolves.Clear();
             wolfMigrations.Clear();
             wolfResidentTargets.Clear();
             settlementBuildings = null;
@@ -240,6 +242,7 @@ namespace ProjectUnknown.Strategy
 
         private void OnDestroy()
         {
+            ReleaseAllCombatEncounterThreats();
             if (Active == this)
             {
                 Active = null;

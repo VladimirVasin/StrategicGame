@@ -18,6 +18,7 @@ namespace ProjectUnknown.Strategy
         private StrategyPopulationController population;
         private StrategyCityInventory cityInventory;
         private StrategyInputRouter inputRouter;
+        private StrategyBattleLifecycleController battleLifecycle;
         private StrategyFoundingStartSaveData foundingStart = new();
         private bool configured;
 
@@ -28,6 +29,12 @@ namespace ProjectUnknown.Strategy
         public void SetInputRouter(StrategyInputRouter router)
         {
             inputRouter = router;
+        }
+
+        public void SetBattleLifecycle(
+            StrategyBattleLifecycleController lifecycleController)
+        {
+            battleLifecycle = lifecycleController;
         }
 
         public void SetCityInventory(StrategyCityInventory inventory)
@@ -84,6 +91,23 @@ namespace ProjectUnknown.Strategy
                 return false;
             }
 
+            if (!IsWorldStateSaveable(battleLifecycle))
+            {
+                StrategyEventLogHudController.Notify(
+                    StrategyLocalization.Get(
+                        StrategyLocalizationTables.Hud,
+                        "hud.save.blocked_battle"),
+                    new Color(0.94f, 0.58f, 0.28f));
+                StrategyDebugLogger.Warn(
+                    "Save",
+                    "SaveBlockedByBattle",
+                    StrategyDebugLogger.F("phase", battleLifecycle.Phase),
+                    StrategyDebugLogger.F(
+                        "activeThreats",
+                        battleLifecycle.ActiveThreatCount));
+                return false;
+            }
+
             try
             {
                 StrategySaveData data = CaptureSaveData();
@@ -112,6 +136,13 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.Warn("Save", "SaveFailed", StrategyDebugLogger.F("error", exception.Message));
                 return false;
             }
+        }
+
+        internal static bool IsWorldStateSaveable(
+            StrategyBattleLifecycleController lifecycleController)
+        {
+            return lifecycleController == null
+                || !lifecycleController.IsBattleInProgress;
         }
 
         public bool RequestLoad()

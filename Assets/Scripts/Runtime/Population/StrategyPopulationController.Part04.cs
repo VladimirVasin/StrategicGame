@@ -68,9 +68,13 @@ namespace ProjectUnknown.Strategy
             UnassignFromStonecutterCamp(resident);
             UnassignFromMine(resident);
             UnassignFromCoalPit(resident);
+            UnassignFromClayPit(resident);
             UnassignFromSawmill(resident);
+            UnassignFromKiln(resident);
+            UnassignFromForge(resident);
             UnassignFromHunterCamp(resident);
             UnassignFromFisherHut(resident);
+            UnassignFromForagerCamp(resident);
             UnassignFromScoutLodge(resident);
             UnassignFromStorageWorkerRole(resident);
             UnassignFromStorageBuilderRole(resident);
@@ -445,6 +449,7 @@ namespace ProjectUnknown.Strategy
             }
 
             funeralController.Configure(map, this);
+            funeralController.ConfigureBattleLifecycle(battleLifecycle);
         }
     }
 }

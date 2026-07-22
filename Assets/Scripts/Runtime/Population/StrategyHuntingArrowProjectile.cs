@@ -191,7 +191,7 @@ namespace ProjectUnknown.Strategy
             transform.rotation = Quaternion.Euler(0f, 0f, angle);
         }
 
-        private static Sprite GetArrowSprite()
+        internal static Sprite GetArrowSprite()
         {
             if (arrowSprite != null)
             {

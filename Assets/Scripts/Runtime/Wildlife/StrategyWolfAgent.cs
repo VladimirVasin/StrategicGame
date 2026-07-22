@@ -12,6 +12,8 @@ namespace ProjectUnknown.Strategy
         Attacking,
         Feeding,
         AvoidingSettlement,
+        Retreating,
+        Dead,
         Resting,
         Howling
     }
@@ -49,6 +51,11 @@ namespace ProjectUnknown.Strategy
             {
                 members.Add(agent);
             }
+        }
+
+        public void RemoveMember(StrategyWolfAgent agent)
+        {
+            members.Remove(agent);
         }
 
         public void SetRoamCenter(Vector2Int cell)
@@ -197,6 +204,7 @@ namespace ProjectUnknown.Strategy
             }
 
             float decisionDt = Time.deltaTime;
+            UpdateCombatRuntime(decisionDt);
             huntSearchTimer -= decisionDt;
             roamRefreshTimer -= decisionDt;
             targetRefreshTimer -= decisionDt;
@@ -224,6 +232,11 @@ namespace ProjectUnknown.Strategy
                     break;
                 case StrategyWolfBehaviorState.AvoidingSettlement:
                     UpdateAvoidingSettlement();
+                    break;
+                case StrategyWolfBehaviorState.Retreating:
+                    UpdateCombatRetreating();
+                    break;
+                case StrategyWolfBehaviorState.Dead:
                     break;
                 case StrategyWolfBehaviorState.Resting:
                     UpdateResting();
@@ -304,7 +317,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
-            if (wildlife != null && wildlife.IsWolfUnsafeSettlementCell(targetCell))
+            if (!IsForcedCombatEncounter && wildlife != null && wildlife.IsWolfUnsafeSettlementCell(targetCell))
             {
                 ReleaseTargets();
                 StartAvoidingSettlement();
@@ -348,7 +361,8 @@ namespace ProjectUnknown.Strategy
             }
 
             float distance = Vector2.Distance(transform.position, targetWorld);
-            if (distance > MaxChaseDistance || (wildlife != null && wildlife.IsWolfUnsafeSettlementCell(targetCell)))
+            if (distance > MaxChaseDistance
+                || (!IsForcedCombatEncounter && wildlife != null && wildlife.IsWolfUnsafeSettlementCell(targetCell)))
             {
                 ReleaseTargets();
                 StartAvoidingSettlement();
@@ -356,7 +370,7 @@ namespace ProjectUnknown.Strategy
             }
 
             FaceWorldPoint(targetWorld);
-            if (distance <= AttackReachDistance)
+            if (distance <= AttackReachDistance && CanStartCombatAttack())
             {
                 StartAttack();
                 return;
@@ -374,7 +388,7 @@ namespace ProjectUnknown.Strategy
                 MoveDirectlyToward(targetWorld, PounceSpeed);
             }
 
-            if (Vector2.Distance(transform.position, targetWorld) <= AttackReachDistance)
+            if (Vector2.Distance(transform.position, targetWorld) <= AttackReachDistance && CanStartCombatAttack())
             {
                 StartAttack();
                 return;
@@ -391,6 +405,11 @@ namespace ProjectUnknown.Strategy
                 ResolveAttack();
             }
 
+            if (state != StrategyWolfBehaviorState.Attacking)
+            {
+                return;
+            }
+
             if (frame < StrategyWolfSpriteFactory.AttackFrameCount - 1)
             {
                 return;
@@ -399,6 +418,11 @@ namespace ProjectUnknown.Strategy
             if (targetRabbit != null || targetDeer != null)
             {
                 StartFeeding();
+                return;
+            }
+
+            if (TryContinueForcedCombatAfterAttack())
+            {
                 return;
             }
 

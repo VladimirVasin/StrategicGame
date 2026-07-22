@@ -248,6 +248,11 @@ namespace ProjectUnknown.Strategy
 
         private Vector3 GetTargetDebugWorld()
         {
+            if (TryGetForcedCombatTargetWorld(out Vector3 forcedWorld, out _))
+            {
+                return forcedWorld;
+            }
+
             if (targetRabbit != null)
             {
                 return targetRabbit.transform.position;
@@ -264,6 +269,11 @@ namespace ProjectUnknown.Strategy
         private bool TryGetKnownTargetCell(out Vector2Int cell)
         {
             cell = default;
+            if (TryGetForcedCombatTargetWorld(out _, out cell))
+            {
+                return true;
+            }
+
             if (targetRabbit != null && targetRabbit.TryGetCurrentCell(out cell))
             {
                 return true;
@@ -281,6 +291,11 @@ namespace ProjectUnknown.Strategy
 
         private string GetTargetDebugKind()
         {
+            if (IsForcedCombatEncounter)
+            {
+                return "combatant";
+            }
+
             if (targetRabbit != null)
             {
                 return "rabbit";
@@ -296,6 +311,11 @@ namespace ProjectUnknown.Strategy
 
         private string GetTargetDebugName()
         {
+            if (IsForcedCombatEncounter)
+            {
+                return GetForcedCombatTargetDebugName();
+            }
+
             if (targetResident != null)
             {
                 return targetResident.FullName;
@@ -314,7 +334,8 @@ namespace ProjectUnknown.Strategy
             return state == StrategyWolfBehaviorState.Roaming
                 || state == StrategyWolfBehaviorState.Stalking
                 || state == StrategyWolfBehaviorState.Chasing
-                || state == StrategyWolfBehaviorState.AvoidingSettlement;
+                || state == StrategyWolfBehaviorState.AvoidingSettlement
+                || state == StrategyWolfBehaviorState.Retreating;
         }
 
         private void ResetWolfMovementDiagnostics()

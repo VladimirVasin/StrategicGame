@@ -154,6 +154,34 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("residentId", snapshot.ResidentId));
         }
 
+        internal void ResetToGroundCorpseVisual()
+        {
+            Vector3 currentWorld = transform.position;
+            currentWorld.z = -0.09f;
+            baseWorld = currentWorld;
+            transform.position = currentWorld;
+            burialStarted = false;
+            burialProgress = 0f;
+            deathComplete = true;
+            deathFrame = StrategyFuneralSpriteFactory.DeathFrameCount - 1;
+            usingCarriedSprite = false;
+            usingDraggedSprite = false;
+            SetRopeVisible(false);
+
+            if (spriteRenderer == null)
+            {
+                return;
+            }
+
+            spriteRenderer.sprite = StrategyFuneralSpriteFactory.GetDeathSprite(
+                snapshot.Gender,
+                snapshot.VisualVariant,
+                snapshot.LifeStage,
+                deathFrame);
+            spriteRenderer.color = Color.white;
+            StrategyWorldSorting.Apply(spriteRenderer, transform.position, -1);
+        }
+
         public void SetBurialProgress(float progress)
         {
             burialProgress = Mathf.Clamp01(progress);

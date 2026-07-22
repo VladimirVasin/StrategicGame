@@ -35,6 +35,7 @@ namespace ProjectUnknown.Strategy
 
         private enum FuneralStage
         {
+            AwaitingBattleEnd,
             WaitingForCorpse,
             GatheringFamily,
             Mourning,
@@ -80,6 +81,7 @@ namespace ProjectUnknown.Strategy
 
         public void NotifyResidentDeath(StrategyResidentDeathSnapshot snapshot)
         {
+            EnsureLegacyBattleLifecycleBinding();
             EnsureCorpseRoot();
             GameObject corpseObject = new GameObject("Corpse - " + snapshot.FullName);
             corpseObject.transform.SetParent(corpseRoot, false);
@@ -93,19 +95,23 @@ namespace ProjectUnknown.Strategy
             {
                 Snapshot = snapshot,
                 Corpse = corpse,
-                Stage = FuneralStage.WaitingForCorpse,
-                StartedAtNight = IsNightFuneralTorchTime()
+                Stage = FuneralStage.AwaitingBattleEnd,
+                StartedAtNight = false
             };
             activeFunerals.Add(process);
 
             StrategyDebugLogger.Info(
                 "Funeral",
-                "FuneralStarted",
+                "CorpseRegisteredForFuneral",
                 StrategyDebugLogger.F("resident", snapshot.FullName),
                 StrategyDebugLogger.F("residentId", snapshot.ResidentId),
-                StrategyDebugLogger.F("startedAtNight", process.StartedAtNight),
+                StrategyDebugLogger.F("awaitingBattleEnd", AreFuneralsBlocked),
                 StrategyDebugLogger.F("activeFunerals", activeFunerals.Count));
-            RecallFamilyForFuneral(process, "death");
+
+            if (!AreFuneralsBlocked)
+            {
+                StartFuneralFromBeginning(process, "death");
+            }
         }
 
         private void Update()
@@ -140,6 +146,17 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            if (AreFuneralsBlocked)
+            {
+                SuspendFuneralForBattle(funeral);
+                return;
+            }
+
+            if (funeral.Stage == FuneralStage.AwaitingBattleEnd)
+            {
+                StartFuneralFromBeginning(funeral, "battle_ended");
+            }
+
             FilterLiveResidents(funeral.Participants);
             FilterLiveResidents(funeral.Carriers);
             FilterLiveResidents(funeral.ExpectedBurialAttendees);
@@ -166,33 +183,6 @@ namespace ProjectUnknown.Strategy
                     UpdateBurial(funeral);
                     break;
             }
-        }
-
-        private void EnsureNightTorchBearer(FuneralProcess funeral)
-        {
-            if (funeral == null
-                || funeral.TorchBearer != null
-                || !IsNightFuneralTorchTime()
-                || funeral.ExpectedBurialAttendees.Count <= 0
-                || funeral.Stage < FuneralStage.Procession
-                || Time.time < funeral.NextTorchAssignmentTime)
-            {
-                return;
-            }
-
-            funeral.NextTorchAssignmentTime = Time.time + TorchAssignmentRetrySeconds;
-            AssignNightFuneralTorchBearer(funeral);
-        }
-
-        private void UpdateWaitingForCorpse(FuneralProcess funeral)
-        {
-            if (!funeral.Corpse.IsDeathComplete)
-            {
-                return;
-            }
-
-            funeral.Stage = FuneralStage.GatheringFamily;
-            funeral.Timer = GatherTimeoutSeconds;
         }
 
         private void UpdateGatheringFamily(FuneralProcess funeral)

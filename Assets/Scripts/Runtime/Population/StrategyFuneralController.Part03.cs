@@ -82,5 +82,32 @@ namespace ProjectUnknown.Strategy
 
             return false;
         }
+
+        private void EnsureNightTorchBearer(FuneralProcess funeral)
+        {
+            if (funeral == null
+                || funeral.TorchBearer != null
+                || !IsNightFuneralTorchTime()
+                || funeral.ExpectedBurialAttendees.Count <= 0
+                || funeral.Stage < FuneralStage.Procession
+                || Time.time < funeral.NextTorchAssignmentTime)
+            {
+                return;
+            }
+
+            funeral.NextTorchAssignmentTime = Time.time + TorchAssignmentRetrySeconds;
+            AssignNightFuneralTorchBearer(funeral);
+        }
+
+        private void UpdateWaitingForCorpse(FuneralProcess funeral)
+        {
+            if (!funeral.Corpse.IsDeathComplete)
+            {
+                return;
+            }
+
+            funeral.Stage = FuneralStage.GatheringFamily;
+            funeral.Timer = GatherTimeoutSeconds;
+        }
     }
 }

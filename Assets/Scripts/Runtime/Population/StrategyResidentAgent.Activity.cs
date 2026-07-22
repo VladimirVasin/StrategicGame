@@ -164,7 +164,10 @@ namespace ProjectUnknown.Strategy
             StandingByAtSawmill,
             StandingByAtKiln,
             StandingByAtForge,
-            ReturningToScoutLodge
+            ReturningToScoutLodge,
+            MovingToCombatRange,
+            AimingCombatBow,
+            WaitingForCombatHit
         }
     }
 }

@@ -458,7 +458,7 @@ namespace ProjectUnknown.Strategy
             float activitySpeed = activity == ResidentActivity.Idle || activity == ResidentActivity.TendingHousehold
                 ? MoveSpeed
                 : MoveSpeed * ActiveMoveSpeedMultiplier;
-            return activitySpeed * ColdMovementSpeedMultiplier;
+            return activitySpeed * ColdMovementSpeedMultiplier * CombatMovementSpeedMultiplier;
         }
     }
 }

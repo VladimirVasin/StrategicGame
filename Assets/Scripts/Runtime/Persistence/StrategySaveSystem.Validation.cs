@@ -261,6 +261,9 @@ namespace ProjectUnknown.Strategy
                     || resident.daysHungry < 0
                     || !IsFinite(resident.coldExposure)
                     || resident.coldExposure < 0f
+                    || resident.combatHealth < 1
+                    || resident.combatHealth > 100
+                    || resident.lastCombatRecoveryDayIndex < -1
                     || resident.childIds == null)
                 {
                     reason = "invalid_resident_" + i;

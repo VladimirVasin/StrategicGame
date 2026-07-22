@@ -235,7 +235,7 @@ namespace ProjectUnknown.Strategy
             for (int i = 0; i < wolfPacks.Count; i++)
             {
                 StrategyWolfPack pack = wolfPacks[i];
-                if (pack == null || pack.MemberCount <= 0)
+                if (pack == null || pack.MemberCount <= 0 || IsWolfCombatEncounterPack(pack))
                 {
                     continue;
                 }

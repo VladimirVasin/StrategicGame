@@ -9,7 +9,7 @@ namespace ProjectUnknown.Strategy
     {
         private const int CanvasSortingOrder = 33000;
         private const float PanelWidth = 660f;
-        private const float PanelHeight = 680f;
+        private const float PanelHeight = 704f;
 
         private static readonly Color OverlayColor = new Color(0f, 0f, 0f, 0.58f);
         private static readonly Color PanelColor = new Color(0.055f, 0.065f, 0.07f, 0.98f);
@@ -185,7 +185,7 @@ namespace ProjectUnknown.Strategy
             closeButton.onClick.AddListener(() => SetOpen(false));
 
             RectTransform fogSection = CreatePanel("FogSection", panel, SectionColor).GetComponent<RectTransform>();
-            SetTopLeft(fogSection, 28f, 112f, PanelWidth - 56f, 84f);
+            SetTopLeft(fogSection, 28f, 102f, PanelWidth - 56f, 76f);
             Text fogTitle = CreateText("FogTitle", fogSection, "Visibility", 16, TextAnchor.MiddleLeft, Color.white);
             fogTitle.fontStyle = FontStyle.Bold;
             SetTopLeft(fogTitle.rectTransform, 18f, 10f, 180f, 24f);
@@ -194,7 +194,7 @@ namespace ProjectUnknown.Strategy
             fogToggle.onValueChanged.AddListener(SetFogDisabled);
 
             RectTransform buildSection = CreatePanel("BuildSection", panel, SectionColor).GetComponent<RectTransform>();
-            SetTopLeft(buildSection, 28f, 216f, PanelWidth - 56f, 84f);
+            SetTopLeft(buildSection, 28f, 186f, PanelWidth - 56f, 76f);
             Text buildTitle = CreateText("BuildTitle", buildSection, "Construction", 16, TextAnchor.MiddleLeft, Color.white);
             buildTitle.fontStyle = FontStyle.Bold;
             SetTopLeft(buildTitle.rectTransform, 18f, 10f, 180f, 24f);
@@ -203,7 +203,7 @@ namespace ProjectUnknown.Strategy
             instantConstructionToggle.onValueChanged.AddListener(SetInstantConstruction);
 
             RectTransform populationSection = CreatePanel("PopulationSection", panel, SectionColor).GetComponent<RectTransform>();
-            SetTopLeft(populationSection, 28f, 320f, PanelWidth - 56f, 84f);
+            SetTopLeft(populationSection, 28f, 270f, PanelWidth - 56f, 76f);
             Text populationTitle = CreateText("PopulationTitle", populationSection, "Population", 16, TextAnchor.MiddleLeft, Color.white);
             populationTitle.fontStyle = FontStyle.Bold;
             SetTopLeft(populationTitle.rectTransform, 18f, 10f, 180f, 24f);
@@ -214,13 +214,14 @@ namespace ProjectUnknown.Strategy
             SetTopRight(refugeeStatusText.rectTransform, 18f, 46f, 260f, 24f);
 
             RectTransform weatherSection = CreatePanel("WeatherSection", panel, SectionColor).GetComponent<RectTransform>();
-            SetTopLeft(weatherSection, 28f, 424f, PanelWidth - 56f, 202f);
+            SetTopLeft(weatherSection, 28f, 354f, PanelWidth - 56f, 202f);
             Text weatherTitle = CreateText("WeatherTitle", weatherSection, "Weather", 16, TextAnchor.MiddleLeft, Color.white);
             weatherTitle.fontStyle = FontStyle.Bold;
             SetTopLeft(weatherTitle.rectTransform, 18f, 10f, 180f, 24f);
             currentWeatherText = CreateText("CurrentWeather", weatherSection, string.Empty, 13, TextAnchor.MiddleRight, MutedTextColor);
             SetTopRight(currentWeatherText.rectTransform, 18f, 12f, 220f, 22f);
             BuildWeatherButtons(weatherSection);
+            BuildCombatSection(panel);
 
             isOpen = false;
             rootGroup.alpha = 0f;
@@ -306,6 +307,8 @@ namespace ProjectUnknown.Strategy
                 view.Image.color = active ? ActiveColor : ButtonColor;
                 view.Label.color = active ? Color.white : TextColor;
             }
+
+            RefreshCombatControls();
         }
 
         private static Button CreateButton(string name, Transform parent, string label, int fontSize, Color color)

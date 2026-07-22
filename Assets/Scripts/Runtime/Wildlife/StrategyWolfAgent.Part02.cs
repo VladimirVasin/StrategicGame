@@ -23,10 +23,17 @@ namespace ProjectUnknown.Strategy
         {
             Vector3 target = new Vector3(targetWorld.x, targetWorld.y, transform.position.z);
             Vector3 previous = transform.position;
-            transform.position = Vector3.MoveTowards(
+            Vector3 next = Vector3.MoveTowards(
                 transform.position,
                 target,
                 StrategyWildlifeRiverCrossing.GetAdjustedSpeed(map, previous, target, speed) * Time.deltaTime);
+            if (!CanUseForcedCombatDirectStep(next))
+            {
+                TrackWolfMovementAttempt("direct_blocked", previous, previous, target, speed);
+                return;
+            }
+
+            transform.position = next;
             Vector3 delta = transform.position - previous;
             TrackWolfMovementAttempt("direct", previous, transform.position, target, speed);
             if (spriteRenderer != null && Mathf.Abs(delta.x) > 0.001f)
@@ -189,6 +196,7 @@ namespace ProjectUnknown.Strategy
         private void OnDestroy()
         {
             ReleaseTargets();
+            wildlife?.NotifyWolfRemoved(this, pack);
         }
     }
 }

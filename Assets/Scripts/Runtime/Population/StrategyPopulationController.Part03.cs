@@ -340,9 +340,24 @@ namespace ProjectUnknown.Strategy
                 return "coal miner";
             }
 
+            if (resident.ClayPitWorkplace != null)
+            {
+                return "clay digger";
+            }
+
             if (resident.SawmillWorkplace != null)
             {
                 return "sawyer";
+            }
+
+            if (resident.KilnWorkplace != null)
+            {
+                return "potter";
+            }
+
+            if (resident.ForgeWorkplace != null)
+            {
+                return "blacksmith";
             }
 
             if (resident.HunterWorkplace != null)
@@ -353,6 +368,11 @@ namespace ProjectUnknown.Strategy
             if (resident.FisherWorkplace != null)
             {
                 return "fisher";
+            }
+
+            if (resident.ForagerWorkplace != null)
+            {
+                return "forager";
             }
 
             if (resident.ScoutWorkplace != null)

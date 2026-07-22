@@ -2670,6 +2670,77 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 465534772507312166
+  - m_Id: 291986212016128
+    m_Localized: Combat MVP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 291986291707904
+    m_Localized: Fight Now
+    m_Metadata:
+      m_Items: []
+  - m_Id: 291986291707905
+    m_Localized: Night Attack
+    m_Metadata:
+      m_Items: []
+  - m_Id: 291986291707906
+    m_Localized: Reset
+    m_Metadata:
+      m_Items: []
+  - m_Id: 291986291707907
+    m_Localized: Ready
+    m_Metadata:
+      m_Items: []
+  - m_Id: 291986291707908
+    m_Localized: Combat controllers unavailable
+    m_Metadata:
+      m_Items: []
+  - m_Id: 291986291707909
+    m_Localized: "Queued for Night \u2014 waiting for 22:00"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 291986291707910
+    m_Localized: No available adult resident
+    m_Metadata:
+      m_Items: []
+  - m_Id: 291986291707911
+    m_Localized: Could not stage encounter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 291986291707912
+    m_Localized: Could not start encounter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 291986291707913
+    m_Localized: Reset complete
+    m_Metadata:
+      m_Items: []
+  - m_Id: 291986291707914
+    m_Localized: Resident lost
+    m_Metadata:
+      m_Items: []
+  - m_Id: 291986291707915
+    m_Localized: "Wolf defeated \u2022 Resident {0}/{1} HP"
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 291986295902208
+    m_Localized: "Wolf retreating \u2022 Resident {0}/{1} HP"
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 291986295902209
+    m_Localized: "{0} {1}/{2} HP \u2022 Wolf {3}/{4} HP"
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 291986295902210
+    m_Localized: "Night attack \u2014 a wolf has entered the settlement!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 291986295902211
+    m_Localized: Cannot save until the battle is over
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:
@@ -2900,3 +2971,6 @@ MonoBehaviour:
         - id: 183705099456518
         - id: 183705099456519
         - id: 183705099456520
+        - id: 291986291707915
+        - id: 291986295902208
+        - id: 291986295902209

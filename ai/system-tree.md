@@ -1,6 +1,6 @@
 # System Tree
 
-Last updated: 2026-07-19
+Last updated: 2026-07-20
 
 This is a conceptual map of the current project. Keep concrete file ownership in `ai/systems-map.md`.
 
@@ -85,6 +85,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Creates and configures runtime post-processing after weather setup so color grading follows day/night and weather intensities
     - Creates and configures runtime cinematic visuals after post-processing so lights and atmosphere follow day/night/weather state
     - Creates and configures runtime ambience audio after camera setup
+    - Creates one scene-global battle lifecycle and wires it into population funerals and wildlife encounter ownership before combat can start
     - Creates and configures the night-light task controller so future lamp workers prepare during late `Dusk` and light building and roadside lamps at `Night`, while every outdoor adult dynamically uses a personal torch only outside other active light radii
     - Focuses the initial camera view on the startup campfire after population startup
     - Creates runtime water/shore animation overlay after map generation
@@ -92,7 +93,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Generates nature props after population startup so the camp clear-radius exclusion is known
     - Creates forage resources after nature generation so forage nodes avoid occupied/non-walkable cells
     - Creates and wires the runtime fog-of-war layer after population and placement controllers exist
-    - Creates the F9 runtime debug panel after fog/weather are ready so testing can bypass player fog, force weather states, and enable instant free construction
+    - Creates the F9 runtime debug panel after fog/weather are ready so testing can bypass player fog, force weather states, enable instant free construction, and launch the deterministic resident-versus-wolf combat slice
     - Places a temporary starter Caravan Cart at its reserved founding origin, or uses the legacy nearby search when no reservation exists, with initial Logs, Stone, and 3 days of randomized raw food after placement is configured
     - Keeps initial residents, nature props, and forage nodes outside the reserved cart blocker; Continue skips transient new-game residents/cart before applying the save
     - Creates and configures the 16x16 world chunk registry after starter placement so later systems can query camera-near, active-settlement, dirty, and spatially indexed world state
@@ -324,6 +325,23 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Lake fish cap debug logging is throttled per lake region so capped lakes do not spam `debug.log`
       - River fish do not reproduce
       - Fisher huts can reserve adult fish in range only when the requesting fisher can reach a valid land/shore stand cell, hold fish near the hook sequence while cast range remains valid, and yield `Fish` after reeling
+    - Combat MVP
+      - Shared combat contracts define settlement/hostile-wildlife factions, targetability, integer health, hostile-damage validation, damage kinds, hit position, and defeat results
+      - One scene-global lifecycle exposes `Peaceful`, `Active`, and `Securing`; idempotent threat leases keep overlapping encounters active until every registered threat is actually gone
+      - Releasing the final threat enters `Securing` for 2.5 scaled seconds; a new threat during that window returns the world to `Active`
+      - Adult residents can leave ordinary rest or night sleep for a temporary combat task without losing their workplace assignment
+      - Combat residents find reachable bow positions, reuse the hunter bow animation, fire 40-damage projectiles, and repeat shots while the target remains alive and targetable
+      - Residents have 100 persistent combat health; wound severity slows movement and up to 20 health recovers once at Dawn each game day
+      - Fatal combat damage immediately enters the existing centralized resident-death, assignment-cleanup, corpse, family-record, and selection-cleanup path; funeral activity waits for global `Peaceful`
+      - Wolves have 100 runtime combat health, deal 20-damage bites, retreat and become untargetable at 20 health, and despawn after reaching a retreat path or a bounded timeout; their threat lease remains held through retreat until actual removal
+      - Reusable combat encounters bypass wolf settlement-pressure avoidance and the soft wildlife structure buffer while retaining hard map/building blockers
+      - One automatic wolf encounter is eligible on each real `Dusk -> Night` transition from Day 2 onward; the first-night fauna sequence and loads already inside Night are skipped
+      - Night encounter start waits through simulation pause, modal Gameplay-input ownership, another active/securing battle, and unavailable defender/spawn state; failed staging retries without consuming the night
+      - Dawn only closes an unused automatic request; it never resets an encounter or releases a live battle threat, while a guaranteed F9 request can remain pending for a later Night
+      - F9 `Combat MVP` exposes localized `Fight Now`, `Night Attack`, and `Reset`: immediate combat bypasses the clock, while the full Night path moves forward to displayed 21:50 and waits for the actual 22:00 transition
+      - Resident wounds persist through save version 13; F5 capture is rejected during `Active` and `Securing` because live wolves and active combat tasks remain transient
+      - Battle phase, threat leases, corpses, and active/deferred funeral progress are transient; valid saves are captured only after the lifecycle returns to `Peaceful`
+      - Guard posts, a Guard profession, patrols, alarms, equipment, attack variety/scaling, and player-facing combat commands are outside this first slice
     - Fog of war
       - Runtime-generated texture overlay above world sprites and below screen-space UI
       - Tracks persistent explored cells separately from current visible cells
@@ -579,6 +597,8 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Residents in active funeral duty are temporarily immune to death attempts so carriers/attendees cannot break an active procession
     - Resident death centrally removes them from homes, population counts, worksite roles, construction assignments, active reservations, and selection targets
     - Resident death creates an animated corpse snapshot that remains in the world until burial
+    - During global `Active` or `Securing`, corpse creation remains immediate but family recall and funeral progression wait in `AwaitingBattleEnd`
+    - A new battle suspends existing funerals, releases every funeral duty/torch/grave reservation, grounds the corpse where it currently is, and restarts the funeral from the beginning only after `Peaceful`
     - Minor children with no living parents can be adopted into eligible adult households without rewriting biological parent IDs
     - Funeral flow can run multiple simultaneous processes, recalls only available close family/household participants with reachable movement targets, runs crying/mourning, drags the corpse by rope behind a carrier to a reserved spontaneous reachable cemetery grave, treats non-carrier mourners as optional at burial, and completes burial once carriers deliver the body
     - Deaths with no living family/household participants use a silent service burial with one nearby adult carrier and no crying animation
@@ -688,7 +708,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Scene-local HUD chrome draws the continuous compact top rail behind independently owned code-built HUD canvases; ornate framing is reserved for large information panels
   - Full-screen runtime intro menu with Continue, New Settlement, Settings, Quit, disabled/no-save Continue state, and loading progress
   - Custom in-game Escape pause menu over a dimmed live map with a dark left panel, Resume/Save/Settings commands, live Russian/English switching, and confirmed Main Menu/Quit actions
-  - Custom runtime F9 debug panel with player fog-of-war, instant construction, refugee arrival summon, and forced Clear/Cloudy/Rain/Fog/Storm/Snow/Blizzard weather-state controls
+  - Custom runtime F9 debug panel with player fog-of-war, instant construction, refugee arrival summon, forced Clear/Cloudy/Rain/Fog/Storm/Snow/Blizzard weather-state controls, and a deterministic resident-versus-wolf combat scenario
   - Custom runtime Build menu HUD
     - Uses a compact two-level category/context palette with readable building art/cost cards, a small closed Build entry, and a separate placement bar while a tool is active
     - Starter progression exposes a seven-tool base catalog from the beginning, guides Houses -> Forager Camp -> Lumberjack/Stonecutter camps -> Scout Lodge -> Storage Yard/Granary, and unlocks the full catalog after every base requirement is complete
@@ -759,9 +779,9 @@ This is a conceptual map of the current project. Keep concrete file ownership in
   - Gameplay can be rendered at deterministic Noon, Spring, Autumn, Night, and Winter states for visual comparison when a graphics device is available
 
 - Persistence
-  - Version-12 JSON save data with migrations through v11-to-v12, validation, atomic temporary-file replacement, and `.bak` recovery
-  - The v8-to-v9 migration silently backfills `Cats`; v9-to-v10 initializes legacy Scout Lodge state; v10-to-v11 initializes every resident with an empty personal inventory; v11-to-v12 initializes independent empty story-point state
-  - F5 saves the current settlement; F8 loads it by restarting and restoring the runtime scene
+  - Version-13 JSON save data with migrations through v12-to-v13, validation, atomic temporary-file replacement, and `.bak` recovery
+  - The v8-to-v9 migration silently backfills `Cats`; v9-to-v10 initializes legacy Scout Lodge state; v10-to-v11 initializes every resident with an empty personal inventory; v11-to-v12 initializes independent empty story-point state; v12-to-v13 initializes resident combat health and Dawn-recovery state
+  - F5 saves the current settlement only while the global battle lifecycle is `Peaceful`; F8 loads by restarting and restoring the runtime scene
   - Stable IDs reconnect placed buildings, residents, homes, parents, and children without serializing Unity object references
   - Snapshot coverage includes map seed/time/weather, founding profile answers and exact camp/current-cart origin, first-winter milestones, first-night fauna stage, City Inventory stacks, buildings, construction sites, resource and dish stock, residents with cold and personal-item state, stable Scout Lodge assignment/mission/timing/field-ration/credit/deferred-story-return state, ground resources plus in-transit resident stock represented as loose resources at saved resident cells, exact prepared-dish payloads, explored fog, route-road cells, resource-point mineral state, and durable story-anchor sequence/commitment state; transient story candidates regenerate after world/Fog restore
 
@@ -774,6 +794,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 
 - Rendering settings affect all scenes using the URP pipeline.
 - Localization crosses menu, founding, HUD, dialog, content-catalog, and gameplay-status owners through one runtime facade; language changes update presentation only and never alter stable IDs, save payloads, simulation state, or English diagnostic labels.
+- Combat lifecycle crosses Night scheduling, wildlife threats, resident deaths, funeral suspension, and persistence; its `Active`/`Securing` phases defer funerals and reject save capture until the world returns to `Peaceful`.
 - Runtime bootstrap depends on scene role, one scene-local game context, explicit preload ownership transfer, and the presence of a usable `Main Camera` or permission to create one.
 - Intro menu launch depends on save validation, one persistent preload coordinator, deterministic map seed handling, the Founding Journey decision gate for New Settlement, and the gameplay scene-loaded bootstrap hook; prepared terrain keeps Unity object creation/upload on the main thread.
 - Founding Journey presentation couples each authored shot to its atmosphere and scene-owned Weather/Fire ambience; its answers feed a pure selector over a captured map snapshot, and selected camp/cart cells feed population startup, nature/forage exclusions, exact starter-cart placement, save v3, and the initial camera focus.
@@ -807,6 +828,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Kiln/Pottery production depends on Storage Yard Clay and Coal stock, production-input Hauler delivery, resident work states, placed-building records, Storage Yard Pottery hauling, Householder Pottery pickup, and household Pottery demand from Dish cooking.
 - Forge/Tools production depends on Storage Yard Iron, Coal, and Logs stock, production-input Hauler delivery, resident work states, placed-building records, Storage Yard Tools hauling, and production-building upgrade demand.
 - Wildlife depends on generated terrain/water cells, map walkability for land animals, population/resident positions, fog daylight-range hidden checks, starter-camp location, hunter/fisher production buildings, seasonal frozen-water state, and Y-based world sorting; birds do not feed fog visibility or resources yet, while hunted rabbits and upgraded-hunter adult deer can yield `Game` and caught fish can yield `Fish` only while water is not frozen.
+- Combat couples the scene-global battle lifecycle, real day/night transitions, first-night story/modal ownership, resident task/navigation/animation state, wolf movement and removal, the centralized population death path, funeral suspension/resume, Dawn recovery, version-13 resident persistence, world effects/audio, and the localized F9 debug panel; the night director owns attack timing above the reusable encounter controller without equating Night to the global battle phase.
 - Sawmill production depends on Storage Yard Log stock, production-input Hauler delivery, resident work states, placed-building records, map walkability, and Storage Yard Planks hauling.
 - Storage yard logistics depends on lumberjack camp stock, stonecutter camp stock, Sawmill stock, Kiln stock/input demand, Forge stock/input demand, Mine stock, Coal Pit stock, Clay Pit stock, Hunter Camp/Fisher Hut/Forager Camp/Chicken Coop food stock, Granaries, resident work states, placed-building records, map walkability, and the world-selection HUD.
 - Trade depends on completed Trading Posts, map-edge caravan pathing, settlement Coins, Storage Yard non-food stock, Granary food stock, generated trade/caravan sprites, and the world-selection HUD.
@@ -833,6 +855,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
 - Zoning
 - Complete persistence for generated resource depletion, wildlife state, trade visits, upgrades, and every transient work assignment
 - Predators beyond wolves, non-hunting wildlife mortality, and broader wildlife resources
+- Hostile incursion variety/scaling beyond the deterministic one-wolf Night MVP, guard posts, Guard profession/patrols, alarms, equipment, and player-facing combat orders
 - Explicit player-built roads and non-resident road preference
 - Gameplay progression beyond the First Winter preparation/endurance slice
 - Victory and defeat outcomes; deliberately deferred at the current stage

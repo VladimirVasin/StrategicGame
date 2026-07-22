@@ -168,6 +168,8 @@ namespace ProjectUnknown.Strategy
             hudChrome.Configure();
             StrategyBuildMenuController buildMenu = context.GetOrCreate<StrategyBuildMenuController>("Strategy Build Menu");
             StrategyBuildPlacementController placement = context.GetOrCreate<StrategyBuildPlacementController>("Strategy Build Placement");
+            StrategyBattleLifecycleController battleLifecycle =
+                context.GetOrCreate<StrategyBattleLifecycleController>("Strategy Battle Lifecycle");
             StrategyPopulationController population = context.GetOrCreate<StrategyPopulationController>("Strategy Population");
             buildMenu.SetInputRouter(inputRouter);
             StrategyResourceOverviewHudController resourceOverviewHud =
@@ -177,7 +179,9 @@ namespace ProjectUnknown.Strategy
 
             population.SetFoundingStartState(foundingStart);
             population.Configure(map);
+            population.ConfigureBattleLifecycle(battleLifecycle);
             cameraController.SetCampFocusSource(map, population);
+            StrategyDebugLogger.Info("Bootstrap", "BattleLifecycleReady");
 
             StrategyNightLightTaskController nightLights = context.GetOrCreate<StrategyNightLightTaskController>("Strategy Night Light Tasks");
             nightLights.Configure(map, population);
@@ -322,7 +326,11 @@ namespace ProjectUnknown.Strategy
             StrategyDebugLogger.Info("Bootstrap", "TradeCaravansReady");
 
             StrategyWildlifeController wildlife = context.GetOrCreate<StrategyWildlifeController>("Strategy Wildlife");
+            wildlife.ConfigureBattleLifecycle(battleLifecycle);
             wildlife.Configure(map, population, fog);
+            StrategyCombatEncounterController combatEncounter =
+                context.GetOrCreate<StrategyCombatEncounterController>("Strategy Combat Encounter");
+            combatEncounter.Configure(population, wildlife);
             StrategyDebugLogger.Info("Bootstrap", "WildlifeReady");
 
             StrategySettlementFaunaController settlementFauna = context.GetOrCreate<StrategySettlementFaunaController>("Strategy Settlement Fauna");
@@ -406,6 +414,17 @@ namespace ProjectUnknown.Strategy
                 cityInventory,
                 inputRouter,
                 foundingStart);
+            saveSystem.SetBattleLifecycle(battleLifecycle);
+            StrategyNightEncounterDirector nightEncounterDirector =
+                context.GetOrCreate<StrategyNightEncounterDirector>("Strategy Night Encounter Director");
+            nightEncounterDirector.Configure(
+                combatEncounter,
+                battleLifecycle,
+                dayNight,
+                timeScale,
+                inputRouter);
+            debugPanel.ConfigureCombat(combatEncounter, nightEncounterDirector);
+            StrategyDebugLogger.Info("Bootstrap", "NightEncounterDirectorReady");
             StrategyPauseMenuController pauseMenu =
                 context.GetOrCreate<StrategyPauseMenuController>("Strategy Pause Menu");
             pauseMenu.Configure(inputRouter, timeScale, saveSystem, confirmationDialog);
