@@ -14,6 +14,7 @@ namespace ProjectUnknown.Strategy
         private float combatWorkTimer;
         private bool combatShotReleased;
         public bool IsCombatEngaged => activeCombatTarget != null && IsCombatActivity(activity);
+        public int CombatAttackPoints => IsAdult ? ResidentArrowDamage : 0;
 
         public bool CanStartCombatEngagement
         {
@@ -133,6 +134,28 @@ namespace ProjectUnknown.Strategy
             waitTimer = 0f;
             UseIdleSprite();
             return hasTarget;
+        }
+
+        private bool TryHandleMovingToCombatRangeBeforeStep()
+        {
+            if (activity != ResidentActivity.MovingToCombatRange)
+            {
+                return false;
+            }
+
+            if (!IsValidCombatTarget(activeCombatTarget))
+            {
+                CancelCombatEngagement();
+                return true;
+            }
+
+            if (!CanShootCurrentCombatTarget())
+            {
+                return false;
+            }
+
+            StartAimingCombatBow();
+            return true;
         }
 
         private bool TryFindCombatStandCell(Vector2Int targetCell, out Vector2Int standCell)
@@ -302,7 +325,7 @@ namespace ProjectUnknown.Strategy
                         GetBowWorldPosition(),
                         activeCombatTarget,
                         this,
-                        ResidentArrowDamage);
+                        CombatAttackPoints);
                 }
             }
 

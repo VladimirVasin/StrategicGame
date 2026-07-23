@@ -138,8 +138,19 @@ namespace ProjectUnknown.Strategy
                 },
                 new[]
                 {
-                    Row(L("label.state"), V(state), null, StateColor(state)),
-                    Row(L("label.pack"), wolf.PackId.ToString(), null, Neutral),
+                    Row(
+                        L("label.health"),
+                        L(
+                            "format.health_points",
+                            wolf.CurrentCombatHealth,
+                            wolf.MaxCombatHealth),
+                        null,
+                        HealthColor(wolf.CurrentCombatHealth, wolf.MaxCombatHealth)),
+                    Row(
+                        L("label.attack_points"),
+                        wolf.CombatAttackPoints.ToString(),
+                        null,
+                        Warn),
                     Row(L("label.home"), FormatCell(wolf.HomeCell), null, Neutral),
                     Row(L("label.radius"), wolf.HomeRadius.ToString(), null, Neutral)
                 });
@@ -356,6 +367,16 @@ namespace ProjectUnknown.Strategy
             }
 
             return lower.Contains("ready") || lower.Contains("available") || lower.Contains("standing") ? Good : Neutral;
+        }
+
+        private static Color HealthColor(int current, int maximum)
+        {
+            float ratio = maximum > 0 ? current / (float)maximum : 0f;
+            return ratio <= 0.25f
+                ? Danger
+                : ratio <= 0.50f
+                    ? Warn
+                    : Good;
         }
 
         private static string BuildBody(StrategyWorldInspectRow[] rows)

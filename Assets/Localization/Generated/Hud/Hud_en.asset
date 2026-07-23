@@ -2741,6 +2741,29 @@ MonoBehaviour:
     m_Localized: Cannot save until the battle is over
     m_Metadata:
       m_Items: []
+  - m_Id: 1102570482454528
+    m_Localized: Attack Points
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1102570562146304
+    m_Localized: Health
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1102570562146305
+    m_Localized: ATK {0}
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 1102570562146306
+    m_Localized: HP {0}/{1}
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
+  - m_Id: 1102570562146307
+    m_Localized: HP {0}/{1}
+    m_Metadata:
+      m_Items:
+      - rid: 465534772507312166
   references:
     version: 2
     RefIds:
@@ -2974,3 +2997,6 @@ MonoBehaviour:
         - id: 291986291707915
         - id: 291986295902208
         - id: 291986295902209
+        - id: 1102570562146305
+        - id: 1102570562146306
+        - id: 1102570562146307

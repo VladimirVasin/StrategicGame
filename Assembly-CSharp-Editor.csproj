@@ -10,6 +10,8 @@
   <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
   <ItemGroup>
     <Compile Include="Assets\Tests\EditMode\StrategyCombatHealthTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyCombatHudTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyCombatMovementTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyCombatPersistenceTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyBattleLifecycleControllerTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyBattleFuneralTests.cs" />

@@ -95,6 +95,7 @@
     <Compile Include="Assets\Scripts\Runtime\Menu\StrategyMainMenuController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part02.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyGameBootstrap.Audio.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Selection\StrategyWorldSelectionController.InspectRefresh.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyHudChromeController.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyPopulationRosterHudController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Economy\StrategySettlementTreasury.cs" />
@@ -470,6 +471,7 @@
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildPlacementController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Core\StrategyCinematicLightEmitter.Profile.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.Part29.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWolfAgent.CombatMovement.cs" />
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildingVariantProfile.cs" />
     <Compile Include="Assets\Scripts\Runtime\Selection\StrategyWorldSelectionController.Input.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyProfessionHudController.Part05.cs" />

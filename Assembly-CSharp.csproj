@@ -24,6 +24,7 @@
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.CombatHealth.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyDebugPanelController.Combat.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWolfAgent.Combat.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWolfAgent.CombatMovement.cs" />
     <Compile Include="Assets\Scripts\Runtime\Wildlife\StrategyWildlifeController.WolfCombat.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyHudChromeController.cs" />
     <Compile Include="Assets\Scripts\Runtime\Inventory\StrategyResidentItemDefinition.cs" />
@@ -129,6 +130,7 @@
     <Compile Include="Assets\Scripts\Runtime\Build\StrategyBuildPlacementController.Input.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyBuildMenuController.Driver.Input.cs" />
     <Compile Include="Assets\Scripts\Runtime\Selection\StrategyWorldSelectionController.Input.cs" />
+    <Compile Include="Assets\Scripts\Runtime\Selection\StrategyWorldSelectionController.InspectRefresh.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyProfessionHudController.Input.cs" />
     <Compile Include="Assets\Scripts\Runtime\UI\StrategyPopulationRosterHudController.Input.cs" />
     <Compile Include="Assets\Scripts\Runtime\Population\StrategyResidentAgent.TaskArrival.cs" />

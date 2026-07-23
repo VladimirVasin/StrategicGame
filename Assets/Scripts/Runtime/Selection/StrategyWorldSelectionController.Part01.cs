@@ -30,6 +30,7 @@ namespace ProjectUnknown.Strategy
 
         private void Select(Transform target, Bounds bounds)
         {
+            ClearActiveWorldInspectTarget();
             bool changedSelection = selectedTransform != target;
             selectedTransform = target;
             EnsureMarker();
@@ -120,6 +121,7 @@ namespace ProjectUnknown.Strategy
         public void DismissForBuildMode()
         {
             ClearSelection();
+            ClearActiveWorldInspectTarget();
             hasLastInspectWorld = false;
             inspectHud?.Hide();
         }

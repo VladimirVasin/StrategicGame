@@ -10,6 +10,11 @@ namespace ProjectUnknown.Strategy
 
         private void MoveAlongCurrentPathTarget(Vector3 targetWorld)
         {
+            if (TryHandleMovingToCombatRangeBeforeStep())
+            {
+                return;
+            }
+
             float moveSpeed = GetCurrentMoveSpeed() * GetTrailMovementSpeedMultiplier(targetWorld);
             Vector3 delta = movement.MoveTowards(targetWorld, moveSpeed, Time.deltaTime);
 

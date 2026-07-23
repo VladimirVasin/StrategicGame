@@ -2583,6 +2583,26 @@ MonoBehaviour:
     m_Key: hud.save.blocked_battle
     m_Metadata:
       m_Items: []
+  - m_Id: 1102570482454528
+    m_Key: hud.selection.label.attack_points
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1102570562146304
+    m_Key: hud.selection.label.health
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1102570562146305
+    m_Key: hud.selection.format.attack_short
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1102570562146306
+    m_Key: hud.selection.format.health_points
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1102570562146307
+    m_Key: hud.selection.format.health_short
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -1,5 +1,19 @@
 # Work Log
 
+### 2026-07-23 - Combat stats in selection HUD
+
+- Added live HP and Attack Points to the normal resident selection chips and wolf world-inspect rows; adult residents expose 40 attack, children 0, and wolves 20 from the same constants used by combat damage.
+- Retained a clicked moving inspectable directly for 5 Hz refresh instead of rescanning the world, and close the live inspector when its primary sprite becomes invisible so fog-hidden wildlife does not leak combat state.
+- Added paired Russian/English selection keys, regenerated the official localization collections, and added focused resident, child, wolf, and live-refresh regression coverage.
+- Verification: all five tracked C# projects build sequentially with zero warnings/errors; focused Combat HUD coverage passes `3/3`; focused localization coverage passes `9/9`; technical quality gates pass.
+
+### 2026-07-23 - Combat approach separation
+
+- Residents moving to a bow stand now re-evaluate their live target before every movement step and begin aiming as soon as the target enters shot range instead of finishing a stale route through it.
+- Wolf chase movement now clamps each path or direct step to the existing `0.38` attack reach, performs at most one movement step per frame, and holds position during forced-attack recovery so attacker and defender cannot pass through each other.
+- Extracted chase ownership into `StrategyWolfAgent.CombatMovement.cs` because both existing wolf owner files were already at 498 lines, and added focused oversized-step, recovery-hold, invalid-input, and resident-range regression coverage.
+- Verification: all five tracked C# projects build sequentially with zero warnings/errors; focused Unity EditMode coverage passes `10/10`; technical quality gates pass.
+
 ### 2026-07-20 - Combat and guard-system vertical slice
 
 - Committed and pushed the pre-combat localization baseline to `origin/main` as `c5ad377` before beginning the new subsystem.

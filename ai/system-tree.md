@@ -331,6 +331,7 @@ This is a conceptual map of the current project. Keep concrete file ownership in
       - Releasing the final threat enters `Securing` for 2.5 scaled seconds; a new threat during that window returns the world to `Active`
       - Adult residents can leave ordinary rest or night sleep for a temporary combat task without losing their workplace assignment
       - Combat residents find reachable bow positions, reuse the hunter bow animation, fire 40-damage projectiles, and repeat shots while the target remains alive and targetable
+      - Combatants expose the same Attack Points value used by their real attack; adult residents show 40, children show 0, and wolves show 20
       - Residents have 100 persistent combat health; wound severity slows movement and up to 20 health recovers once at Dawn each game day
       - Fatal combat damage immediately enters the existing centralized resident-death, assignment-cleanup, corpse, family-record, and selection-cleanup path; funeral activity waits for global `Peaceful`
       - Wolves have 100 runtime combat health, deal 20-damage bites, retreat and become untargetable at 20 health, and despawn after reaching a retreat path or a bounded timeout; their threat lease remains held through retreat until actual removal
@@ -675,10 +676,12 @@ This is a conceptual map of the current project. Keep concrete file ownership in
     - Selected completed buildings and selected construction sites show linked-resident markers and lines without changing the selected-object HUD
     - Selection opens a compact full-height right-side HUD panel with a pinned preview header and vertically scrollable contextual sections
     - Selection text refreshes at 5 Hz while marker/link positioning stays frame-driven
+    - Selected residents show live HP and Attack Points chips; clicked wolves show live HP and Attack Points rows in the world inspect microHUD
     - Left-click also updates a separate bottom-right world inspect microHUD for non-building, non-resident inspect targets without replacing the selected-object HUD
     - World inspect priority is non-building inspectable world object, then grave; selected residents use the full right-side HUD only
     - Empty terrain cells do not open inspect microHUD; empty clicks hide it
     - Non-selectable inspect objects resolve from visible sprite bounds at click time instead of adding mass 2D physics colliders
+    - A clicked moving inspect target is retained directly and refreshed at 5 Hz while its visible world sprite remains available, avoiding repeated global target scans
     - Trees, bushes/forest thickets, Stone deposits, Iron/Coal/Clay indicators, forage nodes, loose resource piles, chickens, deer, rabbits, fish, birds, and wolves expose lightweight inspect data
     - The house HUD shows assigned residents up to house capacity with portraits, names, age/life stage, current statuses, and the Householder marker
     - The house HUD does not expose Garden Beds or Chicken Coop house-upgrade actions

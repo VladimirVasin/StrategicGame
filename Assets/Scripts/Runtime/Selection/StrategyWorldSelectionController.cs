@@ -112,7 +112,12 @@ namespace ProjectUnknown.Strategy
         {
             upgradeStatusMessage = string.Empty;
             RefreshHud();
-            if (selectedTransform != null || !hasLastInspectWorld || inspectHud == null)
+            if (selectedTransform != null || inspectHud == null)
+            {
+                return;
+            }
+
+            if (RefreshActiveWorldInspectTarget(true) || !hasLastInspectWorld)
             {
                 return;
             }
@@ -317,6 +322,7 @@ namespace ProjectUnknown.Strategy
                 return;
             }
 
+            ClearActiveWorldInspectTarget();
             inspectHud.Hide();
         }
 
@@ -356,6 +362,7 @@ namespace ProjectUnknown.Strategy
                 StrategyGraveMarker grave = hits[i].GetComponentInParent<StrategyGraveMarker>();
                 if (grave != null)
                 {
+                    ClearActiveWorldInspectTarget();
                     info = BuildGraveInspectInfo(grave);
                     return true;
                 }
@@ -369,6 +376,7 @@ namespace ProjectUnknown.Strategy
             info = default;
             MonoBehaviour[] behaviours = Object.FindObjectsByType<MonoBehaviour>();
             IStrategyWorldInspectable best = null;
+            MonoBehaviour bestBehaviour = null;
             int bestSortingOrder = int.MinValue;
             float bestArea = float.MaxValue;
 
@@ -398,14 +406,21 @@ namespace ProjectUnknown.Strategy
                     || (sortingOrder == bestSortingOrder && area < bestArea))
                 {
                     best = inspectable;
+                    bestBehaviour = behaviour;
                     bestSortingOrder = sortingOrder;
                     bestArea = area;
                 }
             }
 
-            return best != null
+            bool valid = best != null
                 && best.TryGetWorldInspectInfo(out info)
                 && info.IsValid;
+            if (valid)
+            {
+                SetActiveWorldInspectTarget(bestBehaviour, best);
+            }
+
+            return valid;
         }
 
         private static bool TryGetInspectableSpriteBounds(MonoBehaviour behaviour, Vector3 world, out Bounds bounds, out int sortingOrder)

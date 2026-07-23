@@ -20,6 +20,7 @@ namespace ProjectUnknown.Strategy
 
             HandleDeleteInput();
             HandleSelectionInput();
+            RefreshActiveWorldInspectTarget();
             UpdateHudAnimation();
             UpdateSelectedScoutLodgeHud();
         }
@@ -76,6 +77,7 @@ namespace ProjectUnknown.Strategy
             if (fog != null && !fog.IsWorldExplored(world))
             {
                 ClearSelection();
+                ClearActiveWorldInspectTarget();
                 hasLastInspectWorld = false;
                 inspectHud?.Hide();
                 return;

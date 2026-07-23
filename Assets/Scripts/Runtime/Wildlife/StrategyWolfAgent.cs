@@ -351,52 +351,6 @@ namespace ProjectUnknown.Strategy
             AnimateStalkOrSwim();
         }
 
-        private void UpdateChasing()
-        {
-            if (!TryGetTargetWorld(out Vector3 targetWorld, out Vector2Int targetCell))
-            {
-                ReleaseTargets();
-                StartIdle(Random.Range(0.3f, 0.8f));
-                return;
-            }
-
-            float distance = Vector2.Distance(transform.position, targetWorld);
-            if (distance > MaxChaseDistance
-                || (!IsForcedCombatEncounter && wildlife != null && wildlife.IsWolfUnsafeSettlementCell(targetCell)))
-            {
-                ReleaseTargets();
-                StartAvoidingSettlement();
-                return;
-            }
-
-            FaceWorldPoint(targetWorld);
-            if (distance <= AttackReachDistance && CanStartCombatAttack())
-            {
-                StartAttack();
-                return;
-            }
-
-            if (targetRefreshTimer <= 0f)
-            {
-                targetRefreshTimer = TargetRefreshInterval;
-                TryPathNearTarget(targetCell);
-            }
-
-            bool pathCompleted = MoveAlongPath(PounceSpeed);
-            if (pathCompleted || path.Count <= 0 || pathIndex >= path.Count)
-            {
-                MoveDirectlyToward(targetWorld, PounceSpeed);
-            }
-
-            if (Vector2.Distance(transform.position, targetWorld) <= AttackReachDistance && CanStartCombatAttack())
-            {
-                StartAttack();
-                return;
-            }
-
-            AnimateRunOrSwim();
-        }
-
         private void UpdateAttacking()
         {
             AnimateAttack();

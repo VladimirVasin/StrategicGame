@@ -89,6 +89,27 @@ namespace ProjectUnknown.Strategy
 
     public static class StrategyCombatRules
     {
+        public static float ClampApproachTravel(
+            float currentDistance,
+            float stopDistance,
+            float requestedTravel)
+        {
+            if (float.IsNaN(currentDistance)
+                || float.IsInfinity(currentDistance)
+                || float.IsNaN(stopDistance)
+                || float.IsInfinity(stopDistance)
+                || float.IsNaN(requestedTravel)
+                || float.IsInfinity(requestedTravel))
+            {
+                return 0f;
+            }
+
+            float available = Mathf.Max(
+                0f,
+                Mathf.Max(0f, currentDistance) - Mathf.Max(0f, stopDistance));
+            return Mathf.Min(Mathf.Max(0f, requestedTravel), available);
+        }
+
         public static bool AreHostile(
             StrategyCombatFaction sourceFaction,
             StrategyCombatFaction targetFaction)

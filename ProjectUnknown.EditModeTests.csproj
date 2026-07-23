@@ -55,6 +55,7 @@
     <Compile Include="Assets\Tests\EditMode\StrategyBridgeVisualProfileTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyScoutAssignmentFlowTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyBuildingHudSnapshotTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyCombatMovementTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyResidentCinematicVisualTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyCityInventoryTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyLogFileRotationTests.cs" />
@@ -89,6 +90,7 @@
     <Compile Include="Assets\Tests\EditMode\StrategyScoutExpeditionDialogTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyLocalizationTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyPointOfInterestPlacementTests.cs" />
+    <Compile Include="Assets\Tests\EditMode\StrategyCombatHudTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyForagerCampVisualProfileTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyScoutProvisionServiceTests.cs" />
     <Compile Include="Assets\Tests\EditMode\StrategyResidentPersonalInventoryHudTests.cs" />

@@ -6,8 +6,8 @@ namespace ProjectUnknown.Strategy
     public sealed partial class StrategyWorldSelectionController
     {
         private const int ResidentChipRole = 0;
-        private const int ResidentChipHome = 1;
-        private const int ResidentChipFood = 2;
+        private const int ResidentChipHealth = 1;
+        private const int ResidentChipAttack = 2;
         private const int ResidentRowTask = 0;
         private const int ResidentRowHome = 1;
         private const int ResidentRowFood = 2;
@@ -34,8 +34,8 @@ namespace ProjectUnknown.Strategy
             residentHudRoot.gameObject.SetActive(false);
 
             CreateResidentChip(ResidentChipRole, "RoleChip", 0f, 0f, 138f, 30f);
-            CreateResidentChip(ResidentChipHome, "HomeChip", 146f, 0f, 78f, 30f);
-            CreateResidentChip(ResidentChipFood, "FoodChip", 232f, 0f, 84f, 30f);
+            CreateResidentChip(ResidentChipHealth, "HealthChip", 146f, 0f, 82f, 30f);
+            CreateResidentChip(ResidentChipAttack, "AttackChip", 236f, 0f, 80f, 30f);
             CreateResidentRow(ResidentRowTask, "TaskRow", 44f, 90f);
             CreateResidentRow(ResidentRowHome, "HomeRow", 148f, 70f);
             CreateResidentRow(ResidentRowFood, "FoodRow", 230f, 70f);
@@ -74,17 +74,22 @@ namespace ProjectUnknown.Strategy
                 GetResidentRoleLetter(resident),
                 roleColor);
             SetResidentChip(
-                ResidentChipHome,
-                LocalizedValue(resident.Home != null ? "Housed" : "Camp"),
-                GetResidentHomeIcon(resident),
-                GetResidentHomeFallback(resident),
-                GetResidentHomeColor(resident));
+                ResidentChipHealth,
+                L(
+                    "format.health_short",
+                    resident.CurrentCombatHealth,
+                    resident.MaxCombatHealth),
+                null,
+                "+",
+                GetResidentCombatHealthColor(resident));
             SetResidentChip(
-                ResidentChipFood,
-                LocalizedValue(resident.IsStarving ? "Starving" : resident.IsHungry ? "Hungry" : "Fed"),
-                StrategyResourceIconFactory.GetSprite(StrategyResourceType.Game),
-                "F",
-                GetResidentFoodColor(resident));
+                ResidentChipAttack,
+                L("format.attack_short", resident.CombatAttackPoints),
+                null,
+                "!",
+                resident.CombatAttackPoints > 0
+                    ? new Color(0.27f, 0.17f, 0.08f, 0.96f)
+                    : new Color(0.13f, 0.15f, 0.15f, 0.94f));
 
             SetResidentRow(
                 ResidentRowTask,
@@ -432,6 +437,18 @@ namespace ProjectUnknown.Strategy
             return resident.IsHungry
                 ? new Color(0.27f, 0.18f, 0.08f, 0.96f)
                 : new Color(0.12f, 0.20f, 0.13f, 0.94f);
+        }
+
+        private static Color GetResidentCombatHealthColor(StrategyResidentAgent resident)
+        {
+            float ratio = resident.MaxCombatHealth > 0
+                ? resident.CurrentCombatHealth / (float)resident.MaxCombatHealth
+                : 0f;
+            return ratio <= 0.25f
+                ? new Color(0.28f, 0.08f, 0.08f, 0.96f)
+                : ratio <= 0.50f
+                    ? new Color(0.27f, 0.18f, 0.08f, 0.96f)
+                    : new Color(0.12f, 0.20f, 0.13f, 0.94f);
         }
 
         private static string ToSentenceCase(string text)

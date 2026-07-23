@@ -91,6 +91,34 @@ MonoBehaviour:
     m_Key: story.poi.choice.no
     m_Metadata:
       m_Items: []
+  - m_Id: 1102565969383424
+    m_Key: story.poi.mineral.report
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1102566015520768
+    m_Key: story.poi.mineral.coal.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1102566015520769
+    m_Key: story.poi.mineral.coal.result
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1102566015520770
+    m_Key: story.poi.mineral.iron.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1102566015520771
+    m_Key: story.poi.mineral.iron.result
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1102566015520772
+    m_Key: story.poi.mineral.fallback.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1102566015520773
+    m_Key: story.poi.mineral.fallback.result
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

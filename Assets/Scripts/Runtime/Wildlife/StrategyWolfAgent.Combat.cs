@@ -26,6 +26,7 @@ namespace ProjectUnknown.Strategy
             && state != StrategyWolfBehaviorState.Retreating;
         public int CurrentCombatHealth => EnsureCombatHealth().Current;
         public int MaxCombatHealth => EnsureCombatHealth().Maximum;
+        public int CombatAttackPoints => WolfBiteDamage;
         public Vector3 CombatWorldPosition => transform.position;
         internal bool IsForcedCombatEncounter => isForcedCombatEncounter;
 
@@ -164,7 +165,7 @@ namespace ProjectUnknown.Strategy
             StrategyCombatDamage bite = new(
                 this,
                 StrategyCombatFaction.HostileWildlife,
-                WolfBiteDamage,
+                CombatAttackPoints,
                 StrategyCombatDamageKind.Bite,
                 transform.position);
             StrategyCombatDamageResult result = forcedCombatTarget.ReceiveCombatDamage(bite);
@@ -175,7 +176,7 @@ namespace ProjectUnknown.Strategy
                 StrategyDebugLogger.F("wolf", GetEntityId()),
                 StrategyDebugLogger.F("target", GetForcedCombatTargetDebugName()),
                 StrategyDebugLogger.F("applied", result.Applied),
-                StrategyDebugLogger.F("damage", WolfBiteDamage),
+                StrategyDebugLogger.F("damage", CombatAttackPoints),
                 StrategyDebugLogger.F("targetHealth", result.CurrentHealth),
                 StrategyDebugLogger.F("targetDefeated", result.BecameDefeated));
             if (result.BecameDefeated || !CanUseForcedCombatTarget(forcedCombatTarget))

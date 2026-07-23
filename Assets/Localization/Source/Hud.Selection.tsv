@@ -11,6 +11,7 @@ hud.selection.action.sell	Sell	Продать
 hud.selection.action.send	Send	Отправить
 hud.selection.label.active_offers	ACTIVE OFFERS	АКТИВНЫЕ ПРЕДЛОЖЕНИЯ
 hud.selection.label.amount	Amount	Количество
+hud.selection.label.attack_points	Attack Points	Очки атаки
 hud.selection.label.build_stock	Building materials	Стройматериалы
 hud.selection.label.builders	Builders	Строители
 hud.selection.label.caravan	Caravan	Караван
@@ -27,6 +28,7 @@ hud.selection.label.food	Food	Еда
 hud.selection.label.footprint	Footprint	Размер
 hud.selection.label.group	Group	Группа
 hud.selection.label.haulers	Haulers	Грузчики
+hud.selection.label.health	Health	Здоровье
 hud.selection.label.herd	Herd	Стадо
 hud.selection.label.home	Home	Дом
 hud.selection.label.id	ID	ID
@@ -84,6 +86,7 @@ hud.selection.section.overview	Overview	Обзор
 hud.selection.section.production	Production	Производство
 hud.selection.section.work_area	Work Area	Рабочая зона
 hud.selection.format.amount_free	{0} / {1} free	{0} / {1} свободно
+hud.selection.format.attack_short	ATK {0}	АТК {0}
 hud.selection.format.build_rule	Build: {0}	Строительство: {0}
 hud.selection.format.cell	Cell {0}, {1}	Клетка {0}, {1}
 hud.selection.format.cells	{0} cells	{0} кл.
@@ -92,6 +95,8 @@ hud.selection.format.days_hours_short	{0}d {1}h	{0} д. {1} ч.
 hud.selection.format.days_short	{0}d	{0} д.
 hud.selection.format.dropped_resource	Dropped {0}	Брошено: {0}
 hud.selection.format.home_radius	Home radius {0}	Радиус обитания: {0}
+hud.selection.format.health_points	HP {0}/{1}	ОЗ {0}/{1}
+hud.selection.format.health_short	HP {0}/{1}	ОЗ {0}/{1}
 hud.selection.format.hours_short	{0}h	{0} ч.
 hud.selection.format.incoming	{0} incoming	В пути: {0}
 hud.selection.format.join_detail	{0} · {1}	{0} · {1}

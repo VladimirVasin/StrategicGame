@@ -1248,11 +1248,12 @@ Responsibilities:
 
 - Define shared combat factions, damage payload/results, targetability, hostility checks, and deterministic integer health without coupling the core contract to resident or wolf state machines.
 - Own one scene-global battle lifecycle with `Peaceful`, `Active`, and `Securing` phases; aggregate overlapping threats through idempotent leases and require 2.5 scaled seconds without threats before returning to peace.
-- Let eligible adult residents temporarily interrupt ordinary rest/night sleep, move to a reachable bow stand, reuse bow animation/SFX, and repeatedly fire deterministic projectiles at a hostile target.
+- Let eligible adult residents temporarily interrupt ordinary rest/night sleep, move toward a reachable bow stand while re-evaluating live shot range, reuse bow animation/SFX, and repeatedly fire deterministic projectiles at a hostile target.
 - Keep resident combat health and the last Dawn recovery day persistent; derive wound severity and movement penalties from current health.
 - Route fatal resident combat damage through the canonical population death path so every workplace, construction role, reservation, selection, corpse, funeral, and family record is cleaned consistently.
 - Keep death/corpse registration immediate but defer new funerals and synchronously suspend existing funeral duties while the battle is `Active` or `Securing`.
-- Let forced-encounter wolves pursue an exact combatant through the soft settlement/wildlife buffer while respecting hard blockers, bite on animation impact, retreat at low health, and remove themselves from live lists/pack/migration state exactly once.
+- Let forced-encounter wolves pursue an exact combatant through the soft settlement/wildlife buffer while respecting hard blockers, clamp movement at melee reach during attack recovery, bite on animation impact, retreat at low health, and remove themselves from live lists/pack/migration state exactly once.
+- Expose resident and wolf Attack Points from the same constants consumed by projectile/bite damage so combat UI cannot drift from applied forced-encounter damage; non-combatant children expose zero.
 - Stage a reusable deterministic resident-versus-wolf encounter with an eligible-Hunter preference, adult fallback, structured health/outcome status, and explicit Reset.
 - Schedule one automatic encounter on each real Night transition from Day 2 onward without deriving battle state from the clock; skip the first-night story and mid-Night load replay, wait through pause/modal/another battle, and retry failed staging during the eligible Night.
 - Keep guaranteed F9 Night requests pending until a safe Night start, including across the first-night story or a failed spawn; never reset a started battle at Dawn.
@@ -1276,12 +1277,15 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Population/StrategyPopulationController.DeathAssignments.cs`
 - `Assets/Scripts/Runtime/Population/StrategyFuneralController.BattleLifecycle.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWolfAgent.Combat.cs`
+- `Assets/Scripts/Runtime/Wildlife/StrategyWolfAgent.CombatMovement.cs`
 - `Assets/Scripts/Runtime/Wildlife/StrategyWildlifeController.WolfCombat.cs`
 - `Assets/Scripts/Runtime/UI/StrategyDebugPanelController.Combat.cs`
 - `Assets/Localization/Source/Hud.Debug.tsv`
 - `Assets/Scripts/Runtime/Persistence/StrategySaveData.cs`
 - `Assets/Scripts/Runtime/Persistence/StrategySaveMigration.cs`
 - `Assets/Tests/EditMode/StrategyCombatHealthTests.cs`
+- `Assets/Tests/EditMode/StrategyCombatMovementTests.cs`
+- `Assets/Tests/EditMode/StrategyCombatHudTests.cs`
 - `Assets/Tests/EditMode/StrategyCombatPersistenceTests.cs`
 - `Assets/Tests/EditMode/StrategyResidentCharacterizationTests.cs`
 - `Assets/Tests/EditMode/StrategyBattleLifecycleControllerTests.cs`
@@ -1299,6 +1303,8 @@ Impact hints:
 - Funeral duty is released synchronously when a battle starts so its central death guard cannot make recalled mourners accidentally immune during combat.
 - Active combat tasks, arrows, live wolves, retreat paths, and forced targets are transient. Resident health/recovery state persists in save version 13 and v12 migration restores full health.
 - Resident death must continue through `StrategyPopulationController.TryKillResidentFromCombat` and the shared death path; do not destroy resident objects directly from combat code.
+- Combat spacing is explicit transform-space behavior rather than Rigidbody/collider physics: residents stop stale bow-stand routes when the target enters range, and wolf chase steps must never consume more than the distance remaining outside `AttackReachDistance`.
+- Selection HUD combat values must read `CurrentCombatHealth`, `MaxCombatHealth`, and concrete-agent `CombatAttackPoints`; do not duplicate balance numbers in presentation code.
 - Forced wolf movement may bypass only soft settlement pressure/structure buffers. `CityMapController.IsCellWalkable` and River/Lake travel rules remain hard constraints.
 - Extend future raid composition/scaling above the encounter/combatant contracts without embedding global threat policy inside resident or wolf agents.
 
@@ -2854,7 +2860,8 @@ Responsibilities:
 - Resolve inspect information through `IStrategyWorldInspectable` and visible sprite bounds for non-building world objects; empty terrain cells do not open the microHUD.
 - Render typed inspect chip/row dashboards for wildlife, mineral deposits, trees, forage, loose carried resources, and loose construction materials while keeping legacy body text as a fallback.
 - Show selected-object preview sprites and status/context blocks.
-- Show selected residents with a dedicated compact dashboard: identity subtitle, portrait, role/home/food chips, and icon-led task, home, food, and family rows.
+- Show selected residents with a dedicated compact dashboard: identity subtitle, portrait, role/HP/Attack Points chips, and icon-led task, home, food, and family rows.
+- Show live HP and Attack Points for clicked wolves while retaining the moving inspect target directly for 5 Hz refreshes as long as its world sprite remains visible.
 - Show a separate read-only six-slot `Personal Items` section for selected adults and hide it for children.
 - Keep Garden Beds and Chicken Coop hidden from the selected-house HUD.
 - Expose Tools-based production upgrade actions in eligible selected-building HUDs.
@@ -2876,6 +2883,7 @@ Responsibilities:
 Primary files/assets:
 
 - `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.cs`
+- `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.InspectRefresh.cs`
 - `Assets/Scripts/Runtime/Selection/StrategyWorldSelectionController.BuildingHud.cs`
 - `Assets/Scripts/Runtime/Selection/StrategyBuildingHudSnapshot.cs`
 - `Assets/Scripts/Runtime/Selection/StrategyBuildingHudSnapshotFactory.cs`
@@ -2897,6 +2905,8 @@ Primary files/assets:
 - `Assets/Scripts/Runtime/Selection/StrategyWorldInspectInfo.cs`
 - `Assets/Scripts/Runtime/Selection/StrategyWorldInspectInfoFactory.cs`
 - `Assets/Scripts/Runtime/Selection/StrategyWorldInspectHudController.cs`
+- `Assets/Localization/Source/Hud.Selection.tsv`
+- `Assets/Tests/EditMode/StrategyCombatHudTests.cs`
 - `Assets/Scripts/Runtime/Selection/StrategyStaticWorldInspectable.cs`
 - `Assets/Scripts/Runtime/UI/StrategyConfirmationDialogController.cs`
 - `Assets/Scripts/Runtime/Build/StrategyPlacedBuilding.cs`
@@ -2940,6 +2950,7 @@ Impact hints:
 - Selection HUD is runtime-created in the world selection controller, slides in from the right, keeps its header pinned, and clamps vertical scrolling within the contextual content area.
 - Building snapshots and renderer hierarchy are reused across 5 Hz refreshes; add new building metrics through typed read models/factory branches rather than formatted-string parsing or per-refresh UI creation.
 - World inspect microHUD is runtime-created by the selection controller, uses non-blocking Screen Space Overlay UI, shifts left while the right-side selected-object HUD is open, and intentionally excludes residents, placed buildings, construction sites, and house upgrades.
+- Moving inspect targets are retained after the initial sprite-bounds hit and refreshed directly at 5 Hz; clear the retained target when its visible primary sprite disappears so fog-hidden wildlife does not leak live state.
 - Non-selectable world objects should implement `IStrategyWorldInspectable`; do not add mass click-only physics colliders for inspect objects unless they are also truly selectable.
 - Building selection links are visual-only world overlays: Houses use `StrategyPlacedBuilding.Residents`; worksites use their assigned worker lists; Storage Yards show stock/logistics context without owning Hauler/Builder links; selected construction sites link to their assigned builders.
 - House resident rows use the assigned resident references stored on `StrategyPlacedBuilding` and grow to the current house capacity.
